@@ -323,7 +323,15 @@ void RENDER_DrawScene (void)
     else
         glClear (GL_DEPTH_BUFFER_BIT);
 
-    glColor3f (1, 1, 1);
+	if (d6Winner < 0)
+	{
+		glColor3f(1, 1, 1);
+	}
+	else
+	{
+		float overlay = d6GameOverWait / D6_GAME_OVER_WAIT;
+		glColor3f(1, overlay, overlay);
+	}
 
     if (d6ZoomMode == D6_ZM_SCROLL)
         for (i = 0; i < d6Playing; i++)

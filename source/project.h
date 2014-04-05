@@ -65,8 +65,9 @@
 #define D6_MAX_LIFE         100
 #define D6_MAX_AIR          350
 #define D6_MAX_EXPLOSIONS   100
+#define D6_GAME_OVER_WAIT   (3.0f * APP_FPS_SPEED)
 
-#define D6_SOUNDS           22
+#define D6_SOUNDS           25
 
 #define D6_SQR(x)           ((x)*(x))
 
@@ -143,7 +144,10 @@ enum
     D6_SND_SHOT_SPRAY,
     D6_SND_SHOT_SLING,
     D6_SND_SHOT_SPUNT,
-    D6_SND_SHOT_SHT
+    D6_SND_SHOT_SHIT,
+	D6_SND_SHOT_SHIT_HIT,
+	D6_SND_LETS_ROCK,
+	D6_SND_GAME_OVER
 };
 
 extern  float       d6Sin[450], d6KeyWait;
@@ -157,6 +161,9 @@ extern  int			d6AmmoRangeMin, d6AmmoRangeMax;
 //////////////////////////////////////////////////////////////////////
 //                          duel6.cpp                               //
 //////////////////////////////////////////////////////////////////////
+extern  int          d6Winner;
+extern  float		 d6GameOverWait;
+
 int     D6_BlockZ       (int x, int y);
 int     D6_BlockN       (int x, int y);
 float   D6_Sin          (int a);
@@ -256,6 +263,7 @@ struct d6PLSTATE_s
     int         Bonus;      // Bonus
     float       BD;         // Bonus duration
     float       SD;         // Sht duration
+	bool        InWater;    // Player is in the water
     d6PHIST_s   *PH;        // Player history
 };
 
@@ -414,13 +422,25 @@ private:
     int             Textures;
 
 public:
-    d6COLTEXTURE_c () : Texture (NULL) {}
-    ~d6COLTEXTURE_c (void) { DeInit(); }
+    d6COLTEXTURE_c () 
+		: Texture (NULL) 
+	{}
+    
+	~d6COLTEXTURE_c (void) 
+	{ 
+		DeInit(); 
+	}
 
     void    Init (myBYTE reg, myBYTE green, myBYTE blue);
     void    DeInit ();
-    bool    IsInited () { return Texture != NULL; }
-    myUINT  *GetTexPtr () { return Texture; }
+    bool    IsInited () 
+	{ 
+		return Texture != NULL; 
+	}
+    myUINT  *GetTexPtr () 
+	{ 
+		return Texture; 
+	}
 };
 
 extern d6COLTEXTURE_c   d6ShtTexture;

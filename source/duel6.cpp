@@ -37,6 +37,7 @@ float       d6KeyWait = 0;
 bool        d6ShowFps = false;
 d6PLAYER_c  *d6Player[D6_MAX_PLAYERS];
 int         d6Winner;
+float		d6GameOverWait;
 bool        d6InMenu = false, d6PlayMusic = false, d6FreqProblem = false;
 int         d6FreqUsed = 0;
 int         d6PlayerSkin[D6_MAX_PLAYERS][8];
@@ -102,6 +103,22 @@ void D6_SetView (int x, int y, int width, int height)
 
 void D6_CheckWinner (void)
 {
+	if (d6Winner > 0)
+	{
+		if (d6Winner == 1)
+		{
+			d6GameOverWait -= g_app.frame_interval;
+			if (d6GameOverWait <= 0)
+			{
+				d6GameOverWait = 0;
+				d6Winner = 2;
+				SOUND_PlaySample(D6_SND_GAME_OVER);
+			}
+		}
+
+		return;
+	}
+
     int     pa = 0, la = -1, i;
 
     for (i = 0; i < d6Playing; i++)
@@ -114,6 +131,8 @@ void D6_CheckWinner (void)
     if (pa < 2)
     {
         d6Winner = 1;
+		d6GameOverWait = D6_GAME_OVER_WAIT;
+
         if (la != -1)
         {
             INFO_Add (la, MY_L("APP00024|Jsi vitez - stiskni ESC pro konec nebo F1 pro novou hru"));
@@ -169,8 +188,7 @@ void D6_GameLoop (void)
 {
     CO_FpsSyncLoops (&RENDER_MoveScene, &RENDER_DrawScene);
 
-    if (d6Winner == -1)
-        D6_CheckWinner ();
+    D6_CheckWinner ();
 
     if (g_inp.key[SDLK_ESCAPE])
     {

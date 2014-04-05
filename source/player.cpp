@@ -41,12 +41,12 @@ static  d6KEYBOARD_s    d6Keyboard[12] =
     { APP_INP_KEY | SDLK_h,     APP_INP_KEY | SDLK_k,     APP_INP_KEY | SDLK_u,
       APP_INP_KEY | SDLK_j,     APP_INP_KEY | SDLK_o,     APP_INP_KEY | SDLK_l },
     // 4
-    { APP_INP_KEY | SDLK_KP1,       APP_INP_KEY | SDLK_KP3,   APP_INP_KEY | SDLK_KP5,
-      APP_INP_KEY | SDLK_KP_ENTER,  APP_INP_KEY | SDLK_KP0,   APP_INP_KEY | SDLK_KP_PERIOD },
+    { APP_INP_KEY | SDLK_KP1,   APP_INP_KEY | SDLK_KP3,   APP_INP_KEY | SDLK_KP5,
+      APP_INP_KEY | SDLK_KP2,   APP_INP_KEY | SDLK_KP0,   APP_INP_KEY | SDLK_KP_PERIOD },
     // 5
     { APP_INP_JOY1 | APP_INP_JOY_LEFT, APP_INP_JOY1 | APP_INP_JOY_RIGHT,
       APP_INP_JOY1 | APP_INP_JOY_BUT1, APP_INP_JOY1 | APP_INP_JOY_DOWN,
-      APP_INP_JOY1 | APP_INP_JOY_BUT2, APP_INP_JOY1 | APP_INP_JOY_BUT3 },
+      APP_INP_JOY1 | APP_INP_JOY_BUT2, APP_INP_JOY1 | APP_INP_JOY_BUT3},
     // 6
     { APP_INP_JOY2 | APP_INP_JOY_LEFT, APP_INP_JOY2 | APP_INP_JOY_RIGHT,
       APP_INP_JOY2 | APP_INP_JOY_BUT1, APP_INP_JOY2 | APP_INP_JOY_DOWN,
@@ -137,6 +137,8 @@ void d6PLAYER_c::Skin (void)
     hcData = (myWORD *) MY_Alloc (img_size << 1);
     tcData = (myBYTE *) MY_Alloc (img_size << 2);
 
+	glGenTextures (Textures, Texture);
+
     for (i = 0; i < Textures; i++)
     {
         MY_KH3Load (i, hcData);
@@ -175,7 +177,6 @@ void d6PLAYER_c::Skin (void)
             tcData[pos++] = (!hcData[j]) ? 0 : 0xff;
         }
 
-        glGenTextures (1, &Texture[i]);
         glBindTexture (GL_TEXTURE_2D, Texture[i]);
         glTexImage2D (GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tcData);
         glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

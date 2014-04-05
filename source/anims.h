@@ -118,23 +118,23 @@ short   wtAnim[2][24] =
 d6WEAPONDEF_s   d6WpnDef[D6_WEAPONS] =
 {
         // Spd  Krev    ExplC       Boom    Uber    Nabiti  Jmeno                    Shot sound        Boom sound      Exp grow
-        { 0.15f,true,   0x00,       0,      30,     60,     "APP00095|pistole",      D6_SND_SHOT_PI,   -1,             0 },
-        { 0.1f, false,  0xFF0000,   3,      100,    200,    "APP00096|bazooka",      D6_SND_SHOT_BZ,   D6_SND_BOOM_BZ, 0.01f },
-        { 0.2f, false,  0x00FFFF,   0,      100,    250,    "APP00097|bleskomet",    D6_SND_SHOT_BL,   D6_SND_BOOM_BL, 0 },
-        { 0.15f,true,   0x00,       0,      60,     140,    "APP00098|brokovnice",   D6_SND_SHOT_SG,   -1,             0 },
-        { 0.2f, true,   0x00,       0,      25,     20,     "APP00099|plasma",       D6_SND_SHOT_PL,   -1,             0 },
-        { 0.25f,true,   0x00,       0,      35,     15,     "APP00100|laser",        D6_SND_SHOT_LS,   -1,             0 },
-        { 0.15f,true,   0x00,       0,      40,     40,     "APP00101|kulomet",      D6_SND_SHOT_KM,   -1,             0 },
-        { 0.1f, false,  0xFFFF00,   4,      200,    400,    "APP00102|trojzubec",    D6_SND_SHOT_TZ,   D6_SND_BOOM_BZ, 0.04f },
-        { 0.18f,true,   0x00,       0,      15,     16,     "APP00103|uzi",          D6_SND_SHOT_PI,   -1,             0 },
-        { 0.2f, true,   0x00,       0,      25,     50,     "APP00104|luk",          D6_SND_SHOT_LK,   -1,             0 },
-        { 0.13f,true,   0x00,       0,      50,     80,     "APP00105|slizomet",     D6_SND_SHOT_SM,   -1,             0 },
-        { 0.2f, true,   0xFFFF00,   2,      80,     210,    "APP00106|dvojity laser",D6_SND_SHOT_LS,   D6_SND_BOOM_BZ, 0.005f },
-        { 0.07f,false,  0xFF00FF,   0,      100,    190,    "APP00107|polibek smrti",D6_SND_SHOT_KD1,  D6_SND_SHOT_KD2,0.01f },
-        { 0.08f,false,  0x00,       0,      20,     40,     "APP00108|sprej",        D6_SND_SHOT_SPRAY,-1,             0 },
-        { 0.11f,true,   0x00,       0,      15,     50,     "APP00109|prak",         D6_SND_SHOT_SLING,-1,             0 },
-        { 0.13f,true,   0x00,       0,      10,     55,     "APP00110|spuntovka",    D6_SND_SHOT_SPUNT,-1,             0 },
-        { 0.09f,false,  0x00,       2,      0,      120,    "APP00112|lejnomet",     D6_SND_SHOT_SHT,  -1,             0.04f }
+        { 0.15f,true,   0x00,       0,      30,     60,     "APP00095|pistole",      D6_SND_SHOT_PI,   -1,                   0 },
+        { 0.1f, false,  0xFF0000,   3,      100,    200,    "APP00096|bazooka",      D6_SND_SHOT_BZ,   D6_SND_BOOM_BZ,       0.01f },
+        { 0.2f, false,  0x00FFFF,   0,      100,    250,    "APP00097|bleskomet",    D6_SND_SHOT_BL,   D6_SND_BOOM_BL,       0 },
+        { 0.15f,true,   0x00,       0,      60,     140,    "APP00098|brokovnice",   D6_SND_SHOT_SG,   -1,                   0 },
+        { 0.2f, true,   0x00,       0,      25,     20,     "APP00099|plasma",       D6_SND_SHOT_PL,   -1,                   0 },
+        { 0.25f,true,   0x00,       0,      35,     15,     "APP00100|laser",        D6_SND_SHOT_LS,   -1,                   0 },
+        { 0.15f,true,   0x00,       0,      40,     40,     "APP00101|kulomet",      D6_SND_SHOT_KM,   -1,                   0 },
+        { 0.1f, false,  0xFFFF00,   4,      200,    400,    "APP00102|trojzubec",    D6_SND_SHOT_TZ,   D6_SND_BOOM_BZ,       0.04f },
+        { 0.18f,true,   0x00,       0,      15,     16,     "APP00103|uzi",          D6_SND_SHOT_PI,   -1,                   0 },
+        { 0.2f, true,   0x00,       0,      25,     50,     "APP00104|luk",          D6_SND_SHOT_LK,   -1,                   0 },
+        { 0.13f,true,   0x00,       0,      50,     80,     "APP00105|slizomet",     D6_SND_SHOT_SM,   -1,                   0 },
+        { 0.2f, true,   0xFFFF00,   2,      80,     210,    "APP00106|dvojity laser",D6_SND_SHOT_LS,   D6_SND_BOOM_BZ,       0.005f },
+        { 0.07f,false,  0xFF00FF,   0,      100,    190,    "APP00107|polibek smrti",D6_SND_SHOT_KD1,  D6_SND_SHOT_KD2,      0.01f },
+        { 0.08f,false,  0x00,       0,      20,     40,     "APP00108|sprej",        D6_SND_SHOT_SPRAY,-1,                   0 },
+        { 0.11f,true,   0x00,       0,      15,     50,     "APP00109|prak",         D6_SND_SHOT_SLING,-1,	                 0 },
+        { 0.13f,true,   0x00,       0,      10,     55,     "APP00110|spuntovka",    D6_SND_SHOT_SPUNT,-1,                   0 },
+        { 0.09f,false,  0x00,       2,      0,      120,    "APP00112|lejnomet",     D6_SND_SHOT_SHIT, D6_SND_SHOT_SHIT_HIT, 0.04f }
 };
 
 #endif

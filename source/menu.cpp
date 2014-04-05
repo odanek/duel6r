@@ -66,7 +66,10 @@ static const char   *d6SndFl[D6_SOUNDS] =
     "sound/spray.wav",
     "sound/prak.wav",
     "sound/spunt.wav",
-    "sound/sht.wav",
+    "sound/shit.wav",
+    "sound/shit-hit.wav",
+    "sound/letsrock.wav",
+    "sound/gameover.wav"
 };
 
 void MENU_Free (void)
@@ -332,10 +335,10 @@ void MENU_Init (void)
             d6Playing++;
         }
 
-        g_app.con->printf (MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
-        SOUND_LoadModule ("sound/undead.xm");
-        for (i = 0; i < D6_SOUNDS; i++)
-            SOUND_LoadSample (d6SndFl[i]);
+    g_app.con->printf (MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
+    SOUND_LoadModule ("sound/undead.xm");
+    for (i = 0; i < D6_SOUNDS; i++)
+        SOUND_LoadSample (d6SndFl[i]);
 }
 
 static void MENU_End (void)
@@ -534,6 +537,8 @@ void MENU_Restart (bool same_level)
 
     g_inp.key[SDLK_ESCAPE] = 0;
     d6KeyWait = APP_FPS_SPEED;
+
+	SOUND_PlaySample(D6_SND_LETS_ROCK);
 }
 
 static void MENU_Play (void)

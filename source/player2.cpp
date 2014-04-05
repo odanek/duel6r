@@ -29,7 +29,6 @@
 #include "project.h"
 
 static short    noAnim[4] = { 0, 50, 0, -1 };
-static bool     d6InWater[4];
 extern short    wtAnim[2][24];
 extern short    d6WpnAnm[D6_WEAPONS][16];
 extern myUINT   *d6WpnTexture;
@@ -68,13 +67,13 @@ void PLAYER_CheckWater (d6PLAYER_c *p, d6LEVEL *l, int *z)
             w_kind = D6_BlockN (X, Y) == 4 ? 0 : 1;
         }
 
-    if (w && !d6InWater[p->State.I])
+    if (w && !p->State.InWater)
     {
         ANM_Add (p->State.X, p->State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, 0, wtAnim[w_kind], d6WpnTexture, false);
         SOUND_PlaySample (D6_SND_WATER);
     }
 
-    d6InWater[p->State.I] = w;
+    p->State.InWater = w;
 }
 
 void PLAYER_UpdateAll (void)
@@ -167,7 +166,7 @@ void PLAYER_View (int i, int x, int y)
 
 void PLAYER_PrepareViews (void)
 {
-    int     i;
+    int     i, xShift = (g_vid.cl_width / 4) / 2 - 70;
 
     for (i = 0; i < d6Playing; i++)
     {
@@ -180,15 +179,16 @@ void PLAYER_PrepareViews (void)
         for (i = 0; i < d6Playing; i++)
         {
             d6Player[i]->SetView (0, 0, g_vid.cl_width, g_vid.cl_height);
+
             if (i < 4)
             {
-                d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * i + 25;
+                d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * i + xShift;
                 d6Player[i]->State.IBP[1] = 30;
             }
             else
             {
-                d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * (i - 4) + 25;
-                d6Player[i]->State.IBP[1] = 593;
+                d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * (i - 4) + xShift;
+                d6Player[i]->State.IBP[1] = g_vid.cl_height - 7;
             }
         }
 
@@ -244,7 +244,7 @@ void PLAYER_PrepareAll (void)
         s->BD = 0;
         s->SD = 0;
         s->PH->Games++;
-        d6InWater[i] = false;
+        s->InWater = false;
     }
 
     PLAYER_PrepareViews ();

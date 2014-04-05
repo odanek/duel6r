@@ -179,6 +179,7 @@ void SET_InitVideo (void)
     // Set graphics mode
     SET_DetectFreqProblem ();
     VID_SetMode (d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
+	//VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);
     if (d6FreqProblem)
         SET_FixFreqBug ();
 

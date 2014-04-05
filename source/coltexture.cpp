@@ -60,6 +60,8 @@ void d6COLTEXTURE_c::Init (myBYTE red, myBYTE green, myBYTE blue)
     hcData = (myWORD *) MY_Alloc (img_size << 1);
     tcData = (myBYTE *) MY_Alloc (img_size << 2);
 
+	glGenTextures (Textures, Texture);
+
     for (i = 0; i < Textures; i++)
     {
         MY_KH3Load (i, hcData);
@@ -73,7 +75,6 @@ void d6COLTEXTURE_c::Init (myBYTE red, myBYTE green, myBYTE blue)
             tcData[pos++] = (!hcData[j]) ? 0 : 0xff;
         }
 
-        glGenTextures (1, &Texture[i]);
         glBindTexture (GL_TEXTURE_2D, Texture[i]);
         glTexImage2D (GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tcData);
         glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
