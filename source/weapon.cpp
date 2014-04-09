@@ -93,7 +93,7 @@ void WPN_Shoot (d6PLSTATE_s *s)
     sh->O = s->O;
     sh->GN = s->GN;
     sh->WD = &d6WpnDef[s->GN];
-    sh->FromPlayer = s->I;
+    sh->Author = d6Player[s->I];
     sh->I = d6Shots - 1;
     sh->A = ANM_Add (sh->X, sh->Y, 0.6f, 1, ANM_LOOP_FOREVER, sh->O, d6ShotAnm[sh->GN], d6WpnTexture, false);
     SOUND_PlaySample (sh->WD->ShSound);
@@ -134,7 +134,7 @@ void WPN_MoveShots (void)
             ANM_RemoveFlags (s->A, ANM_FLAG_ALL);
             x = (!s->O) ? s->X - 0.3f : s->X + 0.3f;
             j = ANM_Add (x, s->Y + 0.3f, 0.6f, 2, ANM_LOOP_ONEKILL, s->O, d6BoomAnm[s->GN], d6WpnTexture, true);
-            if (d6Player[s->FromPlayer]->State.Bonus == D6_BONUS_SHOTP)
+            if (s->Author->HasPowerfulShots())
                 ANM_Grow (j, s->WD->ExpGrow * 1.2f);
             else
                 ANM_Grow (j, s->WD->ExpGrow);
@@ -150,50 +150,64 @@ void WPN_MoveShots (void)
     }
 }
 
-void WPN_Boom (d6SHOT_s *s, d6PLAYER_c *p)
+void WPN_Boom (d6SHOT_s *s, d6PLAYER_c *playerThatWasHit)
 {
-    float       X, Y, vzd;
-    int         sila, i, dosah, bm;
-    d6PLAYER_c  *t;
+    int killedPlayers = 0, initialAuthorKills = s->Author->State.PH->Kills;
+	bool killedSelf = false;
 
-    if (d6Player[s->FromPlayer]->State.Bonus == D6_BONUS_SHOTP)
-        bm = 2;
-    else
-        bm = 1;
+    int dosah = s->GetExplosionRange();
+    int sila = s->GetExplosionPower();
 
-    dosah = bm * s->WD->Boom;
-    sila = bm * s->WD->Power;
-
-    X = (s->O == 0) ? (s->X + 0.32f) : (s->X + 0.67f);
-    Y = s->Y - 0.17f;
+    float X = (s->O == 0) ? (s->X + 0.32f) : (s->X + 0.67f);
+    float Y = s->Y - 0.17f;
 
     if (s->GN != D6_COL_WPN_SHT)
         FIRE_Check (X, Y, dosah);
 
-    for (i = 0; i < d6Playing; i++)
+    for (int i = 0; i < d6Playing; i++)
     {
-        t = d6Player[i];
+        d6PLAYER_c *player = d6Player[i];
 
-        if (t == p)
+        if (player == playerThatWasHit)
         {
             if (s->GN == D6_COL_WPN_SHT)
-                PLAYER_SetColTex (t->State.I, s->GN);
-            else
-                t->Hit ((float)sila, s, true);
+                PLAYER_SetColTex (player->State.I, s->GN);
+			else
+			{
+				if (player->Hit((float)sila, s, true))
+				{
+					killedPlayers++;
+				}
+			}
         }
         else
         {
-            vzd = (float) sqrt(D6_SQR(t->State.X + 0.5f - X) + D6_SQR(t->State.Y - 0.5f - Y));
+            float vzd = (float) sqrt(D6_SQR(player->State.X + 0.5f - X) + D6_SQR(player->State.Y - 0.5f - Y));
 
             if (vzd < (float) dosah)
             {
                 if (s->GN == D6_COL_WPN_SHT)
-                    PLAYER_SetColTex (t->State.I, s->GN);
-                else
-                    t->Hit (((dosah - vzd) * sila) / dosah, s, false);
+                    PLAYER_SetColTex (player->State.I, s->GN);
+				else
+				{
+					if (player->Hit(((dosah - vzd) * sila) / dosah, s, false))
+					{
+						killedPlayers++;
+
+						if (player == s->Author)
+						{
+							killedSelf = true;
+						}
+					}
+				}
             }
         }
     }
+
+	if (killedSelf)
+	{
+		s->Author->State.PH->Kills = initialAuthorKills - killedPlayers;
+	}
 }
 
 /*
@@ -218,4 +232,21 @@ int WPN_GetRandomWeapon (void)
                 break;
 
     return i;
+}
+
+/*
+==================================================
+d6SHOT_s
+==================================================
+*/
+int d6SHOT_s::GetExplosionPower()
+{
+	int coef = Author->HasPowerfulShots() ? 2 : 1;
+	return coef * WD->Power;
+}
+
+int d6SHOT_s::GetExplosionRange()
+{
+	int coef = Author->HasPowerfulShots() ? 2 : 1;
+	return coef * WD->Boom;
 }

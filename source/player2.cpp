@@ -91,7 +91,7 @@ void PLAYER_UpdateAll (void)
         p = d6Player[i];
 
         PLAYER_CheckWater (p, l, z);
-        if (!(p->State.Flags & D6_FLAG_DEAD))
+        if (!p->IsDead())
             BONUS_Check (&p->State);
 
         p->CheckKeys ();

@@ -109,16 +109,23 @@ struct d6WEAPONDEF_s
     float   ExpGrow;
 };
 
-struct d6SHOT_s
+class d6PLAYER_c; // Forward declaration
+
+class d6SHOT_s
 {
+public:
     float           X;
     float           Y;
     d6WEAPONDEF_s   *WD;
     int             A;
     int             O;
-    int             FromPlayer;
+    d6PLAYER_c      *Author;
     int             GN;
     int             I;
+
+public:
+	int GetExplosionRange();
+	int GetExplosionPower();
 };
 
 enum
@@ -297,7 +304,16 @@ class d6PLAYER_c
         void    PrepareCam  (void);
         void    UpdateCam   (void);
         void    SetControls (int n);
-        void    Hit         (float pw, d6SHOT_s *s, bool hit);
+        bool    Hit         (float pw, d6SHOT_s *s, bool hit); // Returns true if the shot caused the player to die
+
+		int GetIndex();
+		float GetX();
+		float GetY();
+		
+		bool HasPowerfulShots();
+		bool IsKneeling();
+		bool IsLying();
+		bool IsDead();
 };
 
 extern d6PLAYER_c   *d6Player[D6_MAX_PLAYERS];

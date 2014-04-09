@@ -278,12 +278,12 @@ static void RENDER_View (d6PLAYER_c *p)
     if (d6Wireframe)
         glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-    if ((p->State.Flags & D6_FLAG_DEAD) && d6ZoomMode == D6_ZM_SCROLL)
+    if (p->IsDead() && d6ZoomMode == D6_ZM_SCROLL)
         glColor3f (1.0f, 0.5f, 0.5f);
 
     RENDER_Blocks (0, d6World.Blocks);
     RENDER_Sprites ();
-    ELEV_DrawAll ();
+	ELEV_DrawAll();
     ANM_DrawAll ();
     BONUS_DrawAll ();
     RENDER_Invuls (&p->State);
@@ -338,7 +338,7 @@ void RENDER_DrawScene (void)
         {
             RENDER_SplitBox (&d6Player[i]->View);
 
-            if ((d6Player[i]->State.Flags & D6_FLAG_DEAD) && d6ZoomMode == D6_ZM_SCROLL)
+            if (d6Player[i]->IsDead() && d6ZoomMode == D6_ZM_SCROLL)
                 glColor3f (1.0f, 0.5f, 0.5f);
 
             RENDER_Background ();

@@ -118,7 +118,7 @@ bool KONTR_CanJump (d6PLAYER_c *p)
 
 static bool KONTR_ShotPlayer (d6SHOT_s *s)
 {
-    d6PLSTATE_s *p;
+    d6PLAYER_c  *p;
     float       X, ad;
     int         i;
 
@@ -129,27 +129,27 @@ static bool KONTR_ShotPlayer (d6SHOT_s *s)
 
     for (i = 0; i < d6Playing; i++)
     {
-        p = &d6Player[i]->State;
+        p = d6Player[i];
 
-        if (p->Bonus == D6_BONUS_INVIS || i == s->FromPlayer)
+        if (p->State.Bonus == D6_BONUS_INVIS || p == s->Author)
             continue;
 
-        if (p->Flags & D6_FLAG_KNEE)
+        if (p->IsKneeling())
             ad = 0.2f;
         else
             ad = 0.0f;
 
-        if (p->Flags & D6_FLAG_LYING)
+        if (p->IsLying())
             ad = 0.6f;
         else
-            if (p->Flags & D6_FLAG_DEAD)
+            if (p->IsDead())
                 continue;
 
-        if (X > p->X + 1.0f || X + 0.65f < p->X ||
-            s->Y < p->Y - 1.0f || s->Y - 0.35f > p->Y - ad)
+        if (X > p->GetX() + 1.0f || X + 0.65f < p->GetX() ||
+            s->Y < p->GetY() - 1.0f || s->Y - 0.35f > p->GetY() - ad)
             continue;
 
-        WPN_Boom (s, d6Player[i]);
+        WPN_Boom (s, p);
         return true;
     }
 

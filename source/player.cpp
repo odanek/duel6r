@@ -462,32 +462,38 @@ void d6PLAYER_c::UpdateCam (void)
         Camera->setpos (CamPos.Pos);
 }
 
-void d6PLAYER_c::Hit (float pw, d6SHOT_s *s, bool hit)
+bool d6PLAYER_c::Hit (float pw, d6SHOT_s *s, bool hit)
 {
     if (State.Bonus == D6_BONUS_INVUL)
-        return;
-    if (!State.Life && ((State.Flags & D6_FLAG_LYING) == 0))
-        return;
-    if (!State.Life && s == NULL)
-        return;
+        return false;
+    if (IsDead() && !IsLying())
+        return false;
+    if (IsDead() && s == NULL)
+        return false;
 
-    if (s != NULL && hit)
-        if (s->WD->Blood)
-            EXPL_Add (State.X + 0.3f + (rand () % 40) * 0.01f, s->Y - 0.15f, 0.2f, 0.5f, 0xFF0000);
+	if (s != NULL && hit)
+	{
+		if (s->WD->Blood)
+		{
+			EXPL_Add(State.X + 0.3f + (rand() % 40) * 0.01f, s->Y - 0.15f, 0.2f, 0.5f, 0xFF0000);
+		}
+	}
 
-    if (!State.Life)
+    if (IsDead())
     {
         if (s->WD->ExplC && hit)
         {
             State.Flags &= ~D6_FLAG_LYING;
             EXPL_Add (State.X + 0.5f, State.Y - 0.7f, 0.5f, 1.2f, s->WD->ExplC);
         }
-        return;
+        return false;
     }
 
     State.Life -= pw;
-    if (hit && s != NULL)
-        d6Player[s->FromPlayer]->State.PH->Hits++;
+	if (hit && s != NULL)
+	{
+		s->Author->State.PH->Hits++;
+	}
 
     if (State.Life < 1)
     {
@@ -502,11 +508,11 @@ void d6PLAYER_c::Hit (float pw, d6SHOT_s *s, bool hit)
             else
                 State.O = 1;
 
-            if (State.I != s->FromPlayer)
+            if (State.I != s->Author->GetIndex())
             {
-                d6Player[s->FromPlayer]->State.PH->Kills++;
-                INFO_Add (State.I, MY_L("APP00051|Jsi mrtvy - zabil te %s"), d6Player[s->FromPlayer]->State.PH->Name);
-                INFO_Add (s->FromPlayer, MY_L("APP00052|Zabil jsi hrace %s"), State.PH->Name);
+                s->Author->State.PH->Kills++;
+                INFO_Add (State.I, MY_L("APP00051|Jsi mrtvy - zabil te %s"), s->Author->State.PH->Name);
+                INFO_Add (s->Author->GetIndex(), MY_L("APP00052|Zabil jsi hrace %s"), State.PH->Name);
             }
             else
                 INFO_Add (State.I, MY_L("APP00053|Jsi mrtvy"));
@@ -535,6 +541,45 @@ void d6PLAYER_c::Hit (float pw, d6SHOT_s *s, bool hit)
                     BONUS_AddDeadManGun (x2, y, &State);
         }
     }
-    else if (hit)
-        SOUND_PlaySample (D6_SND_HIT);
+	else if (hit)
+	{
+		SOUND_PlaySample(D6_SND_HIT);
+	}
+
+	return (State.Life == 0);
+}
+
+int d6PLAYER_c::GetIndex()
+{
+	return State.I;
+}
+
+float d6PLAYER_c::GetX()
+{
+	return State.X;
+}
+
+float d6PLAYER_c::GetY()
+{
+	return State.Y;
+}
+
+bool d6PLAYER_c::HasPowerfulShots()
+{
+	return State.Bonus == D6_BONUS_SHOTP;
+}
+
+bool d6PLAYER_c::IsKneeling()
+{
+	return (State.Flags & D6_FLAG_KNEE) != 0;
+}
+
+bool d6PLAYER_c::IsLying()
+{
+	return (State.Flags & D6_FLAG_LYING) != 0;
+}
+
+bool d6PLAYER_c::IsDead()
+{
+	return (State.Flags & D6_FLAG_DEAD) != 0;
 }
