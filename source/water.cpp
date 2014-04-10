@@ -27,78 +27,81 @@
 
 #include "project.h"
 
-struct d6WATERVERTEX
+namespace Duel6
 {
-    int                     X;
-    float                   Y;
-    d6VERTEX                *V;
-    struct d6WATERVERTEX    *Next;
-};
+	struct d6WATERVERTEX
+	{
+		int                     X;
+		float                   Y;
+		d6VERTEX                *V;
+		struct d6WATERVERTEX    *Next;
+	};
 
-static d6WATERVERTEX    *d6WV = NULL;
-static float            d6WAngle = 0;
+	static d6WATERVERTEX    *d6WV = NULL;
+	static float            d6WAngle = 0;
 
-static void WATER_AddVertex (int n)
-{
-    d6WATERVERTEX   *w;
+	static void WATER_AddVertex(int n)
+	{
+		d6WATERVERTEX   *w;
 
-    w = D6_MALLOC (d6WATERVERTEX, 1);
+		w = D6_MALLOC(d6WATERVERTEX, 1);
 
-    w->X = (int) d6World.Vertex[n].X;
-    w->Y = d6World.Vertex[n].Y - D6_WAVE_HEIGHT;
-    w->V = &d6World.Vertex[n];
-    w->Next = d6WV;
-    d6WV = w;
-}
+		w->X = (int)d6World.Vertex[n].X;
+		w->Y = d6World.Vertex[n].Y - D6_WAVE_HEIGHT;
+		w->V = &d6World.Vertex[n];
+		w->Next = d6WV;
+		d6WV = w;
+	}
 
-void WATER_Free (void)
-{
-    d6WATERVERTEX   *w;
+	void WATER_Free(void)
+	{
+		d6WATERVERTEX   *w;
 
-    while (d6WV != NULL)
-    {
-        w = d6WV->Next;
-        MY_Free (d6WV);
-        d6WV = w;
-    }
-}
+		while (d6WV != NULL)
+		{
+			w = d6WV->Next;
+			MY_Free(d6WV);
+			d6WV = w;
+		}
+	}
 
-void WATER_Move (void)
-{
-    float           s = 0;
-    d6WATERVERTEX   *w = d6WV;
-    int             oldX = -1;
+	void WATER_Move(void)
+	{
+		float           s = 0;
+		d6WATERVERTEX   *w = d6WV;
+		int             oldX = -1;
 
-    d6WAngle += 2 * g_app.frame_interval;
-    if (d6WAngle >= 360)
-        d6WAngle -= 360;
+		d6WAngle += 2 * g_app.frame_interval;
+		if (d6WAngle >= 360)
+			d6WAngle -= 360;
 
-    while (w != NULL)
-    {
-        if (w->X != oldX)
-        {
-            s = D6_Sin (int(d6WAngle) + 60 * w->X) * D6_WAVE_HEIGHT;
-            oldX = w->X;
-        }
+		while (w != NULL)
+		{
+			if (w->X != oldX)
+			{
+				s = D6_Sin(int(d6WAngle) + 60 * w->X) * D6_WAVE_HEIGHT;
+				oldX = w->X;
+			}
 
-        w->V->Y = w->Y + s;
-        w = w->Next;
-    }
-}
+			w->V->Y = w->Y + s;
+			w = w->Next;
+		}
+	}
 
-void WATER_Build (void)
-{
-    int         i, j, s, e;
-    d6VERTEX    *v = d6World.Vertex;
+	void WATER_Build(void)
+	{
+		int         i, j, s, e;
+		d6VERTEX    *v = d6World.Vertex;
 
-    WATER_Free ();
+		WATER_Free();
 
-    s = (d6World.Blocks + d6World.Sprites) << 2;
-    e = (d6World.Blocks + d6World.Sprites + d6World.Waters) << 2;
+		s = (d6World.Blocks + d6World.Sprites) << 2;
+		e = (d6World.Blocks + d6World.Sprites + d6World.Waters) << 2;
 
-    g_app.con->printf (MY_L("APP00083|...Sestavuji water-list\n"));
-    for (i = 0; i <= d6World.Level.SizeX; i++)
-        for (j = s; j < e; j++)
-            if (v[j].Flags == D6_FLAG_FLOW && (int) v[j].X == i)
-                WATER_AddVertex (j);
+		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
+		for (i = 0; i <= d6World.Level.SizeX; i++)
+			for (j = s; j < e; j++)
+				if (v[j].Flags == D6_FLAG_FLOW && (int)v[j].X == i)
+					WATER_AddVertex(j);
+	}
 }

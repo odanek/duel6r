@@ -27,159 +27,162 @@
 
 #include "project.h"
 
-static  int         d6UpY, d6DownY, d6Down2, d6LeftX, d6RightX, *z;
-static  d6LEVEL     *l;
-
-static bool KONTR_Bck (int x, int y)
+namespace Duel6
 {
-    if (x >= 0 && x < l->SizeX && y >= 0 && y < l->SizeY)
-        return (z[l->Data[y * l->SizeX + x]] == D6_ANM_F_BLOCK);
-    else
-        return true;
-}
+	static  int         d6UpY, d6DownY, d6Down2, d6LeftX, d6RightX, *z;
+	static  d6LEVEL     *l;
 
-static void KONTR_Kontr1 (d6PLSTATE_s *s)
-{
-    if (KONTR_Bck (d6LeftX, d6UpY) || KONTR_Bck (d6RightX, d6UpY))
-    {
-        s->Y = (float) (l->SizeY - d6UpY) - 1.0f;
-        s->J = 180;
-    }
-}
+	static bool KONTR_Bck(int x, int y)
+	{
+		if (x >= 0 && x < l->SizeX && y >= 0 && y < l->SizeY)
+			return (z[l->Data[y * l->SizeX + x]] == D6_ANM_F_BLOCK);
 
-static void KONTR_Kontr2 (d6PLSTATE_s *s)
-{
-    if (KONTR_Bck (d6LeftX, d6DownY) || KONTR_Bck (d6RightX, d6DownY))
-    {
-        s->Y = (float) (l->SizeY - d6DownY) + 1.0001f;
-        s->J = 0;
-    }
+		return true;
+	}
 
-    ELEV_CheckMan (s);
-}
+	static void KONTR_Kontr1(Player& player)
+	{
+		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6RightX, d6UpY))
+		{
+			player.State.Y = (float)(l->SizeY - d6UpY) - 1.0f;
+			player.State.J = 180;
+		}
+	}
 
-static void KONTR_Kontr3 (d6PLSTATE_s *s)
-{
-    ELEV_CheckMan (s);
-    if (s->Elev != -1)
-        return;
+	static void KONTR_Kontr2(Player& player)
+	{
+		if (KONTR_Bck(d6LeftX, d6DownY) || KONTR_Bck(d6RightX, d6DownY))
+		{
+			player.State.Y = (float)(l->SizeY - d6DownY) + 1.0001f;
+			player.State.J = 0;
+		}
 
-    if (!KONTR_Bck (d6LeftX, d6Down2) && !KONTR_Bck (d6RightX, d6Down2))
-        s->J = 180;
-}
+		ELEV_CheckMan(player);
+	}
 
-static void KONTR_Kontr4 (d6PLSTATE_s *s)
-{
-    if (s->Speed < 0)
-    {
-        if (KONTR_Bck (d6LeftX, d6UpY) || KONTR_Bck (d6LeftX, d6DownY))
-            s->X = (float) d6LeftX + 0.9001f;
-    }
-    else
-    {
-        if (KONTR_Bck (d6RightX, d6UpY) || KONTR_Bck (d6RightX, d6DownY))
-            s->X = (float) d6RightX - 0.9001f;
-    }
-}
+	static void KONTR_Kontr3(Player& player)
+	{
+		ELEV_CheckMan(player);
+		if (player.State.Elev != -1)
+			return;
 
-void KONTR_Init (void)
-{
-    l = &d6World.Level;
-    z = d6World.Anm.Znak;
-}
+		if (!KONTR_Bck(d6LeftX, d6Down2) && !KONTR_Bck(d6RightX, d6Down2))
+			player.State.J = 180;
+	}
 
-void KONTR_Kontr (d6PLAYER_c *p, int c)
-{
-    d6UpY = l->SizeY - (int) (p->State.Y - 0.06) - 1;
-    d6DownY = l->SizeY - (int) (p->State.Y - 1.0f) - 1;
-    d6Down2 = l->SizeY - (int) (p->State.Y - 1.001f) - 1;
-    d6LeftX = (int) (p->State.X + 0.1f);
-    d6RightX = (int) (p->State.X + 0.9f);
+	static void KONTR_Kontr4(Player& player)
+	{
+		if (player.State.Speed < 0)
+		{
+			if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6LeftX, d6DownY))
+				player.State.X = (float)d6LeftX + 0.9001f;
+		}
+		else
+		{
+			if (KONTR_Bck(d6RightX, d6UpY) || KONTR_Bck(d6RightX, d6DownY))
+				player.State.X = (float)d6RightX - 0.9001f;
+		}
+	}
 
-    switch (c)
-    {
-        case 1: KONTR_Kontr1 (&p->State); break;
-        case 2: KONTR_Kontr2 (&p->State); break;
-        case 3: KONTR_Kontr3 (&p->State); break;
-        case 4: KONTR_Kontr4 (&p->State); break;
-    }
-}
+	void KONTR_Init(void)
+	{
+		l = &d6World.Level;
+		z = d6World.Anm.Znak;
+	}
 
-bool KONTR_CanJump (d6PLAYER_c *p)
-{
-    d6UpY = l->SizeY - (int) p->State.Y - 1;
-    d6LeftX = (int) (p->State.X + 0.1f);
-    d6RightX = (int) (p->State.X + 0.9f);
+	void KONTR_Kontr(Player& player, int c)
+	{
+		d6UpY = l->SizeY - (int)(player.GetY() - 0.06) - 1;
+		d6DownY = l->SizeY - (int)(player.GetY() - 1.0f) - 1;
+		d6Down2 = l->SizeY - (int)(player.GetY() - 1.001f) - 1;
+		d6LeftX = (int)(player.GetX() + 0.1f);
+		d6RightX = (int)(player.GetX() + 0.9f);
 
-    if (KONTR_Bck (d6LeftX, d6UpY) || KONTR_Bck (d6RightX, d6UpY))
-        return false;
-    return true;
-}
+		switch (c)
+		{
+		case 1: KONTR_Kontr1(player); break;
+		case 2: KONTR_Kontr2(player); break;
+		case 3: KONTR_Kontr3(player); break;
+		case 4: KONTR_Kontr4(player); break;
+		}
+	}
 
-static bool KONTR_ShotPlayer (d6SHOT_s *s)
-{
-    d6PLAYER_c  *p;
-    float       X, ad;
-    int         i;
+	bool KONTR_CanJump(Player *p)
+	{
+		d6UpY = l->SizeY - (int)p->State.Y - 1;
+		d6LeftX = (int)(p->State.X + 0.1f);
+		d6RightX = (int)(p->State.X + 0.9f);
 
-    if (!s->O)
-        X = s->X;
-    else
-        X = s->X + 0.35f;
+		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6RightX, d6UpY))
+			return false;
+		return true;
+	}
 
-    for (i = 0; i < d6Playing; i++)
-    {
-        p = d6Player[i];
+	static bool KONTR_ShotPlayer(d6SHOT_s *s)
+	{
+		Player  *p;
+		float   X, ad;
+		int     i;
 
-        if (p->State.Bonus == D6_BONUS_INVIS || p == s->Author)
-            continue;
+		if (!s->O)
+			X = s->X;
+		else
+			X = s->X + 0.35f;
 
-        if (p->IsKneeling())
-            ad = 0.2f;
-        else
-            ad = 0.0f;
+		for (i = 0; i < d6Playing; i++)
+		{
+			p = d6Player[i];
 
-        if (p->IsLying())
-            ad = 0.6f;
-        else
-            if (p->IsDead())
-                continue;
+			if (p->State.Bonus == D6_BONUS_INVIS || p == s->Author)
+				continue;
 
-        if (X > p->GetX() + 1.0f || X + 0.65f < p->GetX() ||
-            s->Y < p->GetY() - 1.0f || s->Y - 0.35f > p->GetY() - ad)
-            continue;
+			if (p->IsKneeling())
+				ad = 0.2f;
+			else
+				ad = 0.0f;
 
-        WPN_Boom (s, p);
-        return true;
-    }
+			if (p->IsLying())
+				ad = 0.6f;
+			else
+				if (p->IsDead())
+					continue;
 
-    return false;
-}
+			if (X > p->GetX() + 1.0f || X + 0.65f < p->GetX() ||
+				s->Y < p->GetY() - 1.0f || s->Y - 0.35f > p->GetY() - ad)
+				continue;
 
-bool KONTR_Shot (d6SHOT_s *s)
-{
-    if (KONTR_ShotPlayer (s))
-        return true;
+			WPN_Boom(s, p);
+			return true;
+		}
 
-    d6UpY = l->SizeY - (int) (s->Y) - 1;
-    d6DownY = l->SizeY - (int) (s->Y - 0.35f) - 1;
-    if (!s->O)
-    {
-        d6LeftX = (int) (s->X);
-        d6RightX = (int) (s->X + 0.65f);
-    }
-    else
-    {
-        d6LeftX = (int) (s->X + 0.35f);
-        d6RightX = (int) (s->X + 1.0f);
-    }
+		return false;
+	}
 
-    if (KONTR_Bck (d6LeftX, d6UpY) || KONTR_Bck (d6LeftX, d6DownY) ||
-        KONTR_Bck (d6RightX, d6UpY) || KONTR_Bck (d6RightX, d6DownY))
-    {
-        WPN_Boom (s, NULL);
-        return true;
-    }
+	bool KONTR_Shot(d6SHOT_s *s)
+	{
+		if (KONTR_ShotPlayer(s))
+			return true;
 
-    return false;
+		d6UpY = l->SizeY - (int)(s->Y) - 1;
+		d6DownY = l->SizeY - (int)(s->Y - 0.35f) - 1;
+		if (!s->O)
+		{
+			d6LeftX = (int)(s->X);
+			d6RightX = (int)(s->X + 0.65f);
+		}
+		else
+		{
+			d6LeftX = (int)(s->X + 0.35f);
+			d6RightX = (int)(s->X + 1.0f);
+		}
+
+		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6LeftX, d6DownY) ||
+			KONTR_Bck(d6RightX, d6UpY) || KONTR_Bck(d6RightX, d6DownY))
+		{
+			WPN_Boom(s, NULL);
+			return true;
+		}
+
+		return false;
+	}
 }

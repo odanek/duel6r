@@ -26,79 +26,77 @@
 */
 
 #include "project.h"
+#include "coltexture.h"
 
-////////////////////////////////////////////////////////////////////////////////////////
-//
-//          d6COLTEXTURE_c
-//
-////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-==================================================
-Inicializace
-Vytvori textury hrace tvorene jen jednou barvou
-==================================================
-*/
-void d6COLTEXTURE_c::Init (myBYTE red, myBYTE green, myBYTE blue)
+namespace Duel6
 {
-    myKh3info_s     ki;
-    myWORD          *hcData;
-    myBYTE          *tcData;
-    int             i, j, pos, img_size;
+	/*
+	==================================================
+	Inicializace
+	Vytvori textury hrace tvorene jen jednou barvou
+	==================================================
+	*/
+	void ColorTexture::Init(myBYTE red, myBYTE green, myBYTE blue)
+	{
+		myKh3info_s     ki;
+		myWORD          *hcData;
+		myBYTE          *tcData;
+		int             i, j, pos, img_size;
 
-    g_app.con->printf (MY_L("APP00111|...Inicializace barvenych textur (%d, %d, %d)\n"), red, green, blue);
+		g_app.con->printf(MY_L("APP00111|...Inicializace barvenych textur (%d, %d, %d)\n"), red, green, blue);
 
-    if (MY_KH3Open (D6_FILE_PLAYER) != MY_OK)
-        MY_Err (MY_ErrDump(MY_L("APP00091|Nepodarilo se otevrit soubor %s s texturami postav"), D6_FILE_PLAYER));
+		if (MY_KH3Open(D6_FILE_PLAYER) != MY_OK)
+			MY_Err(MY_ErrDump(MY_L("APP00091|Nepodarilo se otevrit soubor %s s texturami postav"), D6_FILE_PLAYER));
 
-    MY_KH3GetInfo (&ki);
-    g_app.con->printf (MY_L("APP00050|...Soubor %s obsahuje %d textur\n"), D6_FILE_PLAYER, ki.picts);
+		MY_KH3GetInfo(&ki);
+		g_app.con->printf(MY_L("APP00050|...Soubor %s obsahuje %d textur\n"), D6_FILE_PLAYER, ki.picts);
 
-    Textures = ki.picts;
-    Texture = D6_MALLOC (myUINT, Textures);
-    img_size = ki.sizex * ki.sizey;
-    hcData = (myWORD *) MY_Alloc (img_size << 1);
-    tcData = (myBYTE *) MY_Alloc (img_size << 2);
+		m_textures = ki.picts;
+		m_glTexture = D6_MALLOC(myUINT, m_textures);
+		img_size = ki.sizex * ki.sizey;
+		hcData = (myWORD *)MY_Alloc(img_size << 1);
+		tcData = (myBYTE *)MY_Alloc(img_size << 2);
 
-	glGenTextures (Textures, Texture);
+		glGenTextures(m_textures, m_glTexture);
 
-    for (i = 0; i < Textures; i++)
-    {
-        MY_KH3Load (i, hcData);
-        pos = 0;
+		for (i = 0; i < m_textures; i++)
+		{
+			MY_KH3Load(i, hcData);
+			pos = 0;
 
-        for (j = 0; j < img_size; j++)
-        {
-            tcData[pos++] = hcData[j] ? red : 0;
-            tcData[pos++] = hcData[j] ? green : 0;
-            tcData[pos++] = hcData[j] ? blue : 0;
-            tcData[pos++] = (!hcData[j]) ? 0 : 0xff;
-        }
+			for (j = 0; j < img_size; j++)
+			{
+				tcData[pos++] = hcData[j] ? red : 0;
+				tcData[pos++] = hcData[j] ? green : 0;
+				tcData[pos++] = hcData[j] ? blue : 0;
+				tcData[pos++] = (!hcData[j]) ? 0 : 0xff;
+			}
 
-        glBindTexture (GL_TEXTURE_2D, Texture[i]);
-        glTexImage2D (GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tcData);
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    }
+			glBindTexture(GL_TEXTURE_2D, m_glTexture[i]);
+			glTexImage2D(GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tcData);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		}
 
-    MY_Free (hcData);
-    MY_Free (tcData);
-    MY_KH3Close ();
-}
+		MY_Free(hcData);
+		MY_Free(tcData);
+		MY_KH3Close();
+	}
 
-/*
-==================================================
-DeInit
-Uvolni naalokovane textury
-==================================================
-*/
-void d6COLTEXTURE_c::DeInit (void)
-{
-    if (IsInited())
-    {
-        glDeleteTextures (Textures, Texture);
-        MY_Free (Texture);
-    }
+	/*
+	==================================================
+	DeInit
+	Uvolni naalokovane textury
+	==================================================
+	*/
+	void ColorTexture::DeInit(void)
+	{
+		if (IsInited())
+		{
+			glDeleteTextures(m_textures, m_glTexture);
+			MY_Free(m_glTexture);
+		}
+	}
 }

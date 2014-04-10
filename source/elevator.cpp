@@ -31,249 +31,253 @@
 #define D6_ELEV_MAX             30
 #define D6_ELEV_SPEED           0.03f
 
-struct d6ELEVATOR_s
+namespace Duel6
 {
-    float   X;
-    float   Y;
-    float   *AddX;
-    float   *AddY;
-    int     Sections;
-    int     NowSec;
-    float   CurPos;
-    int     AddPos;
-    int     *SecMax;
-};
+	struct d6ELEVATOR_s
+	{
+		float   X;
+		float   Y;
+		float   *AddX;
+		float   *AddY;
+		int     Sections;
+		int     NowSec;
+		float   CurPos;
+		int     AddPos;
+		int     *SecMax;
+	};
 
-extern myUINT           *d6WpnTexture;
-static int              d6Elevators;
-static d6ELEVATOR_s     d6Elev[D6_ELEV_MAX];
+	extern myUINT           *d6WpnTexture;
+	static int              d6Elevators;
+	static d6ELEVATOR_s     d6Elev[D6_ELEV_MAX];
 
-void ELEV_Init (void)
-{
-    int     i;
+	void ELEV_Init(void)
+	{
+		int     i;
 
-    glBindTexture (GL_TEXTURE_2D, d6WpnTexture[D6_ELEV_TEXTURE]);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, d6WpnTexture[D6_ELEV_TEXTURE]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    for (i = 0; i < D6_ELEV_MAX; i++)
-    {
-        d6Elev[i].AddX = NULL;
-        d6Elev[i].AddY = NULL;
-        d6Elev[i].SecMax = NULL;
-    }
+		for (i = 0; i < D6_ELEV_MAX; i++)
+		{
+			d6Elev[i].AddX = NULL;
+			d6Elev[i].AddY = NULL;
+			d6Elev[i].SecMax = NULL;
+		}
 
-    d6Elevators = 0;
-}
+		d6Elevators = 0;
+	}
 
-void ELEV_Free (void)
-{
-    int     i;
+	void ELEV_Free(void)
+	{
+		int     i;
 
-    for (i = 0; i < d6Elevators; i++)
-    {
-        MY_Free (d6Elev[i].AddX);
-        MY_Free (d6Elev[i].AddY);
-        MY_Free (d6Elev[i].SecMax);
-    }
+		for (i = 0; i < d6Elevators; i++)
+		{
+			MY_Free(d6Elev[i].AddX);
+			MY_Free(d6Elev[i].AddY);
+			MY_Free(d6Elev[i].SecMax);
+		}
 
-    d6Elevators = 0;
-}
+		d6Elevators = 0;
+	}
 
-void ELEV_Add (int *newElev, bool mirror)
-{
-    d6ELEVATOR_s    *e;
-    float           dX, dY, d;
-    int             i;
+	void ELEV_Add(int *newElev, bool mirror)
+	{
+		d6ELEVATOR_s    *e;
+		float           dX, dY, d;
+		int             i;
 
-    if (d6Elevators >= D6_ELEV_MAX)
-        return;
+		if (d6Elevators >= D6_ELEV_MAX)
+			return;
 
-    e = &d6Elev[d6Elevators++];
+		e = &d6Elev[d6Elevators++];
 
-    if (mirror)
-        for (i = 0; i <= newElev[0]; i++)
-            newElev[2 * i + 1] = d6World.Level.SizeX - 1 - newElev[2 * i + 1];
+		if (mirror)
+			for (i = 0; i <= newElev[0]; i++)
+				newElev[2 * i + 1] = d6World.Level.SizeX - 1 - newElev[2 * i + 1];
 
-    e->Sections = newElev[0];
-    e->NowSec = 0;
-    e->CurPos = 0;
-    e->AddPos = 1;
-    e->X = (float) newElev[1];
-    e->Y = (float) (d6World.Level.SizeY - newElev[2]);
-    e->AddX = D6_MALLOC (float, e->Sections);
-    e->AddY = D6_MALLOC (float, e->Sections);
-    e->SecMax = D6_MALLOC (int, e->Sections);
+		e->Sections = newElev[0];
+		e->NowSec = 0;
+		e->CurPos = 0;
+		e->AddPos = 1;
+		e->X = (float)newElev[1];
+		e->Y = (float)(d6World.Level.SizeY - newElev[2]);
+		e->AddX = D6_MALLOC(float, e->Sections);
+		e->AddY = D6_MALLOC(float, e->Sections);
+		e->SecMax = D6_MALLOC(int, e->Sections);
 
-    for (i = 0; i < e->Sections; i++)
-    {
-        dX = (float) (newElev[3 + 2 * i] - newElev[1 + 2 * i]);
-        dY = (float) (newElev[2 + 2 * i] - newElev[4 + 2 * i]);
-        d = (float) sqrt (dX * dX + dY * dY);
+		for (i = 0; i < e->Sections; i++)
+		{
+			dX = (float)(newElev[3 + 2 * i] - newElev[1 + 2 * i]);
+			dY = (float)(newElev[2 + 2 * i] - newElev[4 + 2 * i]);
+			d = (float)sqrt(dX * dX + dY * dY);
 
-        e->SecMax[i] = (int) (d / D6_ELEV_SPEED);
-        e->AddX[i] = dX / (float) e->SecMax[i];
-        e->AddY[i] = dY / (float) e->SecMax[i];
-    }
-}
+			e->SecMax[i] = (int)(d / D6_ELEV_SPEED);
+			e->AddX[i] = dX / (float)e->SecMax[i];
+			e->AddY[i] = dY / (float)e->SecMax[i];
+		}
+	}
 
-void ELEV_MoveAll (void)
-{
-    d6ELEVATOR_s    *e;
-    int             i;
+	void ELEV_MoveAll(void)
+	{
+		d6ELEVATOR_s    *e;
+		int             i;
 
-    for (i = 0; i < d6Elevators; i++)
-    {
-        e = &d6Elev[i];
+		for (i = 0; i < d6Elevators; i++)
+		{
+			e = &d6Elev[i];
 
-        e->X += e->AddPos * e->AddX[e->NowSec] * g_app.frame_interval;
-        e->Y += e->AddPos * e->AddY[e->NowSec] * g_app.frame_interval;
-        e->CurPos += e->AddPos * g_app.frame_interval;
+			e->X += e->AddPos * e->AddX[e->NowSec] * g_app.frame_interval;
+			e->Y += e->AddPos * e->AddY[e->NowSec] * g_app.frame_interval;
+			e->CurPos += e->AddPos * g_app.frame_interval;
 
-        if (e->CurPos >= e->SecMax[e->NowSec])
-        {
-            if (++e->NowSec >= e->Sections)
-            {
-                e->NowSec = e->Sections - 1;
-                e->CurPos = (float)e->SecMax[e->NowSec];
-                e->AddPos = -1;
-            }
-            else
-                e->CurPos = 0;
-        }
-        else
-            if (e->CurPos <= 0)
-            {
-                if (--e->NowSec < 0)
-                {
-                    e->NowSec = 0;
-                    e->CurPos = 0;
-                    e->AddPos = 1;
-                }
-                else
-                    e->CurPos = (float)e->SecMax[e->NowSec];
-            }
-    }
-}
+			if (e->CurPos >= e->SecMax[e->NowSec])
+			{
+				if (++e->NowSec >= e->Sections)
+				{
+					e->NowSec = e->Sections - 1;
+					e->CurPos = (float)e->SecMax[e->NowSec];
+					e->AddPos = -1;
+				}
+				else
+					e->CurPos = 0;
+			}
+			else
+				if (e->CurPos <= 0)
+				{
+					if (--e->NowSec < 0)
+					{
+						e->NowSec = 0;
+						e->CurPos = 0;
+						e->AddPos = 1;
+					}
+					else
+						e->CurPos = (float)e->SecMax[e->NowSec];
+				}
+		}
+	}
 
-void ELEV_DrawAll (void)
-{
-    int     i;
-    float   X, Y;
+	void ELEV_DrawAll(void)
+	{
+		int     i;
+		float   X, Y;
 
-    glBindTexture (GL_TEXTURE_2D, d6WpnTexture[D6_ELEV_TEXTURE]);
-    glBegin (GL_QUADS);
+		glBindTexture(GL_TEXTURE_2D, d6WpnTexture[D6_ELEV_TEXTURE]);
+		glBegin(GL_QUADS);
 
-    for (i = 0; i < d6Elevators; i++)
-    {
-        X = d6Elev[i].X;
-        Y = d6Elev[i].Y;
+		for (i = 0; i < d6Elevators; i++)
+		{
+			X = d6Elev[i].X;
+			Y = d6Elev[i].Y;
 
-        // Front
-        glTexCoord2f (0.0f, 0.0f); glVertex3f (X, Y, 0.7f);
-        glTexCoord2f (1.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.7f);
-        glTexCoord2f (1.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.7f);
-        glTexCoord2f (0.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.7f);
+			// Front
+			glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.7f);
+			glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.7f);
+			glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
+			glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.7f);
 
 #ifdef D6_RENDER_BACKS
-        // Back
-        glTexCoord2f (0.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.3f);
-        glTexCoord2f (1.0f, 0.0f); glVertex3f (X, Y, 0.3f);
-        glTexCoord2f (1.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.3f);
-        glTexCoord2f (0.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.3f);
+			// Back
+			glTexCoord2f (0.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.3f);
+			glTexCoord2f (1.0f, 0.0f); glVertex3f (X, Y, 0.3f);
+			glTexCoord2f (1.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.3f);
+			glTexCoord2f (0.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.3f);
 #endif
-        // Left
-        glTexCoord2f (0.0f, 0.0f); glVertex3f (X, Y, 0.3f);
-        glTexCoord2f (1.0f, 0.0f); glVertex3f (X, Y, 0.7f);
-        glTexCoord2f (1.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.7f);
-        glTexCoord2f (0.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.3f);
+			// Left
+			glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.3f);
+			glTexCoord2f(1.0f, 0.0f); glVertex3f(X, Y, 0.7f);
+			glTexCoord2f(1.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.7f);
+			glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.3f);
 
-        // Right
-        glTexCoord2f (0.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.7f);
-        glTexCoord2f (1.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.3f);
-        glTexCoord2f (1.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.3f);
-        glTexCoord2f (0.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.7f);
+			// Right
+			glTexCoord2f(0.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.7f);
+			glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.3f);
+			glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.3f);
+			glTexCoord2f(0.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
 
-        // Top
-        glTexCoord2f (0.0f, 0.0f); glVertex3f (X, Y, 0.3f);
-        glTexCoord2f (1.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.3f);
-        glTexCoord2f (1.0f, 1.0f); glVertex3f (X + 1.0f, Y, 0.7f);
-        glTexCoord2f (0.0f, 1.0f); glVertex3f (X, Y, 0.7f);
+			// Top
+			glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.3f);
+			glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.3f);
+			glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y, 0.7f);
+			glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y, 0.7f);
 
-        // Base
-        glTexCoord2f (0.0f, 0.0f); glVertex3f (X, Y - 0.3f, 0.7f);
-        glTexCoord2f (1.0f, 0.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.7f);
-        glTexCoord2f (1.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.3f);
-        glTexCoord2f (0.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.3f);
-    }
+			// Base
+			glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y - 0.3f, 0.7f);
+			glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
+			glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.3f);
+			glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.3f);
+		}
 
-    glEnd ();
-}
+		glEnd();
+	}
 
-void ELEV_CheckMan (d6PLSTATE_s *s)
-{
-    int             i;
-    d6ELEVATOR_s    *e;
-    float           x, y;
+	void ELEV_CheckMan(Player& player)
+	{
+		int             i;
+		d6ELEVATOR_s    *e;
+		d6PLSTATE_s     *s = &player.State;
+		float           x, y;
 
-    x = s->X + 0.5f;
-    y = s->Y - 1.0f;
+		x = s->X + 0.5f;
+		y = s->Y - 1.0f;
 
-    for (i = 0; i < d6Elevators; i++)
-    {
-        e = &d6Elev[i];
+		for (i = 0; i < d6Elevators; i++)
+		{
+			e = &d6Elev[i];
 
-        if (x < e->X || x > e->X + 1.0f)
-            continue;
+			if (x < e->X || x > e->X + 1.0f)
+				continue;
 
-        if (y < e->Y - 0.05f || y > e->Y + 0.05f)
-            continue;
+			if (y < e->Y - 0.05f || y > e->Y + 0.05f)
+				continue;
 
-        s->Elev = i;
-        s->Y = e->Y + 1.0f;
-        s->J = 0;
-        return;
-    }
-}
+			s->Elev = i;
+			s->Y = e->Y + 1.0f;
+			s->J = 0;
+			return;
+		}
+	}
 
-void ELEV_MoveMan (d6PLSTATE_s *s)
-{
-    d6ELEVATOR_s    *e;
+	void ELEV_MoveMan(Player& player)
+	{
+		d6PLSTATE_s *s = &player.State;
 
-    if (s->Elev >= 0)
-    {
-        e = &d6Elev[s->Elev];
-        s->X += e->AddPos * e->AddX[e->NowSec] * g_app.frame_interval;
-        s->Y += e->AddPos * e->AddY[e->NowSec] * g_app.frame_interval;
-    }
-}
+		if (s->Elev >= 0)
+		{
+			d6ELEVATOR_s *e = &d6Elev[s->Elev];
+			s->X += e->AddPos * e->AddX[e->NowSec] * g_app.frame_interval;
+			s->Y += e->AddPos * e->AddY[e->NowSec] * g_app.frame_interval;
+		}
+	}
 
-void ELEV_Load (const char *sou, bool mirror)
-{
-    myFile_s    *f;
-    int         l, *e;
+	void ELEV_Load(const char *sou, bool mirror)
+	{
+		myFile_s    *f;
+		int         l, *e;
 
-    g_app.con->printf (MY_L("APP00026|...Nahravam vytahy - "));
-    ELEV_Free ();
+		g_app.con->printf(MY_L("APP00026|...Nahravam vytahy - "));
+		ELEV_Free();
 
-    l = MY_FSize (sou) - (12 + 2 * d6World.Level.Size);
+		l = MY_FSize(sou) - (12 + 2 * d6World.Level.Size);
 
-    if (l < 1)
-        return;
+		if (l < 1)
+			return;
 
-    e = D6_MALLOC (int, l >> 2);
+		e = D6_MALLOC(int, l >> 2);
 
-    f = MY_FOpen (sou, 12 + 2 * d6World.Level.Size, "rb", true);
-    MY_FRead (e, 4, l >> 2, f);
-    MY_FClose (&f);
+		f = MY_FOpen(sou, 12 + 2 * d6World.Level.Size, "rb", true);
+		MY_FRead(e, 4, l >> 2, f);
+		MY_FClose(&f);
 
-    g_app.con->printf (MY_L("APP00027|%d vytahu\n"), e[0]);
-    l = 1;
-    while (e[0]-- > 0)
-    {
-        ELEV_Add (&e[l], mirror);
-        l += 3 + 2 * e[l];
-    }
+		g_app.con->printf(MY_L("APP00027|%d vytahu\n"), e[0]);
+		l = 1;
+		while (e[0]-- > 0)
+		{
+			ELEV_Add(&e[l], mirror);
+			l += 3 + 2 * e[l];
+		}
 
-    MY_Free (e);
+		MY_Free(e);
+	}
 }

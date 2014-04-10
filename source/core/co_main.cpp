@@ -33,8 +33,12 @@ Popis: Jadro - zakladni funkce, vstupni bod
 #include "co_core.h"
 
 // Deklarace procedur ktere musi byt nekde implementovany
-void    P_Init          (void);
-void    P_DeInit        (void);
+namespace Duel6
+{
+	void    P_Init(void);
+	void    P_DeInit(void);
+}
+
 void    P_Main          (void);
 void    P_KeyEvent      (int key);
 void    P_ActiveEvent   (bool active);
@@ -121,7 +125,7 @@ static void CO_ErrorHandler (const char *str)
         g_app.con->exec ("dump chyba.con");
     }
 
-    P_DeInit ();
+    Duel6::P_DeInit ();
     VID_Shutdown ();
     CO_DeInit ();
 }
@@ -179,7 +183,7 @@ int main (int argc, char *argv[])
     // Inicializace
     CO_Init ();
     VID_Init ();
-    P_Init ();
+    Duel6::P_Init ();
 
     // Provedeni prikazu predanych z prikazove radky
     for (int i = 1; i < argc; i++)
@@ -189,7 +193,7 @@ int main (int argc, char *argv[])
     P_Main ();
 
     // Deinicializace
-    P_DeInit ();
+    Duel6::P_DeInit ();
     VID_Shutdown ();   
     CO_DeInit ();
 

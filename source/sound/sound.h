@@ -25,16 +25,19 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __SOUND_H
-#define __SOUND_H
+#ifndef DUEL6_SOUND_H
+#define DUEL6_SOUND_H
 
-void    SOUND_Init          (int channels, int samples, int modules);
-int     SOUND_LoadModule    (const char *nm);
-int     SOUND_LoadSample    (const char *nm);
-void    SOUND_StopMusic     (void);
-void    SOUND_StartMusic    (int i, bool loop);
-void    SOUND_PlaySample    (int i);
-void    SOUND_Volume        (int volume);
-void    SOUND_DeInit        (void);
+namespace Duel6
+{
+	void    SOUND_Init(int channels, int samples, int modules);
+	int     SOUND_LoadModule(const char *nm);
+	int     SOUND_LoadSample(const char *nm);
+	void    SOUND_StopMusic(void);
+	void    SOUND_StartMusic(int i, bool loop);
+	void    SOUND_PlaySample(int i);
+	void    SOUND_Volume(int volume);
+	void    SOUND_DeInit(void);
+}
 
 #endif

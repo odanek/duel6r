@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __ANIM_H
-#define __ANIM_H
+#ifndef DUEL6_ANIM_H
+#define DUEL6_ANIM_H
 
 #define ANM_MAX             100
 
@@ -38,45 +38,48 @@
 #define ANM_FLAG_NO_DEPTH   0x10
 #define ANM_FLAG_ALL        0x1F
 
-typedef d6VERTEX            anmVERTEX_s;
-
-enum
+namespace Duel6
 {
-    ANM_LOOP_FOREVER,
-    ANM_LOOP_ONESTOP,
-    ANM_LOOP_ONEKILL
-};
+	typedef d6VERTEX            anmVERTEX_s;
 
-struct anmANM_s
-{
-    int     I;      // Offset in anm array
-    int     Pos;    // Current animation
-    float   Del;    // Delay to next animation
-    int     Sp;     // Speed of animation
-    short   *Pl;    // Source array of animations and delays
-    myUINT  *Tex;   // Texture array
-    int     Loop;   // Type of looping
-    int     O;      // Current orientation
-    int     Flags;  // Flags
-    float   X;      // Copy from vertex array for speed up
-    float   Y;
-    float   Z;
-    float   Grow;   // Grow factor for explosions
-    float   Alpha;  // Transparency ratio
-};
+	enum
+	{
+		ANM_LOOP_FOREVER,
+		ANM_LOOP_ONESTOP,
+		ANM_LOOP_ONEKILL
+	};
 
-void    ANM_Init        (anmVERTEX_s *first, int num);
-int     ANM_Add         (float X, float Y, float Z, int S, int loop, int O, short *pl, myUINT *tex, bool T);
-void    ANM_ReSet       (int i, float X, float Y, int loop, int O, short *pl);
-void    ANM_SetAnm      (int i, int p);
-void    ANM_Grow        (int i, float grow);
-int     ANM_Pict        (int num);
-void    ANM_MoveAll     (void);
-void    ANM_DrawAll     (void);
-void    ANM_AddFlags    (int i, int f);
-void    ANM_RemoveFlags (int i, int f);
-bool    ANM_CheckFlags  (int i, int f);
-void    ANM_SetAlpha    (int i, float a);
-void    ANM_SetTexture  (int i, myUINT *tex);
+	struct anmANM_s
+	{
+		int     I;      // Offset in anm array
+		int     Pos;    // Current animation
+		float   Del;    // Delay to next animation
+		int     Sp;     // Speed of animation
+		short   *Pl;    // Source array of animations and delays
+		myUINT  *Tex;   // Texture array
+		int     Loop;   // Type of looping
+		int     O;      // Current orientation
+		int     Flags;  // Flags
+		float   X;      // Copy from vertex array for speed up
+		float   Y;
+		float   Z;
+		float   Grow;   // Grow factor for explosions
+		float   Alpha;  // Transparency ratio
+	};
+
+	void    ANM_Init(anmVERTEX_s *first, int num);
+	int     ANM_Add(float X, float Y, float Z, int S, int loop, int O, short *pl, myUINT *tex, bool T);
+	void    ANM_ReSet(int i, float X, float Y, int loop, int O, short *pl);
+	void    ANM_SetAnm(int i, int p);
+	void    ANM_Grow(int i, float grow);
+	int     ANM_Pict(int num);
+	void    ANM_MoveAll(void);
+	void    ANM_DrawAll(void);
+	void    ANM_AddFlags(int i, int f);
+	void    ANM_RemoveFlags(int i, int f);
+	bool    ANM_CheckFlags(int i, int f);
+	void    ANM_SetAlpha(int i, float a);
+	void    ANM_SetTexture(int i, myUINT *tex);
+}
 
 #endif

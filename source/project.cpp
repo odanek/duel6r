@@ -27,14 +27,14 @@
 
 #include "project.h"
 
+using namespace Duel6;
+
 void P_ActiveEvent (bool active)
 {
     if (active)
     {
         if (d6InMenu && d6PlayMusic)
             SOUND_StartMusic (0, true);
-        if (d6FreqProblem)
-            SET_FixFreqBug ();
     }
     else
     {

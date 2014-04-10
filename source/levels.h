@@ -25,70 +25,49 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "msdir.h"
-#include "project.h"
-#include "levels.h"
+#ifndef DUEL6_LEVELS_H
+#define DUEL6_LEVELS_H
 
-#define D6_LEVELS_MAX       1000
+#include <stdlib.h>
 
 namespace Duel6
 {
-	void LevelList::Init(const char *dir)
+	class LevelList
 	{
-		DIR                 *handle;
-		struct dirent       *ff;
-		size_t              dnlen;
+	private:
+		char **m_lev;
+		char **m_name;
+		size_t  m_count;
+		bool m_init;
 
-		// Allocate room for level file names
-		m_lev = (char **)MY_Alloc(D6_LEVELS_MAX * sizeof(char *));
-		m_name = (char **)MY_Alloc(D6_LEVELS_MAX * sizeof(char *));
-		m_init = true;
+	public:
+		LevelList() 
+			: m_lev(NULL), m_name(NULL), m_count(0), m_init(false) 
+		{}
 
-		dnlen = strlen(dir);
-		handle = opendir(dir);
-		ff = (handle == NULL) ? NULL : readdir(handle);
-
-		while (ff != NULL && m_count < D6_LEVELS_MAX)
-		{
-			if (ff->d_name[0] != '.')
-			{
-				size_t fnlen = strlen(ff->d_name);
-
-				if (fnlen > 4)
-				{
-					if (!strcmp(".lev", ff->d_name + fnlen - 4))
-					{
-						m_lev[m_count] = (char *)MY_Alloc((dnlen + fnlen + 1) * sizeof(char));
-						m_name[m_count] = (char *)MY_Alloc((fnlen - 3) * sizeof(char));
-						sprintf(m_lev[m_count], "%s%s", dir, ff->d_name);
-						strncpy(m_name[m_count], ff->d_name, fnlen - 4);
-						m_name[m_count][fnlen - 4] = 0;
-						m_count++;
-					}
-				}
-			}
-
-			ff = readdir(handle);
+		~LevelList() 
+		{ 
+			DeInit(); 
 		}
 
-		closedir(handle);
-	}
-
-	void LevelList::DeInit()
-	{
-		if (m_init)
-		{
-			for (size_t i = 0; i < m_count; i++)
-			{
-				MY_Free(m_lev[i]);
-				MY_Free(m_name[i]);
-			}
-
-			m_count = 0;
-			MY_Free(m_lev);
-			MY_Free(m_name);
-
-			m_init = false;
+		void Init(const char *dir);
+		void DeInit();
+		
+		size_t Count() 
+		{ 
+			return m_count; 
 		}
-	}
+
+		const char *Name(size_t num) 
+		{ 
+			return m_name[num]; 
+		}
+
+		const char *Path(size_t num) 
+		{ 
+			return m_lev[num]; 
+		}
+	};
 }
+
+#endif

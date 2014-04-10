@@ -27,226 +27,236 @@
 
 #include <stdlib.h>
 #include "project.h"
+#include "coltexture.h"
 
-myUINT                  *d6WpnTexture;
-static  int             d6WpnTextures, d6Shots;
-static  d6SHOT_s        d6Shot[ANM_MAX];
-
-void WPN_LoadTextures (void)
+namespace Duel6
 {
-    myKh3info_s     ki;
-    int             i;
+	myUINT *d6WpnTexture;
+	ColorTexture d6ShtTexture;
+	static int d6WpnTextures, d6Shots;
+	static d6SHOT_s d6Shot[ANM_MAX];
 
-    g_app.con->printf (MY_L("APP00084|Nahravam textury zbrani\n"));
-    MY_KH3Open (D6_FILE_WEAPON);
-    MY_KH3GetInfo (&ki);
-    g_app.con->printf (MY_L("APP00085|...Soubor %s obsahue %d textur\n"), D6_FILE_WEAPON, ki.picts);
-    d6WpnTexture = D6_MALLOC (myUINT, ki.picts);
+	void WPN_LoadTextures(void)
+	{
+		myKh3info_s     ki;
+		int             i;
 
-    for (i = 0; i < (int) ki.picts; i++)
-    {
-        UTIL_LoadKH3Texture (&d6WpnTexture[i], D6_FILE_WEAPON, i, true);
-        if (i < 14 || (i > 21 && i < 78) || i > 79)
-        {
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        }
-    }
+		g_app.con->printf(MY_L("APP00084|Nahravam textury zbrani\n"));
+		MY_KH3Open(D6_FILE_WEAPON);
+		MY_KH3GetInfo(&ki);
+		g_app.con->printf(MY_L("APP00085|...Soubor %s obsahue %d textur\n"), D6_FILE_WEAPON, ki.picts);
+		d6WpnTexture = D6_MALLOC(myUINT, ki.picts);
 
-    MY_KH3Close ();
-}
-
-void WPN_FreeTextures (void)
-{
-    glDeleteTextures (d6WpnTextures, d6WpnTexture);
-    MY_Free (d6WpnTexture);
-}
-
-void WPN_Init (void)
-{
-    d6Shots = 0;
-}
-
-void WPN_Shoot (d6PLSTATE_s *s)
-{
-    float       ad = 0.32f;
-    d6SHOT_s    *sh;
-
-    if (!s->Ammo || s->SI || d6Shots >= ANM_MAX)
-        return;
-
-    if (s->Bonus == D6_BONUS_SHOTS)
-        s->SI = float (d6WpnDef[s->GN].ReloadSpeed / 2);
-    else
-        s->SI = float (d6WpnDef[s->GN].ReloadSpeed);
-
-    s->Ammo--;
-    sh = &d6Shot[d6Shots++];
-    ANM_SetAnm (s->GA, 0);
-
-    if (s->Flags & D6_FLAG_KNEE)
-        ad = 0.52f;
-
-    s->PH->Shots++;
-    sh->Y = s->Y - ad;
-    sh->X = (s->O == 0) ? (s->X - 0.65f) : (s->X + 0.65f);
-    sh->O = s->O;
-    sh->GN = s->GN;
-    sh->WD = &d6WpnDef[s->GN];
-    sh->Author = d6Player[s->I];
-    sh->I = d6Shots - 1;
-    sh->A = ANM_Add (sh->X, sh->Y, 0.6f, 1, ANM_LOOP_FOREVER, sh->O, d6ShotAnm[sh->GN], d6WpnTexture, false);
-    SOUND_PlaySample (sh->WD->ShSound);
-}
-
-static void WPN_RemoveShot (d6SHOT_s *s)
-{
-    int     i;
-
-    d6Shots--;
-    if (s->I < d6Shots)
-    {
-        i = s->I;
-        memcpy ((void *) s, (void *) &d6Shot[d6Shots], sizeof (d6SHOT_s));
-        s->I = i;
-    }
-}
-
-void WPN_MoveShots (void)
-{
-    d6SHOT_s    *s;
-    float       x;
-    int         i, j;
-
-    for (i = 0; i < d6Shots; i++)
-    {
-        s = &d6Shot[i];
-
-        if (s->O)
-            s->X += s->WD->ShotSpeed * g_app.frame_interval;
-        else
-            s->X -= s->WD->ShotSpeed * g_app.frame_interval;
-
-        ANM_ReSet (s->A, s->X, s->Y, -1, -1, NULL);
-
-        if (KONTR_Shot (s))
-        {
-            ANM_RemoveFlags (s->A, ANM_FLAG_ALL);
-            x = (!s->O) ? s->X - 0.3f : s->X + 0.3f;
-            j = ANM_Add (x, s->Y + 0.3f, 0.6f, 2, ANM_LOOP_ONEKILL, s->O, d6BoomAnm[s->GN], d6WpnTexture, true);
-            if (s->Author->HasPowerfulShots())
-                ANM_Grow (j, s->WD->ExpGrow * 1.2f);
-            else
-                ANM_Grow (j, s->WD->ExpGrow);
-            if (s->WD->BmSound != -1)
-                SOUND_PlaySample (s->WD->BmSound);
-            if (s->WD->Boom > 0)
-            {
-                ANM_AddFlags(j, ANM_FLAG_NO_DEPTH);
-            }
-            WPN_RemoveShot (s);
-            i--;
-        }
-    }
-}
-
-void WPN_Boom (d6SHOT_s *s, d6PLAYER_c *playerThatWasHit)
-{
-    int killedPlayers = 0, initialAuthorKills = s->Author->State.PH->Kills;
-	bool killedSelf = false;
-
-    int dosah = s->GetExplosionRange();
-    int sila = s->GetExplosionPower();
-
-    float X = (s->O == 0) ? (s->X + 0.32f) : (s->X + 0.67f);
-    float Y = s->Y - 0.17f;
-
-    if (s->GN != D6_COL_WPN_SHT)
-        FIRE_Check (X, Y, dosah);
-
-    for (int i = 0; i < d6Playing; i++)
-    {
-        d6PLAYER_c *player = d6Player[i];
-
-        if (player == playerThatWasHit)
-        {
-            if (s->GN == D6_COL_WPN_SHT)
-                PLAYER_SetColTex (player->State.I, s->GN);
-			else
+		for (i = 0; i < (int)ki.picts; i++)
+		{
+			UTIL_LoadKH3Texture(&d6WpnTexture[i], D6_FILE_WEAPON, i, true);
+			if (i < 14 || (i > 21 && i < 78) || i > 79)
 			{
-				if (player->Hit((float)sila, s, true))
-				{
-					killedPlayers++;
-				}
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
-        }
-        else
-        {
-            float vzd = (float) sqrt(D6_SQR(player->State.X + 0.5f - X) + D6_SQR(player->State.Y - 0.5f - Y));
+		}
 
-            if (vzd < (float) dosah)
-            {
-                if (s->GN == D6_COL_WPN_SHT)
-                    PLAYER_SetColTex (player->State.I, s->GN);
+		MY_KH3Close();
+	}
+
+	void WPN_FreeTextures(void)
+	{
+		glDeleteTextures(d6WpnTextures, d6WpnTexture);
+		MY_Free(d6WpnTexture);
+	}
+
+	void WPN_Init(void)
+	{
+		d6Shots = 0;
+	}
+
+	void WPN_Shoot(Player& player)
+	{
+		float       ad = 0.32f;
+		d6SHOT_s    *sh;
+		d6PLSTATE_s *s = &player.State;
+
+		if (!s->Ammo || s->SI || d6Shots >= ANM_MAX)
+			return;
+
+		if (s->Bonus == D6_BONUS_SHOTS)
+			s->SI = float(d6WpnDef[s->GN].ReloadSpeed / 2);
+		else
+			s->SI = float(d6WpnDef[s->GN].ReloadSpeed);
+
+		s->Ammo--;
+		sh = &d6Shot[d6Shots++];
+		ANM_SetAnm(s->GA, 0);
+
+		if (s->Flags & D6_FLAG_KNEE)
+			ad = 0.52f;
+
+		s->PH->Shots++;
+		sh->Y = s->Y - ad;
+		sh->X = (s->O == 0) ? (s->X - 0.65f) : (s->X + 0.65f);
+		sh->O = s->O;
+		sh->GN = s->GN;
+		sh->WD = &d6WpnDef[s->GN];
+		sh->Author = d6Player[s->I];
+		sh->I = d6Shots - 1;
+		sh->A = ANM_Add(sh->X, sh->Y, 0.6f, 1, ANM_LOOP_FOREVER, sh->O, d6ShotAnm[sh->GN], d6WpnTexture, false);
+		SOUND_PlaySample(sh->WD->ShSound);
+	}
+
+	static void WPN_RemoveShot(d6SHOT_s *s)
+	{
+		int     i;
+
+		d6Shots--;
+		if (s->I < d6Shots)
+		{
+			i = s->I;
+			memcpy((void *)s, (void *)&d6Shot[d6Shots], sizeof (d6SHOT_s));
+			s->I = i;
+		}
+	}
+
+	void WPN_MoveShots(void)
+	{
+		d6SHOT_s    *s;
+		float       x;
+		int         i, j;
+
+		for (i = 0; i < d6Shots; i++)
+		{
+			s = &d6Shot[i];
+
+			if (s->O)
+				s->X += s->WD->ShotSpeed * g_app.frame_interval;
+			else
+				s->X -= s->WD->ShotSpeed * g_app.frame_interval;
+
+			ANM_ReSet(s->A, s->X, s->Y, -1, -1, NULL);
+
+			if (KONTR_Shot(s))
+			{
+				ANM_RemoveFlags(s->A, ANM_FLAG_ALL);
+				x = (!s->O) ? s->X - 0.3f : s->X + 0.3f;
+				j = ANM_Add(x, s->Y + 0.3f, 0.6f, 2, ANM_LOOP_ONEKILL, s->O, d6BoomAnm[s->GN], d6WpnTexture, true);
+				if (s->Author->HasPowerfulShots())
+					ANM_Grow(j, s->WD->ExpGrow * 1.2f);
+				else
+					ANM_Grow(j, s->WD->ExpGrow);
+				if (s->WD->BmSound != -1)
+					SOUND_PlaySample(s->WD->BmSound);
+				if (s->WD->Boom > 0)
+				{
+					ANM_AddFlags(j, ANM_FLAG_NO_DEPTH);
+				}
+				WPN_RemoveShot(s);
+				i--;
+			}
+		}
+	}
+
+	void WPN_Boom(d6SHOT_s *s, Player *playerThatWasHit)
+	{
+		int killedPlayers = 0, initialAuthorKills = s->Author->State.PH->Kills;
+		bool killedSelf = false;
+
+		int dosah = s->GetExplosionRange();
+		int sila = s->GetExplosionPower();
+
+		float X = (s->O == 0) ? (s->X + 0.32f) : (s->X + 0.67f);
+		float Y = s->Y - 0.17f;
+
+		if (s->GN != D6_COL_WPN_SHT)
+			FIRE_Check(X, Y, dosah);
+
+		for (int i = 0; i < d6Playing; i++)
+		{
+			Player *player = d6Player[i];
+
+			if (player == playerThatWasHit)
+			{
+				if (s->GN == D6_COL_WPN_SHT)
+				{
+					player->SetColorTexture(d6ShtTexture);
+				}
 				else
 				{
-					if (player->Hit(((dosah - vzd) * sila) / dosah, s, false))
+					if (player->Hit((float)sila, s, true))
 					{
 						killedPlayers++;
+					}
+				}
+			}
+			else
+			{
+				float vzd = (float)sqrt(D6_SQR(player->State.X + 0.5f - X) + D6_SQR(player->State.Y - 0.5f - Y));
 
-						if (player == s->Author)
+				if (vzd < (float)dosah)
+				{
+					if (s->GN == D6_COL_WPN_SHT)
+					{
+						player->SetColorTexture(d6ShtTexture);
+					}
+					else
+					{
+						if (player->Hit(((dosah - vzd) * sila) / dosah, s, false))
 						{
-							killedSelf = true;
+							killedPlayers++;
+
+							if (player == s->Author)
+							{
+								killedSelf = true;
+							}
 						}
 					}
 				}
-            }
-        }
-    }
+			}
+		}
 
-	if (killedSelf)
-	{
-		s->Author->State.PH->Kills = initialAuthorKills - killedPlayers;
+		if (killedSelf)
+		{
+			s->Author->State.PH->Kills = initialAuthorKills - killedPlayers;
+		}
 	}
-}
 
-/*
-==================================================
-WPN_GetRandomWeapon
+	/*
+	==================================================
+	WPN_GetRandomWeapon
 
-Vybere a vraci cislo nahodne zbrane (musi byt enabled)
-==================================================
-*/
-int WPN_GetRandomWeapon (void)
-{
-    int     i, r, ebl = 0;
+	Vybere a vraci cislo nahodne zbrane (musi byt enabled)
+	==================================================
+	*/
+	int WPN_GetRandomWeapon(void)
+	{
+		int     i, r, ebl = 0;
 
-    for (i = 0; i < D6_WEAPONS; i++)
-        if (d6WpnEnabled[i])
-            ebl++;
+		for (i = 0; i < D6_WEAPONS; i++)
+			if (d6WpnEnabled[i])
+				ebl++;
 
-    r = rand () % ebl;
-    for (i = 0; i < D6_WEAPONS; i++)
-        if (d6WpnEnabled[i])
-            if (r-- == 0)
-                break;
+		r = rand() % ebl;
+		for (i = 0; i < D6_WEAPONS; i++)
+			if (d6WpnEnabled[i])
+				if (r-- == 0)
+					break;
 
-    return i;
-}
+		return i;
+	}
 
-/*
-==================================================
-d6SHOT_s
-==================================================
-*/
-int d6SHOT_s::GetExplosionPower()
-{
-	int coef = Author->HasPowerfulShots() ? 2 : 1;
-	return coef * WD->Power;
-}
+	/*
+	==================================================
+	d6SHOT_s
+	==================================================
+	*/
+	int d6SHOT_s::GetExplosionPower()
+	{
+		int coef = Author->HasPowerfulShots() ? 2 : 1;
+		return coef * WD->Power;
+	}
 
-int d6SHOT_s::GetExplosionRange()
-{
-	int coef = Author->HasPowerfulShots() ? 2 : 1;
-	return coef * WD->Boom;
+	int d6SHOT_s::GetExplosionRange()
+	{
+		int coef = Author->HasPowerfulShots() ? 2 : 1;
+		return coef * WD->Boom;
+	}
 }

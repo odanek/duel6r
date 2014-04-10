@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __LOADER_H
-#define __LOADER_H
+#ifndef DUEL6_LOADER_H
+#define DUEL6_LOADER_H
 
 //#define D6_RENDER_BACKS
 
@@ -48,54 +48,57 @@
 #define D6_BONUS_MAX        30
 #define D6_BONUS_COUNT      10
 
-extern int d6BonusArt[D6_BONUS_COUNT];
-
-struct d6VERTEX
+namespace Duel6
 {
-    float   X;
-    float   Y;
-    float   Z;
-    float   U;
-    float   V;
-    int     Flags;
-};
+	extern int d6BonusArt[D6_BONUS_COUNT];
 
-struct d6FACE
-{
-    int NowTex;
-    int MinTex;
-    int MaxTex;
-};
+	struct d6VERTEX
+	{
+		float   X;
+		float   Y;
+		float   Z;
+		float   U;
+		float   V;
+		int     Flags;
+	};
 
-struct d6LEVEL
-{
-    int     SizeX;
-    int     SizeY;
-    int     Size;
-    myWORD  *Data;
-};
+	struct d6FACE
+	{
+		int NowTex;
+		int MinTex;
+		int MaxTex;
+	};
 
-struct d6ANM
-{
-    myUINT  *TexGlNum;
-    int     Textures;
-    float   Wait;
-    int     *Znak;
-    int     *Anim;
-};
+	struct d6LEVEL
+	{
+		int     SizeX;
+		int     SizeY;
+		int     Size;
+		myWORD  *Data;
+	};
 
-struct d6WORLD
-{
-    int         Blocks;
-    int         Sprites;
-    int         Waters;
-    int         Faces;
-    d6VERTEX    *Vertex;
-    d6FACE      *Face;
-    d6LEVEL     Level;
-    d6ANM       Anm;
-};
+	struct d6ANM
+	{
+		myUINT  *TexGlNum;
+		int     Textures;
+		float   Wait;
+		int     *Znak;
+		int     *Anim;
+	};
 
-void    LOADER_LoadWorld (const char *lev, d6WORLD *world, int add, bool mirror, int (*bonus)[3]);
+	struct d6WORLD
+	{
+		int         Blocks;
+		int         Sprites;
+		int         Waters;
+		int         Faces;
+		d6VERTEX    *Vertex;
+		d6FACE      *Face;
+		d6LEVEL     Level;
+		d6ANM       Anm;
+	};
+
+	void    LOADER_LoadWorld(const char *lev, d6WORLD *world, int add, bool mirror, int(*bonus)[3]);
+}
 
 #endif

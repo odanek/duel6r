@@ -46,6 +46,7 @@ set(D6R_SOURCES
     source/anim.h
     source/anims.h
     source/bonus.cpp
+    source/coltexture.h
     source/coltexture.cpp
     source/duel6.cpp
     source/elevator.cpp
@@ -55,14 +56,15 @@ set(D6R_SOURCES
     source/glib.h
     source/info.cpp
     source/kontrola.cpp
+    source/levels.h
     source/levels.cpp
     source/loader.cpp
     source/loader.h
     source/menu.cpp
     source/msdir.c
     source/msdir.h
+    source/player.h
     source/player.cpp
-    source/player2.cpp
     source/project.cpp
     source/project.h
     source/render.cpp
