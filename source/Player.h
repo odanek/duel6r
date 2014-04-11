@@ -28,7 +28,7 @@
 #ifndef DUEL6_PLAYER_H
 #define DUEL6_PLAYER_H
 
-#include "coltexture.h"
+#include "PlayerSkin.h"
 
 #define D6_PLAYER_MAX_SPEED     32
 #define D6_PLAYER_ACCEL         0.001f
@@ -96,11 +96,9 @@ namespace Duel6
 	class Player
 	{
 	private:
-		static int      next_id;
+		PlayerSkin *m_skin;
 
 	public:
-		myUINT          *Texture;
-		int             Textures;
 		mycam_c         *Camera;
 		d6CAMPOS_s      CamPos;
 		d6VIEW_s        View;
@@ -110,7 +108,9 @@ namespace Duel6
 		Player(size_t index);
 		~Player(void);
 
-		void    Skin(void);
+		Player& SetSkin(const PlayerSkinColors& skinColors);
+		void PrepareForGame();
+
 		void    SetView(int x, int y, int w, int h);
 		void    Left(void);
 		void    Right(void);
@@ -129,16 +129,20 @@ namespace Duel6
 		float GetX();
 		float GetY();
 
-		bool HasPowerfulShots();
-		bool IsKneeling();
-		bool IsLying();
-		bool IsDead();
+		bool HasPowerfulShots() const;
+		bool IsKneeling() const;
+		bool IsLying() const;
+		bool IsDead() const;
 
-		void SetColorTexture(ColorTexture& texture);
+		void UseTemporarySkin(PlayerSkin& skin);
+		void SwitchToOriginalSkin();
+
+	private:
+		void FreeSkin();
 	};
 
 	extern Player   *d6Player[D6_MAX_PLAYERS];
-	extern int       d6PlayerSkin[D6_MAX_PLAYERS][8];
+	extern PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
 
 	//////////////////////////////////////////////////////////////////////
 	//                          player.cpp                              //

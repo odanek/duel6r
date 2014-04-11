@@ -27,8 +27,7 @@
 
 #include <stdlib.h>
 #include "project.h"
-#include "player.h"
-#include "coltexture.h"
+#include "Player.h"
 #include "anims.h"
 
 namespace Duel6
@@ -81,6 +80,214 @@ namespace Duel6
 		APP_INP_JOY8 | APP_INP_JOY_BUT2, APP_INP_JOY8 | APP_INP_JOY_BUT3 }
 	};
 
+	/* ==================================================================== */
+
+	static short    noAnim[4] = { 0, 50, 0, -1 };
+	extern short    wtAnim[2][24];
+	extern short    d6WpnAnm[D6_WEAPONS][16];
+	extern myUINT   *d6WpnTexture;
+
+	void PLAYER_CheckWater(Player *p, d6LEVEL *l, int *z)
+	{
+		bool    w = false;
+		int     X, Y, w_kind;
+
+		X = (int)(p->State.X + 0.5f);
+		Y = l->SizeY - (int)(p->State.Y - 0.2) - 1;
+		p->State.Flags &= ~D6_FLAG_INWATER;
+
+		if (X >= 0 && Y >= 0 && X < l->SizeX && Y < l->SizeY)
+			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
+			{
+				p->State.Flags |= D6_FLAG_INWATER;
+				if ((p->State.Air -= g_app.frame_interval) < 0)
+				{
+					p->State.Air = 0;
+					p->Hit(g_app.frame_interval, NULL, false);
+				}
+				return;
+			}
+
+		if (p->State.Air < D6_MAX_AIR)
+			p->State.Air++;
+
+		Y = l->SizeY - (int)(p->State.Y - 0.9) - 1;
+
+		if (X >= 0 && Y >= 0 && X < l->SizeX && Y < l->SizeY)
+			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
+			{
+				w = true;
+				w_kind = D6_BlockN(X, Y) == 4 ? 0 : 1;
+			}
+
+		if (w && !p->State.InWater)
+		{
+			ANM_Add(p->State.X, p->State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, 0, wtAnim[w_kind], d6WpnTexture, false);
+			SOUND_PlaySample(D6_SND_WATER);
+		}
+
+		p->State.InWater = w;
+	}
+
+	void PLAYER_UpdateAll(void)
+	{
+		Player *player;
+		d6LEVEL *l;
+		int *z;
+
+		l = &d6World.Level;
+		z = d6World.Anm.Znak;
+
+		for (int i = 0; i < d6Playing; i++)
+		{
+			player = d6Player[i];
+
+			PLAYER_CheckWater(player, l, z);
+			if (!player->IsDead())
+			{
+				BONUS_Check(*player);
+			}
+
+			player->CheckKeys();
+			player->MakeMove();
+			player->SetAnm();
+			player->UpdateCam();
+
+			// Move intervals
+			if (player->State.SI > 0)
+			{
+				if ((player->State.SI -= g_app.frame_interval) <= 0)
+				{
+					player->State.SI = 0;
+				}
+			}
+
+			if (player->State.BD > 0)
+			{
+				if ((player->State.BD -= g_app.frame_interval) <= 0)
+				{
+					if (player->State.Bonus == D6_BONUS_INVIS)
+					{
+						ANM_SetAlpha(player->State.A, 1);
+						ANM_SetAlpha(player->State.GA, 1);
+					}
+					player->State.Bonus = 0;
+					player->State.BD = 0;
+				}
+			}
+
+			if (player->State.SD > 0)
+			{
+				if ((player->State.SD -= g_app.frame_interval) <= 0)
+				{
+					player->SwitchToOriginalSkin();
+				}
+			}
+		}
+	}
+
+	static void PLAYER_FindStart(float *x, float *y)
+	{
+		d6LEVEL *l = &d6World.Level;
+		int     X, Y, y2, s = 1;
+
+		while (s)
+		{
+			X = rand() % l->SizeX;
+			Y = rand() % l->SizeY;
+			s = 1;
+
+			if (D6_BlockZ(X, Y) != D6_ANM_F_BLOCK)
+			{
+				y2 = Y - 1;
+
+				while (++y2 < l->SizeY)
+				{
+					if (D6_BlockZ(X, y2) == D6_ANM_F_WATER)
+						break;
+					if (D6_BlockZ(X, y2) == D6_ANM_F_BLOCK)
+					{
+						*x = (float)X;
+						*y = (float)(l->SizeY - Y) + 0.0001f;
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	void PLAYER_View(int i, int x, int y)
+	{
+		int w = g_vid.cl_width / 2 - 4, h = g_vid.cl_height / 2 - 4;
+
+		d6Player[i]->SetView(x, y, w, h);
+		d6Player[i]->State.IBP[0] = x + w / 2 - 76;
+		d6Player[i]->State.IBP[1] = y + 30;
+	}
+
+	void PLAYER_PrepareViews(void)
+	{
+		int     i, xShift = (g_vid.cl_width / 4) / 2 - 70;
+
+		for (i = 0; i < d6Playing; i++)
+		{
+			d6Player[i]->PrepareCam();
+			d6Player[i]->UpdateCam();
+		}
+
+		if (d6ZoomMode == D6_ZM_FULL)
+		{
+			for (i = 0; i < d6Playing; i++)
+			{
+				d6Player[i]->SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
+
+				if (i < 4)
+				{
+					d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * i + xShift;
+					d6Player[i]->State.IBP[1] = 30;
+				}
+				else
+				{
+					d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * (i - 4) + xShift;
+					d6Player[i]->State.IBP[1] = g_vid.cl_height - 7;
+				}
+			}
+
+			return;
+		}
+
+		if (d6Playing == 2)
+		{
+			PLAYER_View(0, g_vid.cl_width / 4 + 2, 2);
+			PLAYER_View(1, g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
+		}
+
+		if (d6Playing == 3)
+		{
+			PLAYER_View(0, 2, 2);
+			PLAYER_View(1, g_vid.cl_width / 2 + 2, 2);
+			PLAYER_View(2, g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
+		}
+
+		if (d6Playing == 4)
+		{
+			PLAYER_View(0, 2, 2);
+			PLAYER_View(1, g_vid.cl_width / 2 + 2, 2);
+			PLAYER_View(2, 2, g_vid.cl_height / 2 + 2);
+			PLAYER_View(3, g_vid.cl_width / 2 + 2, g_vid.cl_height / 2 + 2);
+		}
+	}
+
+	void PLAYER_PrepareAll(void)
+	{
+		for (int i = 0; i < d6Playing; i++)
+		{
+			d6Player[i]->PrepareForGame();
+		}
+
+		PLAYER_PrepareViews();
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////
 	//
 	//          Player
@@ -89,107 +296,59 @@ namespace Duel6
 
 	Player::Player(size_t index)
 	{
-		Textures = 0;
-		Texture = NULL;
 		Camera = new mycam_c;
 		Camera->resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
 		MY_RegMem(Camera, sizeof (mycam_c));
 		Camera->rotate(180.0, 0.0, 0.0);
 		State.I = index;
 		Keys = &d6Keyboard[index];
-		Skin();
+		m_skin = nullptr;
 	}
 
 	Player::~Player(void)
 	{
-		glDeleteTextures(Textures, Texture);
-		MY_Free(Texture);
+		FreeSkin();
 		MY_UnregMem(Camera);
 		delete Camera;
 	}
 
-	/*
-	==================================================
-	Nahraje a naskinuje textury
-	==================================================
-	*/
-	void Player::Skin(void)
+	Player& Player::SetSkin(const PlayerSkinColors& skinColors)
 	{
-		myKh3info_s     ki;
-		myWORD          *hcData;
-		myBYTE          *tcData;
-		int             i, j, c_index, pos, img_size;
+		FreeSkin();
+		m_skin = new PlayerSkin(skinColors);
+		return *this;
+	}
 
-		// Nejdrive uvolni stary skin
-		if (Texture != NULL)
-			MY_Free(Texture);
-
-		// Nacti novy
-		g_app.con->printf(MY_L("APP00049|Inicializace hrace - nahravam textury\n"));
-
-		if (MY_KH3Open(D6_FILE_PLAYER) != MY_OK)
-			MY_Err(MY_ErrDump(MY_L("APP00091|Nepodarilo se otevrit soubor %s s texturami postav"), D6_FILE_PLAYER));
-
-		MY_KH3GetInfo(&ki);
-		g_app.con->printf(MY_L("APP00050|...Soubor %s obsahuje %d textur\n"), D6_FILE_PLAYER, ki.picts);
-
-		Textures = ki.picts;
-		Texture = D6_MALLOC(myUINT, Textures);
-		img_size = ki.sizex * ki.sizey;
-		hcData = (myWORD *)MY_Alloc(img_size << 1);
-		tcData = (myBYTE *)MY_Alloc(img_size << 2);
-
-		glGenTextures(Textures, Texture);
-
-		for (i = 0; i < Textures; i++)
+	void Player::FreeSkin()
+	{
+		if (m_skin != nullptr)
 		{
-			MY_KH3Load(i, hcData);
-			pos = 0;
-
-			for (j = 0; j < img_size; j++)
-			{
-				// Get color from skin
-				switch (hcData[j])
-				{
-				case 65504: c_index = 0; break;     // Vlasy
-				case 57024: c_index = 1; break;     // Vlasy - spodni tmava cast
-				case 21: c_index = 2; break;     // Obrys tela
-				case 31: c_index = 3; break;     // Triko
-				case 1440: c_index = 4; break;     // Obrys rukou
-				case 2016: c_index = 5; break;     // Rukavy
-				case 34816: c_index = 6; break;     // Kalhoty
-				case 46496: c_index = 7; break;     // Boty
-				default: c_index = -1;
-				}
-
-				if (c_index == -1)
-				{
-					tcData[pos++] = (((hcData[j] >> 11) & 0x1F) * 255) / 31;
-					tcData[pos++] = (((hcData[j] >> 5) & 0x3F) * 255) / 63;
-					tcData[pos++] = ((hcData[j] & 0x1F) * 255) / 31;
-				}
-				else
-				{
-					tcData[pos++] = (d6PlayerSkin[State.I][c_index] >> 16) & 0xff;
-					tcData[pos++] = (d6PlayerSkin[State.I][c_index] >> 8) & 0xff;
-					tcData[pos++] = d6PlayerSkin[State.I][c_index] & 0xff;
-				}
-
-				// Alpha hodnota - pouziva se pri viditelnosti a pruhlednosti mist s 0
-				tcData[pos++] = (!hcData[j]) ? 0 : 0xff;
-			}
-
-			glBindTexture(GL_TEXTURE_2D, Texture[i]);
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tcData);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			delete m_skin;
+			m_skin = nullptr;
 		}
+	}
 
-		MY_Free(hcData);
-		MY_Free(tcData);
-		MY_KH3Close();
+	void Player::PrepareForGame()
+	{
+		PLAYER_FindStart(&State.X, &State.Y);
+		State.A = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_FOREVER, 0, noAnim, m_skin->GlTexture(), false);
+		State.GN = WPN_GetRandomWeapon();
+		State.GA = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONESTOP, 0, d6WpnAnm[State.GN], d6WpnTexture, false);
+		ANM_SetAnm(State.GA, 6);
+		State.Flags = D6_FLAG_NONE;
+		State.Speed = 0;
+		State.O = 0;
+		State.J = 0;
+		State.SI = 0;
+		State.Life = D6_MAX_LIFE;
+		State.Air = D6_MAX_AIR;
+		State.Ammo = d6AmmoRangeMin + rand() % (d6AmmoRangeMax - d6AmmoRangeMin + 1);
+		State.Elev = -1;
+		State.Bonus = 0;
+		State.BD = 0;
+		State.SD = 0;
+		State.PH->Games++;
+		State.InWater = false;
 	}
 
 	void Player::SetControls(int n)
@@ -566,261 +725,35 @@ namespace Duel6
 		return State.Y;
 	}
 
-	bool Player::HasPowerfulShots()
+	bool Player::HasPowerfulShots() const
 	{
 		return State.Bonus == D6_BONUS_SHOTP;
 	}
 
-	bool Player::IsKneeling()
+	bool Player::IsKneeling() const
 	{
 		return (State.Flags & D6_FLAG_KNEE) != 0;
 	}
 
-	bool Player::IsLying()
+	bool Player::IsLying() const
 	{
 		return (State.Flags & D6_FLAG_LYING) != 0;
 	}
 
-	bool Player::IsDead()
+	bool Player::IsDead() const
 	{
 		return (State.Flags & D6_FLAG_DEAD) != 0;
 	}
 
-	void Player::SetColorTexture(ColorTexture& texture)
+	void Player::UseTemporarySkin(PlayerSkin& skin)
 	{
 		State.SD = float(APP_FPS_SPEED * (10 + rand() % 5));
-		ANM_SetTexture(State.A, texture.GetTexPtr());
+		ANM_SetTexture(State.A, skin.GlTexture());
 	}
 
-	/* ==================================================================== */
-
-	static short    noAnim[4] = { 0, 50, 0, -1 };
-	extern short    wtAnim[2][24];
-	extern short    d6WpnAnm[D6_WEAPONS][16];
-	extern myUINT   *d6WpnTexture;
-
-	void PLAYER_CheckWater(Player *p, d6LEVEL *l, int *z)
+	void Player::SwitchToOriginalSkin()
 	{
-		bool    w = false;
-		int     X, Y, w_kind;
-
-		X = (int)(p->State.X + 0.5f);
-		Y = l->SizeY - (int)(p->State.Y - 0.2) - 1;
-		p->State.Flags &= ~D6_FLAG_INWATER;
-
-		if (X >= 0 && Y >= 0 && X < l->SizeX && Y < l->SizeY)
-			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
-			{
-				p->State.Flags |= D6_FLAG_INWATER;
-				if ((p->State.Air -= g_app.frame_interval) < 0)
-				{
-					p->State.Air = 0;
-					p->Hit(g_app.frame_interval, NULL, false);
-				}
-				return;
-			}
-
-		if (p->State.Air < D6_MAX_AIR)
-			p->State.Air++;
-
-		Y = l->SizeY - (int)(p->State.Y - 0.9) - 1;
-
-		if (X >= 0 && Y >= 0 && X < l->SizeX && Y < l->SizeY)
-			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
-			{
-				w = true;
-				w_kind = D6_BlockN(X, Y) == 4 ? 0 : 1;
-			}
-
-		if (w && !p->State.InWater)
-		{
-			ANM_Add(p->State.X, p->State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, 0, wtAnim[w_kind], d6WpnTexture, false);
-			SOUND_PlaySample(D6_SND_WATER);
-		}
-
-		p->State.InWater = w;
-	}
-
-	void PLAYER_UpdateAll(void)
-	{
-		Player *player;
-		d6LEVEL *l;
-		int *z;
-
-		l = &d6World.Level;
-		z = d6World.Anm.Znak;
-
-		for (int i = 0; i < d6Playing; i++)
-		{
-			player = d6Player[i];
-
-			PLAYER_CheckWater(player, l, z);
-			if (!player->IsDead())
-			{
-				BONUS_Check(*player);
-			}
-
-			player->CheckKeys();
-			player->MakeMove();
-			player->SetAnm();
-			player->UpdateCam();
-
-			// Move intervals
-			if (player->State.SI > 0)
-			{
-				if ((player->State.SI -= g_app.frame_interval) <= 0)
-				{
-					player->State.SI = 0;
-				}
-			}
-
-			if (player->State.BD > 0)
-			{
-				if ((player->State.BD -= g_app.frame_interval) <= 0)
-				{
-					if (player->State.Bonus == D6_BONUS_INVIS)
-					{
-						ANM_SetAlpha(player->State.A, 1);
-						ANM_SetAlpha(player->State.GA, 1);
-					}
-					player->State.Bonus = 0;
-					player->State.BD = 0;
-				}
-			}
-
-			if (player->State.SD > 0)
-			{
-				if ((player->State.SD -= g_app.frame_interval) <= 0)
-				{
-					ANM_SetTexture(player->State.A, player->Texture);
-					player->State.SD = 0;
-				}
-			}
-		}
-	}
-
-	static void PLAYER_FindStart(float *x, float *y)
-	{
-		d6LEVEL *l = &d6World.Level;
-		int     X, Y, y2, s = 1;
-
-		while (s)
-		{
-			X = rand() % l->SizeX;
-			Y = rand() % l->SizeY;
-			s = 1;
-
-			if (D6_BlockZ(X, Y) != D6_ANM_F_BLOCK)
-			{
-				y2 = Y - 1;
-
-				while (++y2 < l->SizeY)
-				{
-					if (D6_BlockZ(X, y2) == D6_ANM_F_WATER)
-						break;
-					if (D6_BlockZ(X, y2) == D6_ANM_F_BLOCK)
-					{
-						*x = (float)X;
-						*y = (float)(l->SizeY - Y) + 0.0001f;
-						return;
-					}
-				}
-			}
-		}
-	}
-
-	void PLAYER_View(int i, int x, int y)
-	{
-		int w = g_vid.cl_width / 2 - 4, h = g_vid.cl_height / 2 - 4;
-
-		d6Player[i]->SetView(x, y, w, h);
-		d6Player[i]->State.IBP[0] = x + w / 2 - 76;
-		d6Player[i]->State.IBP[1] = y + 30;
-	}
-
-	void PLAYER_PrepareViews(void)
-	{
-		int     i, xShift = (g_vid.cl_width / 4) / 2 - 70;
-
-		for (i = 0; i < d6Playing; i++)
-		{
-			d6Player[i]->PrepareCam();
-			d6Player[i]->UpdateCam();
-		}
-
-		if (d6ZoomMode == D6_ZM_FULL)
-		{
-			for (i = 0; i < d6Playing; i++)
-			{
-				d6Player[i]->SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
-
-				if (i < 4)
-				{
-					d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * i + xShift;
-					d6Player[i]->State.IBP[1] = 30;
-				}
-				else
-				{
-					d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * (i - 4) + xShift;
-					d6Player[i]->State.IBP[1] = g_vid.cl_height - 7;
-				}
-			}
-
-			return;
-		}
-
-		if (d6Playing == 2)
-		{
-			PLAYER_View(0, g_vid.cl_width / 4 + 2, 2);
-			PLAYER_View(1, g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
-		}
-
-		if (d6Playing == 3)
-		{
-			PLAYER_View(0, 2, 2);
-			PLAYER_View(1, g_vid.cl_width / 2 + 2, 2);
-			PLAYER_View(2, g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
-		}
-
-		if (d6Playing == 4)
-		{
-			PLAYER_View(0, 2, 2);
-			PLAYER_View(1, g_vid.cl_width / 2 + 2, 2);
-			PLAYER_View(2, 2, g_vid.cl_height / 2 + 2);
-			PLAYER_View(3, g_vid.cl_width / 2 + 2, g_vid.cl_height / 2 + 2);
-		}
-	}
-
-	void PLAYER_PrepareAll(void)
-	{
-		d6PLSTATE_s *s;
-		int         i;
-
-		for (i = 0; i < d6Playing; i++)
-		{
-			s = &d6Player[i]->State;
-
-			PLAYER_FindStart(&s->X, &s->Y);
-			s->A = ANM_Add(s->X, s->Y, 0.5f, 1, ANM_LOOP_FOREVER, 0, noAnim, d6Player[i]->Texture, false);
-			s->GN = WPN_GetRandomWeapon();
-			s->GA = ANM_Add(s->X, s->Y, 0.5f, 1, ANM_LOOP_ONESTOP, 0, d6WpnAnm[s->GN], d6WpnTexture, false);
-			ANM_SetAnm(s->GA, 6);
-			s->Flags = D6_FLAG_NONE;
-			s->Speed = 0;
-			s->O = 0;
-			s->J = 0;
-			s->SI = 0;
-			s->Life = D6_MAX_LIFE;
-			s->Air = D6_MAX_AIR;
-			s->Ammo = d6AmmoRangeMin + rand() % (d6AmmoRangeMax - d6AmmoRangeMin + 1);
-			s->Elev = -1;
-			s->Bonus = 0;
-			s->BD = 0;
-			s->SD = 0;
-			s->PH->Games++;
-			s->InWater = false;
-		}
-
-		PLAYER_PrepareViews();
+		State.SD = 0;
+		ANM_SetTexture(State.A, m_skin->GlTexture());
 	}
 }

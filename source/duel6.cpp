@@ -41,7 +41,7 @@ namespace Duel6
 	int         d6Winner;
 	float		d6GameOverWait;
 	bool        d6InMenu = false, d6PlayMusic = false;
-	int         d6PlayerSkin[D6_MAX_PLAYERS][8];
+	PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
 	int			d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
 
 	int D6_BlockZ(int x, int y)

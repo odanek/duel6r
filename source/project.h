@@ -167,7 +167,6 @@ namespace Duel6
 	extern  int         d6Wireframe, d6ZoomBlc, d6ZoomMode, d6Playing;
 	extern  bool        d6ShowFps, d6PlayMusic;
 	extern  int			d6AmmoRangeMin, d6AmmoRangeMax;
-	extern  ColorTexture d6ShtTexture;
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp                               //
@@ -224,6 +223,8 @@ namespace Duel6
 	void    WPN_LoadTextures(void);
 	void    WPN_FreeTextures(void);
 	void    WPN_Init(void);
+	void    WPN_DeInit(void);
+	void    WPN_LevelInit(void);
 	void    WPN_Shoot(Player& player);
 	void    WPN_MoveShots(void);
 	void    WPN_Boom(d6SHOT_s *s, Player *p);
@@ -312,6 +313,6 @@ namespace Duel6
 	void    MENU_SavePH(void);
 }
 
-#include "player.h"
+#include "Player.h"
 
 #endif

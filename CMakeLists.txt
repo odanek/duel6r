@@ -46,8 +46,7 @@ set(D6R_SOURCES
     source/anim.h
     source/anims.h
     source/bonus.cpp
-    source/coltexture.h
-    source/coltexture.cpp
+    source/Color.h
     source/duel6.cpp
     source/elevator.cpp
     source/explode.cpp
@@ -63,12 +62,16 @@ set(D6R_SOURCES
     source/menu.cpp
     source/msdir.c
     source/msdir.h
-    source/player.h
-    source/player.cpp
+    source/Player.h
+    source/Player.cpp
+    source/PlayerSkin.h
+    source/PlayerSkin.cpp
+    source/PlayerSkinColors.h
     source/project.cpp
     source/project.h
     source/render.cpp
     source/setup.cpp
+    source/Type.h
     source/util.cpp
     source/water.cpp
     source/weapon.cpp

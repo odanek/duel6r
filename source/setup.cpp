@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <SDL/SDL_mixer.h>
 #include "project.h"
-#include "coltexture.h"
 
 namespace Duel6
 {
@@ -50,23 +49,6 @@ namespace Duel6
 		D6_CL_WIDTH, 
 		D6_CL_HEIGHT 
 	};
-
-	/*
-	==================================================
-	Init skin data
-	==================================================
-	*/
-	void SET_InitSkins(void)
-	{
-		int     i, j;
-
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
-		{
-			for (j = 0; j < 8; j++)
-				d6PlayerSkin[i][j] = 0;
-			d6Player[i] = NULL;
-		}
-	}
 
 	/*
 	==================================================
@@ -104,8 +86,8 @@ namespace Duel6
 		}
 
 		// Set graphics mode
-		VID_SetMode(d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
-		//VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);
+		//VID_SetMode(d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
+		VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);
 
 		g_vid.gl_fov = 45.0f;
 		g_vid.gl_nearclip = 0.1f;
@@ -167,6 +149,7 @@ namespace Duel6
 		{
 			d6Player[i] = new Player(i);
 			MY_RegMem(d6Player[i], sizeof (Player));
+			d6Player[i]->SetSkin(d6PlayerSkin[i]);
 		}
 	}
 
@@ -203,7 +186,7 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
 		PLAYER_PrepareAll();
 		g_app.con->printf(MY_L("APP00067|...Inicializace urovne\n"));
-		WPN_Init();
+		WPN_LevelInit();
 		KONTR_Init();
 		EXPL_Init();
 		INFO_Init();
@@ -275,7 +258,7 @@ namespace Duel6
 			delete d6Player[i];
 		}
 
-		d6ShtTexture.DeInit();
+		WPN_DeInit();
 	}
 
 	/*
@@ -374,12 +357,12 @@ namespace Duel6
 	{
 		int     i, pl, pos, num, exp16, c;
 
-		if (con->argc() == 10)
+		if (con->argc() == 11)
 		{
 			pl = atoi(con->argv(1));
 			if (pl >= 0 && pl < D6_MAX_PLAYERS)
 			{
-				for (i = 0; i < 8; i++)
+				for (i = 0; i < 9; i++)
 				{
 					pos = strlen(con->argv(i + 2)) - 1;
 					num = 0;
@@ -394,7 +377,9 @@ namespace Duel6
 						pos--;
 						exp16 *= 16;
 					}
-					d6PlayerSkin[pl][i] = num;
+
+					Color color((num & 0xff0000) >> 16, (num & 0xff00) >> 8, num & 0xff);
+					d6PlayerSkin[pl].Set((PlayerSkinColors::BodyPart)i, color);
 				}
 				con->printf("Skin %d: OK\n", pl);
 			}
@@ -405,15 +390,25 @@ namespace Duel6
 			if (pl >= 0 && pl < D6_MAX_PLAYERS)
 			{
 				con->printf("Skin %d: ", pl);
-				for (i = 0; i < 8; i++)
-					con->printf("%x ", d6PlayerSkin[pl][i]);
+				for (i = 0; i < 9; i++)
+				{
+					const Color& color = d6PlayerSkin[pl].Get((PlayerSkinColors::BodyPart)i);
+					con->printf("%02x%02x%02x ", color.Red(), color.Green(), color.Blue());
+				}
 				con->printf("\n");
 			}
 		}
+
 		if (con->argc() == 1)
+		{
 			for (i = 0; i < D6_MAX_PLAYERS; i++)
-				if (d6Player[i] != NULL)
-					d6Player[i]->Skin();
+			{
+				if (d6Player[i] != nullptr)
+				{
+					d6Player[i]->SetSkin(d6PlayerSkin[i]);
+				}
+			}
+		}
 	}
 
 	/*
@@ -518,7 +513,6 @@ namespace Duel6
 		SOUND_Init(20, 30, 1);
 
 		SET_InitUserFiles();
-		SET_InitSkins();
 		SET_InitWeapons();
 
 		// Read config file
@@ -536,7 +530,7 @@ namespace Duel6
 		FIRE_Init();
 		SET_Players();
 
-		d6ShtTexture.Init(83, 44, 0);
+		WPN_Init();
 
 		MENU_Init();
 		MENU_Start();

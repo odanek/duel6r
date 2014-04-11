@@ -25,42 +25,27 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_COLTEXTURE_H
-#define DUEL6_COLTEXTURE_H
+#ifndef DUEL6_TYPE_H
+#define DUEL6_TYPE_H
 
-#include "project.h"
+#include <stdint.h>
 
 namespace Duel6
 {
-	#define D6_COL_WPN_SHT      16
+	typedef uint8_t Uint8;
+	typedef uint16_t Uint16;
+	typedef uint32_t Uint32;
+	typedef uint64_t Uint64;
 
-	class ColorTexture
-	{
-	private:
-		myUINT          *m_glTexture;
-		int             m_textures;
+	typedef int8_t Int8;
+	typedef int16_t Int16;
+	typedef int32_t Int32;
+	typedef int64_t Int64;
 
-	public:
-		ColorTexture()
-			: m_glTexture(NULL)
-		{}
+	typedef float Float32;
+	typedef double Float64;
 
-		~ColorTexture(void)
-		{
-			DeInit();
-		}
-
-		void    Init(myBYTE reg, myBYTE green, myBYTE blue);
-		void    DeInit();
-		bool    IsInited()
-		{
-			return (m_glTexture != NULL);
-		}
-		myUINT  *GetTexPtr()
-		{
-			return m_glTexture;
-		}
-	};
+	typedef Uint32 Size;
 }
 
 #endif

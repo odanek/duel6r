@@ -27,14 +27,20 @@
 
 #include <stdlib.h>
 #include "project.h"
-#include "coltexture.h"
+#include "PlayerSkin.h"
+
+#define D6_COL_WPN_SHT      16
 
 namespace Duel6
 {
 	myUINT *d6WpnTexture;
-	ColorTexture d6ShtTexture;
-	static int d6WpnTextures, d6Shots;
-	static d6SHOT_s d6Shot[ANM_MAX];
+	
+	namespace
+	{
+		int d6WpnTextures, d6Shots;
+		PlayerSkin *brownSkin;
+		d6SHOT_s d6Shot[ANM_MAX];
+	}
 
 	void WPN_LoadTextures(void)
 	{
@@ -67,6 +73,18 @@ namespace Duel6
 	}
 
 	void WPN_Init(void)
+	{
+		Color brownColor(83, 44, 0);
+		PlayerSkinColors skinColors(brownColor);
+		brownSkin = new PlayerSkin(skinColors);
+	}
+
+	void WPN_DeInit(void)
+	{
+		delete brownSkin;
+	}
+
+	void WPN_LevelInit(void)
 	{
 		d6Shots = 0;
 	}
@@ -177,7 +195,7 @@ namespace Duel6
 			{
 				if (s->GN == D6_COL_WPN_SHT)
 				{
-					player->SetColorTexture(d6ShtTexture);
+					player->UseTemporarySkin(*brownSkin);
 				}
 				else
 				{
@@ -195,7 +213,7 @@ namespace Duel6
 				{
 					if (s->GN == D6_COL_WPN_SHT)
 					{
-						player->SetColorTexture(d6ShtTexture);
+						player->UseTemporarySkin(*brownSkin);
 					}
 					else
 					{
