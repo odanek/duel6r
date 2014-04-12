@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "project.h"
-#include "levels.h"
+#include "LevelList.h"
 #include "glib.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"

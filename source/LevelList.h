@@ -25,39 +25,42 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "msdir.h"
-#include "levels.h"
+#ifndef DUEL6_LEVELLIST_H
+#define DUEL6_LEVELLIST_H
+
+#include <string>
+#include <vector>
+#include "Type.h"
 
 namespace Duel6
 {
-	void LevelList::Initialize(const std::string& directoryName, const std::string& fileExtension)
+	class LevelList
 	{
-		m_directory = directoryName;
-		m_fileNames.clear();
+	private:
+		std::string m_directory;
+		std::vector<std::string> m_fileNames;
 
-		DIR* handle = opendir(directoryName.c_str());
-		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
-
-		while (ff != nullptr)
-		{
-			if (NameEndsWith(ff->d_name, fileExtension))
-			{
-				m_fileNames.push_back(ff->d_name);
-			}
-
-			ff = readdir(handle);
+	public:
+		void Initialize(const std::string& directoryName, const std::string& fileExtension);
+		
+		Size Length()
+		{ 
+			return m_fileNames.size();
 		}
 
-		closedir(handle);
-	}
-
-	bool LevelList::NameEndsWith(const std::string& name, const std::string& suffix) const
-	{
-		if (name.length() >= suffix.length())
-		{
-			return (name.compare(name.length() - suffix.length(), suffix.length(), suffix) == 0);
+		const std::string& FileName(Size index) const
+		{ 
+			return m_fileNames[index]; 
 		}
 
-		return false;
-	}
+		std::string Path(Size index) const
+		{ 
+			return m_directory + FileName(index); 
+		}
+
+	private:
+		bool NameEndsWith(const std::string& name, const std::string& suffix) const;
+	};
 }
+
+#endif

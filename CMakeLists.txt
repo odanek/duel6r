@@ -55,8 +55,8 @@ set(D6R_SOURCES
     source/glib.h
     source/info.cpp
     source/kontrola.cpp
-    source/levels.h
-    source/levels.cpp
+    source/LevelList.h
+    source/LevelList.cpp
     source/loader.cpp
     source/loader.h
     source/menu.cpp
