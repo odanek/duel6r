@@ -98,7 +98,7 @@ namespace Duel6
 		d6ANM       Anm;
 	};
 
-	void    LOADER_LoadWorld(const char *lev, d6WORLD *world, int add, bool mirror, int(*bonus)[3]);
+	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, int add, bool mirror, int(*bonus)[3]);
 }
 
 #endif

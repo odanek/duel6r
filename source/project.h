@@ -28,6 +28,7 @@
 #ifndef DUEL6_PROJECT_H
 #define DUEL6_PROJECT_H
 
+#include <string>
 #include "core/co_core.h"
 #include "mylib/mycam.h"
 #include "sound/sound.h"
@@ -47,6 +48,8 @@
 #define D6_FILE_PHIST       "data/duel6.dat"
 #define D6_FILE_LABEL       "data/label.kh3"
 #define D6_FILE_SKIN        "data/skin.txt"
+
+#define D6_LEVEL_EXTENSION	".lev"
 
 #define D6_CL_WIDTH         800
 #define D6_CL_HEIGHT        600
@@ -189,7 +192,7 @@ namespace Duel6
 	//                          setup.cpp                               //
 	//////////////////////////////////////////////////////////////////////
 	void    SET_LoadBackground(int n);
-	void    SET_LoadWorld(const char *fl);
+	void    SET_LoadWorld(const std::string& path);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          util.cpp                                //
@@ -255,7 +258,7 @@ namespace Duel6
 	void    ELEV_Free(void);
 	void    ELEV_MoveAll(void);
 	void    ELEV_DrawAll(void);
-	void    ELEV_Load(const char *sou, bool mirror);
+	void    ELEV_Load(const std::string& path, bool mirror);
 	void    ELEV_CheckMan(Player& player);
 	void    ELEV_MoveMan(Player& player);
 

@@ -28,45 +28,38 @@
 #ifndef DUEL6_LEVELS_H
 #define DUEL6_LEVELS_H
 
-#include <stdlib.h>
+#include <string>
+#include <vector>
+#include "Type.h"
 
 namespace Duel6
 {
 	class LevelList
 	{
 	private:
-		char **m_lev;
-		char **m_name;
-		size_t  m_count;
-		bool m_init;
+		std::string m_directory;
+		std::vector<std::string> m_fileNames;
 
 	public:
-		LevelList() 
-			: m_lev(NULL), m_name(NULL), m_count(0), m_init(false) 
-		{}
-
-		~LevelList() 
-		{ 
-			DeInit(); 
-		}
-
-		void Init(const char *dir);
-		void DeInit();
+		void Initialize(const std::string& directoryName, const std::string& fileExtension);
 		
-		size_t Count() 
+		Size Length()
 		{ 
-			return m_count; 
+			return m_fileNames.size();
 		}
 
-		const char *Name(size_t num) 
+		const std::string& FileName(Size index) const
 		{ 
-			return m_name[num]; 
+			return m_fileNames[index]; 
 		}
 
-		const char *Path(size_t num) 
+		std::string Path(Size index) const
 		{ 
-			return m_lev[num]; 
+			return m_directory + FileName(index); 
 		}
+
+	private:
+		bool NameEndsWith(const std::string& name, const std::string& suffix) const;
 	};
 }
 

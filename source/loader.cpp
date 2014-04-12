@@ -324,7 +324,7 @@ namespace Duel6
 	tak budou uvolneny
 	===================
 	*/
-	void LOADER_LoadWorld(const char *lev, d6WORLD *world, int add, bool mirror, int(*bonus)[3])
+	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, int add, bool mirror, int(*bonus)[3])
 	{
 		int         x, y, b;
 		myFile_s    *f;
@@ -336,7 +336,7 @@ namespace Duel6
 		if (w->Face != NULL) MY_Free(w->Face);
 		if (l->Data != NULL) MY_Free(l->Data);
 
-		f = MY_FOpen(lev, 0, "rb", true);
+		f = MY_FOpen(path.c_str(), 0, "rb", true);
 		MY_FRead(&l->SizeX, 4, 1, f);
 		MY_FRead(&l->SizeY, 4, 1, f);
 		MY_FSeek(f, 12, SEEK_SET);

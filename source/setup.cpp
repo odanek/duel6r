@@ -163,13 +163,13 @@ namespace Duel6
 		d6BcgLoaded = true;
 	}
 
-	void SET_LoadWorld(const char *fl)
+	void SET_LoadWorld(const std::string& path)
 	{
 		bool    mirror = rand() % 2 ? true : false;
 		int     av, bonus[D6_BONUS_MAX][3];
 
-		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), fl);
-		LOADER_LoadWorld(fl, &d6World, ANM_MAX, mirror, bonus);
+		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), path.c_str());
+		LOADER_LoadWorld(path, &d6World, ANM_MAX, mirror, bonus);
 		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.Level.SizeX);
 		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.Level.SizeY);
 		g_app.con->printf(MY_L("APP00063|...Bloku   : %d\n"), d6World.Blocks);
@@ -191,7 +191,7 @@ namespace Duel6
 		EXPL_Init();
 		INFO_Init();
 		BONUS_Init(bonus);
-		ELEV_Load(fl, mirror);
+		ELEV_Load(path, mirror);
 		FIRE_Find();
 		d6Winner = -1;
 

@@ -251,7 +251,7 @@ namespace Duel6
 		}
 	}
 
-	void ELEV_Load(const char *sou, bool mirror)
+	void ELEV_Load(const std::string& path, bool mirror)
 	{
 		myFile_s    *f;
 		int         l, *e;
@@ -259,14 +259,14 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00026|...Nahravam vytahy - "));
 		ELEV_Free();
 
-		l = MY_FSize(sou) - (12 + 2 * d6World.Level.Size);
+		l = MY_FSize(path.c_str()) - (12 + 2 * d6World.Level.Size);
 
 		if (l < 1)
 			return;
 
 		e = D6_MALLOC(int, l >> 2);
 
-		f = MY_FOpen(sou, 12 + 2 * d6World.Level.Size, "rb", true);
+		f = MY_FOpen(path.c_str(), 12 + 2 * d6World.Level.Size, "rb", true);
 		MY_FRead(e, 4, l >> 2, f);
 		MY_FClose(&f);
 

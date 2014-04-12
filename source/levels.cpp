@@ -26,46 +26,23 @@
 */
 
 #include "msdir.h"
-#include "project.h"
 #include "levels.h"
-
-#define D6_LEVELS_MAX       1000
 
 namespace Duel6
 {
-	void LevelList::Init(const char *dir)
+	void LevelList::Initialize(const std::string& directoryName, const std::string& fileExtension)
 	{
-		DIR                 *handle;
-		struct dirent       *ff;
-		size_t              dnlen;
+		m_directory = directoryName;
+		m_fileNames.clear();
 
-		// Allocate room for level file names
-		m_lev = (char **)MY_Alloc(D6_LEVELS_MAX * sizeof(char *));
-		m_name = (char **)MY_Alloc(D6_LEVELS_MAX * sizeof(char *));
-		m_init = true;
+		DIR* handle = opendir(directoryName.c_str());
+		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
 
-		dnlen = strlen(dir);
-		handle = opendir(dir);
-		ff = (handle == NULL) ? NULL : readdir(handle);
-
-		while (ff != NULL && m_count < D6_LEVELS_MAX)
+		while (ff != nullptr)
 		{
-			if (ff->d_name[0] != '.')
+			if (NameEndsWith(ff->d_name, fileExtension))
 			{
-				size_t fnlen = strlen(ff->d_name);
-
-				if (fnlen > 4)
-				{
-					if (!strcmp(".lev", ff->d_name + fnlen - 4))
-					{
-						m_lev[m_count] = (char *)MY_Alloc((dnlen + fnlen + 1) * sizeof(char));
-						m_name[m_count] = (char *)MY_Alloc((fnlen - 3) * sizeof(char));
-						sprintf(m_lev[m_count], "%s%s", dir, ff->d_name);
-						strncpy(m_name[m_count], ff->d_name, fnlen - 4);
-						m_name[m_count][fnlen - 4] = 0;
-						m_count++;
-					}
-				}
+				m_fileNames.push_back(ff->d_name);
 			}
 
 			ff = readdir(handle);
@@ -74,21 +51,13 @@ namespace Duel6
 		closedir(handle);
 	}
 
-	void LevelList::DeInit()
+	bool LevelList::NameEndsWith(const std::string& name, const std::string& suffix) const
 	{
-		if (m_init)
+		if (name.length() >= suffix.length())
 		{
-			for (size_t i = 0; i < m_count; i++)
-			{
-				MY_Free(m_lev[i]);
-				MY_Free(m_name[i]);
-			}
-
-			m_count = 0;
-			MY_Free(m_lev);
-			MY_Free(m_name);
-
-			m_init = false;
+			return (name.compare(name.length() - suffix.length(), suffix.length(), suffix) == 0);
 		}
+
+		return false;
 	}
 }

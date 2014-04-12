@@ -35,7 +35,7 @@
 
 namespace Duel6
 {
-	LevelList			d6LevelList;
+	static LevelList    d6LevelList;
 	static d6PHIST_s    *d6PHist;
 	static desk_c       *myDesk;
 	static button_c     *myButton[7];
@@ -77,7 +77,6 @@ namespace Duel6
 
 	void MENU_Free(void)
 	{
-		d6LevelList.DeInit();
 		MY_Free(d6PHist);
 		MY_UnregMem(myDesk);
 		delete myDesk;
@@ -307,11 +306,11 @@ namespace Duel6
 		MENU_JoyRescan();
 
 		MENU_GetBcgCount();
-		d6LevelList.Init(D6_FILE_LEVEL);
+		d6LevelList.Initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
 		myListbox[3]->AddItem(MY_L("APP00046|Nahodna"));
-		for (i = 0; i < (int)d6LevelList.Count(); i++)
-			myListbox[3]->AddItem(d6LevelList.Name((size_t)i));
+		for (i = 0; i < (int)d6LevelList.Length(); i++)
+			myListbox[3]->AddItem(d6LevelList.FileName((Size)i).c_str());
 
 		myListbox[4]->AddItem(MY_L("APP00047|Nahodne"));
 		for (i = 0; i < d6Backs; i++)
@@ -526,7 +525,7 @@ namespace Duel6
 		if (!same_level || last == -1)
 		{
 			if (!myListbox[3]->CurItem())
-				last = rand() % d6LevelList.Count();
+				last = rand() % d6LevelList.Length();
 			else
 				last = myListbox[3]->CurItem() - 1;
 		}
