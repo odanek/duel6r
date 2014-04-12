@@ -60,7 +60,7 @@ Datove struktury
 */
 struct app_s
 {
-    int         fps;                // Aktualni pocet obrazku za sekundu
+    float       fps;                // Aktualni pocet obrazku za sekundu
     float       frame_interval;     // Cas straveny vykreslenim jednoho framu
     bool        flags;              // Flagy aplikace
     con_c       *con;               // Konzole

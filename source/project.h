@@ -34,6 +34,9 @@
 #include "sound/sound.h"
 #include "loader.h"
 #include "anim.h"
+#include "Type.h"
+#include "Orientation.h"
+#include "ScreenMode.h"
 
 #define D6_FILE_CONFIG      "data/config.txt"
 #define D6_FILE_ART         "data/duel6.kh3"
@@ -79,12 +82,6 @@ namespace Duel6
 	class Player; // Forward declaration
 	class ColorTexture; // Forward declaration
 
-	enum
-	{
-		D6_ZM_FULL,
-		D6_ZM_SCROLL
-	};
-
 	struct d6VIEW_s
 	{
 		int     X;
@@ -124,7 +121,7 @@ namespace Duel6
 		float           Y;
 		d6WEAPONDEF_s   *WD;
 		int             A;
-		int             O;
+		Orientation     O;
 		Player          *Author;
 		int             GN;
 		int             I;
@@ -167,9 +164,11 @@ namespace Duel6
 	extern  d6WORLD     d6World;
 	extern  myUINT      d6BackTex;
 	extern  bool        d6InMenu;
-	extern  int         d6Wireframe, d6ZoomBlc, d6ZoomMode, d6Playing;
+	extern  int         d6Wireframe, d6ZoomBlc;
+	extern  Size		d6Playing;
 	extern  bool        d6ShowFps, d6PlayMusic;
 	extern  int			d6AmmoRangeMin, d6AmmoRangeMax;
+	extern ScreenMode d6ScreenMode;
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp                               //
@@ -183,16 +182,14 @@ namespace Duel6
 	float   D6_Cos(int a);
 	void    D6_ConSwitchW(con_c *con);
 	void    D6_ConShowFps(con_c *con);
-	void    D6_SetView(d6VIEW_s *w);
-	void    D6_SetView(int x, int y, int width, int height);
 	void    D6_SetGLMode(int mode);
+	void    D6_StartGame(const std::string& levelPath);
 	void    D6_GameLoop(void);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          setup.cpp                               //
 	//////////////////////////////////////////////////////////////////////
 	void    SET_LoadBackground(int n);
-	void    SET_LoadWorld(const std::string& path);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          util.cpp                                //
@@ -212,8 +209,9 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	//                          render.cpp                              //
 	//////////////////////////////////////////////////////////////////////
-	void    RENDER_MoveScene(void);
-	void    RENDER_DrawScene(void);
+	void    RENDER_MoveAnm();
+	void	RENDER_InitScreen();
+	void    RENDER_DrawScene(ScreenMode screenMode);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          weapon.cpp                              //

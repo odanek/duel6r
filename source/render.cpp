@@ -29,6 +29,16 @@
 
 namespace Duel6
 {
+	void RENDER_SetView(d6VIEW_s& w)
+	{
+		glViewport(w.X, w.Y, w.Width, w.Height);
+	}
+
+	void RENDER_SetView(int x, int y, int width, int height)
+	{
+		glViewport(x, y, width, height);
+	}
+
 	static void RENDER_Blocks(int start, int blocks)
 	{
 		myUINT      *ta = d6World.Anm.TexGlNum, t;
@@ -86,7 +96,7 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	static void RENDER_MoveAnm(void)
+	void RENDER_MoveAnm(void)
 	{
 		d6FACE  *f = d6World.Face;
 		int     i;
@@ -178,33 +188,34 @@ namespace Duel6
 
 	static void RENDER_PlayersInfo(void)
 	{
-		int     i, x, y;
+		int     x, y;
 
 		CO_FontColor(0, 0, 255);
 
-		for (i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < d6Playing; i++)
 			RENDER_PlayerStatus(&d6Player[i]->State);
 
 		if (d6ShowFps)
 		{
 			x = g_vid.cl_width - 80;
 			y = g_vid.cl_height - 20;
-			i = (int)g_app.fps;
-			if (i < 10)
-				i = 1;
-			else if (i < 100)
-				i = 2;
-			else if (i < 1000)
-				i = 3;
+			int fps = (int)g_app.fps;
+			int length = 0;
+			if (fps < 10)
+				length = 1;
+			else if (fps < 100)
+				length = 2;
+			else if (fps < 1000)
+				length = 3;
 			else
-				i = 4;
-			i = ((6 + i) << 3) + 2;
+				length = 4;
+			int width = ((6 + length) << 3) + 2;
 
 			glBegin(GL_QUADS);
 			glColor3f(0.0f, 0.0f, 0.0f);
 			glVertex2i(x - 1, y + 17);
-			glVertex2i(x + i, y + 17);
-			glVertex2i(x + i, y - 1);
+			glVertex2i(x + width, y + 17);
+			glVertex2i(x + width, y - 1);
 			glVertex2i(x - 1, y - 1);
 			glEnd();
 
@@ -215,14 +226,14 @@ namespace Duel6
 		INFO_DrawAll();
 	}
 
-	static void RENDER_InvulRing(d6PLSTATE_s *s)
+	static void RENDER_InvulRing(Player& player)
 	{
 		float   x, y, X, Y;
 		int     p, uh, u;
 
-		x = s->X + 0.5f;
-		y = s->Y - 0.5f;
-		p = (int(s->BD) / 2) % 360;
+		x = player.GetX() + 0.5f;
+		y = player.GetY() - 0.5f;
+		p = (int(player.State.BD) / 2) % 360;
 
 		glColor3ub(255, 0, 0);
 		glDisable(GL_TEXTURE_2D);
@@ -243,24 +254,22 @@ namespace Duel6
 		glColor3ub(255, 255, 255);
 	}
 
-	static void RENDER_Invuls(d6PLSTATE_s *s)
+	static void RENDER_InvulRings()
 	{
-		int     i;
-
-		if (d6ZoomMode == D6_ZM_FULL)
+		for (Size i = 0; i < d6Playing; i++)
 		{
-			for (i = 0; i < d6Playing; i++)
-				if (d6Player[i]->State.Bonus == D6_BONUS_INVUL)
-					RENDER_InvulRing(&d6Player[i]->State);
+			Player& player = *d6Player[i];
+
+			if (player.IsInvulnerable())
+			{
+				RENDER_InvulRing(player);
+			}
 		}
-		else
-			if (s->Bonus == D6_BONUS_INVUL)
-				RENDER_InvulRing(s);
 	}
 
-	static void RENDER_SplitBox(d6VIEW_s *view)
+	static void RENDER_SplitBox(d6VIEW_s& view)
 	{
-		glViewport(view->X - 2, view->Y - 2, view->Width + 4, view->Height + 4);
+		glViewport(view.X - 2, view.Y - 2, view.Width + 4, view.Height + 4);
 		glColor3f(1, 0, 0);
 		glBegin(GL_QUADS);
 		glVertex2i(0, 0);
@@ -269,102 +278,93 @@ namespace Duel6
 		glVertex2i(g_vid.cl_width, 0);
 		glEnd();
 		glColor3f(1, 1, 1);
-		glViewport(view->X, view->Y, view->Width, view->Height);
 	}
 
-	static void RENDER_View(Player *p)
+	static void RENDER_View(Player& player)
 	{
 		glLoadIdentity();
-		p->Camera->look();
+		player.Camera->look();
 
 		if (d6Wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-		if (p->IsDead() && d6ZoomMode == D6_ZM_SCROLL)
-			glColor3f(1.0f, 0.5f, 0.5f);
 
 		RENDER_Blocks(0, d6World.Blocks);
 		RENDER_Sprites();
 		ELEV_DrawAll();
 		ANM_DrawAll();
 		BONUS_DrawAll();
-		RENDER_Invuls(&p->State);
+		RENDER_InvulRings();
 		RENDER_Water();
 		EXPL_DrawAll();
 
 		if (d6Wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glColor3f(1, 1, 1);
 	}
 
-	void RENDER_MoveScene(void)
+	static void RENDER_FullScreen()
 	{
-		CO_InpUpdate();
-		PLAYER_UpdateAll();
-		RENDER_MoveAnm();
-		ANM_MoveAll();
-		WATER_Move();
-		WPN_MoveShots();
-		EXPL_MoveAll();
-		ELEV_MoveAll();
-		INFO_MoveAll();
-		BONUS_AddNew();
-
-		// Ochrana pred nekolikanasobnym zmacknutim klavesy
-		d6KeyWait -= g_app.frame_interval;
-		if (d6KeyWait < 0)
-			d6KeyWait = 0;
-	}
-
-	void RENDER_DrawScene(void)
-	{
-		int     i;
-
-		if (d6Wireframe || d6ZoomMode != D6_ZM_FULL)
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		else
-			glClear(GL_DEPTH_BUFFER_BIT);
-
-		if (d6Winner < 0)
-		{
-			glColor3f(1, 1, 1);
-		}
-		else
+		if (d6Winner > 0)
 		{
 			float overlay = d6GameOverWait / D6_GAME_OVER_WAIT;
 			glColor3f(1, overlay, overlay);
 		}
 
-		if (d6ZoomMode == D6_ZM_SCROLL)
-			for (i = 0; i < d6Playing; i++)
-			{
-				RENDER_SplitBox(&d6Player[i]->View);
+		Player& player = *d6Player[0];
+		RENDER_SetView(player.View);
+		RENDER_Background();
+		D6_SetGLMode(D6_GL_PERSPECTIVE);
+		RENDER_View(player);
+	}
 
-				if (d6Player[i]->IsDead() && d6ZoomMode == D6_ZM_SCROLL)
-					glColor3f(1.0f, 0.5f, 0.5f);
+	static void RENDER_SplitScreen()
+	{
+		for (Size i = 0; i < d6Playing; i++)
+		{
+			Player& player = *d6Player[i];
 
-				RENDER_Background();
-				glColor3f(1, 1, 1);
-			}
+			D6_SetGLMode(D6_GL_ORTHO);
+			RENDER_SplitBox(player.View);
+
+			if (player.IsDead())
+				glColor3f(1.0f, 0.5f, 0.5f);
+
+			RENDER_SetView(player.View);
+			RENDER_Background();
+
+			D6_SetGLMode(D6_GL_PERSPECTIVE);
+			RENDER_View(player);
+
+			glColor3f(1, 1, 1);
+		}
+	}
+
+	void RENDER_InitScreen()
+	{
+		glDrawBuffer(GL_FRONT_AND_BACK);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDrawBuffer(GL_BACK);
+	}
+
+	void RENDER_DrawScene(ScreenMode screenMode)
+	{
+		if (d6Wireframe || screenMode == ScreenMode::SplitScreen)
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		else
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+		glColor3f(1.0f, 1.0f, 1.0f);
+		if (screenMode == ScreenMode::FullScreen)
+		{
+			RENDER_FullScreen();
+		}
 		else
 		{
-			D6_SetView(&d6Player[0]->View);
-			RENDER_Background();
+			RENDER_SplitScreen();
 		}
 
-		D6_SetGLMode(D6_GL_PERSPECTIVE);
-
-		if (d6ZoomMode == D6_ZM_SCROLL)
-			for (i = 0; i < d6Playing; i++)
-			{
-				D6_SetView(&d6Player[i]->View);
-				RENDER_View(d6Player[i]);
-			}
-		else
-			RENDER_View(d6Player[0]);
-
 		D6_SetGLMode(D6_GL_ORTHO);
-		D6_SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
+		RENDER_SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
+		glColor3f(1.0f, 1.0f, 1.0f);
 		RENDER_PlayersInfo();
 	}
 }

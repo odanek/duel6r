@@ -29,6 +29,7 @@
 #define DUEL6_PLAYER_H
 
 #include "PlayerSkin.h"
+#include "Orientation.h"
 
 #define D6_PLAYER_MAX_SPEED     32
 #define D6_PLAYER_ACCEL         0.001f
@@ -71,12 +72,12 @@ namespace Duel6
 	struct d6PLSTATE_s
 	{
 		int         Flags;      // Flags
-		int         I;          // Offset in d6Player array
+		int         I;          // Offset in d6Player array - DEPRECATED
 		int         A;          // Animation number
 		int         GA;         // Gun animation
 		int         GN;         // Gun number
 		float       Speed;      // Speed of movement
-		int         O;          // Orientation (0 = left, 1 = right)
+		Orientation O;          // Orientation
 		float       J;          // Jump phase
 		float       X;          // X position
 		float       Y;          // Y position
@@ -88,7 +89,7 @@ namespace Duel6
 		int         Elev;       // Standing on elevator
 		int         Bonus;      // Bonus
 		float       BD;         // Bonus duration
-		float       SD;         // Sht duration
+		float       SD;         // Temporary skin duration
 		bool        InWater;    // Player is in the water
 		d6PHIST_s   *PH;        // Player history
 	};
@@ -111,21 +112,22 @@ namespace Duel6
 		Player& SetSkin(const PlayerSkinColors& skinColors);
 		void PrepareForGame();
 
-		void    SetView(int x, int y, int w, int h);
-		void    Left(void);
-		void    Right(void);
-		void    Jump(void);
-		void    Fall(void);
-		void    Pick(void);
-		void    MakeMove(void);
-		void    SetAnm(void);
-		void    CheckKeys(void);
-		void    PrepareCam(void);
-		void    UpdateCam(void);
-		void    SetControls(int n);
-		bool    Hit(float pw, d6SHOT_s *s, bool hit); // Returns true if the shot caused the player to die
+		void SetView(int x, int y, int w, int h);
+		void Left();
+		void Right();
+		void Jump();
+		void Fall();
+		void Pick();
+		void MakeMove();
+		void SetAnm();
+		void CheckKeys();
+		void Update();
+		void PrepareCam(ScreenMode screenMode);
+		void UpdateCam();
+		void SetControls(int n);
+		bool Hit(float pw, d6SHOT_s *s, bool hit); // Returns true if the shot caused the player to die
+		void CheckWater(const d6LEVEL& level);
 
-		int GetIndex();
 		float GetX();
 		float GetY();
 
@@ -133,6 +135,7 @@ namespace Duel6
 		bool IsKneeling() const;
 		bool IsLying() const;
 		bool IsDead() const;
+		bool IsInvulnerable() const;
 
 		void UseTemporarySkin(PlayerSkin& skin);
 		void SwitchToOriginalSkin();
@@ -148,9 +151,7 @@ namespace Duel6
 	//                          player.cpp                              //
 	//////////////////////////////////////////////////////////////////////
 
-	void    PLAYER_PrepareViews(void);
-	void    PLAYER_UpdateAll(void);
-	void    PLAYER_PrepareAll(void);
+	void    PLAYER_PrepareViews(ScreenMode screenMode);
 }
 
 #endif

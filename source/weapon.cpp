@@ -112,7 +112,7 @@ namespace Duel6
 
 		s->PH->Shots++;
 		sh->Y = s->Y - ad;
-		sh->X = (s->O == 0) ? (s->X - 0.65f) : (s->X + 0.65f);
+		sh->X = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
 		sh->O = s->O;
 		sh->GN = s->GN;
 		sh->WD = &d6WpnDef[s->GN];
@@ -145,17 +145,17 @@ namespace Duel6
 		{
 			s = &d6Shot[i];
 
-			if (s->O)
+			if (s->O == Orientation::Right)
 				s->X += s->WD->ShotSpeed * g_app.frame_interval;
 			else
 				s->X -= s->WD->ShotSpeed * g_app.frame_interval;
 
-			ANM_ReSet(s->A, s->X, s->Y, -1, -1, NULL);
+			ANM_ReSet(s->A, s->X, s->Y, -1, Orientation::None, NULL);
 
 			if (KONTR_Shot(s))
 			{
 				ANM_RemoveFlags(s->A, ANM_FLAG_ALL);
-				x = (!s->O) ? s->X - 0.3f : s->X + 0.3f;
+				x = (s->O == Orientation::Left) ? s->X - 0.3f : s->X + 0.3f;
 				j = ANM_Add(x, s->Y + 0.3f, 0.6f, 2, ANM_LOOP_ONEKILL, s->O, d6BoomAnm[s->GN], d6WpnTexture, true);
 				if (s->Author->HasPowerfulShots())
 					ANM_Grow(j, s->WD->ExpGrow * 1.2f);
@@ -181,13 +181,13 @@ namespace Duel6
 		int dosah = s->GetExplosionRange();
 		int sila = s->GetExplosionPower();
 
-		float X = (s->O == 0) ? (s->X + 0.32f) : (s->X + 0.67f);
+		float X = (s->O == Orientation::Left) ? (s->X + 0.32f) : (s->X + 0.67f);
 		float Y = s->Y - 0.17f;
 
 		if (s->GN != D6_COL_WPN_SHT)
 			FIRE_Check(X, Y, dosah);
 
-		for (int i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < d6Playing; i++)
 		{
 			Player *player = d6Player[i];
 

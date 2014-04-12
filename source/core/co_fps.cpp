@@ -47,28 +47,29 @@ Zaroven provadi vypocet fps.
 void CO_FpsSyncLoops (void (*move) (void), void (*draw) (void))
 {
     static unsigned long    cur_time = 0, last_fps_time = 0;
-    static int              fps_counter = 0;
+    static int              frame_counter = 0;
     unsigned long           last_time;
 
     last_time = cur_time;
     cur_time = SDL_GetTicks ();
 
-    // Spocitej fps
+    // Calculate fps
     if (cur_time - last_fps_time >= 1000)
     {
-        g_app.fps = fps_counter / (cur_time - last_fps_time);
+        g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
         last_fps_time = cur_time;
-        fps_counter = 0;
+        frame_counter = 0;
     }
+	frame_counter++;
 
-    // Synchronizuj
+	// Draw
+    draw ();
+    VID_SwapBuffers ();
+
+    // Update
     if (cur_time - last_time < 70)
     {
         g_app.frame_interval = (APP_FPS_SPEED * (cur_time - last_time)) * 0.001f;
         move ();
     }
-
-    fps_counter += 1000;
-    draw ();
-    VID_SwapBuffers ();
 }

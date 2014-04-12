@@ -163,43 +163,6 @@ namespace Duel6
 		d6BcgLoaded = true;
 	}
 
-	void SET_LoadWorld(const std::string& path)
-	{
-		bool    mirror = rand() % 2 ? true : false;
-		int     av, bonus[D6_BONUS_MAX][3];
-
-		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), path.c_str());
-		LOADER_LoadWorld(path, &d6World, ANM_MAX, mirror, bonus);
-		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.Level.SizeX);
-		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.Level.SizeY);
-		g_app.con->printf(MY_L("APP00063|...Bloku   : %d\n"), d6World.Blocks);
-		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.Sprites);
-		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.Waters);
-
-		glVertexPointer(3, GL_FLOAT, sizeof (d6VERTEX), (void *)&d6World.Vertex[0].X);
-		glTexCoordPointer(2, GL_FLOAT, sizeof (d6VERTEX), (void *)&d6World.Vertex[0].U);
-
-		d6World.Anm.Wait = 0;
-		WATER_Build();
-		av = d6World.Faces << 2;
-		ANM_Init(&d6World.Vertex[av], av);
-		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
-		PLAYER_PrepareAll();
-		g_app.con->printf(MY_L("APP00067|...Inicializace urovne\n"));
-		WPN_LevelInit();
-		KONTR_Init();
-		EXPL_Init();
-		INFO_Init();
-		BONUS_Init(bonus);
-		ELEV_Load(path, mirror);
-		FIRE_Find();
-		d6Winner = -1;
-
-		glDrawBuffer(GL_FRONT_AND_BACK);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawBuffer(GL_BACK);
-	}
-
 	/*
 	==================================================
 	Pokud neexistuji soubory config.txt a duel6.dat tak
@@ -500,7 +463,7 @@ namespace Duel6
 		g_app.con->regcmd(&SET_LoadSkin, "skin");
 		g_app.con->regcmd(&SET_EnableWeapon, "gun");
 		g_app.con->regcmd(&SET_AmmoRange, "start_ammo_range");
-		g_app.con->regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_INT);
+		g_app.con->regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
 		g_app.con->regvar(&d6ConVar.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6ConVar.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6ConVar.vid_width, "g_cl_width", CON_F_NONE, CON_VAR_INT);

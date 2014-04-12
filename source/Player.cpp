@@ -87,105 +87,6 @@ namespace Duel6
 	extern short    d6WpnAnm[D6_WEAPONS][16];
 	extern myUINT   *d6WpnTexture;
 
-	void PLAYER_CheckWater(Player *p, d6LEVEL *l, int *z)
-	{
-		bool    w = false;
-		int     X, Y, w_kind;
-
-		X = (int)(p->State.X + 0.5f);
-		Y = l->SizeY - (int)(p->State.Y - 0.2) - 1;
-		p->State.Flags &= ~D6_FLAG_INWATER;
-
-		if (X >= 0 && Y >= 0 && X < l->SizeX && Y < l->SizeY)
-			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
-			{
-				p->State.Flags |= D6_FLAG_INWATER;
-				if ((p->State.Air -= g_app.frame_interval) < 0)
-				{
-					p->State.Air = 0;
-					p->Hit(g_app.frame_interval, NULL, false);
-				}
-				return;
-			}
-
-		if (p->State.Air < D6_MAX_AIR)
-			p->State.Air++;
-
-		Y = l->SizeY - (int)(p->State.Y - 0.9) - 1;
-
-		if (X >= 0 && Y >= 0 && X < l->SizeX && Y < l->SizeY)
-			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
-			{
-				w = true;
-				w_kind = D6_BlockN(X, Y) == 4 ? 0 : 1;
-			}
-
-		if (w && !p->State.InWater)
-		{
-			ANM_Add(p->State.X, p->State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, 0, wtAnim[w_kind], d6WpnTexture, false);
-			SOUND_PlaySample(D6_SND_WATER);
-		}
-
-		p->State.InWater = w;
-	}
-
-	void PLAYER_UpdateAll(void)
-	{
-		Player *player;
-		d6LEVEL *l;
-		int *z;
-
-		l = &d6World.Level;
-		z = d6World.Anm.Znak;
-
-		for (int i = 0; i < d6Playing; i++)
-		{
-			player = d6Player[i];
-
-			PLAYER_CheckWater(player, l, z);
-			if (!player->IsDead())
-			{
-				BONUS_Check(*player);
-			}
-
-			player->CheckKeys();
-			player->MakeMove();
-			player->SetAnm();
-			player->UpdateCam();
-
-			// Move intervals
-			if (player->State.SI > 0)
-			{
-				if ((player->State.SI -= g_app.frame_interval) <= 0)
-				{
-					player->State.SI = 0;
-				}
-			}
-
-			if (player->State.BD > 0)
-			{
-				if ((player->State.BD -= g_app.frame_interval) <= 0)
-				{
-					if (player->State.Bonus == D6_BONUS_INVIS)
-					{
-						ANM_SetAlpha(player->State.A, 1);
-						ANM_SetAlpha(player->State.GA, 1);
-					}
-					player->State.Bonus = 0;
-					player->State.BD = 0;
-				}
-			}
-
-			if (player->State.SD > 0)
-			{
-				if ((player->State.SD -= g_app.frame_interval) <= 0)
-				{
-					player->SwitchToOriginalSkin();
-				}
-			}
-		}
-	}
-
 	static void PLAYER_FindStart(float *x, float *y)
 	{
 		d6LEVEL *l = &d6World.Level;
@@ -225,19 +126,18 @@ namespace Duel6
 		d6Player[i]->State.IBP[1] = y + 30;
 	}
 
-	void PLAYER_PrepareViews(void)
+	void PLAYER_PrepareViews(ScreenMode screenMode)
 	{
-		int     i, xShift = (g_vid.cl_width / 4) / 2 - 70;
+		int     xShift = (g_vid.cl_width / 4) / 2 - 70;
 
-		for (i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Player[i]->PrepareCam();
-			d6Player[i]->UpdateCam();
+			d6Player[i]->PrepareCam(screenMode);
 		}
 
-		if (d6ZoomMode == D6_ZM_FULL)
+		if (screenMode == ScreenMode::FullScreen)
 		{
-			for (i = 0; i < d6Playing; i++)
+			for (Size i = 0; i < d6Playing; i++)
 			{
 				d6Player[i]->SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
 
@@ -276,16 +176,6 @@ namespace Duel6
 			PLAYER_View(2, 2, g_vid.cl_height / 2 + 2);
 			PLAYER_View(3, g_vid.cl_width / 2 + 2, g_vid.cl_height / 2 + 2);
 		}
-	}
-
-	void PLAYER_PrepareAll(void)
-	{
-		for (int i = 0; i < d6Playing; i++)
-		{
-			d6Player[i]->PrepareForGame();
-		}
-
-		PLAYER_PrepareViews();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -331,13 +221,13 @@ namespace Duel6
 	void Player::PrepareForGame()
 	{
 		PLAYER_FindStart(&State.X, &State.Y);
-		State.A = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_FOREVER, 0, noAnim, m_skin->GlTexture(), false);
+		State.A = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_FOREVER, Orientation::Left, noAnim, m_skin->GlTexture(), false);
 		State.GN = WPN_GetRandomWeapon();
-		State.GA = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONESTOP, 0, d6WpnAnm[State.GN], d6WpnTexture, false);
+		State.GA = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONESTOP, Orientation::Left, d6WpnAnm[State.GN], d6WpnTexture, false);
 		ANM_SetAnm(State.GA, 6);
 		State.Flags = D6_FLAG_NONE;
 		State.Speed = 0;
-		State.O = 0;
+		State.O = Orientation::Left;
 		State.J = 0;
 		State.SI = 0;
 		State.Life = D6_MAX_LIFE;
@@ -372,7 +262,7 @@ namespace Duel6
 		if ((State.Speed -= g_app.frame_interval) < -D6_PLAYER_MAX_SPEED)
 			State.Speed = -D6_PLAYER_MAX_SPEED;
 		if (State.Speed < 0)
-			State.O = 0;
+			State.O = Orientation::Left;
 	}
 
 	void Player::Right(void)
@@ -382,7 +272,7 @@ namespace Duel6
 		if ((State.Speed += g_app.frame_interval) > D6_PLAYER_MAX_SPEED)
 			State.Speed = D6_PLAYER_MAX_SPEED;
 		if (State.Speed > 0)
-			State.O = 1;
+			State.O = Orientation::Right;
 	}
 
 	void Player::Jump(void)
@@ -476,6 +366,50 @@ namespace Duel6
 		if (CO_InpIsPressed(Keys->Down)) Fall();
 	}
 
+	void Player::Update()
+	{
+		CheckWater(d6World.Level);
+		if (!IsDead())
+		{
+			BONUS_Check(*this);
+		}
+
+		CheckKeys();
+		MakeMove();
+		SetAnm();
+
+		// Move intervals
+		if (State.SI > 0)
+		{
+			if ((State.SI -= g_app.frame_interval) <= 0)
+			{
+				State.SI = 0;
+			}
+		}
+
+		if (State.BD > 0)
+		{
+			if ((State.BD -= g_app.frame_interval) <= 0)
+			{
+				if (State.Bonus == D6_BONUS_INVIS)
+				{
+					ANM_SetAlpha(State.A, 1);
+					ANM_SetAlpha(State.GA, 1);
+				}
+				State.Bonus = 0;
+				State.BD = 0;
+			}
+		}
+
+		if (State.SD > 0)
+		{
+			if ((State.SD -= g_app.frame_interval) <= 0)
+			{
+				SwitchToOriginalSkin();
+			}
+		}
+	}
+
 	void Player::SetAnm(void)
 	{
 		float   ad = 0.0;
@@ -516,7 +450,7 @@ namespace Duel6
 			}
 	}
 
-	void Player::PrepareCam(void)
+	void Player::PrepareCam(ScreenMode screenMode)
 	{
 		float   fovX, fovY, mZ, dX = 0.0, dY = 0.0;
 		d6LEVEL *l = &d6World.Level;
@@ -527,7 +461,7 @@ namespace Duel6
 		fovY = (float)tan(MM_D2R(g_vid.gl_fov) / 2.0f);
 		fovX = g_vid.gl_aspect * fovY;
 
-		if (d6ZoomMode == D6_ZM_FULL)
+		if (screenMode == ScreenMode::FullScreen)
 		{
 			if (l->SizeX > g_vid.gl_aspect * l->SizeY)
 				dX = (float)l->SizeX;
@@ -569,15 +503,17 @@ namespace Duel6
 		CamPos.TolY = (dY * D6_CAM_TOLPER_Y) / 200.0f;
 
 		Camera->setpos(CamPos.Pos);
+
+		if (screenMode == ScreenMode::SplitScreen)
+		{
+			UpdateCam();
+		}
 	}
 
 	void Player::UpdateCam(void)
 	{
 		d6LEVEL *l = &d6World.Level;
 		float   mX = 0.0, mY = 0.0, X, Y;
-
-		if (d6ZoomMode == D6_ZM_FULL)
-			return;
 
 		X = State.X + 0.5f;
 		Y = State.Y - 0.5f;
@@ -660,14 +596,11 @@ namespace Duel6
 		{
 			State.Life = 0;
 			State.Flags |= D6_FLAG_DEAD | D6_FLAG_LYING;
-			ANM_ReSet(State.A, State.X, State.Y, ANM_LOOP_ONESTOP, -1, NULL);
+			ANM_ReSet(State.A, State.X, State.Y, ANM_LOOP_ONESTOP, Orientation::None, NULL);
 			ANM_RemoveFlags(State.GA, ANM_FLAG_ALL);
 			if (s != NULL)
 			{
-				if (s->X < State.X)
-					State.O = 0;
-				else
-					State.O = 1;
+				State.O = (s->X < State.X) ? Orientation::Left : Orientation::Right;
 
 				if (this != s->Author)
 				{
@@ -710,9 +643,46 @@ namespace Duel6
 		return (State.Life == 0);
 	}
 
-	int Player::GetIndex()
+	void Player::CheckWater(const d6LEVEL& level)
 	{
-		return State.I;
+		bool    w = false;
+		int     X, Y, w_kind;
+
+		X = (int)(State.X + 0.5f);
+		Y = level.SizeY - (int)(State.Y - 0.2) - 1;
+		State.Flags &= ~D6_FLAG_INWATER;
+
+		if (X >= 0 && Y >= 0 && X < level.SizeX && Y < level.SizeY)
+			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
+			{
+				State.Flags |= D6_FLAG_INWATER;
+				if ((State.Air -= g_app.frame_interval) < 0)
+				{
+					State.Air = 0;
+					Hit(g_app.frame_interval, NULL, false);
+				}
+				return;
+			}
+
+		if (State.Air < D6_MAX_AIR)
+			State.Air++;
+
+		Y = level.SizeY - (int)(State.Y - 0.9) - 1;
+
+		if (X >= 0 && Y >= 0 && X < level.SizeX && Y < level.SizeY)
+			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
+			{
+				w = true;
+				w_kind = D6_BlockN(X, Y) == 4 ? 0 : 1;
+			}
+
+		if (w && !State.InWater)
+		{
+			ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, Orientation::Left, wtAnim[w_kind], d6WpnTexture, false);
+			SOUND_PlaySample(D6_SND_WATER);
+		}
+
+		State.InWater = w;
 	}
 
 	float Player::GetX()
@@ -743,6 +713,11 @@ namespace Duel6
 	bool Player::IsDead() const
 	{
 		return (State.Flags & D6_FLAG_DEAD) != 0;
+	}
+
+	bool Player::IsInvulnerable() const
+	{
+		return (State.Bonus == D6_BONUS_INVUL);
 	}
 
 	void Player::UseTemporarySkin(PlayerSkin& skin)

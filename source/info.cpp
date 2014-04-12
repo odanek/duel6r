@@ -70,7 +70,7 @@ namespace Duel6
 		vsprintf(texP, tex, argptr);
 		va_end(argptr);
 
-		if (d6ZoomMode == D6_ZM_FULL)
+		if (d6ScreenMode == ScreenMode::FullScreen)
 			i = 0;
 
 		if (++d6InfoCount[i] > D6_INFO_MAX)
@@ -108,9 +108,9 @@ namespace Duel6
 	{
 		d6VIEW_s    *w;
 		char        msg[200];
-		int         sH, n, i, j, x, y;
+		int         sH, x, y;
 
-		if (d6ZoomMode == D6_ZM_FULL)
+		if (d6ScreenMode == ScreenMode::FullScreen)
 		{
 			if (d6Playing > 4)
 				sH = g_vid.cl_height - 50;
@@ -122,16 +122,16 @@ namespace Duel6
 
 		CO_FontColor(255, 255, 0);
 
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
+		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			for (j = 0; j < d6InfoCount[i]; j++)
+			for (int j = 0; j < d6InfoCount[i]; j++)
 			{
 				w = &d6Player[i]->View;
-				n = (d6InfoStart[i] + j) % D6_INFO_MAX;
+				int n = (d6InfoStart[i] + j) % D6_INFO_MAX;
 				x = w->X + 4;
 				y = w->Y + sH - (j << 4);
 
-				if (d6ZoomMode == D6_ZM_FULL)
+				if (d6ScreenMode == ScreenMode::FullScreen)
 					sprintf(msg, "%s : %s", d6Info[i][n].From->State.PH->Name, d6Info[i][n].Text);
 				else
 					sprintf(msg, "%s", d6Info[i][n].Text);
@@ -151,29 +151,31 @@ namespace Duel6
 			}
 		}
 
-		if (d6ShowRanking && d6ZoomMode == D6_ZM_FULL)
+		if (d6ShowRanking && d6ScreenMode == ScreenMode::FullScreen)
 		{
 			char    rank_name[D6_MAX_PLAYERS][20];
 			int     best, n_max = 0, rank_points[D6_MAX_PLAYERS];
 
-			for (i = 0; i < d6Playing; i++)
+			for (Size i = 0; i < d6Playing; i++)
 			{
 				strcpy(rank_name[i], d6Player[i]->State.PH->Name);
 				rank_points[i] = d6Player[i]->State.PH->Kills + d6Player[i]->State.PH->Wins;
 				n_max = MY_Max(n_max, 5 + int(strlen(rank_name[i])));
 			}
 
-			for (i = 0; i < d6Playing; i++)
+			for (Size i = 0; i < d6Playing; i++)
 			{
-				n = 0;
+				Size n = 0;
 				best = rank_points[0];
 
-				for (j = 0; j < d6Playing - i; j++)
+				for (Size j = 0; j < d6Playing - i; j++)
+				{
 					if (rank_points[j] > best)
 					{
 						n = j;
 						best = rank_points[j];
 					}
+				}
 
 				x = d6Player[0]->View.X + g_vid.cl_width - 8 * n_max - 3;
 				y = d6Player[0]->View.Y + sH - (i << 4);

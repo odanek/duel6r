@@ -28,6 +28,8 @@
 #ifndef DUEL6_ANIM_H
 #define DUEL6_ANIM_H
 
+#include "Orientation.h"
+
 #define ANM_MAX             100
 
 #define ANM_FLAG_NONE       0x00
@@ -58,7 +60,7 @@ namespace Duel6
 		short   *Pl;    // Source array of animations and delays
 		myUINT  *Tex;   // Texture array
 		int     Loop;   // Type of looping
-		int     O;      // Current orientation
+		Orientation O;      // Current orientation
 		int     Flags;  // Flags
 		float   X;      // Copy from vertex array for speed up
 		float   Y;
@@ -68,8 +70,8 @@ namespace Duel6
 	};
 
 	void    ANM_Init(anmVERTEX_s *first, int num);
-	int     ANM_Add(float X, float Y, float Z, int S, int loop, int O, short *pl, myUINT *tex, bool T);
-	void    ANM_ReSet(int i, float X, float Y, int loop, int O, short *pl);
+	int     ANM_Add(float X, float Y, float Z, int S, int loop, Orientation O, short *pl, myUINT *tex, bool T);
+	void    ANM_ReSet(int i, float X, float Y, int loop, Orientation O, short *pl);
 	void    ANM_SetAnm(int i, int p);
 	void    ANM_Grow(int i, float grow);
 	int     ANM_Pict(int num);

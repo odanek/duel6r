@@ -530,7 +530,7 @@ namespace Duel6
 				last = myListbox[3]->CurItem() - 1;
 		}
 
-		SET_LoadWorld(d6LevelList.Path(last));
+		D6_StartGame(d6LevelList.Path(last));
 
 		if (!myListbox[4]->CurItem())
 			SET_LoadBackground(rand() % d6Backs);
@@ -545,22 +545,24 @@ namespace Duel6
 
 	static void MENU_Play(void)
 	{
-		int     i;
-
 		MENU_End();
 
 		if (d6Playing > 4)
-			d6ZoomMode = D6_ZM_FULL;
+			d6ScreenMode = ScreenMode::FullScreen;
 		else
-			d6ZoomMode = myListbox[5]->CurItem();
+			d6ScreenMode = (myListbox[5]->CurItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
 
 		d6ZoomBlc = myListbox[6]->CurItem() + 5;
 
-		for (i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < d6Playing; i++)
+		{
 			d6Player[i]->State.PH = &d6PHist[d6WillPlay[i]];
+		}
 
-		for (i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < d6Playing; i++)
+		{
 			d6Player[i]->SetControls(mySwitch[i]->CurItem());
+		}
 
 		MENU_Restart(false);
 	}

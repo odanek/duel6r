@@ -62,6 +62,7 @@ set(D6R_SOURCES
     source/menu.cpp
     source/msdir.c
     source/msdir.h
+    source/Orientation.h
     source/Player.h
     source/Player.cpp
     source/PlayerSkin.h
@@ -70,6 +71,7 @@ set(D6R_SOURCES
     source/project.cpp
     source/project.h
     source/render.cpp
+    source/ScreenMode.h
     source/setup.cpp
     source/Type.h
     source/util.cpp

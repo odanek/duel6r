@@ -122,14 +122,10 @@ namespace Duel6
 	{
 		Player  *p;
 		float   X, ad;
-		int     i;
 
-		if (!s->O)
-			X = s->X;
-		else
-			X = s->X + 0.35f;
+		X = (s->O == Orientation::Left) ? s->X : s->X + 0.35f;
 
-		for (i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < d6Playing; i++)
 		{
 			p = d6Player[i];
 
@@ -165,7 +161,7 @@ namespace Duel6
 
 		d6UpY = l->SizeY - (int)(s->Y) - 1;
 		d6DownY = l->SizeY - (int)(s->Y - 0.35f) - 1;
-		if (!s->O)
+		if (s->O == Orientation::Left)
 		{
 			d6LeftX = (int)(s->X);
 			d6RightX = (int)(s->X + 0.65f);

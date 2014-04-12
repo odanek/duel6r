@@ -33,8 +33,9 @@ namespace Duel6
 	float       d6Sin[450];
 	myUINT      d6BackTex;
 	int         d6Wireframe = 0;
-	int         d6ZoomBlc = 13, d6ZoomMode = D6_ZM_FULL;
-	int         d6Playing = 3;
+	int         d6ZoomBlc = 13;
+	ScreenMode d6ScreenMode = ScreenMode::FullScreen;
+	Size        d6Playing = 3;
 	float       d6KeyWait = 0;
 	bool        d6ShowFps = false;
 	Player      *d6Player[D6_MAX_PLAYERS];
@@ -92,45 +93,19 @@ namespace Duel6
 			con->printf(MY_L("APP00023|Ukazatel fps vypnut\n"));
 	}
 
-	void D6_SetView(d6VIEW_s *w)
-	{
-		glViewport(w->X, w->Y, w->Width, w->Height);
-	}
-
-	void D6_SetView(int x, int y, int width, int height)
-	{
-		glViewport(x, y, width, height);
-	}
-
 	void D6_CheckWinner(void)
 	{
-		if (d6Winner > 0)
-		{
-			if (d6Winner == 1)
-			{
-				d6GameOverWait -= g_app.frame_interval;
-				if (d6GameOverWait <= 0)
-				{
-					d6GameOverWait = 0;
-					d6Winner = 2;
-					SOUND_PlaySample(D6_SND_GAME_OVER);
-				}
-			}
-
-			return;
-		}
-
 		int numAlive = 0;
-		Player* lastAlive = NULL;
+		Player* lastAlive = nullptr;
 
-		for (int i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < d6Playing; i++)
 		{
-			Player *player = d6Player[i];
+			Player& player = *d6Player[i];
 
-			if (player->State.Life > 0)
+			if (!player.IsDead())
 			{
 				numAlive++;
-				lastAlive = player;
+				lastAlive = &player;
 			}
 		}
 
@@ -146,12 +121,52 @@ namespace Duel6
 			}
 			else
 			{
-				for (int i = 0; i < d6Playing; i++)
+				for (Size i = 0; i < d6Playing; i++)
 				{
 					INFO_Add(*d6Player[i], MY_L("APP00025|Konec hry - bez viteze"));
 				}
 			}
 		}
+	}
+
+	void D6_StartGame(const std::string& levelPath)
+	{
+		bool    mirror = rand() % 2 ? true : false;
+		int     av, bonus[D6_BONUS_MAX][3];
+
+		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
+		LOADER_LoadWorld(levelPath, &d6World, ANM_MAX, mirror, bonus);
+		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.Level.SizeX);
+		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.Level.SizeY);
+		g_app.con->printf(MY_L("APP00063|...Bloku   : %d\n"), d6World.Blocks);
+		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.Sprites);
+		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.Waters);
+
+		glVertexPointer(3, GL_FLOAT, sizeof (d6VERTEX), (void *)&d6World.Vertex[0].X);
+		glTexCoordPointer(2, GL_FLOAT, sizeof (d6VERTEX), (void *)&d6World.Vertex[0].U);
+
+		d6World.Anm.Wait = 0;
+		WATER_Build();
+		av = d6World.Faces << 2;
+		ANM_Init(&d6World.Vertex[av], av);
+		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
+		
+		for (Size i = 0; i < d6Playing; i++)
+		{
+			d6Player[i]->PrepareForGame();
+		}
+				
+		PLAYER_PrepareViews(d6ScreenMode);
+		g_app.con->printf(MY_L("APP00067|...Inicializace urovne\n"));
+		WPN_LevelInit();
+		KONTR_Init();
+		EXPL_Init();
+		INFO_Init();
+		BONUS_Init(bonus);
+		ELEV_Load(levelPath, mirror);
+		FIRE_Find();
+		RENDER_InitScreen();
+		d6Winner = -1;
 	}
 
 	void D6_SetGLMode(int mode)
@@ -194,11 +209,60 @@ namespace Duel6
 		}
 	}
 
+	static void D6_MoveScene()
+	{
+		CO_InpUpdate();
+		
+		for (Size i = 0; i < d6Playing; i++)
+		{
+			Player& player = *d6Player[i];
+			
+			player.Update();
+			if (d6ScreenMode == ScreenMode::SplitScreen)
+			{
+				player.UpdateCam();
+			}
+		}
+
+		RENDER_MoveAnm();
+		ANM_MoveAll();
+		WATER_Move();
+		WPN_MoveShots();
+		EXPL_MoveAll();
+		ELEV_MoveAll();
+		INFO_MoveAll();
+		BONUS_AddNew();
+
+		// Ochrana pred nekolikanasobnym zmacknutim klavesy
+		d6KeyWait -= g_app.frame_interval;
+		if (d6KeyWait < 0)
+			d6KeyWait = 0;
+
+		// Check if there's a winner
+		if (d6Winner == -1)
+		{
+			D6_CheckWinner();
+		}
+		else if (d6Winner == 1)
+		{
+			d6GameOverWait -= g_app.frame_interval;
+			if (d6GameOverWait <= 0)
+			{
+				d6GameOverWait = 0;
+				d6Winner = 2;
+				SOUND_PlaySample(D6_SND_GAME_OVER);
+			}
+		}
+	}
+
+	static void D6_RenderScene()
+	{
+		RENDER_DrawScene(d6ScreenMode);
+	}
+
 	void D6_GameLoop(void)
 	{
-		CO_FpsSyncLoops(&RENDER_MoveScene, &RENDER_DrawScene);
-
-		D6_CheckWinner();
+		CO_FpsSyncLoops(&D6_MoveScene, &D6_RenderScene);
 
 		if (g_inp.key[SDLK_ESCAPE])
 		{
@@ -208,7 +272,7 @@ namespace Duel6
 
 		if (!d6KeyWait)
 		{
-			// Restart hry pres F1
+			// Restart game
 			if (g_inp.key[SDLK_F1])
 			{
 				MENU_SavePH();
@@ -216,22 +280,23 @@ namespace Duel6
 				return;
 			}
 
-			// Zmena split screen/full screen pres F2
+			// Switch between fullscreen and split screen mode
 			if (g_inp.key[SDLK_F2] && d6Playing < 5)
 			{
-				d6ZoomMode = (d6ZoomMode == D6_ZM_FULL) ? D6_ZM_SCROLL : D6_ZM_FULL;
-				PLAYER_PrepareViews();
+				d6ScreenMode = (d6ScreenMode == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen;
+				PLAYER_PrepareViews(d6ScreenMode);
+				RENDER_InitScreen();
 				d6KeyWait = APP_FPS_SPEED;
 			}
 
-			// Vypnuti/zapnuti zobrazovani strucnych statistik ve hre
+			// Turn on/off player statistics
 			if (g_inp.key[SDLK_F4])
 			{
 				INFO_ShowRankingSwap();
 				d6KeyWait = APP_FPS_SPEED;
 			}
 
-			// Ulozeni screenshotu
+			// Save screenshot
 			if (g_inp.key[SDLK_F10])
 			{
 				UTIL_SaveScreenTga(1);

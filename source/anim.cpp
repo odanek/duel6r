@@ -54,6 +54,7 @@ namespace Duel6
 	static void ANM_SetXYU(anmANM_s *a, float X, float Y, float Z)
 	{
 		anmVERTEX_s *v = &anmVertex[a->I << 2];
+		float leftSide = (a->O == Orientation::Left) ? 0.0f : 1.0f;
 
 		a->X = X;
 		a->Y = Y;
@@ -62,25 +63,25 @@ namespace Duel6
 		v[0].X = X;
 		v[0].Y = Y;
 		v[0].Z = Z;
-		v[0].U = (float)a->O;
+		v[0].U = leftSide;
 
 		v[1].X = X + 1.0f;
 		v[1].Y = Y;
 		v[1].Z = Z;
-		v[1].U = 1.0f - (float)a->O;
+		v[1].U = 1.0f - leftSide;
 
 		v[2].X = X + 1.0f;
 		v[2].Y = Y - 1.0f;
 		v[2].Z = Z;
-		v[2].U = 1.0f - (float)a->O;
+		v[2].U = 1.0f - leftSide;
 
 		v[3].X = X;
 		v[3].Y = Y - 1.0f;
 		v[3].Z = Z;
-		v[3].U = (float)a->O;
+		v[3].U = leftSide;
 	}
 
-	int ANM_Add(float X, float Y, float Z, int S, int loop, int O, short *pl, myUINT *tex, bool T)
+	int ANM_Add(float X, float Y, float Z, int S, int loop, Orientation O, short *pl, myUINT *tex, bool T)
 	{
 		int         i;
 		anmANM_s    *a;
@@ -119,17 +120,17 @@ namespace Duel6
 		anmAnm[i].Grow = grow;
 	}
 
-	void ANM_ReSet(int i, float X, float Y, int loop, int O, short *pl)
+	void ANM_ReSet(int i, float X, float Y, int loop, Orientation O, short *pl)
 	{
 		anmANM_s    *a;
-		int         oldO;
+		Orientation oldO;
 
 		if (!ANM_CheckFlags(i, ANM_FLAG_USED))
 			return;
 
 		a = &anmAnm[i];
 		oldO = a->O;
-		if (O != -1)
+		if (O != Orientation::None)
 			a->O = O;
 		if (loop != -1)
 			a->Loop = loop;
