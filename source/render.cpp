@@ -279,7 +279,7 @@ namespace Duel6
 
 		x = player.X() + 0.5f;
 		y = player.Y() - 0.5f;
-		p = (int(player.State.BD) / 2) % 360;
+		p = int(player.State.BD * 30) % 360;
 
 		glColor3ub(255, 0, 0);
 		glDisable(GL_TEXTURE_2D);
