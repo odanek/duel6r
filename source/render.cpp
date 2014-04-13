@@ -125,59 +125,117 @@ namespace Duel6
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	static void RENDER_PlayerStatus(d6PLSTATE_s *s)
+	void RENDER_PlayerRankings()
 	{
-		int     al, ll, alpha = 180;
+		char    rank_name[D6_MAX_PLAYERS][20];
+		int     best, n_max = 0, rank_points[D6_MAX_PLAYERS];
 
-		if (s->Flags & D6_FLAG_DEAD)
+		for (Size i = 0; i < d6Playing; i++)
+		{
+			strcpy(rank_name[i], d6Player[i]->Person().Name().c_str());
+			rank_points[i] = d6Player[i]->Person().TotalPoints();
+			n_max = MY_Max(n_max, 5 + int(strlen(rank_name[i])));
+		}
+
+		const d6VIEW_s& view = d6Player[0]->View;
+		int posX = view.X + view.Width - 8 * n_max - 3;
+		int posY = view.Y + view.Height - (d6Playing > 4 ? 50 : 20);
+
+		CO_FontColor(255, 255, 0);
+
+		for (Size i = 0; i < d6Playing; i++)
+		{
+			Size n = 0;
+			best = rank_points[0];
+
+			for (Size j = 0; j < d6Playing - i; j++)
+			{
+				if (rank_points[j] > best)
+				{
+					n = j;
+					best = rank_points[j];
+				}
+			}
+
+			glColor4f(0, 0, 1, 0.7f);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBegin(GL_QUADS);
+				glVertex2i(posX, posY + 15);
+				glVertex2i(posX + 8 * n_max, posY + 15);
+				glVertex2i(posX + 8 * n_max, posY + 1);
+				glVertex2i(posX, posY + 1);
+			glEnd();
+			glDisable(GL_BLEND);
+
+			CO_FontPrintf(posX, posY, rank_name[n]);
+			CO_FontPrintf(posX + 8 * (n_max - 5), posY, "|%4d", rank_points[n]);
+
+			if (n < d6Playing - i - 1)
+			{
+				strcpy(rank_name[n], rank_name[d6Playing - i - 1]);
+				rank_points[n] = rank_points[d6Playing - i - 1];
+			}
+
+			posY -= 16;
+		}
+	}
+
+	static void RENDER_PlayerStatus(const Player& player)
+	{
+		if (player.IsDead())
 			return;
 
-		al = int((s->Air * 125) / D6_MAX_AIR);
-		ll = int((s->Life * 125) / D6_MAX_LIFE);
+		int alpha = 180;
+		int al = int((player.State.Air * 125) / D6_MAX_AIR);
+		int ll = int((player.State.Life * 125) / D6_MAX_LIFE);
+		const int *ibp = player.State.IBP;
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glBegin(GL_QUADS);
 		glColor4ub(255, 255, 0, alpha);
-		glVertex2i(s->IBP[0], s->IBP[1] + 2);
-		glVertex2i(s->IBP[0] + 151, s->IBP[1] + 2);
-		glVertex2i(s->IBP[0] + 151, s->IBP[1] - 25);
-		glVertex2i(s->IBP[0], s->IBP[1] - 25);
+		glVertex2i(ibp[0], ibp[1] + 2);
+		glVertex2i(ibp[0] + 151, ibp[1] + 2);
+		glVertex2i(ibp[0] + 151, ibp[1] - 25);
+		glVertex2i(ibp[0], ibp[1] - 25);
 
 		glColor4ub(200, 200, 0, alpha);
-		glVertex2i(s->IBP[0] + 23, s->IBP[1] + 1);
-		glVertex2i(s->IBP[0] + 130, s->IBP[1] + 1);
-		glVertex2i(s->IBP[0] + 130, s->IBP[1] - 13);
-		glVertex2i(s->IBP[0] + 23, s->IBP[1] - 13);
+		glVertex2i(ibp[0] + 23, ibp[1] + 1);
+		glVertex2i(ibp[0] + 130, ibp[1] + 1);
+		glVertex2i(ibp[0] + 130, ibp[1] - 13);
+		glVertex2i(ibp[0] + 23, ibp[1] - 13);
 
 		glColor4ub(255, 0, 0, alpha);
-		glVertex2i(s->IBP[0] + 5, s->IBP[1] - 14);
-		glVertex2i(s->IBP[0] + 5 + ll, s->IBP[1] - 14);
-		glVertex2i(s->IBP[0] + 5 + ll, s->IBP[1] - 18);
-		glVertex2i(s->IBP[0] + 5, s->IBP[1] - 18);
+		glVertex2i(ibp[0] + 5, ibp[1] - 14);
+		glVertex2i(ibp[0] + 5 + ll, ibp[1] - 14);
+		glVertex2i(ibp[0] + 5 + ll, ibp[1] - 18);
+		glVertex2i(ibp[0] + 5, ibp[1] - 18);
 
 		glColor4ub(0, 0, 255, alpha);
-		glVertex2i(s->IBP[0] + 5, s->IBP[1] - 19);
-		glVertex2i(s->IBP[0] + 5 + al, s->IBP[1] - 19);
-		glVertex2i(s->IBP[0] + 5 + al, s->IBP[1] - 23);
-		glVertex2i(s->IBP[0] + 5, s->IBP[1] - 23);
+		glVertex2i(ibp[0] + 5, ibp[1] - 19);
+		glVertex2i(ibp[0] + 5 + al, ibp[1] - 19);
+		glVertex2i(ibp[0] + 5 + al, ibp[1] - 23);
+		glVertex2i(ibp[0] + 5, ibp[1] - 23);
 		glEnd();
 
-		CO_FontPrintf(s->IBP[0] + 5, s->IBP[1] - 13, "%d", s->Ammo);
-		CO_FontPrintf(s->IBP[0] + 76 - 4 * strlen(s->PH->Name), s->IBP[1] - 13, s->PH->Name);
+		const std::string& playerName = player.Person().Name();
+		CO_FontColor(0, 0, 255);
+		CO_FontPrintf(ibp[0] + 5, ibp[1] - 13, "%d", player.State.Ammo);
+		CO_FontPrintf(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName.c_str());
 
-		if (s->Bonus)
+		if (player.State.Bonus)
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, d6World.Anm.TexGlNum[s->Bonus]);
+			glBindTexture(GL_TEXTURE_2D, d6World.Anm.TexGlNum[player.State.Bonus]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
-			glTexCoord2f(0.3f, 0.3f); glVertex2i(s->IBP[0] + 133, s->IBP[1] - 3);
-			glTexCoord2f(0.7f, 0.3f); glVertex2i(s->IBP[0] + 148, s->IBP[1] - 3);
-			glTexCoord2f(0.7f, 0.7f); glVertex2i(s->IBP[0] + 148, s->IBP[1] - 18);
-			glTexCoord2f(0.3f, 0.7f); glVertex2i(s->IBP[0] + 133, s->IBP[1] - 18);
+			glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 133, ibp[1] - 3);
+			glTexCoord2f(0.7f, 0.3f); glVertex2i(ibp[0] + 148, ibp[1] - 3);
+			glTexCoord2f(0.7f, 0.7f); glVertex2i(ibp[0] + 148, ibp[1] - 18);
+			glTexCoord2f(0.3f, 0.7f); glVertex2i(ibp[0] + 133, ibp[1] - 18);
 			glEnd();
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_ALPHA_TEST);
@@ -186,44 +244,32 @@ namespace Duel6
 		glDisable(GL_BLEND);
 	}
 
-	static void RENDER_PlayersInfo(void)
+	static void RENDER_FpsCounter()
 	{
-		int     x, y;
+		int x = g_vid.cl_width - 80;
+		int y = g_vid.cl_height - 20;
+		int fps = (int)g_app.fps;
+		int length = 0;
+		if (fps < 10)
+			length = 1;
+		else if (fps < 100)
+			length = 2;
+		else if (fps < 1000)
+			length = 3;
+		else
+			length = 4;
+		int width = ((6 + length) << 3) + 2;
 
-		CO_FontColor(0, 0, 255);
-
-		for (Size i = 0; i < d6Playing; i++)
-			RENDER_PlayerStatus(&d6Player[i]->State);
-
-		if (d6ShowFps)
-		{
-			x = g_vid.cl_width - 80;
-			y = g_vid.cl_height - 20;
-			int fps = (int)g_app.fps;
-			int length = 0;
-			if (fps < 10)
-				length = 1;
-			else if (fps < 100)
-				length = 2;
-			else if (fps < 1000)
-				length = 3;
-			else
-				length = 4;
-			int width = ((6 + length) << 3) + 2;
-
-			glBegin(GL_QUADS);
+		glBegin(GL_QUADS);
 			glColor3f(0.0f, 0.0f, 0.0f);
 			glVertex2i(x - 1, y + 17);
 			glVertex2i(x + width, y + 17);
 			glVertex2i(x + width, y - 1);
 			glVertex2i(x - 1, y - 1);
-			glEnd();
+		glEnd();
 
-			CO_FontColor(255, 255, 255);
-			CO_FontPrintf(x, y, "FPS - %d", (int)g_app.fps);
-		}
-
-		INFO_DrawAll();
+		CO_FontColor(255, 255, 255);
+		CO_FontPrintf(x, y, "FPS - %d", (int)g_app.fps);
 	}
 
 	static void RENDER_InvulRing(Player& player)
@@ -231,8 +277,8 @@ namespace Duel6
 		float   x, y, X, Y;
 		int     p, uh, u;
 
-		x = player.GetX() + 0.5f;
-		y = player.GetY() - 0.5f;
+		x = player.X() + 0.5f;
+		y = player.Y() - 0.5f;
 		p = (int(player.State.BD) / 2) % 360;
 
 		glColor3ub(255, 0, 0);
@@ -365,6 +411,32 @@ namespace Duel6
 		D6_SetGLMode(D6_GL_ORTHO);
 		RENDER_SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
 		glColor3f(1.0f, 1.0f, 1.0f);
-		RENDER_PlayersInfo();
+		
+		for (Size i = 0; i < d6Playing; i++)
+		{
+			RENDER_PlayerStatus(*d6Player[i]);
+		}
+
+		if (d6ShowFps)
+		{
+			RENDER_FpsCounter();
+		}
+
+		if (screenMode == ScreenMode::FullScreen)
+		{
+			d6MessageQueue.RenderAllMessages(d6Player[0]->View);
+		}
+		else
+		{
+			for (Size i = 0; i < d6Playing; i++)
+			{
+				d6MessageQueue.RenderPlayerMessages(*d6Player[i]);
+			}
+		}
+
+		if (d6ShowRanking && screenMode == ScreenMode::FullScreen)
+		{
+			RENDER_PlayerRankings();
+		}
 	}
 }

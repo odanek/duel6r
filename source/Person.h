@@ -25,51 +25,106 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Fps - vypocet a synchronizace
-*/
+#ifndef DUEL6_PERSON_H
+#define DUEL6_PERSON_H
 
-#include <time.h>
-#include "co_core.h"
+#include <stdio.h>
+#include <string>
+#include "Type.h"
 
-/*
-==================================================
-CO_FpsSyncLoops
-
-Nastavi promenou frame_interval ktera udava jak dlouho
-trval predchozi update. Rychlosti tomu odpovidajici
-jsou potom upraveny promene v procedure move.
-Nasledne je vse vykresleno na obrazovku.
-Zaroven provadi vypocet fps.
-==================================================
-*/
-void CO_FpsSyncLoops (void (*update) (float), void (*draw) (void))
+namespace Duel6
 {
-    static unsigned long    cur_time = 0, last_fps_time = 0;
-    static int              frame_counter = 0;
-    unsigned long           last_time;
+	class Person
+	{
+	private:
+		std::string m_name;
+		Int32 m_shots;
+		Int32 m_hits;
+		Int32 m_kills;
+		Int32 m_wins;
+		Int32 m_games;
 
-    last_time = cur_time;
-    cur_time = SDL_GetTicks ();
+	public:
+		Person()
+			: m_shots(0), m_hits(0), m_kills(0), m_wins(0), m_games(0)
+		{}
 
-    // Calculate fps
-    if (cur_time - last_fps_time >= 1000)
-    {
-        g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
-        last_fps_time = cur_time;
-        frame_counter = 0;
-    }
-	frame_counter++;
+		explicit Person(const std::string& name)
+			: Person()
+		{
+			m_name = name;
+		}
 
-	// Draw
-    draw ();
-    VID_SwapBuffers ();
+		const std::string& Name() const
+		{
+			return m_name;
+		}
 
-    // Update
-    if (cur_time - last_time < 70)
-    {
-        g_app.frame_interval = APP_FPS_SPEED * (cur_time - last_time) * 0.001f;;
-        update(g_app.frame_interval);
-    }
+		Int32 Shots() const
+		{
+			return m_shots;
+		}
+
+		Int32 Hits() const
+		{
+			return m_hits;
+		}
+
+		Int32 Kills() const
+		{
+			return m_kills;
+		}
+
+		Int32 Wins() const
+		{
+			return m_wins;
+		}
+
+		Int32 Games() const
+		{
+			return m_games;
+		}
+
+		Int32 TotalPoints() const
+		{
+			return Kills() + Wins();
+		}
+
+		Person& SetShots(Int32 shots)
+		{
+			m_shots = shots;
+			return *this;
+		}
+
+		Person& SetHits(Int32 hits)
+		{
+			m_hits = hits;
+			return *this;
+		}
+
+		Person& SetKills(Int32 kills)
+		{
+			m_kills = kills;
+			return *this;
+		}
+
+		Person& SetWins(Int32 wins)
+		{
+			m_wins = wins;
+			return *this;
+		}
+
+		Person& SetGames(Int32 games)
+		{
+			m_games = games;
+			return *this;
+		}
+
+		Person& Reset();
+
+		void Serialize(FILE* file) const;
+		void DeSerialize(FILE* file);
+	};
 }
+
+#endif

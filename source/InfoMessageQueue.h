@@ -25,51 +25,30 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Fps - vypocet a synchronizace
-*/
+#ifndef DUEL6_INFOMESSAGEQUEUE_H
+#define DUEL6_INFOMESSAGEQUEUE_H
 
-#include <time.h>
-#include "co_core.h"
+#include <string>
+#include <list>
+#include "InfoMessage.h"
 
-/*
-==================================================
-CO_FpsSyncLoops
-
-Nastavi promenou frame_interval ktera udava jak dlouho
-trval predchozi update. Rychlosti tomu odpovidajici
-jsou potom upraveny promene v procedure move.
-Nasledne je vse vykresleno na obrazovku.
-Zaroven provadi vypocet fps.
-==================================================
-*/
-void CO_FpsSyncLoops (void (*update) (float), void (*draw) (void))
+namespace Duel6
 {
-    static unsigned long    cur_time = 0, last_fps_time = 0;
-    static int              frame_counter = 0;
-    unsigned long           last_time;
+	class InfoMessageQueue
+	{
+	private:
+		std::list<InfoMessage> m_messages;
 
-    last_time = cur_time;
-    cur_time = SDL_GetTicks ();
+	public:
+		InfoMessageQueue& Add(Player& player, const char *formatString, ...);
+		InfoMessageQueue& Update(float elapsedTime);
 
-    // Calculate fps
-    if (cur_time - last_fps_time >= 1000)
-    {
-        g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
-        last_fps_time = cur_time;
-        frame_counter = 0;
-    }
-	frame_counter++;
+		void RenderPlayerMessages(const Player& player) const;
+		void RenderAllMessages(const d6VIEW_s& view) const;
 
-	// Draw
-    draw ();
-    VID_SwapBuffers ();
-
-    // Update
-    if (cur_time - last_time < 70)
-    {
-        g_app.frame_interval = APP_FPS_SPEED * (cur_time - last_time) * 0.001f;;
-        update(g_app.frame_interval);
-    }
+	private:
+		static void RenderMessage(int x, int y, const std::string& msg);
+	};
 }
+
+#endif

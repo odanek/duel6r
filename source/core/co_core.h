@@ -174,7 +174,7 @@ const myBYTE    *CO_FontGet         (void);
 co_fps.cpp
 ==================================================
 */
-void            CO_FpsSyncLoops     (void (*move)(void), void (*draw)(void));
+void            CO_FpsSyncLoops     (void (*update)(float), void (*draw)(void));
 
 /*
 ==================================================

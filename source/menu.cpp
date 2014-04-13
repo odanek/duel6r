@@ -29,6 +29,7 @@
 #include <stdarg.h>
 #include "project.h"
 #include "LevelList.h"
+#include "PersonList.h"
 #include "glib.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
@@ -36,14 +37,14 @@
 namespace Duel6
 {
 	static LevelList    d6LevelList;
-	static d6PHIST_s    *d6PHist;
+	static PersonList	d6Persons;
 	static desk_c       *myDesk;
 	static button_c     *myButton[7];
 	static listbox_c    *myListbox[7];
 	static label_c      *myLabel[8];
 	static switchbox_c  *mySwitch[D6_MAX_PLAYERS];
 	static textbox_c    *myTextbox;
-	static int          d6Backs, d6WillPlay[D6_MAX_PLAYERS], d6PHists;
+	static int          d6Backs, d6WillPlay[D6_MAX_PLAYERS];
 	static GLuint       d6MenuTex;
 	static bool         d6MenuKeyMask = false;
 	static const char   *d6SndFl[D6_SOUNDS] =
@@ -77,7 +78,6 @@ namespace Duel6
 
 	void MENU_Free(void)
 	{
-		MY_Free(d6PHist);
 		MY_UnregMem(myDesk);
 		delete myDesk;
 	}
@@ -104,21 +104,13 @@ namespace Duel6
 
 		if (MY_FSize(D6_FILE_PHIST) < 20)
 		{
-			d6PHists = 0;
 			for (i = 0; i < D6_MAX_PLAYERS; i++)
 				d6WillPlay[i] = -1;
 			return;
 		}
 
 		f = MY_FOpen(D6_FILE_PHIST, 0, "rb", true);
-		MY_FRead(&d6PHists, 4, 1, f);
-		if (d6PHists)
-		{
-			d6PHist = D6_MALLOC(d6PHIST_s, d6PHists);
-			MY_FRead(d6PHist, sizeof (d6PHIST_s), d6PHists, f);
-		}
-		else
-			d6PHist = NULL;
+		d6Persons.Load(f->file);		
 		MY_FRead(d6WillPlay, 4, 8, f);
 		MY_FClose(&f);
 	}
@@ -326,16 +318,21 @@ namespace Duel6
 		}
 		myListbox[6]->SetCur(8);
 
-		for (i = 0; i < d6PHists; i++)
-			myListbox[1]->AddItem(d6PHist[i].Name);
+		for (const Person& person : d6Persons.List())
+		{
+			myListbox[1]->AddItem(person.Name().c_str());
+		}
 
 		d6Playing = 0;
 		for (i = 0; i < D6_MAX_PLAYERS; i++)
+		{
 			if (d6WillPlay[i] != -1)
 			{
-				myListbox[2]->AddItem(d6PHist[d6WillPlay[i]].Name);
+				const Person& person = d6Persons.Get(d6WillPlay[i]);
+				myListbox[2]->AddItem(person.Name().c_str());
 				d6Playing++;
 			}
+		}
 
 		g_app.con->printf(MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
 		SOUND_LoadModule("sound/undead.xm");
@@ -355,9 +352,7 @@ namespace Duel6
 		myFile_s    *f;
 
 		f = MY_FOpen(D6_FILE_PHIST, 0, "wb", true);
-		MY_FWrite(&d6PHists, 4, 1, f);
-		if (d6PHists)
-			MY_FWrite(d6PHist, sizeof (d6PHIST_s), d6PHists, f);
+		d6Persons.Save(f->file);
 		MY_FWrite(d6WillPlay, 4, 8, f);
 		MY_FClose(&f);
 	}
@@ -379,50 +374,53 @@ namespace Duel6
 	static void MENU_RebuildTable(void)
 	{
 		char    ret[100];
-		int     s, i, *pi, *pb, k;
+		int     s, *pi;
 
 		myListbox[0]->Clear();
-		if (!d6PHists)
+		if (d6Persons.IsEmpty())
 			return;
 
-		pi = D6_MALLOC(int, d6PHists);
-		pb = D6_MALLOC(int, d6PHists);
+		pi = D6_MALLOC(int, d6Persons.Length());
 
-		for (i = 0; i < d6PHists; i++)
+		for (Size i = 0; i < d6Persons.Length(); i++)
 		{
 			pi[i] = i;
-			pb[i] = d6PHist[i].Kills + d6PHist[i].Wins;
 		}
 
-		for (k = 0; k < d6PHists - 1; k++)
-			for (i = 0; i < d6PHists - 1 - k; i++)
-				if (pb[pi[i + 1]] > pb[pi[i]])
+		// Bubble sort persons according to total points
+		for (Size k = 0; k < d6Persons.Length() - 1; k++)
+		{
+			for (Size i = 0; i < d6Persons.Length() - 1 - k; i++)
+			{
+				if (d6Persons.Get(pi[i + 1]).TotalPoints() > d6Persons.Get(pi[i]).TotalPoints())
 				{
 					s = pi[i];
 					pi[i] = pi[i + 1];
 					pi[i + 1] = s;
 				}
+			}
+		}
 
-		for (i = 0; i < d6PHists; i++)
+		for (Size i = 0; i < d6Persons.Length(); i++)
 		{
-			k = pi[i];
+			const Person& person = d6Persons.Get(pi[i]);
+
 			memset(ret, 0, 100);
 			memset(ret, ' ', 94);
-			MENU_Pit(ret, "%s", d6PHist[k].Name);
-			MENU_Pit(&ret[20], "| %d", d6PHist[k].Games);
-			MENU_Pit(&ret[32], "| %d", d6PHist[k].Wins);
-			MENU_Pit(&ret[44], "| %d", d6PHist[k].Shots);
-			if (d6PHist[k].Shots)
-				MENU_Pit(&ret[56], "| %d%%", d6PHist[k].Hits * 100 / d6PHist[k].Shots);
+			MENU_Pit(ret, "%s", person.Name().c_str());
+			MENU_Pit(&ret[20], "| %d", person.Games());
+			MENU_Pit(&ret[32], "| %d", person.Wins());
+			MENU_Pit(&ret[44], "| %d", person.Shots());
+			if (person.Shots() > 0)
+				MENU_Pit(&ret[56], "| %d%%", person.Hits() * 100 / person.Shots());
 			else
 				MENU_Pit(&ret[56], "| 0%%");
-			MENU_Pit(&ret[68], "| %d", d6PHist[k].Kills);
-			MENU_Pit(&ret[81], "| %d", pb[k]);
+			MENU_Pit(&ret[68], "| %d", person.Kills());
+			MENU_Pit(&ret[81], "| %d", person.TotalPoints());
 			myListbox[0]->AddItem(ret);
 		}
 
 		MY_Free(pi);
-		MY_Free(pb);
 	}
 
 	static void MENU_PridejHrace(void)
@@ -436,27 +434,18 @@ namespace Duel6
 				if (d6WillPlay[i] == c)
 					return;
 			d6WillPlay[d6Playing++] = c;
-			myListbox[2]->AddItem(d6PHist[c].Name);
+			myListbox[2]->AddItem(d6Persons.Get(c).Name().c_str());
 		}
 	}
 
 	static void MENU_AddPH(void)
 	{
-		d6PHIST_s   *np;
-		char        *t;
+		const char* personName = myTextbox->Text();
 
-		t = myTextbox->Text();
-		if (strlen(t) > 0)
+		if (strlen(personName) > 0)
 		{
-			d6PHists++;
-			np = D6_MALLOC(d6PHIST_s, d6PHists);
-			if (d6PHists > 1)
-				memcpy(np, d6PHist, (d6PHists - 1) * sizeof (d6PHIST_s));
-			memset(&np[d6PHists - 1], 0, sizeof (d6PHIST_s));
-			strcpy(np[d6PHists - 1].Name, t);
-			MY_Free(d6PHist);
-			d6PHist = np;
-			myListbox[1]->AddItem(t);
+			d6Persons.Add(Person(personName));
+			myListbox[1]->AddItem(personName);
 			MENU_RebuildTable();
 			myTextbox->Flush();
 		}
@@ -501,18 +490,12 @@ namespace Duel6
 
 	static void MENU_CleanPH(void)
 	{
-		int     i;
-
 		if (!MENU_DelQuestion())
 			return;
 
-		for (i = 0; i < d6PHists; i++)
+		for (Person& person : d6Persons.List())
 		{
-			d6PHist[i].Games = 0;
-			d6PHist[i].Hits = 0;
-			d6PHist[i].Kills = 0;
-			d6PHist[i].Shots = 0;
-			d6PHist[i].Wins = 0;
+			person.Reset();
 		}
 		MENU_RebuildTable();
 		MENU_SavePH();
@@ -556,7 +539,7 @@ namespace Duel6
 
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Player[i]->State.PH = &d6PHist[d6WillPlay[i]];
+			d6Player[i]->SetPerson(d6Persons.Get(d6WillPlay[i]));
 		}
 
 		for (Size i = 0; i < d6Playing; i++)
@@ -583,37 +566,22 @@ namespace Duel6
 
 	static void MENU_DelPH(void)
 	{
-		d6PHIST_s   *np;
-		int         i, j, c;
-
 		if (!MENU_DelQuestion())
 			return;
 
-		c = myListbox[1]->CurItem();
+		int c = myListbox[1]->CurItem();
 		if (c != -1)
 		{
 			myListbox[1]->DelItem(c);
-			for (i = 0; i < D6_MAX_PLAYERS; i++)
-				if (d6WillPlay[i] == c)
-					MENU_UberHrace(i);
-			if (--d6PHists == 0)
+			for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 			{
-				MY_Free(d6PHist);
-				return;
-			};
-			np = D6_MALLOC(d6PHIST_s, d6PHists);
-			for (i = 0; i <= d6PHists; i++)
-				if (i < c)
-					memcpy(&np[i], &d6PHist[i], sizeof (d6PHIST_s));
-				else if (i > c)
+				if (d6WillPlay[i] == c)
 				{
-					for (j = 0; j < D6_MAX_PLAYERS; j++)
-						if (d6WillPlay[j] == i)
-							d6WillPlay[j]--;
-					memcpy(&np[i - 1], &d6PHist[i], sizeof (d6PHIST_s));
+					MENU_UberHrace(i);
 				}
-			MY_Free(d6PHist);
-			d6PHist = np;
+			}
+
+			d6Persons.Remove(c);
 		}
 	}
 
@@ -646,12 +614,12 @@ namespace Duel6
 		}
 	}
 
-	static void MENU_Update(void)
+	static void MENU_Update(float elapsedTime)
 	{
 		static  float sync = 0;
 		int     event, from, n, g;
 
-		sync += g_app.frame_interval;
+		sync += elapsedTime;
 
 		while (sync > 1)
 		{

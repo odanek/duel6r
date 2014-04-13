@@ -92,11 +92,11 @@ namespace Duel6
 
 	void KONTR_Kontr(Player& player, int c)
 	{
-		d6UpY = l->SizeY - (int)(player.GetY() - 0.06) - 1;
-		d6DownY = l->SizeY - (int)(player.GetY() - 1.0f) - 1;
-		d6Down2 = l->SizeY - (int)(player.GetY() - 1.001f) - 1;
-		d6LeftX = (int)(player.GetX() + 0.1f);
-		d6RightX = (int)(player.GetX() + 0.9f);
+		d6UpY = l->SizeY - (int)(player.Y() - 0.06) - 1;
+		d6DownY = l->SizeY - (int)(player.Y() - 1.0f) - 1;
+		d6Down2 = l->SizeY - (int)(player.Y() - 1.001f) - 1;
+		d6LeftX = (int)(player.X() + 0.1f);
+		d6RightX = (int)(player.X() + 0.9f);
 
 		switch (c)
 		{
@@ -143,8 +143,8 @@ namespace Duel6
 				if (p->IsDead())
 					continue;
 
-			if (X > p->GetX() + 1.0f || X + 0.65f < p->GetX() ||
-				s->Y < p->GetY() - 1.0f || s->Y - 0.35f > p->GetY() - ad)
+			if (X > p->X() + 1.0f || X + 0.65f < p->X() ||
+				s->Y < p->Y() - 1.0f || s->Y - 0.35f > p->Y() - ad)
 				continue;
 
 			WPN_Boom(s, p);

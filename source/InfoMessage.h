@@ -25,51 +25,59 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Fps - vypocet a synchronizace
-*/
+#ifndef DUEL6_INFOMESSAGE_H
+#define DUEL6_INFOMESSAGE_H
 
-#include <time.h>
-#include "co_core.h"
+#include <string>
+#include "Player.h"
 
-/*
-==================================================
-CO_FpsSyncLoops
-
-Nastavi promenou frame_interval ktera udava jak dlouho
-trval predchozi update. Rychlosti tomu odpovidajici
-jsou potom upraveny promene v procedure move.
-Nasledne je vse vykresleno na obrazovku.
-Zaroven provadi vypocet fps.
-==================================================
-*/
-void CO_FpsSyncLoops (void (*update) (float), void (*draw) (void))
+namespace Duel6
 {
-    static unsigned long    cur_time = 0, last_fps_time = 0;
-    static int              frame_counter = 0;
-    unsigned long           last_time;
+	class InfoMessage
+	{
+	public:
+		const Player* m_player;
+		std::string m_text;
+		float m_remainingTime;
 
-    last_time = cur_time;
-    cur_time = SDL_GetTicks ();
+	public:
+		InfoMessage(const Player& player, const std::string& text, float duration)
+			: m_player(&player), m_text(text), m_remainingTime(duration)
+		{}
 
-    // Calculate fps
-    if (cur_time - last_fps_time >= 1000)
-    {
-        g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
-        last_fps_time = cur_time;
-        frame_counter = 0;
-    }
-	frame_counter++;
+		InfoMessage(const InfoMessage& msg)
+			: m_player(msg.m_player), m_text(msg.m_text), m_remainingTime(msg.m_remainingTime)
+		{}
 
-	// Draw
-    draw ();
-    VID_SwapBuffers ();
+		InfoMessage& operator=(const InfoMessage& msg)
+		{
+			m_player = msg.m_player;
+			m_text = msg.m_text;
+			m_remainingTime = msg.m_remainingTime;
+			return *this;
+		}
 
-    // Update
-    if (cur_time - last_time < 70)
-    {
-        g_app.frame_interval = APP_FPS_SPEED * (cur_time - last_time) * 0.001f;;
-        update(g_app.frame_interval);
-    }
+		const Player& Player() const
+		{
+			return *m_player;
+		}
+
+		const std::string& Text() const
+		{
+			return m_text;
+		}
+
+		float RemainingTime() const
+		{
+			return m_remainingTime;
+		}
+
+		InfoMessage& UpdateRemainingTime(float elapsedTime)
+		{
+			m_remainingTime -= elapsedTime;
+			return *this;
+		}
+	};
 }
+
+#endif

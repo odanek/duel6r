@@ -37,6 +37,8 @@
 #include "Type.h"
 #include "Orientation.h"
 #include "ScreenMode.h"
+#include "Player.h"
+#include "InfoMessageQueue.h"
 
 #define D6_FILE_CONFIG      "data/config.txt"
 #define D6_FILE_ART         "data/duel6.kh3"
@@ -79,27 +81,6 @@
 
 namespace Duel6
 {
-	class Player; // Forward declaration
-	class ColorTexture; // Forward declaration
-
-	struct d6VIEW_s
-	{
-		int     X;
-		int     Y;
-		int     Width;
-		int     Height;
-	};
-
-	struct d6KEYBOARD_s
-	{
-		int     Left;
-		int     Right;
-		int     Up;
-		int     Down;
-		int     Shoot;
-		int     Pick;
-	};
-
 	struct d6WEAPONDEF_s
 	{
 		float   ShotSpeed;
@@ -169,9 +150,14 @@ namespace Duel6
 	extern  bool        d6ShowFps, d6PlayMusic;
 	extern  int			d6AmmoRangeMin, d6AmmoRangeMax;
 	extern ScreenMode d6ScreenMode;
+	extern bool         d6ShowRanking;
+	extern Player		*d6Player[D6_MAX_PLAYERS];
+	extern PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
+	extern InfoMessageQueue d6MessageQueue;
 
 	//////////////////////////////////////////////////////////////////////
-	//                          duel6.cpp                               //
+	//                          duel6.cpp         
+	//
 	//////////////////////////////////////////////////////////////////////
 	extern  int          d6Winner;
 	extern  float		 d6GameOverWait;
@@ -261,15 +247,6 @@ namespace Duel6
 	void    ELEV_MoveMan(Player& player);
 
 	//////////////////////////////////////////////////////////////////////
-	//                          info.cpp                                //
-	//////////////////////////////////////////////////////////////////////
-	void    INFO_Init(void);
-	void    INFO_Add(Player& player, const char *tex, ...);
-	void    INFO_MoveAll(void);
-	void    INFO_DrawAll(void);
-	void    INFO_ShowRankingSwap(void);
-
-	//////////////////////////////////////////////////////////////////////
 	//                          fire.cpp                                //
 	//////////////////////////////////////////////////////////////////////
 	void    FIRE_Init(void);
@@ -313,7 +290,5 @@ namespace Duel6
 	void    MENU_Start(void);
 	void    MENU_SavePH(void);
 }
-
-#include "Player.h"
 
 #endif

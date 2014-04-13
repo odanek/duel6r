@@ -44,6 +44,8 @@ namespace Duel6
 	bool        d6InMenu = false, d6PlayMusic = false;
 	PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
 	int			d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
+	bool        d6ShowRanking = false;
+	InfoMessageQueue d6MessageQueue;
 
 	int D6_BlockZ(int x, int y)
 	{
@@ -116,14 +118,14 @@ namespace Duel6
 
 			if (numAlive == 1)
 			{
-				INFO_Add(*lastAlive, MY_L("APP00024|Jsi vitez - stiskni ESC pro konec nebo F1 pro novou hru"));
-				lastAlive->State.PH->Wins++;
+				d6MessageQueue.Add(*lastAlive, MY_L("APP00024|Jsi vitez - stiskni ESC pro konec nebo F1 pro novou hru"));
+				lastAlive->Person().SetWins(lastAlive->Person().Wins() + 1);
 			}
 			else
 			{
 				for (Size i = 0; i < d6Playing; i++)
 				{
-					INFO_Add(*d6Player[i], MY_L("APP00025|Konec hry - bez viteze"));
+					d6MessageQueue.Add(*d6Player[i], MY_L("APP00025|Konec hry - bez viteze"));
 				}
 			}
 		}
@@ -161,7 +163,6 @@ namespace Duel6
 		WPN_LevelInit();
 		KONTR_Init();
 		EXPL_Init();
-		INFO_Init();
 		BONUS_Init(bonus);
 		ELEV_Load(levelPath, mirror);
 		FIRE_Find();
@@ -209,7 +210,7 @@ namespace Duel6
 		}
 	}
 
-	static void D6_MoveScene()
+	static void D6_MoveScene(float elapsedTime)
 	{
 		CO_InpUpdate();
 		
@@ -230,11 +231,11 @@ namespace Duel6
 		WPN_MoveShots();
 		EXPL_MoveAll();
 		ELEV_MoveAll();
-		INFO_MoveAll();
+		d6MessageQueue.Update(elapsedTime);
 		BONUS_AddNew();
 
 		// Ochrana pred nekolikanasobnym zmacknutim klavesy
-		d6KeyWait -= g_app.frame_interval;
+		d6KeyWait -= elapsedTime;
 		if (d6KeyWait < 0)
 			d6KeyWait = 0;
 
@@ -245,7 +246,7 @@ namespace Duel6
 		}
 		else if (d6Winner == 1)
 		{
-			d6GameOverWait -= g_app.frame_interval;
+			d6GameOverWait -= elapsedTime;
 			if (d6GameOverWait <= 0)
 			{
 				d6GameOverWait = 0;
@@ -292,7 +293,7 @@ namespace Duel6
 			// Turn on/off player statistics
 			if (g_inp.key[SDLK_F4])
 			{
-				INFO_ShowRankingSwap();
+				d6ShowRanking = !d6ShowRanking;
 				d6KeyWait = APP_FPS_SPEED;
 			}
 

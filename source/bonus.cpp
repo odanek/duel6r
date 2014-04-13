@@ -178,55 +178,55 @@ namespace Duel6
 					{
 					case D6_BONUS_INVIS:
 						s->Bonus = b->Type;
-						s->BD = float(t * APP_FPS_SPEED);
-						INFO_Add(player, MY_L("APP00094|Neviditelnost na %d sekund"), t);
+						s->BD = APP_FPS_SPEED * (float)t;
+						d6MessageQueue.Add(player, MY_L("APP00094|Neviditelnost na %d sekund"), t);
 						ANM_SetAlpha(s->A, 0.2f);
 						ANM_SetAlpha(s->GA, 0.2f);
 						break;
 
 					case D6_BONUS_SPEED:
 						s->Bonus = b->Type;
-						s->BD = float(t * APP_FPS_SPEED);
-						INFO_Add(player, MY_L("APP00093|Rychly pohyb na %d sekund"), t);
+						s->BD = APP_FPS_SPEED * (float)t;
+						d6MessageQueue.Add(player, MY_L("APP00093|Rychly pohyb na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);
 						break;
 
 					case D6_BONUS_LIFEP:
 						s->Life += h;
-						INFO_Add(player, MY_L("APP00012|Zivot +%d"), h);
+						d6MessageQueue.Add(player, MY_L("APP00012|Zivot +%d"), h);
 						break;
 
 					case D6_BONUS_LIFEM:
 						player.Hit(float(h), NULL, false);
-						INFO_Add(player, MY_L("APP00013|Zivot -%d"), h);
+						d6MessageQueue.Add(player, MY_L("APP00013|Zivot -%d"), h);
 						break;
 
 					case D6_BONUS_LIFEF:
 						s->Life = D6_MAX_LIFE;
-						INFO_Add(player, MY_L("APP00014|Plny zivot"), h);
+						d6MessageQueue.Add(player, MY_L("APP00014|Plny zivot"), h);
 						break;
 
 					case D6_BONUS_SHOTS:
 						s->Bonus = b->Type;
-						s->BD = float(t * (int)APP_FPS_SPEED);
-						INFO_Add(player, MY_L("APP00015|Rychle nabiti na %d sekund"), t);
+						s->BD = APP_FPS_SPEED * (float)t;
+						d6MessageQueue.Add(player, MY_L("APP00015|Rychle nabiti na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);
 						break;
 
 					case D6_BONUS_SHOTP:
 						s->Bonus = b->Type;
-						s->BD = float(t * (int)APP_FPS_SPEED);
-						INFO_Add(player, MY_L("APP00016|Silne strely na %d sekund"), t);
+						s->BD = APP_FPS_SPEED * (float)t;
+						d6MessageQueue.Add(player, MY_L("APP00016|Silne strely na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);
 						break;
 
 					case D6_BONUS_INVUL:
 						s->Bonus = b->Type;
-						s->BD = float(t * (int)APP_FPS_SPEED);
-						INFO_Add(player, MY_L("APP00017|Nesmrtelnost na %d sekund"), t);
+						s->BD = APP_FPS_SPEED * (float)t;
+						d6MessageQueue.Add(player, MY_L("APP00017|Nesmrtelnost na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);
 						break;
@@ -234,7 +234,7 @@ namespace Duel6
 					case D6_BONUS_BULLT:
 						h = 5 + rand() % 12;
 						s->Ammo += h;
-						INFO_Add(player, MY_L("APP00018|Naboje +%d"), h);
+						d6MessageQueue.Add(player, MY_L("APP00018|Naboje +%d"), h);
 						break;
 					}
 
@@ -259,7 +259,7 @@ namespace Duel6
 			{
 				b = &d6Bonus[i];
 
-				if (fabs(b->X - player.GetX()) < 0.5f && fabs(b->Y - player.GetY()) < 0.5f)
+				if (fabs(b->X - player.X()) < 0.5f && fabs(b->Y - player.Y()) < 0.5f)
 				{
 					l = b->Bull;
 					t = b->Type;
@@ -279,7 +279,7 @@ namespace Duel6
 					ANM_SetAnm(s->GA, 6);
 					ANM_RemoveFlags(s->GA, ANM_FLAG_DRAW);
 					ANM_SetAnm(s->A, 0);
-					INFO_Add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(d6WpnDef[s->GN].Name));
+					d6MessageQueue.Add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(d6WpnDef[s->GN].Name));
 					return;
 				}
 			}

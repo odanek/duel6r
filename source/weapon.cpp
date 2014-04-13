@@ -110,7 +110,7 @@ namespace Duel6
 		if (s->Flags & D6_FLAG_KNEE)
 			ad = 0.52f;
 
-		s->PH->Shots++;
+		player.Person().SetShots(player.Person().Shots() + 1);
 		sh->Y = s->Y - ad;
 		sh->X = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
 		sh->O = s->O;
@@ -175,7 +175,7 @@ namespace Duel6
 
 	void WPN_Boom(d6SHOT_s *s, Player *playerThatWasHit)
 	{
-		int killedPlayers = 0, initialAuthorKills = s->Author->State.PH->Kills;
+		int killedPlayers = 0, initialAuthorKills = s->Author->Person().Kills();
 		bool killedSelf = false;
 
 		int dosah = s->GetExplosionRange();
@@ -233,7 +233,7 @@ namespace Duel6
 
 		if (killedSelf)
 		{
-			s->Author->State.PH->Kills = initialAuthorKills - killedPlayers;
+			s->Author->Person().SetKills(initialAuthorKills - killedPlayers);
 		}
 	}
 

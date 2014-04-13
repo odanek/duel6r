@@ -53,7 +53,9 @@ set(D6R_SOURCES
     source/fire.cpp
     source/glib.cpp
     source/glib.h
-    source/info.cpp
+    source/InfoMessage.h
+    source/InfoMessageQueue.h
+    source/InfoMessageQueue.cpp
     source/kontrola.cpp
     source/LevelList.h
     source/LevelList.cpp
@@ -63,6 +65,10 @@ set(D6R_SOURCES
     source/msdir.c
     source/msdir.h
     source/Orientation.h
+    source/Person.h
+    source/Person.cpp
+    source/PersonList.h
+    source/PersonList.cpp
     source/Player.h
     source/Player.cpp
     source/PlayerSkin.h

@@ -28,8 +28,11 @@
 #ifndef DUEL6_PLAYER_H
 #define DUEL6_PLAYER_H
 
+#include "mylib/mycam.h"
+#include "Person.h"
 #include "PlayerSkin.h"
 #include "Orientation.h"
+#include "ScreenMode.h" // TODO: Remove
 
 #define D6_PLAYER_MAX_SPEED     32
 #define D6_PLAYER_ACCEL         0.001f
@@ -48,14 +51,25 @@
 
 namespace Duel6
 {
-	struct d6PHIST_s
+	class d6SHOT_s; // Forward declaration
+	struct d6LEVEL; // Forward declaration
+
+	struct d6VIEW_s
 	{
-		char    Name[20];
-		int     Shots;
-		int     Hits;
-		int     Kills;
-		int     Wins;
-		int     Games;
+		int     X;
+		int     Y;
+		int     Width;
+		int     Height;
+	};
+
+	struct d6KEYBOARD_s
+	{
+		int     Left;
+		int     Right;
+		int     Up;
+		int     Down;
+		int     Shoot;
+		int     Pick;
 	};
 
 	struct d6CAMPOS_s
@@ -69,8 +83,9 @@ namespace Duel6
 		float           TolY;
 	};
 
-	struct d6PLSTATE_s
+	class d6PLSTATE_s
 	{
+	public:
 		int         Flags;      // Flags
 		int         I;          // Offset in d6Player array - DEPRECATED
 		int         A;          // Animation number
@@ -90,14 +105,14 @@ namespace Duel6
 		int         Bonus;      // Bonus
 		float       BD;         // Bonus duration
 		float       SD;         // Temporary skin duration
-		bool        InWater;    // Player is in the water
-		d6PHIST_s   *PH;        // Player history
+		bool        InWater;    // Player is in the water	
 	};
 
 	class Player
 	{
 	private:
-		PlayerSkin *m_skin;
+		PlayerSkin *m_skin;     // Player skin
+		Person *m_person;       // Person playing the player
 
 	public:
 		mycam_c         *Camera;
@@ -128,8 +143,26 @@ namespace Duel6
 		bool Hit(float pw, d6SHOT_s *s, bool hit); // Returns true if the shot caused the player to die
 		void CheckWater(const d6LEVEL& level);
 
-		float GetX();
-		float GetY();
+		float X() const;
+		float Y() const;
+		float Width() const;
+		float Height() const;
+
+		Duel6::Person& Person()
+		{
+			return *m_person;
+		}
+
+		const Duel6::Person& Person() const
+		{
+			return *m_person;
+		}
+
+		Player& SetPerson(Duel6::Person& person)
+		{
+			m_person = &person;
+			return *this;
+		}
 
 		bool HasPowerfulShots() const;
 		bool IsKneeling() const;
@@ -143,9 +176,6 @@ namespace Duel6
 	private:
 		void FreeSkin();
 	};
-
-	extern Player   *d6Player[D6_MAX_PLAYERS];
-	extern PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
 
 	//////////////////////////////////////////////////////////////////////
 	//                          player.cpp                              //

@@ -25,51 +25,50 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Fps - vypocet a synchronizace
-*/
+#include "Person.h"
 
-#include <time.h>
-#include "co_core.h"
-
-/*
-==================================================
-CO_FpsSyncLoops
-
-Nastavi promenou frame_interval ktera udava jak dlouho
-trval predchozi update. Rychlosti tomu odpovidajici
-jsou potom upraveny promene v procedure move.
-Nasledne je vse vykresleno na obrazovku.
-Zaroven provadi vypocet fps.
-==================================================
-*/
-void CO_FpsSyncLoops (void (*update) (float), void (*draw) (void))
+namespace Duel6
 {
-    static unsigned long    cur_time = 0, last_fps_time = 0;
-    static int              frame_counter = 0;
-    unsigned long           last_time;
+	Person& Person::Reset()
+	{
+		m_shots = 0;
+		m_hits = 0;
+		m_kills = 0;
+		m_wins = 0;
+		m_games = 0;
+		return *this;
+	}
 
-    last_time = cur_time;
-    cur_time = SDL_GetTicks ();
+	void Person::Serialize(FILE* file) const
+	{
+		Uint32 nameLength = Name().length();
+		fwrite(&nameLength, 4, 1, file);
+		fwrite(Name().c_str(), 1, nameLength, file);
+		fwrite(&m_shots, 4, 1, file);
+		fwrite(&m_hits, 4, 1, file);
+		fwrite(&m_kills, 4, 1, file);
+		fwrite(&m_wins, 4, 1, file);
+		fwrite(&m_games, 4, 1, file);
+	}
 
-    // Calculate fps
-    if (cur_time - last_fps_time >= 1000)
-    {
-        g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
-        last_fps_time = cur_time;
-        frame_counter = 0;
-    }
-	frame_counter++;
+	void Person::DeSerialize(FILE* file)
+	{
+		Uint32 nameLength;
+		fread(&nameLength, 4, 1, file);
 
-	// Draw
-    draw ();
-    VID_SwapBuffers ();
+		m_name.clear();
+		m_name.reserve(nameLength);
+		while (nameLength-- > 0)
+		{
+			char letter;
+			fread(&letter, 1, 1, file);
+			m_name.push_back(letter);
+		}
 
-    // Update
-    if (cur_time - last_time < 70)
-    {
-        g_app.frame_interval = APP_FPS_SPEED * (cur_time - last_time) * 0.001f;;
-        update(g_app.frame_interval);
-    }
+		fread(&m_shots, 4, 1, file);
+		fread(&m_hits, 4, 1, file);
+		fread(&m_kills, 4, 1, file);
+		fread(&m_wins, 4, 1, file);
+		fread(&m_games, 4, 1, file);
+	}
 }

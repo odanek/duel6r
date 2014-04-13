@@ -237,7 +237,7 @@ namespace Duel6
 		State.Bonus = 0;
 		State.BD = 0;
 		State.SD = 0;
-		State.PH->Games++;
+		Person().SetGames(Person().Games() + 1);
 		State.InWater = false;
 	}
 
@@ -587,9 +587,12 @@ namespace Duel6
 		}
 
 		State.Life -= pw;
+		
+
 		if (hit && s != NULL)
 		{
-			s->Author->State.PH->Hits++;
+			Duel6::Person& shootingPerson = s->Author->Person();
+			shootingPerson.SetHits(shootingPerson.Hits() + 1);
 		}
 
 		if (State.Life < 1)
@@ -604,12 +607,14 @@ namespace Duel6
 
 				if (this != s->Author)
 				{
-					s->Author->State.PH->Kills++;
-					INFO_Add(*this, MY_L("APP00051|Jsi mrtvy - zabil te %s"), s->Author->State.PH->Name);
-					INFO_Add(*s->Author, MY_L("APP00052|Zabil jsi hrace %s"), State.PH->Name);
+					Duel6::Person& shootingPerson = s->Author->Person();
+					Duel6::Person& killedPerson = this->Person();					
+					shootingPerson.SetKills(shootingPerson.Kills() + 1);
+					d6MessageQueue.Add(*this, MY_L("APP00051|Jsi mrtvy - zabil te %s"), shootingPerson.Name().c_str());
+					d6MessageQueue.Add(*s->Author, MY_L("APP00052|Zabil jsi hrace %s"), killedPerson.Name().c_str());
 				}
 				else
-					INFO_Add(*this, MY_L("APP00053|Jsi mrtvy"));
+					d6MessageQueue.Add(*this, MY_L("APP00053|Jsi mrtvy"));
 
 				if (s->WD->ExplC && hit)
 				{
@@ -618,15 +623,15 @@ namespace Duel6
 				}
 			}
 			else
-				INFO_Add(*this, MY_L("APP00054|Jsi mrtvy"));
+				d6MessageQueue.Add(*this, MY_L("APP00054|Jsi mrtvy"));
 
 			SOUND_PlaySample(D6_SND_DEAD);
 
 			// Pridej lezici zbran
 			if (!State.J && (s == NULL || !s->WD->ExplC || !hit))
 			{
-				int x1 = int(GetX() + 0.2f), x2 = int(GetX() + 0.8f);
-				int y = d6World.Level.SizeY - int(GetY() - 0.5f) - 1;
+				int x1 = int(X() + 0.2f), x2 = int(X() + 0.8f);
+				int y = d6World.Level.SizeY - int(Y() - 0.5f) - 1;
 
 				if (D6_BlockZ(x1, y + 1) == D6_ANM_F_BLOCK && D6_BlockZ(x1, y) != D6_ANM_F_BLOCK)
 					BONUS_AddDeadManGun(x1, y, *this);
@@ -685,14 +690,24 @@ namespace Duel6
 		State.InWater = w;
 	}
 
-	float Player::GetX()
+	float Player::X() const
 	{
 		return State.X;
 	}
 
-	float Player::GetY()
+	float Player::Y() const
 	{
 		return State.Y;
+	}
+
+	float Player::Width() const
+	{
+		return 1.0f;
+	}
+
+	float Player::Height() const
+	{
+		return 1.0f;
 	}
 
 	bool Player::HasPowerfulShots() const
@@ -722,7 +737,7 @@ namespace Duel6
 
 	void Player::UseTemporarySkin(PlayerSkin& skin)
 	{
-		State.SD = float(APP_FPS_SPEED * (10 + rand() % 5));
+		State.SD = APP_FPS_SPEED * float(10 + rand() % 5);
 		ANM_SetTexture(State.A, skin.GlTexture());
 	}
 
