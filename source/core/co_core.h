@@ -42,7 +42,7 @@ Popis: Hlavni hlavickovy soubor jadra
 #include "../console/console.h"
 
 /* Makra a definice */
-#define APP_VERSION         "3.8.15"
+#define APP_VERSION         "3.9.0"
 #define APP_NAME            "Duel 6 Reloaded"
 #define APP_FILE_ICON       "data/duel6_icon.bmp"
 #define APP_FILE_CORE_PCK   "data/duel6.pck"
