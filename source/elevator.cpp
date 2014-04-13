@@ -119,7 +119,7 @@ namespace Duel6
 		}
 	}
 
-	void ELEV_MoveAll(void)
+	void ELEV_MoveAll(float elapsedTime)
 	{
 		d6ELEVATOR_s    *e;
 		int             i;
@@ -128,9 +128,9 @@ namespace Duel6
 		{
 			e = &d6Elev[i];
 
-			e->X += e->AddPos * e->AddX[e->NowSec] * g_app.frame_interval;
-			e->Y += e->AddPos * e->AddY[e->NowSec] * g_app.frame_interval;
-			e->CurPos += e->AddPos * g_app.frame_interval;
+			e->X += e->AddPos * e->AddX[e->NowSec] * elapsedTime;
+			e->Y += e->AddPos * e->AddY[e->NowSec] * elapsedTime;
+			e->CurPos += e->AddPos * elapsedTime;
 
 			if (e->CurPos >= e->SecMax[e->NowSec])
 			{
@@ -239,15 +239,15 @@ namespace Duel6
 		}
 	}
 
-	void ELEV_MoveMan(Player& player)
+	void ELEV_MoveMan(Player& player, float elapsedTime)
 	{
 		d6PLSTATE_s *s = &player.State;
 
 		if (s->Elev >= 0)
 		{
 			d6ELEVATOR_s *e = &d6Elev[s->Elev];
-			s->X += e->AddPos * e->AddX[e->NowSec] * g_app.frame_interval;
-			s->Y += e->AddPos * e->AddY[e->NowSec] * g_app.frame_interval;
+			s->X += e->AddPos * e->AddX[e->NowSec] * elapsedTime;
+			s->Y += e->AddPos * e->AddY[e->NowSec] * elapsedTime;
 		}
 	}
 

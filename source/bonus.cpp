@@ -89,13 +89,13 @@ namespace Duel6
 		glDisable(GL_ALPHA_TEST);
 	}
 
-	void BONUS_AddNew(void)
+	void BONUS_AddNew(float elapsedTime)
 	{
 		int     x, y, i, k;
 
 		k = rand() % 2;
 
-		if (rand() % int(150 / g_app.frame_interval))
+		if (rand() % int(2.4f / elapsedTime))
 			return;
 
 		x = rand() % d6World.Level.SizeX;
@@ -178,7 +178,7 @@ namespace Duel6
 					{
 					case D6_BONUS_INVIS:
 						s->Bonus = b->Type;
-						s->BD = APP_FPS_SPEED * (float)t;
+						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00094|Neviditelnost na %d sekund"), t);
 						ANM_SetAlpha(s->A, 0.2f);
 						ANM_SetAlpha(s->GA, 0.2f);
@@ -186,7 +186,7 @@ namespace Duel6
 
 					case D6_BONUS_SPEED:
 						s->Bonus = b->Type;
-						s->BD = APP_FPS_SPEED * (float)t;
+						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00093|Rychly pohyb na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);
@@ -209,7 +209,7 @@ namespace Duel6
 
 					case D6_BONUS_SHOTS:
 						s->Bonus = b->Type;
-						s->BD = APP_FPS_SPEED * (float)t;
+						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00015|Rychle nabiti na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);
@@ -217,7 +217,7 @@ namespace Duel6
 
 					case D6_BONUS_SHOTP:
 						s->Bonus = b->Type;
-						s->BD = APP_FPS_SPEED * (float)t;
+						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00016|Silne strely na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);
@@ -225,7 +225,7 @@ namespace Duel6
 
 					case D6_BONUS_INVUL:
 						s->Bonus = b->Type;
-						s->BD = APP_FPS_SPEED * (float)t;
+						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00017|Nesmrtelnost na %d sekund"), t);
 						ANM_SetAlpha(s->A, 1);
 						ANM_SetAlpha(s->GA, 1);

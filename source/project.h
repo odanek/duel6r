@@ -56,6 +56,7 @@
 
 #define D6_LEVEL_EXTENSION	".lev"
 
+#define D6_SPEED_COEF		61
 #define D6_CL_WIDTH         800
 #define D6_CL_HEIGHT        600
 #define D6_CL_BPP           32
@@ -65,15 +66,16 @@
 #define D6_GL_ORTHO         2
 
 #define D6_WEAPONS          17
-#define D6_ANM_SPEED        20
-#define D6_EXPL_SPEED       0.01f
+#define D6_ANM_SPEED        0.328
+#define D6_EXPL_SPEED       0.61f
 #define D6_WAVE_HEIGHT      0.1f
 
 #define D6_MAX_PLAYERS      8
 #define D6_MAX_LIFE         100
-#define D6_MAX_AIR          350
+#define D6_MAX_AIR          200
+#define D6_WATER_HIT		60
 #define D6_MAX_EXPLOSIONS   100
-#define D6_GAME_OVER_WAIT   (3.0f * APP_FPS_SPEED)
+#define D6_GAME_OVER_WAIT   3.0f
 
 #define D6_SOUNDS           25
 
@@ -190,12 +192,12 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	void    WATER_Free(void);
 	void    WATER_Build(void);
-	void    WATER_Move(void);
+	void    WATER_Move(float elapsedTime);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          render.cpp                              //
 	//////////////////////////////////////////////////////////////////////
-	void    RENDER_MoveAnm();
+	void    RENDER_MoveAnm(float elapsedTime);
 	void	RENDER_InitScreen();
 	void    RENDER_DrawScene(ScreenMode screenMode);
 
@@ -213,7 +215,7 @@ namespace Duel6
 	void    WPN_DeInit(void);
 	void    WPN_LevelInit(void);
 	void    WPN_Shoot(Player& player);
-	void    WPN_MoveShots(void);
+	void    WPN_MoveShots(float elapsedTime);
 	void    WPN_Boom(d6SHOT_s *s, Player *p);
 	int     WPN_GetRandomWeapon(void);
 
@@ -231,7 +233,7 @@ namespace Duel6
 	void    EXPL_Init(void);
 	void    EXPL_Load(void);
 	void    EXPL_Free(void);
-	void    EXPL_MoveAll(void);
+	void    EXPL_MoveAll(float elapsedTime);
 	void    EXPL_DrawAll(void);
 	void    EXPL_Add(float x, float y, float s, float m, myDWORD c);
 
@@ -240,11 +242,11 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	void    ELEV_Init(void);
 	void    ELEV_Free(void);
-	void    ELEV_MoveAll(void);
+	void    ELEV_MoveAll(float elapsedTime);
 	void    ELEV_DrawAll(void);
 	void    ELEV_Load(const std::string& path, bool mirror);
 	void    ELEV_CheckMan(Player& player);
-	void    ELEV_MoveMan(Player& player);
+	void    ELEV_MoveMan(Player& player, float elapsedTime);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          fire.cpp                                //
@@ -273,7 +275,7 @@ namespace Duel6
 
 	void    BONUS_Init(int(*bonus)[3]);
 	void    BONUS_DrawAll(void);
-	void    BONUS_AddNew(void);
+	void    BONUS_AddNew(float elapsedTime);
 	void    BONUS_AddDeadManGun(int x, int y, Player& player);
 	void    BONUS_Check(Player& player);
 	void    BONUS_Pick(Player& player);

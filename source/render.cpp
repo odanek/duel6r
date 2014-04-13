@@ -96,12 +96,12 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	void RENDER_MoveAnm(void)
+	void RENDER_MoveAnm(float elapsedTime)
 	{
 		d6FACE  *f = d6World.Face;
 		int     i;
 
-		if ((d6World.Anm.Wait += g_app.frame_interval) > D6_ANM_SPEED)
+		if ((d6World.Anm.Wait += elapsedTime) > D6_ANM_SPEED)
 		{
 			d6World.Anm.Wait = 0;
 			for (i = 0; i < d6World.Faces; i++)

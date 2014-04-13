@@ -87,7 +87,6 @@ namespace Duel6
 	{
 	public:
 		int         Flags;      // Flags
-		int         I;          // Offset in d6Player array - DEPRECATED
 		int         A;          // Animation number
 		int         GA;         // Gun animation
 		int         GN;         // Gun number
@@ -105,7 +104,7 @@ namespace Duel6
 		int         Bonus;      // Bonus
 		float       BD;         // Bonus duration
 		float       SD;         // Temporary skin duration
-		bool        InWater;    // Player is in the water	
+		bool        InWater;    // Player is in the water (feet)
 	};
 
 	class Player
@@ -113,6 +112,13 @@ namespace Duel6
 	private:
 		PlayerSkin *m_skin;     // Player skin
 		Person *m_person;       // Person playing the player
+
+	private:
+		void Left(float elapsedTime);
+		void Right(float elapsedTime);
+		void MakeMove(float elapsedTime);
+		void CheckKeys(float elapsedTime);
+		void CheckWater(const d6LEVEL& level, float elapsedTime);
 
 	public:
 		mycam_c         *Camera;
@@ -128,20 +134,15 @@ namespace Duel6
 		void PrepareForGame();
 
 		void SetView(int x, int y, int w, int h);
-		void Left();
-		void Right();
 		void Jump();
 		void Fall();
 		void Pick();
-		void MakeMove();
 		void SetAnm();
-		void CheckKeys();
-		void Update();
+		void Update(float elapsedTime);
 		void PrepareCam(ScreenMode screenMode);
 		void UpdateCam();
 		void SetControls(int n);
 		bool Hit(float pw, d6SHOT_s *s, bool hit); // Returns true if the shot caused the player to die
-		void CheckWater(const d6LEVEL& level);
 
 		float X() const;
 		float Y() const;

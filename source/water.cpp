@@ -65,13 +65,13 @@ namespace Duel6
 		}
 	}
 
-	void WATER_Move(void)
+	void WATER_Move(float elapsedTime)
 	{
 		float           s = 0;
 		d6WATERVERTEX   *w = d6WV;
 		int             oldX = -1;
 
-		d6WAngle += 2 * g_app.frame_interval;
+		d6WAngle += 122 * elapsedTime;
 		if (d6WAngle >= 360)
 			d6WAngle -= 360;
 

@@ -69,7 +69,7 @@ void CO_FpsSyncLoops (void (*update) (float), void (*draw) (void))
     // Update
     if (cur_time - last_time < 70)
     {
-        g_app.frame_interval = APP_FPS_SPEED * (cur_time - last_time) * 0.001f;;
+        g_app.frame_interval = (cur_time - last_time) * 0.001f;;
         update(g_app.frame_interval);
     }
 }

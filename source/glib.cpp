@@ -435,7 +435,7 @@ void switchbox_c::Check (int &event, int &from, int &n, int &g)
 
     if (left->pressed && !pWait)
     {
-        pWait = APP_FPS_SPEED * 2;
+        pWait = 120;  // TODO: Fix, hack to wait 2 seconds
         if (now > 0)
         {
             now--;
@@ -445,7 +445,7 @@ void switchbox_c::Check (int &event, int &from, int &n, int &g)
 
     if (right->pressed && !pWait)
     {
-        pWait = APP_FPS_SPEED * 2;
+        pWait = 120;  // TODO: Fix, hack to wait 2 seconds
         if (now < items - 1)
         {
             now++;

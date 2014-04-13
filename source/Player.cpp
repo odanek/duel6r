@@ -190,7 +190,6 @@ namespace Duel6
 		Camera->resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
 		MY_RegMem(Camera, sizeof (mycam_c));
 		Camera->rotate(180.0, 0.0, 0.0);
-		State.I = index;
 		Keys = &d6Keyboard[index];
 		m_skin = nullptr;
 	}
@@ -255,21 +254,21 @@ namespace Duel6
 		View.Height = h;
 	}
 
-	void Player::Left(void)
+	void Player::Left(float elapsedTime)
 	{
 		if (State.Speed >= -D6_PLAYER_MAX_SPEED)
 			State.Flags |= D6_FLAG_REQ_LEFT;
-		if ((State.Speed -= g_app.frame_interval) < -D6_PLAYER_MAX_SPEED)
+		if ((State.Speed -= elapsedTime) < -D6_PLAYER_MAX_SPEED)
 			State.Speed = -D6_PLAYER_MAX_SPEED;
 		if (State.Speed < 0)
 			State.O = Orientation::Left;
 	}
 
-	void Player::Right(void)
+	void Player::Right(float elapsedTime)
 	{
 		if (State.Speed <= D6_PLAYER_MAX_SPEED)
 			State.Flags |= D6_FLAG_REQ_RIGHT;
-		if ((State.Speed += g_app.frame_interval) > D6_PLAYER_MAX_SPEED)
+		if ((State.Speed += elapsedTime) > D6_PLAYER_MAX_SPEED)
 			State.Speed = D6_PLAYER_MAX_SPEED;
 		if (State.Speed > 0)
 			State.O = Orientation::Right;
@@ -278,17 +277,27 @@ namespace Duel6
 	void Player::Jump(void)
 	{
 		if (!State.J)
+		{
 			if (KONTR_CanJump(this))
+			{
 				State.J = 90;
+			}
+		}
 	}
 
 	void Player::Fall(void)
 	{
 		if (!State.J && !State.Speed)
+		{
 			State.Flags |= D6_FLAG_KNEE;
+		}
 		else
+		{
 			if (State.J > 0 && State.J < 180)
+			{
 				State.J = 180;
+			}
+		}
 	}
 
 	void Player::Pick(void)
@@ -297,7 +306,7 @@ namespace Duel6
 			BONUS_Pick(*this);
 	}
 
-	void Player::MakeMove(void)
+	void Player::MakeMove(float elapsedTime)
 	{
 		float   sp;
 
@@ -312,12 +321,12 @@ namespace Duel6
 		if (State.Bonus == D6_BONUS_SPEED)
 			sp *= 1.43f;
 
-		sp *= g_app.frame_interval;
+		sp *= elapsedTime;
 		State.Elev = -1;
 
 		if (State.J > 0)
 		{
-			if ((State.J += 2 * g_app.frame_interval) > 270.0)
+			if ((State.J += 2 * elapsedTime) > 270.0)
 				State.J = 270.0f;
 
 			State.Y += d6Sin[int(State.J)] * D6_PLAYER_JUMP_SPEED * sp;
@@ -333,55 +342,73 @@ namespace Duel6
 		if (State.Speed != 0)
 		{
 			if (!(State.Flags & D6_FLAG_REQ_RIGHT) && State.Speed > 0)
-				if ((State.Speed -= g_app.frame_interval) < 0)
+				if ((State.Speed -= elapsedTime) < 0)
 					State.Speed = 0;
 			if (!(State.Flags & D6_FLAG_REQ_LEFT) && State.Speed < 0)
-				if ((State.Speed += g_app.frame_interval) > 0)
+				if ((State.Speed += elapsedTime) > 0)
 					State.Speed = 0;
 
 			State.X += State.Speed * D6_PLAYER_ACCEL * sp;
 			KONTR_Kontr(*this, 4);
 		}
 
-		ELEV_MoveMan(*this);
+		ELEV_MoveMan(*this, elapsedTime);
 
 		State.Flags &= ~(D6_FLAG_REQ_RIGHT | D6_FLAG_REQ_LEFT);
 	}
 
-	void Player::CheckKeys(void)
+	void Player::CheckKeys(float elapsedTime)
 	{
 		if ((State.Flags & (D6_FLAG_DEAD | D6_FLAG_PICK)) != 0)
 			return;
 
 		if (!(State.Flags & D6_FLAG_KNEE))
 		{
-			if (CO_InpIsPressed(Keys->Left)) Left();
-			if (CO_InpIsPressed(Keys->Right)) Right();
-			if (CO_InpIsPressed(Keys->Up)) Jump();
-			if (CO_InpIsPressed(Keys->Pick)) Pick();
+			if (CO_InpIsPressed(Keys->Left))
+			{
+				Left(elapsedTime);
+			}
+			if (CO_InpIsPressed(Keys->Right))
+			{
+				Right(elapsedTime);
+			}
+			if (CO_InpIsPressed(Keys->Up))
+			{
+				Jump();
+			}
+			if (CO_InpIsPressed(Keys->Pick))
+			{
+				Pick();
+			}
 		}
 
-		if (CO_InpIsPressed(Keys->Shoot)) WPN_Shoot(*this);
+		if (CO_InpIsPressed(Keys->Shoot))
+		{
+			WPN_Shoot(*this);
+		}
 		State.Flags &= ~D6_FLAG_KNEE;
-		if (CO_InpIsPressed(Keys->Down)) Fall();
+		if (CO_InpIsPressed(Keys->Down))
+		{
+			Fall();
+		}
 	}
 
-	void Player::Update()
+	void Player::Update(float elapsedTime)
 	{
-		CheckWater(d6World.Level);
+		CheckWater(d6World.Level, elapsedTime);
 		if (!IsDead())
 		{
 			BONUS_Check(*this);
 		}
 
-		CheckKeys();
-		MakeMove();
+		CheckKeys(elapsedTime * D6_SPEED_COEF);
+		MakeMove(elapsedTime * D6_SPEED_COEF);
 		SetAnm();
 
 		// Move intervals
 		if (State.SI > 0)
 		{
-			if ((State.SI -= g_app.frame_interval) <= 0)
+			if ((State.SI -= elapsedTime * D6_SPEED_COEF) <= 0)
 			{
 				State.SI = 0;
 			}
@@ -389,7 +416,7 @@ namespace Duel6
 
 		if (State.BD > 0)
 		{
-			if ((State.BD -= g_app.frame_interval) <= 0)
+			if ((State.BD -= elapsedTime) <= 0)
 			{
 				if (State.Bonus == D6_BONUS_INVIS)
 				{
@@ -403,7 +430,7 @@ namespace Duel6
 
 		if (State.SD > 0)
 		{
-			if ((State.SD -= g_app.frame_interval) <= 0)
+			if ((State.SD -= elapsedTime) <= 0)
 			{
 				SwitchToOriginalSkin();
 			}
@@ -588,7 +615,6 @@ namespace Duel6
 
 		State.Life -= pw;
 		
-
 		if (hit && s != NULL)
 		{
 			Duel6::Person& shootingPerson = s->Author->Person();
@@ -627,7 +653,7 @@ namespace Duel6
 
 			SOUND_PlaySample(D6_SND_DEAD);
 
-			// Pridej lezici zbran
+			// Add lying weapon
 			if (!State.J && (s == NULL || !s->WD->ExplC || !hit))
 			{
 				int x1 = int(X() + 0.2f), x2 = int(X() + 0.8f);
@@ -645,49 +671,56 @@ namespace Duel6
 			SOUND_PlaySample(D6_SND_HIT);
 		}
 
-		return (State.Life == 0);
+		return IsDead();
 	}
 
-	void Player::CheckWater(const d6LEVEL& level)
+	static Uint8 WaterBlock(const d6LEVEL& level, float X, float Y) // 0 = no water, 1 = blue water, 2 = red water TODO: Method of Level?
 	{
-		bool    w = false;
-		int     X, Y, w_kind;
+		int bX = int(X), bY = level.SizeY - int(Y) - 1;
 
-		X = (int)(State.X + 0.5f);
-		Y = level.SizeY - (int)(State.Y - 0.2) - 1;
+		if (bX >= 0 && bY >= 0 && bX < level.SizeX && bY < level.SizeY)
+		{
+			if (D6_BlockZ(bX, bY) == D6_ANM_F_WATER)
+			{
+				return (D6_BlockN(bX, bY) == 4) ? 1 : 2;
+			}
+		}
+
+		return 0;
+	}
+
+	void Player::CheckWater(const d6LEVEL& level, float elapsedTime)
+	{
+		float airHitAmount = D6_WATER_HIT * elapsedTime;
 		State.Flags &= ~D6_FLAG_INWATER;
 
-		if (X >= 0 && Y >= 0 && X < level.SizeX && Y < level.SizeY)
-			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
-			{
-				State.Flags |= D6_FLAG_INWATER;
-				if ((State.Air -= g_app.frame_interval) < 0)
-				{
-					State.Air = 0;
-					Hit(g_app.frame_interval, NULL, false);
-				}
-				return;
-			}
-
-		if (State.Air < D6_MAX_AIR)
-			State.Air++;
-
-		Y = level.SizeY - (int)(State.Y - 0.9) - 1;
-
-		if (X >= 0 && Y >= 0 && X < level.SizeX && Y < level.SizeY)
-			if (D6_BlockZ(X, Y) == D6_ANM_F_WATER)
-			{
-				w = true;
-				w_kind = D6_BlockN(X, Y) == 4 ? 0 : 1;
-			}
-
-		if (w && !State.InWater)
+		// Check if head is in water
+		Uint8 water = WaterBlock(level, X() + 0.5f, Y() - 0.2f);
+		if (water > 0)
 		{
-			ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, Orientation::Left, wtAnim[w_kind], d6WpnTexture, false);
+			State.Flags |= D6_FLAG_INWATER;
+			if ((State.Air -= airHitAmount) < 0)
+			{
+				State.Air = 0;
+				if (Hit(airHitAmount, NULL, false))
+				{
+					Person().SetKills(Person().Kills() - 1);  // Player drowned = -1 kill
+				}
+			}
+			return;
+		}
+
+		State.Air = MY_Min(State.Air + 2 * airHitAmount, D6_MAX_AIR);
+
+		// Check if foot is in water
+		water = WaterBlock(level, X() + 0.5f, Y() - 0.9f);
+		if (water > 0 && !State.InWater)
+		{
+			ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, Orientation::Left, wtAnim[water - 1], d6WpnTexture, false);
 			SOUND_PlaySample(D6_SND_WATER);
 		}
 
-		State.InWater = w;
+		State.InWater = (water > 0);
 	}
 
 	float Player::X() const
@@ -737,7 +770,7 @@ namespace Duel6
 
 	void Player::UseTemporarySkin(PlayerSkin& skin)
 	{
-		State.SD = APP_FPS_SPEED * float(10 + rand() % 5);
+		State.SD = float(10 + rand() % 5);
 		ANM_SetTexture(State.A, skin.GlTexture());
 	}
 

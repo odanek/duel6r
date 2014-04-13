@@ -210,7 +210,7 @@ namespace Duel6
 		}
 	}
 
-	static void D6_MoveScene(float elapsedTime)
+	static void D6_UpdateScene(float elapsedTime)
 	{
 		CO_InpUpdate();
 		
@@ -218,21 +218,21 @@ namespace Duel6
 		{
 			Player& player = *d6Player[i];
 			
-			player.Update();
+			player.Update(elapsedTime);
 			if (d6ScreenMode == ScreenMode::SplitScreen)
 			{
 				player.UpdateCam();
 			}
 		}
 
-		RENDER_MoveAnm();
-		ANM_MoveAll();
-		WATER_Move();
-		WPN_MoveShots();
-		EXPL_MoveAll();
-		ELEV_MoveAll();
+		RENDER_MoveAnm(elapsedTime);
+		ANM_MoveAll(elapsedTime * D6_SPEED_COEF);
+		WATER_Move(elapsedTime);
+		WPN_MoveShots(elapsedTime * D6_SPEED_COEF);
+		EXPL_MoveAll(elapsedTime);
+		ELEV_MoveAll(elapsedTime * D6_SPEED_COEF);
 		d6MessageQueue.Update(elapsedTime);
-		BONUS_AddNew();
+		BONUS_AddNew(elapsedTime);
 
 		// Ochrana pred nekolikanasobnym zmacknutim klavesy
 		d6KeyWait -= elapsedTime;
@@ -263,7 +263,7 @@ namespace Duel6
 
 	void D6_GameLoop(void)
 	{
-		CO_FpsSyncLoops(&D6_MoveScene, &D6_RenderScene);
+		CO_FpsSyncLoops(&D6_UpdateScene, &D6_RenderScene);
 
 		if (g_inp.key[SDLK_ESCAPE])
 		{
@@ -287,21 +287,21 @@ namespace Duel6
 				d6ScreenMode = (d6ScreenMode == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen;
 				PLAYER_PrepareViews(d6ScreenMode);
 				RENDER_InitScreen();
-				d6KeyWait = APP_FPS_SPEED;
+				d6KeyWait = 1.0f;
 			}
 
 			// Turn on/off player statistics
 			if (g_inp.key[SDLK_F4])
 			{
 				d6ShowRanking = !d6ShowRanking;
-				d6KeyWait = APP_FPS_SPEED;
+				d6KeyWait = 1.0f;
 			}
 
 			// Save screenshot
 			if (g_inp.key[SDLK_F10])
 			{
 				UTIL_SaveScreenTga(1);
-				d6KeyWait = APP_FPS_SPEED;
+				d6KeyWait = 1.0f;
 			}
 		}
 	}

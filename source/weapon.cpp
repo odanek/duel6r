@@ -116,7 +116,7 @@ namespace Duel6
 		sh->O = s->O;
 		sh->GN = s->GN;
 		sh->WD = &d6WpnDef[s->GN];
-		sh->Author = d6Player[s->I];
+		sh->Author = &player;
 		sh->I = d6Shots - 1;
 		sh->A = ANM_Add(sh->X, sh->Y, 0.6f, 1, ANM_LOOP_FOREVER, sh->O, d6ShotAnm[sh->GN], d6WpnTexture, false);
 		SOUND_PlaySample(sh->WD->ShSound);
@@ -135,7 +135,7 @@ namespace Duel6
 		}
 	}
 
-	void WPN_MoveShots(void)
+	void WPN_MoveShots(float elapsedTime)
 	{
 		d6SHOT_s    *s;
 		float       x;
@@ -146,9 +146,9 @@ namespace Duel6
 			s = &d6Shot[i];
 
 			if (s->O == Orientation::Right)
-				s->X += s->WD->ShotSpeed * g_app.frame_interval;
+				s->X += s->WD->ShotSpeed * elapsedTime;
 			else
-				s->X -= s->WD->ShotSpeed * g_app.frame_interval;
+				s->X -= s->WD->ShotSpeed * elapsedTime;
 
 			ANM_ReSet(s->A, s->X, s->Y, -1, Orientation::None, NULL);
 

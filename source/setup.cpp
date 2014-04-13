@@ -86,8 +86,8 @@ namespace Duel6
 		}
 
 		// Set graphics mode
-		//VID_SetMode(d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
-		VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);
+		VID_SetMode(d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
+		//VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);
 
 		g_vid.gl_fov = 45.0f;
 		g_vid.gl_nearclip = 0.1f;

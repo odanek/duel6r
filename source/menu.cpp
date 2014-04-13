@@ -521,7 +521,7 @@ namespace Duel6
 			SET_LoadBackground(myListbox[4]->CurItem() - 1);
 
 		g_inp.key[SDLK_ESCAPE] = 0;
-		d6KeyWait = APP_FPS_SPEED;
+		d6KeyWait = 1.0f;
 
 		SOUND_PlaySample(D6_SND_LETS_ROCK);
 	}
@@ -616,14 +616,14 @@ namespace Duel6
 
 	static void MENU_Update(float elapsedTime)
 	{
-		static  float sync = 0;
+		static  float sync = 0, wait = 0.0163f;
 		int     event, from, n, g;
 
 		sync += elapsedTime;
 
-		while (sync > 1)
+		while (sync > wait)
 		{
-			sync--;
+			sync -= wait;
 
 			myDesk->Check(event, from, n, g);
 			if (g == 1 && event == GLIB_E_RELEASED)

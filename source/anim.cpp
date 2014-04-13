@@ -160,9 +160,9 @@ namespace Duel6
 		return anmAnm[num].Pl[anmAnm[num].Pos];
 	}
 
-	static void ANM_Move(anmANM_s *a)
+	static void ANM_Move(anmANM_s *a, float elapsedTime)
 	{
-		a->Del += g_app.frame_interval;
+		a->Del += elapsedTime;
 		if (a->Del >= a->Pl[a->Pos + 1] * a->Sp)
 		{
 			a->Pos += 2;
@@ -184,16 +184,16 @@ namespace Duel6
 		{
 			anmVERTEX_s *v = &anmVertex[a->I << 2];
 
-			a->X -= a->Grow * g_app.frame_interval;
-			a->Y += a->Grow * g_app.frame_interval;
-			v[0].X -= a->Grow * g_app.frame_interval;
-			v[0].Y += a->Grow * g_app.frame_interval;
-			v[1].X += a->Grow * g_app.frame_interval;
-			v[1].Y += a->Grow * g_app.frame_interval;
-			v[2].X += a->Grow * g_app.frame_interval;
-			v[2].Y -= a->Grow * g_app.frame_interval;
-			v[3].X -= a->Grow * g_app.frame_interval;
-			v[3].Y -= a->Grow * g_app.frame_interval;
+			a->X -= a->Grow * elapsedTime;
+			a->Y += a->Grow * elapsedTime;
+			v[0].X -= a->Grow * elapsedTime;
+			v[0].Y += a->Grow * elapsedTime;
+			v[1].X += a->Grow * elapsedTime;
+			v[1].Y += a->Grow * elapsedTime;
+			v[2].X += a->Grow * elapsedTime;
+			v[2].Y -= a->Grow * elapsedTime;
+			v[3].X -= a->Grow * elapsedTime;
+			v[3].Y -= a->Grow * elapsedTime;
 		}
 	}
 
@@ -231,13 +231,13 @@ namespace Duel6
 		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);
 	}
 
-	void ANM_MoveAll(void)
+	void ANM_MoveAll(float elapsedTime)
 	{
 		int     i;
 
 		for (i = 0; i < ANM_MAX; i++)
 			if (anmAnm[i].Flags & ANM_FLAG_USED)
-				ANM_Move(&anmAnm[i]);
+				ANM_Move(&anmAnm[i], elapsedTime);
 	}
 
 	void ANM_RemoveFlags(int i, int f)

@@ -75,7 +75,7 @@ namespace Duel6
 	void    ANM_SetAnm(int i, int p);
 	void    ANM_Grow(int i, float grow);
 	int     ANM_Pict(int num);
-	void    ANM_MoveAll(void);
+	void    ANM_MoveAll(float elapsedTime);
 	void    ANM_DrawAll(void);
 	void    ANM_AddFlags(int i, int f);
 	void    ANM_RemoveFlags(int i, int f);

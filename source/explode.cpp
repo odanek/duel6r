@@ -83,13 +83,13 @@ namespace Duel6
 			memcpy(&d6Expl[i], &d6Expl[d6Explosions], sizeof (d6EXPLOSION_s));
 	}
 
-	void EXPL_MoveAll(void)
+	void EXPL_MoveAll(float elapsedTime)
 	{
 		int     i;
 
 		for (i = 0; i < d6Explosions; i++)
 		{
-			d6Expl[i].Now += D6_EXPL_SPEED * g_app.frame_interval;
+			d6Expl[i].Now += D6_EXPL_SPEED * elapsedTime;
 			if (d6Expl[i].Now > d6Expl[i].Max)
 			{
 				EXPL_Remove(i);
