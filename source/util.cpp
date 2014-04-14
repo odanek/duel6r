@@ -131,7 +131,7 @@ namespace Duel6
 	*/
 	void UTIL_SaveScreenTga(int sd)
 	{
-		short       tga[9] = { 0, 2, 0, 0, 0, 0, g_vid.cl_width / sd, g_vid.cl_height / sd, 272 };
+		Uint16       tga[9] = { 0, 2, 0, 0, 0, 0, Uint16(g_vid.cl_width / sd), Uint16(g_vid.cl_height / sd), 272 };
 		int         x, y, r, g, b, num = 0;
 		char        name[50];
 		float       *pix_data, *pix_ptr;

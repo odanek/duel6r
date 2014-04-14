@@ -25,7 +25,7 @@ endif(WIN32)
 if(UNIX)
 	# gnu compiler
 	if(CMAKE_COMPILER_IS_GNUCXX)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -mfpmath=sse -msse2 -std=c++11")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-result -mfpmath=sse -msse2 -std=c++11")
 	endif(CMAKE_COMPILER_IS_GNUCXX)
 endif(UNIX)       
 
