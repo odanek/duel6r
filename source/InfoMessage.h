@@ -36,12 +36,12 @@ namespace Duel6
 	class InfoMessage
 	{
 	public:
-		const Player* m_player;
+		const Duel6::Player* m_player;
 		std::string m_text;
 		float m_remainingTime;
 
 	public:
-		InfoMessage(const Player& player, const std::string& text, float duration)
+		InfoMessage(const Duel6::Player& player, const std::string& text, float duration)
 			: m_player(&player), m_text(text), m_remainingTime(duration)
 		{}
 
@@ -57,7 +57,7 @@ namespace Duel6
 			return *this;
 		}
 
-		const Player& Player() const
+		const Duel6::Player& Player() const
 		{
 			return *m_player;
 		}

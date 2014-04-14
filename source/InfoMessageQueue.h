@@ -40,7 +40,7 @@ namespace Duel6
 		std::list<InfoMessage> m_messages;
 
 	public:
-		InfoMessageQueue& Add(Player& player, const char *formatString, ...);
+		InfoMessageQueue& Add(const Player& player, const char *formatString, ...);
 		InfoMessageQueue& Update(float elapsedTime);
 
 		void RenderPlayerMessages(const Player& player) const;

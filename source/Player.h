@@ -111,7 +111,7 @@ namespace Duel6
 	{
 	private:
 		PlayerSkin *m_skin;     // Player skin
-		Person *m_person;       // Person playing the player
+		Duel6::Person *m_person;       // Person playing the player
 
 	private:
 		void Left(float elapsedTime);

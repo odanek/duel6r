@@ -32,7 +32,7 @@
 
 namespace Duel6
 {
-	InfoMessageQueue& InfoMessageQueue::Add(Player& player, const char *formatString, ...)
+	InfoMessageQueue& InfoMessageQueue::Add(const Player& player, const char *formatString, ...)
 	{
 		char formattedText[100];
 		va_list argptr;
