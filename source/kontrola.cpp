@@ -118,18 +118,18 @@ namespace Duel6
 		return true;
 	}
 
-	static bool KONTR_ShotPlayer(d6SHOT_s *s)
+	static bool KONTR_ShotPlayer(d6SHOT_s& s)
 	{
 		Player  *p;
 		float   X, ad;
 
-		X = (s->O == Orientation::Left) ? s->X : s->X + 0.35f;
+		X = (s.O == Orientation::Left) ? s.X : s.X + 0.35f;
 
 		for (Size i = 0; i < d6Playing; i++)
 		{
 			p = d6Player[i];
 
-			if (p->State.Bonus == D6_BONUS_INVIS || p == s->Author)
+			if (p->State.Bonus == D6_BONUS_INVIS || p == s.Author)
 				continue;
 
 			if (p->IsKneeling())
@@ -144,7 +144,7 @@ namespace Duel6
 					continue;
 
 			if (X > p->X() + 1.0f || X + 0.65f < p->X() ||
-				s->Y < p->Y() - 1.0f || s->Y - 0.35f > p->Y() - ad)
+				s.Y < p->Y() - 1.0f || s.Y - 0.35f > p->Y() - ad)
 				continue;
 
 			WPN_Boom(s, p);
@@ -154,22 +154,22 @@ namespace Duel6
 		return false;
 	}
 
-	bool KONTR_Shot(d6SHOT_s *s)
+	bool KONTR_Shot(d6SHOT_s& s)
 	{
 		if (KONTR_ShotPlayer(s))
 			return true;
 
-		d6UpY = l->SizeY - (int)(s->Y) - 1;
-		d6DownY = l->SizeY - (int)(s->Y - 0.35f) - 1;
-		if (s->O == Orientation::Left)
+		d6UpY = l->SizeY - (int)(s.Y) - 1;
+		d6DownY = l->SizeY - (int)(s.Y - 0.35f) - 1;
+		if (s.O == Orientation::Left)
 		{
-			d6LeftX = (int)(s->X);
-			d6RightX = (int)(s->X + 0.65f);
+			d6LeftX = (int)(s.X);
+			d6RightX = (int)(s.X + 0.65f);
 		}
 		else
 		{
-			d6LeftX = (int)(s->X + 0.35f);
-			d6RightX = (int)(s->X + 1.0f);
+			d6LeftX = (int)(s.X + 0.35f);
+			d6RightX = (int)(s.X + 1.0f);
 		}
 
 		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6LeftX, d6DownY) ||

@@ -87,8 +87,8 @@ namespace Duel6
 	{
 	public:
 		int         Flags;      // Flags
-		int         A;          // Animation number
-		int         GA;         // Gun animation
+		SpriteIterator A;       // Player sprite
+		SpriteIterator GA;      // Gun sprite
 		int         GN;         // Gun number
 		float       Speed;      // Speed of movement
 		Orientation O;          // Orientation

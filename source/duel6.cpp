@@ -46,6 +46,7 @@ namespace Duel6
 	int			d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
 	bool        d6ShowRanking = false;
 	InfoMessageQueue d6MessageQueue;
+	SpriteList  d6SpriteList;
 
 	int D6_BlockZ(int x, int y)
 	{
@@ -134,10 +135,10 @@ namespace Duel6
 	void D6_StartGame(const std::string& levelPath)
 	{
 		bool    mirror = rand() % 2 ? true : false;
-		int     av, bonus[D6_BONUS_MAX][3];
+		int     bonus[D6_BONUS_MAX][3];
 
 		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
-		LOADER_LoadWorld(levelPath, &d6World, ANM_MAX, mirror, bonus);
+		LOADER_LoadWorld(levelPath, &d6World, mirror, bonus);
 		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.Level.SizeX);
 		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.Level.SizeY);
 		g_app.con->printf(MY_L("APP00063|...Bloku   : %d\n"), d6World.Blocks);
@@ -149,8 +150,7 @@ namespace Duel6
 
 		d6World.Anm.Wait = 0;
 		WATER_Build();
-		av = d6World.Faces << 2;
-		ANM_Init(&d6World.Vertex[av], av);
+		d6SpriteList.Clear();
 		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
 		
 		for (Size i = 0; i < d6Playing; i++)
@@ -226,7 +226,7 @@ namespace Duel6
 		}
 
 		RENDER_MoveAnm(elapsedTime);
-		ANM_MoveAll(elapsedTime * D6_SPEED_COEF);
+		d6SpriteList.Update(elapsedTime * D6_SPEED_COEF);
 		WATER_Move(elapsedTime);
 		WPN_MoveShots(elapsedTime * D6_SPEED_COEF);
 		EXPL_MoveAll(elapsedTime);

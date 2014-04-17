@@ -26,6 +26,7 @@
 */
 
 #include <stdlib.h>
+#include <list>
 #include "project.h"
 #include "PlayerSkin.h"
 
@@ -37,9 +38,11 @@ namespace Duel6
 	
 	namespace
 	{
-		int d6WpnTextures, d6Shots;
+		int d6WpnTextures;
 		PlayerSkin *brownSkin;
-		d6SHOT_s d6Shot[ANM_MAX];
+		std::list<d6SHOT_s> d6Shot;
+
+		typedef std::list<d6SHOT_s>::iterator ShotIter;
 	}
 
 	void WPN_LoadTextures(void)
@@ -86,16 +89,16 @@ namespace Duel6
 
 	void WPN_LevelInit(void)
 	{
-		d6Shots = 0;
+		d6Shot.clear();
 	}
 
 	void WPN_Shoot(Player& player)
 	{
 		float       ad = 0.32f;
-		d6SHOT_s    *sh;
+		d6SHOT_s    sh;
 		d6PLSTATE_s *s = &player.State;
 
-		if (!s->Ammo || s->SI || d6Shots >= ANM_MAX)
+		if (!s->Ammo || s->SI > 0)
 			return;
 
 		if (s->Bonus == D6_BONUS_SHOTS)
@@ -104,87 +107,94 @@ namespace Duel6
 			s->SI = float(d6WpnDef[s->GN].ReloadSpeed);
 
 		s->Ammo--;
-		sh = &d6Shot[d6Shots++];
-		ANM_SetAnm(s->GA, 0);
+
+		s->GA->SetFrame(0);
 
 		if (s->Flags & D6_FLAG_KNEE)
 			ad = 0.52f;
 
 		player.Person().SetShots(player.Person().Shots() + 1);
-		sh->Y = s->Y - ad;
-		sh->X = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
-		sh->O = s->O;
-		sh->GN = s->GN;
-		sh->WD = &d6WpnDef[s->GN];
-		sh->Author = &player;
-		sh->I = d6Shots - 1;
-		sh->A = ANM_Add(sh->X, sh->Y, 0.6f, 1, ANM_LOOP_FOREVER, sh->O, d6ShotAnm[sh->GN], d6WpnTexture, false);
-		SOUND_PlaySample(sh->WD->ShSound);
+		sh.Y = s->Y - ad;
+		sh.X = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
+		sh.O = s->O;
+		sh.GN = s->GN;
+		sh.WD = &d6WpnDef[s->GN];
+		sh.Author = &player;
+		
+		Sprite shotSprite(d6ShotAnm[sh.GN], d6WpnTexture);
+		shotSprite.SetPosition(sh.X, sh.Y, 0.6f)
+			.SetOrientation(sh.O);
+		sh.A = d6SpriteList.AddSprite(shotSprite);
+		
+		SOUND_PlaySample(sh.WD->ShSound);
+
+		d6Shot.push_back(sh);
 	}
 
-	static void WPN_RemoveShot(d6SHOT_s *s)
+	static ShotIter WPN_RemoveShot(ShotIter shot)
 	{
-		int     i;
-
-		d6Shots--;
-		if (s->I < d6Shots)
-		{
-			i = s->I;
-			memcpy((void *)s, (void *)&d6Shot[d6Shots], sizeof (d6SHOT_s));
-			s->I = i;
-		}
+		d6SpriteList.RemoveSprite(shot->A);
+		return d6Shot.erase(shot);
 	}
 
 	void WPN_MoveShots(float elapsedTime)
 	{
-		d6SHOT_s    *s;
-		float       x;
-		int         i, j;
+		auto shot = d6Shot.begin();
 
-		for (i = 0; i < d6Shots; i++)
+		while (shot != d6Shot.end())
 		{
-			s = &d6Shot[i];
-
-			if (s->O == Orientation::Right)
-				s->X += s->WD->ShotSpeed * elapsedTime;
+			if (shot->O == Orientation::Right)
+				shot->X += shot->WD->ShotSpeed * elapsedTime;
 			else
-				s->X -= s->WD->ShotSpeed * elapsedTime;
+				shot->X -= shot->WD->ShotSpeed * elapsedTime;
 
-			ANM_ReSet(s->A, s->X, s->Y, -1, Orientation::None, NULL);
+			shot->A->SetPosition(shot->X, shot->Y);
 
-			if (KONTR_Shot(s))
-			{
-				ANM_RemoveFlags(s->A, ANM_FLAG_ALL);
-				x = (s->O == Orientation::Left) ? s->X - 0.3f : s->X + 0.3f;
-				j = ANM_Add(x, s->Y + 0.3f, 0.6f, 2, ANM_LOOP_ONEKILL, s->O, d6BoomAnm[s->GN], d6WpnTexture, true);
-				if (s->Author->HasPowerfulShots())
-					ANM_Grow(j, s->WD->ExpGrow * 1.2f);
+			if (KONTR_Shot(*shot))
+			{				
+				float x = (shot->O == Orientation::Left) ? shot->X - 0.3f : shot->X + 0.3f;
+				
+				Sprite boom(d6BoomAnm[shot->GN], d6WpnTexture);
+				boom.SetPosition(x, shot->Y + 0.3f, 0.6f)
+					.SetSpeed(2.0f)
+					.SetLooping(AnimationLooping::OnceAndRemove)
+					.SetOrientation(shot->O)
+					.SetAlpha(0.6f);
+
+				SpriteIterator boomSprite = d6SpriteList.AddSprite(boom);
+
+				if (shot->Author->HasPowerfulShots())
+					boomSprite->SetGrow(shot->WD->ExpGrow * 1.2f);
 				else
-					ANM_Grow(j, s->WD->ExpGrow);
-				if (s->WD->BmSound != -1)
-					SOUND_PlaySample(s->WD->BmSound);
-				if (s->WD->Boom > 0)
+					boomSprite->SetGrow(shot->WD->ExpGrow);
+				if (shot->WD->BmSound != -1)
+					SOUND_PlaySample(shot->WD->BmSound);
+				if (shot->WD->Boom > 0)
 				{
-					ANM_AddFlags(j, ANM_FLAG_NO_DEPTH);
+					boomSprite->SetNoDepth(true);
 				}
-				WPN_RemoveShot(s);
-				i--;
+				
+				shot = WPN_RemoveShot(shot);
+			}
+			else
+			{
+				++shot;
 			}
 		}
 	}
 
-	void WPN_Boom(d6SHOT_s *s, Player *playerThatWasHit)
+	void WPN_Boom(d6SHOT_s& s, Player *playerThatWasHit)
 	{
-		int killedPlayers = 0, initialAuthorKills = s->Author->Person().Kills();
+		int killedPlayers = 0, initialAuthorKills = s.Author->Person().Kills();
 		bool killedSelf = false;
 
-		int dosah = s->GetExplosionRange();
-		int sila = s->GetExplosionPower();
+		int dosah = s.GetExplosionRange();
+		int sila = s.GetExplosionPower();
 
-		float X = (s->O == Orientation::Left) ? (s->X + 0.32f) : (s->X + 0.67f);
-		float Y = s->Y - 0.17f;
+		float X = (s.O == Orientation::Left) ? (s.X + 0.32f) : (s.X + 0.67f);
+		float Y = s.Y - 0.17f;
 
-		if (s->GN != D6_COL_WPN_SHT)
+		if (s.GN != D6_COL_WPN_SHT)
 			FIRE_Check(X, Y, dosah);
 
 		for (Size i = 0; i < d6Playing; i++)
@@ -193,13 +203,13 @@ namespace Duel6
 
 			if (player == playerThatWasHit)
 			{
-				if (s->GN == D6_COL_WPN_SHT)
+				if (s.GN == D6_COL_WPN_SHT)
 				{
 					player->UseTemporarySkin(*brownSkin);
 				}
 				else
 				{
-					if (player->Hit((float)sila, s, true))
+					if (player->Hit((float)sila, &s, true))
 					{
 						killedPlayers++;
 					}
@@ -211,17 +221,17 @@ namespace Duel6
 
 				if (vzd < (float)dosah)
 				{
-					if (s->GN == D6_COL_WPN_SHT)
+					if (s.GN == D6_COL_WPN_SHT)
 					{
 						player->UseTemporarySkin(*brownSkin);
 					}
 					else
 					{
-						if (player->Hit(((dosah - vzd) * sila) / dosah, s, false))
+						if (player->Hit(((dosah - vzd) * sila) / dosah, &s, false))
 						{
 							killedPlayers++;
 
-							if (player == s->Author)
+							if (player == s.Author)
 							{
 								killedSelf = true;
 							}
@@ -233,7 +243,7 @@ namespace Duel6
 
 		if (killedSelf)
 		{
-			s->Author->Person().SetKills(initialAuthorKills - killedPlayers);
+			s.Author->Person().SetKills(initialAuthorKills - killedPlayers);
 		}
 	}
 

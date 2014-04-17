@@ -42,8 +42,7 @@ endif(UNIX)
 # set the list of source files
 set(D6R_SOURCES
 
-    source/anim.cpp
-    source/anim.h
+    source/AnimationLooping.h
     source/anims.h
     source/bonus.cpp
     source/Color.h
@@ -78,6 +77,10 @@ set(D6R_SOURCES
     source/project.h
     source/render.cpp
     source/ScreenMode.h
+    source/Sprite.h
+    source/Sprite.cpp
+    source/SpriteList.h
+    source/SpriteList.cpp
     source/setup.cpp
     source/Type.h
     source/util.cpp

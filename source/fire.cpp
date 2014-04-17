@@ -119,7 +119,11 @@ namespace Duel6
 					d6World.Face[f->FN].MinTex = 0;
 					d6World.Face[f->FN].MaxTex = 0;
 					d6World.Face[f->FN].NowTex = 0;
-					ANM_Add(f->X, f->Y, 0.75f, 1, ANM_LOOP_ONESTOP, Orientation::Left, d6FAnm[f->Fr], d6World.Anm.TexGlNum, false);
+
+					Sprite fireSprite(d6FAnm[f->Fr], d6World.Anm.TexGlNum);
+					fireSprite.SetPosition(f->X, f->Y, 0.75f)
+						.SetLooping(AnimationLooping::OnceAndStop);
+					d6SpriteList.AddSprite(fireSprite);
 				}
 			}
 	}

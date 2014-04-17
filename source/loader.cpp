@@ -179,7 +179,7 @@ namespace Duel6
 	zjisti pocty bloku, facu, spritu....
 	===================
 	*/
-	static void LOADER_Process(int add, int(*bonus)[3])
+	static void LOADER_Process(int(*bonus)[3])
 	{
 		int i, j, k, *anm, spr, blc, pos, wtr, bn_count;
 
@@ -234,7 +234,7 @@ namespace Duel6
 			}
 
 		w->Faces = w->Sprites + w->Blocks + w->Waters;
-		w->Vertex = D6_MALLOC(d6VERTEX, (w->Faces << 2) + (add << 2));
+		w->Vertex = D6_MALLOC(d6VERTEX, w->Faces << 2);
 		w->Face = D6_MALLOC(d6FACE, w->Faces);
 		pos = 0;
 		blc = 0;
@@ -324,7 +324,7 @@ namespace Duel6
 	tak budou uvolneny
 	===================
 	*/
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, int add, bool mirror, int(*bonus)[3])
+	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, int(*bonus)[3])
 	{
 		int         x, y, b;
 		myFile_s    *f;
@@ -354,7 +354,7 @@ namespace Duel6
 					l->Data[y * l->SizeX + l->SizeX - 1 - x] = b;
 				}
 
-		LOADER_Process(add, bonus);
+		LOADER_Process(bonus);
 		LOADER_Optimize();
 	}
 }

@@ -337,7 +337,7 @@ namespace Duel6
 		RENDER_Blocks(0, d6World.Blocks);
 		RENDER_Sprites();
 		ELEV_DrawAll();
-		ANM_DrawAll();
+		d6SpriteList.Render();
 		BONUS_DrawAll();
 		RENDER_InvulRings();
 		RENDER_Water();

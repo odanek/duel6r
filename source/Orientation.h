@@ -33,8 +33,7 @@ namespace Duel6
 	enum class Orientation
 	{
 		Left,
-		Right,
-		None // TODO: Ugly, remove?
+		Right
 	};
 }
 

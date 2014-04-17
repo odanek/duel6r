@@ -25,80 +25,41 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LOADER_H
-#define DUEL6_LOADER_H
+#ifndef DUEL6_SPRITELIST_H
+#define DUEL6_SPRITELIST_H
 
-//#define D6_RENDER_BACKS
-
-#define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
-
-#define D6_ANM_F_NOTHING    0x00
-#define D6_ANM_F_BLOCK      0x01
-#define D6_ANM_F_WATER      0x02
-#define D6_ANM_F_FRONT      0x03
-#define D6_ANM_F_BACK       0x04
-#define D6_ANM_F_FRBC       0x05
-#define D6_ANM_F_3FRONT     0x06
-#define D6_ANM_F_3BACK      0x07
-#define D6_ANM_F_WFALL      0x08
-
-#define D6_FLAG_NONE        0x00
-#define D6_FLAG_FLOW        0x01
-
-#define D6_BONUS_MAX        30
-#define D6_BONUS_COUNT      10
+#include <list>
+#include "Sprite.h"
 
 namespace Duel6
 {
-	extern int d6BonusArt[D6_BONUS_COUNT];
+	typedef std::list<Sprite>::iterator SpriteIterator;
 
-	struct d6VERTEX
+	class SpriteList
 	{
-		float   X;
-		float   Y;
-		float   Z;
-		float   U;
-		float   V;
-		int     Flags;
-	};
+	private:
+		std::list<Sprite> m_sprites;
 
-	struct d6FACE
-	{
-		int NowTex;
-		int MinTex;
-		int MaxTex;
-	};
+	public:
+		SpriteIterator AddSprite(const Sprite& sprite);
 
-	struct d6LEVEL
-	{
-		int     SizeX;
-		int     SizeY;
-		int     Size;
-		myWORD  *Data;
-	};
+		void RemoveSprite(SpriteIterator iterator)
+		{
+			m_sprites.erase(iterator);
+		}
 
-	struct d6ANM
-	{
-		myUINT  *TexGlNum;
-		int     Textures;
-		float   Wait;
-		int     *Znak;
-		int     *Anim;
-	};
+		void Clear()
+		{
+			m_sprites.clear();
+		}
 
-	struct d6WORLD
-	{
-		int         Blocks;
-		int         Sprites;
-		int         Waters;
-		int         Faces;
-		d6VERTEX    *Vertex;
-		d6FACE      *Face;
-		d6LEVEL     Level;
-		d6ANM       Anm;
-	};
+		void Update(Float32 elapsedTime);
 
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, int(*bonus)[3]);
+		void Render() const;
+
+	private:
+		void RenderTransparent(bool transparent) const;
+	};
 }
 
 #endif

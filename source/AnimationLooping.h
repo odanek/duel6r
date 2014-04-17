@@ -25,80 +25,20 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LOADER_H
-#define DUEL6_LOADER_H
-
-//#define D6_RENDER_BACKS
-
-#define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
-
-#define D6_ANM_F_NOTHING    0x00
-#define D6_ANM_F_BLOCK      0x01
-#define D6_ANM_F_WATER      0x02
-#define D6_ANM_F_FRONT      0x03
-#define D6_ANM_F_BACK       0x04
-#define D6_ANM_F_FRBC       0x05
-#define D6_ANM_F_3FRONT     0x06
-#define D6_ANM_F_3BACK      0x07
-#define D6_ANM_F_WFALL      0x08
-
-#define D6_FLAG_NONE        0x00
-#define D6_FLAG_FLOW        0x01
-
-#define D6_BONUS_MAX        30
-#define D6_BONUS_COUNT      10
+#ifndef DUEL6_ANIMATIONLOOPING_H
+#define DUEL6_ANIMATIONLOOPING_H
 
 namespace Duel6
 {
-	extern int d6BonusArt[D6_BONUS_COUNT];
-
-	struct d6VERTEX
+	enum class AnimationLooping
 	{
-		float   X;
-		float   Y;
-		float   Z;
-		float   U;
-		float   V;
-		int     Flags;
+		/** Repeat animation forever. */
+		RepeatForever,
+		/** Play animation once and then stop on the last frame. */
+		OnceAndStop,
+		/** Play animation once and then delete the sprite. */
+		OnceAndRemove
 	};
-
-	struct d6FACE
-	{
-		int NowTex;
-		int MinTex;
-		int MaxTex;
-	};
-
-	struct d6LEVEL
-	{
-		int     SizeX;
-		int     SizeY;
-		int     Size;
-		myWORD  *Data;
-	};
-
-	struct d6ANM
-	{
-		myUINT  *TexGlNum;
-		int     Textures;
-		float   Wait;
-		int     *Znak;
-		int     *Anim;
-	};
-
-	struct d6WORLD
-	{
-		int         Blocks;
-		int         Sprites;
-		int         Waters;
-		int         Faces;
-		d6VERTEX    *Vertex;
-		d6FACE      *Face;
-		d6LEVEL     Level;
-		d6ANM       Anm;
-	};
-
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, int(*bonus)[3]);
 }
 
 #endif

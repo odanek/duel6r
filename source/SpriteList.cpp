@@ -25,80 +25,67 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LOADER_H
-#define DUEL6_LOADER_H
-
-//#define D6_RENDER_BACKS
-
-#define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
-
-#define D6_ANM_F_NOTHING    0x00
-#define D6_ANM_F_BLOCK      0x01
-#define D6_ANM_F_WATER      0x02
-#define D6_ANM_F_FRONT      0x03
-#define D6_ANM_F_BACK       0x04
-#define D6_ANM_F_FRBC       0x05
-#define D6_ANM_F_3FRONT     0x06
-#define D6_ANM_F_3BACK      0x07
-#define D6_ANM_F_WFALL      0x08
-
-#define D6_FLAG_NONE        0x00
-#define D6_FLAG_FLOW        0x01
-
-#define D6_BONUS_MAX        30
-#define D6_BONUS_COUNT      10
+#include "SpriteList.h"
 
 namespace Duel6
 {
-	extern int d6BonusArt[D6_BONUS_COUNT];
-
-	struct d6VERTEX
+	SpriteIterator SpriteList::AddSprite(const Sprite& sprite)
 	{
-		float   X;
-		float   Y;
-		float   Z;
-		float   U;
-		float   V;
-		int     Flags;
-	};
+		m_sprites.push_back(sprite);
+		return std::prev(m_sprites.end());
+	}
 
-	struct d6FACE
+	void SpriteList::Update(Float32 elapsedTime)
 	{
-		int NowTex;
-		int MinTex;
-		int MaxTex;
-	};
+		// Update everything
+		for (Sprite& sprite : m_sprites)
+		{
+			sprite.Update(elapsedTime);
+		}
 
-	struct d6LEVEL
+		// Delete sprites with finished animations
+		auto sprite = m_sprites.begin();
+		while (sprite != m_sprites.end())
+		{
+			if (sprite->Looping() == AnimationLooping::OnceAndRemove && sprite->IsFinished())
+			{
+				sprite = m_sprites.erase(sprite);
+			}
+			else
+			{
+				++sprite;
+			}
+		}
+	}
+
+	void SpriteList::Render() const
 	{
-		int     SizeX;
-		int     SizeY;
-		int     Size;
-		myWORD  *Data;
-	};
+		glEnable(GL_ALPHA_TEST);
+		glDisable(GL_CULL_FACE);
 
-	struct d6ANM
+		RenderTransparent(false);
+
+		glDisable(GL_ALPHA_TEST);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glDepthMask(GL_FALSE);
+
+		RenderTransparent(true);
+
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	void SpriteList::RenderTransparent(bool transparent) const
 	{
-		myUINT  *TexGlNum;
-		int     Textures;
-		float   Wait;
-		int     *Znak;
-		int     *Anim;
-	};
-
-	struct d6WORLD
-	{
-		int         Blocks;
-		int         Sprites;
-		int         Waters;
-		int         Faces;
-		d6VERTEX    *Vertex;
-		d6FACE      *Face;
-		d6LEVEL     Level;
-		d6ANM       Anm;
-	};
-
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, int(*bonus)[3]);
+		for (const Sprite& sprite : m_sprites)
+		{
+			if (sprite.IsTransparent() == transparent)
+			{
+				sprite.Render();
+			}
+		}
+	}
 }
-
-#endif

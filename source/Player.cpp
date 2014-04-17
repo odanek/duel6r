@@ -220,10 +220,18 @@ namespace Duel6
 	void Player::PrepareForGame()
 	{
 		PLAYER_FindStart(&State.X, &State.Y);
-		State.A = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_FOREVER, Orientation::Left, noAnim, m_skin->GlTexture(), false);
+		
+		Sprite manSprite(noAnim, m_skin->GlTexture());
+		manSprite.SetPosition(State.X, State.Y, 0.5f);
+		State.A = d6SpriteList.AddSprite(manSprite);		
+
 		State.GN = WPN_GetRandomWeapon();
-		State.GA = ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONESTOP, Orientation::Left, d6WpnAnm[State.GN], d6WpnTexture, false);
-		ANM_SetAnm(State.GA, 6);
+		Sprite gunSprite(d6WpnAnm[State.GN], d6WpnTexture);
+		gunSprite.SetPosition(State.X, State.Y, 0.5f)
+			.SetLooping(AnimationLooping::OnceAndStop)
+			.SetFrame(6);
+		State.GA = d6SpriteList.AddSprite(gunSprite);
+
 		State.Flags = D6_FLAG_NONE;
 		State.Speed = 0;
 		State.O = Orientation::Left;
@@ -420,8 +428,8 @@ namespace Duel6
 			{
 				if (State.Bonus == D6_BONUS_INVIS)
 				{
-					ANM_SetAlpha(State.A, 1);
-					ANM_SetAlpha(State.GA, 1);
+					State.A->SetAlpha(1);
+					State.GA->SetAlpha(1);
 				}
 				State.Bonus = 0;
 				State.BD = 0;
@@ -442,12 +450,20 @@ namespace Duel6
 		float   ad = 0.0;
 		short   *a;
 
-		if (State.Flags & D6_FLAG_DEAD)
+		if (IsDead())
 		{
-			if (State.Flags & D6_FLAG_LYING)
-				ANM_ReSet(State.A, State.X, State.Y, -1, State.O, d6LAnim);
+			if (IsLying())
+			{
+				State.A->SetPosition(State.X, State.Y)
+					.SetOrientation(State.O)
+					.SetAnimation(d6LAnim);;
+			}
 			else
-				ANM_ReSet(State.A, State.X, State.Y, -1, State.O, d6NAnim);
+			{
+				State.A->SetPosition(State.X, State.Y)
+					.SetOrientation(State.O)
+					.SetAnimation(d6NAnim);
+			}
 
 			return;
 		}
@@ -466,15 +482,17 @@ namespace Duel6
 		else
 			a = d6WAnim;
 
-		ANM_ReSet(State.A, State.X, State.Y, -1, State.O, a);
-		ANM_ReSet(State.GA, State.X, State.Y - ad, -1, State.O, NULL);
+		State.A->SetPosition(State.X, State.Y).SetOrientation(State.O).SetAnimation(a);
+		State.GA->SetPosition(State.X, State.Y - ad).SetOrientation(State.O);
 
 		if (State.Flags & D6_FLAG_PICK)
-			if (ANM_CheckFlags(State.A, ANM_FLAG_FINISHED))
+		{
+			if (State.A->IsFinished())
 			{
-				ANM_AddFlags(State.GA, ANM_FLAG_DRAW);
+				State.GA->SetDraw(true);
 				State.Flags &= ~D6_FLAG_PICK;
 			}
+		}
 	}
 
 	void Player::PrepareCam(ScreenMode screenMode)
@@ -625,8 +643,10 @@ namespace Duel6
 		{
 			State.Life = 0;
 			State.Flags |= D6_FLAG_DEAD | D6_FLAG_LYING;
-			ANM_ReSet(State.A, State.X, State.Y, ANM_LOOP_ONESTOP, Orientation::None, NULL);
-			ANM_RemoveFlags(State.GA, ANM_FLAG_ALL);
+			
+			State.A->SetPosition(State.X, State.Y).SetLooping(AnimationLooping::OnceAndStop);
+			d6SpriteList.RemoveSprite(State.GA);
+
 			if (s != NULL)
 			{
 				State.O = (s->X < State.X) ? Orientation::Left : Orientation::Right;
@@ -716,7 +736,11 @@ namespace Duel6
 		water = WaterBlock(level, X() + 0.5f, Y() - 0.9f);
 		if (water > 0 && !State.InWater)
 		{
-			ANM_Add(State.X, State.Y, 0.5f, 1, ANM_LOOP_ONEKILL, Orientation::Left, wtAnim[water - 1], d6WpnTexture, false);
+			Sprite waterSplash(wtAnim[water - 1], d6WpnTexture);
+			waterSplash.SetPosition(State.X, State.Y, 0.5f)
+				.SetLooping(AnimationLooping::OnceAndRemove);
+			d6SpriteList.AddSprite(waterSplash);
+			
 			SOUND_PlaySample(D6_SND_WATER);
 		}
 
@@ -771,12 +795,12 @@ namespace Duel6
 	void Player::UseTemporarySkin(PlayerSkin& skin)
 	{
 		State.SD = float(10 + rand() % 5);
-		ANM_SetTexture(State.A, skin.GlTexture());
+		State.A->SetTextures(skin.GlTexture());
 	}
 
 	void Player::SwitchToOriginalSkin()
 	{
 		State.SD = 0;
-		ANM_SetTexture(State.A, m_skin->GlTexture());
+		State.A->SetTextures(m_skin->GlTexture());
 	}
 }

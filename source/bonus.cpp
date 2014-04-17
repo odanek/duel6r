@@ -42,7 +42,7 @@ namespace Duel6
 	};
 
 	extern myUINT       *d6WpnTexture;
-	extern short        d6WpnAnm[D6_WEAPONS][16];
+	extern Int16        d6WpnAnm[D6_WEAPONS][16];
 	static d6BONUS_s    d6Bonus[D6_BONUS_MAX];
 	int                 d6BonusArt[D6_BONUS_COUNT] = { 19, 20, 21, 22, 23, 24, 25, 46, 53, 26 };  // Otaznik musi byt posledni
 	bool                d6WpnEnabled[D6_WEAPONS];
@@ -180,16 +180,16 @@ namespace Duel6
 						s->Bonus = b->Type;
 						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00094|Neviditelnost na %d sekund"), t);
-						ANM_SetAlpha(s->A, 0.2f);
-						ANM_SetAlpha(s->GA, 0.2f);
+						s->A->SetAlpha(0.2f);
+						s->GA->SetAlpha(0.2f);
 						break;
 
 					case D6_BONUS_SPEED:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00093|Rychly pohyb na %d sekund"), t);
-						ANM_SetAlpha(s->A, 1);
-						ANM_SetAlpha(s->GA, 1);
+						s->A->SetAlpha(1);
+						s->GA->SetAlpha(1);
 						break;
 
 					case D6_BONUS_LIFEP:
@@ -211,24 +211,24 @@ namespace Duel6
 						s->Bonus = b->Type;
 						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00015|Rychle nabiti na %d sekund"), t);
-						ANM_SetAlpha(s->A, 1);
-						ANM_SetAlpha(s->GA, 1);
+						s->A->SetAlpha(1);
+						s->GA->SetAlpha(1);
 						break;
 
 					case D6_BONUS_SHOTP:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00016|Silne strely na %d sekund"), t);
-						ANM_SetAlpha(s->A, 1);
-						ANM_SetAlpha(s->GA, 1);
+						s->A->SetAlpha(1);
+						s->GA->SetAlpha(1);
 						break;
 
 					case D6_BONUS_INVUL:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
 						d6MessageQueue.Add(player, MY_L("APP00017|Nesmrtelnost na %d sekund"), t);
-						ANM_SetAlpha(s->A, 1);
-						ANM_SetAlpha(s->GA, 1);
+						s->A->SetAlpha(1);
+						s->GA->SetAlpha(1);
 						break;
 
 					case D6_BONUS_BULLT:
@@ -275,10 +275,12 @@ namespace Duel6
 					s->Ammo = l;
 					s->GN = t;
 					s->Flags |= D6_FLAG_PICK;
-					ANM_ReSet(s->GA, s->X, s->Y, -1, s->O, d6WpnAnm[s->GN]);
-					ANM_SetAnm(s->GA, 6);
-					ANM_RemoveFlags(s->GA, ANM_FLAG_DRAW);
-					ANM_SetAnm(s->A, 0);
+					
+					s->GA->SetAnimation(d6WpnAnm[s->GN])
+						.SetFrame(6)
+						.SetDraw(false);
+					s->A->SetFrame(0);
+
 					d6MessageQueue.Add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(d6WpnDef[s->GN].Name));
 					return;
 				}

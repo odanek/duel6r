@@ -33,7 +33,7 @@
 #include "mylib/mycam.h"
 #include "sound/sound.h"
 #include "loader.h"
-#include "anim.h"
+#include "SpriteList.h"
 #include "Type.h"
 #include "Orientation.h"
 #include "ScreenMode.h"
@@ -103,11 +103,10 @@ namespace Duel6
 		float           X;
 		float           Y;
 		d6WEAPONDEF_s   *WD;
-		int             A;
+		SpriteIterator  A;
 		Orientation     O;
 		Player          *Author;
 		int             GN;
-		int             I;
 
 	public:
 		int GetExplosionRange();
@@ -156,6 +155,7 @@ namespace Duel6
 	extern Player		*d6Player[D6_MAX_PLAYERS];
 	extern PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
 	extern InfoMessageQueue d6MessageQueue;
+	extern SpriteList   d6SpriteList;
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp         
@@ -216,7 +216,7 @@ namespace Duel6
 	void    WPN_LevelInit(void);
 	void    WPN_Shoot(Player& player);
 	void    WPN_MoveShots(float elapsedTime);
-	void    WPN_Boom(d6SHOT_s *s, Player *p);
+	void    WPN_Boom(d6SHOT_s& s, Player *p);
 	int     WPN_GetRandomWeapon(void);
 
 	//////////////////////////////////////////////////////////////////////
@@ -224,7 +224,7 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	void    KONTR_Init(void);
 	void    KONTR_Kontr(Player& player, int c);
-	bool    KONTR_Shot(d6SHOT_s *s);
+	bool    KONTR_Shot(d6SHOT_s& s);
 	bool    KONTR_CanJump(Player *p);
 
 	//////////////////////////////////////////////////////////////////////
