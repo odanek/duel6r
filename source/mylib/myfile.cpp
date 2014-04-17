@@ -111,7 +111,7 @@ int MY_AddPck (const char *fr)
 {
     myPcklib_s  *plib;
     FILE        *f;
-    long        header[2];
+    myDWORD     header[2];
     size_t      l;
     int         i, len = 0;
 
@@ -140,16 +140,16 @@ int MY_AddPck (const char *fr)
         if (header[0] == MYFILE_PCK1_ID)
             len = MYFILE_PCK1_MAX_NAME;
         if (header[0] == MYFILE_PCK2_ID)
-            if (fread ((void *)&len, 4, 1, f) != 1)
+            if (fread (&len, 4, 1, f) != 1)
                 return MY_FAILED;
 
         plib->pck_file[i].name = (char *) MY_Alloc (len);
 
-        if (fread ((void *) plib->pck_file[i].name, len, 1, f) != 1)
+        if (fread (plib->pck_file[i].name, len, 1, f) != 1)
             return MY_FAILED;
-        if (fread ((void *) &plib->pck_file[i].offs, 4, 1, f) != 1)
+        if (fread (&plib->pck_file[i].offs, 4, 1, f) != 1)
             return MY_FAILED;
-        if (fread ((void *) &plib->pck_file[i].size, 4, 1, f) != 1)
+        if (fread (&plib->pck_file[i].size, 4, 1, f) != 1)
             return MY_FAILED;
     }
 
