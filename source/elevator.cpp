@@ -46,7 +46,6 @@ namespace Duel6
 		int     *SecMax;
 	};
 
-	extern myUINT           *d6WpnTexture;
 	static int              d6Elevators;
 	static d6ELEVATOR_s     d6Elev[D6_ELEV_MAX];
 
@@ -54,7 +53,7 @@ namespace Duel6
 	{
 		int     i;
 
-		glBindTexture(GL_TEXTURE_2D, d6WpnTexture[D6_ELEV_TEXTURE]);
+		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -163,7 +162,7 @@ namespace Duel6
 		int     i;
 		float   X, Y;
 
-		glBindTexture(GL_TEXTURE_2D, d6WpnTexture[D6_ELEV_TEXTURE]);
+		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
 		glBegin(GL_QUADS);
 
 		for (i = 0; i < d6Elevators; i++)

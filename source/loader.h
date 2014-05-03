@@ -29,6 +29,7 @@
 #define DUEL6_LOADER_H
 
 //#define D6_RENDER_BACKS
+#include <vector>
 
 #define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
 
@@ -79,8 +80,7 @@ namespace Duel6
 
 	struct d6ANM
 	{
-		myUINT  *TexGlNum;
-		int     Textures;
+		std::vector<GLuint> textures;
 		float   Wait;
 		int     *Znak;
 		int     *Anim;

@@ -125,10 +125,9 @@ namespace Duel6
 		MY_KH3GetInfo(&ki);
 		g_app.con->printf(MY_L("APP00057|...Soubor %s obsahuje %lu textur\n"), D6_FILE_ART, ki.picts);
 
-		anm->Textures = ki.picts;
 		anm->Anim = D6_MALLOC(int, ki.picts);
 		anm->Znak = D6_MALLOC(int, ki.picts);
-		anm->TexGlNum = D6_MALLOC(myUINT, ki.picts);
+		anm->textures.resize(ki.picts);
 
 		g_app.con->printf(MY_L("APP00058|Nahravam animacni data (%s)\n"), D6_FILE_ANM);
 		f = MY_FOpen(D6_FILE_ANM, 0, "rb", true);
@@ -140,20 +139,10 @@ namespace Duel6
 		MY_FClose(&f);
 
 		for (i = 0; i < ki.picts; i++)
-			UTIL_LoadKH3Texture(&anm->TexGlNum[i], D6_FILE_ART, i, false);
-		MY_KH3Close();
-	}
-
-	void SET_Players(void)
-	{
-		int     i;
-
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			d6Player[i] = new Player(i);
-			MY_RegMem(d6Player[i], sizeof (Player));
-			d6Player[i]->setSkin(d6PlayerSkin[i]);
+			anm->textures[i] = UTIL_LoadKH3Texture(D6_FILE_ART, i, false);
 		}
+		MY_KH3Close();
 	}
 
 	void SET_LoadBackground(int n)
@@ -162,7 +151,7 @@ namespace Duel6
 			glDeleteTextures(1, &d6BackTex);
 
 		g_app.con->printf(MY_L("APP00059|...Nahravam pozadi (%s, %d)\n"), D6_FILE_BACK, n);
-		UTIL_LoadKH3Texture(&d6BackTex, D6_FILE_BACK, n, false);
+		d6BackTex = UTIL_LoadKH3Texture(D6_FILE_BACK, n, false);
 		d6BcgLoaded = true;
 	}
 
@@ -200,15 +189,13 @@ namespace Duel6
 
 	void P_DeInit(void)
 	{
-		int     i;
-
 		SOUND_DeInit();
 
-		glDeleteTextures(d6World.Anm.Textures, d6World.Anm.TexGlNum);
+		glDeleteTextures(d6World.Anm.textures.size(), &d6World.Anm.textures[0]);
 		WPN_FreeTextures();
 		MY_Free(d6World.Anm.Znak);
 		MY_Free(d6World.Anm.Anim);
-		MY_Free(d6World.Anm.TexGlNum);
+		d6World.Anm.textures.clear();
 		MY_Free(d6World.Vertex);
 		MY_Free(d6World.Face);
 		MY_Free(d6World.Level.Data);
@@ -216,12 +203,6 @@ namespace Duel6
 		FIRE_Free();
 		ELEV_Free();
 		EXPL_Free();
-
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
-		{
-			MY_UnregMem(d6Player[i]);
-			delete d6Player[i];
-		}
 
 		WPN_DeInit();
 	}
@@ -325,7 +306,7 @@ namespace Duel6
 		if (con->argc() == 11)
 		{
 			pl = atoi(con->argv(1));
-			if (pl >= 0 && pl < D6_MAX_PLAYERS)
+			if (pl >= 0 && pl < (int)d6PlayerColors.size())
 			{
 				for (i = 0; i < 9; i++)
 				{
@@ -344,8 +325,9 @@ namespace Duel6
 					}
 
 					Color color((num & 0xff0000) >> 16, (num & 0xff00) >> 8, num & 0xff);
-					d6PlayerSkin[pl].set((PlayerSkinColors::BodyPart)i, color);
+					d6PlayerColors[pl].set((PlayerSkinColors::BodyPart)i, color);
 				}
+
 				con->printf("Skin %d: OK\n", pl);
 			}
 		}
@@ -357,21 +339,10 @@ namespace Duel6
 				con->printf("Skin %d: ", pl);
 				for (i = 0; i < 9; i++)
 				{
-					const Color& color = d6PlayerSkin[pl].get((PlayerSkinColors::BodyPart)i);
+					const Color& color = d6PlayerColors[pl].get((PlayerSkinColors::BodyPart)i);
 					con->printf("%02x%02x%02x ", color.getRed(), color.getGreen(), color.getBlue());
 				}
 				con->printf("\n");
-			}
-		}
-
-		if (con->argc() == 1)
-		{
-			for (i = 0; i < D6_MAX_PLAYERS; i++)
-			{
-				if (d6Player[i] != nullptr)
-				{
-					d6Player[i]->setSkin(d6PlayerSkin[i]);
-				}
 			}
 		}
 	}
@@ -483,6 +454,7 @@ namespace Duel6
 		// Read config file
 		g_app.con->printf("\n===Config===\n");
 		g_app.con->exec("exec data/config.txt");
+		// Init player skins
 		g_app.con->printf("\n====Skin====\n");
 		g_app.con->exec("exec data/skin.txt");
 
@@ -493,8 +465,6 @@ namespace Duel6
 		EXPL_Load();
 		ELEV_Init();
 		FIRE_Init();
-		SET_Players();
-
 		WPN_Init();
 
 		MENU_Init();

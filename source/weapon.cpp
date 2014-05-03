@@ -34,14 +34,12 @@
 
 namespace Duel6
 {
-	GLuint *d6WpnTexture;
+	std::vector<GLuint> d6WpnTextures;
 	
 	namespace
 	{
-		int d6WpnTextures;
-		PlayerSkin *brownSkin;
+		std::unique_ptr<PlayerSkin> brownSkin;
 		std::list<Shot> d6Shots;
-
 		typedef std::list<Shot>::iterator ShotIter;
 	}
 
@@ -54,11 +52,11 @@ namespace Duel6
 		MY_KH3Open(D6_FILE_WEAPON);
 		MY_KH3GetInfo(&ki);
 		g_app.con->printf(MY_L("APP00085|...Soubor %s obsahue %d textur\n"), D6_FILE_WEAPON, ki.picts);
-		d6WpnTexture = D6_MALLOC(GLuint, ki.picts);
+		d6WpnTextures.resize(ki.picts);
 
 		for (i = 0; i < (int)ki.picts; i++)
 		{
-			UTIL_LoadKH3Texture(&d6WpnTexture[i], D6_FILE_WEAPON, i, true);
+			d6WpnTextures[i] = UTIL_LoadKH3Texture(D6_FILE_WEAPON, i, true);
 			if (i < 14 || (i > 21 && i < 78) || i > 79)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -71,20 +69,20 @@ namespace Duel6
 
 	void WPN_FreeTextures(void)
 	{
-		glDeleteTextures(d6WpnTextures, d6WpnTexture);
-		MY_Free(d6WpnTexture);
+		glDeleteTextures(d6WpnTextures.size(), &d6WpnTextures[0]);
+		d6WpnTextures.clear();
 	}
 
 	void WPN_Init(void)
 	{
 		Color brownColor(83, 44, 0);
 		PlayerSkinColors skinColors(brownColor);
-		brownSkin = new PlayerSkin(skinColors);
+		brownSkin.reset(new PlayerSkin(skinColors));
 	}
 
 	void WPN_DeInit(void)
 	{
-		delete brownSkin;
+		brownSkin.reset();
 	}
 
 	void WPN_LevelInit(void)
@@ -121,7 +119,7 @@ namespace Duel6
 		sh.GN = s->GN;
 		sh.WD = &d6WpnDef[s->GN];
 		
-		Sprite shotSprite(d6ShotAnm[sh.GN], d6WpnTexture);
+		Sprite shotSprite(d6ShotAnm[sh.GN], d6WpnTextures);
 		shotSprite.setPosition(sh.X, sh.Y, 0.6f)
 			.setOrientation(sh.O);
 		sh.A = d6SpriteList.addSprite(shotSprite);
@@ -154,7 +152,7 @@ namespace Duel6
 			{				
 				float x = (shot->O == Orientation::Left) ? shot->X - 0.3f : shot->X + 0.3f;
 				
-				Sprite boom(d6BoomAnm[shot->GN], d6WpnTexture);
+				Sprite boom(d6BoomAnm[shot->GN], d6WpnTextures);
 				boom.setPosition(x, shot->Y + 0.3f, 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)
@@ -183,33 +181,33 @@ namespace Duel6
 		}
 	}
 
-	void WPN_Boom(Shot& s, Player* playerThatWasHit)
+	void WPN_Boom(Shot& shot, Player* playerThatWasHit)
 	{
-		int killedPlayers = 0, initialAuthorKills = s.getPlayer().getPerson().getKills();
+		int killedPlayers = 0, initialAuthorKills = shot.getPlayer().getPerson().getKills();
 		bool killedSelf = false;
 
-		Float32 range = s.getExplosionRange();
-		Float32 power = s.getExplosionPower();
+		Float32 range = shot.getExplosionRange();
+		Float32 power = shot.getExplosionPower();
 
-		float X = (s.O == Orientation::Left) ? (s.X + 0.32f) : (s.X + 0.67f);
-		float Y = s.Y - 0.17f;
+		float X = (shot.O == Orientation::Left) ? (shot.X + 0.32f) : (shot.X + 0.67f);
+		float Y = shot.Y - 0.17f;
 
-		if (s.GN != D6_COL_WPN_SHT)
-			FIRE_Check(X, Y, range);
-
-		for (Size i = 0; i < d6Playing; i++)
+		if (shot.GN != D6_COL_WPN_SHT)
 		{
-			Player *player = d6Player[i];
+			FIRE_Check(X, Y, range);
+		}
 
-			if (player->is(*playerThatWasHit))
+		for (Player& player : d6Players)
+		{
+			if (player.is(*playerThatWasHit))
 			{
-				if (s.GN == D6_COL_WPN_SHT)
+				if (shot.GN == D6_COL_WPN_SHT)
 				{
-					player->useTemporarySkin(*brownSkin);
+					player.useTemporarySkin(*brownSkin);
 				}
 				else
 				{
-					if (player->hit(power, &s, true))
+					if (player.hit(power, &shot, true))
 					{
 						killedPlayers++;
 					}
@@ -217,21 +215,21 @@ namespace Duel6
 			}
 			else
 			{
-				Float32 dist = (float)sqrt(D6_SQR(player->State.X + 0.5f - X) + D6_SQR(player->State.Y - 0.5f - Y));
+				Float32 dist = (float)sqrt(D6_SQR(player.State.X + 0.5f - X) + D6_SQR(player.State.Y - 0.5f - Y));
 
 				if (dist < range)
 				{
-					if (s.GN == D6_COL_WPN_SHT)
+					if (shot.GN == D6_COL_WPN_SHT)
 					{
-						player->useTemporarySkin(*brownSkin);
+						player.useTemporarySkin(*brownSkin);
 					}
 					else
 					{
-						if (player->hit(((range - dist) * power) / range, &s, false))
+						if (player.hit(((range - dist) * power) / range, &shot, false))
 						{
 							killedPlayers++;
 
-							if (player->is(s.getPlayer()))
+							if (player.is(shot.getPlayer()))
 							{
 								killedSelf = true;
 							}
@@ -243,7 +241,7 @@ namespace Duel6
 
 		if (killedSelf)
 		{
-			s.getPlayer().getPerson().setKills(initialAuthorKills - killedPlayers);
+			shot.getPlayer().getPerson().setKills(initialAuthorKills - killedPlayers);
 		}
 	}
 

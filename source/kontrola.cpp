@@ -118,36 +118,28 @@ namespace Duel6
 		return true;
 	}
 
-	static bool KONTR_ShotPlayer(Shot& s)
+	static bool KONTR_ShotPlayer(Shot& shot)
 	{
-		Player  *p;
-		float   X, ad;
+		Float32 X = (shot.O == Orientation::Left) ? shot.X : shot.X + 0.35f;
 
-		X = (s.O == Orientation::Left) ? s.X : s.X + 0.35f;
-
-		for (Size i = 0; i < d6Playing; i++)
+		for (Player& player : d6Players)
 		{
-			p = d6Player[i];
+			if (player.State.Bonus == D6_BONUS_INVIS || player.is(shot.getPlayer()))
+			{
+				continue;
+			}
+			if (player.isDead() && !player.isLying())
+			{
+				continue;
+			}
 
-			if (p->State.Bonus == D6_BONUS_INVIS || p->is(s.getPlayer()))
+			Float32  ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f);
+
+			if (X > player.getX() + 1.0f || X + 0.65f < player.getX() ||
+				shot.Y < player.getY() - 1.0f || shot.Y - 0.35f > player.getY() - ad)
 				continue;
 
-			if (p->isKneeling())
-				ad = 0.2f;
-			else
-				ad = 0.0f;
-
-			if (p->isLying())
-				ad = 0.6f;
-			else
-				if (p->isDead())
-					continue;
-
-			if (X > p->getX() + 1.0f || X + 0.65f < p->getX() ||
-				s.Y < p->getY() - 1.0f || s.Y - 0.35f > p->getY() - ad)
-				continue;
-
-			WPN_Boom(s, p);
+			WPN_Boom(shot, &player);
 			return true;
 		}
 

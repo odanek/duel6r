@@ -28,6 +28,7 @@
 #ifndef DUEL6_PLAYER_H
 #define DUEL6_PLAYER_H
 
+#include <memory>
 #include "mylib/mycam.h"
 #include "Person.h"
 #include "PlayerSkin.h"
@@ -110,8 +111,10 @@ namespace Duel6
 	class Player
 	{
 	private:
-		PlayerSkin* skin;     // Player skin
-		Duel6::Person* person;       // Person playing the player
+		Person& person;
+		std::shared_ptr<PlayerSkin> skin;
+		mycam_c camera;
+		d6CAMPOS_s cameraPos;
 
 	private:
 		void moveLeft(float elapsedTime);
@@ -119,15 +122,19 @@ namespace Duel6
 		void makeMove(float elapsedTime);
 		void checkKeys(float elapsedTime);
 		void checkWater(const d6LEVEL& level, float elapsedTime);
+		void jump();
+		void fall();
+		void pick();
+		void setAnm();
+		void updateCam();
+		void switchToOriginalSkin();
 
 	public:
-		mycam_c         *Camera;
-		d6CAMPOS_s      CamPos;
 		d6VIEW_s        View;
 		d6KEYBOARD_s    *Keys;
 		d6PLSTATE_s     State;
 
-		Player(size_t index);
+		Player(Person& person, PlayerSkin* skin, Size controls);
 		~Player(void);
 
 		bool is(const Player& player) const
@@ -135,18 +142,11 @@ namespace Duel6
 			return (this == &player);
 		}
 
-		Player& setSkin(const PlayerSkinColors& skinColors);
 		void prepareForGame();
 
 		void setView(int x, int y, int w, int h);
-		void jump();
-		void fall();
-		void pick();
-		void setAnm();
-		void update(float elapsedTime);
+		void update(ScreenMode screenMode, float elapsedTime);
 		void prepareCam(ScreenMode screenMode);
-		void updateCam();
-		void setControls(int n);
 		bool hit(float pw, Shot *s, bool hit); // Returns true if the shot caused the player to die
 
 		float getX() const;
@@ -156,18 +156,17 @@ namespace Duel6
 
 		Person& getPerson()
 		{
-			return *person;
+			return person;
 		}
 
 		const Person& getPerson() const
 		{
-			return *person;
+			return person;
 		}
 
-		Player& setPerson(Duel6::Person& person)
+		const mycam_c& getCamera() const
 		{
-			this->person = &person;
-			return *this;
+			return camera;
 		}
 
 		bool hasPowerfulShots() const;
@@ -177,10 +176,6 @@ namespace Duel6
 		bool isInvulnerable() const;
 
 		void useTemporarySkin(PlayerSkin& skin);
-		void switchToOriginalSkin();
-
-	private:
-		void freeSkin();
 	};
 
 	//////////////////////////////////////////////////////////////////////

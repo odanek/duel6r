@@ -35,14 +35,13 @@ namespace Duel6
 	int         d6Wireframe = 0;
 	int         d6ZoomBlc = 13;
 	ScreenMode d6ScreenMode = ScreenMode::FullScreen;
-	Size        d6Playing = 3;
 	float       d6KeyWait = 0;
 	bool        d6ShowFps = false;
-	Player      *d6Player[D6_MAX_PLAYERS];
+	std::vector<Player> d6Players;
 	int         d6Winner;
 	float		d6GameOverWait;
 	bool        d6InMenu = false, d6PlayMusic = false;
-	PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
+	std::vector<PlayerSkinColors> d6PlayerColors(D6_MAX_PLAYERS);
 	int			d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
 	bool        d6ShowRanking = false;
 	InfoMessageQueue d6MessageQueue;
@@ -101,10 +100,8 @@ namespace Duel6
 		int numAlive = 0;
 		Player* lastAlive = nullptr;
 
-		for (Size i = 0; i < d6Playing; i++)
+		for (Player& player : d6Players)
 		{
-			Player& player = *d6Player[i];
-
 			if (!player.isDead())
 			{
 				numAlive++;
@@ -124,9 +121,9 @@ namespace Duel6
 			}
 			else
 			{
-				for (Size i = 0; i < d6Playing; i++)
+				for (const Player& player : d6Players)
 				{
-					d6MessageQueue.add(*d6Player[i], MY_L("APP00025|Konec hry - bez viteze"));
+					d6MessageQueue.add(player, MY_L("APP00025|Konec hry - bez viteze"));
 				}
 			}
 		}
@@ -153,9 +150,9 @@ namespace Duel6
 		d6SpriteList.clear();
 		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
 		
-		for (Size i = 0; i < d6Playing; i++)
+		for (Player& player : d6Players)
 		{
-			d6Player[i]->prepareForGame();
+			player.prepareForGame();
 		}
 				
 		PLAYER_PrepareViews(d6ScreenMode);
@@ -214,15 +211,9 @@ namespace Duel6
 	{
 		CO_InpUpdate();
 		
-		for (Size i = 0; i < d6Playing; i++)
+		for (Player& player : d6Players)
 		{
-			Player& player = *d6Player[i];
-			
-			player.update(elapsedTime);
-			if (d6ScreenMode == ScreenMode::SplitScreen)
-			{
-				player.updateCam();
-			}
+			player.update(d6ScreenMode, elapsedTime);
 		}
 
 		RENDER_MoveAnm(elapsedTime);
@@ -282,7 +273,7 @@ namespace Duel6
 			}
 
 			// Switch between fullscreen and split screen mode
-			if (g_inp.key[SDLK_F2] && d6Playing < 5)
+			if (g_inp.key[SDLK_F2] && d6Players.size() < 5)
 			{
 				d6ScreenMode = (d6ScreenMode == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen;
 				PLAYER_PrepareViews(d6ScreenMode);

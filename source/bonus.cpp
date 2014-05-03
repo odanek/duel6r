@@ -41,7 +41,6 @@ namespace Duel6
 		bool    Used;
 	};
 
-	extern GLuint       *d6WpnTexture;
 	extern Int16        d6WpnAnm[D6_WEAPONS][16];
 	bool                d6WpnEnabled[D6_WEAPONS];
 
@@ -59,7 +58,7 @@ namespace Duel6
 			{
 				d6Bonus[i].Used = true;
 				d6Bonus[i].Type = bonus[i][0];
-				d6Bonus[i].Texture = d6World.Anm.TexGlNum[d6Bonus[i].Type];
+				d6Bonus[i].Texture = d6World.Anm.textures[d6Bonus[i].Type];
 				d6Bonus[i].Kind = 0;
 				d6Bonus[i].X = (float)bonus[i][1];
 				d6Bonus[i].Y = (float)(d6World.Level.SizeY - bonus[i][2]);
@@ -118,12 +117,12 @@ namespace Duel6
 			if (k)
 			{
 				d6Bonus[i].Type = WPN_GetRandomWeapon();
-				d6Bonus[i].Texture = d6WpnTexture[d6WpnAnm[d6Bonus[i].Type][12]];
+				d6Bonus[i].Texture = d6WpnTextures[d6WpnAnm[d6Bonus[i].Type][12]];
 			}
 			else
 			{
 				d6Bonus[i].Type = d6BonusArt[rand() % D6_BONUS_COUNT];
-				d6Bonus[i].Texture = d6World.Anm.TexGlNum[d6Bonus[i].Type];
+				d6Bonus[i].Texture = d6World.Anm.textures[d6Bonus[i].Type];
 			}
 			d6Bonus[i].Kind = k;
 			d6Bonus[i].Bull = rand() % 10 + 10;
@@ -146,7 +145,7 @@ namespace Duel6
 
 		d6Bonus[i].Used = true;
 		d6Bonus[i].Type = state->GN;
-		d6Bonus[i].Texture = d6WpnTexture[d6WpnAnm[state->GN][12]];
+		d6Bonus[i].Texture = d6WpnTextures[d6WpnAnm[state->GN][12]];
 		d6Bonus[i].Kind = 1;
 		d6Bonus[i].Bull = state->Ammo;
 		d6Bonus[i].X = (float)x;
@@ -268,7 +267,7 @@ namespace Duel6
 					{
 						b->Bull = s->Ammo;
 						b->Type = s->GN;
-						b->Texture = d6WpnTexture[d6WpnAnm[b->Type][12]];
+						b->Texture = d6WpnTextures[d6WpnAnm[b->Type][12]];
 					}
 					else
 						b->Used = false;

@@ -29,7 +29,7 @@
 
 namespace Duel6
 {
-	void RENDER_SetView(d6VIEW_s& w)
+	void RENDER_SetView(const d6VIEW_s& w)
 	{
 		glViewport(w.X, w.Y, w.Width, w.Height);
 	}
@@ -41,9 +41,10 @@ namespace Duel6
 
 	static void RENDER_Blocks(int start, int blocks)
 	{
-		myUINT      *ta = d6World.Anm.TexGlNum, t;
-		d6FACE      *df = d6World.Face;
-		int         i, v, c = 0;
+		const std::vector<GLuint>& ta = d6World.Anm.textures;
+		GLuint t;
+		d6FACE *df = d6World.Face;
+		int i, v, c = 0;
 
 		t = ta[df[start].NowTex];
 		v = start << 2;
@@ -127,33 +128,32 @@ namespace Duel6
 
 	void RENDER_PlayerRankings()
 	{
-		char    rank_name[D6_MAX_PLAYERS][20];
-		int     best, n_max = 0, rank_points[D6_MAX_PLAYERS];
+		std::vector<std::string> rankNames;
+		std::vector<Int32> rankPoints;
+		Size players = d6Players.size(), maxNameLength = 0;;
 
-		for (Size i = 0; i < d6Playing; i++)
+		for (const Player& player : d6Players)
 		{
-			strcpy(rank_name[i], d6Player[i]->getPerson().getName().c_str());
-			rank_points[i] = d6Player[i]->getPerson().getTotalPoints();
-			n_max = MY_Max(n_max, 5 + int(strlen(rank_name[i])));
+			rankNames.push_back(player.getPerson().getName());
+			rankPoints.push_back(player.getPerson().getTotalPoints());
+			maxNameLength = MY_Max(maxNameLength, 5 + rankNames.back().size());
 		}
 
-		const d6VIEW_s& view = d6Player[0]->View;
-		int posX = view.X + view.Width - 8 * n_max - 3;
-		int posY = view.Y + view.Height - (d6Playing > 4 ? 50 : 20);
+		const d6VIEW_s& view = d6Players.front().View;
+		int posX = view.X + view.Width - 8 * maxNameLength - 3;
+		int posY = view.Y + view.Height - (players > 4 ? 50 : 20);
 
 		CO_FontColor(255, 255, 0);
 
-		for (Size i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < players; i++)
 		{
-			Size n = 0;
-			best = rank_points[0];
+			Size best = 0;
 
-			for (Size j = 0; j < d6Playing - i; j++)
+			for (Size j = 1; j < players - i; j++)
 			{
-				if (rank_points[j] > best)
+				if (rankPoints[j] > rankPoints[best])
 				{
-					n = j;
-					best = rank_points[j];
+					best = j;
 				}
 			}
 
@@ -162,19 +162,19 @@ namespace Duel6
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBegin(GL_QUADS);
 				glVertex2i(posX, posY + 15);
-				glVertex2i(posX + 8 * n_max, posY + 15);
-				glVertex2i(posX + 8 * n_max, posY + 1);
+				glVertex2i(posX + 8 * maxNameLength, posY + 15);
+				glVertex2i(posX + 8 * maxNameLength, posY + 1);
 				glVertex2i(posX, posY + 1);
 			glEnd();
 			glDisable(GL_BLEND);
 
-			CO_FontPrintf(posX, posY, rank_name[n]);
-			CO_FontPrintf(posX + 8 * (n_max - 5), posY, "|%4d", rank_points[n]);
+			CO_FontPrintf(posX, posY, rankNames[best].c_str());
+			CO_FontPrintf(posX + 8 * (maxNameLength - 5), posY, "|%4d", rankPoints[best]);
 
-			if (n < d6Playing - i - 1)
+			if (best < players - i - 1)
 			{
-				strcpy(rank_name[n], rank_name[d6Playing - i - 1]);
-				rank_points[n] = rank_points[d6Playing - i - 1];
+				rankNames[best] = rankNames[players - i - 1];
+				rankPoints[best] = rankPoints[players - i - 1];
 			}
 
 			posY -= 16;
@@ -229,7 +229,7 @@ namespace Duel6
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, d6World.Anm.TexGlNum[player.State.Bonus]);
+			glBindTexture(GL_TEXTURE_2D, d6World.Anm.textures[player.State.Bonus]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 133, ibp[1] - 3);
@@ -272,7 +272,7 @@ namespace Duel6
 		CO_FontPrintf(x, y, "FPS - %d", (int)g_app.fps);
 	}
 
-	static void RENDER_InvulRing(Player& player)
+	static void RENDER_InvulRing(const Player& player)
 	{
 		float   x, y, X, Y;
 		int     p, uh, u;
@@ -302,10 +302,8 @@ namespace Duel6
 
 	static void RENDER_InvulRings()
 	{
-		for (Size i = 0; i < d6Playing; i++)
+		for (const Player& player : d6Players)
 		{
-			Player& player = *d6Player[i];
-
 			if (player.isInvulnerable())
 			{
 				RENDER_InvulRing(player);
@@ -313,7 +311,7 @@ namespace Duel6
 		}
 	}
 
-	static void RENDER_SplitBox(d6VIEW_s& view)
+	static void RENDER_SplitBox(const d6VIEW_s& view)
 	{
 		glViewport(view.X - 2, view.Y - 2, view.Width + 4, view.Height + 4);
 		glColor3f(1, 0, 0);
@@ -326,10 +324,10 @@ namespace Duel6
 		glColor3f(1, 1, 1);
 	}
 
-	static void RENDER_View(Player& player)
+	static void RENDER_View(const Player& player)
 	{
 		glLoadIdentity();
-		player.Camera->look();
+		player.getCamera().look();
 
 		if (d6Wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -355,7 +353,7 @@ namespace Duel6
 			glColor3f(1, overlay, overlay);
 		}
 
-		Player& player = *d6Player[0];
+		const Player& player = d6Players.front();
 		RENDER_SetView(player.View);
 		RENDER_Background();
 		D6_SetGLMode(D6_GL_PERSPECTIVE);
@@ -364,10 +362,8 @@ namespace Duel6
 
 	static void RENDER_SplitScreen()
 	{
-		for (Size i = 0; i < d6Playing; i++)
+		for (const Player& player : d6Players)
 		{
-			Player& player = *d6Player[i];
-
 			D6_SetGLMode(D6_GL_ORTHO);
 			RENDER_SplitBox(player.View);
 
@@ -412,9 +408,9 @@ namespace Duel6
 		RENDER_SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
 		glColor3f(1.0f, 1.0f, 1.0f);
 		
-		for (Size i = 0; i < d6Playing; i++)
+		for (const Player& player : d6Players)
 		{
-			RENDER_PlayerStatus(*d6Player[i]);
+			RENDER_PlayerStatus(player);
 		}
 
 		if (d6ShowFps)
@@ -424,13 +420,13 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			d6MessageQueue.renderAllMessages(d6Player[0]->View);
+			d6MessageQueue.renderAllMessages(d6Players.front().View);
 		}
 		else
 		{
-			for (Size i = 0; i < d6Playing; i++)
+			for (const Player& player : d6Players)
 			{
-				d6MessageQueue.renderPlayerMessages(*d6Player[i]);
+				d6MessageQueue.renderPlayerMessages(player);
 			}
 		}
 

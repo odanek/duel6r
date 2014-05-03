@@ -85,7 +85,6 @@ namespace Duel6
 	static short    noAnim[4] = { 0, 50, 0, -1 };
 	extern short    wtAnim[2][24];
 	extern short    d6WpnAnm[D6_WEAPONS][16];
-	extern myUINT   *d6WpnTexture;
 
 	static void PLAYER_FindStart(float *x, float *y)
 	{
@@ -121,55 +120,59 @@ namespace Duel6
 	{
 		int w = g_vid.cl_width / 2 - 4, h = g_vid.cl_height / 2 - 4;
 
-		d6Player[i]->setView(x, y, w, h);
-		d6Player[i]->State.IBP[0] = x + w / 2 - 76;
-		d6Player[i]->State.IBP[1] = y + 30;
+		Player& player = d6Players[i];
+		player.setView(x, y, w, h);
+		player.State.IBP[0] = x + w / 2 - 76;
+		player.State.IBP[1] = y + 30;
 	}
 
 	void PLAYER_PrepareViews(ScreenMode screenMode)
 	{
 		int     xShift = (g_vid.cl_width / 4) / 2 - 70;
 
-		for (Size i = 0; i < d6Playing; i++)
+		for (Player& player : d6Players)
 		{
-			d6Player[i]->prepareCam(screenMode);
+			player.prepareCam(screenMode);
 		}
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			for (Size i = 0; i < d6Playing; i++)
+			Size index = 0;
+			for (Player& player : d6Players)
 			{
-				d6Player[i]->setView(0, 0, g_vid.cl_width, g_vid.cl_height);
+				player.setView(0, 0, g_vid.cl_width, g_vid.cl_height);
 
-				if (i < 4)
+				if (index < 4)
 				{
-					d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * i + xShift;
-					d6Player[i]->State.IBP[1] = 30;
+					player.State.IBP[0] = (g_vid.cl_width / 4) * index + xShift;
+					player.State.IBP[1] = 30;
 				}
 				else
 				{
-					d6Player[i]->State.IBP[0] = (g_vid.cl_width / 4) * (i - 4) + xShift;
-					d6Player[i]->State.IBP[1] = g_vid.cl_height - 7;
+					player.State.IBP[0] = (g_vid.cl_width / 4) * (index - 4) + xShift;
+					player.State.IBP[1] = g_vid.cl_height - 7;
 				}
+
+				index++;
 			}
 
 			return;
 		}
 
-		if (d6Playing == 2)
+		if (d6Players.size() == 2)
 		{
 			PLAYER_View(0, g_vid.cl_width / 4 + 2, 2);
 			PLAYER_View(1, g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
 		}
 
-		if (d6Playing == 3)
+		if (d6Players.size() == 3)
 		{
 			PLAYER_View(0, 2, 2);
 			PLAYER_View(1, g_vid.cl_width / 2 + 2, 2);
 			PLAYER_View(2, g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
 		}
 
-		if (d6Playing == 4)
+		if (d6Players.size() == 4)
 		{
 			PLAYER_View(0, 2, 2);
 			PLAYER_View(1, g_vid.cl_width / 2 + 2, 2);
@@ -184,37 +187,16 @@ namespace Duel6
 	//
 	////////////////////////////////////////////////////////////////////////////////////////
 
-	Player::Player(size_t index)
+	Player::Player(Person& person, PlayerSkin* skin, Size controls)
+		: person(person), skin(skin)
 	{
-		Camera = new mycam_c;
-		Camera->resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
-		MY_RegMem(Camera, sizeof (mycam_c));
-		Camera->rotate(180.0, 0.0, 0.0);
-		Keys = &d6Keyboard[index];
-		skin = nullptr;
+		camera.resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
+		camera.rotate(180.0, 0.0, 0.0);
+		Keys = &d6Keyboard[controls];
 	}
 
 	Player::~Player(void)
 	{
-		freeSkin();
-		MY_UnregMem(Camera);
-		delete Camera;
-	}
-
-	Player& Player::setSkin(const PlayerSkinColors& skinColors)
-	{
-		freeSkin();
-		skin = new PlayerSkin(skinColors);
-		return *this;
-	}
-
-	void Player::freeSkin()
-	{
-		if (skin != nullptr)
-		{
-			delete skin;
-			skin = nullptr;
-		}
 	}
 
 	void Player::prepareForGame()
@@ -226,7 +208,7 @@ namespace Duel6
 		State.A = d6SpriteList.addSprite(manSprite);		
 
 		State.GN = WPN_GetRandomWeapon();
-		Sprite gunSprite(d6WpnAnm[State.GN], d6WpnTexture);
+		Sprite gunSprite(d6WpnAnm[State.GN], d6WpnTextures);
 		gunSprite.setPosition(State.X, State.Y, 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
@@ -246,12 +228,6 @@ namespace Duel6
 		State.SD = 0;
 		Person().setGames(Person().getGames() + 1);
 		State.InWater = false;
-	}
-
-	void Player::setControls(int n)
-	{
-		if (n >= 0 && n <= 12)
-			Keys = &d6Keyboard[n];
 	}
 
 	void Player::setView(int x, int y, int w, int h)
@@ -401,7 +377,7 @@ namespace Duel6
 		}
 	}
 
-	void Player::update(float elapsedTime)
+	void Player::update(ScreenMode screenMode, float elapsedTime)
 	{
 		checkWater(d6World.Level, elapsedTime);
 		if (!isDead())
@@ -442,6 +418,11 @@ namespace Duel6
 			{
 				switchToOriginalSkin();
 			}
+		}
+
+		if (screenMode == ScreenMode::SplitScreen)
+		{
+			updateCam();
 		}
 	}
 
@@ -500,8 +481,8 @@ namespace Duel6
 		float   fovX, fovY, mZ, dX = 0.0, dY = 0.0;
 		d6LEVEL *l = &d6World.Level;
 
-		CamPos.Pos.x = l->SizeX / 2.0f;
-		CamPos.Pos.y = l->SizeY / 2.0f;
+		cameraPos.Pos.x = l->SizeX / 2.0f;
+		cameraPos.Pos.y = l->SizeY / 2.0f;
 
 		fovY = (float)tan(MM_D2R(g_vid.gl_fov) / 2.0f);
 		fovX = g_vid.gl_aspect * fovY;
@@ -539,15 +520,15 @@ namespace Duel6
 			dY = 2.0f * fovY * mZ;
 		}
 
-		CamPos.Pos.z = mZ + 1.0f;
-		CamPos.Left = CamPos.Pos.x - dX / 2.0f;
-		CamPos.Right = CamPos.Pos.x + dX / 2.0f;
-		CamPos.Down = CamPos.Pos.y - dY / 2.0f;
-		CamPos.Up = CamPos.Pos.y + dY / 2.0f;
-		CamPos.TolX = (dX * D6_CAM_TOLPER_X) / 200.0f;
-		CamPos.TolY = (dY * D6_CAM_TOLPER_Y) / 200.0f;
+		cameraPos.Pos.z = mZ + 1.0f;
+		cameraPos.Left = cameraPos.Pos.x - dX / 2.0f;
+		cameraPos.Right = cameraPos.Pos.x + dX / 2.0f;
+		cameraPos.Down = cameraPos.Pos.y - dY / 2.0f;
+		cameraPos.Up = cameraPos.Pos.y + dY / 2.0f;
+		cameraPos.TolX = (dX * D6_CAM_TOLPER_X) / 200.0f;
+		cameraPos.TolY = (dY * D6_CAM_TOLPER_Y) / 200.0f;
 
-		Camera->setpos(CamPos.Pos);
+		camera.setpos(cameraPos.Pos);
 
 		if (screenMode == ScreenMode::SplitScreen)
 		{
@@ -563,45 +544,45 @@ namespace Duel6
 		X = State.X + 0.5f;
 		Y = State.Y - 0.5f;
 
-		if (X < CamPos.Pos.x - CamPos.TolX)
+		if (X < cameraPos.Pos.x - cameraPos.TolX)
 		{
-			mX = X - (CamPos.Pos.x - CamPos.TolX);
-			if (CamPos.Left + mX < 0.0f)
-				mX = -CamPos.Left;
+			mX = X - (cameraPos.Pos.x - cameraPos.TolX);
+			if (cameraPos.Left + mX < 0.0f)
+				mX = -cameraPos.Left;
 		}
-		else if (X > CamPos.Pos.x + CamPos.TolX)
+		else if (X > cameraPos.Pos.x + cameraPos.TolX)
 		{
-			mX = X - (CamPos.Pos.x + CamPos.TolX);
-			if (CamPos.Right + mX >(float) l->SizeX)
-				mX = (float)l->SizeX - CamPos.Right;
+			mX = X - (cameraPos.Pos.x + cameraPos.TolX);
+			if (cameraPos.Right + mX >(float) l->SizeX)
+				mX = (float)l->SizeX - cameraPos.Right;
 		}
-		if (Y < CamPos.Pos.y - CamPos.TolY)
+		if (Y < cameraPos.Pos.y - cameraPos.TolY)
 		{
-			mY = Y - (CamPos.Pos.y - CamPos.TolY);
-			if (CamPos.Down + mY < 0.0f)
-				mY = -CamPos.Down;
+			mY = Y - (cameraPos.Pos.y - cameraPos.TolY);
+			if (cameraPos.Down + mY < 0.0f)
+				mY = -cameraPos.Down;
 		}
-		else if (Y > CamPos.Pos.y + CamPos.TolY)
+		else if (Y > cameraPos.Pos.y + cameraPos.TolY)
 		{
-			mY = Y - (CamPos.Pos.y + CamPos.TolY);
-			if (CamPos.Up + mY >(float) l->SizeY)
-				mY = (float)l->SizeY - CamPos.Up;
+			mY = Y - (cameraPos.Pos.y + cameraPos.TolY);
+			if (cameraPos.Up + mY >(float) l->SizeY)
+				mY = (float)l->SizeY - cameraPos.Up;
 		}
 
 		if (mX != 0.0)
 		{
-			CamPos.Left += mX;
-			CamPos.Right += mX;
-			CamPos.Pos.x += mX;
+			cameraPos.Left += mX;
+			cameraPos.Right += mX;
+			cameraPos.Pos.x += mX;
 		}
 		if (mY != 0.0)
 		{
-			CamPos.Up += mY;
-			CamPos.Down += mY;
-			CamPos.Pos.y += mY;
+			cameraPos.Up += mY;
+			cameraPos.Down += mY;
+			cameraPos.Pos.y += mY;
 		}
 		if (mX != 0.0 || mY != 0.0)
-			Camera->setpos(CamPos.Pos);
+			camera.setpos(cameraPos.Pos);
 	}
 
 	bool Player::hit(float pw, Shot* s, bool hit)
@@ -736,7 +717,7 @@ namespace Duel6
 		water = WaterBlock(level, getX() + 0.5f, getY() - 0.9f);
 		if (water > 0 && !State.InWater)
 		{
-			Sprite waterSplash(wtAnim[water - 1], d6WpnTexture);
+			Sprite waterSplash(wtAnim[water - 1], d6WpnTextures);
 			waterSplash.setPosition(State.X, State.Y, 0.5f)
 				.setLooping(AnimationLooping::OnceAndRemove);
 			d6SpriteList.addSprite(waterSplash);

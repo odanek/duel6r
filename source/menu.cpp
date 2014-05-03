@@ -36,6 +36,7 @@
 
 namespace Duel6
 {
+	static Size d6Playing;
 	static LevelList    d6LevelList;
 	static PersonList	d6Persons;
 	static desk_c       *myDesk;
@@ -155,7 +156,7 @@ namespace Duel6
 		int         i;
 
 		g_app.con->printf(MY_L("APP00029|\n===Menu inicializace===\n"));
-		UTIL_LoadKH3Texture(&d6MenuTex, D6_FILE_LABEL, 0, false);
+		d6MenuTex = UTIL_LoadKH3Texture(D6_FILE_LABEL, 0, false);
 		MENU_LoadPH();
 		g_app.con->printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
 		myDesk = desk_c::Create();
@@ -537,14 +538,10 @@ namespace Duel6
 
 		d6ZoomBlc = myListbox[6]->CurItem() + 5;
 
+		d6Players.clear();
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Player[i]->setPerson(d6Persons.get(d6WillPlay[i]));
-		}
-
-		for (Size i = 0; i < d6Playing; i++)
-		{
-			d6Player[i]->setControls(mySwitch[i]->CurItem());
+			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(d6PlayerColors[i]), mySwitch[i]->CurItem()));
 		}
 
 		MENU_Restart(false);

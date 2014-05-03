@@ -44,7 +44,7 @@ namespace Duel6
 
 	void EXPL_Load(void)
 	{
-		UTIL_LoadKH3Texture(&d6ExTexture, D6_FILE_EXPLODE, 0, true);
+		d6ExTexture = UTIL_LoadKH3Texture(D6_FILE_EXPLODE, 0, true);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}

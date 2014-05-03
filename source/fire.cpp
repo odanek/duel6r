@@ -51,15 +51,15 @@ namespace Duel6
 
 	void FIRE_Init(void)
 	{
-		int     i, j;
-
-		for (i = 0; i < D6_FIRES; i++)
-			for (j = 3; j < 4; j++)
+		for (Size i = 0; i < D6_FIRES; i++)
+		{
+			for (Size j = 3; j < 4; j++)
 			{
-				glBindTexture(GL_TEXTURE_2D, d6World.Anm.TexGlNum[d6FT[i] + j]);
+				glBindTexture(GL_TEXTURE_2D, d6World.Anm.textures[d6FT[i] + j]);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
+		}
 	}
 
 	void FIRE_Free(void)
@@ -120,7 +120,7 @@ namespace Duel6
 					d6World.Face[f->FN].MaxTex = 0;
 					d6World.Face[f->FN].NowTex = 0;
 
-					Sprite fireSprite(d6FAnm[f->Fr], d6World.Anm.TexGlNum);
+					Sprite fireSprite(d6FAnm[f->Fr], d6World.Anm.textures);
 					fireSprite.setPosition(f->X, f->Y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					d6SpriteList.addSprite(fireSprite);

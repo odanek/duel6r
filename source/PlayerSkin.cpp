@@ -30,42 +30,41 @@
 
 namespace Duel6
 {
-	PlayerSkin::PlayerSkin(const PlayerSkinColors& skinColors)
-		: skinColors(skinColors), textures(nullptr), textureCount(0)
+	PlayerSkin::PlayerSkin(const PlayerSkinColors& colors)
+		: colors(colors)
 	{
 		load(D6_FILE_PLAYER);
 	}
 
 	PlayerSkin::~PlayerSkin()
 	{
-		if (textures != nullptr)
+		if (!textures.empty())
 		{
-			glDeleteTextures(textureCount, textures);
-			MY_Free(textures);
+			glDeleteTextures(textures.size(), &textures[0]);
+			textures.clear();
 		}
 	}
 
-	void PlayerSkin::load(const char* fileName)
+	void PlayerSkin::load(const std::string& fileName)
 	{
 		g_app.con->printf(MY_L("APP00049|Inicializace hrace - nahravam textury\n"));
 
-		if (MY_KH3Open(fileName) != MY_OK)
-			MY_Err(MY_ErrDump(MY_L("APP00091|Nepodarilo se otevrit soubor %s s texturami postav"), fileName));
+		if (MY_KH3Open(fileName.c_str()) != MY_OK)
+			MY_Err(MY_ErrDump(MY_L("APP00091|Nepodarilo se otevrit soubor %s s texturami postav"), fileName.c_str()));
 
 		myKh3info_s ki;
 		MY_KH3GetInfo(&ki);
-		g_app.con->printf(MY_L("APP00050|...Soubor %s obsahuje %d textur\n"), fileName, ki.picts);
+		g_app.con->printf(MY_L("APP00050|...Soubor %s obsahuje %d textur\n"), fileName.c_str(), ki.picts);
 
-		textureCount = ki.picts;
-		textures = D6_MALLOC(GLuint, textureCount);
+		textures.resize(ki.picts);
 		
 		Size imgSize = ki.sizex * ki.sizey;
 		Uint16* hcData = (Uint16 *)MY_Alloc(imgSize << 1);
 		Uint8* tcData = (Uint8 *)MY_Alloc(imgSize << 2);
 
-		glGenTextures(textureCount, textures);
+		glGenTextures(textures.size(), &textures[0]);
 
-		for (Size i = 0; i < textureCount; i++)
+		for (Size i = 0; i < textures.size(); i++)
 		{
 			Color color;
 			Size pos = 0;
@@ -99,7 +98,7 @@ namespace Duel6
 				}
 				else
 				{
-					color = skinColors.get(bodyPart);
+					color = colors.get(bodyPart);
 				}
 
 				tcData[pos++] = color.getRed();

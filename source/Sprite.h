@@ -28,6 +28,7 @@
 #ifndef DUEL6_SPRITE_H
 #define DUEL6_SPRITE_H
 
+#include <vector>
 #include <SDL/SDL_opengl.h>
 #include "Type.h"
 #include "AnimationLooping.h"
@@ -46,8 +47,8 @@ namespace Duel6
 		};
 
 	private:
-		const Int16 *animation;    // Source array of animations and delays
-		const GLuint *textures;   // Texture array
+		const Int16* animation;    // Source array of animations and delays
+		const GLuint* textures;   // Texture array
 		Size frame;    // Current animation frame
 		Float32 delay;    // Delay to next animation frame
 		Float32 speed;     // Speed of animation
@@ -63,7 +64,7 @@ namespace Duel6
 		Float32 alpha;  // Transparency ratio
 
 	public:
-		Sprite(const Int16* animation, const GLuint* textures);
+		Sprite(const Int16* animation, const std::vector<GLuint>& textures);
 
 		Sprite& setPosition(Float32 x, Float32 y, Float32 z)
 		{
@@ -82,9 +83,9 @@ namespace Duel6
 
 		Sprite& setAnimation(const Int16* animation);
 
-		Sprite& setTextures(const GLuint* textures)
+		Sprite& setTextures(const std::vector<GLuint>& textures)
 		{
-			this->textures = textures;
+			this->textures = &textures[0];
 			return *this;
 		}
 

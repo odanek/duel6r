@@ -29,6 +29,7 @@
 #define DUEL6_PROJECT_H
 
 #include <string>
+#include <vector>
 #include "core/co_core.h"
 #include "mylib/mycam.h"
 #include "sound/sound.h"
@@ -163,15 +164,15 @@ namespace Duel6
 	extern  myUINT      d6BackTex;
 	extern  bool        d6InMenu;
 	extern  int         d6Wireframe, d6ZoomBlc;
-	extern  Size		d6Playing;
 	extern  bool        d6ShowFps, d6PlayMusic;
 	extern  int			d6AmmoRangeMin, d6AmmoRangeMax;
 	extern ScreenMode d6ScreenMode;
 	extern bool         d6ShowRanking;
-	extern Player		*d6Player[D6_MAX_PLAYERS];
-	extern PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
+	extern std::vector<Player> d6Players;
+	extern std::vector<PlayerSkinColors> d6PlayerColors;
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList   d6SpriteList;
+	extern std::vector<GLuint> d6WpnTextures;
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp         
@@ -198,7 +199,7 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	//                          util.cpp                                //
 	//////////////////////////////////////////////////////////////////////
-	void    UTIL_LoadKH3Texture(GLuint *tarr, const char *fl, int n, bool clamp);
+	GLuint  UTIL_LoadKH3Texture(const char *fl, int n, bool clamp);
 	void    UTIL_SaveScreenTga(int sd);
 	void    UTIL_OpenGLInfo(con_c *con);
 	void    UTIL_PixelFormatInfo(void);

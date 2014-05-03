@@ -29,37 +29,39 @@
 
 namespace Duel6
 {
-	void UTIL_LoadKH3Texture(GLuint *tarr, const char *fl, int n, bool clamp)
+	GLuint UTIL_LoadKH3Texture(const char *fl, int n, bool clamp)
 	{
-		myKh3info_s     info;
-		myWORD          *pict, cl;
-		myBYTE          *tgaData;
-		long            pos = 0;
-		myDWORD         i, j;
+		myKh3info_s info;
+		std::vector<Uint16> pict;
+		Uint16 cl;
+		std::vector<Uint8> tgaData;
 
 		MY_KH3Open(fl);
 		MY_KH3GetInfo(&info);
-		pict = (myWORD *)MY_Alloc(info.sizex * info.sizey * 2);
-		tgaData = (myBYTE *)MY_Alloc(info.sizex * info.sizey * 4);
-		MY_KH3Load(n, pict);
+		Size imgSize = info.sizex * info.sizey;
+
+		pict.resize(imgSize);
+		tgaData.resize(imgSize * 4);
+		MY_KH3Load(n, &pict[0]);
 		MY_KH3Close();
 
-		j = info.sizey * info.sizex;
-		for (i = 0; i < j; i++, pos += 4)
+		Size pos = 0;
+		for (Size i = 0; i < imgSize; i++)
 		{
 			cl = pict[i];
-			tgaData[pos] = (((cl >> 11) & 0x1F) * 255) / 31;
-			tgaData[pos + 1] = (((cl >> 5) & 0x3F) * 255) / 63;
-			tgaData[pos + 2] = ((cl & 0x1F) * 255) / 31;
+			tgaData[pos++] = (((cl >> 11) & 0x1F) * 255) / 31;
+			tgaData[pos++] = (((cl >> 5) & 0x3F) * 255) / 63;
+			tgaData[pos++] = ((cl & 0x1F) * 255) / 31;
 			if (!cl)
-				tgaData[pos + 3] = 0;
+				tgaData[pos++] = 0;
 			else
-				tgaData[pos + 3] = 255;
+				tgaData[pos++] = 255;
 		}
 
-		glGenTextures(1, tarr);
-		glBindTexture(GL_TEXTURE_2D, *tarr);
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, info.sizex, info.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tgaData);
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, 4, info.sizex, info.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tgaData[0]);
 		//  gluBuild2DMipmaps(GL_TEXTURE_2D, 4, info.SizeX, info.SizeY, GL_RGBA, GL_UNSIGNED_BYTE, tgaData);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -71,8 +73,7 @@ namespace Duel6
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		}
 
-		MY_Free(tgaData);
-		MY_Free(pict);
+		return texture;
 	}
 
 	void UTIL_OpenGLInfo(con_c *con)

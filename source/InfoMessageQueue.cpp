@@ -81,7 +81,7 @@ namespace Duel6
 	void InfoMessageQueue::renderAllMessages(const d6VIEW_s& view) const
 	{
 		int posX = view.X + 4;
-		int posY = view.Y + view.Height - (d6Playing > 4 ? 50 : 20);
+		int posY = view.Y + view.Height - (d6Players.size() > 4 ? 50 : 20);
 
 		CO_FontColor(255, 255, 0);
 

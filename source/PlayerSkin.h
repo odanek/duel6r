@@ -28,6 +28,7 @@
 #ifndef DUEL6_PLAYERSKIN_H
 #define DUEL6_PLAYERSKIN_H
 
+#include <vector>
 #include <SDL/SDL_opengl.h>
 #include "PlayerSkinColors.h"
 
@@ -36,25 +37,29 @@ namespace Duel6
 	class PlayerSkin
 	{
 	private:
-		PlayerSkinColors skinColors;
-		GLuint* textures;
-		Size textureCount;
+		PlayerSkinColors colors;
+		std::vector<GLuint> textures;
 
 	private: // Forbid copying
 		PlayerSkin(const PlayerSkin& skin) = delete;
 		PlayerSkin& operator=(const PlayerSkin& skin) = delete;
 
 	public:
-		explicit PlayerSkin(const PlayerSkinColors& skinColors);
+		explicit PlayerSkin(const PlayerSkinColors& colors);
 		~PlayerSkin();
 
-		GLuint* getTextures()
+		const PlayerSkinColors getColors() const
+		{
+			return colors;
+		}
+
+		const std::vector<GLuint>& getTextures() const
 		{
 			return textures;
 		}
 
 	private:
-		void load(const char* fileName);
+		void load(const std::string& fileName);
 	};
 }
 
