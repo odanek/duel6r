@@ -29,27 +29,27 @@
 
 namespace Duel6
 {
-	SpriteIterator SpriteList::AddSprite(const Sprite& sprite)
+	SpriteIterator SpriteList::addSprite(const Sprite& sprite)
 	{
-		m_sprites.push_back(sprite);
-		return std::prev(m_sprites.end());
+		sprites.push_back(sprite);
+		return std::prev(sprites.end());
 	}
 
-	void SpriteList::Update(Float32 elapsedTime)
+	void SpriteList::update(Float32 elapsedTime)
 	{
 		// Update everything
-		for (Sprite& sprite : m_sprites)
+		for (Sprite& sprite : sprites)
 		{
-			sprite.Update(elapsedTime);
+			sprite.update(elapsedTime);
 		}
 
 		// Delete sprites with finished animations
-		auto sprite = m_sprites.begin();
-		while (sprite != m_sprites.end())
+		auto sprite = sprites.begin();
+		while (sprite != sprites.end())
 		{
-			if (sprite->Looping() == AnimationLooping::OnceAndRemove && sprite->IsFinished())
+			if (sprite->getLooping() == AnimationLooping::OnceAndRemove && sprite->isFinished())
 			{
-				sprite = m_sprites.erase(sprite);
+				sprite = sprites.erase(sprite);
 			}
 			else
 			{
@@ -58,19 +58,19 @@ namespace Duel6
 		}
 	}
 
-	void SpriteList::Render() const
+	void SpriteList::render() const
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
 
-		RenderTransparent(false);
+		renderTransparent(false);
 
 		glDisable(GL_ALPHA_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glDepthMask(GL_FALSE);
 
-		RenderTransparent(true);
+		renderTransparent(true);
 
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
@@ -78,13 +78,13 @@ namespace Duel6
 		glEnable(GL_DEPTH_TEST);
 	}
 
-	void SpriteList::RenderTransparent(bool transparent) const
+	void SpriteList::renderTransparent(bool transparent) const
 	{
-		for (const Sprite& sprite : m_sprites)
+		for (const Sprite& sprite : sprites)
 		{
-			if (sprite.IsTransparent() == transparent)
+			if (sprite.isTransparent() == transparent)
 			{
-				sprite.Render();
+				sprite.render();
 			}
 		}
 	}

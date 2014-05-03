@@ -29,46 +29,46 @@
 
 namespace Duel6
 {
-	Person& Person::Reset()
+	Person& Person::reset()
 	{
-		m_shots = 0;
-		m_hits = 0;
-		m_kills = 0;
-		m_wins = 0;
-		m_games = 0;
+		shots = 0;
+		hits = 0;
+		kills = 0;
+		wins = 0;
+		games = 0;
 		return *this;
 	}
 
-	void Person::Serialize(FILE* file) const
+	void Person::serialize(FILE* file) const
 	{
-		Uint32 nameLength = Name().length();
+		Uint32 nameLength = getName().length();
 		fwrite(&nameLength, 4, 1, file);
-		fwrite(Name().c_str(), 1, nameLength, file);
-		fwrite(&m_shots, 4, 1, file);
-		fwrite(&m_hits, 4, 1, file);
-		fwrite(&m_kills, 4, 1, file);
-		fwrite(&m_wins, 4, 1, file);
-		fwrite(&m_games, 4, 1, file);
+		fwrite(getName().c_str(), 1, nameLength, file);
+		fwrite(&shots, 4, 1, file);
+		fwrite(&hits, 4, 1, file);
+		fwrite(&kills, 4, 1, file);
+		fwrite(&wins, 4, 1, file);
+		fwrite(&games, 4, 1, file);
 	}
 
-	void Person::DeSerialize(FILE* file)
+	void Person::deSerialize(FILE* file)
 	{
 		Uint32 nameLength;
 		fread(&nameLength, 4, 1, file);
 
-		m_name.clear();
-		m_name.reserve(nameLength);
+		name.clear();
+		name.reserve(nameLength);
 		while (nameLength-- > 0)
 		{
 			char letter;
 			fread(&letter, 1, 1, file);
-			m_name.push_back(letter);
+			name.push_back(letter);
 		}
 
-		fread(&m_shots, 4, 1, file);
-		fread(&m_hits, 4, 1, file);
-		fread(&m_kills, 4, 1, file);
-		fread(&m_wins, 4, 1, file);
-		fread(&m_games, 4, 1, file);
+		fread(&shots, 4, 1, file);
+		fread(&hits, 4, 1, file);
+		fread(&kills, 4, 1, file);
+		fread(&wins, 4, 1, file);
+		fread(&games, 4, 1, file);
 	}
 }

@@ -34,15 +34,15 @@
 
 namespace Duel6
 {
-	myUINT *d6WpnTexture;
+	GLuint *d6WpnTexture;
 	
 	namespace
 	{
 		int d6WpnTextures;
 		PlayerSkin *brownSkin;
-		std::list<d6SHOT_s> d6Shot;
+		std::list<Shot> d6Shots;
 
-		typedef std::list<d6SHOT_s>::iterator ShotIter;
+		typedef std::list<Shot>::iterator ShotIter;
 	}
 
 	void WPN_LoadTextures(void)
@@ -54,7 +54,7 @@ namespace Duel6
 		MY_KH3Open(D6_FILE_WEAPON);
 		MY_KH3GetInfo(&ki);
 		g_app.con->printf(MY_L("APP00085|...Soubor %s obsahue %d textur\n"), D6_FILE_WEAPON, ki.picts);
-		d6WpnTexture = D6_MALLOC(myUINT, ki.picts);
+		d6WpnTexture = D6_MALLOC(GLuint, ki.picts);
 
 		for (i = 0; i < (int)ki.picts; i++)
 		{
@@ -89,13 +89,12 @@ namespace Duel6
 
 	void WPN_LevelInit(void)
 	{
-		d6Shot.clear();
+		d6Shots.clear();
 	}
 
 	void WPN_Shoot(Player& player)
 	{
-		float       ad = 0.32f;
-		d6SHOT_s    sh;
+		float       ad = 0.32f;		
 		d6PLSTATE_s *s = &player.State;
 
 		if (!s->Ammo || s->SI > 0)
@@ -108,70 +107,71 @@ namespace Duel6
 
 		s->Ammo--;
 
-		s->GA->SetFrame(0);
+		s->GA->setFrame(0);
 
 		if (s->Flags & D6_FLAG_KNEE)
 			ad = 0.52f;
 
-		player.Person().SetShots(player.Person().Shots() + 1);
+		player.getPerson().setShots(player.getPerson().getShots() + 1);
+
+		Shot sh(player);
 		sh.Y = s->Y - ad;
 		sh.X = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
 		sh.O = s->O;
 		sh.GN = s->GN;
 		sh.WD = &d6WpnDef[s->GN];
-		sh.Author = &player;
 		
 		Sprite shotSprite(d6ShotAnm[sh.GN], d6WpnTexture);
-		shotSprite.SetPosition(sh.X, sh.Y, 0.6f)
-			.SetOrientation(sh.O);
-		sh.A = d6SpriteList.AddSprite(shotSprite);
+		shotSprite.setPosition(sh.X, sh.Y, 0.6f)
+			.setOrientation(sh.O);
+		sh.A = d6SpriteList.addSprite(shotSprite);
 		
 		SOUND_PlaySample(sh.WD->ShSound);
 
-		d6Shot.push_back(sh);
+		d6Shots.push_back(sh);
 	}
 
 	static ShotIter WPN_RemoveShot(ShotIter shot)
 	{
-		d6SpriteList.RemoveSprite(shot->A);
-		return d6Shot.erase(shot);
+		d6SpriteList.removeSprite(shot->A);
+		return d6Shots.erase(shot);
 	}
 
 	void WPN_MoveShots(float elapsedTime)
 	{
-		auto shot = d6Shot.begin();
+		auto shot = d6Shots.begin();
 
-		while (shot != d6Shot.end())
+		while (shot != d6Shots.end())
 		{
 			if (shot->O == Orientation::Right)
 				shot->X += shot->WD->ShotSpeed * elapsedTime;
 			else
 				shot->X -= shot->WD->ShotSpeed * elapsedTime;
 
-			shot->A->SetPosition(shot->X, shot->Y);
+			shot->A->setPosition(shot->X, shot->Y);
 
 			if (KONTR_Shot(*shot))
 			{				
 				float x = (shot->O == Orientation::Left) ? shot->X - 0.3f : shot->X + 0.3f;
 				
 				Sprite boom(d6BoomAnm[shot->GN], d6WpnTexture);
-				boom.SetPosition(x, shot->Y + 0.3f, 0.6f)
-					.SetSpeed(2.0f)
-					.SetLooping(AnimationLooping::OnceAndRemove)
-					.SetOrientation(shot->O)
-					.SetAlpha(0.6f);
+				boom.setPosition(x, shot->Y + 0.3f, 0.6f)
+					.setSpeed(2.0f)
+					.setLooping(AnimationLooping::OnceAndRemove)
+					.setOrientation(shot->O)
+					.setAlpha(0.6f);
 
-				SpriteIterator boomSprite = d6SpriteList.AddSprite(boom);
+				SpriteIterator boomSprite = d6SpriteList.addSprite(boom);
 
-				if (shot->Author->HasPowerfulShots())
-					boomSprite->SetGrow(shot->WD->ExpGrow * 1.2f);
+				if (shot->getPlayer().hasPowerfulShots())
+					boomSprite->setGrow(shot->WD->ExpGrow * 1.2f);
 				else
-					boomSprite->SetGrow(shot->WD->ExpGrow);
+					boomSprite->setGrow(shot->WD->ExpGrow);
 				if (shot->WD->BmSound != -1)
 					SOUND_PlaySample(shot->WD->BmSound);
 				if (shot->WD->Boom > 0)
 				{
-					boomSprite->SetNoDepth(true);
+					boomSprite->setNoDepth(true);
 				}
 				
 				shot = WPN_RemoveShot(shot);
@@ -183,33 +183,33 @@ namespace Duel6
 		}
 	}
 
-	void WPN_Boom(d6SHOT_s& s, Player *playerThatWasHit)
+	void WPN_Boom(Shot& s, Player* playerThatWasHit)
 	{
-		int killedPlayers = 0, initialAuthorKills = s.Author->Person().Kills();
+		int killedPlayers = 0, initialAuthorKills = s.getPlayer().getPerson().getKills();
 		bool killedSelf = false;
 
-		int dosah = s.GetExplosionRange();
-		int sila = s.GetExplosionPower();
+		Float32 range = s.getExplosionRange();
+		Float32 power = s.getExplosionPower();
 
 		float X = (s.O == Orientation::Left) ? (s.X + 0.32f) : (s.X + 0.67f);
 		float Y = s.Y - 0.17f;
 
 		if (s.GN != D6_COL_WPN_SHT)
-			FIRE_Check(X, Y, dosah);
+			FIRE_Check(X, Y, range);
 
 		for (Size i = 0; i < d6Playing; i++)
 		{
 			Player *player = d6Player[i];
 
-			if (player == playerThatWasHit)
+			if (player->is(*playerThatWasHit))
 			{
 				if (s.GN == D6_COL_WPN_SHT)
 				{
-					player->UseTemporarySkin(*brownSkin);
+					player->useTemporarySkin(*brownSkin);
 				}
 				else
 				{
-					if (player->Hit((float)sila, &s, true))
+					if (player->hit(power, &s, true))
 					{
 						killedPlayers++;
 					}
@@ -217,21 +217,21 @@ namespace Duel6
 			}
 			else
 			{
-				float vzd = (float)sqrt(D6_SQR(player->State.X + 0.5f - X) + D6_SQR(player->State.Y - 0.5f - Y));
+				Float32 dist = (float)sqrt(D6_SQR(player->State.X + 0.5f - X) + D6_SQR(player->State.Y - 0.5f - Y));
 
-				if (vzd < (float)dosah)
+				if (dist < range)
 				{
 					if (s.GN == D6_COL_WPN_SHT)
 					{
-						player->UseTemporarySkin(*brownSkin);
+						player->useTemporarySkin(*brownSkin);
 					}
 					else
 					{
-						if (player->Hit(((dosah - vzd) * sila) / dosah, &s, false))
+						if (player->hit(((range - dist) * power) / range, &s, false))
 						{
 							killedPlayers++;
 
-							if (player == s.Author)
+							if (player->is(s.getPlayer()))
 							{
 								killedSelf = true;
 							}
@@ -243,7 +243,7 @@ namespace Duel6
 
 		if (killedSelf)
 		{
-			s.Author->Person().SetKills(initialAuthorKills - killedPlayers);
+			s.getPlayer().getPerson().setKills(initialAuthorKills - killedPlayers);
 		}
 	}
 
@@ -273,18 +273,18 @@ namespace Duel6
 
 	/*
 	==================================================
-	d6SHOT_s
+	Shot
 	==================================================
 	*/
-	int d6SHOT_s::GetExplosionPower()
+	Float32 Shot::getExplosionPower() const
 	{
-		int coef = Author->HasPowerfulShots() ? 2 : 1;
+		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
 		return coef * WD->Power;
 	}
 
-	int d6SHOT_s::GetExplosionRange()
+	Float32 Shot::getExplosionRange() const
 	{
-		int coef = Author->HasPowerfulShots() ? 2 : 1;
+		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
 		return coef * WD->Boom;
 	}
 }

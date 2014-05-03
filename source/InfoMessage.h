@@ -36,45 +36,45 @@ namespace Duel6
 	class InfoMessage
 	{
 	public:
-		const Duel6::Player* m_player;
-		std::string m_text;
-		float m_remainingTime;
+		const Player* player;
+		std::string text;
+		Float32 remainingTime;
 
 	public:
-		InfoMessage(const Duel6::Player& player, const std::string& text, float duration)
-			: m_player(&player), m_text(text), m_remainingTime(duration)
+		InfoMessage(const Player& player, const std::string& text, float duration)
+			: player(&player), text(text), remainingTime(duration)
 		{}
 
 		InfoMessage(const InfoMessage& msg)
-			: m_player(msg.m_player), m_text(msg.m_text), m_remainingTime(msg.m_remainingTime)
+			: player(msg.player), text(msg.text), remainingTime(msg.remainingTime)
 		{}
 
 		InfoMessage& operator=(const InfoMessage& msg)
 		{
-			m_player = msg.m_player;
-			m_text = msg.m_text;
-			m_remainingTime = msg.m_remainingTime;
+			player = msg.player;
+			text = msg.text;
+			remainingTime = msg.remainingTime;
 			return *this;
 		}
 
-		const Duel6::Player& Player() const
+		const Player& getPlayer() const
 		{
-			return *m_player;
+			return *player;
 		}
 
-		const std::string& Text() const
+		const std::string& getText() const
 		{
-			return m_text;
+			return text;
 		}
 
-		float RemainingTime() const
+		float getRemainingTime() const
 		{
-			return m_remainingTime;
+			return remainingTime;
 		}
 
-		InfoMessage& UpdateRemainingTime(float elapsedTime)
+		InfoMessage& updateRemainingTime(Float32 elapsedTime)
 		{
-			m_remainingTime -= elapsedTime;
+			remainingTime -= elapsedTime;
 			return *this;
 		}
 	};

@@ -31,140 +31,140 @@ namespace Duel6
 {
 	Sprite::Sprite(const Int16* animation, const GLuint* textures)
 	{
-		m_animation = animation;
-		m_textures = textures;
-		m_frame = 0;
-		m_delay = 0;
-		m_speed = 1;
-		m_loop = AnimationLooping::RepeatForever;
-		m_orientation = Orientation::Left;
-		m_flags = Draw;
-		m_width = 1.0f;
-		m_height = 1.0f;
-		m_grow = 0;
-		m_alpha = 1.0f;
+		this->animation = animation;
+		this->textures = textures;
+		frame = 0;
+		delay = 0;
+		speed = 1;
+		looping = AnimationLooping::RepeatForever;
+		orientation = Orientation::Left;
+		flags = Draw;
+		width = 1.0f;
+		height = 1.0f;
+		grow = 0;
+		alpha = 1.0f;
 	}
 
-	Sprite& Sprite::SetAnimation(const Int16* animation)
+	Sprite& Sprite::setAnimation(const Int16* animation)
 	{
-		if (m_animation != animation)
+		if (this->animation != animation)
 		{
-			m_animation = animation;
-			m_delay = 0.0f;
-			m_frame = 0;
-			ClearFlags(Finished);
+			this->animation = animation;
+			delay = 0.0f;
+			frame = 0;
+			clearFlags(Finished);
 		}
 
 		return *this;
 	}
 
-	Sprite& Sprite::SetDraw(bool draw)
+	Sprite& Sprite::setDraw(bool draw)
 	{
 		if (draw)
 		{
-			AddFlags(Draw);
+			addFlags(Draw);
 		}
 		else
 		{
-			ClearFlags(Draw);
+			clearFlags(Draw);
 		}
 		return *this;
 	}
 
-	Sprite& Sprite::SetNoDepth(bool depth)
+	Sprite& Sprite::setNoDepth(bool depth)
 	{
 		if (depth)
 		{
-			AddFlags(NoDepth);
+			addFlags(NoDepth);
 		}
 		else
 		{
-			ClearFlags(NoDepth);
+			clearFlags(NoDepth);
 		}
 		return *this;
 	}
 
-	void Sprite::Update(float elapsedTime)
+	void Sprite::update(float elapsedTime)
 	{
-		m_delay += elapsedTime;
-		if (m_delay >= m_animation[m_frame + 1] * m_speed)
+		delay += elapsedTime;
+		if (delay >= animation[frame + 1] * speed)
 		{
-			m_frame += 2;
-			m_delay = 0;
-			if (m_animation[m_frame] == -1)
+			frame += 2;
+			delay = 0;
+			if (animation[frame] == -1)
 			{
-				AddFlags(Finished);
+				addFlags(Finished);
 
-				if (m_loop == AnimationLooping::RepeatForever)
+				if (looping == AnimationLooping::RepeatForever)
 				{
-					m_frame = 0;
+					frame = 0;
 				}
-				else if (m_loop == AnimationLooping::OnceAndStop)
+				else if (looping == AnimationLooping::OnceAndStop)
 				{
-					m_frame -= 2;
+					frame -= 2;
 				}
 			}
 		}
 
-		if (m_grow > 0)
+		if (grow > 0)
 		{
-			m_x -= m_grow * elapsedTime;
-			m_y += m_grow * elapsedTime;
-			m_width += 2 * m_grow * elapsedTime;
-			m_height += 2 * m_grow * elapsedTime;
+			x -= grow * elapsedTime;
+			y += grow * elapsedTime;
+			width += 2 * grow * elapsedTime;
+			height += 2 * grow * elapsedTime;
 		}
 	}
 
-	void Sprite::Render() const
+	void Sprite::render() const
 	{
-		if (!HasFlags(Draw))
+		if (!hasFlags(Draw))
 		{
 			return;
 		}
 
-		if (IsNoDepth())
+		if (isNoDepth())
 		{
 			glDisable(GL_DEPTH_TEST);
 		}
 
 		GLfloat cur_col[4];
 		glGetFloatv(GL_CURRENT_COLOR, cur_col);
-		glColor4f(cur_col[0], cur_col[1], cur_col[2], m_alpha);
-		glBindTexture(GL_TEXTURE_2D, m_textures[m_animation[m_frame]]);
+		glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
+		glBindTexture(GL_TEXTURE_2D, textures[animation[frame]]);
 
-		float leftSide = (m_orientation == Orientation::Left) ? 0.0f : 1.0f;
+		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;
 
 		glBegin(GL_QUADS);
 			glTexCoord2f(leftSide, 0.0f);
-			glVertex3f(m_x, m_y, m_z);;
+			glVertex3f(x, y, z);;
 			glTexCoord2f(1.0f - leftSide, 0.0f);
-			glVertex3f(m_x + m_width, m_y, m_z);;
+			glVertex3f(x + width, y, z);;
 			glTexCoord2f(1.0f - leftSide, 1.0f);
-			glVertex3f(m_x + m_width, m_y - m_height, m_z);
+			glVertex3f(x + width, y - height, z);
 			glTexCoord2f(leftSide, 1.0f);
-			glVertex3f(m_x, m_y - m_height, m_z);
+			glVertex3f(x, y - height, z);
 		glEnd();
 
 		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);
 
-		if (IsNoDepth())
+		if (isNoDepth())
 		{
 			glEnable(GL_DEPTH_TEST);
 		}
 	}
 
-	void Sprite::AddFlags(Uint32 flags)
+	void Sprite::addFlags(Uint32 flags)
 	{
-		m_flags |= flags;
+		this->flags |= flags;
 	}
 
-	void Sprite::ClearFlags(Uint32 flags)
+	void Sprite::clearFlags(Uint32 flags)
 	{
-		m_flags &= ~flags;
+		this->flags &= ~flags;
 	}
 
-	bool Sprite::HasFlags(Uint32 flags) const
+	bool Sprite::hasFlags(Uint32 flags) const
 	{
-		return (m_flags & flags) == flags;
+		return (this->flags & flags) == flags;
 	}
 }

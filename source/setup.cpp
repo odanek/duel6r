@@ -86,8 +86,11 @@ namespace Duel6
 		}
 
 		// Set graphics mode
+#ifdef _DEBUG
+		VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);  // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
+#else
 		VID_SetMode(d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
-		//VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);
+#endif
 
 		g_vid.gl_fov = 45.0f;
 		g_vid.gl_nearclip = 0.1f;
@@ -149,7 +152,7 @@ namespace Duel6
 		{
 			d6Player[i] = new Player(i);
 			MY_RegMem(d6Player[i], sizeof (Player));
-			d6Player[i]->SetSkin(d6PlayerSkin[i]);
+			d6Player[i]->setSkin(d6PlayerSkin[i]);
 		}
 	}
 
@@ -210,7 +213,6 @@ namespace Duel6
 		MY_Free(d6World.Face);
 		MY_Free(d6World.Level.Data);
 		MENU_Free();
-		WATER_Free();
 		FIRE_Free();
 		ELEV_Free();
 		EXPL_Free();
@@ -342,7 +344,7 @@ namespace Duel6
 					}
 
 					Color color((num & 0xff0000) >> 16, (num & 0xff00) >> 8, num & 0xff);
-					d6PlayerSkin[pl].Set((PlayerSkinColors::BodyPart)i, color);
+					d6PlayerSkin[pl].set((PlayerSkinColors::BodyPart)i, color);
 				}
 				con->printf("Skin %d: OK\n", pl);
 			}
@@ -355,8 +357,8 @@ namespace Duel6
 				con->printf("Skin %d: ", pl);
 				for (i = 0; i < 9; i++)
 				{
-					const Color& color = d6PlayerSkin[pl].Get((PlayerSkinColors::BodyPart)i);
-					con->printf("%02x%02x%02x ", color.Red(), color.Green(), color.Blue());
+					const Color& color = d6PlayerSkin[pl].get((PlayerSkinColors::BodyPart)i);
+					con->printf("%02x%02x%02x ", color.getRed(), color.getGreen(), color.getBlue());
 				}
 				con->printf("\n");
 			}
@@ -368,7 +370,7 @@ namespace Duel6
 			{
 				if (d6Player[i] != nullptr)
 				{
-					d6Player[i]->SetSkin(d6PlayerSkin[i]);
+					d6Player[i]->setSkin(d6PlayerSkin[i]);
 				}
 			}
 		}

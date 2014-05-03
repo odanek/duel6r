@@ -46,120 +46,120 @@ namespace Duel6
 		};
 
 	private:
-		const Int16 *m_animation;    // Source array of animations and delays
-		const GLuint *m_textures;   // Texture array
-		Size m_frame;    // Current animation frame
-		Float32 m_delay;    // Delay to next animation frame
-		Float32 m_speed;     // Speed of animation
-		AnimationLooping m_loop;   // Type of looping
-		Orientation m_orientation;   // Current orientation
-		Uint32 m_flags;  // Flags
-		Float32 m_x;      // Sprite location
-		Float32 m_y;
-		Float32 m_z;
-		Float32 m_width; // Sprite dimensions
-		Float32 m_height;
-		Float32 m_grow;   // Grow factor for explosions
-		Float32 m_alpha;  // Transparency ratio
+		const Int16 *animation;    // Source array of animations and delays
+		const GLuint *textures;   // Texture array
+		Size frame;    // Current animation frame
+		Float32 delay;    // Delay to next animation frame
+		Float32 speed;     // Speed of animation
+		AnimationLooping looping;   // Type of looping
+		Orientation orientation;   // Current orientation
+		Uint32 flags;  // Flags
+		Float32 x;      // Sprite location
+		Float32 y;
+		Float32 z;
+		Float32 width; // Sprite dimensions
+		Float32 height;
+		Float32 grow;   // Grow factor for explosions
+		Float32 alpha;  // Transparency ratio
 
 	public:
 		Sprite(const Int16* animation, const GLuint* textures);
 
-		Sprite& SetPosition(Float32 x, Float32 y, Float32 z)
+		Sprite& setPosition(Float32 x, Float32 y, Float32 z)
 		{
-			m_x = x;
-			m_y = y;
-			m_z = z;
+			this->x = x;
+			this->y = y;
+			this->z = z;
 			return *this;
 		}
 
-		Sprite& SetPosition(Float32 x, Float32 y)
+		Sprite& setPosition(Float32 x, Float32 y)
 		{
-			m_x = x;
-			m_y = y;
+			this->x = x;
+			this->y = y;
 			return *this;
 		}
 
-		Sprite& SetAnimation(const Int16* animation);
+		Sprite& setAnimation(const Int16* animation);
 
-		Sprite& SetTextures(const GLuint* textures)
+		Sprite& setTextures(const GLuint* textures)
 		{
-			m_textures = textures;
+			this->textures = textures;
 			return *this;
 		}
 
-		Sprite& SetFrame(Size frame)
+		Sprite& setFrame(Size frame)
 		{
-			m_frame = frame;
+			this->frame = frame;
 			return *this;
 		}
 
-		Sprite& SetOrientation(Orientation orientation)
+		Sprite& setOrientation(Orientation orientation)
 		{
-			m_orientation = orientation;
+			this->orientation = orientation;
 			return *this;
 		}
 
-		Sprite& SetGrow(Float32 grow)
+		Sprite& setGrow(Float32 grow)
 		{
-			m_grow = grow;
+			this->grow = grow;
 			return *this;
 		}
 
-		Sprite& SetAlpha(Float32 alpha)
+		Sprite& setAlpha(Float32 alpha)
 		{
-			m_alpha = alpha;
+			this->alpha = alpha;
 			return *this;
 		}
 
-		Sprite& SetSpeed(Float32 speed)
+		Sprite& setSpeed(Float32 speed)
 		{
-			m_speed = speed;
+			this->speed = speed;
 			return *this;
 		}
 
-		Sprite& SetLooping(AnimationLooping loop)
+		Sprite& setLooping(AnimationLooping looping)
 		{
-			m_loop = loop;
+			this->looping = looping;
 			return *this;
 		}
 
-		Sprite& SetDraw(bool draw);
+		Sprite& setDraw(bool draw);
 
-		Sprite& SetNoDepth(bool depth);
+		Sprite& setNoDepth(bool depth);
 
-		Size Frame() const
+		Size getFrame() const
 		{
-			return m_frame;
+			return frame;
 		}
 
-		AnimationLooping Looping() const
+		AnimationLooping getLooping() const
 		{
-			return m_loop;
+			return looping;
 		}
 
-		bool IsTransparent() const
+		bool isTransparent() const
 		{
-			return m_alpha < 1.0f;
+			return alpha < 1.0f;
 		}
 
-		bool IsFinished() const
+		bool isFinished() const
 		{
-			return HasFlags(Finished);
+			return hasFlags(Finished);
 		}
 
-		bool IsNoDepth() const
+		bool isNoDepth() const
 		{
-			return HasFlags(NoDepth);
+			return hasFlags(NoDepth);
 		}
 
-		void Update(Float32 elapsedTime);
-		void Render() const;
+		void update(Float32 elapsedTime);
+		void render() const;
 
 	private:
-		void AddFlags(Uint32 flags);
-		void ClearFlags(Uint32 flags);
-		bool HasFlags(Uint32 flags) const;
+		void addFlags(Uint32 flags);
+		void clearFlags(Uint32 flags);
+		bool hasFlags(Uint32 flags) const;
 	};
 }
 

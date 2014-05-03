@@ -37,46 +37,46 @@ namespace Duel6
 	class PersonList
 	{
 	private:
-		std::vector<Person> m_persons;
+		std::vector<Person> persons;
 
 	public:
 		PersonList()
 		{}
 
-		Size Length() const
+		Size getLength() const
 		{
-			return m_persons.size();
+			return persons.size();
 		}
 
-		bool IsEmpty() const
+		bool isEmpty() const
 		{
-			return m_persons.empty();
+			return persons.empty();
 		}
 
-		Person& Get(Size index)
+		Person& get(Size index)
 		{
-			return m_persons[index];
+			return persons[index];
 		}
 
-		std::vector<Person> List()
+		std::vector<Person> list()
 		{
-			return m_persons;
+			return persons;
 		}
 
-		PersonList& Add(const Person& person)
+		PersonList& add(const Person& person)
 		{
-			m_persons.push_back(person);
+			persons.push_back(person);
 			return *this;
 		}
 
-		PersonList& Remove(Size index)
+		PersonList& remove(Size index)
 		{
-			m_persons.erase(m_persons.begin() + index);
+			persons.erase(persons.begin() + index);
 			return *this;
 		}
 
-		void Save(FILE *file) const;
-		void Load(FILE *file);
+		void save(FILE* file) const;
+		void load(FILE* file);
 	};
 }
 

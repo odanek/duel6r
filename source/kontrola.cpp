@@ -92,11 +92,11 @@ namespace Duel6
 
 	void KONTR_Kontr(Player& player, int c)
 	{
-		d6UpY = l->SizeY - (int)(player.Y() - 0.06) - 1;
-		d6DownY = l->SizeY - (int)(player.Y() - 1.0f) - 1;
-		d6Down2 = l->SizeY - (int)(player.Y() - 1.001f) - 1;
-		d6LeftX = (int)(player.X() + 0.1f);
-		d6RightX = (int)(player.X() + 0.9f);
+		d6UpY = l->SizeY - (int)(player.getY() - 0.06) - 1;
+		d6DownY = l->SizeY - (int)(player.getY() - 1.0f) - 1;
+		d6Down2 = l->SizeY - (int)(player.getY() - 1.001f) - 1;
+		d6LeftX = (int)(player.getX() + 0.1f);
+		d6RightX = (int)(player.getX() + 0.9f);
 
 		switch (c)
 		{
@@ -118,7 +118,7 @@ namespace Duel6
 		return true;
 	}
 
-	static bool KONTR_ShotPlayer(d6SHOT_s& s)
+	static bool KONTR_ShotPlayer(Shot& s)
 	{
 		Player  *p;
 		float   X, ad;
@@ -129,22 +129,22 @@ namespace Duel6
 		{
 			p = d6Player[i];
 
-			if (p->State.Bonus == D6_BONUS_INVIS || p == s.Author)
+			if (p->State.Bonus == D6_BONUS_INVIS || p->is(s.getPlayer()))
 				continue;
 
-			if (p->IsKneeling())
+			if (p->isKneeling())
 				ad = 0.2f;
 			else
 				ad = 0.0f;
 
-			if (p->IsLying())
+			if (p->isLying())
 				ad = 0.6f;
 			else
-				if (p->IsDead())
+				if (p->isDead())
 					continue;
 
-			if (X > p->X() + 1.0f || X + 0.65f < p->X() ||
-				s.Y < p->Y() - 1.0f || s.Y - 0.35f > p->Y() - ad)
+			if (X > p->getX() + 1.0f || X + 0.65f < p->getX() ||
+				s.Y < p->getY() - 1.0f || s.Y - 0.35f > p->getY() - ad)
 				continue;
 
 			WPN_Boom(s, p);
@@ -154,7 +154,7 @@ namespace Duel6
 		return false;
 	}
 
-	bool KONTR_Shot(d6SHOT_s& s)
+	bool KONTR_Shot(Shot& s)
 	{
 		if (KONTR_ShotPlayer(s))
 			return true;

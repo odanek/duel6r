@@ -37,29 +37,29 @@ namespace Duel6
 	class LevelList
 	{
 	private:
-		std::string m_directory;
-		std::vector<std::string> m_fileNames;
+		std::string directory;
+		std::vector<std::string> fileNames;
 
 	public:
 		void Initialize(const std::string& directoryName, const std::string& fileExtension);
 		
-		Size Length()
+		Size getLength()
 		{ 
-			return m_fileNames.size();
+			return fileNames.size();
 		}
 
-		const std::string& FileName(Size index) const
+		const std::string& getFileName(Size index) const
 		{ 
-			return m_fileNames[index]; 
+			return fileNames[index]; 
 		}
 
-		std::string Path(Size index) const
+		std::string getPath(Size index) const
 		{ 
-			return m_directory + FileName(index); 
+			return directory + getFileName(index); 
 		}
 
 	private:
-		bool NameEndsWith(const std::string& name, const std::string& suffix) const;
+		bool nameEndsWith(const std::string& name, const std::string& suffix) const;
 	};
 }
 

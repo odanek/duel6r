@@ -36,9 +36,9 @@ namespace Duel6
 	class PlayerSkin
 	{
 	private:
-		PlayerSkinColors m_skinColors;
-		GLuint *m_glTexture;
-		Size m_textureCount;
+		PlayerSkinColors skinColors;
+		GLuint* textures;
+		Size textureCount;
 
 	private: // Forbid copying
 		PlayerSkin(const PlayerSkin& skin) = delete;
@@ -48,13 +48,13 @@ namespace Duel6
 		explicit PlayerSkin(const PlayerSkinColors& skinColors);
 		~PlayerSkin();
 
-		GLuint *GlTexture()
+		GLuint* getTextures()
 		{
-			return m_glTexture;
+			return textures;
 		}
 
 	private:
-		void Load(const char* fileName);
+		void load(const char* fileName);
 	};
 }
 

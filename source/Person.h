@@ -37,93 +37,93 @@ namespace Duel6
 	class Person
 	{
 	private:
-		std::string m_name;
-		Int32 m_shots;
-		Int32 m_hits;
-		Int32 m_kills;
-		Int32 m_wins;
-		Int32 m_games;
+		std::string name;
+		Int32 shots;
+		Int32 hits;
+		Int32 kills;
+		Int32 wins;
+		Int32 games;
 
 	public:
 		Person()
-			: m_shots(0), m_hits(0), m_kills(0), m_wins(0), m_games(0)
+			: shots(0), hits(0), kills(0), wins(0), games(0)
 		{}
 
 		explicit Person(const std::string& name)
 			: Person()
 		{
-			m_name = name;
+			this->name = name;
 		}
 
-		const std::string& Name() const
+		const std::string& getName() const
 		{
-			return m_name;
+			return name;
 		}
 
-		Int32 Shots() const
+		Int32 getShots() const
 		{
-			return m_shots;
+			return shots;
 		}
 
-		Int32 Hits() const
+		Int32 getHits() const
 		{
-			return m_hits;
+			return hits;
 		}
 
-		Int32 Kills() const
+		Int32 getKills() const
 		{
-			return m_kills;
+			return kills;
 		}
 
-		Int32 Wins() const
+		Int32 getWins() const
 		{
-			return m_wins;
+			return wins;
 		}
 
-		Int32 Games() const
+		Int32 getGames() const
 		{
-			return m_games;
+			return games;
 		}
 
-		Int32 TotalPoints() const
+		Int32 getTotalPoints() const
 		{
-			return Kills() + Wins();
+			return getKills() + getWins();
 		}
 
-		Person& SetShots(Int32 shots)
+		Person& setShots(Int32 shots)
 		{
-			m_shots = shots;
+			this->shots = shots;
 			return *this;
 		}
 
-		Person& SetHits(Int32 hits)
+		Person& setHits(Int32 hits)
 		{
-			m_hits = hits;
+			this->hits = hits;
 			return *this;
 		}
 
-		Person& SetKills(Int32 kills)
+		Person& setKills(Int32 kills)
 		{
-			m_kills = kills;
+			this->kills = kills;
 			return *this;
 		}
 
-		Person& SetWins(Int32 wins)
+		Person& setWins(Int32 wins)
 		{
-			m_wins = wins;
+			this->wins = wins;
 			return *this;
 		}
 
-		Person& SetGames(Int32 games)
+		Person& setGames(Int32 games)
 		{
-			m_games = games;
+			this->games = games;
 			return *this;
 		}
 
-		Person& Reset();
+		Person& reset();
 
-		void Serialize(FILE* file) const;
-		void DeSerialize(FILE* file);
+		void serialize(FILE* file) const;
+		void deSerialize(FILE* file);
 	};
 }
 

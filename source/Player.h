@@ -51,7 +51,7 @@
 
 namespace Duel6
 {
-	class d6SHOT_s; // Forward declaration
+	class Shot; // Forward declaration
 	struct d6LEVEL; // Forward declaration
 
 	struct d6VIEW_s
@@ -110,15 +110,15 @@ namespace Duel6
 	class Player
 	{
 	private:
-		PlayerSkin *m_skin;     // Player skin
-		Duel6::Person *m_person;       // Person playing the player
+		PlayerSkin* skin;     // Player skin
+		Duel6::Person* person;       // Person playing the player
 
 	private:
-		void Left(float elapsedTime);
-		void Right(float elapsedTime);
-		void MakeMove(float elapsedTime);
-		void CheckKeys(float elapsedTime);
-		void CheckWater(const d6LEVEL& level, float elapsedTime);
+		void moveLeft(float elapsedTime);
+		void moveRight(float elapsedTime);
+		void makeMove(float elapsedTime);
+		void checkKeys(float elapsedTime);
+		void checkWater(const d6LEVEL& level, float elapsedTime);
 
 	public:
 		mycam_c         *Camera;
@@ -130,52 +130,57 @@ namespace Duel6
 		Player(size_t index);
 		~Player(void);
 
-		Player& SetSkin(const PlayerSkinColors& skinColors);
-		void PrepareForGame();
-
-		void SetView(int x, int y, int w, int h);
-		void Jump();
-		void Fall();
-		void Pick();
-		void SetAnm();
-		void Update(float elapsedTime);
-		void PrepareCam(ScreenMode screenMode);
-		void UpdateCam();
-		void SetControls(int n);
-		bool Hit(float pw, d6SHOT_s *s, bool hit); // Returns true if the shot caused the player to die
-
-		float X() const;
-		float Y() const;
-		float Width() const;
-		float Height() const;
-
-		Duel6::Person& Person()
+		bool is(const Player& player) const
 		{
-			return *m_person;
+			return (this == &player);
 		}
 
-		const Duel6::Person& Person() const
+		Player& setSkin(const PlayerSkinColors& skinColors);
+		void prepareForGame();
+
+		void setView(int x, int y, int w, int h);
+		void jump();
+		void fall();
+		void pick();
+		void setAnm();
+		void update(float elapsedTime);
+		void prepareCam(ScreenMode screenMode);
+		void updateCam();
+		void setControls(int n);
+		bool hit(float pw, Shot *s, bool hit); // Returns true if the shot caused the player to die
+
+		float getX() const;
+		float getY() const;
+		float getWidth() const;
+		float getHeight() const;
+
+		Person& getPerson()
 		{
-			return *m_person;
+			return *person;
 		}
 
-		Player& SetPerson(Duel6::Person& person)
+		const Person& getPerson() const
 		{
-			m_person = &person;
+			return *person;
+		}
+
+		Player& setPerson(Duel6::Person& person)
+		{
+			this->person = &person;
 			return *this;
 		}
 
-		bool HasPowerfulShots() const;
-		bool IsKneeling() const;
-		bool IsLying() const;
-		bool IsDead() const;
-		bool IsInvulnerable() const;
+		bool hasPowerfulShots() const;
+		bool isKneeling() const;
+		bool isLying() const;
+		bool isDead() const;
+		bool isInvulnerable() const;
 
-		void UseTemporarySkin(PlayerSkin& skin);
-		void SwitchToOriginalSkin();
+		void useTemporarySkin(PlayerSkin& skin);
+		void switchToOriginalSkin();
 
 	private:
-		void FreeSkin();
+		void freeSkin();
 	};
 
 	//////////////////////////////////////////////////////////////////////

@@ -31,21 +31,21 @@
 namespace Duel6
 {
 	PlayerSkin::PlayerSkin(const PlayerSkinColors& skinColors)
-		: m_skinColors(skinColors), m_glTexture(nullptr), m_textureCount(0)
+		: skinColors(skinColors), textures(nullptr), textureCount(0)
 	{
-		Load(D6_FILE_PLAYER);
+		load(D6_FILE_PLAYER);
 	}
 
 	PlayerSkin::~PlayerSkin()
 	{
-		if (m_glTexture != nullptr)
+		if (textures != nullptr)
 		{
-			glDeleteTextures(m_textureCount, m_glTexture);
-			MY_Free(m_glTexture);
+			glDeleteTextures(textureCount, textures);
+			MY_Free(textures);
 		}
 	}
 
-	void PlayerSkin::Load(const char* fileName)
+	void PlayerSkin::load(const char* fileName)
 	{
 		g_app.con->printf(MY_L("APP00049|Inicializace hrace - nahravam textury\n"));
 
@@ -56,16 +56,16 @@ namespace Duel6
 		MY_KH3GetInfo(&ki);
 		g_app.con->printf(MY_L("APP00050|...Soubor %s obsahuje %d textur\n"), fileName, ki.picts);
 
-		m_textureCount = ki.picts;
-		m_glTexture = D6_MALLOC(GLuint, m_textureCount);
+		textureCount = ki.picts;
+		textures = D6_MALLOC(GLuint, textureCount);
 		
 		Size imgSize = ki.sizex * ki.sizey;
 		Uint16* hcData = (Uint16 *)MY_Alloc(imgSize << 1);
 		Uint8* tcData = (Uint8 *)MY_Alloc(imgSize << 2);
 
-		glGenTextures(m_textureCount, m_glTexture);
+		glGenTextures(textureCount, textures);
 
-		for (Size i = 0; i < m_textureCount; i++)
+		for (Size i = 0; i < textureCount; i++)
 		{
 			Color color;
 			Size pos = 0;
@@ -93,22 +93,22 @@ namespace Duel6
 
 				if (!isBodyPart)
 				{
-					color.SetRed((((hcData[j] >> 11) & 0x1F) * 255) / 31);
-					color.SetGreen((((hcData[j] >> 5) & 0x3F) * 255) / 63);
-					color.SetBlue(((hcData[j] & 0x1F) * 255) / 31);
+					color.setRed((((hcData[j] >> 11) & 0x1F) * 255) / 31);
+					color.setGreen((((hcData[j] >> 5) & 0x3F) * 255) / 63);
+					color.setBlue(((hcData[j] & 0x1F) * 255) / 31);
 				}
 				else
 				{
-					color = m_skinColors.Get(bodyPart);
+					color = skinColors.get(bodyPart);
 				}
 
-				tcData[pos++] = color.Red();
-				tcData[pos++] = color.Green();
-				tcData[pos++] = color.Blue();
+				tcData[pos++] = color.getRed();
+				tcData[pos++] = color.getGreen();
+				tcData[pos++] = color.getBlue();
 				tcData[pos++] = (!hcData[j]) ? 0 : 0xff; // Alpha mask, black pixels are transparent
 			}
 
-			glBindTexture(GL_TEXTURE_2D, m_glTexture[i]);
+			glBindTexture(GL_TEXTURE_2D, textures[i]);
 			glTexImage2D(GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tcData);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

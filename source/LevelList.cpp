@@ -32,17 +32,17 @@ namespace Duel6
 {
 	void LevelList::Initialize(const std::string& directoryName, const std::string& fileExtension)
 	{
-		m_directory = directoryName;
-		m_fileNames.clear();
+		directory = directoryName;
+		fileNames.clear();
 
 		DIR* handle = opendir(directoryName.c_str());
 		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
 
 		while (ff != nullptr)
 		{
-			if (NameEndsWith(ff->d_name, fileExtension))
+			if (nameEndsWith(ff->d_name, fileExtension))
 			{
-				m_fileNames.push_back(ff->d_name);
+				fileNames.push_back(ff->d_name);
 			}
 
 			ff = readdir(handle);
@@ -51,7 +51,7 @@ namespace Duel6
 		closedir(handle);
 	}
 
-	bool LevelList::NameEndsWith(const std::string& name, const std::string& suffix) const
+	bool LevelList::nameEndsWith(const std::string& name, const std::string& suffix) const
 	{
 		if (name.length() >= suffix.length())
 		{

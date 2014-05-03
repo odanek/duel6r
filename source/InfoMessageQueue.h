@@ -37,17 +37,17 @@ namespace Duel6
 	class InfoMessageQueue
 	{
 	private:
-		std::list<InfoMessage> m_messages;
+		std::list<InfoMessage> messages;
 
 	public:
-		InfoMessageQueue& Add(const Player& player, const char *formatString, ...);
-		InfoMessageQueue& Update(float elapsedTime);
+		InfoMessageQueue& add(const Player& player, const char *formatString, ...);
+		InfoMessageQueue& update(float elapsedTime);
 
-		void RenderPlayerMessages(const Player& player) const;
-		void RenderAllMessages(const d6VIEW_s& view) const;
+		void renderPlayerMessages(const Player& player) const;
+		void renderAllMessages(const d6VIEW_s& view) const;
 
 	private:
-		static void RenderMessage(int x, int y, const std::string& msg);
+		static void renderMessage(int x, int y, const std::string& msg);
 	};
 }
 

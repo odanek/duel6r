@@ -49,7 +49,7 @@ namespace Duel6
 		};
 
 	private:
-		Color m_color[9];
+		Color color[9];
 
 	public:
 		PlayerSkinColors()
@@ -59,7 +59,7 @@ namespace Duel6
 		{
 			for (Size i = 0; i < 9; i++)
 			{
-				m_color[i] = color;
+				this->color[i] = color;
 			}
 		}
 
@@ -74,22 +74,22 @@ namespace Duel6
 			{
 				for (Size i = 0; i < 9; i++)
 				{
-					m_color[i] = skin.m_color[i];
+					color[i] = skin.color[i];
 				}
 			}
 
 			return *this;
 		}
 
-		PlayerSkinColors& Set(BodyPart bodyPart, const Color& color)
+		PlayerSkinColors& set(BodyPart bodyPart, const Color& color)
 		{
-			m_color[(int)bodyPart] = color;
+			this->color[(int)bodyPart] = color;
 			return *this;
 		}
 
-		const Color& Get(BodyPart bodyPart) const
+		const Color& get(BodyPart bodyPart) const
 		{
-			return m_color[(int)bodyPart];
+			return color[(int)bodyPart];
 		}
 	};
 }

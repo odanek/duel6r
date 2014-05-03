@@ -38,27 +38,27 @@ namespace Duel6
 	class SpriteList
 	{
 	private:
-		std::list<Sprite> m_sprites;
+		std::list<Sprite> sprites;
 
 	public:
-		SpriteIterator AddSprite(const Sprite& sprite);
+		SpriteIterator addSprite(const Sprite& sprite);
 
-		void RemoveSprite(SpriteIterator iterator)
+		void removeSprite(SpriteIterator iterator)
 		{
-			m_sprites.erase(iterator);
+			sprites.erase(iterator);
 		}
 
-		void Clear()
+		void clear()
 		{
-			m_sprites.clear();
+			sprites.clear();
 		}
 
-		void Update(Float32 elapsedTime);
+		void update(Float32 elapsedTime);
 
-		void Render() const;
+		void render() const;
 
 	private:
-		void RenderTransparent(bool transparent) const;
+		void renderTransparent(bool transparent) const;
 	};
 }
 

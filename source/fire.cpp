@@ -97,7 +97,7 @@ namespace Duel6
 				}
 	}
 
-	void FIRE_Check(float X, float Y, int d)
+	void FIRE_Check(Float32 X, Float32 Y, Float32 d)
 	{
 		d6FIRE_s    *f;
 		float       vzd;
@@ -111,7 +111,7 @@ namespace Duel6
 			{
 				vzd = (float)sqrt(D6_SQR(X - d6Fire[i].X) + D6_SQR(Y - d6Fire[i].Y));
 
-				if (vzd < (float)d)
+				if (vzd < d)
 				{
 					f = &d6Fire[i];
 
@@ -121,9 +121,9 @@ namespace Duel6
 					d6World.Face[f->FN].NowTex = 0;
 
 					Sprite fireSprite(d6FAnm[f->Fr], d6World.Anm.TexGlNum);
-					fireSprite.SetPosition(f->X, f->Y, 0.75f)
-						.SetLooping(AnimationLooping::OnceAndStop);
-					d6SpriteList.AddSprite(fireSprite);
+					fireSprite.setPosition(f->X, f->Y, 0.75f)
+						.setLooping(AnimationLooping::OnceAndStop);
+					d6SpriteList.addSprite(fireSprite);
 				}
 			}
 	}

@@ -35,7 +35,7 @@ namespace Duel6
 	class Color
 	{
 	private:
-		Uint8 m_color[3];
+		Uint8 color[3];
 
 	public:
 		Color()
@@ -48,7 +48,7 @@ namespace Duel6
 
 		Color(Uint8 red, Uint8 green, Uint8 blue)
 		{
-			Set(red, green, blue);
+			set(red, green, blue);
 		}
 
 		Color(const Color& color)
@@ -60,63 +60,63 @@ namespace Duel6
 		{
 			if (this != &color)
 			{
-				SetRed(color.Red());
-				SetGreen(color.Green());
-				SetBlue(color.Blue());
+				setRed(color.getRed());
+				setGreen(color.getGreen());
+				setBlue(color.getBlue());
 			}
 
 			return *this;
 		}
 
-		Uint8 Red() const
+		Uint8 getRed() const
 		{
-			return m_color[0];
+			return color[0];
 		}
 
-		Uint8 Green() const
+		Uint8 getGreen() const
 		{
-			return m_color[1];
+			return color[1];
 		}
 
-		Uint8 Blue() const
+		Uint8 getBlue() const
 		{
-			return m_color[2];
+			return color[2];
 		}
 
-		Uint8 Get(Size index) const
+		Uint8 get(Size index) const
 		{
-			return m_color[index];
+			return color[index];
 		}
 
-		Color& Set(Uint8 red, Uint8 green, Uint8 blue)
+		Color& set(Uint8 red, Uint8 green, Uint8 blue)
 		{
-			SetRed(red);
-			SetGreen(green);
-			SetBlue(blue);
+			setRed(red);
+			setGreen(green);
+			setBlue(blue);
 			return *this;
 		}
 
-		Color& SetRed(Uint8 value)
+		Color& setRed(Uint8 value)
 		{
-			m_color[0] = value;
+			color[0] = value;
 			return *this;
 		}
 
-		Color& SetGreen(Uint8 value)
+		Color& setGreen(Uint8 value)
 		{
-			m_color[1] = value;
+			color[1] = value;
 			return *this;
 		}
 
-		Color& SetBlue(Uint8 value)
+		Color& setBlue(Uint8 value)
 		{
-			m_color[2] = value;
+			color[2] = value;
 			return *this;
 		}
 
-		Color& Set(Size index, Uint8 value)
+		Color& set(Size index, Uint8 value)
 		{
-			m_color[index] = value;
+			color[index] = value;
 			return *this;
 		}
 	};

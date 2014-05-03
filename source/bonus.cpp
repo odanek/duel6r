@@ -41,11 +41,12 @@ namespace Duel6
 		bool    Used;
 	};
 
-	extern myUINT       *d6WpnTexture;
+	extern GLuint       *d6WpnTexture;
 	extern Int16        d6WpnAnm[D6_WEAPONS][16];
+	bool                d6WpnEnabled[D6_WEAPONS];
+
 	static d6BONUS_s    d6Bonus[D6_BONUS_MAX];
 	int                 d6BonusArt[D6_BONUS_COUNT] = { 19, 20, 21, 22, 23, 24, 25, 46, 53, 26 };  // Otaznik musi byt posledni
-	bool                d6WpnEnabled[D6_WEAPONS];
 
 	void BONUS_Init(int(*bonus)[3])
 	{
@@ -179,62 +180,62 @@ namespace Duel6
 					case D6_BONUS_INVIS:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
-						d6MessageQueue.Add(player, MY_L("APP00094|Neviditelnost na %d sekund"), t);
-						s->A->SetAlpha(0.2f);
-						s->GA->SetAlpha(0.2f);
+						d6MessageQueue.add(player, MY_L("APP00094|Neviditelnost na %d sekund"), t);
+						s->A->setAlpha(0.2f);
+						s->GA->setAlpha(0.2f);
 						break;
 
 					case D6_BONUS_SPEED:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
-						d6MessageQueue.Add(player, MY_L("APP00093|Rychly pohyb na %d sekund"), t);
-						s->A->SetAlpha(1);
-						s->GA->SetAlpha(1);
+						d6MessageQueue.add(player, MY_L("APP00093|Rychly pohyb na %d sekund"), t);
+						s->A->setAlpha(1);
+						s->GA->setAlpha(1);
 						break;
 
 					case D6_BONUS_LIFEP:
 						s->Life += h;
-						d6MessageQueue.Add(player, MY_L("APP00012|Zivot +%d"), h);
+						d6MessageQueue.add(player, MY_L("APP00012|Zivot +%d"), h);
 						break;
 
 					case D6_BONUS_LIFEM:
-						player.Hit(float(h), NULL, false);
-						d6MessageQueue.Add(player, MY_L("APP00013|Zivot -%d"), h);
+						player.hit(float(h), NULL, false);
+						d6MessageQueue.add(player, MY_L("APP00013|Zivot -%d"), h);
 						break;
 
 					case D6_BONUS_LIFEF:
 						s->Life = D6_MAX_LIFE;
-						d6MessageQueue.Add(player, MY_L("APP00014|Plny zivot"), h);
+						d6MessageQueue.add(player, MY_L("APP00014|Plny zivot"), h);
 						break;
 
 					case D6_BONUS_SHOTS:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
-						d6MessageQueue.Add(player, MY_L("APP00015|Rychle nabiti na %d sekund"), t);
-						s->A->SetAlpha(1);
-						s->GA->SetAlpha(1);
+						d6MessageQueue.add(player, MY_L("APP00015|Rychle nabiti na %d sekund"), t);
+						s->A->setAlpha(1);
+						s->GA->setAlpha(1);
 						break;
 
 					case D6_BONUS_SHOTP:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
-						d6MessageQueue.Add(player, MY_L("APP00016|Silne strely na %d sekund"), t);
-						s->A->SetAlpha(1);
-						s->GA->SetAlpha(1);
+						d6MessageQueue.add(player, MY_L("APP00016|Silne strely na %d sekund"), t);
+						s->A->setAlpha(1);
+						s->GA->setAlpha(1);
 						break;
 
 					case D6_BONUS_INVUL:
 						s->Bonus = b->Type;
 						s->BD = (float)t;
-						d6MessageQueue.Add(player, MY_L("APP00017|Nesmrtelnost na %d sekund"), t);
-						s->A->SetAlpha(1);
-						s->GA->SetAlpha(1);
+						d6MessageQueue.add(player, MY_L("APP00017|Nesmrtelnost na %d sekund"), t);
+						s->A->setAlpha(1);
+						s->GA->setAlpha(1);
 						break;
 
 					case D6_BONUS_BULLT:
 						h = 5 + rand() % 12;
 						s->Ammo += h;
-						d6MessageQueue.Add(player, MY_L("APP00018|Naboje +%d"), h);
+						d6MessageQueue.add(player, MY_L("APP00018|Naboje +%d"), h);
 						break;
 					}
 
@@ -259,7 +260,7 @@ namespace Duel6
 			{
 				b = &d6Bonus[i];
 
-				if (fabs(b->X - player.X()) < 0.5f && fabs(b->Y - player.Y()) < 0.5f)
+				if (fabs(b->X - player.getX()) < 0.5f && fabs(b->Y - player.getY()) < 0.5f)
 				{
 					l = b->Bull;
 					t = b->Type;
@@ -276,12 +277,12 @@ namespace Duel6
 					s->GN = t;
 					s->Flags |= D6_FLAG_PICK;
 					
-					s->GA->SetAnimation(d6WpnAnm[s->GN])
-						.SetFrame(6)
-						.SetDraw(false);
-					s->A->SetFrame(0);
+					s->GA->setAnimation(d6WpnAnm[s->GN])
+						.setFrame(6)
+						.setDraw(false);
+					s->A->setFrame(0);
 
-					d6MessageQueue.Add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(d6WpnDef[s->GN].Name));
+					d6MessageQueue.add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(d6WpnDef[s->GN].Name));
 					return;
 				}
 			}

@@ -68,12 +68,12 @@ namespace Duel6
 		return l->Data[y * l->SizeX + x];
 	}
 
-	float D6_Sin(int a)
+	float D6_Sin(Int32 a)
 	{
 		return d6Sin[abs(a + 90) % 360];
 	}
 
-	float D6_Cos(int a)
+	float D6_Cos(Int32 a)
 	{
 		return d6Sin[abs(a) % 360];
 	}
@@ -105,7 +105,7 @@ namespace Duel6
 		{
 			Player& player = *d6Player[i];
 
-			if (!player.IsDead())
+			if (!player.isDead())
 			{
 				numAlive++;
 				lastAlive = &player;
@@ -119,14 +119,14 @@ namespace Duel6
 
 			if (numAlive == 1)
 			{
-				d6MessageQueue.Add(*lastAlive, MY_L("APP00024|Jsi vitez - stiskni ESC pro konec nebo F1 pro novou hru"));
-				lastAlive->Person().SetWins(lastAlive->Person().Wins() + 1);
+				d6MessageQueue.add(*lastAlive, MY_L("APP00024|Jsi vitez - stiskni ESC pro konec nebo F1 pro novou hru"));
+				lastAlive->getPerson().setWins(lastAlive->getPerson().getWins() + 1);
 			}
 			else
 			{
 				for (Size i = 0; i < d6Playing; i++)
 				{
-					d6MessageQueue.Add(*d6Player[i], MY_L("APP00025|Konec hry - bez viteze"));
+					d6MessageQueue.add(*d6Player[i], MY_L("APP00025|Konec hry - bez viteze"));
 				}
 			}
 		}
@@ -150,12 +150,12 @@ namespace Duel6
 
 		d6World.Anm.Wait = 0;
 		WATER_Build();
-		d6SpriteList.Clear();
+		d6SpriteList.clear();
 		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
 		
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Player[i]->PrepareForGame();
+			d6Player[i]->prepareForGame();
 		}
 				
 		PLAYER_PrepareViews(d6ScreenMode);
@@ -218,20 +218,20 @@ namespace Duel6
 		{
 			Player& player = *d6Player[i];
 			
-			player.Update(elapsedTime);
+			player.update(elapsedTime);
 			if (d6ScreenMode == ScreenMode::SplitScreen)
 			{
-				player.UpdateCam();
+				player.updateCam();
 			}
 		}
 
 		RENDER_MoveAnm(elapsedTime);
-		d6SpriteList.Update(elapsedTime * D6_SPEED_COEF);
+		d6SpriteList.update(elapsedTime * D6_SPEED_COEF);
 		WATER_Move(elapsedTime);
 		WPN_MoveShots(elapsedTime * D6_SPEED_COEF);
 		EXPL_MoveAll(elapsedTime);
 		ELEV_MoveAll(elapsedTime * D6_SPEED_COEF);
-		d6MessageQueue.Update(elapsedTime);
+		d6MessageQueue.update(elapsedTime);
 		BONUS_AddNew(elapsedTime);
 
 		// Ochrana pred nekolikanasobnym zmacknutim klavesy

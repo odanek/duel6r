@@ -132,8 +132,8 @@ namespace Duel6
 
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			strcpy(rank_name[i], d6Player[i]->Person().Name().c_str());
-			rank_points[i] = d6Player[i]->Person().TotalPoints();
+			strcpy(rank_name[i], d6Player[i]->getPerson().getName().c_str());
+			rank_points[i] = d6Player[i]->getPerson().getTotalPoints();
 			n_max = MY_Max(n_max, 5 + int(strlen(rank_name[i])));
 		}
 
@@ -183,7 +183,7 @@ namespace Duel6
 
 	static void RENDER_PlayerStatus(const Player& player)
 	{
-		if (player.IsDead())
+		if (player.isDead())
 			return;
 
 		int alpha = 180;
@@ -220,7 +220,7 @@ namespace Duel6
 		glVertex2i(ibp[0] + 5, ibp[1] - 23);
 		glEnd();
 
-		const std::string& playerName = player.Person().Name();
+		const std::string& playerName = player.getPerson().getName();
 		CO_FontColor(0, 0, 255);
 		CO_FontPrintf(ibp[0] + 5, ibp[1] - 13, "%d", player.State.Ammo);
 		CO_FontPrintf(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName.c_str());
@@ -277,8 +277,8 @@ namespace Duel6
 		float   x, y, X, Y;
 		int     p, uh, u;
 
-		x = player.X() + 0.5f;
-		y = player.Y() - 0.5f;
+		x = player.getX() + 0.5f;
+		y = player.getY() - 0.5f;
 		p = int(player.State.BD * 30) % 360;
 
 		glColor3ub(255, 0, 0);
@@ -306,7 +306,7 @@ namespace Duel6
 		{
 			Player& player = *d6Player[i];
 
-			if (player.IsInvulnerable())
+			if (player.isInvulnerable())
 			{
 				RENDER_InvulRing(player);
 			}
@@ -337,7 +337,7 @@ namespace Duel6
 		RENDER_Blocks(0, d6World.Blocks);
 		RENDER_Sprites();
 		ELEV_DrawAll();
-		d6SpriteList.Render();
+		d6SpriteList.render();
 		BONUS_DrawAll();
 		RENDER_InvulRings();
 		RENDER_Water();
@@ -371,7 +371,7 @@ namespace Duel6
 			D6_SetGLMode(D6_GL_ORTHO);
 			RENDER_SplitBox(player.View);
 
-			if (player.IsDead())
+			if (player.isDead())
 				glColor3f(1.0f, 0.5f, 0.5f);
 
 			RENDER_SetView(player.View);
@@ -424,13 +424,13 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			d6MessageQueue.RenderAllMessages(d6Player[0]->View);
+			d6MessageQueue.renderAllMessages(d6Player[0]->View);
 		}
 		else
 		{
 			for (Size i = 0; i < d6Playing; i++)
 			{
-				d6MessageQueue.RenderPlayerMessages(*d6Player[i]);
+				d6MessageQueue.renderPlayerMessages(*d6Player[i]);
 			}
 		}
 

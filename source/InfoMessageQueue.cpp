@@ -32,7 +32,7 @@
 
 namespace Duel6
 {
-	InfoMessageQueue& InfoMessageQueue::Add(const Player& player, const char *formatString, ...)
+	InfoMessageQueue& InfoMessageQueue::add(const Player& player, const char *formatString, ...)
 	{
 		char formattedText[100];
 		va_list argptr;
@@ -41,26 +41,26 @@ namespace Duel6
 		vsprintf(formattedText, formatString, argptr);
 		va_end(argptr);
 
-		m_messages.push_back(InfoMessage(player, formattedText, D6_INFO_DURATION));
+		messages.push_back(InfoMessage(player, formattedText, D6_INFO_DURATION));
 		return *this;
 	}
 
-	InfoMessageQueue& InfoMessageQueue::Update(float elapsedTime)
+	InfoMessageQueue& InfoMessageQueue::update(float elapsedTime)
 	{
-		for (InfoMessage& msg : m_messages)
+		for (InfoMessage& msg : messages)
 		{
-			msg.UpdateRemainingTime(elapsedTime);
+			msg.updateRemainingTime(elapsedTime);
 		}
 
-		while (!m_messages.empty() && m_messages.front().RemainingTime() < 0)
+		while (!messages.empty() && messages.front().getRemainingTime() < 0)
 		{
-			m_messages.pop_front();
+			messages.pop_front();
 		}
 
 		return *this;
 	}
 
-	void InfoMessageQueue::RenderPlayerMessages(const Player& player) const
+	void InfoMessageQueue::renderPlayerMessages(const Player& player) const
 	{
 		const d6VIEW_s& view = player.View;
 		int posX = view.X + 4;
@@ -68,31 +68,31 @@ namespace Duel6
 
 		CO_FontColor(255, 255, 0);
 
-		for (const InfoMessage& msg : m_messages)
+		for (const InfoMessage& msg : messages)
 		{
-			if (&player == &msg.Player())
+			if (player.is(msg.getPlayer()))
 			{
-				RenderMessage(posX, posY, msg.Text());
+				renderMessage(posX, posY, msg.getText());
 				posY -= 16;
 			}
 		}
 	}
 
-	void InfoMessageQueue::RenderAllMessages(const d6VIEW_s& view) const
+	void InfoMessageQueue::renderAllMessages(const d6VIEW_s& view) const
 	{
 		int posX = view.X + 4;
 		int posY = view.Y + view.Height - (d6Playing > 4 ? 50 : 20);
 
 		CO_FontColor(255, 255, 0);
 
-		for (const InfoMessage& msg : m_messages)
+		for (const InfoMessage& msg : messages)
 		{
-			RenderMessage(posX, posY, msg.Player().Person().Name() + ": " + msg.Text());
+			renderMessage(posX, posY, msg.getPlayer().getPerson().getName() + ": " + msg.getText());
 			posY -= 16;
 		}
 	}
 
-	void InfoMessageQueue::RenderMessage(int x, int y, const std::string& msg)
+	void InfoMessageQueue::renderMessage(int x, int y, const std::string& msg)
 	{
 		glColor4f(0, 0, 1, 0.7f);
 		glEnable(GL_BLEND);

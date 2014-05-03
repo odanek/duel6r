@@ -121,7 +121,7 @@ namespace Duel6
 	{
 		int w = g_vid.cl_width / 2 - 4, h = g_vid.cl_height / 2 - 4;
 
-		d6Player[i]->SetView(x, y, w, h);
+		d6Player[i]->setView(x, y, w, h);
 		d6Player[i]->State.IBP[0] = x + w / 2 - 76;
 		d6Player[i]->State.IBP[1] = y + 30;
 	}
@@ -132,14 +132,14 @@ namespace Duel6
 
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Player[i]->PrepareCam(screenMode);
+			d6Player[i]->prepareCam(screenMode);
 		}
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
 			for (Size i = 0; i < d6Playing; i++)
 			{
-				d6Player[i]->SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
+				d6Player[i]->setView(0, 0, g_vid.cl_width, g_vid.cl_height);
 
 				if (i < 4)
 				{
@@ -191,46 +191,46 @@ namespace Duel6
 		MY_RegMem(Camera, sizeof (mycam_c));
 		Camera->rotate(180.0, 0.0, 0.0);
 		Keys = &d6Keyboard[index];
-		m_skin = nullptr;
+		skin = nullptr;
 	}
 
 	Player::~Player(void)
 	{
-		FreeSkin();
+		freeSkin();
 		MY_UnregMem(Camera);
 		delete Camera;
 	}
 
-	Player& Player::SetSkin(const PlayerSkinColors& skinColors)
+	Player& Player::setSkin(const PlayerSkinColors& skinColors)
 	{
-		FreeSkin();
-		m_skin = new PlayerSkin(skinColors);
+		freeSkin();
+		skin = new PlayerSkin(skinColors);
 		return *this;
 	}
 
-	void Player::FreeSkin()
+	void Player::freeSkin()
 	{
-		if (m_skin != nullptr)
+		if (skin != nullptr)
 		{
-			delete m_skin;
-			m_skin = nullptr;
+			delete skin;
+			skin = nullptr;
 		}
 	}
 
-	void Player::PrepareForGame()
+	void Player::prepareForGame()
 	{
 		PLAYER_FindStart(&State.X, &State.Y);
 		
-		Sprite manSprite(noAnim, m_skin->GlTexture());
-		manSprite.SetPosition(State.X, State.Y, 0.5f);
-		State.A = d6SpriteList.AddSprite(manSprite);		
+		Sprite manSprite(noAnim, skin->getTextures());
+		manSprite.setPosition(State.X, State.Y, 0.5f);
+		State.A = d6SpriteList.addSprite(manSprite);		
 
 		State.GN = WPN_GetRandomWeapon();
 		Sprite gunSprite(d6WpnAnm[State.GN], d6WpnTexture);
-		gunSprite.SetPosition(State.X, State.Y, 0.5f)
-			.SetLooping(AnimationLooping::OnceAndStop)
-			.SetFrame(6);
-		State.GA = d6SpriteList.AddSprite(gunSprite);
+		gunSprite.setPosition(State.X, State.Y, 0.5f)
+			.setLooping(AnimationLooping::OnceAndStop)
+			.setFrame(6);
+		State.GA = d6SpriteList.addSprite(gunSprite);
 
 		State.Flags = D6_FLAG_NONE;
 		State.Speed = 0;
@@ -244,17 +244,17 @@ namespace Duel6
 		State.Bonus = 0;
 		State.BD = 0;
 		State.SD = 0;
-		Person().SetGames(Person().Games() + 1);
+		Person().setGames(Person().getGames() + 1);
 		State.InWater = false;
 	}
 
-	void Player::SetControls(int n)
+	void Player::setControls(int n)
 	{
 		if (n >= 0 && n <= 12)
 			Keys = &d6Keyboard[n];
 	}
 
-	void Player::SetView(int x, int y, int w, int h)
+	void Player::setView(int x, int y, int w, int h)
 	{
 		View.X = x;
 		View.Y = y;
@@ -262,7 +262,7 @@ namespace Duel6
 		View.Height = h;
 	}
 
-	void Player::Left(float elapsedTime)
+	void Player::moveLeft(float elapsedTime)
 	{
 		if (State.Speed >= -D6_PLAYER_MAX_SPEED)
 			State.Flags |= D6_FLAG_REQ_LEFT;
@@ -272,7 +272,7 @@ namespace Duel6
 			State.O = Orientation::Left;
 	}
 
-	void Player::Right(float elapsedTime)
+	void Player::moveRight(float elapsedTime)
 	{
 		if (State.Speed <= D6_PLAYER_MAX_SPEED)
 			State.Flags |= D6_FLAG_REQ_RIGHT;
@@ -282,7 +282,7 @@ namespace Duel6
 			State.O = Orientation::Right;
 	}
 
-	void Player::Jump(void)
+	void Player::jump(void)
 	{
 		if (!State.J)
 		{
@@ -293,7 +293,7 @@ namespace Duel6
 		}
 	}
 
-	void Player::Fall(void)
+	void Player::fall(void)
 	{
 		if (!State.J && !State.Speed)
 		{
@@ -308,13 +308,13 @@ namespace Duel6
 		}
 	}
 
-	void Player::Pick(void)
+	void Player::pick(void)
 	{
 		if (!State.J && !State.Speed && State.Elev == -1)
 			BONUS_Pick(*this);
 	}
 
-	void Player::MakeMove(float elapsedTime)
+	void Player::makeMove(float elapsedTime)
 	{
 		float   sp;
 
@@ -365,7 +365,7 @@ namespace Duel6
 		State.Flags &= ~(D6_FLAG_REQ_RIGHT | D6_FLAG_REQ_LEFT);
 	}
 
-	void Player::CheckKeys(float elapsedTime)
+	void Player::checkKeys(float elapsedTime)
 	{
 		if ((State.Flags & (D6_FLAG_DEAD | D6_FLAG_PICK)) != 0)
 			return;
@@ -374,19 +374,19 @@ namespace Duel6
 		{
 			if (CO_InpIsPressed(Keys->Left))
 			{
-				Left(elapsedTime);
+				moveLeft(elapsedTime);
 			}
 			if (CO_InpIsPressed(Keys->Right))
 			{
-				Right(elapsedTime);
+				moveRight(elapsedTime);
 			}
 			if (CO_InpIsPressed(Keys->Up))
 			{
-				Jump();
+				jump();
 			}
 			if (CO_InpIsPressed(Keys->Pick))
 			{
-				Pick();
+				pick();
 			}
 		}
 
@@ -397,21 +397,21 @@ namespace Duel6
 		State.Flags &= ~D6_FLAG_KNEE;
 		if (CO_InpIsPressed(Keys->Down))
 		{
-			Fall();
+			fall();
 		}
 	}
 
-	void Player::Update(float elapsedTime)
+	void Player::update(float elapsedTime)
 	{
-		CheckWater(d6World.Level, elapsedTime);
-		if (!IsDead())
+		checkWater(d6World.Level, elapsedTime);
+		if (!isDead())
 		{
 			BONUS_Check(*this);
 		}
 
-		CheckKeys(elapsedTime * D6_SPEED_COEF);
-		MakeMove(elapsedTime * D6_SPEED_COEF);
-		SetAnm();
+		checkKeys(elapsedTime * D6_SPEED_COEF);
+		makeMove(elapsedTime * D6_SPEED_COEF);
+		setAnm();
 
 		// Move intervals
 		if (State.SI > 0)
@@ -428,8 +428,8 @@ namespace Duel6
 			{
 				if (State.Bonus == D6_BONUS_INVIS)
 				{
-					State.A->SetAlpha(1);
-					State.GA->SetAlpha(1);
+					State.A->setAlpha(1);
+					State.GA->setAlpha(1);
 				}
 				State.Bonus = 0;
 				State.BD = 0;
@@ -440,29 +440,29 @@ namespace Duel6
 		{
 			if ((State.SD -= elapsedTime) <= 0)
 			{
-				SwitchToOriginalSkin();
+				switchToOriginalSkin();
 			}
 		}
 	}
 
-	void Player::SetAnm(void)
+	void Player::setAnm(void)
 	{
 		float   ad = 0.0;
 		short   *a;
 
-		if (IsDead())
+		if (isDead())
 		{
-			if (IsLying())
+			if (isLying())
 			{
-				State.A->SetPosition(State.X, State.Y)
-					.SetOrientation(State.O)
-					.SetAnimation(d6LAnim);;
+				State.A->setPosition(State.X, State.Y)
+					.setOrientation(State.O)
+					.setAnimation(d6LAnim);;
 			}
 			else
 			{
-				State.A->SetPosition(State.X, State.Y)
-					.SetOrientation(State.O)
-					.SetAnimation(d6NAnim);
+				State.A->setPosition(State.X, State.Y)
+					.setOrientation(State.O)
+					.setAnimation(d6NAnim);
 			}
 
 			return;
@@ -482,20 +482,20 @@ namespace Duel6
 		else
 			a = d6WAnim;
 
-		State.A->SetPosition(State.X, State.Y).SetOrientation(State.O).SetAnimation(a);
-		State.GA->SetPosition(State.X, State.Y - ad).SetOrientation(State.O);
+		State.A->setPosition(State.X, State.Y).setOrientation(State.O).setAnimation(a);
+		State.GA->setPosition(State.X, State.Y - ad).setOrientation(State.O);
 
 		if (State.Flags & D6_FLAG_PICK)
 		{
-			if (State.A->IsFinished())
+			if (State.A->isFinished())
 			{
-				State.GA->SetDraw(true);
+				State.GA->setDraw(true);
 				State.Flags &= ~D6_FLAG_PICK;
 			}
 		}
 	}
 
-	void Player::PrepareCam(ScreenMode screenMode)
+	void Player::prepareCam(ScreenMode screenMode)
 	{
 		float   fovX, fovY, mZ, dX = 0.0, dY = 0.0;
 		d6LEVEL *l = &d6World.Level;
@@ -551,11 +551,11 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::SplitScreen)
 		{
-			UpdateCam();
+			updateCam();
 		}
 	}
 
-	void Player::UpdateCam(void)
+	void Player::updateCam(void)
 	{
 		d6LEVEL *l = &d6World.Level;
 		float   mX = 0.0, mY = 0.0, X, Y;
@@ -604,13 +604,13 @@ namespace Duel6
 			Camera->setpos(CamPos.Pos);
 	}
 
-	bool Player::Hit(float pw, d6SHOT_s *s, bool hit)
+	bool Player::hit(float pw, Shot* s, bool hit)
 	{
 		if (State.Bonus == D6_BONUS_INVUL)
 			return false;
-		if (IsDead() && !IsLying())
+		if (isDead() && !isLying())
 			return false;
-		if (IsDead() && s == NULL)
+		if (isDead() && s == NULL)
 			return false;
 
 		if (s != NULL && hit)
@@ -621,7 +621,7 @@ namespace Duel6
 			}
 		}
 
-		if (IsDead())
+		if (isDead())
 		{
 			if (s->WD->ExplC && hit)
 			{
@@ -635,8 +635,8 @@ namespace Duel6
 		
 		if (hit && s != NULL)
 		{
-			Duel6::Person& shootingPerson = s->Author->Person();
-			shootingPerson.SetHits(shootingPerson.Hits() + 1);
+			Person& shootingPerson = s->getPlayer().getPerson();
+			shootingPerson.setHits(shootingPerson.getHits() + 1);
 		}
 
 		if (State.Life < 1)
@@ -644,23 +644,23 @@ namespace Duel6
 			State.Life = 0;
 			State.Flags |= D6_FLAG_DEAD | D6_FLAG_LYING;
 			
-			State.A->SetPosition(State.X, State.Y).SetLooping(AnimationLooping::OnceAndStop);
-			d6SpriteList.RemoveSprite(State.GA);
+			State.A->setPosition(State.X, State.Y).setLooping(AnimationLooping::OnceAndStop);
+			d6SpriteList.removeSprite(State.GA);
 
 			if (s != NULL)
 			{
 				State.O = (s->X < State.X) ? Orientation::Left : Orientation::Right;
 
-				if (this != s->Author)
+				if (!is(s->getPlayer()))
 				{
-					Duel6::Person& shootingPerson = s->Author->Person();
-					Duel6::Person& killedPerson = this->Person();					
-					shootingPerson.SetKills(shootingPerson.Kills() + 1);
-					d6MessageQueue.Add(*this, MY_L("APP00051|Jsi mrtvy - zabil te %s"), shootingPerson.Name().c_str());
-					d6MessageQueue.Add(*s->Author, MY_L("APP00052|Zabil jsi hrace %s"), killedPerson.Name().c_str());
+					Person& shootingPerson = s->getPlayer().getPerson();
+					Person& killedPerson = getPerson();					
+					shootingPerson.setKills(shootingPerson.getKills() + 1);
+					d6MessageQueue.add(*this, MY_L("APP00051|Jsi mrtvy - zabil te %s"), shootingPerson.getName().c_str());
+					d6MessageQueue.add(s->getPlayer(), MY_L("APP00052|Zabil jsi hrace %s"), killedPerson.getName().c_str());
 				}
 				else
-					d6MessageQueue.Add(*this, MY_L("APP00053|Jsi mrtvy"));
+					d6MessageQueue.add(*this, MY_L("APP00053|Jsi mrtvy"));
 
 				if (s->WD->ExplC && hit)
 				{
@@ -669,15 +669,15 @@ namespace Duel6
 				}
 			}
 			else
-				d6MessageQueue.Add(*this, MY_L("APP00054|Jsi mrtvy"));
+				d6MessageQueue.add(*this, MY_L("APP00054|Jsi mrtvy"));
 
 			SOUND_PlaySample(D6_SND_DEAD);
 
 			// Add lying weapon
 			if (!State.J && (s == NULL || !s->WD->ExplC || !hit))
 			{
-				int x1 = int(X() + 0.2f), x2 = int(X() + 0.8f);
-				int y = d6World.Level.SizeY - int(Y() - 0.5f) - 1;
+				int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f);
+				int y = d6World.Level.SizeY - int(getY() - 0.5f) - 1;
 
 				if (D6_BlockZ(x1, y + 1) == D6_ANM_F_BLOCK && D6_BlockZ(x1, y) != D6_ANM_F_BLOCK)
 					BONUS_AddDeadManGun(x1, y, *this);
@@ -691,7 +691,7 @@ namespace Duel6
 			SOUND_PlaySample(D6_SND_HIT);
 		}
 
-		return IsDead();
+		return isDead();
 	}
 
 	static Uint8 WaterBlock(const d6LEVEL& level, float X, float Y) // 0 = no water, 1 = blue water, 2 = red water TODO: Method of Level?
@@ -709,22 +709,22 @@ namespace Duel6
 		return 0;
 	}
 
-	void Player::CheckWater(const d6LEVEL& level, float elapsedTime)
+	void Player::checkWater(const d6LEVEL& level, float elapsedTime)
 	{
 		float airHitAmount = D6_WATER_HIT * elapsedTime;
 		State.Flags &= ~D6_FLAG_INWATER;
 
 		// Check if head is in water
-		Uint8 water = WaterBlock(level, X() + 0.5f, Y() - 0.2f);
+		Uint8 water = WaterBlock(level, getX() + 0.5f, getY() - 0.2f);
 		if (water > 0)
 		{
 			State.Flags |= D6_FLAG_INWATER;
 			if ((State.Air -= airHitAmount) < 0)
 			{
 				State.Air = 0;
-				if (Hit(airHitAmount, NULL, false))
+				if (hit(airHitAmount, NULL, false))
 				{
-					Person().SetKills(Person().Kills() - 1);  // Player drowned = -1 kill
+					Person().setKills(Person().getKills() - 1);  // Player drowned = -1 kill
 				}
 			}
 			return;
@@ -733,13 +733,13 @@ namespace Duel6
 		State.Air = MY_Min(State.Air + 2 * airHitAmount, D6_MAX_AIR);
 
 		// Check if foot is in water
-		water = WaterBlock(level, X() + 0.5f, Y() - 0.9f);
+		water = WaterBlock(level, getX() + 0.5f, getY() - 0.9f);
 		if (water > 0 && !State.InWater)
 		{
 			Sprite waterSplash(wtAnim[water - 1], d6WpnTexture);
-			waterSplash.SetPosition(State.X, State.Y, 0.5f)
-				.SetLooping(AnimationLooping::OnceAndRemove);
-			d6SpriteList.AddSprite(waterSplash);
+			waterSplash.setPosition(State.X, State.Y, 0.5f)
+				.setLooping(AnimationLooping::OnceAndRemove);
+			d6SpriteList.addSprite(waterSplash);
 			
 			SOUND_PlaySample(D6_SND_WATER);
 		}
@@ -747,60 +747,60 @@ namespace Duel6
 		State.InWater = (water > 0);
 	}
 
-	float Player::X() const
+	float Player::getX() const
 	{
 		return State.X;
 	}
 
-	float Player::Y() const
+	float Player::getY() const
 	{
 		return State.Y;
 	}
 
-	float Player::Width() const
+	float Player::getWidth() const
 	{
 		return 1.0f;
 	}
 
-	float Player::Height() const
+	float Player::getHeight() const
 	{
 		return 1.0f;
 	}
 
-	bool Player::HasPowerfulShots() const
+	bool Player::hasPowerfulShots() const
 	{
 		return State.Bonus == D6_BONUS_SHOTP;
 	}
 
-	bool Player::IsKneeling() const
+	bool Player::isKneeling() const
 	{
 		return (State.Flags & D6_FLAG_KNEE) != 0;
 	}
 
-	bool Player::IsLying() const
+	bool Player::isLying() const
 	{
 		return (State.Flags & D6_FLAG_LYING) != 0;
 	}
 
-	bool Player::IsDead() const
+	bool Player::isDead() const
 	{
 		return (State.Flags & D6_FLAG_DEAD) != 0;
 	}
 
-	bool Player::IsInvulnerable() const
+	bool Player::isInvulnerable() const
 	{
 		return (State.Bonus == D6_BONUS_INVUL);
 	}
 
-	void Player::UseTemporarySkin(PlayerSkin& skin)
+	void Player::useTemporarySkin(PlayerSkin& skin)
 	{
 		State.SD = float(10 + rand() % 5);
-		State.A->SetTextures(skin.GlTexture());
+		State.A->setTextures(skin.getTextures());
 	}
 
-	void Player::SwitchToOriginalSkin()
+	void Player::switchToOriginalSkin()
 	{
 		State.SD = 0;
-		State.A->SetTextures(m_skin->GlTexture());
+		State.A->setTextures(skin->getTextures());
 	}
 }

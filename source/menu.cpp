@@ -110,7 +110,7 @@ namespace Duel6
 		}
 
 		f = MY_FOpen(D6_FILE_PHIST, 0, "rb", true);
-		d6Persons.Load(f->file);		
+		d6Persons.load(f->file);		
 		MY_FRead(d6WillPlay, 4, 8, f);
 		MY_FClose(&f);
 	}
@@ -301,8 +301,8 @@ namespace Duel6
 		d6LevelList.Initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
 		myListbox[3]->AddItem(MY_L("APP00046|Nahodna"));
-		for (i = 0; i < (int)d6LevelList.Length(); i++)
-			myListbox[3]->AddItem(d6LevelList.FileName((Size)i).c_str());
+		for (i = 0; i < (int)d6LevelList.getLength(); i++)
+			myListbox[3]->AddItem(d6LevelList.getFileName((Size)i).c_str());
 
 		myListbox[4]->AddItem(MY_L("APP00047|Nahodne"));
 		for (i = 0; i < d6Backs; i++)
@@ -318,9 +318,9 @@ namespace Duel6
 		}
 		myListbox[6]->SetCur(8);
 
-		for (const Person& person : d6Persons.List())
+		for (const Person& person : d6Persons.list())
 		{
-			myListbox[1]->AddItem(person.Name().c_str());
+			myListbox[1]->AddItem(person.getName().c_str());
 		}
 
 		d6Playing = 0;
@@ -328,8 +328,8 @@ namespace Duel6
 		{
 			if (d6WillPlay[i] != -1)
 			{
-				const Person& person = d6Persons.Get(d6WillPlay[i]);
-				myListbox[2]->AddItem(person.Name().c_str());
+				const Person& person = d6Persons.get(d6WillPlay[i]);
+				myListbox[2]->AddItem(person.getName().c_str());
 				d6Playing++;
 			}
 		}
@@ -352,7 +352,7 @@ namespace Duel6
 		myFile_s    *f;
 
 		f = MY_FOpen(D6_FILE_PHIST, 0, "wb", true);
-		d6Persons.Save(f->file);
+		d6Persons.save(f->file);
 		MY_FWrite(d6WillPlay, 4, 8, f);
 		MY_FClose(&f);
 	}
@@ -377,22 +377,22 @@ namespace Duel6
 		int     s, *pi;
 
 		myListbox[0]->Clear();
-		if (d6Persons.IsEmpty())
+		if (d6Persons.isEmpty())
 			return;
 
-		pi = D6_MALLOC(int, d6Persons.Length());
+		pi = D6_MALLOC(int, d6Persons.getLength());
 
-		for (Size i = 0; i < d6Persons.Length(); i++)
+		for (Size i = 0; i < d6Persons.getLength(); i++)
 		{
 			pi[i] = i;
 		}
 
 		// Bubble sort persons according to total points
-		for (Size k = 0; k < d6Persons.Length() - 1; k++)
+		for (Size k = 0; k < d6Persons.getLength() - 1; k++)
 		{
-			for (Size i = 0; i < d6Persons.Length() - 1 - k; i++)
+			for (Size i = 0; i < d6Persons.getLength() - 1 - k; i++)
 			{
-				if (d6Persons.Get(pi[i + 1]).TotalPoints() > d6Persons.Get(pi[i]).TotalPoints())
+				if (d6Persons.get(pi[i + 1]).getTotalPoints() > d6Persons.get(pi[i]).getTotalPoints())
 				{
 					s = pi[i];
 					pi[i] = pi[i + 1];
@@ -401,22 +401,22 @@ namespace Duel6
 			}
 		}
 
-		for (Size i = 0; i < d6Persons.Length(); i++)
+		for (Size i = 0; i < d6Persons.getLength(); i++)
 		{
-			const Person& person = d6Persons.Get(pi[i]);
+			const Person& person = d6Persons.get(pi[i]);
 
 			memset(ret, 0, 100);
 			memset(ret, ' ', 94);
-			MENU_Pit(ret, "%s", person.Name().c_str());
-			MENU_Pit(&ret[20], "| %d", person.Games());
-			MENU_Pit(&ret[32], "| %d", person.Wins());
-			MENU_Pit(&ret[44], "| %d", person.Shots());
-			if (person.Shots() > 0)
-				MENU_Pit(&ret[56], "| %d%%", person.Hits() * 100 / person.Shots());
+			MENU_Pit(ret, "%s", person.getName().c_str());
+			MENU_Pit(&ret[20], "| %d", person.getGames());
+			MENU_Pit(&ret[32], "| %d", person.getWins());
+			MENU_Pit(&ret[44], "| %d", person.getShots());
+			if (person.getShots() > 0)
+				MENU_Pit(&ret[56], "| %d%%", person.getHits() * 100 / person.getShots());
 			else
 				MENU_Pit(&ret[56], "| 0%%");
-			MENU_Pit(&ret[68], "| %d", person.Kills());
-			MENU_Pit(&ret[81], "| %d", person.TotalPoints());
+			MENU_Pit(&ret[68], "| %d", person.getKills());
+			MENU_Pit(&ret[81], "| %d", person.getTotalPoints());
 			myListbox[0]->AddItem(ret);
 		}
 
@@ -434,7 +434,7 @@ namespace Duel6
 				if (d6WillPlay[i] == c)
 					return;
 			d6WillPlay[d6Playing++] = c;
-			myListbox[2]->AddItem(d6Persons.Get(c).Name().c_str());
+			myListbox[2]->AddItem(d6Persons.get(c).getName().c_str());
 		}
 	}
 
@@ -444,7 +444,7 @@ namespace Duel6
 
 		if (strlen(personName) > 0)
 		{
-			d6Persons.Add(Person(personName));
+			d6Persons.add(Person(personName));
 			myListbox[1]->AddItem(personName);
 			MENU_RebuildTable();
 			myTextbox->Flush();
@@ -493,9 +493,9 @@ namespace Duel6
 		if (!MENU_DelQuestion())
 			return;
 
-		for (Person& person : d6Persons.List())
+		for (Person& person : d6Persons.list())
 		{
-			person.Reset();
+			person.reset();
 		}
 		MENU_RebuildTable();
 		MENU_SavePH();
@@ -508,12 +508,12 @@ namespace Duel6
 		if (!same_level || last == -1)
 		{
 			if (!myListbox[3]->CurItem())
-				last = rand() % d6LevelList.Length();
+				last = rand() % d6LevelList.getLength();
 			else
 				last = myListbox[3]->CurItem() - 1;
 		}
 
-		D6_StartGame(d6LevelList.Path(last));
+		D6_StartGame(d6LevelList.getPath(last));
 
 		if (!myListbox[4]->CurItem())
 			SET_LoadBackground(rand() % d6Backs);
@@ -539,12 +539,12 @@ namespace Duel6
 
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Player[i]->SetPerson(d6Persons.Get(d6WillPlay[i]));
+			d6Player[i]->setPerson(d6Persons.get(d6WillPlay[i]));
 		}
 
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Player[i]->SetControls(mySwitch[i]->CurItem());
+			d6Player[i]->setControls(mySwitch[i]->CurItem());
 		}
 
 		MENU_Restart(false);
@@ -581,7 +581,7 @@ namespace Duel6
 				}
 			}
 
-			d6Persons.Remove(c);
+			d6Persons.remove(c);
 		}
 	}
 

@@ -25,83 +25,72 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <vector>
 #include "project.h"
 
 namespace Duel6
 {
-	struct d6WATERVERTEX
+	namespace
 	{
-		int                     X;
-		float                   Y;
-		d6VERTEX                *V;
-		struct d6WATERVERTEX    *Next;
-	};
-
-	static d6WATERVERTEX    *d6WV = NULL;
-	static float            d6WAngle = 0;
-
-	static void WATER_AddVertex(int n)
-	{
-		d6WATERVERTEX   *w;
-
-		w = D6_MALLOC(d6WATERVERTEX, 1);
-
-		w->X = (int)d6World.Vertex[n].X;
-		w->Y = d6World.Vertex[n].Y - D6_WAVE_HEIGHT;
-		w->V = &d6World.Vertex[n];
-		w->Next = d6WV;
-		d6WV = w;
-	}
-
-	void WATER_Free(void)
-	{
-		d6WATERVERTEX   *w;
-
-		while (d6WV != NULL)
+		class WaterVertex
 		{
-			w = d6WV->Next;
-			MY_Free(d6WV);
-			d6WV = w;
-		}
+		private:
+			Float32 y;
+			d6VERTEX& vertex;
+
+		public:
+			WaterVertex(d6VERTEX& vertex, Float32 height)
+				: vertex(vertex)
+			{
+				y = vertex.Y - D6_WAVE_HEIGHT;
+			}
+
+			d6VERTEX& getVertex()
+			{
+				return vertex;
+			}
+
+			Float32 getY() const
+			{
+				return y;
+			}
+		};
+
+		std::vector<WaterVertex> d6WaterVertexList;
+		Float32 d6WaterPhase = 0;
 	}
 
 	void WATER_Move(float elapsedTime)
 	{
-		float           s = 0;
-		d6WATERVERTEX   *w = d6WV;
-		int             oldX = -1;
-
-		d6WAngle += 122 * elapsedTime;
-		if (d6WAngle >= 360)
-			d6WAngle -= 360;
-
-		while (w != NULL)
+		d6WaterPhase += 122 * elapsedTime;
+		if (d6WaterPhase >= 360)
 		{
-			if (w->X != oldX)
-			{
-				s = D6_Sin(int(d6WAngle) + 60 * w->X) * D6_WAVE_HEIGHT;
-				oldX = w->X;
-			}
+			d6WaterPhase -= 360;
+		}
 
-			w->V->Y = w->Y + s;
-			w = w->Next;
+		for (WaterVertex& wv : d6WaterVertexList)
+		{
+			Float32 vertexPhase = d6WaterPhase + 60.0f * wv.getVertex().X;
+			Float32 height = D6_Sin((Int32)vertexPhase) * D6_WAVE_HEIGHT;
+			wv.getVertex().Y = wv.getY() + height;
 		}
 	}
 
 	void WATER_Build(void)
 	{
-		int         i, j, s, e;
-		d6VERTEX    *v = d6World.Vertex;
-
-		WATER_Free();
-
-		s = (d6World.Blocks + d6World.Sprites) << 2;
-		e = (d6World.Blocks + d6World.Sprites + d6World.Waters) << 2;
-
 		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
-		for (i = 0; i <= d6World.Level.SizeX; i++)
-			for (j = s; j < e; j++)
-				if (v[j].Flags == D6_FLAG_FLOW && (int)v[j].X == i)
-					WATER_AddVertex(j);
+		d6WaterVertexList.clear();
+
+		d6VERTEX *v = d6World.Vertex;
+		int fisrtWaterVertex = (d6World.Blocks + d6World.Sprites) << 2;
+		int lastWaterVertex = (d6World.Blocks + d6World.Sprites + d6World.Waters) << 2;
+
+		for (int j = fisrtWaterVertex; j < lastWaterVertex; j++)
+		{
+			if (v[j].Flags == D6_FLAG_FLOW)
+			{
+				d6WaterVertexList.push_back(WaterVertex(v[j], D6_WAVE_HEIGHT));
+			}
+		}
 	}
 }

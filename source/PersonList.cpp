@@ -30,18 +30,18 @@
 
 namespace Duel6
 {
-	void PersonList::Save(FILE* file) const
+	void PersonList::save(FILE* file) const
 	{
-		Uint32 length = Length();
+		Uint32 length = getLength();
 		fwrite(&length, 4, 1, file);
 
-		for (const Person& person : m_persons)
+		for (const Person& person : persons)
 		{
-			person.Serialize(file);
+			person.serialize(file);
 		}
 	}
 
-	void PersonList::Load(FILE* file)
+	void PersonList::load(FILE* file)
 	{
 		Uint32 length;
 		fread(&length, 4, 1, file);
@@ -49,8 +49,8 @@ namespace Duel6
 		while (length-- > 0)
 		{
 			Person person;
-			person.DeSerialize(file);
-			m_persons.push_back(person);
+			person.deSerialize(file);
+			persons.push_back(person);
 		}
 	}
 }

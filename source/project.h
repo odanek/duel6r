@@ -97,20 +97,36 @@ namespace Duel6
 		float   ExpGrow;
 	};
 
-	class d6SHOT_s
+	class Shot
 	{
+	private:
+		Player& player;
+
 	public:
-		float           X;
-		float           Y;
+		Float32         X;
+		Float32         Y;
 		d6WEAPONDEF_s   *WD;
 		SpriteIterator  A;
 		Orientation     O;
-		Player          *Author;
 		int             GN;
 
 	public:
-		int GetExplosionRange();
-		int GetExplosionPower();
+		Shot(Player& player)
+			: player(player)
+		{}
+
+		Player& getPlayer()
+		{
+			return player;
+		}
+
+		const Player& getPlayer() const
+		{
+			return player;
+		}
+
+		Float32 getExplosionRange() const;
+		Float32 getExplosionPower() const;
 	};
 
 	enum
@@ -166,8 +182,8 @@ namespace Duel6
 
 	int     D6_BlockZ(int x, int y);
 	int     D6_BlockN(int x, int y);
-	float   D6_Sin(int a);
-	float   D6_Cos(int a);
+	float   D6_Sin(Int32 a);
+	float   D6_Cos(Int32 a);
 	void    D6_ConSwitchW(con_c *con);
 	void    D6_ConShowFps(con_c *con);
 	void    D6_SetGLMode(int mode);
@@ -190,7 +206,6 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	//                          water.cpp                               //
 	//////////////////////////////////////////////////////////////////////
-	void    WATER_Free(void);
 	void    WATER_Build(void);
 	void    WATER_Move(float elapsedTime);
 
@@ -206,8 +221,8 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	extern  d6WEAPONDEF_s       d6WpnDef[D6_WEAPONS];
 	extern  bool                d6WpnEnabled[D6_WEAPONS];
-	extern  short               d6ShotAnm[D6_WEAPONS][18];
-	extern  short               d6BoomAnm[D6_WEAPONS][14];
+	extern  Int16               d6ShotAnm[D6_WEAPONS][18];
+	extern  Int16               d6BoomAnm[D6_WEAPONS][14];
 
 	void    WPN_LoadTextures(void);
 	void    WPN_FreeTextures(void);
@@ -216,7 +231,7 @@ namespace Duel6
 	void    WPN_LevelInit(void);
 	void    WPN_Shoot(Player& player);
 	void    WPN_MoveShots(float elapsedTime);
-	void    WPN_Boom(d6SHOT_s& s, Player *p);
+	void    WPN_Boom(Shot& s, Player *p);
 	int     WPN_GetRandomWeapon(void);
 
 	//////////////////////////////////////////////////////////////////////
@@ -224,7 +239,7 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	void    KONTR_Init(void);
 	void    KONTR_Kontr(Player& player, int c);
-	bool    KONTR_Shot(d6SHOT_s& s);
+	bool    KONTR_Shot(Shot& s);
 	bool    KONTR_CanJump(Player *p);
 
 	//////////////////////////////////////////////////////////////////////
@@ -254,7 +269,7 @@ namespace Duel6
 	void    FIRE_Init(void);
 	void    FIRE_Free(void);
 	void    FIRE_Find(void);
-	void    FIRE_Check(float X, float Y, int d);
+	void    FIRE_Check(Float32 X, Float32 Y, Float32 d);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          bonus.cpp                               //
