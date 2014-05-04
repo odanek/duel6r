@@ -180,6 +180,8 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	extern  int          d6Winner;
 	extern  float		 d6GameOverWait;
+	extern  int			 d6PlayedRounds;
+	extern  int			 d6MaxRounds;
 
 	int     D6_BlockZ(int x, int y);
 	int     D6_BlockN(int x, int y);

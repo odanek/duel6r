@@ -250,6 +250,19 @@ namespace Duel6
 
 	/*
 	==================================================
+	Nastaveni poctu kol pres konzoli
+	==================================================
+	*/
+	void SET_MaxRounds(con_c *con)
+	{
+		if (con->argc() == 2)
+			d6MaxRounds = atoi(con->argv(1));
+		else
+			con->printf("Odehranych kol: %d | Max pocet kol: %d\n", d6PlayedRounds, d6MaxRounds);
+	}
+	
+	/*
+	==================================================
 	Nastaveni volume hudby pres konzolu
 	==================================================
 	*/
@@ -431,6 +444,7 @@ namespace Duel6
 		g_app.con->regcmd(&UTIL_OpenGLInfo, "gl_info");
 		g_app.con->regcmd(&SET_Language, "lang");
 		g_app.con->regcmd(&SET_Volume, "volume");
+		g_app.con->regcmd(&SET_MaxRounds, "rounds");
 		g_app.con->regcmd(&SET_MusicOnOff, "music");
 		g_app.con->regcmd(&SET_JoyScan, "joy_scan");
 		g_app.con->regcmd(&SET_LoadSkin, "skin");
@@ -439,6 +453,7 @@ namespace Duel6
 		g_app.con->regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
 		g_app.con->regvar(&d6ConVar.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6ConVar.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
+		g_app.con->regvar(&d6MaxRounds, "rounds", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6ConVar.vid_width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6ConVar.vid_height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
 

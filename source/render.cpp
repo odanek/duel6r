@@ -350,7 +350,18 @@ namespace Duel6
 		if (d6Winner > 0)
 		{
 			float overlay = d6GameOverWait / D6_GAME_OVER_WAIT;
-			glColor3f(1, overlay, overlay);
+			
+			bool roundLimit = (d6MaxRounds > 0) && (d6PlayedRounds >= d6MaxRounds);
+
+			if(roundLimit)
+			{
+				overlay += 0.2;
+				glColor3f(overlay, overlay, overlay);
+			}
+			else
+			{
+				glColor3f(1, overlay, overlay);
+			}
 		}
 
 		const Player& player = d6Players.front();

@@ -489,6 +489,43 @@ namespace Duel6
 		return !g_inp.key[SDLK_n];
 	}
 
+	// Vykresli info, ze hra skoncila
+	static bool MENU_NewGame(void)
+	{
+		int x = g_vid.cl_width / 2 - 150, y = g_vid.cl_height / 2 - 10;
+		d6MenuKeyMask = true;
+
+		glColor3f(1.0f, 0.8f, 0.8f);
+		glBegin(GL_QUADS);
+		glVertex2i(x, y);
+		glVertex2i(x, y + 20);
+		glVertex2i(x + 300, y + 20);
+		glVertex2i(x + 300, y);
+		glEnd();
+		glColor3f(0, 0, 0);
+		glLineWidth(2);
+		glBegin(GL_LINE_LOOP);
+		glVertex2i(x, y);
+		glVertex2i(x, y + 20);
+		glVertex2i(x + 300, y + 20);
+		glVertex2i(x + 300, y);
+		glEnd();
+		glLineWidth(1);
+		CO_FontColor(255, 0, 0);
+		CO_FontPrintf(x + 30, y + 2, MY_L("APP00090|Konec hry! Spustit znovu? (A/N)"));
+		VID_SwapBuffers();
+
+		while (!g_inp.key[SDLK_a] && !g_inp.key[SDLK_y] && !g_inp.key[SDLK_n])
+			CO_ProcessEvents();
+
+		while (CO_InpGetKey(false))
+			CO_ProcessEvents();
+
+		d6MenuKeyMask = false;
+		
+		return !g_inp.key[SDLK_n];
+	}
+	
 	static void MENU_CleanPH(void)
 	{
 		if (!MENU_DelQuestion())
@@ -500,6 +537,7 @@ namespace Duel6
 		}
 		MENU_RebuildTable();
 		MENU_SavePH();
+		d6PlayedRounds = 0;
 	}
 
 	void MENU_Restart(bool same_level)
@@ -529,6 +567,18 @@ namespace Duel6
 
 	static void MENU_Play(void)
 	{
+		bool roundLimit = (d6MaxRounds > 0) && (d6PlayedRounds >= d6MaxRounds);
+
+		if(roundLimit)
+		{
+			if(!MENU_NewGame())
+			{
+				return;
+				
+			}
+			MENU_CleanPH();
+		}
+		
 		MENU_End();
 
 		if (d6Playing > 4)
