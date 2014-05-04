@@ -62,7 +62,7 @@ namespace Duel6
 	{
 		if (weapon)
 		{
-			return d6WpnTextures[d6WpnDef[type].animation[12]];
+			return d6WpnTextures[weaponType->animation[12]];
 		}
 
 		return d6World.Anm.textures[type];

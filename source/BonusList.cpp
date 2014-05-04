@@ -183,7 +183,7 @@ namespace Duel6
 		}
 
 		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());
-		d6MessageQueue.add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(d6WpnDef[bonus.getType()].Name));
+		d6MessageQueue.add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(bonus.getWeaponType().Name));
 	}
 
 	void BONUS_CheckPick(Player& player)

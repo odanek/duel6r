@@ -181,14 +181,13 @@ namespace Duel6
 	*/
 	static void LOADER_Process(std::vector<Bonus>& bonuses)
 	{
-		int i, j, k, *anm, spr, blc, pos, wtr, bn_count;
+		int i, j, k, *anm, spr, blc, pos, wtr;
 
 		w->Sprites = 0;
 		w->Blocks = 0;
 		w->Waters = 0;
 		anm = w->Anm.Znak;
 		pos = 0;
-		bn_count = 0;
 
 		for (j = 0; j < l->SizeY; j++)
 		{
