@@ -218,8 +218,8 @@ namespace Duel6
 		d6PLSTATE_s     *s = &player.State;
 		float           x, y;
 
-		x = s->X + 0.5f;
-		y = s->Y - 1.0f;
+		x = player.getX() + 0.5f;
+		y = player.getY() - 1.0f;
 
 		for (i = 0; i < d6Elevators; i++)
 		{

@@ -25,46 +25,70 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
-#include "project.h"
-#include "Bonus.h"
-#include "Weapon.h"
+#ifndef DUEL6_SHOT_H
+#define DUEL6_SHOT_H
+
+#include "Type.h"
+#include "SpriteList.h"
 
 namespace Duel6
 {
-	int d6BonusArt[D6_BONUS_COUNT] = { 19, 20, 21, 22, 23, 24, 25, 46, 53, 26 };  // Question mark must be the last
+	class Player; // Forward declaration, TODO: Remove
+	struct Weapon; // Forward declaration, TODO: Refactor Weapon.h and remove
 
-	Float32 Bonus::getScreenX() const
+	class Shot
 	{
-		return Float32(x);
-	}
+	private:
+		Player& player;
+		const Weapon& weapon;
+		Orientation orientation;
+		Float32 x;
+		Float32 y;
+		SpriteIterator sprite;
 
-	Float32 Bonus::getScreenY() const
-	{
-		return Float32(d6World.Level.SizeY - y);
-	}
+	public:
+		Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite);
 
-	void Bonus::render() const
-	{
-		Float32 rx = getScreenX();
-		Float32 ry = getScreenY();
-
-		glBindTexture(GL_TEXTURE_2D, getTexture());
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.1f, 0.1f); glVertex3f(rx, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.1f); glVertex3f(rx + 1.0f, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.9f); glVertex3f(rx + 1.0f, ry - 1.0f, 0.5f);
-			glTexCoord2f(0.1f, 0.9f); glVertex3f(rx, ry - 1.0f, 0.5f);
-		glEnd();
-	}
-
-	GLuint Bonus::getTexture() const
-	{
-		if (weapon)
+		Player& getPlayer()
 		{
-			return d6WpnTextures[d6WpnDef[type].animation[12]];
+			return player;
 		}
 
-		return d6World.Anm.textures[type];
-	}
+		const Player& getPlayer() const
+		{
+			return player;
+		}
+
+		const Weapon& getWeapon() const
+		{
+			return weapon;
+		}
+
+		SpriteIterator getSprite()
+		{
+			return sprite;
+		}
+
+		Float32 getX() const
+		{
+			return x;
+		}
+
+		Float32 getY() const
+		{
+			return y;
+		}
+
+		Orientation getOrientation() const
+		{
+			return orientation;
+		}
+
+		Shot& move(Float32 elapsedTime);
+
+		Float32 getExplosionRange() const;
+		Float32 getExplosionPower() const;
+	};
 }
+
+#endif

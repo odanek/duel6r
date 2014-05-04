@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <SDL/SDL_mixer.h>
 #include "project.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
@@ -148,10 +149,12 @@ namespace Duel6
 	void SET_LoadBackground(int n)
 	{
 		if (d6BcgLoaded)
-			glDeleteTextures(1, &d6BackTex);
+		{
+			glDeleteTextures(1, &d6BackgroundTexture);
+		}
 
 		g_app.con->printf(MY_L("APP00059|...Nahravam pozadi (%s, %d)\n"), D6_FILE_BACK, n);
-		d6BackTex = UTIL_LoadKH3Texture(D6_FILE_BACK, n, false);
+		d6BackgroundTexture = UTIL_LoadKH3Texture(D6_FILE_BACK, n, false);
 		d6BcgLoaded = true;
 	}
 

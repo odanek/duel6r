@@ -28,9 +28,9 @@
 #include <stdlib.h>
 #include <list>
 #include "project.h"
+#include "Player.h"
 #include "PlayerSkin.h"
-
-#define D6_COL_WPN_SHT      16
+#include "Weapon.h"
 
 namespace Duel6
 {
@@ -41,7 +41,7 @@ namespace Duel6
 	{
 		std::unique_ptr<PlayerSkin> brownSkin;
 		std::list<Shot> d6Shots;
-		typedef std::list<Shot>::iterator ShotIter;
+		typedef std::list<Shot>::iterator ShotIterator;
 	}
 
 	void WPN_LoadTextures(void)
@@ -93,46 +93,35 @@ namespace Duel6
 
 	void WPN_Shoot(Player& player)
 	{
-		float       ad = 0.32f;		
+		// TODO: Move this to player
 		d6PLSTATE_s *s = &player.State;
 
-		if (!s->Ammo || s->SI > 0)
+		if (!player.getAmmo() || player.isReloading())
 			return;
 
 		if (s->Bonus == D6_BONUS_SHOTS)
-			s->SI = float(d6WpnDef[s->GN].ReloadSpeed / 2);
+			s->SI = float(player.getWeapon().ReloadSpeed / 2);
 		else
-			s->SI = float(d6WpnDef[s->GN].ReloadSpeed);
+			s->SI = float(player.getWeapon().ReloadSpeed);
 
 		s->Ammo--;
 
 		s->GA->setFrame(0);
 
-		if (s->Flags & D6_FLAG_KNEE)
-			ad = 0.52f;
-
 		player.getPerson().setShots(player.getPerson().getShots() + 1);
 
-		Shot sh(player);
-		sh.Y = s->Y - ad;
-		sh.X = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
-		sh.O = s->O;
-		sh.GN = s->GN;
-		sh.WD = &d6WpnDef[s->GN];
-		
-		Sprite shotSprite(d6ShotAnm[sh.GN], d6WpnTextures);
-		shotSprite.setPosition(sh.X, sh.Y, 0.6f)
-			.setOrientation(sh.O);
-		sh.A = d6SpriteList.addSprite(shotSprite);
-		
-		SOUND_PlaySample(sh.WD->ShSound);
+		Float32 ad = player.isKneeling() ? 0.52f : 0.32f;
+		Float32 shotX = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
+		Float32 shotY = s->Y - ad;
 
-		d6Shots.push_back(sh);
+		Sprite shotSprite(player.getWeapon().shotAnimation, d6WpnTextures);		
+		d6Shots.push_back(Shot(player, shotX, shotY, d6SpriteList.addSprite(shotSprite)));
+		SOUND_PlaySample(player.getWeapon().ShSound);
 	}
 
-	static ShotIter WPN_RemoveShot(ShotIter shot)
+	static ShotIterator WPN_RemoveShot(ShotIterator shot)
 	{
-		d6SpriteList.removeSprite(shot->A);
+		d6SpriteList.removeSprite(shot->getSprite());
 		return d6Shots.erase(shot);
 	}
 
@@ -142,33 +131,29 @@ namespace Duel6
 
 		while (shot != d6Shots.end())
 		{
-			if (shot->O == Orientation::Right)
-				shot->X += shot->WD->ShotSpeed * elapsedTime;
-			else
-				shot->X -= shot->WD->ShotSpeed * elapsedTime;
-
-			shot->A->setPosition(shot->X, shot->Y);
+			const Weapon& weapon = shot->getWeapon();
+			shot->move(elapsedTime);
 
 			if (KONTR_Shot(*shot))
 			{				
-				float x = (shot->O == Orientation::Left) ? shot->X - 0.3f : shot->X + 0.3f;
+				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
 				
-				Sprite boom(d6BoomAnm[shot->GN], d6WpnTextures);
-				boom.setPosition(x, shot->Y + 0.3f, 0.6f)
+				Sprite boom(weapon.boomAnimation, d6WpnTextures);
+				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)
-					.setOrientation(shot->O)
+					.setOrientation(shot->getOrientation())
 					.setAlpha(0.6f);
 
 				SpriteIterator boomSprite = d6SpriteList.addSprite(boom);
 
 				if (shot->getPlayer().hasPowerfulShots())
-					boomSprite->setGrow(shot->WD->ExpGrow * 1.2f);
+					boomSprite->setGrow(weapon.ExpGrow * 1.2f);
 				else
-					boomSprite->setGrow(shot->WD->ExpGrow);
-				if (shot->WD->BmSound != -1)
-					SOUND_PlaySample(shot->WD->BmSound);
-				if (shot->WD->Boom > 0)
+					boomSprite->setGrow(weapon.ExpGrow);
+				if (weapon.BmSound != -1)
+					SOUND_PlaySample(weapon.BmSound);
+				if (weapon.Boom > 0)
 				{
 					boomSprite->setNoDepth(true);
 				}
@@ -190,10 +175,11 @@ namespace Duel6
 		Float32 range = shot.getExplosionRange();
 		Float32 power = shot.getExplosionPower();
 
-		float X = (shot.O == Orientation::Left) ? (shot.X + 0.32f) : (shot.X + 0.67f);
-		float Y = shot.Y - 0.17f;
+		float X = (shot.getOrientation() == Orientation::Left) ? (shot.getX() + 0.32f) : (shot.getX() + 0.67f);
+		float Y = shot.getY() - 0.17f;
+		bool shit = shot.getWeapon().shit;
 
-		if (shot.GN != D6_COL_WPN_SHT)
+		if (!shit)
 		{
 			FIRE_Check(X, Y, range);
 		}
@@ -202,7 +188,7 @@ namespace Duel6
 		{
 			if (player.is(*playerThatWasHit))
 			{
-				if (shot.GN == D6_COL_WPN_SHT)
+				if (shit)
 				{
 					player.useTemporarySkin(*brownSkin);
 				}
@@ -216,11 +202,11 @@ namespace Duel6
 			}
 			else
 			{
-				Float32 dist = (float)sqrt(D6_SQR(player.State.X + 0.5f - X) + D6_SQR(player.State.Y - 0.5f - Y));
+				Float32 dist = (float)sqrt(D6_SQR(player.getX() + 0.5f - X) + D6_SQR(player.getY() - 0.5f - Y));
 
 				if (dist < range)
 				{
-					if (shot.GN == D6_COL_WPN_SHT)
+					if (shit)
 					{
 						player.useTemporarySkin(*brownSkin);
 					}
@@ -253,37 +239,30 @@ namespace Duel6
 	Vybere a vraci cislo nahodne zbrane (musi byt enabled)
 	==================================================
 	*/
-	int WPN_GetRandomWeapon(void)
+	const Weapon& WPN_GetRandomWeapon()
 	{
-		int     i, r, ebl = 0;
+		Size enabledWeaponCount = 0;
 
-		for (i = 0; i < D6_WEAPONS; i++)
+		for (Size i = 0; i < D6_WEAPONS; i++)
+		{
 			if (d6WpnEnabled[i])
-				ebl++;
+			{
+				enabledWeaponCount++;
+			}
+		}
 
-		r = rand() % ebl;
-		for (i = 0; i < D6_WEAPONS; i++)
+		Size weapon = rand() % enabledWeaponCount;
+		for (Size i = 0; i < D6_WEAPONS; i++)
+		{
 			if (d6WpnEnabled[i])
-				if (r-- == 0)
-					break;
+			{
+				if (weapon-- == 0)
+				{
+					return d6WpnDef[i];
+				}
+			}
+		}
 
-		return i;
-	}
-
-	/*
-	==================================================
-	Shot
-	==================================================
-	*/
-	Float32 Shot::getExplosionPower() const
-	{
-		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * WD->Power;
-	}
-
-	Float32 Shot::getExplosionRange() const
-	{
-		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * WD->Boom;
+		return d6WpnDef[0];
 	}
 }

@@ -26,6 +26,7 @@
 */
 
 #include "project.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
@@ -107,11 +108,11 @@ namespace Duel6
 		}
 	}
 
-	bool KONTR_CanJump(Player *p)
+	bool KONTR_CanJump(Player* p)
 	{
-		d6UpY = l->SizeY - (int)p->State.Y - 1;
-		d6LeftX = (int)(p->State.X + 0.1f);
-		d6RightX = (int)(p->State.X + 0.9f);
+		d6UpY = l->SizeY - (int)p->getY() - 1;
+		d6LeftX = (int)(p->getX() + 0.1f);
+		d6RightX = (int)(p->getX() + 0.9f);
 
 		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6RightX, d6UpY))
 			return false;
@@ -120,11 +121,11 @@ namespace Duel6
 
 	static bool KONTR_ShotPlayer(Shot& shot)
 	{
-		Float32 X = (shot.O == Orientation::Left) ? shot.X : shot.X + 0.35f;
+		Float32 X = (shot.getOrientation() == Orientation::Left) ? shot.getX() : shot.getX() + 0.35f;
 
 		for (Player& player : d6Players)
 		{
-			if (player.State.Bonus == D6_BONUS_INVIS || player.is(shot.getPlayer()))
+			if (player.getBonus() == D6_BONUS_INVIS || player.is(shot.getPlayer()))
 			{
 				continue;
 			}
@@ -136,7 +137,7 @@ namespace Duel6
 			Float32  ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f);
 
 			if (X > player.getX() + 1.0f || X + 0.65f < player.getX() ||
-				shot.Y < player.getY() - 1.0f || shot.Y - 0.35f > player.getY() - ad)
+				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad)
 				continue;
 
 			WPN_Boom(shot, &player);
@@ -151,17 +152,17 @@ namespace Duel6
 		if (KONTR_ShotPlayer(s))
 			return true;
 
-		d6UpY = l->SizeY - (int)(s.Y) - 1;
-		d6DownY = l->SizeY - (int)(s.Y - 0.35f) - 1;
-		if (s.O == Orientation::Left)
+		d6UpY = l->SizeY - (int)(s.getY()) - 1;
+		d6DownY = l->SizeY - (int)(s.getY() - 0.35f) - 1;
+		if (s.getOrientation() == Orientation::Left)
 		{
-			d6LeftX = (int)(s.X);
-			d6RightX = (int)(s.X + 0.65f);
+			d6LeftX = (int)(s.getX());
+			d6RightX = (int)(s.getX() + 0.65f);
 		}
 		else
 		{
-			d6LeftX = (int)(s.X + 0.35f);
-			d6RightX = (int)(s.X + 1.0f);
+			d6LeftX = (int)(s.getX() + 0.35f);
+			d6RightX = (int)(s.getX() + 1.0f);
 		}
 
 		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6LeftX, d6DownY) ||

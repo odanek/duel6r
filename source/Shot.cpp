@@ -25,46 +25,36 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
-#include "project.h"
-#include "Bonus.h"
+#include "Type.h"
+#include "Shot.h"
+#include "Player.h"
 #include "Weapon.h"
 
 namespace Duel6
 {
-	int d6BonusArt[D6_BONUS_COUNT] = { 19, 20, 21, 22, 23, 24, 25, 46, 53, 26 };  // Question mark must be the last
-
-	Float32 Bonus::getScreenX() const
+	Shot::Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite)
+		: player(player), weapon(player.getWeapon()), orientation(player.getOrientation()), x(x), y(y), sprite(sprite)
 	{
-		return Float32(x);
+		this->sprite->setPosition(x, y, 0.6f).setOrientation(this->orientation);
 	}
 
-	Float32 Bonus::getScreenY() const
+	Shot& Shot::move(Float32 elapsedTime)
 	{
-		return Float32(d6World.Level.SizeY - y);
+		Float32 direction = (getOrientation() == Orientation::Right) ? 1.0f : -1.0f;
+		x += direction * getWeapon().ShotSpeed * elapsedTime;
+		sprite->setPosition(x, y);
+		return *this;
 	}
 
-	void Bonus::render() const
+	Float32 Shot::getExplosionPower() const
 	{
-		Float32 rx = getScreenX();
-		Float32 ry = getScreenY();
-
-		glBindTexture(GL_TEXTURE_2D, getTexture());
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.1f, 0.1f); glVertex3f(rx, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.1f); glVertex3f(rx + 1.0f, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.9f); glVertex3f(rx + 1.0f, ry - 1.0f, 0.5f);
-			glTexCoord2f(0.1f, 0.9f); glVertex3f(rx, ry - 1.0f, 0.5f);
-		glEnd();
+		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
+		return coef * getWeapon().Power;
 	}
 
-	GLuint Bonus::getTexture() const
+	Float32 Shot::getExplosionRange() const
 	{
-		if (weapon)
-		{
-			return d6WpnTextures[d6WpnDef[type].animation[12]];
-		}
-
-		return d6World.Anm.textures[type];
+		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
+		return coef * getWeapon().Boom;
 	}
 }

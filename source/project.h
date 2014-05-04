@@ -39,6 +39,7 @@
 #include "Orientation.h"
 #include "ScreenMode.h"
 #include "Player.h"
+#include "Shot.h"
 #include "InfoMessageQueue.h"
 
 #define D6_FILE_CONFIG      "data/config.txt"
@@ -66,7 +67,6 @@
 #define D6_GL_PERSPECTIVE   1
 #define D6_GL_ORTHO         2
 
-#define D6_WEAPONS          17
 #define D6_ANM_SPEED        0.328
 #define D6_EXPL_SPEED       0.61f
 #define D6_WAVE_HEIGHT      0.1f
@@ -82,52 +82,6 @@
 
 namespace Duel6
 {
-	struct d6WEAPONDEF_s
-	{
-		float   ShotSpeed;
-		bool    Blood;
-		myDWORD ExplC;
-		int     Boom;
-		int     Power;
-		int     ReloadSpeed;
-		char    Name[30];
-		int     ShSound;
-		int     BmSound;
-		float   ExpGrow;
-	};
-
-	class Shot
-	{
-	private:
-		Player& player;
-
-	public:
-		Float32         X;
-		Float32         Y;
-		d6WEAPONDEF_s   *WD;
-		SpriteIterator  A;
-		Orientation     O;
-		int             GN;
-
-	public:
-		Shot(Player& player)
-			: player(player)
-		{}
-
-		Player& getPlayer()
-		{
-			return player;
-		}
-
-		const Player& getPlayer() const
-		{
-			return player;
-		}
-
-		Float32 getExplosionRange() const;
-		Float32 getExplosionPower() const;
-	};
-
 	enum
 	{
 		D6_SND_DEAD,
@@ -157,21 +111,20 @@ namespace Duel6
 		D6_SND_GAME_OVER
 	};
 
-	extern  float       d6Sin[450], d6KeyWait;
-	extern  d6WORLD     d6World;
-	extern  myUINT      d6BackTex;
-	extern  bool        d6InMenu;
-	extern  int         d6Wireframe, d6ZoomBlc;
-	extern  bool        d6ShowFps, d6PlayMusic;
-	extern  int			d6AmmoRangeMin, d6AmmoRangeMax;
+	extern float d6Sin[450], d6KeyWait;
+	extern d6WORLD d6World;
+	extern GLuint d6BackgroundTexture;
+	extern bool d6InMenu;
+	extern int d6Wireframe, d6ZoomBlc;
+	extern bool d6ShowFps, d6PlayMusic;
+	extern int d6AmmoRangeMin, d6AmmoRangeMax;
 	extern ScreenMode d6ScreenMode;
-	extern bool         d6ShowRanking;
+	extern bool d6ShowRanking;
 	extern std::vector<Player> d6Players;
 	extern std::vector<PlayerSkinColors> d6PlayerColors;
 	extern InfoMessageQueue d6MessageQueue;
-	extern SpriteList   d6SpriteList;
+	extern SpriteList d6SpriteList;
 	extern std::vector<GLuint> d6WpnTextures;
-	extern Int16 d6WpnAnm[D6_WEAPONS][16];
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp         
@@ -217,24 +170,6 @@ namespace Duel6
 	void    RENDER_MoveAnm(float elapsedTime);
 	void	RENDER_InitScreen();
 	void    RENDER_DrawScene(ScreenMode screenMode);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          weapon.cpp                              //
-	//////////////////////////////////////////////////////////////////////
-	extern  d6WEAPONDEF_s       d6WpnDef[D6_WEAPONS];
-	extern  bool                d6WpnEnabled[D6_WEAPONS];
-	extern  Int16               d6ShotAnm[D6_WEAPONS][18];
-	extern  Int16               d6BoomAnm[D6_WEAPONS][14];
-
-	void    WPN_LoadTextures(void);
-	void    WPN_FreeTextures(void);
-	void    WPN_Init(void);
-	void    WPN_DeInit(void);
-	void    WPN_LevelInit(void);
-	void    WPN_Shoot(Player& player);
-	void    WPN_MoveShots(float elapsedTime);
-	void    WPN_Boom(Shot& s, Player *p);
-	int     WPN_GetRandomWeapon(void);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          kontrola.cpp                            //

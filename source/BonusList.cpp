@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include "project.h"
 #include "BonusList.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
@@ -67,15 +68,20 @@ namespace Duel6
 
 		if (D6_BlockZ(x, y) != D6_ANM_F_BLOCK)
 		{
-			Size type = weapon ? WPN_GetRandomWeapon() : d6BonusArt[rand() % D6_BONUS_COUNT];
-			Int32 bullets = rand() % 10 + 10;
-			d6Bonuses.push_back(Bonus(x, y, type, weapon, bullets));
+			if (weapon)
+			{
+				d6Bonuses.push_back(Bonus(x, y, WPN_GetRandomWeapon(), rand() % 10 + 10));
+			}
+			else
+			{
+				d6Bonuses.push_back(Bonus(x, y, d6BonusArt[rand() % D6_BONUS_COUNT]));				
+			}
 		}
 	}
 
 	void BONUS_AddDeadManGun(int x, int y, Player& player)
 	{
-		d6Bonuses.push_back(Bonus(x, y, player.getWeapon(), true, player.getAmmo()));
+		d6Bonuses.push_back(Bonus(x, y, player.getWeapon(), player.getAmmo()));
 	}
 
 	static bool BONUS_IsApplicable(const Bonus& bonus, const Player& player, bool weapon)
@@ -173,10 +179,10 @@ namespace Duel6
 		if (player.getAmmo() > 0)
 		{
 			// Leave the current weapon at the same place
-			d6Bonuses.push_back(Bonus(bonus.getX(), bonus.getY(), player.getWeapon(), true, player.getAmmo()));
+			d6Bonuses.push_back(Bonus(bonus.getX(), bonus.getY(), player.getWeapon(), player.getAmmo()));
 		}
 
-		player.pickWeapon(bonus.getType(), bonus.getBullets());
+		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());
 		d6MessageQueue.add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(d6WpnDef[bonus.getType()].Name));
 	}
 

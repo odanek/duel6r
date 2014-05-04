@@ -33,7 +33,7 @@
 #include "Person.h"
 #include "PlayerSkin.h"
 #include "Orientation.h"
-#include "ScreenMode.h" // TODO: Remove
+#include "ScreenMode.h"
 
 #define D6_PLAYER_MAX_SPEED     32
 #define D6_PLAYER_ACCEL         0.001f
@@ -56,6 +56,7 @@
 namespace Duel6
 {
 	class Shot; // Forward declaration
+	struct Weapon;
 	struct d6LEVEL; // Forward declaration
 
 	struct d6VIEW_s
@@ -66,14 +67,14 @@ namespace Duel6
 		int     Height;
 	};
 
-	struct d6KEYBOARD_s
+	struct PlayerControls
 	{
-		int     Left;
-		int     Right;
-		int     Up;
-		int     Down;
-		int     Shoot;
-		int     Pick;
+		int Left;
+		int Right;
+		int Up;
+		int Down;
+		int Shoot;
+		int Pick;
 	};
 
 	struct d6CAMPOS_s
@@ -93,7 +94,7 @@ namespace Duel6
 		Int32       Flags;      // Flags
 		SpriteIterator A;       // Player sprite
 		SpriteIterator GA;      // Gun sprite
-		Int32       GN;         // Gun number
+		const Weapon *weapon;
 		Float32     Speed;      // Speed of movement
 		Orientation O;          // Orientation
 		Float32     J;          // Jump phase
@@ -118,6 +119,7 @@ namespace Duel6
 		std::shared_ptr<PlayerSkin> skin;
 		mycam_c camera;
 		d6CAMPOS_s cameraPos;
+		PlayerControls *controls;
 
 	private:
 		void moveLeft(float elapsedTime);
@@ -133,9 +135,8 @@ namespace Duel6
 		void switchToOriginalSkin();
 
 	public:
-		d6VIEW_s        View;
-		d6KEYBOARD_s    *Keys;
-		d6PLSTATE_s     State;
+		d6VIEW_s View;
+		d6PLSTATE_s State;		
 
 		Player(Person& person, PlayerSkin* skin, Size controls);
 		~Player(void);
@@ -187,14 +188,19 @@ namespace Duel6
 			return camera;
 		}
 
-		const Size getWeapon() const
+		const Weapon& getWeapon() const
 		{
-			return State.GN;
+			return *State.weapon;
 		}
 
-		const Int32 getAmmo() const
+		Int32 getAmmo() const
 		{
 			return State.Ammo;
+		}
+
+		Orientation getOrientation() const
+		{
+			return State.O;
 		}
 
 		Player& setAlpha(Float32 alpha)
@@ -216,11 +222,34 @@ namespace Duel6
 			return State.Life;
 		}
 
-		Player& adjustLife(Float32 life)
+		Float32 getAir() const
 		{
-			State.Life = MY_Max(0, MY_Min(D6_MAX_LIFE, State.Life + life));
+			return State.Air;
+		}
+
+		Int32 getBonus() const
+		{
+			return State.Bonus;
+		}
+
+		Float32 getBonusDuration() const
+		{
+			return State.BD;
+		}
+
+		Player& setInfoBarPosition(Int32 x, Int32 y)
+		{
+			State.IBP[0] = x;
+			State.IBP[1] = y;
 			return *this;
 		}
+
+		const Int32* getInfoBarPosition() const
+		{
+			return State.IBP;
+		}
+
+		Player& adjustLife(Float32 life);
 
 		Player& setFullLife()
 		{
@@ -234,7 +263,12 @@ namespace Duel6
 			return *this;
 		}
 
-		Player& pickWeapon(Size weapon, Int32 bulelts);
+		bool isReloading()
+		{
+			return State.SI > 0;
+		}
+
+		Player& pickWeapon(const Weapon& weapon, Int32 bulelts);
 
 		bool hasPowerfulShots() const;
 		bool isKneeling() const;

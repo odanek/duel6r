@@ -27,12 +27,13 @@
 
 #include "project.h"
 #include "BonusList.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
 	d6WORLD     d6World;
 	float       d6Sin[450];
-	myUINT      d6BackTex;
+	GLuint      d6BackgroundTexture;
 	int         d6Wireframe = 0;
 	int         d6ZoomBlc = 13;
 	ScreenMode d6ScreenMode = ScreenMode::FullScreen;

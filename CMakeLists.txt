@@ -46,6 +46,8 @@ set(D6R_SOURCES
     source/anims.h
     source/Bonus.h
     source/Bonus.cpp
+    source/BonusList.h
+    source/BonusList.cpp
     source/Color.h
     source/duel6.cpp
     source/elevator.cpp
@@ -78,6 +80,8 @@ set(D6R_SOURCES
     source/project.h
     source/render.cpp
     source/ScreenMode.h
+    source/Shot.h
+    source/Shot.cpp
     source/Sprite.h
     source/Sprite.cpp
     source/SpriteList.h
@@ -86,7 +90,8 @@ set(D6R_SOURCES
     source/Type.h
     source/util.cpp
     source/water.cpp
-    source/weapon.cpp
+    source/Weapon.h
+    source/Weapon.cpp
     
     source/core/co_core.h
     source/core/co_font.cpp

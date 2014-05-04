@@ -200,7 +200,7 @@ namespace Duel6
 					for (k = 0; k < D6_BONUS_COUNT; k++)
 						if (l->Data[pos] == d6BonusArt[k])
 						{
-							bonuses.push_back(Bonus(i, j, l->Data[pos], false, 0));
+							bonuses.push_back(Bonus(i, j, l->Data[pos]));
 						}
 					break;
 				case D6_ANM_F_WFALL:

@@ -25,46 +25,50 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
-#include "project.h"
-#include "Bonus.h"
-#include "Weapon.h"
+#ifndef DUEL6_WEAPON_H
+#define DUEL6_WEAPON_H
 
+#include "Type.h"
+#include "Shot.h"
+#include "Player.h"
+
+#define D6_WEAPONS          17
+
+// TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
 {
-	int d6BonusArt[D6_BONUS_COUNT] = { 19, 20, 21, 22, 23, 24, 25, 46, 53, 26 };  // Question mark must be the last
+	class Player; // Forward declaration, TODO: Remove
 
-	Float32 Bonus::getScreenX() const
+	struct Weapon
 	{
-		return Float32(x);
-	}
+		Float32 ShotSpeed;
+		bool Blood;
+		Uint32 ExplC;
+		Int32 Boom;
+		Int32 Power;
+		Int32 ReloadSpeed;
+		char Name[30];
+		Int32 ShSound;
+		Int32 BmSound;
+		Float32 ExpGrow;
+		bool shit; // TODO: Remove
+		Int16 animation[16];
+		Int16 shotAnimation[18];
+		Int16 boomAnimation[14];
+	};
 
-	Float32 Bonus::getScreenY() const
-	{
-		return Float32(d6World.Level.SizeY - y);
-	}
+	extern Weapon d6WpnDef[D6_WEAPONS];
+	extern bool d6WpnEnabled[D6_WEAPONS];
 
-	void Bonus::render() const
-	{
-		Float32 rx = getScreenX();
-		Float32 ry = getScreenY();
-
-		glBindTexture(GL_TEXTURE_2D, getTexture());
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.1f, 0.1f); glVertex3f(rx, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.1f); glVertex3f(rx + 1.0f, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.9f); glVertex3f(rx + 1.0f, ry - 1.0f, 0.5f);
-			glTexCoord2f(0.1f, 0.9f); glVertex3f(rx, ry - 1.0f, 0.5f);
-		glEnd();
-	}
-
-	GLuint Bonus::getTexture() const
-	{
-		if (weapon)
-		{
-			return d6WpnTextures[d6WpnDef[type].animation[12]];
-		}
-
-		return d6World.Anm.textures[type];
-	}
+	void WPN_LoadTextures();
+	void WPN_FreeTextures();
+	void WPN_Init();
+	void WPN_DeInit();
+	void WPN_LevelInit();
+	void WPN_Shoot(Player& player);
+	void WPN_MoveShots(float elapsedTime);
+	void WPN_Boom(Shot& s, Player *p);
+	const Weapon& WPN_GetRandomWeapon();
 }
+
+#endif

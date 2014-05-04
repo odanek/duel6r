@@ -25,15 +25,16 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
+#include <algorithm>
 #include "project.h"
 #include "Player.h"
 #include "BonusList.h"
+#include "Weapon.h"
 #include "anims.h"
 
 namespace Duel6
 {
-	static  d6KEYBOARD_s    d6Keyboard[12] =
+	static PlayerControls d6Controls[12] =
 	{
 		// 1
 		{ APP_INP_KEY | SDLK_LEFT, APP_INP_KEY | SDLK_RIGHT, APP_INP_KEY | SDLK_UP,
@@ -85,7 +86,6 @@ namespace Duel6
 
 	static short    noAnim[4] = { 0, 50, 0, -1 };
 	extern short    wtAnim[2][24];
-	extern short    d6WpnAnm[D6_WEAPONS][16];
 
 	static void PLAYER_FindStart(float *x, float *y)
 	{
@@ -123,8 +123,7 @@ namespace Duel6
 
 		Player& player = d6Players[i];
 		player.setView(x, y, w, h);
-		player.State.IBP[0] = x + w / 2 - 76;
-		player.State.IBP[1] = y + 30;
+		player.setInfoBarPosition(x + w / 2 - 76, y + 30);
 	}
 
 	void PLAYER_PrepareViews(ScreenMode screenMode)
@@ -145,13 +144,11 @@ namespace Duel6
 
 				if (index < 4)
 				{
-					player.State.IBP[0] = (g_vid.cl_width / 4) * index + xShift;
-					player.State.IBP[1] = 30;
+					player.setInfoBarPosition((g_vid.cl_width / 4) * index + xShift, 30);
 				}
 				else
 				{
-					player.State.IBP[0] = (g_vid.cl_width / 4) * (index - 4) + xShift;
-					player.State.IBP[1] = g_vid.cl_height - 7;
+					player.setInfoBarPosition((g_vid.cl_width / 4) * (index - 4) + xShift, g_vid.cl_height - 7);
 				}
 
 				index++;
@@ -193,7 +190,7 @@ namespace Duel6
 	{
 		camera.resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
 		camera.rotate(180.0, 0.0, 0.0);
-		Keys = &d6Keyboard[controls];
+		this->controls = &d6Controls[controls];
 	}
 
 	Player::~Player(void)
@@ -208,8 +205,8 @@ namespace Duel6
 		manSprite.setPosition(State.X, State.Y, 0.5f);
 		State.A = d6SpriteList.addSprite(manSprite);		
 
-		State.GN = WPN_GetRandomWeapon();
-		Sprite gunSprite(d6WpnAnm[State.GN], d6WpnTextures);
+		State.weapon = &WPN_GetRandomWeapon();
+		Sprite gunSprite(State.weapon->animation, d6WpnTextures);
 		gunSprite.setPosition(State.X, State.Y, 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
@@ -293,14 +290,14 @@ namespace Duel6
 		}
 	}
 
-	Player& Player::pickWeapon(Size weapon, Int32 bullets)
+	Player& Player::pickWeapon(const Weapon& weapon, Int32 bullets)
 	{
-		State.GN = weapon;
+		State.weapon = &weapon;
 		State.Ammo = bullets;
 		State.SI = 0;
 		State.Flags |= D6_FLAG_PICK;
 					
-		State.GA->setAnimation(d6WpnAnm[weapon])
+		State.GA->setAnimation(weapon.animation)
 			.setFrame(6)
 			.setDraw(false);
 		State.A->setFrame(0);
@@ -366,30 +363,30 @@ namespace Duel6
 
 		if (!(State.Flags & D6_FLAG_KNEE))
 		{
-			if (CO_InpIsPressed(Keys->Left))
+			if (CO_InpIsPressed(controls->Left))
 			{
 				moveLeft(elapsedTime);
 			}
-			if (CO_InpIsPressed(Keys->Right))
+			if (CO_InpIsPressed(controls->Right))
 			{
 				moveRight(elapsedTime);
 			}
-			if (CO_InpIsPressed(Keys->Up))
+			if (CO_InpIsPressed(controls->Up))
 			{
 				jump();
 			}
-			if (CO_InpIsPressed(Keys->Pick))
+			if (CO_InpIsPressed(controls->Pick))
 			{
 				pick();
 			}
 		}
 
-		if (CO_InpIsPressed(Keys->Shoot))
+		if (CO_InpIsPressed(controls->Shoot))
 		{
 			WPN_Shoot(*this);
 		}
 		State.Flags &= ~D6_FLAG_KNEE;
-		if (CO_InpIsPressed(Keys->Down))
+		if (CO_InpIsPressed(controls->Down))
 		{
 			fall();
 		}
@@ -614,18 +611,18 @@ namespace Duel6
 
 		if (s != NULL && hit)
 		{
-			if (s->WD->Blood)
+			if (s->getWeapon().Blood)
 			{
-				EXPL_Add(State.X + 0.3f + (rand() % 40) * 0.01f, s->Y - 0.15f, 0.2f, 0.5f, 0xFF0000);
+				EXPL_Add(State.X + 0.3f + (rand() % 40) * 0.01f, s->getY() - 0.15f, 0.2f, 0.5f, 0xFF0000);
 			}
 		}
 
 		if (isDead())
 		{
-			if (s->WD->ExplC && hit)
+			if (s->getWeapon().ExplC && hit)
 			{
 				State.Flags &= ~D6_FLAG_LYING;
-				EXPL_Add(State.X + 0.5f, State.Y - 0.7f, 0.5f, 1.2f, s->WD->ExplC);
+				EXPL_Add(State.X + 0.5f, State.Y - 0.7f, 0.5f, 1.2f, s->getWeapon().ExplC);
 			}
 			return false;
 		}
@@ -648,7 +645,7 @@ namespace Duel6
 
 			if (s != NULL)
 			{
-				State.O = (s->X < State.X) ? Orientation::Left : Orientation::Right;
+				State.O = (s->getX() < State.X) ? Orientation::Left : Orientation::Right;
 
 				if (!is(s->getPlayer()))
 				{
@@ -661,10 +658,10 @@ namespace Duel6
 				else
 					d6MessageQueue.add(*this, MY_L("APP00053|Jsi mrtvy"));
 
-				if (s->WD->ExplC && hit)
+				if (s->getWeapon().ExplC > 0 && hit)
 				{
 					State.Flags &= ~D6_FLAG_LYING;
-					EXPL_Add(State.X + 0.5f, State.Y - 0.5f, 0.5f, 1.2f, s->WD->ExplC);
+					EXPL_Add(State.X + 0.5f, State.Y - 0.5f, 0.5f, 1.2f, s->getWeapon().ExplC);
 				}
 			}
 			else
@@ -673,16 +670,22 @@ namespace Duel6
 			SOUND_PlaySample(D6_SND_DEAD);
 
 			// Add lying weapon
-			if (!State.J && (s == NULL || !s->WD->ExplC || !hit))
+			if (!State.J && (s == NULL || !s->getWeapon().ExplC || !hit))
 			{
 				int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f);
 				int y = d6World.Level.SizeY - int(getY() - 0.5f) - 1;
 
 				if (D6_BlockZ(x1, y + 1) == D6_ANM_F_BLOCK && D6_BlockZ(x1, y) != D6_ANM_F_BLOCK)
+				{
 					BONUS_AddDeadManGun(x1, y, *this);
+				}
 				else
+				{
 					if (D6_BlockZ(x2, y + 1) == D6_ANM_F_BLOCK && D6_BlockZ(x2, y) != D6_ANM_F_BLOCK)
+					{
 						BONUS_AddDeadManGun(x2, y, *this);
+					}
+				}
 			}
 		}
 		else if (hit)
@@ -691,6 +694,12 @@ namespace Duel6
 		}
 
 		return isDead();
+	}
+
+	Player& Player::adjustLife(Float32 life)
+	{
+		State.Life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), State.Life + life));
+		return *this;
 	}
 
 	static Uint8 WaterBlock(const d6LEVEL& level, float X, float Y) // 0 = no water, 1 = blue water, 2 = red water TODO: Method of Level?

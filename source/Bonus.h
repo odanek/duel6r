@@ -35,6 +35,8 @@
 
 namespace Duel6
 {
+	struct Weapon; // Forward declaration, TODO: Remove
+
 	extern int d6BonusArt[D6_BONUS_COUNT];
 
 	enum BonusType
@@ -58,11 +60,16 @@ namespace Duel6
 		Int32 y;
 		Size type;
 		bool weapon;
+		const Weapon* weaponType;
 		Int32 bullets; // Number of bullets for weapon bonuses
 
 	public:
-		Bonus(Int32 x, Int32 y, Size type, bool weapon, Int32 bullets)
-			: x(x), y(y), type(type), weapon(weapon), bullets(bullets)
+		Bonus(Int32 x, Int32 y, Size type)
+			: x(x), y(y), type(type), weapon(false), weaponType(nullptr), bullets(0)
+		{}
+
+		Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets)
+			: x(x), y(y), type(0), weapon(true), weaponType(&weaponType), bullets(bullets)
 		{}
 
 		Size getType() const
@@ -73,6 +80,11 @@ namespace Duel6
 		bool isWeapon() const
 		{
 			return weapon;
+		}
+
+		const Weapon& getWeaponType() const
+		{
+			return *weaponType;
 		}
 
 		Int32 getBullets() const

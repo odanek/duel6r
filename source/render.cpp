@@ -115,7 +115,7 @@ namespace Duel6
 	static void RENDER_Background(void)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, d6BackTex);
+		glBindTexture(GL_TEXTURE_2D, d6BackgroundTexture);
 
 		glBegin(GL_QUADS);
 		glTexCoord2f(0, 0); glVertex2i(0, g_vid.cl_height);
@@ -188,9 +188,9 @@ namespace Duel6
 			return;
 
 		int alpha = 180;
-		int al = int((player.State.Air * 125) / D6_MAX_AIR);
-		int ll = int((player.State.Life * 125) / D6_MAX_LIFE);
-		const int *ibp = player.State.IBP;
+		int al = int((player.getAir() * 125) / D6_MAX_AIR);
+		int ll = int((player.getLife() * 125) / D6_MAX_LIFE);
+		const int *ibp = player.getInfoBarPosition();
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -223,14 +223,14 @@ namespace Duel6
 
 		const std::string& playerName = player.getPerson().getName();
 		CO_FontColor(0, 0, 255);
-		CO_FontPrintf(ibp[0] + 5, ibp[1] - 13, "%d", player.State.Ammo);
+		CO_FontPrintf(ibp[0] + 5, ibp[1] - 13, "%d", player.getAmmo());
 		CO_FontPrintf(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName.c_str());
 
-		if (player.State.Bonus)
+		if (player.getBonus() != 0)
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, d6World.Anm.textures[player.State.Bonus]);
+			glBindTexture(GL_TEXTURE_2D, d6World.Anm.textures[player.getBonus()]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 133, ibp[1] - 3);
@@ -280,7 +280,7 @@ namespace Duel6
 
 		x = player.getX() + 0.5f;
 		y = player.getY() - 0.5f;
-		p = int(player.State.BD * 30) % 360;
+		p = int(player.getBonusDuration() * 30) % 360;
 
 		glColor3ub(255, 0, 0);
 		glDisable(GL_TEXTURE_2D);
