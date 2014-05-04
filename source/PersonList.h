@@ -58,7 +58,12 @@ namespace Duel6
 			return persons[index];
 		}
 
-		std::vector<Person> list()
+		std::vector<Person>& list()
+		{
+			return persons;
+		}
+
+		const std::vector<Person>& list() const
 		{
 			return persons;
 		}

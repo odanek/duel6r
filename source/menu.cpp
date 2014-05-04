@@ -521,9 +521,6 @@ namespace Duel6
 	
 	static void MENU_CleanPH(void)
 	{
-		if (!MENU_DelQuestion())
-			return;
-
 		for (Person& person : d6Persons.list())
 		{
 			person.reset();
@@ -645,7 +642,12 @@ namespace Duel6
 				if (d6Playing > 1)
 					MENU_Play();
 			if (e == SDLK_F3)
-				MENU_CleanPH();
+			{
+				if (MENU_DelQuestion())
+				{
+					MENU_CleanPH();
+				}
+			}
 			if (e == SDLK_ESCAPE)
 			{
 				g_app.flags |= APP_FLAG_QUIT;
@@ -693,7 +695,10 @@ namespace Duel6
 					MENU_SavePH();
 					return;
 				case 30:
-					MENU_CleanPH();
+					if (MENU_DelQuestion())
+					{
+						MENU_CleanPH();
+					}
 					break;
 				}
 			}
