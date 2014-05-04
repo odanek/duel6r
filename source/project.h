@@ -70,10 +70,9 @@
 #define D6_ANM_SPEED        0.328
 #define D6_EXPL_SPEED       0.61f
 #define D6_WAVE_HEIGHT      0.1f
+#define D6_BONUS_COUNT      10
 
 #define D6_MAX_PLAYERS      8
-#define D6_MAX_LIFE         100
-#define D6_MAX_AIR          200
 #define D6_WATER_HIT		60
 #define D6_MAX_EXPLOSIONS   100
 #define D6_GAME_OVER_WAIT   3.0f
@@ -173,6 +172,7 @@ namespace Duel6
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList   d6SpriteList;
 	extern std::vector<GLuint> d6WpnTextures;
+	extern int d6BonusArt[D6_BONUS_COUNT];
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp         
@@ -291,12 +291,12 @@ namespace Duel6
 		D6_BONUS_INVIS = 53
 	};
 
-	void    BONUS_Init(int(*bonus)[3]);
+	void    BONUS_Init(const std::vector<Bonus>& initialBonuses);
 	void    BONUS_DrawAll(void);
-	void    BONUS_AddNew(float elapsedTime);
+	void    BONUS_AddNew();
 	void    BONUS_AddDeadManGun(int x, int y, Player& player);
 	void    BONUS_Check(Player& player);
-	void    BONUS_Pick(Player& player);
+	void    BONUS_CheckPick(Player& player);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          menu.cpp                                //

@@ -43,7 +43,7 @@ namespace Duel6
 	static button_c     *myButton[7];
 	static listbox_c    *myListbox[7];
 	static label_c      *myLabel[8];
-	static switchbox_c  *mySwitch[D6_MAX_PLAYERS];
+	static switchbox_c  *controlSwitch[D6_MAX_PLAYERS];
 	static textbox_c    *myTextbox;
 	static int          d6Backs, d6WillPlay[D6_MAX_PLAYERS];
 	static GLuint       d6MenuTex;
@@ -130,24 +130,24 @@ namespace Duel6
 		CO_InpInit(APP_INP_INIT_JOY);
 
 		for (i = 0; i < D6_MAX_PLAYERS; i++)
-			mySwitch[i]->Clear();
+			controlSwitch[i]->Clear();
 
 		for (i = 0; i < 4; i++)
 		{
 			sprintf(f, "%s %d", MY_L("APP00045|Klavesy"), i + 1);
 			for (j = 0; j < D6_MAX_PLAYERS; j++)
-				mySwitch[j]->AddItem(f);
+				controlSwitch[j]->AddItem(f);
 		}
 
 		for (i = 0; i < g_inp.joy_num; i++)
 		{
 			sprintf(f, "Joypad %d", i + 1);
 			for (j = 0; j < D6_MAX_PLAYERS; j++)
-				mySwitch[j]->AddItem(f);
+				controlSwitch[j]->AddItem(f);
 		}
 
 		for (i = 0; i < D6_MAX_PLAYERS; i++)
-			mySwitch[i]->SetCur(i % (4 + g_inp.joy_num));
+			controlSwitch[i]->SetCur(i % (4 + g_inp.joy_num));
 	}
 
 	void MENU_Init(void)
@@ -290,10 +290,10 @@ namespace Duel6
 		// Switchbox - volba ovladani
 		for (i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			mySwitch[i] = new switchbox_c;
-			MY_RegMem(mySwitch[i], sizeof (switchbox_c));
-			mySwitch[i]->SetPosition(370, 131 + i * 18, 120, 0);
-			mySwitch[i]->SetNG(14 + i, 1);
+			controlSwitch[i] = new switchbox_c;
+			MY_RegMem(controlSwitch[i], sizeof (switchbox_c));
+			controlSwitch[i]->SetPosition(370, 131 + i * 18, 120, 0);
+			controlSwitch[i]->SetNG(14 + i, 1);
 		}
 
 		MENU_JoyRescan();
@@ -374,15 +374,11 @@ namespace Duel6
 
 	static void MENU_RebuildTable(void)
 	{
-		char    ret[100];
-		int     s, *pi;
-
 		myListbox[0]->Clear();
 		if (d6Persons.isEmpty())
 			return;
 
-		pi = D6_MALLOC(int, d6Persons.getLength());
-
+		std::vector<Size> pi(d6Persons.getLength());
 		for (Size i = 0; i < d6Persons.getLength(); i++)
 		{
 			pi[i] = i;
@@ -395,13 +391,12 @@ namespace Duel6
 			{
 				if (d6Persons.get(pi[i + 1]).getTotalPoints() > d6Persons.get(pi[i]).getTotalPoints())
 				{
-					s = pi[i];
-					pi[i] = pi[i + 1];
-					pi[i + 1] = s;
+					std::swap(pi[i], pi[i + 1]);
 				}
 			}
 		}
 
+		char ret[100];
 		for (Size i = 0; i < d6Persons.getLength(); i++)
 		{
 			const Person& person = d6Persons.get(pi[i]);
@@ -420,8 +415,6 @@ namespace Duel6
 			MENU_Pit(&ret[81], "| %d", person.getTotalPoints());
 			myListbox[0]->AddItem(ret);
 		}
-
-		MY_Free(pi);
 	}
 
 	static void MENU_PridejHrace(void)
@@ -591,7 +584,7 @@ namespace Duel6
 		d6Players.clear();
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(d6PlayerColors[i]), mySwitch[i]->CurItem()));
+			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(d6PlayerColors[i]), controlSwitch[i]->CurItem()));
 		}
 
 		MENU_Restart(false);

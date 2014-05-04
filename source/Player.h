@@ -50,6 +50,9 @@
 #define D6_FLAG_LYING           0x20
 #define D6_FLAG_INWATER         0x40
 
+#define D6_MAX_LIFE				100
+#define D6_MAX_AIR				200
+
 namespace Duel6
 {
 	class Shot; // Forward declaration
@@ -87,24 +90,24 @@ namespace Duel6
 	class d6PLSTATE_s
 	{
 	public:
-		int         Flags;      // Flags
+		Int32       Flags;      // Flags
 		SpriteIterator A;       // Player sprite
 		SpriteIterator GA;      // Gun sprite
-		int         GN;         // Gun number
-		float       Speed;      // Speed of movement
+		Int32       GN;         // Gun number
+		Float32     Speed;      // Speed of movement
 		Orientation O;          // Orientation
-		float       J;          // Jump phase
-		float       X;          // X position
-		float       Y;          // Y position
-		float       SI;         // Shot interval
-		int         IBP[2];     // Info bar position
-		float       Life;       // Life
-		float       Air;        // Air
-		int         Ammo;       // Number of bullets
-		int         Elev;       // Standing on elevator
-		int         Bonus;      // Bonus
-		float       BD;         // Bonus duration
-		float       SD;         // Temporary skin duration
+		Float32     J;          // Jump phase
+		Float32     X;          // X position
+		Float32     Y;          // Y position
+		Float32     SI;         // Shot interval
+		Int32       IBP[2];     // Info bar position
+		Float32     Life;       // Life
+		Float32     Air;        // Air
+		Int32       Ammo;       // Number of bullets
+		Int32       Elev;       // Standing on elevator
+		Int32       Bonus;      // Bonus
+		Float32     BD;         // Bonus duration
+		Float32     SD;         // Temporary skin duration
 		bool        InWater;    // Player is in the water (feet)
 	};
 
@@ -149,10 +152,25 @@ namespace Duel6
 		void prepareCam(ScreenMode screenMode);
 		bool hit(float pw, Shot *s, bool hit); // Returns true if the shot caused the player to die
 
-		float getX() const;
-		float getY() const;
-		float getWidth() const;
-		float getHeight() const;
+		Float32 getX() const
+		{
+			return State.X;
+		}
+
+		Float32 getY() const
+		{
+			return State.Y;
+		}
+
+		Float32 getWidth() const
+		{
+			return 1.0f;
+		}
+
+		Float32 getHeight() const
+		{
+			return 1.0f;
+		}
 
 		Person& getPerson()
 		{
@@ -168,6 +186,55 @@ namespace Duel6
 		{
 			return camera;
 		}
+
+		const Size getWeapon() const
+		{
+			return State.GN;
+		}
+
+		const Int32 getAmmo() const
+		{
+			return State.Ammo;
+		}
+
+		Player& setAlpha(Float32 alpha)
+		{
+			State.A->setAlpha(alpha);
+			State.GA->setAlpha(alpha);
+			return *this;
+		}
+
+		Player& setBonus(Size type, Int32 duration)
+		{
+			State.Bonus = type;
+			State.BD = Float32(duration);
+			return *this;
+		}
+
+		Float32 getLife() const
+		{
+			return State.Life;
+		}
+
+		Player& adjustLife(Float32 life)
+		{
+			State.Life = MY_Max(0, MY_Min(D6_MAX_LIFE, State.Life + life));
+			return *this;
+		}
+
+		Player& setFullLife()
+		{
+			State.Life = D6_MAX_LIFE;
+			return *this;
+		}
+
+		Player& adjustAmmo(Int32 ammo)
+		{
+			State.Ammo += ammo;
+			return *this;
+		}
+
+		Player& pickWeapon(Size weapon, Int32 bulelts);
 
 		bool hasPowerfulShots() const;
 		bool isKneeling() const;

@@ -44,7 +44,8 @@ set(D6R_SOURCES
 
     source/AnimationLooping.h
     source/anims.h
-    source/bonus.cpp
+    source/Bonus.h
+    source/Bonus.cpp
     source/Color.h
     source/duel6.cpp
     source/elevator.cpp

@@ -34,6 +34,7 @@
 
 namespace Duel6
 {
+	bool d6WpnEnabled[D6_WEAPONS];
 	std::vector<GLuint> d6WpnTextures;
 	
 	namespace

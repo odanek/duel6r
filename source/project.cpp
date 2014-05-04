@@ -43,13 +43,15 @@ void P_ActiveEvent (bool active)
     }
 }
 
-void P_KeyEvent (int key)
+void P_KeyEvent(int key)
 {
-    if (d6InMenu)
-        MENU_KeyEvent (key);
+	if (d6InMenu)
+	{
+		MENU_KeyEvent(key);
+	}
 }
 
-void P_Main (void)
+void P_Main(void)
 {
     while (!(g_app.flags & APP_FLAG_QUIT))
     {

@@ -133,11 +133,11 @@ namespace Duel6
 
 	void D6_StartGame(const std::string& levelPath)
 	{
-		bool    mirror = rand() % 2 ? true : false;
-		int     bonus[D6_BONUS_MAX][3];
-
 		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
-		LOADER_LoadWorld(levelPath, &d6World, mirror, bonus);
+
+		std::vector<Bonus> bonuses;
+		bool mirror = rand() % 2 ? true : false;
+		LOADER_LoadWorld(levelPath, &d6World, mirror, bonuses);
 		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.Level.SizeX);
 		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.Level.SizeY);
 		g_app.con->printf(MY_L("APP00063|...Bloku   : %d\n"), d6World.Blocks);
@@ -162,7 +162,7 @@ namespace Duel6
 		WPN_LevelInit();
 		KONTR_Init();
 		EXPL_Init();
-		BONUS_Init(bonus);
+		BONUS_Init(bonuses);
 		ELEV_Load(levelPath, mirror);
 		FIRE_Find();
 		RENDER_InitScreen();
@@ -226,7 +226,12 @@ namespace Duel6
 		EXPL_MoveAll(elapsedTime);
 		ELEV_MoveAll(elapsedTime * D6_SPEED_COEF);
 		d6MessageQueue.update(elapsedTime);
-		BONUS_AddNew(elapsedTime);
+
+		// Add new bonuses
+		if (rand() % int(3.0f / elapsedTime) == 0)
+		{
+			BONUS_AddNew();
+		}
 
 		// Ochrana pred nekolikanasobnym zmacknutim klavesy
 		d6KeyWait -= elapsedTime;

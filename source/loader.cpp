@@ -179,12 +179,9 @@ namespace Duel6
 	zjisti pocty bloku, facu, spritu....
 	===================
 	*/
-	static void LOADER_Process(int(*bonus)[3])
+	static void LOADER_Process(std::vector<Bonus>& bonuses)
 	{
 		int i, j, k, *anm, spr, blc, pos, wtr, bn_count;
-
-		for (i = 0; i < D6_BONUS_MAX; i++)
-			bonus[i][0] = -1;
 
 		w->Sprites = 0;
 		w->Blocks = 0;
@@ -194,16 +191,16 @@ namespace Duel6
 		bn_count = 0;
 
 		for (j = 0; j < l->SizeY; j++)
+		{
 			for (i = 0; i < l->SizeX; i++, pos++)
-				switch (anm[l->Data[pos]])
 			{
+				switch (anm[l->Data[pos]])
+				{
 				case D6_ANM_F_NOTHING:
 					for (k = 0; k < D6_BONUS_COUNT; k++)
-						if (l->Data[pos] == d6BonusArt[k] && bn_count < D6_BONUS_MAX)
+						if (l->Data[pos] == d6BonusArt[k])
 						{
-							bonus[bn_count][0] = l->Data[pos];
-							bonus[bn_count][1] = i;
-							bonus[bn_count++][2] = j;
+							bonuses.push_back(Bonus(i, j, l->Data[pos], false, 0));
 						}
 					break;
 				case D6_ANM_F_WFALL:
@@ -231,7 +228,9 @@ namespace Duel6
 				default:
 					w->Sprites++;
 					break;
+				}
 			}
+		}
 
 		w->Faces = w->Sprites + w->Blocks + w->Waters;
 		w->Vertex = D6_MALLOC(d6VERTEX, w->Faces << 2);
@@ -324,7 +323,7 @@ namespace Duel6
 	tak budou uvolneny
 	===================
 	*/
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, int(*bonus)[3])
+	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, std::vector<Bonus>& bonuses)
 	{
 		int         x, y, b;
 		myFile_s    *f;
@@ -354,7 +353,7 @@ namespace Duel6
 					l->Data[y * l->SizeX + l->SizeX - 1 - x] = b;
 				}
 
-		LOADER_Process(bonus);
+		LOADER_Process(bonuses);
 		LOADER_Optimize();
 	}
 }

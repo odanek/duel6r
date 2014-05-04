@@ -287,7 +287,23 @@ namespace Duel6
 	void Player::pick(void)
 	{
 		if (!State.J && !State.Speed && State.Elev == -1)
-			BONUS_Pick(*this);
+		{
+			BONUS_CheckPick(*this);
+		}
+	}
+
+	Player& Player::pickWeapon(Size weapon, Int32 bullets)
+	{
+		State.GN = weapon;
+		State.Ammo = bullets;
+		State.Flags |= D6_FLAG_PICK;
+					
+		State.GA->setAnimation(d6WpnAnm[weapon])
+			.setFrame(6)
+			.setDraw(false);
+		State.A->setFrame(0);
+
+		return *this;
 	}
 
 	void Player::makeMove(float elapsedTime)
@@ -726,26 +742,6 @@ namespace Duel6
 		}
 
 		State.InWater = (water > 0);
-	}
-
-	float Player::getX() const
-	{
-		return State.X;
-	}
-
-	float Player::getY() const
-	{
-		return State.Y;
-	}
-
-	float Player::getWidth() const
-	{
-		return 1.0f;
-	}
-
-	float Player::getHeight() const
-	{
-		return 1.0f;
 	}
 
 	bool Player::hasPowerfulShots() const

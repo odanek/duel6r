@@ -25,77 +25,60 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LOADER_H
-#define DUEL6_LOADER_H
+#ifndef DUEL6_BONUS_H
+#define DUEL6_BONUS_H
 
-#include <vector>
-#include "Bonus.h"
-
-#define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
-
-//#define D6_RENDER_BACKS
-
-#define D6_ANM_F_NOTHING    0x00
-#define D6_ANM_F_BLOCK      0x01
-#define D6_ANM_F_WATER      0x02
-#define D6_ANM_F_FRONT      0x03
-#define D6_ANM_F_BACK       0x04
-#define D6_ANM_F_FRBC       0x05
-#define D6_ANM_F_3FRONT     0x06
-#define D6_ANM_F_3BACK      0x07
-#define D6_ANM_F_WFALL      0x08
-
-#define D6_FLAG_NONE        0x00
-#define D6_FLAG_FLOW        0x01
+#include <SDL/SDL_opengl.h>
+#include "Type.h"
 
 namespace Duel6
 {
-	struct d6VERTEX
+	class Bonus
 	{
-		Float32 X;
-		Float32 Y;
-		Float32 Z;
-		Float32 U;
-		Float32 V;
-		Int32 Flags;
-	};
+	private:
+		Int32 x;
+		Int32 y;
+		Size type;
+		bool weapon;
+		Int32 bullets; // Number of bullets for weapon bonuses
 
-	struct d6FACE
-	{
-		Int32 NowTex;
-		Int32 MinTex;
-		Int32 MaxTex;
-	};
+	public:
+		Bonus(Int32 x, Int32 y, Size type, bool weapon, Int32 bullets)
+			: x(x), y(y), type(type), weapon(weapon), bullets(bullets)
+		{}
 
-	struct d6LEVEL
-	{
-		Int32 SizeX;
-		Int32 SizeY;
-		Int32 Size;
-		Uint16 *Data;
-	};
+		Size getType() const
+		{
+			return type;
+		}
 
-	struct d6ANM
-	{
-		std::vector<GLuint> textures;
-		Float32 Wait;
-		Int32 *Znak;
-		Int32 *Anim;
-	};
+		bool isWeapon() const
+		{
+			return weapon;
+		}
 
-	struct d6WORLD
-	{
-		int         Blocks;
-		int         Sprites;
-		int         Waters;
-		int         Faces;
-		d6VERTEX    *Vertex;
-		d6FACE      *Face;
-		d6LEVEL     Level;
-		d6ANM       Anm;
-	};
+		Int32 getBullets() const
+		{
+			return bullets;
+		}
 
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, std::vector<Bonus>& bonuses);
+		Int32 getX() const
+		{
+			return x;
+		}
+
+		Int32 getY() const
+		{
+			return y;
+		}
+
+		Float32 getScreenX() const;
+		Float32 getScreenY() const;
+		void render() const;
+
+	private:
+		GLuint getTexture() const;
+	};
 }
 
 #endif

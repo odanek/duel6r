@@ -355,7 +355,7 @@ namespace Duel6
 
 			if(roundLimit)
 			{
-				overlay += 0.2;
+				overlay += 0.2f;
 				glColor3f(overlay, overlay, overlay);
 			}
 			else
