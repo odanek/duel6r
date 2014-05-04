@@ -44,7 +44,9 @@ namespace Duel6
 	bool        d6InMenu = false, d6PlayMusic = false;
 	PlayerSkinColors d6PlayerSkin[D6_MAX_PLAYERS];
 	int			d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
-	bool        d6ShowRanking = false;
+	bool        d6ShowRanking = true;
+	int			d6PlayedRounds = 0;
+	int			d6MaxRounds = 0;
 	InfoMessageQueue d6MessageQueue;
 	SpriteList  d6SpriteList;
 
@@ -168,6 +170,7 @@ namespace Duel6
 		FIRE_Find();
 		RENDER_InitScreen();
 		d6Winner = -1;
+		d6PlayedRounds++;
 	}
 
 	void D6_SetGLMode(int mode)
@@ -274,7 +277,8 @@ namespace Duel6
 		if (!d6KeyWait)
 		{
 			// Restart game
-			if (g_inp.key[SDLK_F1])
+			bool roundLimit = (d6MaxRounds > 0) && (d6PlayedRounds >= d6MaxRounds);
+			if (g_inp.key[SDLK_F1] && !roundLimit)
 			{
 				MENU_SavePH();
 				MENU_Restart(g_inp.key[SDLK_LSHIFT]);
