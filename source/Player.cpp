@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include "project.h"
 #include "Player.h"
+#include "BonusList.h"
 #include "anims.h"
 
 namespace Duel6
@@ -296,6 +297,7 @@ namespace Duel6
 	{
 		State.GN = weapon;
 		State.Ammo = bullets;
+		State.SI = 0;
 		State.Flags |= D6_FLAG_PICK;
 					
 		State.GA->setAnimation(d6WpnAnm[weapon])

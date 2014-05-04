@@ -25,78 +25,22 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_BONUS_H
-#define DUEL6_BONUS_H
+#ifndef DUEL6_BONUSLIST_H
+#define DUEL6_BONUSLIST_H
 
-#include <SDL/SDL_opengl.h>
+#include <vector>
 #include "Type.h"
-
-#define D6_BONUS_COUNT      10
+#include "Bonus.h"
+#include "Player.h"
 
 namespace Duel6
 {
-	extern int d6BonusArt[D6_BONUS_COUNT];
-
-	enum BonusType
-	{
-		D6_BONUS_LIFEP = 19,
-		D6_BONUS_LIFEM,
-		D6_BONUS_LIFEF,
-		D6_BONUS_SHOTS,
-		D6_BONUS_SHOTP,
-		D6_BONUS_INVUL,
-		D6_BONUS_BULLT,
-		D6_BONUS_GUESS,
-		D6_BONUS_SPEED = 46,
-		D6_BONUS_INVIS = 53
-	};
-
-	class Bonus
-	{
-	private:
-		Int32 x;
-		Int32 y;
-		Size type;
-		bool weapon;
-		Int32 bullets; // Number of bullets for weapon bonuses
-
-	public:
-		Bonus(Int32 x, Int32 y, Size type, bool weapon, Int32 bullets)
-			: x(x), y(y), type(type), weapon(weapon), bullets(bullets)
-		{}
-
-		Size getType() const
-		{
-			return type;
-		}
-
-		bool isWeapon() const
-		{
-			return weapon;
-		}
-
-		Int32 getBullets() const
-		{
-			return bullets;
-		}
-
-		Int32 getX() const
-		{
-			return x;
-		}
-
-		Int32 getY() const
-		{
-			return y;
-		}
-
-		Float32 getScreenX() const;
-		Float32 getScreenY() const;
-		void render() const;
-
-	private:
-		GLuint getTexture() const;
-	};
+	void BONUS_Init(const std::vector<Bonus>& initialBonuses);
+	void BONUS_DrawAll(void);
+	void BONUS_AddNew();
+	void BONUS_AddDeadManGun(int x, int y, Player& player);
+	void BONUS_Check(Player& player);
+	void BONUS_CheckPick(Player& player);
 }
 
 #endif

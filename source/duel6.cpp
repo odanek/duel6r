@@ -26,6 +26,7 @@
 */
 
 #include "project.h"
+#include "BonusList.h"
 
 namespace Duel6
 {

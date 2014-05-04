@@ -70,7 +70,6 @@
 #define D6_ANM_SPEED        0.328
 #define D6_EXPL_SPEED       0.61f
 #define D6_WAVE_HEIGHT      0.1f
-#define D6_BONUS_COUNT      10
 
 #define D6_MAX_PLAYERS      8
 #define D6_WATER_HIT		60
@@ -172,7 +171,7 @@ namespace Duel6
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList   d6SpriteList;
 	extern std::vector<GLuint> d6WpnTextures;
-	extern int d6BonusArt[D6_BONUS_COUNT];
+	extern Int16 d6WpnAnm[D6_WEAPONS][16];
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp         
@@ -273,30 +272,6 @@ namespace Duel6
 	void    FIRE_Free(void);
 	void    FIRE_Find(void);
 	void    FIRE_Check(Float32 X, Float32 Y, Float32 d);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          bonus.cpp                               //
-	//////////////////////////////////////////////////////////////////////
-	enum
-	{
-		D6_BONUS_LIFEP = 19,
-		D6_BONUS_LIFEM,
-		D6_BONUS_LIFEF,
-		D6_BONUS_SHOTS,
-		D6_BONUS_SHOTP,
-		D6_BONUS_INVUL,
-		D6_BONUS_BULLT,
-		D6_BONUS_GUESS,
-		D6_BONUS_SPEED = 46,
-		D6_BONUS_INVIS = 53
-	};
-
-	void    BONUS_Init(const std::vector<Bonus>& initialBonuses);
-	void    BONUS_DrawAll(void);
-	void    BONUS_AddNew();
-	void    BONUS_AddDeadManGun(int x, int y, Player& player);
-	void    BONUS_Check(Player& player);
-	void    BONUS_CheckPick(Player& player);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          menu.cpp                                //
