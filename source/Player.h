@@ -57,7 +57,6 @@ namespace Duel6
 {
 	class Shot; // Forward declaration
 	struct Weapon;
-	struct d6LEVEL; // Forward declaration
 
 	struct d6VIEW_s
 	{
@@ -126,7 +125,7 @@ namespace Duel6
 		void moveRight(float elapsedTime);
 		void makeMove(float elapsedTime);
 		void checkKeys(float elapsedTime);
-		void checkWater(const d6LEVEL& level, float elapsedTime);
+		void checkWater(float elapsedTime);
 		void jump();
 		void fall();
 		void pick();

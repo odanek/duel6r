@@ -41,7 +41,7 @@ namespace Duel6
 		Float32 remainingTime;
 
 	public:
-		InfoMessage(const Player& player, const std::string& text, float duration)
+		InfoMessage(const Player& player, const std::string& text, Float32 duration)
 			: player(&player), text(text), remainingTime(duration)
 		{}
 
@@ -67,7 +67,7 @@ namespace Duel6
 			return text;
 		}
 
-		float getRemainingTime() const
+		Float32 getRemainingTime() const
 		{
 			return remainingTime;
 		}

@@ -36,16 +36,16 @@ namespace Duel6
 		{
 		private:
 			Float32 y;
-			d6VERTEX& vertex;
+			Vertex& vertex;
 
 		public:
-			WaterVertex(d6VERTEX& vertex, Float32 height)
+			WaterVertex(Vertex& vertex, Float32 height)
 				: vertex(vertex)
 			{
 				y = vertex.Y - D6_WAVE_HEIGHT;
 			}
 
-			d6VERTEX& getVertex()
+			Vertex& getVertex()
 			{
 				return vertex;
 			}
@@ -81,7 +81,7 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
 		d6WaterVertexList.clear();
 
-		d6VERTEX *v = d6World.Vertex;
+		std::vector<Vertex>& v = d6World.vertexes;
 		int fisrtWaterVertex = (d6World.Blocks + d6World.Sprites) << 2;
 		int lastWaterVertex = (d6World.Blocks + d6World.Sprites + d6World.Waters) << 2;
 

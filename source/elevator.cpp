@@ -81,7 +81,7 @@ namespace Duel6
 		d6Elevators = 0;
 	}
 
-	void ELEV_Add(int *newElev, bool mirror)
+	void ELEV_Add(Int32* newElev, bool mirror)
 	{
 		d6ELEVATOR_s    *e;
 		float           dX, dY, d;
@@ -93,15 +93,19 @@ namespace Duel6
 		e = &d6Elev[d6Elevators++];
 
 		if (mirror)
+		{
 			for (i = 0; i <= newElev[0]; i++)
-				newElev[2 * i + 1] = d6World.Level.SizeX - 1 - newElev[2 * i + 1];
+			{
+				newElev[2 * i + 1] = d6World.getSizeX() - 1 - newElev[2 * i + 1];
+			}
+		}
 
 		e->Sections = newElev[0];
 		e->NowSec = 0;
 		e->CurPos = 0;
 		e->AddPos = 1;
 		e->X = (float)newElev[1];
-		e->Y = (float)(d6World.Level.SizeY - newElev[2]);
+		e->Y = (float)(d6World.getSizeY() - newElev[2]);
 		e->AddX = D6_MALLOC(float, e->Sections);
 		e->AddY = D6_MALLOC(float, e->Sections);
 		e->SecMax = D6_MALLOC(int, e->Sections);
@@ -250,33 +254,18 @@ namespace Duel6
 		}
 	}
 
-	void ELEV_Load(const std::string& path, bool mirror)
+	void ELEV_Load(std::vector<Int32>& elevatorData, bool mirror)
 	{
-		myFile_s    *f;
-		int         l, *e;
-
-		g_app.con->printf(MY_L("APP00026|...Nahravam vytahy - "));
+		// TODO: Move elevators to World
 		ELEV_Free();
+		
+		Int32 numElevators = elevatorData[0];
+		Size pos = 1;
 
-		l = MY_FSize(path.c_str()) - (12 + 2 * d6World.Level.Size);
-
-		if (l < 1)
-			return;
-
-		e = D6_MALLOC(int, l >> 2);
-
-		f = MY_FOpen(path.c_str(), 12 + 2 * d6World.Level.Size, "rb", true);
-		MY_FRead(e, 4, l >> 2, f);
-		MY_FClose(&f);
-
-		g_app.con->printf(MY_L("APP00027|%d vytahu\n"), e[0]);
-		l = 1;
-		while (e[0]-- > 0)
+		while (numElevators-- > 0)
 		{
-			ELEV_Add(&e[l], mirror);
-			l += 3 + 2 * e[l];
+			ELEV_Add(&elevatorData[pos], mirror);
+			pos += 3 + 2 * elevatorData[pos];
 		}
-
-		MY_Free(e);
 	}
 }

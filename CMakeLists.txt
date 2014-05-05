@@ -90,6 +90,7 @@ set(D6R_SOURCES
     source/Type.h
     source/util.cpp
     source/water.cpp
+    source/WaterType.h
     source/Weapon.h
     source/Weapon.cpp
     

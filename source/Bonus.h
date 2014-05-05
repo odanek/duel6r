@@ -53,6 +53,7 @@ namespace Duel6
 		D6_BONUS_INVIS = 53
 	};
 
+	// TODO: Split into Bonus and LyingWeapon
 	class Bonus
 	{
 	private:

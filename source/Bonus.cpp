@@ -41,7 +41,7 @@ namespace Duel6
 
 	Float32 Bonus::getScreenY() const
 	{
-		return Float32(d6World.Level.SizeY - y);
+		return Float32(d6World.getSizeY() - y);
 	}
 
 	void Bonus::render() const
@@ -65,6 +65,6 @@ namespace Duel6
 			return d6WpnTextures[weaponType->animation[12]];
 		}
 
-		return d6World.Anm.textures[type];
+		return d6World.blockTextures[type];
 	}
 }

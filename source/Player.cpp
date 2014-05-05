@@ -89,27 +89,27 @@ namespace Duel6
 
 	static void PLAYER_FindStart(float *x, float *y)
 	{
-		d6LEVEL *l = &d6World.Level;
-		int     X, Y, y2, s = 1;
+		Int32 sX = d6World.getSizeX(), sY = d6World.getSizeY();
+		int X, Y, y2, s = 1;
 
 		while (s)
 		{
-			X = rand() % l->SizeX;
-			Y = rand() % l->SizeY;
+			X = rand() % sX;
+			Y = rand() % sY;
 			s = 1;
 
-			if (D6_BlockZ(X, Y) != D6_ANM_F_BLOCK)
+			if (!d6World.isWall(X, Y))
 			{
 				y2 = Y - 1;
 
-				while (++y2 < l->SizeY)
+				while (++y2 < sY)
 				{
-					if (D6_BlockZ(X, y2) == D6_ANM_F_WATER)
+					if (d6World.isWater(X, y2))
 						break;
-					if (D6_BlockZ(X, y2) == D6_ANM_F_BLOCK)
+					if (d6World.isWall(X, y2))
 					{
 						*x = (float)X;
-						*y = (float)(l->SizeY - Y) + 0.0001f;
+						*y = (float)(sY - Y) + 0.0001f;
 						return;
 					}
 				}
@@ -394,7 +394,7 @@ namespace Duel6
 
 	void Player::update(ScreenMode screenMode, float elapsedTime)
 	{
-		checkWater(d6World.Level, elapsedTime);
+		checkWater(elapsedTime);
 		if (!isDead())
 		{
 			BONUS_Check(*this);
@@ -493,33 +493,33 @@ namespace Duel6
 
 	void Player::prepareCam(ScreenMode screenMode)
 	{
-		float   fovX, fovY, mZ, dX = 0.0, dY = 0.0;
-		d6LEVEL *l = &d6World.Level;
+		Float32 fovX, fovY, mZ, dX = 0.0, dY = 0.0;
+		Int32 sX = d6World.getSizeX(), sY = d6World.getSizeY();
 
-		cameraPos.Pos.x = l->SizeX / 2.0f;
-		cameraPos.Pos.y = l->SizeY / 2.0f;
+		cameraPos.Pos.x = sX / 2.0f;
+		cameraPos.Pos.y = sY / 2.0f;
 
 		fovY = (float)tan(MM_D2R(g_vid.gl_fov) / 2.0f);
 		fovX = g_vid.gl_aspect * fovY;
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			if (l->SizeX > g_vid.gl_aspect * l->SizeY)
-				dX = (float)l->SizeX;
+			if (sX > g_vid.gl_aspect * sY)
+				dX = (float)sX;
 			else
-				dY = (float)l->SizeY;
+				dY = (float)sY;
 		}
-		else if (l->SizeX > l->SizeY)
+		else if (sX > sY)
 		{
-			if (d6ZoomBlc > l->SizeY)
-				dX = (float)l->SizeY;
+			if (d6ZoomBlc > sY)
+				dX = (float)sY;
 			else
 				dX = (float)d6ZoomBlc;
 		}
 		else
 		{
-			if (d6ZoomBlc > l->SizeX)
-				dX = (float)l->SizeX;
+			if (d6ZoomBlc > sX)
+				dX = (float)sX;
 			else
 				dX = (float)d6ZoomBlc;
 		}
@@ -551,10 +551,9 @@ namespace Duel6
 		}
 	}
 
-	void Player::updateCam(void)
+	void Player::updateCam()
 	{
-		d6LEVEL *l = &d6World.Level;
-		float   mX = 0.0, mY = 0.0, X, Y;
+		Float32 mX = 0.0, mY = 0.0, X, Y;
 
 		X = State.X + 0.5f;
 		Y = State.Y - 0.5f;
@@ -568,8 +567,8 @@ namespace Duel6
 		else if (X > cameraPos.Pos.x + cameraPos.TolX)
 		{
 			mX = X - (cameraPos.Pos.x + cameraPos.TolX);
-			if (cameraPos.Right + mX >(float) l->SizeX)
-				mX = (float)l->SizeX - cameraPos.Right;
+			if (cameraPos.Right + mX >(float) d6World.getSizeX())
+				mX = (float)d6World.getSizeX() - cameraPos.Right;
 		}
 		if (Y < cameraPos.Pos.y - cameraPos.TolY)
 		{
@@ -580,8 +579,8 @@ namespace Duel6
 		else if (Y > cameraPos.Pos.y + cameraPos.TolY)
 		{
 			mY = Y - (cameraPos.Pos.y + cameraPos.TolY);
-			if (cameraPos.Up + mY >(float) l->SizeY)
-				mY = (float)l->SizeY - cameraPos.Up;
+			if (cameraPos.Up + mY >(float) d6World.getSizeY())
+				mY = (float)d6World.getSizeY() - cameraPos.Up;
 		}
 
 		if (mX != 0.0)
@@ -673,15 +672,15 @@ namespace Duel6
 			if (!State.J && (s == NULL || !s->getWeapon().ExplC || !hit))
 			{
 				int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f);
-				int y = d6World.Level.SizeY - int(getY() - 0.5f) - 1;
+				int y = d6World.getSizeY() - int(getY() - 0.5f) - 1;
 
-				if (D6_BlockZ(x1, y + 1) == D6_ANM_F_BLOCK && D6_BlockZ(x1, y) != D6_ANM_F_BLOCK)
+				if (d6World.isWall(x1, y + 1) && !d6World.isWall(x1, y))
 				{
 					BONUS_AddDeadManGun(x1, y, *this);
 				}
 				else
 				{
-					if (D6_BlockZ(x2, y + 1) == D6_ANM_F_BLOCK && D6_BlockZ(x2, y) != D6_ANM_F_BLOCK)
+					if (d6World.isWall(x2, y + 1) && !d6World.isWall(x2, y))
 					{
 						BONUS_AddDeadManGun(x2, y, *this);
 					}
@@ -702,29 +701,15 @@ namespace Duel6
 		return *this;
 	}
 
-	static Uint8 WaterBlock(const d6LEVEL& level, float X, float Y) // 0 = no water, 1 = blue water, 2 = red water TODO: Method of Level?
+	void Player::checkWater(float elapsedTime)
 	{
-		int bX = int(X), bY = level.SizeY - int(Y) - 1;
-
-		if (bX >= 0 && bY >= 0 && bX < level.SizeX && bY < level.SizeY)
-		{
-			if (D6_BlockZ(bX, bY) == D6_ANM_F_WATER)
-			{
-				return (D6_BlockN(bX, bY) == 4) ? 1 : 2;
-			}
-		}
-
-		return 0;
-	}
-
-	void Player::checkWater(const d6LEVEL& level, float elapsedTime)
-	{
+		Int32 levelHeight = d6World.getSizeY();
 		float airHitAmount = D6_WATER_HIT * elapsedTime;
 		State.Flags &= ~D6_FLAG_INWATER;
 
 		// Check if head is in water
-		Uint8 water = WaterBlock(level, getX() + 0.5f, getY() - 0.2f);
-		if (water > 0)
+		WaterType water = d6World.getWaterType(Int32(getX() + 0.5f), levelHeight - Int32(getY() - 0.2f) - 1);
+		if (water != WaterType::None)
 		{
 			State.Flags |= D6_FLAG_INWATER;
 			if ((State.Air -= airHitAmount) < 0)
@@ -741,10 +726,10 @@ namespace Duel6
 		State.Air = MY_Min(State.Air + 2 * airHitAmount, D6_MAX_AIR);
 
 		// Check if foot is in water
-		water = WaterBlock(level, getX() + 0.5f, getY() - 0.9f);
-		if (water > 0 && !State.InWater)
+		water = d6World.getWaterType(Int32(getX() + 0.5f), levelHeight - Int32(getY() - 0.9f) - 1);
+		if (water != WaterType::None && !State.InWater)
 		{
-			Sprite waterSplash(wtAnim[water - 1], d6WpnTextures);
+			Sprite waterSplash(wtAnim[(water == WaterType::Blue) ? 0 : 1], d6WpnTextures);
 			waterSplash.setPosition(State.X, State.Y, 0.5f)
 				.setLooping(AnimationLooping::OnceAndRemove);
 			d6SpriteList.addSprite(waterSplash);
@@ -752,7 +737,7 @@ namespace Duel6
 			SOUND_PlaySample(D6_SND_WATER);
 		}
 
-		State.InWater = (water > 0);
+		State.InWater = (water != WaterType::None);
 	}
 
 	bool Player::hasPowerfulShots() const

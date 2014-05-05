@@ -112,10 +112,11 @@ namespace Duel6
 	};
 
 	extern float d6Sin[450], d6KeyWait;
-	extern d6WORLD d6World;
+	extern World d6World;
 	extern GLuint d6BackgroundTexture;
 	extern bool d6InMenu;
-	extern int d6Wireframe, d6ZoomBlc;
+	extern bool d6Wireframe;
+	extern int d6ZoomBlc;
 	extern bool d6ShowFps, d6PlayMusic;
 	extern int d6AmmoRangeMin, d6AmmoRangeMax;
 	extern ScreenMode d6ScreenMode;
@@ -135,8 +136,6 @@ namespace Duel6
 	extern  int			 d6PlayedRounds;
 	extern  int			 d6MaxRounds;
 
-	int     D6_BlockZ(int x, int y);
-	int     D6_BlockN(int x, int y);
 	float   D6_Sin(Int32 a);
 	float   D6_Cos(Int32 a);
 	void    D6_ConSwitchW(con_c *con);
@@ -174,7 +173,6 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	//                          kontrola.cpp                            //
 	//////////////////////////////////////////////////////////////////////
-	void    KONTR_Init(void);
 	void    KONTR_Kontr(Player& player, int c);
 	bool    KONTR_Shot(Shot& s);
 	bool    KONTR_CanJump(Player *p);
@@ -196,7 +194,7 @@ namespace Duel6
 	void    ELEV_Free(void);
 	void    ELEV_MoveAll(float elapsedTime);
 	void    ELEV_DrawAll(void);
-	void    ELEV_Load(const std::string& path, bool mirror);
+	void    ELEV_Load(std::vector<Int32>& elevatorData, bool mirror);
 	void    ELEV_CheckMan(Player& player);
 	void    ELEV_MoveMan(Player& player, float elapsedTime);
 

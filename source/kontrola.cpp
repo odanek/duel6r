@@ -30,91 +30,76 @@
 
 namespace Duel6
 {
-	static  int         d6UpY, d6DownY, d6Down2, d6LeftX, d6RightX, *z;
-	static  d6LEVEL     *l;
-
-	static bool KONTR_Bck(int x, int y)
+	static void KONTR_Kontr1(Player& player, Int32 left, Int32 right, Int32 up)
 	{
-		if (x >= 0 && x < l->SizeX && y >= 0 && y < l->SizeY)
-			return (z[l->Data[y * l->SizeX + x]] == D6_ANM_F_BLOCK);
-
-		return true;
-	}
-
-	static void KONTR_Kontr1(Player& player)
-	{
-		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6RightX, d6UpY))
+		if (d6World.isWall(left, up) || d6World.isWall(right, up))
 		{
-			player.State.Y = (float)(l->SizeY - d6UpY) - 1.0f;
+			player.State.Y = (float)(d6World.getSizeY() - up) - 1.0f;
 			player.State.J = 180;
 		}
 	}
 
-	static void KONTR_Kontr2(Player& player)
+	static void KONTR_Kontr2(Player& player, Int32 left, Int32 right, Int32 down)
 	{
-		if (KONTR_Bck(d6LeftX, d6DownY) || KONTR_Bck(d6RightX, d6DownY))
+		if (d6World.isWall(left, down) || d6World.isWall(right, down))
 		{
-			player.State.Y = (float)(l->SizeY - d6DownY) + 1.0001f;
+			player.State.Y = (float)(d6World.getSizeY() - down) + 1.0001f;
 			player.State.J = 0;
 		}
 
 		ELEV_CheckMan(player);
 	}
 
-	static void KONTR_Kontr3(Player& player)
+	static void KONTR_Kontr3(Player& player, Int32 left, Int32 right, Int32 down)
 	{
 		ELEV_CheckMan(player);
 		if (player.State.Elev != -1)
 			return;
 
-		if (!KONTR_Bck(d6LeftX, d6Down2) && !KONTR_Bck(d6RightX, d6Down2))
+		if (!d6World.isWall(left, down) && !d6World.isWall(right, down))
 			player.State.J = 180;
 	}
 
-	static void KONTR_Kontr4(Player& player)
+	static void KONTR_Kontr4(Player& player, Int32 left, Int32 right, Int32 up, Int32 down)
 	{
 		if (player.State.Speed < 0)
 		{
-			if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6LeftX, d6DownY))
-				player.State.X = (float)d6LeftX + 0.9001f;
+			if (d6World.isWall(left, up) || d6World.isWall(left, down))
+				player.State.X = (float)left + 0.9001f;
 		}
 		else
 		{
-			if (KONTR_Bck(d6RightX, d6UpY) || KONTR_Bck(d6RightX, d6DownY))
-				player.State.X = (float)d6RightX - 0.9001f;
+			if (d6World.isWall(right, up) || d6World.isWall(right, down))
+				player.State.X = (float)right - 0.9001f;
 		}
-	}
-
-	void KONTR_Init(void)
-	{
-		l = &d6World.Level;
-		z = d6World.Anm.Znak;
 	}
 
 	void KONTR_Kontr(Player& player, int c)
 	{
-		d6UpY = l->SizeY - (int)(player.getY() - 0.06) - 1;
-		d6DownY = l->SizeY - (int)(player.getY() - 1.0f) - 1;
-		d6Down2 = l->SizeY - (int)(player.getY() - 1.001f) - 1;
-		d6LeftX = (int)(player.getX() + 0.1f);
-		d6RightX = (int)(player.getX() + 0.9f);
+		Uint32 levelHeight = d6World.getSizeY();
+
+		Int32 up = levelHeight - (int)(player.getY() - 0.06) - 1;
+		Int32 down = levelHeight - (int)(player.getY() - 1.0f) - 1;
+		Int32 down2 = levelHeight - (int)(player.getY() - 1.001f) - 1;
+		Int32 left = (int)(player.getX() + 0.1f);
+		Int32 right = (int)(player.getX() + 0.9f);
 
 		switch (c)
 		{
-		case 1: KONTR_Kontr1(player); break;
-		case 2: KONTR_Kontr2(player); break;
-		case 3: KONTR_Kontr3(player); break;
-		case 4: KONTR_Kontr4(player); break;
+		case 1: KONTR_Kontr1(player, left, right, up); break;
+		case 2: KONTR_Kontr2(player, left, right, down); break;
+		case 3: KONTR_Kontr3(player, left, right, down2); break;
+		case 4: KONTR_Kontr4(player, left, right, up, down); break;
 		}
 	}
 
 	bool KONTR_CanJump(Player* p)
 	{
-		d6UpY = l->SizeY - (int)p->getY() - 1;
-		d6LeftX = (int)(p->getX() + 0.1f);
-		d6RightX = (int)(p->getX() + 0.9f);
+		Int32 up = d6World.getSizeY() - (int)p->getY() - 1;
+		Int32 left = (int)(p->getX() + 0.1f);
+		Int32 right = (int)(p->getX() + 0.9f);
 
-		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6RightX, d6UpY))
+		if (d6World.isWall(left, up) || d6World.isWall(right, up))
 			return false;
 		return true;
 	}
@@ -134,7 +119,7 @@ namespace Duel6
 				continue;
 			}
 
-			Float32  ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f);
+			Float32 ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f);
 
 			if (X > player.getX() + 1.0f || X + 0.65f < player.getX() ||
 				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad)
@@ -152,21 +137,23 @@ namespace Duel6
 		if (KONTR_ShotPlayer(s))
 			return true;
 
-		d6UpY = l->SizeY - (int)(s.getY()) - 1;
-		d6DownY = l->SizeY - (int)(s.getY() - 0.35f) - 1;
+		Int32 up = d6World.getSizeY() - (int)(s.getY()) - 1;
+		Int32 down = d6World.getSizeY() - (int)(s.getY() - 0.35f) - 1;
+		
+		Int32 left, right;
 		if (s.getOrientation() == Orientation::Left)
 		{
-			d6LeftX = (int)(s.getX());
-			d6RightX = (int)(s.getX() + 0.65f);
+			left = (int)(s.getX());
+			right = (int)(s.getX() + 0.65f);
 		}
 		else
 		{
-			d6LeftX = (int)(s.getX() + 0.35f);
-			d6RightX = (int)(s.getX() + 1.0f);
+			left = (int)(s.getX() + 0.35f);
+			right = (int)(s.getX() + 1.0f);
 		}
 
-		if (KONTR_Bck(d6LeftX, d6UpY) || KONTR_Bck(d6LeftX, d6DownY) ||
-			KONTR_Bck(d6RightX, d6UpY) || KONTR_Bck(d6RightX, d6DownY))
+		if (d6World.isWall(left, up) || d6World.isWall(left, down) ||
+			d6World.isWall(right, up) || d6World.isWall(right, down))
 		{
 			WPN_Boom(s, NULL);
 			return true;

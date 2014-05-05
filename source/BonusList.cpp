@@ -58,15 +58,15 @@ namespace Duel6
 	void BONUS_AddNew()
 	{
 		bool weapon = ((rand() % 2) == 1);
-		Int32 x = rand() % d6World.Level.SizeX;
-		Int32 y = rand() % d6World.Level.SizeY;
+		Int32 x = rand() % d6World.getSizeX();
+		Int32 y = rand() % d6World.getSizeY();
 
-		if (weapon && D6_BlockZ(x, y + 1) != D6_ANM_F_BLOCK) // Weapons must be on the ground
+		if (weapon && !d6World.isWall(x, y + 1)) // Weapons must be on the ground
 		{
 			return;
 		}
 
-		if (D6_BlockZ(x, y) != D6_ANM_F_BLOCK)
+		if (!d6World.isWall(x, y))
 		{
 			if (weapon)
 			{

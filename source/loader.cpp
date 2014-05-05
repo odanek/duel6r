@@ -29,8 +29,54 @@
 
 namespace Duel6
 {
-	static d6WORLD  *w;
-	static d6LEVEL  *l;
+	void Level::load(const std::string& path, std::vector<Int32>& elevatorData)
+	{
+		data.clear();
+
+		myFile_s* f = MY_FOpen(path.c_str(), 0, "rb", true);
+		MY_FRead(&sizeX, 4, 1, f);
+		MY_FRead(&sizeY, 4, 1, f);
+		MY_FSeek(f, 12, SEEK_SET);
+		data.resize(sizeX * sizeY);
+		MY_FRead(&data[0], 2, data.size(), f);
+		loadElevators(f, elevatorData);
+		MY_FClose(&f);
+	}
+
+	Level& Level::loadElevators(myFile_s *f, std::vector<Int32>& elevatorData)
+	{
+		// The rest of file is elevator data
+		g_app.con->printf(MY_L("APP00026|...Nahravam vytahy - "));
+		while (!MY_FEof(f))
+		{
+			Int32 data;
+			MY_FRead(&data, 4, 1, f);
+			elevatorData.push_back(data);
+		}
+
+		if (elevatorData.empty())
+		{
+			elevatorData.push_back(0);
+		}
+
+		g_app.con->printf(MY_L("APP00027|%d vytahu\n"), elevatorData[0]);
+		return *this;
+	}
+
+	Level& Level::mirror()
+	{
+		for (Int32 y = 0; y < sizeY; y++)
+		{
+			for (Int32 x = 0; x < sizeX / 2; x++)
+			{
+				Uint16 block = data[y * sizeX + x];
+				data[y * sizeX + x] = data[y * sizeX + sizeX - 1 - x];
+				data[y * sizeX + sizeX - 1 - x] = block;
+			}
+		}
+
+		return *this;
+	}
 
 	/*
 	===================
@@ -39,17 +85,19 @@ namespace Duel6
 	0 - je
 	===================
 	*/
-	static int LOADER_Block(int i, int j, int wr)
+	int World::block(int i, int j, int wr)
 	{
-		if (i < 0 || i >= l->SizeX || j < 0 || j >= l->SizeY)
+		if (!level.isInside(i, j))
+		{
 			return 1;
+		}
 
-		i = w->Anm.Znak[l->Data[j * l->SizeX + i]];
+		Int32 type = getBlockType(i, j);
 
-		if (i == D6_ANM_F_BLOCK)
+		if (type == D6_ANM_F_BLOCK)
 			return 0;
 
-		if (i == D6_ANM_F_WATER && wr == 1)
+		if (type == D6_ANM_F_WATER && wr == 1)
 			return 2;
 
 		return 1;
@@ -63,14 +111,14 @@ namespace Duel6
 	Nastaveni V   - 0.0 0.0 1.0 1.0
 	===================
 	*/
-	static void LOADER_SetVertex(int n, int x, int y, float z)
+	void World::setVertex(int n, int x, int y, float z)
 	{
-		w->Vertex[n].X = (float)x;
-		w->Vertex[n].Y = (float)y;
-		w->Vertex[n].Z = z;
-		w->Vertex[n].U = (float)(((n % 4) - ((n % 4) / 2)) % 2) * 0.99f;
-		w->Vertex[n].V = (float)((n % 4) / 2) * 0.99f;
-		w->Vertex[n].Flags = D6_FLAG_NONE;
+		vertexes[n].X = (float)x;
+		vertexes[n].Y = (float)y;
+		vertexes[n].Z = z;
+		vertexes[n].U = (float)(((n % 4) - ((n % 4) / 2)) % 2) * 0.99f;
+		vertexes[n].V = (float)((n % 4) / 2) * 0.99f;
+		vertexes[n].Flags = D6_FLAG_NONE;
 	}
 
 	/*
@@ -78,21 +126,21 @@ namespace Duel6
 	Prida Face od bloku
 	===================
 	*/
-	static void LOADER_AddFace(int pos, int x1, int y1, int z1,
+	void World::addFace(int pos, int x1, int y1, int z1,
 		int x2, int y2, int z2,
 		int x3, int y3, int z3,
 		int x4, int y4, int z4, int *blc)
 	{
-		d6FACE  *f = &w->Face[*blc / 4];
+		Face& f = faces[*blc / 4];
 
-		f->MinTex = l->Data[pos];
-		f->MaxTex = f->MinTex + w->Anm.Anim[f->MinTex];
-		f->NowTex = f->MinTex;
+		f.minTex = level.getBlock(pos);
+		f.maxTex = f.minTex + blocks[f.minTex].anim;
+		f.nowTex = f.minTex;
 
-		LOADER_SetVertex(*blc, x1, y1, (float)z1);
-		LOADER_SetVertex(*blc + 1, x2, y2, (float)z2);
-		LOADER_SetVertex(*blc + 2, x3, y3, (float)z3);
-		LOADER_SetVertex(*blc + 3, x4, y4, (float)z4);
+		setVertex(*blc, x1, y1, (float)z1);
+		setVertex(*blc + 1, x2, y2, (float)z2);
+		setVertex(*blc + 2, x3, y3, (float)z3);
+		setVertex(*blc + 3, x4, y4, (float)z4);
 		*blc += 4;
 	}
 
@@ -101,23 +149,23 @@ namespace Duel6
 	Prida blok
 	===================
 	*/
-	static void LOADER_AddBlock(int pos, int i, int j, int *blc)
+	void World::addBlock(int pos, int i, int j, int *blc)
 	{
-		int rj = w->Level.SizeY - j;
+		int rj = level.getSizeY() - j;
 
-		LOADER_AddFace(pos, i, j, 1, i + 1, j, 1, i + 1, j - 1, 1, i, j - 1, 1, blc);
+		addFace(pos, i, j, 1, i + 1, j, 1, i + 1, j - 1, 1, i, j - 1, 1, blc);
 #ifdef D6_RENDER_BACKS
-		LOADER_AddFace (pos, i + 1, j, 0, i, j, 0, i, j - 1, 0, i + 1, j - 1, 0, blc);
+		addFace (pos, i + 1, j, 0, i, j, 0, i, j - 1, 0, i + 1, j - 1, 0, blc);
 #endif
 
-		if (LOADER_Block(i - 1, rj, 0))
-			LOADER_AddFace(pos, i, j, 0, i, j, 1, i, j - 1, 1, i, j - 1, 0, blc);
-		if (LOADER_Block(i + 1, rj, 0))
-			LOADER_AddFace(pos, i + 1, j, 1, i + 1, j, 0, i + 1, j - 1, 0, i + 1, j - 1, 1, blc);
-		if (LOADER_Block(i, rj - 1, 0))
-			LOADER_AddFace(pos, i, j, 1, i, j, 0, i + 1, j, 0, i + 1, j, 1, blc);
-		if (LOADER_Block(i, rj + 1, 0))
-			LOADER_AddFace(pos, i, j - 1, 1, i + 1, j - 1, 1, i + 1, j - 1, 0, i, j - 1, 0, blc);
+		if (block(i - 1, rj, 0))
+			addFace(pos, i, j, 0, i, j, 1, i, j - 1, 1, i, j - 1, 0, blc);
+		if (block(i + 1, rj, 0))
+			addFace(pos, i + 1, j, 1, i + 1, j, 0, i + 1, j - 1, 0, i + 1, j - 1, 1, blc);
+		if (block(i, rj - 1, 0))
+			addFace(pos, i, j, 1, i, j, 0, i + 1, j, 0, i + 1, j, 1, blc);
+		if (block(i, rj + 1, 0))
+			addFace(pos, i, j - 1, 1, i + 1, j - 1, 1, i + 1, j - 1, 0, i, j - 1, 0, blc);
 	}
 
 	/*
@@ -125,24 +173,24 @@ namespace Duel6
 	Prida blok vody
 	============================
 	*/
-	static void LOADER_AddWaterBlock(int pos, int i, int j, int *wtr)
+	void World::addWaterBlock(int pos, int i, int j, int *wtr)
 	{
-		int rj = w->Level.SizeY - j;
+		int rj = level.getSizeY() - j;
 
-		LOADER_AddFace(pos, i, j, 1, i + 1, j, 1, i + 1, j - 1, 1, i, j - 1, 1, wtr);
-		LOADER_AddFace(pos, i + 1, j, 0, i, j, 0, i, j - 1, 0, i + 1, j - 1, 0, wtr);
+		addFace(pos, i, j, 1, i + 1, j, 1, i + 1, j - 1, 1, i, j - 1, 1, wtr);
+		addFace(pos, i + 1, j, 0, i, j, 0, i, j - 1, 0, i + 1, j - 1, 0, wtr);
 
-		if (LOADER_Block(i, rj - 1, 1) != 2)
+		if (block(i, rj - 1, 1) != 2)
 		{
-			LOADER_AddFace(pos, i, j, 1, i, j, 0, i + 1, j, 0, i + 1, j, 1, wtr);
-			w->Vertex[*wtr - 12].Flags = D6_FLAG_FLOW;
-			w->Vertex[*wtr - 11].Flags = D6_FLAG_FLOW;
-			w->Vertex[*wtr - 8].Flags = D6_FLAG_FLOW;
-			w->Vertex[*wtr - 7].Flags = D6_FLAG_FLOW;
-			w->Vertex[*wtr - 4].Flags = D6_FLAG_FLOW;
-			w->Vertex[*wtr - 3].Flags = D6_FLAG_FLOW;
-			w->Vertex[*wtr - 2].Flags = D6_FLAG_FLOW;
-			w->Vertex[*wtr - 1].Flags = D6_FLAG_FLOW;
+			addFace(pos, i, j, 1, i, j, 0, i + 1, j, 0, i + 1, j, 1, wtr);
+			vertexes[*wtr - 12].Flags = D6_FLAG_FLOW;
+			vertexes[*wtr - 11].Flags = D6_FLAG_FLOW;
+			vertexes[*wtr - 8].Flags = D6_FLAG_FLOW;
+			vertexes[*wtr - 7].Flags = D6_FLAG_FLOW;
+			vertexes[*wtr - 4].Flags = D6_FLAG_FLOW;
+			vertexes[*wtr - 3].Flags = D6_FLAG_FLOW;
+			vertexes[*wtr - 2].Flags = D6_FLAG_FLOW;
+			vertexes[*wtr - 1].Flags = D6_FLAG_FLOW;
 		}
 	}
 
@@ -151,26 +199,28 @@ namespace Duel6
 	Prida face od sprite
 	===================
 	*/
-	static void LOADER_AddSprite(int pos, int i, int j, float z, int *spr)
+	void World::addSprite(int pos, int i, int j, float z, int *spr)
 	{
-		d6FACE  *f = &w->Face[*spr / 4];
+		Face& f = faces[*spr / 4];
 
-		f->MinTex = l->Data[pos];
-		f->MaxTex = f->MinTex + w->Anm.Anim[f->MinTex];
-		f->NowTex = f->MinTex;
+		f.minTex = level.getBlock(pos);
+		f.maxTex = f.minTex + blocks[f.minTex].anim;
+		f.nowTex = f.minTex;
 
-		LOADER_SetVertex(*spr, i, j, z);
-		LOADER_SetVertex(*spr + 1, i + 1, j, z);
-		LOADER_SetVertex(*spr + 2, i + 1, j - 1, z);
-		LOADER_SetVertex(*spr + 3, i, j - 1, z);
+		setVertex(*spr, i, j, z);
+		setVertex(*spr + 1, i + 1, j, z);
+		setVertex(*spr + 2, i + 1, j - 1, z);
+		setVertex(*spr + 3, i, j - 1, z);
 		*spr += 4;
 
-		if (w->Anm.Znak[f->MinTex] == D6_ANM_F_WFALL && j > 1)
-			if (w->Anm.Znak[l->Data[(l->SizeY - j + 1) * l->SizeX + i]] == D6_ANM_F_WATER)
+		if (blocks[f.minTex].type == D6_ANM_F_WFALL && j > 1)
+		{
+			if (blocks[level.getBlock(i, level.getSizeY() - j + 1)].type == D6_ANM_F_WATER)
 			{
-				w->Vertex[*spr - 2].Flags = D6_FLAG_FLOW;
-				w->Vertex[*spr - 1].Flags = D6_FLAG_FLOW;
+				vertexes[*spr - 2].Flags = D6_FLAG_FLOW;
+				vertexes[*spr - 1].Flags = D6_FLAG_FLOW;
 			}
+		}
 	}
 
 	/*
@@ -179,101 +229,110 @@ namespace Duel6
 	zjisti pocty bloku, facu, spritu....
 	===================
 	*/
-	static void LOADER_Process(std::vector<Bonus>& bonuses)
+	void World::process(std::vector<Bonus>& bonuses)
 	{
-		int i, j, k, *anm, spr, blc, pos, wtr;
+		int i, j, k, spr, blc, pos, wtr;
 
-		w->Sprites = 0;
-		w->Blocks = 0;
-		w->Waters = 0;
-		anm = w->Anm.Znak;
+		Sprites = 0;
+		Blocks = 0;
+		Waters = 0;
 		pos = 0;
 
-		for (j = 0; j < l->SizeY; j++)
+		for (j = 0; j < level.getSizeY(); j++)
 		{
-			for (i = 0; i < l->SizeX; i++, pos++)
+			for (i = 0; i < level.getSizeX(); i++, pos++)
 			{
-				switch (anm[l->Data[pos]])
+				Int32 bl = level.getBlock(pos);
+				switch (blocks[bl].type)
 				{
 				case D6_ANM_F_NOTHING:
 					for (k = 0; k < D6_BONUS_COUNT; k++)
-						if (l->Data[pos] == d6BonusArt[k])
+					{
+						if (bl == d6BonusArt[k])
 						{
-							bonuses.push_back(Bonus(i, j, l->Data[pos]));
+							bonuses.push_back(Bonus(i, j, bl));
 						}
+					}
 					break;
 				case D6_ANM_F_WFALL:
-					w->Waters++;
+					Waters++;
 					break;
 				case D6_ANM_F_WATER:
-					w->Waters += 2;
-					if (LOADER_Block(i, j - 1, 1) != 2)
-						w->Waters++;
+					Waters += 2;
+					if (block(i, j - 1, 1) != 2)
+					{
+						Waters++;
+					}
 					break;
 				case D6_ANM_F_BLOCK:
 #ifdef D6_RENDER_BACKS
-					w->Blocks += 2;
+					Blocks += 2;
 #else
-					w->Blocks += 1;
+					Blocks += 1;
 #endif
-					w->Blocks += LOADER_Block(i - 1, j, 0);
-					w->Blocks += LOADER_Block(i + 1, j, 0);
-					w->Blocks += LOADER_Block(i, j + 1, 0);
-					w->Blocks += LOADER_Block(i, j - 1, 0);
+					Blocks += block(i - 1, j, 0);
+					Blocks += block(i + 1, j, 0);
+					Blocks += block(i, j + 1, 0);
+					Blocks += block(i, j - 1, 0);
 					break;
 				case D6_ANM_F_FRBC:
-					w->Sprites += 2;
+					Sprites += 2;
 					break;
 				default:
-					w->Sprites++;
+					Sprites++;
 					break;
 				}
 			}
 		}
 
-		w->Faces = w->Sprites + w->Blocks + w->Waters;
-		w->Vertex = D6_MALLOC(d6VERTEX, w->Faces << 2);
-		w->Face = D6_MALLOC(d6FACE, w->Faces);
+		Size numFaces = Sprites + Blocks + Waters;
+		vertexes.resize(numFaces << 2);
+		faces.resize(numFaces);
 		pos = 0;
 		blc = 0;
-		spr = w->Blocks << 2;
-		wtr = (w->Blocks + w->Sprites) << 2;
+		spr = Blocks << 2;
+		wtr = (Blocks + Sprites) << 2;
 
-		for (j = l->SizeY; j > 0; j--)
-			for (i = 0; i < l->SizeX; i++, pos++)
-				switch (anm[l->Data[pos]])
+		for (j = level.getSizeY(); j > 0; j--)
+		{
+			for (i = 0; i < level.getSizeX(); i++, pos++)
 			{
+				Int32 bl = level.getBlock(pos);
+				switch (blocks[bl].type)
+				{
 				case D6_ANM_F_NOTHING:
 					break;
 				case D6_ANM_F_WFALL:
-					LOADER_AddSprite(pos, i, j, 0.75, &wtr);
+					addSprite(pos, i, j, 0.75, &wtr);
 					break;
 				case D6_ANM_F_WATER:
-					LOADER_AddWaterBlock(pos, i, j, &wtr);
+					addWaterBlock(pos, i, j, &wtr);
 					break;
 				case D6_ANM_F_BLOCK:
-					LOADER_AddBlock(pos, i, j, &blc);
+					addBlock(pos, i, j, &blc);
 					break;
 				case D6_ANM_F_FRBC:
-					LOADER_AddSprite(pos, i, j, 1.0, &spr);
-					LOADER_AddSprite(pos, i, j, 0.0, &spr);
+					addSprite(pos, i, j, 1.0, &spr);
+					addSprite(pos, i, j, 0.0, &spr);
 					break;
 				case D6_ANM_F_FRONT:
-					LOADER_AddSprite(pos, i, j, 1.0, &spr);
+					addSprite(pos, i, j, 1.0, &spr);
 					break;
 				case D6_ANM_F_BACK:
-					LOADER_AddSprite(pos, i, j, 0.0, &spr);
+					addSprite(pos, i, j, 0.0, &spr);
 					break;
 				case D6_ANM_F_3FRONT:
-					LOADER_AddSprite(pos, i, j, 0.75, &spr);
+					addSprite(pos, i, j, 0.75, &spr);
 					break;
 				case D6_ANM_F_3BACK:
-					LOADER_AddSprite(pos, i, j, 0.25, &spr);
+					addSprite(pos, i, j, 0.25, &spr);
 					break;
 				default:
-					MY_Err(MY_ErrDump(MY_L("APP00028|LOADER_LoadWorld chyba: Neznamy typ %d"), anm[l->Data[pos]]));
+					MY_Err(MY_ErrDump(MY_L("APP00028|LOADER_LoadWorld chyba: Neznamy typ %d"), blocks[bl].type));
 					break;
+				}
 			}
+		}
 	}
 
 	/*
@@ -281,32 +340,32 @@ namespace Duel6
 	Optimalizace
 	==================================================
 	*/
-	void LOADER_Optimize(void)
+	void World::optimize()
 	{
-		int     i, j, k, cur_tex, cur_fc;
+		int     k, cur_tex, cur_fc;
 
-		for (i = 0; i < w->Faces; i++)
+		for (Size i = 0; i < faces.size(); i++)
 		{
-			cur_tex = w->Face[i].NowTex;
+			cur_tex = faces[i].nowTex;
 			cur_fc = i + 1;
 
-			for (j = i + 1; j < w->Faces; j++)
+			for (Size j = i + 1; j < faces.size(); j++)
 			{
-				if (w->Face[j].NowTex == cur_tex)
+				if (faces[j].nowTex == cur_tex)
 				{
 					if (j != cur_fc)
 					{
 						// Swap
-						d6FACE tmpf = w->Face[cur_fc];
-						w->Face[cur_fc] = w->Face[j];
-						w->Face[j] = tmpf;
+						Face tmpf = faces[cur_fc];
+						faces[cur_fc] = faces[j];
+						faces[j] = tmpf;
 
 						for (k = 0; k < 4; k++)
 						{
 							// Swap
-							d6VERTEX tmpv = w->Vertex[cur_fc * 4 + k];
-							w->Vertex[cur_fc * 4 + k] = w->Vertex[j * 4 + k];
-							w->Vertex[j * 4 + k] = tmpv;
+							Vertex tmpv = vertexes[cur_fc * 4 + k];
+							vertexes[cur_fc * 4 + k] = vertexes[j * 4 + k];
+							vertexes[j * 4 + k] = tmpv;
 						}
 					}
 					cur_fc++;
@@ -322,37 +381,56 @@ namespace Duel6
 	tak budou uvolneny
 	===================
 	*/
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, std::vector<Bonus>& bonuses)
+	void World::loadLevel(const std::string& path, bool mirror, std::vector<Bonus>& bonuses, std::vector<Int32>& elevatorData)
 	{
-		int         x, y, b;
-		myFile_s    *f;
+		level.load(path, elevatorData);
+		if (mirror)
+		{
+			level.mirror();
+		}
 
-		w = world;
-		l = &w->Level;
+		vertexes.clear();
+		faces.clear();
+		animWait = 0;
 
-		if (w->Vertex != NULL) MY_Free(w->Vertex);
-		if (w->Face != NULL) MY_Free(w->Face);
-		if (l->Data != NULL) MY_Free(l->Data);
+		process(bonuses);
+		optimize();
+	}
 
-		f = MY_FOpen(path.c_str(), 0, "rb", true);
-		MY_FRead(&l->SizeX, 4, 1, f);
-		MY_FRead(&l->SizeY, 4, 1, f);
-		MY_FSeek(f, 12, SEEK_SET);
-		l->Size = l->SizeX * l->SizeY;
-		l->Data = D6_MALLOC(myWORD, l->Size);
-		MY_FRead(l->Data, 2, l->Size, f);
+	void World::init(const std::string& textureFile, const std::string blockDataFile)
+	{
+		myFile_s        *f;
+		myKh3info_s     ki;
+
+		g_app.con->printf(MY_L("APP00056|Nahravam textury urovne\n"));
+		MY_KH3Open(textureFile.c_str());
+		MY_KH3GetInfo(&ki);
+		g_app.con->printf(MY_L("APP00057|...Soubor %s obsahuje %lu textur\n"), textureFile.c_str(), ki.picts);
+
+		g_app.con->printf(MY_L("APP00058|Nahravam animacni data (%s)\n"), blockDataFile.c_str());
+		blocks.clear();		
+		f = MY_FOpen(blockDataFile.c_str(), 0, "rb", true);
+		for (Size i = 0; i < ki.picts; i++)
+		{
+			Block block;
+			MY_FRead(&block.anim, 4, 1, f);
+			MY_FRead(&block.type, 4, 1, f);
+			blocks.push_back(block);
+
+		}
 		MY_FClose(&f);
 
-		if (mirror)
-			for (y = 0; y < l->SizeY; y++)
-				for (x = 0; x < l->SizeX / 2; x++)
-				{
-					b = l->Data[y * l->SizeX + x];
-					l->Data[y * l->SizeX + x] = l->Data[y * l->SizeX + l->SizeX - 1 - x];
-					l->Data[y * l->SizeX + l->SizeX - 1 - x] = b;
-				}
+		blockTextures.resize(ki.picts);
+		for (Size i = 0; i < ki.picts; i++)
+		{
+			blockTextures[i] = UTIL_LoadKH3Texture(textureFile.c_str(), i, false);
+		}
+		MY_KH3Close();
+	}
 
-		LOADER_Process(bonuses);
-		LOADER_Optimize();
+	void World::deInit()
+	{
+		glDeleteTextures(blockTextures.size(), &blockTextures[0]);
+		blockTextures.clear();
 	}
 }

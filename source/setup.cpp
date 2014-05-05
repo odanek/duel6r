@@ -107,45 +107,6 @@ namespace Duel6
 		D6_SetGLMode(D6_GL_ORTHO);
 	}
 
-	static void SET_InitWorldStruct(void)
-	{
-		d6World.Vertex = NULL;
-		d6World.Face = NULL;
-		d6World.Level.Data = NULL;
-	}
-
-	static void SET_LoadWorldTextures(void)
-	{
-		myFile_s        *f;
-		d6ANM           *anm = &d6World.Anm;
-		myKh3info_s     ki;
-		myUINT          i;
-
-		g_app.con->printf(MY_L("APP00056|Nahravam textury urovne\n"));
-		MY_KH3Open(D6_FILE_ART);
-		MY_KH3GetInfo(&ki);
-		g_app.con->printf(MY_L("APP00057|...Soubor %s obsahuje %lu textur\n"), D6_FILE_ART, ki.picts);
-
-		anm->Anim = D6_MALLOC(int, ki.picts);
-		anm->Znak = D6_MALLOC(int, ki.picts);
-		anm->textures.resize(ki.picts);
-
-		g_app.con->printf(MY_L("APP00058|Nahravam animacni data (%s)\n"), D6_FILE_ANM);
-		f = MY_FOpen(D6_FILE_ANM, 0, "rb", true);
-		for (i = 0; i < ki.picts; i++)
-		{
-			MY_FRead(&anm->Anim[i], 4, 1, f);
-			MY_FRead(&anm->Znak[i], 4, 1, f);
-		}
-		MY_FClose(&f);
-
-		for (i = 0; i < ki.picts; i++)
-		{
-			anm->textures[i] = UTIL_LoadKH3Texture(D6_FILE_ART, i, false);
-		}
-		MY_KH3Close();
-	}
-
 	void SET_LoadBackground(int n)
 	{
 		if (d6BcgLoaded)
@@ -194,14 +155,8 @@ namespace Duel6
 	{
 		SOUND_DeInit();
 
-		glDeleteTextures(d6World.Anm.textures.size(), &d6World.Anm.textures[0]);
+		d6World.deInit();
 		WPN_FreeTextures();
-		MY_Free(d6World.Anm.Znak);
-		MY_Free(d6World.Anm.Anim);
-		d6World.Anm.textures.clear();
-		MY_Free(d6World.Vertex);
-		MY_Free(d6World.Face);
-		MY_Free(d6World.Level.Data);
 		MENU_Free();
 		FIRE_Free();
 		ELEV_Free();
@@ -477,8 +432,7 @@ namespace Duel6
 		g_app.con->exec("exec data/skin.txt");
 
 		SET_InitVideo();
-		SET_InitWorldStruct();
-		SET_LoadWorldTextures();
+		d6World.init(D6_FILE_ART, D6_FILE_ANM);
 		WPN_LoadTextures();
 		EXPL_Load();
 		ELEV_Init();

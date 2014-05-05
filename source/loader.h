@@ -30,6 +30,7 @@
 
 #include <vector>
 #include "Bonus.h"
+#include "WaterType.h"
 
 #define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
 
@@ -50,7 +51,7 @@
 
 namespace Duel6
 {
-	struct d6VERTEX
+	struct Vertex
 	{
 		Float32 X;
 		Float32 Y;
@@ -60,42 +61,131 @@ namespace Duel6
 		Int32 Flags;
 	};
 
-	struct d6FACE
+	struct Face
 	{
-		Int32 NowTex;
-		Int32 MinTex;
-		Int32 MaxTex;
+		Int32 nowTex;
+		Int32 minTex;
+		Int32 maxTex;
 	};
 
-	struct d6LEVEL
+	class Level
 	{
-		Int32 SizeX;
-		Int32 SizeY;
-		Int32 Size;
-		Uint16 *Data;
+	private:
+		Int32 sizeX;
+		Int32 sizeY;
+		std::vector<Uint16> data;
+
+	public:
+		void load(const std::string& path, std::vector<Int32>& elevatorData);				
+		Level& mirror();
+
+		Int32 getSizeX() const
+		{
+			return sizeX;
+		}
+
+		Int32 getSizeY() const
+		{
+			return sizeY;
+		}
+		
+		Uint16 getBlock(Int32 x, Int32 y)
+		{
+			return data[y * sizeX + x];
+		}
+
+		Uint16 getBlock(Size offset)
+		{
+			return data[offset];
+		}
+
+		bool isInside(Int32 x, Int32 y)
+		{
+			return (x >= 0 && x < sizeX && y >= 0 && y < sizeY);
+		}
+
+	private:
+		Level& loadElevators(myFile_s *f, std::vector<Int32>& elevatorData);
 	};
 
-	struct d6ANM
+	class World
 	{
-		std::vector<GLuint> textures;
-		Float32 Wait;
-		Int32 *Znak;
-		Int32 *Anim;
-	};
+	private:
+		struct Block
+		{
+			Int32 type;
+			Int32 anim;
+		};
+		Level level;
 
-	struct d6WORLD
-	{
-		int         Blocks;
-		int         Sprites;
-		int         Waters;
-		int         Faces;
-		d6VERTEX    *Vertex;
-		d6FACE      *Face;
-		d6LEVEL     Level;
-		d6ANM       Anm;
-	};
+	public:
+		Size Blocks;
+		Size Sprites;
+		Size Waters;
+		std::vector<Vertex> vertexes;
+		std::vector<Face> faces;
+		std::vector<Block> blocks;
+		std::vector<GLuint> blockTextures;
+		Float32 animWait;
 
-	void LOADER_LoadWorld(const std::string& path, d6WORLD *world, bool mirror, std::vector<Bonus>& bonuses);
+	public:
+		World()
+		{}
+
+		void init(const std::string& textureFile, const std::string blockDataFile);
+		void deInit();
+		void loadLevel(const std::string& path, bool mirror, std::vector<Bonus>& bonuses, std::vector<Int32>& elevatorData);
+
+		Int32 getSizeX() const
+		{
+			return level.getSizeX();
+		}
+
+		Int32 getSizeY() const
+		{
+			return level.getSizeY();
+		}
+
+		bool isWater(Int32 x, Int32 y)
+		{
+			return getBlockTypeSafe(x, y) == D6_ANM_F_WATER;
+		}
+
+		bool isWall(Int32 x, Int32 y)
+		{
+			return getBlockTypeSafe(x, y) == D6_ANM_F_BLOCK;
+		}
+
+		WaterType getWaterType(Int32 x, Int32 y)
+		{
+			if (isWater(x, y))
+			{
+				return (level.getBlock(x, y) == 4) ? WaterType::Blue : WaterType::Red;
+			}
+
+			return WaterType::None;
+		}
+
+	private:
+		void process(std::vector<Bonus>& bonuses);
+		void optimize();
+		void addSprite(int pos, int i, int j, float z, int *spr);
+		void setVertex(int n, int x, int y, float z);
+		void addFace(int pos, int x1, int y1, int z1, int x2, int y2, int z2, int x3, int y3, int z3, int x4, int y4, int z4, int *blc);
+		void addBlock(int pos, int i, int j, int *blc);
+		void addWaterBlock(int pos, int i, int j, int *wtr);
+		int block(int i, int j, int wr);
+
+		Int32 getBlockType(Int32 x, Int32 y)
+		{
+			return blocks[level.getBlock(x, y)].type;
+		}
+
+		Int32 getBlockTypeSafe(Int32 x, Int32 y)
+		{
+			return level.isInside(x, y) ? getBlockType(x, y) : D6_ANM_F_BLOCK;
+		}
+	};
 }
 
 #endif

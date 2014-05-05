@@ -25,41 +25,18 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_PLAYERSKIN_H
-#define DUEL6_PLAYERSKIN_H
+#ifndef DUEL6_WATERTYPE_H
+#define DUEL6_WATERTYPE_H
 
-#include <vector>
-#include <SDL/SDL_opengl.h>
-#include "PlayerSkinColors.h"
+#include "Type.h"
 
 namespace Duel6
 {
-	class PlayerSkin
+	enum class WaterType
 	{
-	private:
-		PlayerSkinColors colors;
-		std::vector<GLuint> textures;
-
-	private: // Forbid copying
-		PlayerSkin(const PlayerSkin& skin) = delete;
-		PlayerSkin& operator=(const PlayerSkin& skin) = delete;
-
-	public:
-		explicit PlayerSkin(const PlayerSkinColors& colors);
-		~PlayerSkin();
-
-		const PlayerSkinColors& getColors() const
-		{
-			return colors;
-		}
-
-		const std::vector<GLuint>& getTextures() const
-		{
-			return textures;
-		}
-
-	private:
-		void load(const std::string& fileName);
+		None,
+		Blue,
+		Red
 	};
 }
 

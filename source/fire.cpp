@@ -31,7 +31,7 @@
 
 namespace Duel6
 {
-	struct d6FIRE_s
+	struct Fire
 	{
 		float   X;
 		float   Y;
@@ -40,10 +40,10 @@ namespace Duel6
 		bool    A;
 	};
 
-	myUINT      d6FT[D6_FIRES] = { 11, 15 };
-	int         d6FiresCount;
-	d6FIRE_s    *d6Fire = NULL;
-	short       d6FAnm[D6_FIRES][20] =
+	myUINT d6FT[D6_FIRES] = { 11, 15 };
+	int d6FiresCount;
+	Fire *d6Fire = nullptr;
+	Int16 d6FAnm[D6_FIRES][20] =
 	{
 		{ 12, 20, 13, 20, 12, 20, 13, 20, 12, 20, 13, 20, 12, 20, 13, 20, 14, 100, -1, 0 },
 		{ 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 18, 100, -1, 0 }
@@ -55,7 +55,7 @@ namespace Duel6
 		{
 			for (Size j = 3; j < 4; j++)
 			{
-				glBindTexture(GL_TEXTURE_2D, d6World.Anm.textures[d6FT[i] + j]);
+				glBindTexture(GL_TEXTURE_2D, d6World.blockTextures[d6FT[i] + j]);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
@@ -70,43 +70,54 @@ namespace Duel6
 
 	void FIRE_Find(void)
 	{
-		int     i, j, n = 0;
+		int     j, n = 0;
 
 		FIRE_Free();
 
-		for (i = 0; i < d6World.Faces; i++)
+		for (Size i = 0; i < d6World.faces.size(); i++)
+		{
 			for (j = 0; j < D6_FIRES; j++)
-				if (d6World.Face[i].MinTex == (int)d6FT[j])
+			{
+				if (d6World.faces[i].minTex == (int)d6FT[j])
+				{
 					d6FiresCount++;
+				}
+			}
+		}
 
 		if (!d6FiresCount)
 			return;
 
-		d6Fire = D6_MALLOC(d6FIRE_s, d6FiresCount);
+		d6Fire = D6_MALLOC(Fire, d6FiresCount);
 
-		for (i = 0; i < d6World.Faces; i++)
+		for (Size i = 0; i < d6World.faces.size(); i++)
+		{
 			for (j = 0; j < D6_FIRES; j++)
-				if (d6World.Face[i].MinTex == (int)d6FT[j])
+			{
+				if (d6World.faces[i].minTex == (int)d6FT[j])
 				{
-					d6Fire[n].X = d6World.Vertex[i << 2].X;
-					d6Fire[n].Y = d6World.Vertex[i << 2].Y;
+					d6Fire[n].X = d6World.vertexes[i << 2].X;
+					d6Fire[n].Y = d6World.vertexes[i << 2].Y;
 					d6Fire[n].A = false;
 					d6Fire[n].FN = i;
 					d6Fire[n].Fr = j;
 					n++;
 				}
+			}
+		}
 	}
 
 	void FIRE_Check(Float32 X, Float32 Y, Float32 d)
 	{
-		d6FIRE_s    *f;
-		float       vzd;
-		int         i;
+		Fire *f;
+		float vzd;
+		int i;
 
 		X -= 0.5f;
 		Y += 0.5f;
 
 		for (i = 0; i < d6FiresCount; i++)
+		{
 			if (!d6Fire[i].A)
 			{
 				vzd = (float)sqrt(D6_SQR(X - d6Fire[i].X) + D6_SQR(Y - d6Fire[i].Y));
@@ -116,15 +127,16 @@ namespace Duel6
 					f = &d6Fire[i];
 
 					f->A = true;
-					d6World.Face[f->FN].MinTex = 0;
-					d6World.Face[f->FN].MaxTex = 0;
-					d6World.Face[f->FN].NowTex = 0;
+					d6World.faces[f->FN].minTex = 0;
+					d6World.faces[f->FN].maxTex = 0;
+					d6World.faces[f->FN].nowTex = 0;
 
-					Sprite fireSprite(d6FAnm[f->Fr], d6World.Anm.textures);
+					Sprite fireSprite(d6FAnm[f->Fr], d6World.blockTextures);
 					fireSprite.setPosition(f->X, f->Y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					d6SpriteList.addSprite(fireSprite);
 				}
 			}
+		}
 	}
 }

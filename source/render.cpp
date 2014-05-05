@@ -42,26 +42,31 @@ namespace Duel6
 
 	static void RENDER_Blocks(int start, int blocks)
 	{
-		const std::vector<GLuint>& ta = d6World.Anm.textures;
+		// TODO: World.render();
+		const std::vector<GLuint>& ta = d6World.blockTextures;
+		const std::vector<Face>& df = d6World.faces;
 		GLuint t;
-		d6FACE *df = d6World.Face;
 		int i, v, c = 0;
 
-		t = ta[df[start].NowTex];
+		t = ta[df[start].nowTex];
 		v = start << 2;
 		blocks += start;
 
 		for (i = start; i < blocks; i++)
-			if (ta[df[i].NowTex] != t)
+		{
+			if (ta[df[i].nowTex] != t)
 			{
 				glBindTexture(GL_TEXTURE_2D, t);
 				glDrawArrays(GL_QUADS, v, c);
-				t = ta[df[i].NowTex];
+				t = ta[df[i].nowTex];
 				v += c;
 				c = 4;
 			}
 			else
+			{
 				c += 4;
+			}
+		}
 
 		glBindTexture(GL_TEXTURE_2D, t);
 		glDrawArrays(GL_QUADS, v, c);
@@ -100,15 +105,18 @@ namespace Duel6
 
 	void RENDER_MoveAnm(float elapsedTime)
 	{
-		d6FACE  *f = d6World.Face;
-		int     i;
+		std::vector<Face>& f = d6World.faces;
 
-		if ((d6World.Anm.Wait += elapsedTime) > D6_ANM_SPEED)
+		if ((d6World.animWait += elapsedTime) > D6_ANM_SPEED)
 		{
-			d6World.Anm.Wait = 0;
-			for (i = 0; i < d6World.Faces; i++)
-				if (++f[i].NowTex > f[i].MaxTex)
-					f[i].NowTex = f[i].MinTex;
+			d6World.animWait = 0;
+			for (Size i = 0; i < d6World.faces.size(); i++)
+			{
+				if (++f[i].nowTex > f[i].maxTex)
+				{
+					f[i].nowTex = f[i].minTex;
+				}
+			}
 		}
 	}
 
@@ -230,7 +238,7 @@ namespace Duel6
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, d6World.Anm.textures[player.getBonus()]);
+			glBindTexture(GL_TEXTURE_2D, d6World.blockTextures[player.getBonus()]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 133, ibp[1] - 3);

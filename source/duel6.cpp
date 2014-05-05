@@ -31,45 +31,25 @@
 
 namespace Duel6
 {
-	d6WORLD     d6World;
-	float       d6Sin[450];
-	GLuint      d6BackgroundTexture;
-	int         d6Wireframe = 0;
-	int         d6ZoomBlc = 13;
+	World d6World;
+	float d6Sin[450];
+	GLuint d6BackgroundTexture;
+	bool d6Wireframe = false;
+	int d6ZoomBlc = 13;
 	ScreenMode d6ScreenMode = ScreenMode::FullScreen;
-	float       d6KeyWait = 0;
-	bool        d6ShowFps = false;
+	float d6KeyWait = 0;
+	bool d6ShowFps = false;
 	std::vector<Player> d6Players;
-	int         d6Winner;
-	float		d6GameOverWait;
-	bool        d6InMenu = false, d6PlayMusic = false;
+	int d6Winner;
+	float d6GameOverWait;
+	bool d6InMenu = false, d6PlayMusic = false;
 	std::vector<PlayerSkinColors> d6PlayerColors(D6_MAX_PLAYERS);
-	int			d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
-	bool        d6ShowRanking = true;
-	int			d6PlayedRounds = 0;
-	int			d6MaxRounds = 0;
+	int d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
+	bool d6ShowRanking = true;
+	int	d6PlayedRounds = 0;
+	int	d6MaxRounds = 0;
 	InfoMessageQueue d6MessageQueue;
-	SpriteList  d6SpriteList;
-
-	int D6_BlockZ(int x, int y)
-	{
-		d6LEVEL *l = &d6World.Level;
-
-		if (x < 0 || x >= l->SizeX || y < 0 || y >= l->SizeY)
-			return D6_ANM_F_BLOCK;
-
-		return d6World.Anm.Znak[l->Data[y * l->SizeX + x]];
-	}
-
-	int D6_BlockN(int x, int y)
-	{
-		d6LEVEL *l = &d6World.Level;
-
-		if (x < 0 || x >= l->SizeX || y < 0 || y >= l->SizeY)
-			return 0;
-
-		return l->Data[y * l->SizeX + x];
-	}
+	SpriteList d6SpriteList;
 
 	float D6_Sin(Int32 a)
 	{
@@ -83,7 +63,7 @@ namespace Duel6
 
 	void D6_ConSwitchW(con_c *con)
 	{
-		d6Wireframe = 1 - d6Wireframe;
+		d6Wireframe = !d6Wireframe;
 		if (d6Wireframe)
 			con->printf(MY_L("APP00020|Vykreslovaci mod prepnut na dratovy\n"));
 		else
@@ -138,18 +118,18 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
 
 		std::vector<Bonus> bonuses;
+		std::vector<Int32> elevatorData;
 		bool mirror = rand() % 2 ? true : false;
-		LOADER_LoadWorld(levelPath, &d6World, mirror, bonuses);
-		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.Level.SizeX);
-		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.Level.SizeY);
+		d6World.loadLevel(levelPath, mirror, bonuses, elevatorData);
+		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
+		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
 		g_app.con->printf(MY_L("APP00063|...Bloku   : %d\n"), d6World.Blocks);
 		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.Sprites);
 		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.Waters);
 
-		glVertexPointer(3, GL_FLOAT, sizeof (d6VERTEX), (void *)&d6World.Vertex[0].X);
-		glTexCoordPointer(2, GL_FLOAT, sizeof (d6VERTEX), (void *)&d6World.Vertex[0].U);
+		glVertexPointer(3, GL_FLOAT, sizeof (Vertex), (void *)&d6World.vertexes[0].X);
+		glTexCoordPointer(2, GL_FLOAT, sizeof (Vertex), (void *)&d6World.vertexes[0].U);
 
-		d6World.Anm.Wait = 0;
 		WATER_Build();
 		d6SpriteList.clear();
 		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
@@ -162,10 +142,9 @@ namespace Duel6
 		PLAYER_PrepareViews(d6ScreenMode);
 		g_app.con->printf(MY_L("APP00067|...Inicializace urovne\n"));
 		WPN_LevelInit();
-		KONTR_Init();
 		EXPL_Init();
 		BONUS_Init(bonuses);
-		ELEV_Load(levelPath, mirror);
+		ELEV_Load(elevatorData, mirror);
 		FIRE_Find();
 		RENDER_InitScreen();
 		d6Winner = -1;
