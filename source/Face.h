@@ -25,68 +25,57 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <vector>
-#include "project.h"
+#ifndef DUEL6_FACE_H
+#define DUEL6_FACE_H
+
+#include "Type.h"
+#include "Block.h"
 
 namespace Duel6
 {
-	namespace
+	class Face
 	{
-		class WaterVertex
+	private:
+		Uint32 nowTex;
+		Uint32 minTex;
+		Uint32 maxTex;
+
+	public:
+		Face(const Block& block)
 		{
-		private:
-			Float32 y;
-			Vertex& vertex;
-
-		public:
-			WaterVertex(Vertex& vertex, Float32 height)
-				: vertex(vertex)
-			{
-				y = vertex.y - D6_WAVE_HEIGHT;
-			}
-
-			Vertex& getVertex()
-			{
-				return vertex;
-			}
-
-			Float32 getY() const
-			{
-				return y;
-			}
-		};
-
-		std::vector<WaterVertex> d6WaterVertexList;
-		Float32 d6WaterPhase = 0;
-	}
-
-	void WATER_Move(float elapsedTime)
-	{
-		d6WaterPhase += 122 * elapsedTime;
-		if (d6WaterPhase >= 360)
-		{
-			d6WaterPhase -= 360;
+			minTex = block.getTexture();
+			maxTex = block.getTexture() + block.getAnimationFrames();
+			nowTex = block.getTexture();
 		}
 
-		for (WaterVertex& wv : d6WaterVertexList)
+		Uint32 getBaseTexture() const
 		{
-			Float32 vertexPhase = d6WaterPhase + 60.0f * wv.getVertex().x;
-			Float32 height = D6_Sin((Int32)vertexPhase) * D6_WAVE_HEIGHT;
-			wv.getVertex().y = wv.getY() + height;
+			return minTex;
 		}
-	}
 
-	void WATER_Build(void)
-	{
-		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
-		d6WaterVertexList.clear();
-
-		for (Vertex& vertex : d6World.getWater().getVertexes())
+		Uint32 getCurrentTexture() const
 		{
-			if (vertex.getFlag() == Vertex::Flag::Flow)
+			return nowTex;
+		}
+
+		/** Next animation frame. */
+		Face& nextFrame()
+		{
+			if (++nowTex > maxTex)
 			{
-				d6WaterVertexList.push_back(WaterVertex(vertex, D6_WAVE_HEIGHT));
+				nowTex = minTex;
 			}
+
+			return *this;
 		}
-	}
+
+		/** Makes the face disappear. */
+		Face& hide()
+		{
+			nowTex = minTex = maxTex = 0;
+			return *this;
+		}
+	};
 }
+
+#endif

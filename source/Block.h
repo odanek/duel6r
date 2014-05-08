@@ -25,68 +25,59 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <vector>
-#include "project.h"
+#ifndef DUEL6_BLOCK_H
+#define DUEL6_BLOCK_H
+
+#include "Type.h"
 
 namespace Duel6
 {
-	namespace
+	class Block
 	{
-		class WaterVertex
+	public:
+		enum Type
 		{
-		private:
-			Float32 y;
-			Vertex& vertex;
-
-		public:
-			WaterVertex(Vertex& vertex, Float32 height)
-				: vertex(vertex)
-			{
-				y = vertex.y - D6_WAVE_HEIGHT;
-			}
-
-			Vertex& getVertex()
-			{
-				return vertex;
-			}
-
-			Float32 getY() const
-			{
-				return y;
-			}
+			EmptySpace = 0,
+			Wall,
+			Water,
+			FrontSprite,
+			BackSprite,
+			FrontAndBackSprite,
+			Front4Sprite,
+			Back4Sprite,
+			Waterfall
 		};
 
-		std::vector<WaterVertex> d6WaterVertexList;
-		Float32 d6WaterPhase = 0;
-	}
+	private:
+		Uint32 texture;
+		Type type;
+		Int32 animationFrames;
 
-	void WATER_Move(float elapsedTime)
-	{
-		d6WaterPhase += 122 * elapsedTime;
-		if (d6WaterPhase >= 360)
+	public:
+		Block(Uint32 texture, Type type, Int32 animationFrames)
+			: texture(texture), type(type), animationFrames(animationFrames)
+		{}
+
+		Uint32 getTexture() const
 		{
-			d6WaterPhase -= 360;
+			return texture;
 		}
 
-		for (WaterVertex& wv : d6WaterVertexList)
+		Type getType() const
 		{
-			Float32 vertexPhase = d6WaterPhase + 60.0f * wv.getVertex().x;
-			Float32 height = D6_Sin((Int32)vertexPhase) * D6_WAVE_HEIGHT;
-			wv.getVertex().y = wv.getY() + height;
+			return type;
 		}
-	}
 
-	void WATER_Build(void)
-	{
-		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
-		d6WaterVertexList.clear();
-
-		for (Vertex& vertex : d6World.getWater().getVertexes())
+		Int32 getAnimationFrames() const
 		{
-			if (vertex.getFlag() == Vertex::Flag::Flow)
-			{
-				d6WaterVertexList.push_back(WaterVertex(vertex, D6_WAVE_HEIGHT));
-			}
+			return animationFrames;
 		}
-	}
+
+		bool is(Type type) const
+		{
+			return (this->type == type);
+		}
+	};
 }
+
+#endif

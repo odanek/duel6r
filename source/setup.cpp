@@ -166,30 +166,6 @@ namespace Duel6
 
 	/*
 	==================================================
-	Memory check - console command
-	==================================================
-	*/
-	void SET_Check(con_c *con)
-	{
-#if defined (_MSC_VER) || defined (MY_LEAK_CHECK)
-		mySIZE      mu = MY_MemUsed();
-
-		con->printf("%s: ", MY_L("APP00068|Alokovana pamet"));
-		if (mu < (2 << 10))
-			con->printf("%d B\n", mu);
-		else if (mu < (2 << 20))
-			con->printf("%.2f KiB\n", mu / 1024.0f);
-		else if (mu < (mySIZE)1073741824)
-			con->printf("%.2f MiB\n", mu / 1048576.0f);
-		else
-			con->printf("%.2f GiB\n", mu / 1073741824.0f);
-#else
-		con->printf ("%s: %s\n", con->argv (0), MY_L("APP00069|Kontrola alokovane pameti nebyla prikompilovana"));
-#endif
-	}
-
-	/*
-	==================================================
 	Set language - console command
 	==================================================
 	*/
@@ -397,7 +373,6 @@ namespace Duel6
 		g_app.con->setlast(15);
 		g_app.con->regcmd(&D6_ConSwitchW, "switch_render_mode");
 		g_app.con->regcmd(&D6_ConShowFps, "show_fps");
-		g_app.con->regcmd(&SET_Check, "memory_used");
 		g_app.con->regcmd(&UTIL_OpenGLInfo, "gl_info");
 		g_app.con->regcmd(&SET_Language, "lang");
 		g_app.con->regcmd(&SET_Volume, "volume");

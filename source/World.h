@@ -29,140 +29,12 @@
 #define DUEL6_LOADER_H
 
 #include <vector>
+#include "FaceList.h"
 #include "Bonus.h"
 #include "WaterType.h"
 
-//#define D6_RENDER_BACKS
-
-#define D6_ANM_F_NOTHING    0x00
-#define D6_ANM_F_BLOCK      0x01
-#define D6_ANM_F_WATER      0x02
-#define D6_ANM_F_FRONT      0x03
-#define D6_ANM_F_BACK       0x04
-#define D6_ANM_F_FRBC       0x05
-#define D6_ANM_F_3FRONT     0x06
-#define D6_ANM_F_3BACK      0x07
-#define D6_ANM_F_WFALL      0x08
-
-#define D6_FLAG_NONE        0x00
-#define D6_FLAG_FLOW        0x01
-
 namespace Duel6
 {
-	class Vertex
-	{
-	public:
-		Float32 X;
-		Float32 Y;
-		Float32 Z;
-		Float32 U;
-		Float32 V;
-		Int32 Flags;
-
-	public:
-		Vertex(Size order, Float32 x, Float32 y, Float32 z, Int32 flags = D6_FLAG_NONE)
-		{
-			X = x;
-			Y = y;
-			Z = z;
-			U = (order == 0 || order == 3) ? 0.0f : 0.99f;
-			V = (order == 0 || order == 1) ? 0.0f : 0.99f;
-			Flags = flags;
-		}
-
-		Vertex(Size order, Int32 x, Int32 y, Int32 z, Int32 flags = D6_FLAG_NONE)
-			: Vertex(order, Float32(x), Float32(y), Float32(z), flags)
-		{}
-	};
-
-	class Block
-	{
-	private:
-		Uint32 texture;
-		Int32 type;
-		Int32 animationFrames;
-
-	public:
-		// TODO: BlockType
-		Block(Uint32 texture, Int32 type, Int32 animationFrames)
-			: texture(texture), type(type), animationFrames(animationFrames)
-		{}
-
-		Uint32 getTexture() const
-		{
-			return texture;
-		}
-
-		Int32 getType() const
-		{
-			return type;
-		}
-
-		Int32 getAnimationFrames() const
-		{
-			return animationFrames;
-		}
-
-		// is(BlockType)
-	};
-
-	class Face
-	{
-	public:
-		Uint32 nowTex;
-		Uint32 minTex;
-		Uint32 maxTex;
-
-	public:
-		Face(const Block& block)
-		{
-			minTex = block.getTexture();
-			maxTex = block.getTexture() + block.getAnimationFrames();
-			nowTex = block.getTexture();
-		}
-	};
-
-	class FaceList
-	{
-	private:
-		std::vector<Vertex> vertexes;
-		std::vector<Face> faces;
-
-	public:
-		FaceList& clear()
-		{
-			vertexes.clear();
-			faces.clear();
-			return *this;
-		}
-
-		FaceList& addVertex(const Vertex& vertex)
-		{
-			vertexes.push_back(vertex);
-			return *this;
-		}
-
-		FaceList& addFace(const Face& face)
-		{
-			faces.push_back(face);
-			return *this;
-		}
-
-		std::vector<Vertex>& getVertexes()
-		{
-			return vertexes;
-		}
-
-		std::vector<Face>& getFaces()
-		{
-			return faces;
-		}
-
-		void optimize();
-		void render();
-		void nextFrame();
-	};
-
 	class World
 	{
 	private:
@@ -180,11 +52,17 @@ namespace Duel6
 
 	public:
 		World()
+			: walls(blockTextures), sprites(blockTextures), water(blockTextures)
 		{}
 
 		void init(const std::string& textureFile, const std::string& blockMetaFile);
 		void deInit();
-		void loadLevel(const std::string& path, bool mirror, std::vector<Bonus>& bonuses, std::vector<Int32>& elevatorData);
+
+		void loadLevelData(const std::string& path, std::vector<Int32>& elevatorData);
+		void mirrorLevelData();
+		void findBonuses(std::vector<Bonus>& bonuses);
+		void prepareFaces();
+
 		void update(Float32 elapsedTime);
 
 		FaceList& getWalls()
@@ -212,14 +90,14 @@ namespace Duel6
 			return height;
 		}
 
-		bool isWater(Int32 x, Int32 y)
+		bool isWater(Int32 x, Int32 y) const
 		{
-			return isInside(x, y) ? getBlockType(x, y) == D6_ANM_F_WATER : false;
+			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Water) : false;
 		}
 
-		bool isWall(Int32 x, Int32 y, bool outside)
+		bool isWall(Int32 x, Int32 y, bool outside) const
 		{
-			return isInside(x, y) ? getBlockType(x, y) == D6_ANM_F_BLOCK : outside;
+			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
 		}
 
 		WaterType getWaterType(Int32 x, Int32 y)
@@ -236,11 +114,8 @@ namespace Duel6
 		Size loadBlockTextures(const std::string& path);
 		void loadBlockMeta(const std::string& path, Size blocks);
 
-		void loadLevelData(const std::string& path, std::vector<Int32>& elevatorData);
 		void loadElevators(myFile_s* f, std::vector<Int32>& elevatorData);
-		void mirrorLevelData();
 
-		void findBonuses(std::vector<Bonus>& bonuses);
 		void addWallFaces();
 		void addSpriteFaces();
 		void addWaterFaces();
@@ -251,19 +126,19 @@ namespace Duel6
 		/** Group faces with the same texture together so that they can be rendered in batches */
 		void optimize(FaceList& faceList);
 
-		bool isInside(Int32 x, Int32 y)
+		bool isInside(Int32 x, Int32 y) const
 		{
 			return (x >= 0 && x < width && y >= 0 && y < height);
 		}
 
-		Uint16 getBlock(Int32 x, Int32 y)
+		Uint16 getBlock(Int32 x, Int32 y) const
 		{
 			return levelData[(height - y - 1) * width + x];
 		}
 
-		Int32 getBlockType(Int32 x, Int32 y)
+		const Block& getBlockMeta(Int32 x, Int32 y) const
 		{
-			return blockMeta[getBlock(x, y)].getType();
+			return blockMeta[getBlock(x, y)];
 		}
 	};
 }

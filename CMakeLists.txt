@@ -44,6 +44,7 @@ set(D6R_SOURCES
 
     source/AnimationLooping.h
     source/anims.h
+    source/Block.h
     source/Bonus.h
     source/Bonus.cpp
     source/BonusList.h
@@ -52,6 +53,9 @@ set(D6R_SOURCES
     source/duel6.cpp
     source/elevator.cpp
     source/explode.cpp
+    source/Face.h
+    source/FaceList.h
+    source/FaceList.cpp
     source/fire.cpp
     source/glib.cpp
     source/glib.h
@@ -61,8 +65,6 @@ set(D6R_SOURCES
     source/kontrola.cpp
     source/LevelList.h
     source/LevelList.cpp
-    source/loader.cpp
-    source/loader.h
     source/menu.cpp
     source/msdir.c
     source/msdir.h
@@ -89,10 +91,13 @@ set(D6R_SOURCES
     source/setup.cpp
     source/Type.h
     source/util.cpp
+    source/Vertex.h
     source/water.cpp
     source/WaterType.h
     source/Weapon.h
     source/Weapon.cpp
+    source/World.h
+    source/World.cpp
     
     source/core/co_core.h
     source/core/co_font.cpp

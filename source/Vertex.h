@@ -25,68 +25,52 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <vector>
-#include "project.h"
+#ifndef DUEL6_VERTEX_H
+#define DUEL6_VERTEX_H
+
+#include "Type.h"
 
 namespace Duel6
 {
-	namespace
+	class Vertex
 	{
-		class WaterVertex
+	public:
+		enum class Flag
 		{
-		private:
-			Float32 y;
-			Vertex& vertex;
-
-		public:
-			WaterVertex(Vertex& vertex, Float32 height)
-				: vertex(vertex)
-			{
-				y = vertex.y - D6_WAVE_HEIGHT;
-			}
-
-			Vertex& getVertex()
-			{
-				return vertex;
-			}
-
-			Float32 getY() const
-			{
-				return y;
-			}
+			None,
+			Flow
 		};
 
-		std::vector<WaterVertex> d6WaterVertexList;
-		Float32 d6WaterPhase = 0;
-	}
+	private:
+		Flag flag;
 
-	void WATER_Move(float elapsedTime)
-	{
-		d6WaterPhase += 122 * elapsedTime;
-		if (d6WaterPhase >= 360)
+	public:
+		Float32 x;
+		Float32 y;
+		Float32 z;
+		Float32 u;
+		Float32 v;
+
+	public:
+		Vertex(Size order, Float32 x, Float32 y, Float32 z, Flag flag = Flag::None)
 		{
-			d6WaterPhase -= 360;
+			this->x = x;
+			this->y = y;
+			this->z = z;
+			u = (order == 0 || order == 3) ? 0.0f : 0.99f;
+			v = (order == 0 || order == 1) ? 0.0f : 0.99f;
+			this->flag = flag;
 		}
 
-		for (WaterVertex& wv : d6WaterVertexList)
-		{
-			Float32 vertexPhase = d6WaterPhase + 60.0f * wv.getVertex().x;
-			Float32 height = D6_Sin((Int32)vertexPhase) * D6_WAVE_HEIGHT;
-			wv.getVertex().y = wv.getY() + height;
-		}
-	}
+		Vertex(Size order, Int32 x, Int32 y, Int32 z, Flag flag = Flag::None)
+			: Vertex(order, Float32(x), Float32(y), Float32(z), flag)
+		{}
 
-	void WATER_Build(void)
-	{
-		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
-		d6WaterVertexList.clear();
-
-		for (Vertex& vertex : d6World.getWater().getVertexes())
+		Flag getFlag() const
 		{
-			if (vertex.getFlag() == Vertex::Flag::Flow)
-			{
-				d6WaterVertexList.push_back(WaterVertex(vertex, D6_WAVE_HEIGHT));
-			}
+			return flag;
 		}
-	}
+	};
 }
+
+#endif

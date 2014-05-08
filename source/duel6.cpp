@@ -119,8 +119,14 @@ namespace Duel6
 
 		std::vector<Bonus> bonuses;
 		std::vector<Int32> elevatorData;
-		bool mirror = rand() % 2 ? true : false;
-		d6World.loadLevel(levelPath, mirror, bonuses, elevatorData);
+		bool mirror = rand() % 2 == 0;
+		d6World.loadLevelData(levelPath, elevatorData);
+		if (mirror)
+		{
+			d6World.mirrorLevelData();
+		}
+		d6World.findBonuses(bonuses);
+		d6World.prepareFaces();
 		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
 		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
 		g_app.con->printf(MY_L("APP00063|...Sten    : %d\n"), d6World.getWalls().getFaces().size());

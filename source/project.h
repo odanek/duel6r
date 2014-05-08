@@ -33,7 +33,7 @@
 #include "core/co_core.h"
 #include "mylib/mycam.h"
 #include "sound/sound.h"
-#include "loader.h"
+#include "World.h"
 #include "SpriteList.h"
 #include "Type.h"
 #include "Orientation.h"

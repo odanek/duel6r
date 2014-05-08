@@ -70,11 +70,11 @@ namespace Duel6
 		{
 			for (Size j = 0; j < D6_FIRES; j++)
 			{
-				if (face.minTex == d6FireType[j])
+				if (face.getBaseTexture() == d6FireType[j])
 				{
 					Fire fire;
-					fire.X = d6World.getSprites().getVertexes()[i << 2].X;
-					fire.Y = d6World.getSprites().getVertexes()[i << 2].Y - 1.0f;
+					fire.X = d6World.getSprites().getVertexes()[i << 2].x;
+					fire.Y = d6World.getSprites().getVertexes()[i << 2].y - 1.0f;
 					fire.A = false;
 					fire.face = &face;
 					fire.type = j;
@@ -100,9 +100,7 @@ namespace Duel6
 				if (distance < d)
 				{
 					fire.A = true;
-					fire.face->minTex = 0;
-					fire.face->maxTex = 0;
-					fire.face->nowTex = 0;
+					fire.face->hide();
 
 					Sprite fireSprite(d6FireAnm[fire.type], d6World.blockTextures);
 					fireSprite.setPosition(fire.X, fire.Y, 0.75f)

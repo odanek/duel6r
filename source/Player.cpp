@@ -208,7 +208,7 @@ namespace Duel6
 			.setFrame(6);
 		State.GA = d6SpriteList.addSprite(gunSprite);
 
-		State.Flags = D6_FLAG_NONE;
+		State.Flags = 0;
 		State.Speed = 0;
 		State.O = Orientation::Left;
 		State.J = 0;

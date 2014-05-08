@@ -25,68 +25,60 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef DUEL6_FACELIST_H
+#define DUEL6_FACELIST_H
+
 #include <vector>
-#include "project.h"
+#include "Vertex.h"
+#include "Face.h"
 
 namespace Duel6
 {
-	namespace
+	class FaceList
 	{
-		class WaterVertex
+	private:
+		const std::vector<GLuint>& textures;
+		std::vector<Vertex> vertexes;
+		std::vector<Face> faces;
+
+	public:
+		FaceList(const std::vector<GLuint>& textures)
+			: textures(textures)
+		{}
+
+		FaceList& clear()
 		{
-		private:
-			Float32 y;
-			Vertex& vertex;
-
-		public:
-			WaterVertex(Vertex& vertex, Float32 height)
-				: vertex(vertex)
-			{
-				y = vertex.y - D6_WAVE_HEIGHT;
-			}
-
-			Vertex& getVertex()
-			{
-				return vertex;
-			}
-
-			Float32 getY() const
-			{
-				return y;
-			}
-		};
-
-		std::vector<WaterVertex> d6WaterVertexList;
-		Float32 d6WaterPhase = 0;
-	}
-
-	void WATER_Move(float elapsedTime)
-	{
-		d6WaterPhase += 122 * elapsedTime;
-		if (d6WaterPhase >= 360)
-		{
-			d6WaterPhase -= 360;
+			vertexes.clear();
+			faces.clear();
+			return *this;
 		}
 
-		for (WaterVertex& wv : d6WaterVertexList)
+		FaceList& addVertex(const Vertex& vertex)
 		{
-			Float32 vertexPhase = d6WaterPhase + 60.0f * wv.getVertex().x;
-			Float32 height = D6_Sin((Int32)vertexPhase) * D6_WAVE_HEIGHT;
-			wv.getVertex().y = wv.getY() + height;
+			vertexes.push_back(vertex);
+			return *this;
 		}
-	}
 
-	void WATER_Build(void)
-	{
-		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
-		d6WaterVertexList.clear();
-
-		for (Vertex& vertex : d6World.getWater().getVertexes())
+		FaceList& addFace(const Face& face)
 		{
-			if (vertex.getFlag() == Vertex::Flag::Flow)
-			{
-				d6WaterVertexList.push_back(WaterVertex(vertex, D6_WAVE_HEIGHT));
-			}
+			faces.push_back(face);
+			return *this;
 		}
-	}
+
+		std::vector<Vertex>& getVertexes()
+		{
+			return vertexes;
+		}
+
+		std::vector<Face>& getFaces()
+		{
+			return faces;
+		}
+
+		void optimize();
+		void render();
+		void nextFrame();
+	};
 }
+
+#endif

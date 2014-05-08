@@ -25,68 +25,73 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <vector>
-#include "project.h"
+#include <SDL/SDL_opengl.h>
+#include "FaceList.h"
 
 namespace Duel6
 {
-	namespace
+	void FaceList::optimize()
 	{
-		class WaterVertex
+		for (Size i = 0; i < faces.size(); i++)
 		{
-		private:
-			Float32 y;
-			Vertex& vertex;
+			Uint32 curTexture = faces[i].getCurrentTexture();
+			Size curFace = i + 1;
 
-		public:
-			WaterVertex(Vertex& vertex, Float32 height)
-				: vertex(vertex)
+			for (Size j = i + 1; j < faces.size(); j++)
 			{
-				y = vertex.y - D6_WAVE_HEIGHT;
+				if (faces[j].getCurrentTexture() == curTexture && j != curFace)
+				{
+					std::swap(faces[curFace], faces[j]);
+
+					for (Size k = 0; k < 4; k++)
+					{
+						std::swap(vertexes[curFace * 4 + k], vertexes[j * 4 + k]);
+					}
+
+					curFace++;
+				}
 			}
-
-			Vertex& getVertex()
-			{
-				return vertex;
-			}
-
-			Float32 getY() const
-			{
-				return y;
-			}
-		};
-
-		std::vector<WaterVertex> d6WaterVertexList;
-		Float32 d6WaterPhase = 0;
-	}
-
-	void WATER_Move(float elapsedTime)
-	{
-		d6WaterPhase += 122 * elapsedTime;
-		if (d6WaterPhase >= 360)
-		{
-			d6WaterPhase -= 360;
-		}
-
-		for (WaterVertex& wv : d6WaterVertexList)
-		{
-			Float32 vertexPhase = d6WaterPhase + 60.0f * wv.getVertex().x;
-			Float32 height = D6_Sin((Int32)vertexPhase) * D6_WAVE_HEIGHT;
-			wv.getVertex().y = wv.getY() + height;
 		}
 	}
 
-	void WATER_Build(void)
+	void FaceList::render()
 	{
-		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
-		d6WaterVertexList.clear();
-
-		for (Vertex& vertex : d6World.getWater().getVertexes())
+		if (faces.empty())
 		{
-			if (vertex.getFlag() == Vertex::Flag::Flow)
+			return;
+		}
+
+		GLuint curTexture = textures[faces[0].getCurrentTexture()];
+		Size first = 0, count = 0;
+
+		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
+
+		for (Face& face : faces)
+		{
+			if (textures[face.getCurrentTexture()] != curTexture)
 			{
-				d6WaterVertexList.push_back(WaterVertex(vertex, D6_WAVE_HEIGHT));
+				glBindTexture(GL_TEXTURE_2D, curTexture);
+				glDrawArrays(GL_QUADS, first, count);
+				curTexture = textures[face.getCurrentTexture()];
+				first += count;
+				count = 4;
 			}
+			else
+			{
+				count += 4;
+			}
+		}
+
+		glBindTexture(GL_TEXTURE_2D, curTexture);
+		glDrawArrays(GL_QUADS, first, count);
+	}
+
+	void FaceList::nextFrame()
+	{
+		for (Face& face : faces)
+		{
+			face.nextFrame();
 		}
 	}
 }
