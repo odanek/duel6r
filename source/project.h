@@ -73,12 +73,9 @@
 
 #define D6_MAX_PLAYERS      8
 #define D6_WATER_HIT		60
-#define D6_MAX_EXPLOSIONS   100
 #define D6_GAME_OVER_WAIT   3.0f
 
 #define D6_SOUNDS           25
-
-#define D6_SQR(x)           ((x)*(x))
 
 namespace Duel6
 {
@@ -142,7 +139,7 @@ namespace Duel6
 	void    D6_ConShowFps(con_c *con);
 	void    D6_SetGLMode(int mode);
 	void    D6_StartGame(const std::string& levelPath);
-	void    D6_GameLoop(void);
+	void    D6_GameLoop();
 
 	//////////////////////////////////////////////////////////////////////
 	//                          setup.cpp                               //
@@ -150,17 +147,9 @@ namespace Duel6
 	void    SET_LoadBackground(int n);
 
 	//////////////////////////////////////////////////////////////////////
-	//                          util.cpp                                //
-	//////////////////////////////////////////////////////////////////////
-	GLuint  UTIL_LoadKH3Texture(const char *fl, int n, bool clamp);
-	void    UTIL_SaveScreenTga(int sd);
-	void    UTIL_OpenGLInfo(con_c *con);
-	void    UTIL_PixelFormatInfo(void);
-
-	//////////////////////////////////////////////////////////////////////
 	//                          water.cpp                               //
 	//////////////////////////////////////////////////////////////////////
-	void    WATER_Build(void);
+	void    WATER_Build();
 	void    WATER_Move(float elapsedTime);
 
 	//////////////////////////////////////////////////////////////////////
@@ -179,42 +168,42 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	//                          explode.cpp                             //
 	//////////////////////////////////////////////////////////////////////
-	void    EXPL_Init(void);
-	void    EXPL_Load(void);
-	void    EXPL_Free(void);
-	void    EXPL_MoveAll(float elapsedTime);
-	void    EXPL_DrawAll(void);
-	void    EXPL_Add(float x, float y, float s, float m, const Color& color);
+	void    EXPL_Init();
+	void    EXPL_Load();
+	void    EXPL_Free();
+	void    EXPL_MoveAll(Float32 elapsedTime);
+	void    EXPL_DrawAll();
+	void    EXPL_Add(Float32 x, Float32 y, Float32 s, Float32 m, const Color& color);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          elevator.cpp                            //
 	//////////////////////////////////////////////////////////////////////
-	void    ELEV_Init(void);
-	void    ELEV_Free(void);
-	void    ELEV_MoveAll(float elapsedTime);
-	void    ELEV_DrawAll(void);
+	void    ELEV_Init();
+	void    ELEV_Free();
+	void    ELEV_MoveAll(Float32 elapsedTime);
+	void    ELEV_DrawAll();
 	void    ELEV_Load(std::vector<Int32>& elevatorData, bool mirror);
 	void    ELEV_CheckMan(Player& player);
-	void    ELEV_MoveMan(Player& player, float elapsedTime);
+	void    ELEV_MoveMan(Player& player, Float32 elapsedTime);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          fire.cpp                                //
 	//////////////////////////////////////////////////////////////////////
-	void    FIRE_Init(void);
-	void    FIRE_Find(void);
+	void    FIRE_Init();
+	void    FIRE_Find();
 	void    FIRE_Check(Float32 X, Float32 Y, Float32 d);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          menu.cpp                                //
 	//////////////////////////////////////////////////////////////////////
-	void    MENU_Init(void);
-	void    MENU_JoyRescan(void);
-	void    MENU_Free(void);
+	void    MENU_Init();
+	void    MENU_JoyRescan();
+	void    MENU_Free();
 	void    MENU_KeyEvent(int e);
-	void    MENU_Loop(void);
+	void    MENU_Loop();
 	void    MENU_Restart(bool same_level);
-	void    MENU_Start(void);
-	void    MENU_SavePH(void);
+	void    MENU_Start();
+	void    MENU_SavePH();
 }
 
 #endif

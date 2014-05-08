@@ -25,99 +25,87 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <list>
 #include "project.h"
+#include "Util.h"
 
 namespace Duel6
 {
-	struct d6EXPLOSION_s
+	struct Explosion
 	{
-		float       X;
-		float       Y;
-		float       Now;
-		float       Max;
+		Float32 x;
+		Float32 y;
+		Float32 now;
+		Float32 max;
 		Color color;
 	};
 
-	static  GLuint          d6ExTexture;
-	static  d6EXPLOSION_s   d6Expl[D6_MAX_EXPLOSIONS];
-	static  int             d6Explosions;
+	static GLuint d6ExTexture;
+	static std::list<Explosion> d6Explosions;
 
-	void EXPL_Load(void)
+	void EXPL_Load()
 	{
-		d6ExTexture = UTIL_LoadKH3Texture(D6_FILE_EXPLODE, 0, true);
+		d6ExTexture = Util::loadKH3Texture(D6_FILE_EXPLODE, 0, true);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
-	void EXPL_Free(void)
+	void EXPL_Free()
 	{
 		glDeleteTextures(1, &d6ExTexture);
 	}
 
-	void EXPL_Init(void)
+	void EXPL_Init()
 	{
-		d6Explosions = 0;
+		d6Explosions.clear();
 	}
 
-	void EXPL_Add(float x, float y, float s, float m, const Color& color)
+	void EXPL_Add(Float32 x, Float32 y, Float32 s, Float32 m, const Color& color)
 	{
-		d6EXPLOSION_s   *e;
-
-		if (d6Explosions >= D6_MAX_EXPLOSIONS)
-			return;
-
-		e = &d6Expl[d6Explosions++];
-		e->X = x;
-		e->Y = y;
-		e->Now = s;
-		e->Max = m;
-		e->color = color;
+		Explosion explosion;
+		explosion.x = x;
+		explosion.y = y;
+		explosion.now = s;
+		explosion.max = m;
+		explosion.color = color;
+		d6Explosions.push_back(explosion);
 	}
 
-	static void EXPL_Remove(int i)
+	void EXPL_MoveAll(Float32 elapsedTime)
 	{
-		d6Explosions--;
-		if (i < d6Explosions)
-			memcpy(&d6Expl[i], &d6Expl[d6Explosions], sizeof (d6EXPLOSION_s));
-	}
-
-	void EXPL_MoveAll(float elapsedTime)
-	{
-		int     i;
-
-		for (i = 0; i < d6Explosions; i++)
+		auto explIter = d6Explosions.begin();
+		while (explIter != d6Explosions.end())
 		{
-			d6Expl[i].Now += D6_EXPL_SPEED * elapsedTime;
-			if (d6Expl[i].Now > d6Expl[i].Max)
+			explIter->now += D6_EXPL_SPEED * elapsedTime;
+			if (explIter->now > explIter->max)
 			{
-				EXPL_Remove(i);
-				i--;
+				explIter = d6Explosions.erase(explIter);
+			}
+			else
+			{
+				++explIter;
 			}
 		}
 	}
 
-	void EXPL_DrawAll(void)
+	void EXPL_DrawAll()
 	{
-		d6EXPLOSION_s   *e;
-		int             i;
-
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_DEPTH_TEST);
 		glBindTexture(GL_TEXTURE_2D, d6ExTexture);
 		glBegin(GL_QUADS);
 
-		for (i = 0; i < d6Explosions; i++)
+		for (const Explosion& explosion : d6Explosions)
 		{
-			e = &d6Expl[i];
-			glColor3ub(e->color.getRed(), e->color.getGreen(), e->color.getBlue());
+			glColor3ub(explosion.color.getRed(), explosion.color.getGreen(), explosion.color.getBlue());
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(e->X - e->Now, e->Y + e->Now, 0.6f);
+			glVertex3f(explosion.x - explosion.now, explosion.y + explosion.now, 0.6f);
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(e->X + e->Now, e->Y + e->Now, 0.6f);
+			glVertex3f(explosion.x + explosion.now, explosion.y + explosion.now, 0.6f);
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(e->X + e->Now, e->Y - e->Now, 0.6f);
+			glVertex3f(explosion.x + explosion.now, explosion.y - explosion.now, 0.6f);
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(e->X - e->Now, e->Y - e->Now, 0.6f);
+			glVertex3f(explosion.x - explosion.now, explosion.y - explosion.now, 0.6f);
 		}
 
 		glEnd();

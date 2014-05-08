@@ -27,6 +27,7 @@
 
 #include "project.h"
 #include "World.h"
+#include "Util.h"
 
 //#define D6_RENDER_BACKS
 
@@ -69,7 +70,7 @@ namespace Duel6
 		blockTextures.resize(ki.picts);
 		for (Size i = 0; i < ki.picts; i++)
 		{
-			blockTextures[i] = UTIL_LoadKH3Texture(path.c_str(), i, false);
+			blockTextures[i] = Util::loadKH3Texture(path, i, false);
 		}
 		MY_KH3Close();
 

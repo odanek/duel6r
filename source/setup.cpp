@@ -30,6 +30,7 @@
 #include <SDL/SDL_mixer.h>
 #include "project.h"
 #include "Weapon.h"
+#include "Util.h"
 
 namespace Duel6
 {
@@ -115,7 +116,7 @@ namespace Duel6
 		}
 
 		g_app.con->printf(MY_L("APP00059|...Nahravam pozadi (%s, %d)\n"), D6_FILE_BACK, n);
-		d6BackgroundTexture = UTIL_LoadKH3Texture(D6_FILE_BACK, n, false);
+		d6BackgroundTexture = Util::loadKH3Texture(D6_FILE_BACK, n, false);
 		d6BcgLoaded = true;
 	}
 
@@ -280,7 +281,7 @@ namespace Duel6
 		if (con->argc() == 2)
 		{
 			pl = atoi(con->argv(1));
-			if (pl >= 0 && pl < D6_MAX_PLAYERS)
+			if (pl >= 0 && pl < (int)d6PlayerColors.size())
 			{
 				con->printf("Skin %d: ", pl);
 				for (i = 0; i < 9; i++)
@@ -349,6 +350,58 @@ namespace Duel6
 		}
 	}
 
+	/** OpenGL info */
+	void SET_OpenGLInfo(con_c *con)
+	{
+		const char *e;
+		char *txp = NULL, *tx, tx2[200];
+		int len, i;
+
+		con->printf(MY_L("APP00075|\n===OpenGL info===\n"));
+		con->printf(MY_L("APP00076|Vyrobce    : %s\n"), glGetString(GL_VENDOR));
+		con->printf(MY_L("APP00077|Renderer   : %s\n"), glGetString(GL_RENDERER));
+		con->printf(MY_L("APP00078|Verze      : %s\n"), glGetString(GL_VERSION));
+		con->printf(MY_L("APP00079|Extenze    :\n"));
+
+		e = (const char *)glGetString(GL_EXTENSIONS);
+
+		if (strlen(e) < 2)
+		{
+			con->printf(MY_L("APP00080|...Zadne podporovane extenze\n"));
+		}
+		else
+		{
+			txp = (char *)MY_Alloc(strlen(e) + 1);
+			strcpy(txp, e);
+			tx = txp;
+
+			while (*tx)
+			{
+				while (*tx == ' ')
+					tx++;
+
+				if (*tx == 0)
+					break;
+
+				len = 0;
+
+				while (tx[len] != ' ' && tx[len] != 0)
+					len++;
+
+				for (i = 0; i < len; i++, tx++)
+					tx2[i] = *tx;
+
+				tx2[len] = 0;
+
+				con->printf("...%s\n", tx2);
+			}
+
+			MY_Free(txp);
+		}
+
+		con->printf("\n");
+	}
+
 	/*
 	==================================================
 	Main init
@@ -373,7 +426,7 @@ namespace Duel6
 		g_app.con->setlast(15);
 		g_app.con->regcmd(&D6_ConSwitchW, "switch_render_mode");
 		g_app.con->regcmd(&D6_ConShowFps, "show_fps");
-		g_app.con->regcmd(&UTIL_OpenGLInfo, "gl_info");
+		g_app.con->regcmd(&SET_OpenGLInfo, "gl_info");
 		g_app.con->regcmd(&SET_Language, "lang");
 		g_app.con->regcmd(&SET_Volume, "volume");
 		g_app.con->regcmd(&SET_MaxRounds, "rounds");

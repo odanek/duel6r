@@ -25,7 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <vector>
 #include "project.h"
+#include "Math.h"
 
 #define D6_FIRES        2
 
@@ -33,11 +35,11 @@ namespace Duel6
 {
 	struct Fire
 	{
-		Float32 X;
-		Float32 Y;
+		Float32 x;
+		Float32 y;
 		Face* face;
 		Size type;
-		bool A;
+		bool burned;
 	};
 
 	Size d6FireType[D6_FIRES] = { 11, 15 };
@@ -73,9 +75,9 @@ namespace Duel6
 				if (face.getBaseTexture() == d6FireType[j])
 				{
 					Fire fire;
-					fire.X = d6World.getSprites().getVertexes()[i << 2].x;
-					fire.Y = d6World.getSprites().getVertexes()[i << 2].y - 1.0f;
-					fire.A = false;
+					fire.x = d6World.getSprites().getVertexes()[i << 2].x;
+					fire.y = d6World.getSprites().getVertexes()[i << 2].y - 1.0f;
+					fire.burned = false;
 					fire.face = &face;
 					fire.type = j;
 					d6Fires.push_back(fire);
@@ -93,17 +95,17 @@ namespace Duel6
 
 		for (Fire& fire : d6Fires)
 		{
-			if (!fire.A)
+			if (!fire.burned)
 			{
-				Float32 distance = (float)sqrt(D6_SQR(X - fire.X) + D6_SQR(Y - fire.Y));
+				Float32 distance = Math::distance(X, fire.x, Y, fire.y);
 
 				if (distance < d)
 				{
-					fire.A = true;
+					fire.burned = true;
 					fire.face->hide();
 
 					Sprite fireSprite(d6FireAnm[fire.type], d6World.blockTextures);
-					fireSprite.setPosition(fire.X, fire.Y, 0.75f)
+					fireSprite.setPosition(fire.x, fire.y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					d6SpriteList.addSprite(fireSprite);
 				}

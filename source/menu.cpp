@@ -30,6 +30,7 @@
 #include "project.h"
 #include "LevelList.h"
 #include "PersonList.h"
+#include "Util.h"
 #include "glib.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
@@ -156,7 +157,7 @@ namespace Duel6
 		int         i;
 
 		g_app.con->printf(MY_L("APP00029|\n===Menu inicializace===\n"));
-		d6MenuTex = UTIL_LoadKH3Texture(D6_FILE_LABEL, 0, false);
+		d6MenuTex = Util::loadKH3Texture(D6_FILE_LABEL, 0, false);
 		MENU_LoadPH();
 		g_app.con->printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
 		myDesk = desk_c::Create();

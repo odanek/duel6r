@@ -43,7 +43,6 @@ endif(UNIX)
 set(D6R_SOURCES
 
     source/AnimationLooping.h
-    source/anims.h
     source/Block.h
     source/Bonus.h
     source/Bonus.cpp
@@ -65,6 +64,7 @@ set(D6R_SOURCES
     source/kontrola.cpp
     source/LevelList.h
     source/LevelList.cpp
+    source/Math.h
     source/menu.cpp
     source/msdir.c
     source/msdir.h
@@ -90,7 +90,8 @@ set(D6R_SOURCES
     source/SpriteList.cpp
     source/setup.cpp
     source/Type.h
-    source/util.cpp
+    source/Util.h
+    source/Util.cpp
     source/Vertex.h
     source/water.cpp
     source/WaterType.h

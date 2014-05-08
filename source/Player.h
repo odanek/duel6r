@@ -30,6 +30,7 @@
 
 #include <memory>
 #include "mylib/mycam.h"
+#include "SpriteList.h"
 #include "Person.h"
 #include "PlayerSkin.h"
 #include "Orientation.h"
@@ -150,7 +151,8 @@ namespace Duel6
 		void setView(int x, int y, int w, int h);
 		void update(ScreenMode screenMode, float elapsedTime);
 		void prepareCam(ScreenMode screenMode);
-		bool hit(float pw, Shot *s, bool hit); // Returns true if the shot caused the player to die
+		bool hit(float pw); // Returns true if the shot caused the player to die
+		bool hitByShot(float pw, Shot& s, bool directHit);
 
 		Float32 getX() const
 		{
@@ -275,9 +277,15 @@ namespace Duel6
 		bool isDead() const;
 		bool isInvulnerable() const;
 
+		bool isInGame() const
+		{
+			return !isDead() || isLying();
+		}
+
 		void useTemporarySkin(PlayerSkin& skin);
 
 	private:
+		void findStartingPosition();
 		void dropWeapon();
 	};
 

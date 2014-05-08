@@ -30,7 +30,6 @@
 #include "Player.h"
 #include "BonusList.h"
 #include "Weapon.h"
-#include "anims.h"
 
 namespace Duel6
 {
@@ -84,34 +83,20 @@ namespace Duel6
 
 	/* ==================================================================== */
 
-	static short    noAnim[4] = { 0, 50, 0, -1 };
-	extern short    wtAnim[2][24];
-
-	static void PLAYER_FindStart(float *x, float *y)
+	static Int16 noAnim[4] = { 0, 50, 0, -1 };
+	static Int16 d6SAnim[22] = { 0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0 };
+	static Int16 d6WAnim[10] = { 6, 5, 5, 5, 6, 5, 7, 5, -1, 0 };
+	static Int16 d6JAnim[4] = { 8, 50, -1, 0 };
+	static Int16 d6DAnim[18] = { 9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0 };
+	static Int16 d6LAnim[16] = { 13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0 };
+	static Int16 d6NAnim[4] = { 25, 100, -1, 0 };
+	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
+	static Int16 wtAnim[2][24] =
 	{
-		while (true)
-		{
-			Int32 X = rand() % d6World.getSizeX();
-			Int32 Y = rand() % d6World.getSizeY();
+		{ 57, 5, 58, 5, 59, 5, 60, 5, 61, 5, 62, 5, 63, 5, 64, 5, 66, 5, 67, 5, -1, 0 },
+		{ 83, 5, 84, 5, 85, 5, 86, 5, 87, 5, 88, 5, 89, 5, 90, 5, 91, 5, 92, 5, -1, 0 }
+	};
 
-			if (Y > 0 && !d6World.isWall(X, Y, true) && !d6World.isWater(X, Y))
-			{
-				Int32 y2 = Y;
-
-				while (y2-- > 0)
-				{
-					if (d6World.isWater(X, y2))
-						break;
-					if (d6World.isWall(X, y2, true))
-					{
-						*x = (float)X;
-						*y = (float)Y + 0.0001f;
-						return;
-					}
-				}
-			}
-		}
-	}
 
 	void PLAYER_View(int i, int x, int y)
 	{
@@ -195,7 +180,7 @@ namespace Duel6
 
 	void Player::prepareForGame()
 	{
-		PLAYER_FindStart(&State.X, &State.Y);
+		findStartingPosition();
 		
 		Sprite manSprite(noAnim, skin->getTextures());
 		manSprite.setPosition(State.X, State.Y, 0.5f);
@@ -222,6 +207,32 @@ namespace Duel6
 		State.SD = 0;
 		Person().setGames(Person().getGames() + 1);
 		State.InWater = false;
+	}
+
+	void Player::findStartingPosition()
+	{
+		while (true)
+		{
+			Int32 X = rand() % d6World.getSizeX();
+			Int32 Y = rand() % d6World.getSizeY();
+
+			if (Y > 0 && !d6World.isWall(X, Y, true) && !d6World.isWater(X, Y))
+			{
+				Int32 y2 = Y;
+
+				while (y2-- > 0)
+				{
+					if (d6World.isWater(X, y2))
+						break;
+					if (d6World.isWall(X, y2, true))
+					{
+						State.X = (Float32)X;
+						State.Y = (Float32)Y + 0.0001f;
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	void Player::setView(int x, int y, int w, int h)
@@ -595,38 +606,33 @@ namespace Duel6
 			camera.setpos(cameraPos.Pos);
 	}
 
-	bool Player::hit(float pw, Shot* s, bool hit)
+	bool Player::hitByShot(Float32 amount, Shot& shot, bool directHit)
 	{
-		if (State.Bonus == D6_BONUS_INVUL)
-			return false;
-		if (isDead() && !isLying())
-			return false;
-		if (isDead() && s == NULL)
+		if (isInvulnerable() || !isInGame())
 			return false;
 
-		if (s != NULL && hit)
+		Person& shootingPerson = shot.getPlayer().getPerson();
+		const Weapon& weapon = shot.getWeapon();
+
+		if (directHit && weapon.Blood)
 		{
-			if (s->getWeapon().Blood)
-			{
-				EXPL_Add(getX() + 0.3f + (rand() % 40) * 0.01f, s->getY() + 0.85f, 0.2f, 0.5f, Color(255, 0, 0));   // TODO: Coord
-			}
+			EXPL_Add(getX() + 0.3f + (rand() % 40) * 0.01f, shot.getY() + 0.85f, 0.2f, 0.5f, Color(255, 0, 0));   // TODO: Coord
 		}
 
 		if (isDead())
 		{
-			if (s->getWeapon().explodes && hit)
+			if (weapon.explodes && directHit)
 			{
 				State.Flags &= ~D6_FLAG_LYING;
-				EXPL_Add(getX() + 0.5f, getY() + 0.3f, 0.5f, 1.2f, s->getWeapon().explosionColor); // TODO: Coord
+				EXPL_Add(getX() + 0.5f, getY() + 0.3f, 0.5f, 1.2f, weapon.explosionColor); // TODO: Coord
 			}
 			return false;
 		}
 
-		State.Life -= pw;
+		State.Life -= amount;
 		
-		if (hit && s != NULL)
-		{
-			Person& shootingPerson = s->getPlayer().getPerson();
+		if (directHit)
+		{			
 			shootingPerson.setHits(shootingPerson.getHits() + 1);
 		}
 
@@ -638,49 +644,76 @@ namespace Duel6
 			State.A->setPosition(State.X, State.Y).setLooping(AnimationLooping::OnceAndStop);
 			d6SpriteList.removeSprite(State.GA);
 
-			if (s != NULL)
+			State.O = (shot.getX() < State.X) ? Orientation::Left : Orientation::Right;
+
+			if (!is(shot.getPlayer()))
 			{
-				State.O = (s->getX() < State.X) ? Orientation::Left : Orientation::Right;
-
-				if (!is(s->getPlayer()))
-				{
-					Person& shootingPerson = s->getPlayer().getPerson();
-					Person& killedPerson = getPerson();					
-					shootingPerson.setKills(shootingPerson.getKills() + 1);
-					d6MessageQueue.add(*this, MY_L("APP00051|Jsi mrtvy - zabil te %s"), shootingPerson.getName().c_str());
-					d6MessageQueue.add(s->getPlayer(), MY_L("APP00052|Zabil jsi hrace %s"), killedPerson.getName().c_str());
-				}
-				else
-					d6MessageQueue.add(*this, MY_L("APP00053|Jsi mrtvy"));
-
-				if (s->getWeapon().explodes && hit)
-				{
-					State.Flags &= ~D6_FLAG_LYING;
-					EXPL_Add(State.X + 0.5f, State.Y + 0.5f, 0.5f, 1.2f, s->getWeapon().explosionColor);  // TODO: Coord
-				}
+				shootingPerson.setKills(shootingPerson.getKills() + 1);
+				d6MessageQueue.add(*this, MY_L("APP00051|Jsi mrtvy - zabil te %s"), shootingPerson.getName().c_str());
+				d6MessageQueue.add(shot.getPlayer(), MY_L("APP00052|Zabil jsi hrace %s"), getPerson().getName().c_str());
 			}
 			else
-				d6MessageQueue.add(*this, MY_L("APP00054|Jsi mrtvy"));
+			{
+				d6MessageQueue.add(*this, MY_L("APP00053|Jsi mrtvy"));
+			}
 
-			SOUND_PlaySample(D6_SND_DEAD);
-
-			// Add lying weapon
-			if (!State.J && (s == NULL || !s->getWeapon().explodes || !hit))
+			if (weapon.explodes && directHit)
+			{
+				State.Flags &= ~D6_FLAG_LYING;
+				EXPL_Add(State.X + 0.5f, State.Y + 0.5f, 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
+			}
+			else if (!State.J)
 			{
 				dropWeapon();
 			}
+
+			SOUND_PlaySample(D6_SND_DEAD);
+			return true;
 		}
-		else if (hit)
+		
+		if (directHit)
 		{
 			SOUND_PlaySample(D6_SND_HIT);
 		}
 
-		return isDead();
+		return false;
+	}
+
+
+	bool Player::hit(Float32 amount)
+	{
+		if (isInvulnerable() || isDead())
+			return false;
+
+		State.Life -= amount;
+
+		if (State.Life < 1)
+		{
+			State.Life = 0;
+			State.Flags |= D6_FLAG_DEAD | D6_FLAG_LYING;
+			
+			State.A->setPosition(State.X, State.Y).setLooping(AnimationLooping::OnceAndStop);
+			d6SpriteList.removeSprite(State.GA);
+			d6MessageQueue.add(*this, MY_L("APP00054|Jsi mrtvy"));
+
+			SOUND_PlaySample(D6_SND_DEAD);
+
+			// Add lying weapon
+			if (!State.J)
+			{
+				dropWeapon();
+			}
+
+			return true;
+		}
+
+		SOUND_PlaySample(D6_SND_HIT);
+		return false;
 	}
 
 	void Player::dropWeapon()
 	{
-		int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f); 
+		int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f); // TODO: Coord
 		int y = int(getY() + 0.5f);  // TODO: Coord
 
 		if (d6World.isWall(x1, y - 1, true) && !d6World.isWall(x1, y, true))
@@ -708,14 +741,14 @@ namespace Duel6
 		State.Flags &= ~D6_FLAG_INWATER;
 
 		// Check if head is in water
-		WaterType water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() - 0.2f) + 1);   // TODO: Coord
+		WaterType water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.8f));   // TODO: Coord
 		if (water != WaterType::None)
 		{
 			State.Flags |= D6_FLAG_INWATER;
 			if ((State.Air -= airHitAmount) < 0)
 			{
 				State.Air = 0;
-				if (hit(airHitAmount, NULL, false))
+				if (hit(airHitAmount))
 				{
 					Person().setKills(Person().getKills() - 1);  // Player drowned = -1 kill
 				}
@@ -726,7 +759,7 @@ namespace Duel6
 		State.Air = MY_Min(State.Air + 2 * airHitAmount, D6_MAX_AIR);
 
 		// Check if foot is in water
-		water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() - 0.9f) + 1);  // TODO: Coord
+		water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
 		if (water != WaterType::None && !State.InWater)
 		{
 			Sprite waterSplash(wtAnim[(water == WaterType::Blue) ? 0 : 1], d6WpnTextures);

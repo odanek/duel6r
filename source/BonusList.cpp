@@ -124,7 +124,7 @@ namespace Duel6
 			break;
 
 		case D6_BONUS_LIFEM:
-			player.hit(Float32(hit), nullptr, false);
+			player.hit(Float32(hit));
 			d6MessageQueue.add(player, MY_L("APP00013|Zivot -%d"), hit);
 			break;
 

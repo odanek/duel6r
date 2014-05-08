@@ -28,6 +28,7 @@
 #include "project.h"
 #include "BonusList.h"
 #include "Weapon.h"
+#include "Util.h"
 
 namespace Duel6
 {
@@ -284,7 +285,7 @@ namespace Duel6
 			// Save screenshot
 			if (g_inp.key[SDLK_F10])
 			{
-				UTIL_SaveScreenTga(1);
+				Util::saveScreenTga();
 				d6KeyWait = 1.0f;
 			}
 		}

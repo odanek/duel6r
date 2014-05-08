@@ -112,7 +112,7 @@ namespace Duel6
 			{
 				continue;
 			}
-			if (player.isDead() && !player.isLying())
+			if (!player.isInGame())
 			{
 				continue;
 			}
