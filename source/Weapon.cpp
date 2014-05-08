@@ -176,7 +176,7 @@ namespace Duel6
 		Float32 power = shot.getExplosionPower();
 
 		float X = (shot.getOrientation() == Orientation::Left) ? (shot.getX() + 0.32f) : (shot.getX() + 0.67f);
-		float Y = shot.getY() - 0.17f;
+		float Y = shot.getY() + 0.83f;  // TODO: Coord
 		bool shit = shot.getWeapon().shit;
 
 		if (!shit)

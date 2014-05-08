@@ -81,15 +81,11 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
 		d6WaterVertexList.clear();
 
-		std::vector<Vertex>& v = d6World.vertexes;
-		int fisrtWaterVertex = (d6World.Blocks + d6World.Sprites) << 2;
-		int lastWaterVertex = (d6World.Blocks + d6World.Sprites + d6World.Waters) << 2;
-
-		for (int j = fisrtWaterVertex; j < lastWaterVertex; j++)
+		for (Vertex& vertex : d6World.getWater().getVertexes())
 		{
-			if (v[j].Flags == D6_FLAG_FLOW)
+			if (vertex.Flags == D6_FLAG_FLOW)
 			{
-				d6WaterVertexList.push_back(WaterVertex(v[j], D6_WAVE_HEIGHT));
+				d6WaterVertexList.push_back(WaterVertex(vertex, D6_WAVE_HEIGHT));
 			}
 		}
 	}

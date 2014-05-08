@@ -109,7 +109,7 @@ namespace Duel6
 		if (grow > 0)
 		{
 			x -= grow * elapsedTime;
-			y += grow * elapsedTime;
+			y -= grow * elapsedTime;
 			width += 2 * grow * elapsedTime;
 			height += 2 * grow * elapsedTime;
 		}
@@ -136,13 +136,13 @@ namespace Duel6
 
 		glBegin(GL_QUADS);
 			glTexCoord2f(leftSide, 0.0f);
-			glVertex3f(x, y, z);;
+			glVertex3f(x, y + height, z);;
 			glTexCoord2f(1.0f - leftSide, 0.0f);
-			glVertex3f(x + width, y, z);;
+			glVertex3f(x + width, y + height, z);;
 			glTexCoord2f(1.0f - leftSide, 1.0f);
-			glVertex3f(x + width, y - height, z);
+			glVertex3f(x + width, y, z);
 			glTexCoord2f(leftSide, 1.0f);
-			glVertex3f(x, y - height, z);
+			glVertex3f(x, y, z);
 		glEnd();
 
 		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);

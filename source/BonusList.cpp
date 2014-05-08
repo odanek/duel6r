@@ -61,12 +61,12 @@ namespace Duel6
 		Int32 x = rand() % d6World.getSizeX();
 		Int32 y = rand() % d6World.getSizeY();
 
-		if (weapon && !d6World.isWall(x, y + 1)) // Weapons must be on the ground
+		if (weapon && !d6World.isWall(x, y - 1, true)) // Weapons must be on the ground
 		{
 			return;
 		}
 
-		if (!d6World.isWall(x, y))
+		if (!d6World.isWall(x, y, true))
 		{
 			if (weapon)
 			{

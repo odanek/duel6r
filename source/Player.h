@@ -276,6 +276,9 @@ namespace Duel6
 		bool isInvulnerable() const;
 
 		void useTemporarySkin(PlayerSkin& skin);
+
+	private:
+		void dropWeapon();
 	};
 
 	//////////////////////////////////////////////////////////////////////

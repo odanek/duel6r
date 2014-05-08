@@ -89,27 +89,23 @@ namespace Duel6
 
 	static void PLAYER_FindStart(float *x, float *y)
 	{
-		Int32 sX = d6World.getSizeX(), sY = d6World.getSizeY();
-		int X, Y, y2, s = 1;
-
-		while (s)
+		while (true)
 		{
-			X = rand() % sX;
-			Y = rand() % sY;
-			s = 1;
+			Int32 X = rand() % d6World.getSizeX();
+			Int32 Y = rand() % d6World.getSizeY();
 
-			if (!d6World.isWall(X, Y))
+			if (Y > 0 && !d6World.isWall(X, Y, true) && !d6World.isWater(X, Y))
 			{
-				y2 = Y - 1;
+				Int32 y2 = Y;
 
-				while (++y2 < sY)
+				while (y2-- > 0)
 				{
 					if (d6World.isWater(X, y2))
 						break;
-					if (d6World.isWall(X, y2))
+					if (d6World.isWall(X, y2, true))
 					{
 						*x = (float)X;
-						*y = (float)(sY - Y) + 0.0001f;
+						*y = (float)Y + 0.0001f;
 						return;
 					}
 				}
@@ -612,16 +608,16 @@ namespace Duel6
 		{
 			if (s->getWeapon().Blood)
 			{
-				EXPL_Add(State.X + 0.3f + (rand() % 40) * 0.01f, s->getY() - 0.15f, 0.2f, 0.5f, 0xFF0000);
+				EXPL_Add(getX() + 0.3f + (rand() % 40) * 0.01f, s->getY() + 0.85f, 0.2f, 0.5f, Color(255, 0, 0));   // TODO: Coord
 			}
 		}
 
 		if (isDead())
 		{
-			if (s->getWeapon().ExplC && hit)
+			if (s->getWeapon().explodes && hit)
 			{
 				State.Flags &= ~D6_FLAG_LYING;
-				EXPL_Add(State.X + 0.5f, State.Y - 0.7f, 0.5f, 1.2f, s->getWeapon().ExplC);
+				EXPL_Add(getX() + 0.5f, getY() + 0.3f, 0.5f, 1.2f, s->getWeapon().explosionColor); // TODO: Coord
 			}
 			return false;
 		}
@@ -657,10 +653,10 @@ namespace Duel6
 				else
 					d6MessageQueue.add(*this, MY_L("APP00053|Jsi mrtvy"));
 
-				if (s->getWeapon().ExplC > 0 && hit)
+				if (s->getWeapon().explodes && hit)
 				{
 					State.Flags &= ~D6_FLAG_LYING;
-					EXPL_Add(State.X + 0.5f, State.Y - 0.5f, 0.5f, 1.2f, s->getWeapon().ExplC);
+					EXPL_Add(State.X + 0.5f, State.Y + 0.5f, 0.5f, 1.2f, s->getWeapon().explosionColor);  // TODO: Coord
 				}
 			}
 			else
@@ -669,22 +665,9 @@ namespace Duel6
 			SOUND_PlaySample(D6_SND_DEAD);
 
 			// Add lying weapon
-			if (!State.J && (s == NULL || !s->getWeapon().ExplC || !hit))
+			if (!State.J && (s == NULL || !s->getWeapon().explodes || !hit))
 			{
-				int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f);
-				int y = d6World.getSizeY() - int(getY() - 0.5f) - 1;
-
-				if (d6World.isWall(x1, y + 1) && !d6World.isWall(x1, y))
-				{
-					BONUS_AddDeadManGun(x1, y, *this);
-				}
-				else
-				{
-					if (d6World.isWall(x2, y + 1) && !d6World.isWall(x2, y))
-					{
-						BONUS_AddDeadManGun(x2, y, *this);
-					}
-				}
+				dropWeapon();
 			}
 		}
 		else if (hit)
@@ -695,6 +678,24 @@ namespace Duel6
 		return isDead();
 	}
 
+	void Player::dropWeapon()
+	{
+		int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f); 
+		int y = int(getY() + 0.5f);  // TODO: Coord
+
+		if (d6World.isWall(x1, y - 1, true) && !d6World.isWall(x1, y, true))
+		{
+			BONUS_AddDeadManGun(x1, y, *this);
+		}
+		else
+		{
+			if (d6World.isWall(x2, y - 1, true) && !d6World.isWall(x2, y, true))
+			{
+				BONUS_AddDeadManGun(x2, y, *this);
+			}
+		}
+	}
+
 	Player& Player::adjustLife(Float32 life)
 	{
 		State.Life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), State.Life + life));
@@ -703,12 +704,11 @@ namespace Duel6
 
 	void Player::checkWater(float elapsedTime)
 	{
-		Int32 levelHeight = d6World.getSizeY();
 		float airHitAmount = D6_WATER_HIT * elapsedTime;
 		State.Flags &= ~D6_FLAG_INWATER;
 
 		// Check if head is in water
-		WaterType water = d6World.getWaterType(Int32(getX() + 0.5f), levelHeight - Int32(getY() - 0.2f) - 1);
+		WaterType water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() - 0.2f) + 1);   // TODO: Coord
 		if (water != WaterType::None)
 		{
 			State.Flags |= D6_FLAG_INWATER;
@@ -726,7 +726,7 @@ namespace Duel6
 		State.Air = MY_Min(State.Air + 2 * airHitAmount, D6_MAX_AIR);
 
 		// Check if foot is in water
-		water = d6World.getWaterType(Int32(getX() + 0.5f), levelHeight - Int32(getY() - 0.9f) - 1);
+		water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() - 0.9f) + 1);  // TODO: Coord
 		if (water != WaterType::None && !State.InWater)
 		{
 			Sprite waterSplash(wtAnim[(water == WaterType::Blue) ? 0 : 1], d6WpnTextures);

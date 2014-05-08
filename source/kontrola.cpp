@@ -32,18 +32,18 @@ namespace Duel6
 {
 	static void KONTR_Kontr1(Player& player, Int32 left, Int32 right, Int32 up)
 	{
-		if (d6World.isWall(left, up) || d6World.isWall(right, up))
+		if (d6World.isWall(left, up, true) || d6World.isWall(right, up, true))
 		{
-			player.State.Y = (float)(d6World.getSizeY() - up) - 1.0f;
+			player.State.Y = (float)(up) - 1.0f; // TODO: Coord
 			player.State.J = 180;
 		}
 	}
 
 	static void KONTR_Kontr2(Player& player, Int32 left, Int32 right, Int32 down)
 	{
-		if (d6World.isWall(left, down) || d6World.isWall(right, down))
+		if (d6World.isWall(left, down, true) || d6World.isWall(right, down, true))
 		{
-			player.State.Y = (float)(d6World.getSizeY() - down) + 1.0001f;
+			player.State.Y = (float)(down) + 1.0001f; // TODO: Coord
 			player.State.J = 0;
 		}
 
@@ -56,7 +56,7 @@ namespace Duel6
 		if (player.State.Elev != -1)
 			return;
 
-		if (!d6World.isWall(left, down) && !d6World.isWall(right, down))
+		if (!d6World.isWall(left, down, true) && !d6World.isWall(right, down, true))
 			player.State.J = 180;
 	}
 
@@ -64,25 +64,23 @@ namespace Duel6
 	{
 		if (player.State.Speed < 0)
 		{
-			if (d6World.isWall(left, up) || d6World.isWall(left, down))
-				player.State.X = (float)left + 0.9001f;
+			if (d6World.isWall(left, up, true) || d6World.isWall(left, down, true))
+				player.State.X = (float)left + 0.9001f; // TODO: Coord
 		}
 		else
 		{
-			if (d6World.isWall(right, up) || d6World.isWall(right, down))
-				player.State.X = (float)right - 0.9001f;
+			if (d6World.isWall(right, up, true) || d6World.isWall(right, down, true))
+				player.State.X = (float)right - 0.9001f; // TODO: Coord
 		}
 	}
 
 	void KONTR_Kontr(Player& player, int c)
 	{
-		Uint32 levelHeight = d6World.getSizeY();
-
-		Int32 up = levelHeight - (int)(player.getY() - 0.06) - 1;
-		Int32 down = levelHeight - (int)(player.getY() - 1.0f) - 1;
-		Int32 down2 = levelHeight - (int)(player.getY() - 1.001f) - 1;
-		Int32 left = (int)(player.getX() + 0.1f);
-		Int32 right = (int)(player.getX() + 0.9f);
+		Int32 up = (int)(player.getY() + 0.94); // TODO: Coord
+		Int32 down = (int)player.getY(); // TODO: Coord
+		Int32 down2 = (int)(player.getY() - 0.001f); // TODO: Coord
+		Int32 left = (int)(player.getX() + 0.1f); // TODO: Coord
+		Int32 right = (int)(player.getX() + 0.9f); // TODO: Coord
 
 		switch (c)
 		{
@@ -95,18 +93,18 @@ namespace Duel6
 
 	bool KONTR_CanJump(Player* p)
 	{
-		Int32 up = d6World.getSizeY() - (int)p->getY() - 1;
-		Int32 left = (int)(p->getX() + 0.1f);
-		Int32 right = (int)(p->getX() + 0.9f);
+		Int32 up = (int)(p->getY() + 1.0f); // TODO: Coord
+		Int32 left = (int)(p->getX() + 0.1f); // TODO: Coord
+		Int32 right = (int)(p->getX() + 0.9f); // TODO: Coord
 
-		if (d6World.isWall(left, up) || d6World.isWall(right, up))
+		if (d6World.isWall(left, up, true) || d6World.isWall(right, up, true))
 			return false;
 		return true;
 	}
 
 	static bool KONTR_ShotPlayer(Shot& shot)
 	{
-		Float32 X = (shot.getOrientation() == Orientation::Left) ? shot.getX() : shot.getX() + 0.35f;
+		Float32 X = (shot.getOrientation() == Orientation::Left) ? shot.getX() : shot.getX() + 0.35f; // TODO: Coord
 
 		for (Player& player : d6Players)
 		{
@@ -119,10 +117,10 @@ namespace Duel6
 				continue;
 			}
 
-			Float32 ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f);
+			Float32 ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f); // TODO: Coord
 
 			if (X > player.getX() + 1.0f || X + 0.65f < player.getX() ||
-				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad)
+				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad) // TODO: Coord
 				continue;
 
 			WPN_Boom(shot, &player);
@@ -137,23 +135,23 @@ namespace Duel6
 		if (KONTR_ShotPlayer(s))
 			return true;
 
-		Int32 up = d6World.getSizeY() - (int)(s.getY()) - 1;
-		Int32 down = d6World.getSizeY() - (int)(s.getY() - 0.35f) - 1;
+		Int32 up = (int)(s.getY() + 1.0f); // TODO: Coord
+		Int32 down = (int)(s.getY() + 0.65f); // TODO: Coord
 		
 		Int32 left, right;
 		if (s.getOrientation() == Orientation::Left)
 		{
 			left = (int)(s.getX());
-			right = (int)(s.getX() + 0.65f);
+			right = (int)(s.getX() + 0.65f); // TODO: Coord
 		}
 		else
 		{
-			left = (int)(s.getX() + 0.35f);
-			right = (int)(s.getX() + 1.0f);
+			left = (int)(s.getX() + 0.35f); // TODO: Coord
+			right = (int)(s.getX() + 1.0f); // TODO: Coord
 		}
 
-		if (d6World.isWall(left, up) || d6World.isWall(left, down) ||
-			d6World.isWall(right, up) || d6World.isWall(right, down))
+		if (d6World.isWall(left, up, true) || d6World.isWall(left, down, true) ||
+			d6World.isWall(right, up, true) || d6World.isWall(right, down, true))
 		{
 			WPN_Boom(s, NULL);
 			return true;

@@ -32,8 +32,6 @@
 #include "Bonus.h"
 #include "WaterType.h"
 
-#define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
-
 //#define D6_RENDER_BACKS
 
 #define D6_ANM_F_NOTHING    0x00
@@ -51,139 +49,221 @@
 
 namespace Duel6
 {
-	struct Vertex
+	class Vertex
 	{
+	public:
 		Float32 X;
 		Float32 Y;
 		Float32 Z;
 		Float32 U;
 		Float32 V;
 		Int32 Flags;
-	};
-
-	struct Face
-	{
-		Int32 nowTex;
-		Int32 minTex;
-		Int32 maxTex;
-	};
-
-	class Level
-	{
-	private:
-		Int32 sizeX;
-		Int32 sizeY;
-		std::vector<Uint16> data;
 
 	public:
-		void load(const std::string& path, std::vector<Int32>& elevatorData);				
-		Level& mirror();
-
-		Int32 getSizeX() const
+		Vertex(Size order, Float32 x, Float32 y, Float32 z, Int32 flags = D6_FLAG_NONE)
 		{
-			return sizeX;
+			X = x;
+			Y = y;
+			Z = z;
+			U = (order == 0 || order == 3) ? 0.0f : 0.99f;
+			V = (order == 0 || order == 1) ? 0.0f : 0.99f;
+			Flags = flags;
 		}
 
-		Int32 getSizeY() const
-		{
-			return sizeY;
-		}
-		
-		Uint16 getBlock(Int32 x, Int32 y)
-		{
-			return data[y * sizeX + x];
-		}
+		Vertex(Size order, Int32 x, Int32 y, Int32 z, Int32 flags = D6_FLAG_NONE)
+			: Vertex(order, Float32(x), Float32(y), Float32(z), flags)
+		{}
+	};
 
-		Uint16 getBlock(Size offset)
-		{
-			return data[offset];
-		}
-
-		bool isInside(Int32 x, Int32 y)
-		{
-			return (x >= 0 && x < sizeX && y >= 0 && y < sizeY);
-		}
-
+	class Block
+	{
 	private:
-		Level& loadElevators(myFile_s *f, std::vector<Int32>& elevatorData);
+		Uint32 texture;
+		Int32 type;
+		Int32 animationFrames;
+
+	public:
+		// TODO: BlockType
+		Block(Uint32 texture, Int32 type, Int32 animationFrames)
+			: texture(texture), type(type), animationFrames(animationFrames)
+		{}
+
+		Uint32 getTexture() const
+		{
+			return texture;
+		}
+
+		Int32 getType() const
+		{
+			return type;
+		}
+
+		Int32 getAnimationFrames() const
+		{
+			return animationFrames;
+		}
+
+		// is(BlockType)
+	};
+
+	class Face
+	{
+	public:
+		Uint32 nowTex;
+		Uint32 minTex;
+		Uint32 maxTex;
+
+	public:
+		Face(const Block& block)
+		{
+			minTex = block.getTexture();
+			maxTex = block.getTexture() + block.getAnimationFrames();
+			nowTex = block.getTexture();
+		}
+	};
+
+	class FaceList
+	{
+	private:
+		std::vector<Vertex> vertexes;
+		std::vector<Face> faces;
+
+	public:
+		FaceList& clear()
+		{
+			vertexes.clear();
+			faces.clear();
+			return *this;
+		}
+
+		FaceList& addVertex(const Vertex& vertex)
+		{
+			vertexes.push_back(vertex);
+			return *this;
+		}
+
+		FaceList& addFace(const Face& face)
+		{
+			faces.push_back(face);
+			return *this;
+		}
+
+		std::vector<Vertex>& getVertexes()
+		{
+			return vertexes;
+		}
+
+		std::vector<Face>& getFaces()
+		{
+			return faces;
+		}
+
+		void optimize();
+		void render();
+		void nextFrame();
 	};
 
 	class World
 	{
 	private:
-		struct Block
-		{
-			Int32 type;
-			Int32 anim;
-		};
-		Level level;
+		std::vector<Block> blockMeta;
+		Int32 width;
+		Int32 height;
+		std::vector<Uint16> levelData;
+		FaceList walls;
+		FaceList sprites;
+		FaceList water;
+		Float32 animWait;
 
 	public:
-		Size Blocks;
-		Size Sprites;
-		Size Waters;
-		std::vector<Vertex> vertexes;
-		std::vector<Face> faces;
-		std::vector<Block> blocks;
 		std::vector<GLuint> blockTextures;
-		Float32 animWait;
 
 	public:
 		World()
 		{}
 
-		void init(const std::string& textureFile, const std::string blockDataFile);
+		void init(const std::string& textureFile, const std::string& blockMetaFile);
 		void deInit();
 		void loadLevel(const std::string& path, bool mirror, std::vector<Bonus>& bonuses, std::vector<Int32>& elevatorData);
+		void update(Float32 elapsedTime);
+
+		FaceList& getWalls()
+		{
+			return walls;
+		}
+
+		FaceList& getSprites()
+		{
+			return sprites;
+		}
+
+		FaceList& getWater()
+		{
+			return water;
+		}
 
 		Int32 getSizeX() const
 		{
-			return level.getSizeX();
+			return width;
 		}
 
 		Int32 getSizeY() const
 		{
-			return level.getSizeY();
+			return height;
 		}
 
 		bool isWater(Int32 x, Int32 y)
 		{
-			return getBlockTypeSafe(x, y) == D6_ANM_F_WATER;
+			return isInside(x, y) ? getBlockType(x, y) == D6_ANM_F_WATER : false;
 		}
 
-		bool isWall(Int32 x, Int32 y)
+		bool isWall(Int32 x, Int32 y, bool outside)
 		{
-			return getBlockTypeSafe(x, y) == D6_ANM_F_BLOCK;
+			return isInside(x, y) ? getBlockType(x, y) == D6_ANM_F_BLOCK : outside;
 		}
 
 		WaterType getWaterType(Int32 x, Int32 y)
 		{
 			if (isWater(x, y))
 			{
-				return (level.getBlock(x, y) == 4) ? WaterType::Blue : WaterType::Red;
+				return (getBlock(x, y) == 4) ? WaterType::Blue : WaterType::Red;
 			}
 
 			return WaterType::None;
 		}
 
 	private:
-		void process(std::vector<Bonus>& bonuses);
-		void optimize();
-		void addSprite(int pos, int i, int j, float z, int *spr);
-		void setVertex(int n, int x, int y, float z);
-		void addFace(int pos, int x1, int y1, int z1, int x2, int y2, int z2, int x3, int y3, int z3, int x4, int y4, int z4, int *blc);
-		void addBlock(int pos, int i, int j, int *blc);
-		void addWaterBlock(int pos, int i, int j, int *wtr);
-		int block(int i, int j, int wr);
+		Size loadBlockTextures(const std::string& path);
+		void loadBlockMeta(const std::string& path, Size blocks);
+
+		void loadLevelData(const std::string& path, std::vector<Int32>& elevatorData);
+		void loadElevators(myFile_s* f, std::vector<Int32>& elevatorData);
+		void mirrorLevelData();
+
+		void findBonuses(std::vector<Bonus>& bonuses);
+		void addWallFaces();
+		void addSpriteFaces();
+		void addWaterFaces();
+		void addWall(FaceList& faceList, const Block& block, Int32 x, Int32 y);
+		void addWater(FaceList& faceList, const Block& block, Int32 x, Int32 y);
+		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);
+
+		/** Group faces with the same texture together so that they can be rendered in batches */
+		void optimize(FaceList& faceList);
+
+		bool isInside(Int32 x, Int32 y)
+		{
+			return (x >= 0 && x < width && y >= 0 && y < height);
+		}
+
+		Uint16 getBlock(Int32 x, Int32 y)
+		{
+			return levelData[(height - y - 1) * width + x];
+		}
 
 		Int32 getBlockType(Int32 x, Int32 y)
 		{
-			return blocks[level.getBlock(x, y)].type;
-		}
-
-		Int32 getBlockTypeSafe(Int32 x, Int32 y)
-		{
-			return level.isInside(x, y) ? getBlockType(x, y) : D6_ANM_F_BLOCK;
+			return blockMeta[getBlock(x, y)].getType();
 		}
 	};
 }

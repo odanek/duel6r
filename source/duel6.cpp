@@ -123,12 +123,9 @@ namespace Duel6
 		d6World.loadLevel(levelPath, mirror, bonuses, elevatorData);
 		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
 		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
-		g_app.con->printf(MY_L("APP00063|...Bloku   : %d\n"), d6World.Blocks);
-		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.Sprites);
-		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.Waters);
-
-		glVertexPointer(3, GL_FLOAT, sizeof (Vertex), (void *)&d6World.vertexes[0].X);
-		glTexCoordPointer(2, GL_FLOAT, sizeof (Vertex), (void *)&d6World.vertexes[0].U);
+		g_app.con->printf(MY_L("APP00063|...Sten    : %d\n"), d6World.getWalls().getFaces().size());
+		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.getSprites().getFaces().size());
+		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.getWater().getFaces().size());
 
 		WATER_Build();
 		d6SpriteList.clear();
@@ -200,7 +197,7 @@ namespace Duel6
 			player.update(d6ScreenMode, elapsedTime);
 		}
 
-		RENDER_MoveAnm(elapsedTime);
+		d6World.update(elapsedTime);
 		d6SpriteList.update(elapsedTime * D6_SPEED_COEF);
 		WATER_Move(elapsedTime);
 		WPN_MoveShots(elapsedTime * D6_SPEED_COEF);

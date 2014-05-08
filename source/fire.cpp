@@ -33,17 +33,16 @@ namespace Duel6
 {
 	struct Fire
 	{
-		float   X;
-		float   Y;
-		int     FN;
-		int     Fr;
-		bool    A;
+		Float32 X;
+		Float32 Y;
+		Face* face;
+		Size type;
+		bool A;
 	};
 
-	myUINT d6FT[D6_FIRES] = { 11, 15 };
-	int d6FiresCount;
-	Fire *d6Fire = nullptr;
-	Int16 d6FAnm[D6_FIRES][20] =
+	Size d6FireType[D6_FIRES] = { 11, 15 };
+	std::vector<Fire> d6Fires;
+	Int16 d6FireAnm[D6_FIRES][20] =
 	{
 		{ 12, 20, 13, 20, 12, 20, 13, 20, 12, 20, 13, 20, 12, 20, 13, 20, 14, 100, -1, 0 },
 		{ 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 18, 100, -1, 0 }
@@ -55,84 +54,58 @@ namespace Duel6
 		{
 			for (Size j = 3; j < 4; j++)
 			{
-				glBindTexture(GL_TEXTURE_2D, d6World.blockTextures[d6FT[i] + j]);
+				glBindTexture(GL_TEXTURE_2D, d6World.blockTextures[d6FireType[i] + j]);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
 		}
 	}
 
-	void FIRE_Free(void)
-	{
-		d6FiresCount = 0;
-		MY_Free(d6Fire);
-	}
-
 	void FIRE_Find(void)
 	{
-		int     j, n = 0;
+		d6Fires.clear();
 
-		FIRE_Free();
-
-		for (Size i = 0; i < d6World.faces.size(); i++)
+		Size i = 0;
+		for (Face& face : d6World.getSprites().getFaces())
 		{
-			for (j = 0; j < D6_FIRES; j++)
+			for (Size j = 0; j < D6_FIRES; j++)
 			{
-				if (d6World.faces[i].minTex == (int)d6FT[j])
+				if (face.minTex == d6FireType[j])
 				{
-					d6FiresCount++;
+					Fire fire;
+					fire.X = d6World.getSprites().getVertexes()[i << 2].X;
+					fire.Y = d6World.getSprites().getVertexes()[i << 2].Y - 1.0f;
+					fire.A = false;
+					fire.face = &face;
+					fire.type = j;
+					d6Fires.push_back(fire);
 				}
 			}
-		}
 
-		if (!d6FiresCount)
-			return;
-
-		d6Fire = D6_MALLOC(Fire, d6FiresCount);
-
-		for (Size i = 0; i < d6World.faces.size(); i++)
-		{
-			for (j = 0; j < D6_FIRES; j++)
-			{
-				if (d6World.faces[i].minTex == (int)d6FT[j])
-				{
-					d6Fire[n].X = d6World.vertexes[i << 2].X;
-					d6Fire[n].Y = d6World.vertexes[i << 2].Y;
-					d6Fire[n].A = false;
-					d6Fire[n].FN = i;
-					d6Fire[n].Fr = j;
-					n++;
-				}
-			}
+			i++;
 		}
 	}
 
-	void FIRE_Check(Float32 X, Float32 Y, Float32 d)
+	void FIRE_Check(Float32 X, Float32 Y, Float32 d)  // TODO: Coord - explosionCenter
 	{
-		Fire *f;
-		float vzd;
-		int i;
-
 		X -= 0.5f;
 		Y += 0.5f;
 
-		for (i = 0; i < d6FiresCount; i++)
+		for (Fire& fire : d6Fires)
 		{
-			if (!d6Fire[i].A)
+			if (!fire.A)
 			{
-				vzd = (float)sqrt(D6_SQR(X - d6Fire[i].X) + D6_SQR(Y - d6Fire[i].Y));
+				Float32 distance = (float)sqrt(D6_SQR(X - fire.X) + D6_SQR(Y - fire.Y));
 
-				if (vzd < d)
+				if (distance < d)
 				{
-					f = &d6Fire[i];
+					fire.A = true;
+					fire.face->minTex = 0;
+					fire.face->maxTex = 0;
+					fire.face->nowTex = 0;
 
-					f->A = true;
-					d6World.faces[f->FN].minTex = 0;
-					d6World.faces[f->FN].maxTex = 0;
-					d6World.faces[f->FN].nowTex = 0;
-
-					Sprite fireSprite(d6FAnm[f->Fr], d6World.blockTextures);
-					fireSprite.setPosition(f->X, f->Y, 0.75f)
+					Sprite fireSprite(d6FireAnm[fire.type], d6World.blockTextures);
+					fireSprite.setPosition(fire.X, fire.Y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					d6SpriteList.addSprite(fireSprite);
 				}

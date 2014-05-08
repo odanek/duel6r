@@ -35,7 +35,7 @@ namespace Duel6
 		float       Y;
 		float       Now;
 		float       Max;
-		GLubyte     Col[3];
+		Color color;
 	};
 
 	static  GLuint          d6ExTexture;
@@ -59,7 +59,7 @@ namespace Duel6
 		d6Explosions = 0;
 	}
 
-	void EXPL_Add(float x, float y, float s, float m, myDWORD c)
+	void EXPL_Add(float x, float y, float s, float m, const Color& color)
 	{
 		d6EXPLOSION_s   *e;
 
@@ -71,9 +71,7 @@ namespace Duel6
 		e->Y = y;
 		e->Now = s;
 		e->Max = m;
-		e->Col[0] = (GLubyte)((c & 0xFF0000) >> 16);
-		e->Col[1] = (GLubyte)((c & 0x00FF00) >> 8);
-		e->Col[2] = (GLubyte)c & 0x0000FF;
+		e->color = color;
 	}
 
 	static void EXPL_Remove(int i)
@@ -111,7 +109,7 @@ namespace Duel6
 		for (i = 0; i < d6Explosions; i++)
 		{
 			e = &d6Expl[i];
-			glColor3ubv(e->Col);
+			glColor3ub(e->color.getRed(), e->color.getGreen(), e->color.getBlue());
 			glTexCoord2f(0.0f, 0.0f);
 			glVertex3f(e->X - e->Now, e->Y + e->Now, 0.6f);
 			glTexCoord2f(1.0f, 0.0f);

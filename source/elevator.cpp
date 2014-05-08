@@ -27,6 +27,8 @@
 
 #include "project.h"
 
+#define D6_MALLOC(t,s)      (t *) MY_Alloc (sizeof (t) * (s))
+
 #define D6_ELEV_TEXTURE         68
 #define D6_ELEV_MAX             30
 #define D6_ELEV_SPEED           0.03f
@@ -223,7 +225,7 @@ namespace Duel6
 		float           x, y;
 
 		x = player.getX() + 0.5f;
-		y = player.getY() - 1.0f;
+		y = player.getY();
 
 		for (i = 0; i < d6Elevators; i++)
 		{
@@ -236,7 +238,7 @@ namespace Duel6
 				continue;
 
 			s->Elev = i;
-			s->Y = e->Y + 1.0f;
+			s->Y = e->Y;
 			s->J = 0;
 			return;
 		}

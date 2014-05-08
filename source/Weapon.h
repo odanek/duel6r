@@ -43,7 +43,8 @@ namespace Duel6
 	{
 		Float32 ShotSpeed;
 		bool Blood;
-		Uint32 ExplC;
+		bool explodes;
+		Color explosionColor;
 		Int32 Boom;
 		Int32 Power;
 		Int32 ReloadSpeed;

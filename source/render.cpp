@@ -40,49 +40,14 @@ namespace Duel6
 		glViewport(x, y, width, height);
 	}
 
-	static void RENDER_Blocks(int start, int blocks)
-	{
-		// TODO: World.render();
-		const std::vector<GLuint>& ta = d6World.blockTextures;
-		const std::vector<Face>& df = d6World.faces;
-		GLuint t;
-		int i, v, c = 0;
-
-		t = ta[df[start].nowTex];
-		v = start << 2;
-		blocks += start;
-
-		for (i = start; i < blocks; i++)
-		{
-			if (ta[df[i].nowTex] != t)
-			{
-				glBindTexture(GL_TEXTURE_2D, t);
-				glDrawArrays(GL_QUADS, v, c);
-				t = ta[df[i].nowTex];
-				v += c;
-				c = 4;
-			}
-			else
-			{
-				c += 4;
-			}
-		}
-
-		glBindTexture(GL_TEXTURE_2D, t);
-		glDrawArrays(GL_QUADS, v, c);
-	}
-
 	static void RENDER_Water(void)
 	{
-		if (!d6World.Waters)
-			return;
-
 		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 
-		RENDER_Blocks(d6World.Blocks + d6World.Sprites, d6World.Waters);
+		d6World.getWater().render();
 
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
@@ -91,33 +56,13 @@ namespace Duel6
 
 	static void RENDER_Sprites(void)
 	{
-		if (!d6World.Sprites)
-			return;
-
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
 
-		RENDER_Blocks(d6World.Blocks, d6World.Sprites);
+		d6World.getSprites().render();
 
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
-	}
-
-	void RENDER_MoveAnm(float elapsedTime)
-	{
-		std::vector<Face>& f = d6World.faces;
-
-		if ((d6World.animWait += elapsedTime) > D6_ANM_SPEED)
-		{
-			d6World.animWait = 0;
-			for (Size i = 0; i < d6World.faces.size(); i++)
-			{
-				if (++f[i].nowTex > f[i].maxTex)
-				{
-					f[i].nowTex = f[i].minTex;
-				}
-			}
-		}
 	}
 
 	static void RENDER_Background(void)
@@ -286,8 +231,8 @@ namespace Duel6
 		float   x, y, X, Y;
 		int     p, uh, u;
 
-		x = player.getX() + 0.5f;
-		y = player.getY() - 0.5f;
+		x = player.getX() + 0.5f;  // TODO: Coord
+		y = player.getY() + 0.5f;  // TODO: Coord
 		p = int(player.getBonusDuration() * 30) % 360;
 
 		glColor3ub(255, 0, 0);
@@ -341,7 +286,7 @@ namespace Duel6
 		if (d6Wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		RENDER_Blocks(0, d6World.Blocks);
+		d6World.getWalls().render();
 		RENDER_Sprites();
 		ELEV_DrawAll();
 		d6SpriteList.render();

@@ -41,7 +41,7 @@ namespace Duel6
 
 	Float32 Bonus::getScreenY() const
 	{
-		return Float32(d6World.getSizeY() - y);
+		return Float32(y);
 	}
 
 	void Bonus::render() const
@@ -51,10 +51,10 @@ namespace Duel6
 
 		glBindTexture(GL_TEXTURE_2D, getTexture());
 		glBegin(GL_QUADS);
-			glTexCoord2f(0.1f, 0.1f); glVertex3f(rx, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.1f); glVertex3f(rx + 1.0f, ry, 0.5f);
-			glTexCoord2f(0.9f, 0.9f); glVertex3f(rx + 1.0f, ry - 1.0f, 0.5f);
-			glTexCoord2f(0.1f, 0.9f); glVertex3f(rx, ry - 1.0f, 0.5f);
+			glTexCoord2f(0.1f, 0.1f); glVertex3f(rx, ry + 1, 0.5f);
+			glTexCoord2f(0.9f, 0.1f); glVertex3f(rx + 1.0f, ry + 1, 0.5f);
+			glTexCoord2f(0.9f, 0.9f); glVertex3f(rx + 1.0f, ry, 0.5f);
+			glTexCoord2f(0.1f, 0.9f); glVertex3f(rx, ry, 0.5f);
 		glEnd();
 	}
 

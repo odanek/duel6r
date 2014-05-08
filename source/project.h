@@ -166,7 +166,6 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	//                          render.cpp                              //
 	//////////////////////////////////////////////////////////////////////
-	void    RENDER_MoveAnm(float elapsedTime);
 	void	RENDER_InitScreen();
 	void    RENDER_DrawScene(ScreenMode screenMode);
 
@@ -185,7 +184,7 @@ namespace Duel6
 	void    EXPL_Free(void);
 	void    EXPL_MoveAll(float elapsedTime);
 	void    EXPL_DrawAll(void);
-	void    EXPL_Add(float x, float y, float s, float m, myDWORD c);
+	void    EXPL_Add(float x, float y, float s, float m, const Color& color);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          elevator.cpp                            //
@@ -202,7 +201,6 @@ namespace Duel6
 	//                          fire.cpp                                //
 	//////////////////////////////////////////////////////////////////////
 	void    FIRE_Init(void);
-	void    FIRE_Free(void);
 	void    FIRE_Find(void);
 	void    FIRE_Check(Float32 X, Float32 Y, Float32 d);
 

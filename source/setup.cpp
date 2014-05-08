@@ -158,7 +158,6 @@ namespace Duel6
 		d6World.deInit();
 		WPN_FreeTextures();
 		MENU_Free();
-		FIRE_Free();
 		ELEV_Free();
 		EXPL_Free();
 
