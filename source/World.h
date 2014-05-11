@@ -32,6 +32,7 @@
 #include "FaceList.h"
 #include "Bonus.h"
 #include "WaterType.h"
+#include "WaterList.h"
 
 namespace Duel6
 {
@@ -39,24 +40,32 @@ namespace Duel6
 	{
 	private:
 		std::vector<Block> blockMeta;
+
 		Int32 width;
 		Int32 height;
 		std::vector<Uint16> levelData;
+
 		FaceList walls;
 		FaceList sprites;
 		FaceList water;
+		
+		Float32 animationSpeed;
 		Float32 animWait;
+
+		Float32 waveHeight;
+		WaterList floatingVertexes;
+
 
 	public:
 		std::vector<GLuint> blockTextures;
 
 	public:
-		World()
-			: walls(blockTextures), sprites(blockTextures), water(blockTextures)
+		World(Float32 animationSpeed, Float32 waveHeight)
+			: walls(blockTextures), sprites(blockTextures), water(blockTextures), waveHeight(waveHeight), animationSpeed(animationSpeed)
 		{}
 
 		void init(const std::string& textureFile, const std::string& blockMetaFile);
-		void deInit();
+		void freeTextures();
 
 		void loadLevelData(const std::string& path, bool mirror);
 		void findBonuses(std::vector<Bonus>& bonuses);

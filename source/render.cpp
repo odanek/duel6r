@@ -28,6 +28,7 @@
 #include "project.h"
 #include "BonusList.h"
 #include "ElevatorList.h"
+#include "Math.h"
 
 namespace Duel6
 {
@@ -41,7 +42,7 @@ namespace Duel6
 		glViewport(x, y, width, height);
 	}
 
-	static void RENDER_Water(void)
+	static void RENDER_Water()
 	{
 		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
@@ -55,7 +56,7 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	static void RENDER_Sprites(void)
+	static void RENDER_Sprites()
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
@@ -66,7 +67,7 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	static void RENDER_Background(void)
+	static void RENDER_Background()
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, d6BackgroundTexture);
@@ -244,8 +245,8 @@ namespace Duel6
 		for (uh = p; uh < 360 + p; uh += 15)
 		{
 			u = uh % 360;
-			X = x + 0.7f * d6Sin[90 + u];
-			Y = y + 0.7f * d6Sin[u];
+			X = x + 0.7f * Math::fastCos(90 + u);
+			Y = y + 0.7f * Math::fastCos(u);
 			glVertex3f(X, Y, 0.5f);
 		}
 
@@ -386,7 +387,7 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			d6MessageQueue.renderAllMessages(d6Players.front().View);
+			d6MessageQueue.renderAllMessages(d6Players.front().View, (d6Players.size() > 4 ? 50 : 20));
 		}
 		else
 		{

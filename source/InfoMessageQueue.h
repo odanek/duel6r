@@ -44,7 +44,7 @@ namespace Duel6
 		InfoMessageQueue& update(float elapsedTime);
 
 		void renderPlayerMessages(const Player& player) const;
-		void renderAllMessages(const d6VIEW_s& view) const;
+		void renderAllMessages(const d6VIEW_s& view, Int32 offsetY) const;
 
 	private:
 		static void renderMessage(int x, int y, const std::string& msg);

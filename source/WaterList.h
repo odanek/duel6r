@@ -25,13 +25,18 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef DUEL6_WATERLIST_H
+#define DUEL6_WATERLIST_H
+
 #include <vector>
-#include "project.h"
+#include "Type.h"
+#include "FaceList.h"
 
 namespace Duel6
 {
-	namespace
+	class WaterList
 	{
+	private:
 		class WaterVertex
 		{
 		private:
@@ -42,7 +47,7 @@ namespace Duel6
 			WaterVertex(Vertex& vertex, Float32 height)
 				: vertex(vertex)
 			{
-				y = vertex.y - D6_WAVE_HEIGHT;
+				y = vertex.y - height;
 			}
 
 			Vertex& getVertex()
@@ -56,37 +61,15 @@ namespace Duel6
 			}
 		};
 
-		std::vector<WaterVertex> d6WaterVertexList;
-		Float32 d6WaterPhase = 0;
-	}
-
-	void WATER_Move(float elapsedTime)
-	{
-		d6WaterPhase += 122 * elapsedTime;
-		if (d6WaterPhase >= 360)
-		{
-			d6WaterPhase -= 360;
-		}
-
-		for (WaterVertex& wv : d6WaterVertexList)
-		{
-			Float32 vertexPhase = d6WaterPhase + 60.0f * wv.getVertex().x;
-			Float32 height = D6_Sin((Int32)vertexPhase) * D6_WAVE_HEIGHT;
-			wv.getVertex().y = wv.getY() + height;
-		}
-	}
-
-	void WATER_Build(void)
-	{
-		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
-		d6WaterVertexList.clear();
-
-		for (Vertex& vertex : d6World.getWater().getVertexes())
-		{
-			if (vertex.getFlag() == Vertex::Flag::Flow)
-			{
-				d6WaterVertexList.push_back(WaterVertex(vertex, D6_WAVE_HEIGHT));
-			}
-		}
-	}
+	private:
+		std::vector<WaterVertex> vertexes;
+		Float32 waveHeight;
+		Float32 phase;
+			
+	public:
+		void build(FaceList& waterFaces, Float32 waveHeight);
+		void update(Float32 elapsedTime);
+	};
 }
+
+#endif

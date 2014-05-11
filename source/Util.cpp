@@ -25,7 +25,10 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
+#include <vector>
+#include "mylib/mylib.h"
+#include "core/co_core.h"
+#include "Util.h"
 
 namespace Duel6
 {

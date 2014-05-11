@@ -45,7 +45,7 @@ namespace Duel6
 		PlayerSkin& operator=(const PlayerSkin& skin) = delete;
 
 	public:
-		explicit PlayerSkin(const PlayerSkinColors& colors);
+		explicit PlayerSkin(const std::string& textureFile, const PlayerSkinColors& colors);
 		~PlayerSkin();
 
 		const PlayerSkinColors& getColors() const

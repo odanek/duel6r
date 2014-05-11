@@ -26,26 +26,31 @@
 */
 
 #include <list>
-#include "project.h"
+#include "Color.h"
 #include "Util.h"
+
+#define D6_EXPL_SPEED       0.61f
 
 namespace Duel6
 {
-	struct Explosion
+	namespace
 	{
-		Float32 x;
-		Float32 y;
-		Float32 now;
-		Float32 max;
-		Color color;
-	};
+		struct Explosion
+		{
+			Float32 x;
+			Float32 y;
+			Float32 now;
+			Float32 max;
+			Color color;
+		};
 
-	static GLuint d6ExTexture;
-	static std::list<Explosion> d6Explosions;
+		GLuint d6ExTexture;
+		std::list<Explosion> d6Explosions;
+	}
 
-	void EXPL_Load()
+	void EXPL_Load(const std::string& textureFile)
 	{
-		d6ExTexture = Util::loadKH3Texture(D6_FILE_EXPLODE, 0, true);
+		d6ExTexture = Util::loadKH3Texture(textureFile.c_str(), 0, true);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}

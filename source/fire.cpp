@@ -26,8 +26,11 @@
 */
 
 #include <vector>
+#include <SDL/SDL_opengl.h>
 #include "project.h"
 #include "Math.h"
+#include "FaceList.h"
+#include "Sprite.h"
 
 #define D6_FIRES        2
 
@@ -50,7 +53,7 @@ namespace Duel6
 		{ 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 18, 100, -1, 0 }
 	};
 
-	void FIRE_Init(void)
+	void FIRE_Init()
 	{
 		for (Size i = 0; i < D6_FIRES; i++)
 		{
@@ -63,20 +66,20 @@ namespace Duel6
 		}
 	}
 
-	void FIRE_Find(void)
+	void FIRE_Find(FaceList& sprites)
 	{
 		d6Fires.clear();
 
 		Size i = 0;
-		for (Face& face : d6World.getSprites().getFaces())
+		for (Face& face : sprites.getFaces())
 		{
 			for (Size j = 0; j < D6_FIRES; j++)
 			{
 				if (face.getBaseTexture() == d6FireType[j])
 				{
 					Fire fire;
-					fire.x = d6World.getSprites().getVertexes()[i << 2].x;
-					fire.y = d6World.getSprites().getVertexes()[i << 2].y - 1.0f;
+					fire.x = sprites.getVertexes()[i << 2].x;
+					fire.y = sprites.getVertexes()[i << 2].y - 1.0f;
 					fire.burned = false;
 					fire.face = &face;
 					fire.type = j;

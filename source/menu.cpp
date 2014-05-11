@@ -582,7 +582,7 @@ namespace Duel6
 		d6Players.clear();
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(d6PlayerColors[i]), controlSwitch[i]->CurItem()));
+			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(D6_FILE_PLAYER, d6PlayerColors[i]), controlSwitch[i]->CurItem()));
 		}
 
 		MENU_Restart(false);

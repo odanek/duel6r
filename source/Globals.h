@@ -25,61 +25,40 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_FACELIST_H
-#define DUEL6_FACELIST_H
+#ifndef DUEL6_GLOBALS_H
+#define DUEL6_GLOBALS_H
 
 #include <vector>
-#include <SDL/SDL_opengl.h>
-#include "Vertex.h"
-#include "Face.h"
+#include "core/co_core.h"
 
 namespace Duel6
 {
-	class FaceList
-	{
-	private:
-		const std::vector<GLuint>& textures;
-		std::vector<Vertex> vertexes;
-		std::vector<Face> faces;
+	class World;
+	enum class ScreenMode;
+	class InfoMessageQueue;
+	class SpriteList;
+	class Player;
+	class PlayerSkinColors;
 
-	public:
-		FaceList(const std::vector<GLuint>& textures)
-			: textures(textures)
-		{}
+	extern float d6KeyWait;
+	extern World d6World;
+	extern GLuint d6BackgroundTexture;
+	extern bool d6InMenu;
+	extern bool d6Wireframe;
+	extern int d6ZoomBlc;
+	extern bool d6ShowFps, d6PlayMusic;
+	extern int d6AmmoRangeMin, d6AmmoRangeMax;
+	extern ScreenMode d6ScreenMode;
+	extern bool d6ShowRanking;
+	extern std::vector<Player> d6Players;
+	extern std::vector<PlayerSkinColors> d6PlayerColors;
+	extern InfoMessageQueue d6MessageQueue;
+	extern SpriteList d6SpriteList;
 
-		FaceList& clear()
-		{
-			vertexes.clear();
-			faces.clear();
-			return *this;
-		}
-
-		FaceList& addVertex(const Vertex& vertex)
-		{
-			vertexes.push_back(vertex);
-			return *this;
-		}
-
-		FaceList& addFace(const Face& face)
-		{
-			faces.push_back(face);
-			return *this;
-		}
-
-		std::vector<Vertex>& getVertexes()
-		{
-			return vertexes;
-		}
-
-		std::vector<Face>& getFaces()
-		{
-			return faces;
-		}
-
-		void optimize();
-		void render();
-		void nextFrame();
-	};
+	extern int d6Winner;
+	extern float d6GameOverWait;
+	extern int d6PlayedRounds;
+	extern int d6MaxRounds;
 }
 
 #endif

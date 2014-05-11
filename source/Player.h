@@ -129,7 +129,7 @@ namespace Duel6
 		d6PLSTATE_s State;		
 
 		Player(Person& person, PlayerSkin* skin, Size controls);
-		~Player(void);
+		~Player();
 
 		bool is(const Player& player) const
 		{

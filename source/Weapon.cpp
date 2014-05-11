@@ -66,20 +66,20 @@ namespace Duel6
 		typedef std::list<Shot>::iterator ShotIterator;
 	}
 
-	void WPN_LoadTextures(void)
+	static void WPN_LoadTextures(const std::string& textureFile)
 	{
 		myKh3info_s     ki;
 		int             i;
 
 		g_app.con->printf(MY_L("APP00084|Nahravam textury zbrani\n"));
-		MY_KH3Open(D6_FILE_WEAPON);
+		MY_KH3Open(textureFile.c_str());
 		MY_KH3GetInfo(&ki);
-		g_app.con->printf(MY_L("APP00085|...Soubor %s obsahue %d textur\n"), D6_FILE_WEAPON, ki.picts);
+		g_app.con->printf(MY_L("APP00085|...Soubor %s obsahue %d textur\n"), textureFile.c_str(), ki.picts);
 		d6WpnTextures.resize(ki.picts);
 
 		for (i = 0; i < (int)ki.picts; i++)
 		{
-			d6WpnTextures[i] = Util::loadKH3Texture(D6_FILE_WEAPON, i, true);
+			d6WpnTextures[i] = Util::loadKH3Texture(textureFile, i, true);
 			if (i < 14 || (i > 21 && i < 78) || i > 79)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -90,25 +90,27 @@ namespace Duel6
 		MY_KH3Close();
 	}
 
-	void WPN_FreeTextures(void)
+	void WPN_FreeTextures()
 	{
 		glDeleteTextures(d6WpnTextures.size(), &d6WpnTextures[0]);
 		d6WpnTextures.clear();
 	}
 
-	void WPN_Init(void)
+	void WPN_Init(const std::string& textureFile)
 	{
+		WPN_LoadTextures(textureFile);
+
 		Color brownColor(83, 44, 0);
 		PlayerSkinColors skinColors(brownColor);
-		brownSkin.reset(new PlayerSkin(skinColors));
+		brownSkin.reset(new PlayerSkin(D6_FILE_PLAYER, skinColors));
 	}
 
-	void WPN_DeInit(void)
+	void WPN_DeInit()
 	{
 		brownSkin.reset();
 	}
 
-	void WPN_LevelInit(void)
+	void WPN_LevelInit()
 	{
 		d6Shots.clear();
 	}

@@ -32,6 +32,7 @@
 #include "Weapon.h"
 #include "Util.h"
 #include "ElevatorList.h"
+#include "Math.h"
 
 namespace Duel6
 {
@@ -58,7 +59,7 @@ namespace Duel6
 	Inicializace zbrani - enabled jsou pouze ty stare
 	==================================================
 	*/
-	void SET_InitWeapons(void)
+	void SET_InitWeapons()
 	{
 		for (int i = 0; i < D6_WEAPONS; i++)
 			d6WpnEnabled[i] = i < 12;
@@ -69,7 +70,7 @@ namespace Duel6
 	Video init
 	==================================================
 	*/
-	void SET_InitVideo(void)
+	void SET_InitVideo()
 	{
 		g_app.con->printf(MY_L("APP00055|\n===Nastavuji OpenGL okno===\n"));
 
@@ -128,7 +129,7 @@ namespace Duel6
 	souboru
 	==================================================
 	*/
-	void SET_InitUserFiles(void)
+	void SET_InitUserFiles()
 	{
 		char        def_file[50];
 		const char *user_file[3] = { D6_FILE_CONFIG, D6_FILE_PHIST, D6_FILE_SKIN };
@@ -153,11 +154,11 @@ namespace Duel6
 		}
 	}
 
-	void P_DeInit(void)
+	void P_DeInit()
 	{
 		SOUND_DeInit();
 
-		d6World.deInit();
+		d6World.freeTextures();
 		WPN_FreeTextures();
 		MENU_Free();
 		EXPL_Free();
@@ -407,7 +408,7 @@ namespace Duel6
 	Main init
 	==================================================
 	*/
-	void P_Init(void)
+	void P_Init()
 	{
 		const SDL_version   *sdl_ver;
 		const char          *ver_str = MY_L("APP00072|verze");
@@ -444,7 +445,7 @@ namespace Duel6
 
 		srand((unsigned)time(NULL));
 
-		MY_FLoadBlock(D6_FILE_SIN, 0, -1, (void *)d6Sin);
+		MY_FLoadBlock(D6_FILE_COS, 0, -1, (void *)d6Cos);
 
 		SOUND_Init(20, 30, 1);
 
@@ -460,11 +461,10 @@ namespace Duel6
 
 		SET_InitVideo();
 		d6World.init(D6_FILE_ART, D6_FILE_ANM);
-		WPN_LoadTextures();
-		EXPL_Load();
+		WPN_Init(D6_FILE_WEAPON);
+		EXPL_Load(D6_FILE_EXPLODE);
 		ELEV_Init();
 		FIRE_Init();
-		WPN_Init();
 
 		MENU_Init();
 		MENU_Start();

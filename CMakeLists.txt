@@ -61,6 +61,7 @@ set(D6R_SOURCES
     source/fire.cpp
     source/glib.cpp
     source/glib.h
+    source/Globals.h
     source/InfoMessage.h
     source/InfoMessageQueue.h
     source/InfoMessageQueue.cpp
@@ -96,7 +97,8 @@ set(D6R_SOURCES
     source/Util.h
     source/Util.cpp
     source/Vertex.h
-    source/water.cpp
+    source/WaterList.h
+    source/WaterList.cpp
     source/WaterType.h
     source/Weapon.h
     source/Weapon.cpp

@@ -29,23 +29,21 @@
 #define DUEL6_PROJECT_H
 
 #include <string>
-#include <vector>
 #include "core/co_core.h"
 #include "mylib/mycam.h"
 #include "sound/sound.h"
-#include "World.h"
-#include "SpriteList.h"
+#include "Globals.h"
 #include "Type.h"
-#include "Orientation.h"
 #include "ScreenMode.h"
 #include "Player.h"
-#include "Shot.h"
+#include "FaceList.h"
+#include "World.h"
 #include "InfoMessageQueue.h"
 
 #define D6_FILE_CONFIG      "data/config.txt"
 #define D6_FILE_ART         "data/duel6.kh3"
 #define D6_FILE_ANM         "data/duel6.anm"
-#define D6_FILE_SIN         "data/sin.tab"
+#define D6_FILE_COS         "data/sin.tab"
 #define D6_FILE_BACK        "data/pozadi.kh3"
 #define D6_FILE_WEAPON      "data/wpn.kh3"
 #define D6_FILE_PLAYER      "data/man.kh3"
@@ -69,8 +67,7 @@
 #define D6_GL_PERSPECTIVE   1
 #define D6_GL_ORTHO         2
 
-#define D6_ANM_SPEED        0.328
-#define D6_EXPL_SPEED       0.61f
+#define D6_ANM_SPEED        0.328f
 #define D6_WAVE_HEIGHT      0.1f
 
 #define D6_MAX_PLAYERS      8
@@ -110,32 +107,10 @@ namespace Duel6
 		D6_SND_GAME_OVER
 	};
 
-	extern float d6Sin[450], d6KeyWait;
-	extern World d6World;
-	extern GLuint d6BackgroundTexture;
-	extern bool d6InMenu;
-	extern bool d6Wireframe;
-	extern int d6ZoomBlc;
-	extern bool d6ShowFps, d6PlayMusic;
-	extern int d6AmmoRangeMin, d6AmmoRangeMax;
-	extern ScreenMode d6ScreenMode;
-	extern bool d6ShowRanking;
-	extern std::vector<Player> d6Players;
-	extern std::vector<PlayerSkinColors> d6PlayerColors;
-	extern InfoMessageQueue d6MessageQueue;
-	extern SpriteList d6SpriteList;
-
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp         
 	//
 	//////////////////////////////////////////////////////////////////////
-	extern  int          d6Winner;
-	extern  float		 d6GameOverWait;
-	extern  int			 d6PlayedRounds;
-	extern  int			 d6MaxRounds;
-
-	float   D6_Sin(Int32 a);
-	float   D6_Cos(Int32 a);
 	void    D6_ConSwitchW(con_c *con);
 	void    D6_ConShowFps(con_c *con);
 	void    D6_SetGLMode(int mode);
@@ -146,12 +121,6 @@ namespace Duel6
 	//                          setup.cpp                               //
 	//////////////////////////////////////////////////////////////////////
 	void    SET_LoadBackground(int n);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          water.cpp                               //
-	//////////////////////////////////////////////////////////////////////
-	void    WATER_Build();
-	void    WATER_Move(float elapsedTime);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          render.cpp                              //
@@ -170,7 +139,7 @@ namespace Duel6
 	//                          explode.cpp                             //
 	//////////////////////////////////////////////////////////////////////
 	void    EXPL_Init();
-	void    EXPL_Load();
+	void    EXPL_Load(const std::string& textureFile);
 	void    EXPL_Free();
 	void    EXPL_MoveAll(Float32 elapsedTime);
 	void    EXPL_DrawAll();
@@ -180,7 +149,7 @@ namespace Duel6
 	//                          fire.cpp                                //
 	//////////////////////////////////////////////////////////////////////
 	void    FIRE_Init();
-	void    FIRE_Find();
+	void    FIRE_Find(FaceList& sprites);
 	void    FIRE_Check(Float32 X, Float32 Y, Float32 d);
 
 	//////////////////////////////////////////////////////////////////////

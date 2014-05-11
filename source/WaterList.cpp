@@ -25,61 +25,42 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_FACELIST_H
-#define DUEL6_FACELIST_H
-
-#include <vector>
-#include <SDL/SDL_opengl.h>
-#include "Vertex.h"
-#include "Face.h"
+#include "core/co_core.h"
+#include "Math.h"
+#include "WaterList.h"
 
 namespace Duel6
 {
-	class FaceList
+	void WaterList::build(FaceList& waterFaces, Float32 waveHeight)
 	{
-	private:
-		const std::vector<GLuint>& textures;
-		std::vector<Vertex> vertexes;
-		std::vector<Face> faces;
-
-	public:
-		FaceList(const std::vector<GLuint>& textures)
-			: textures(textures)
-		{}
-
-		FaceList& clear()
+		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
+		this->waveHeight = waveHeight;
+		vertexes.clear();
+		for (Vertex& vertex : waterFaces.getVertexes())
 		{
-			vertexes.clear();
-			faces.clear();
-			return *this;
+			if (vertex.getFlag() == Vertex::Flag::Flow)
+			{
+				vertexes.push_back(WaterVertex(vertex, waveHeight));
+			}
 		}
 
-		FaceList& addVertex(const Vertex& vertex)
+		phase = 0;
+	}
+
+	void WaterList::update(Float32 elapsedTime)
+	{
+		phase += 122 * elapsedTime;
+		while (phase >= 360)
 		{
-			vertexes.push_back(vertex);
-			return *this;
+			phase -= 360;
 		}
 
-		FaceList& addFace(const Face& face)
+		for (WaterVertex& wv : vertexes)
 		{
-			faces.push_back(face);
-			return *this;
+			Vertex& vertex = wv.getVertex();
+			Float32 vertexPhase = phase + 60.0f * vertex.x;
+			Float32 height = Math::fastCos((Int32)vertexPhase) * waveHeight;
+			vertex.y = wv.getY() + height;
 		}
-
-		std::vector<Vertex>& getVertexes()
-		{
-			return vertexes;
-		}
-
-		std::vector<Face>& getFaces()
-		{
-			return faces;
-		}
-
-		void optimize();
-		void render();
-		void nextFrame();
-	};
+	}
 }
-
-#endif

@@ -51,7 +51,7 @@ void P_KeyEvent(int key)
 	}
 }
 
-void P_Main(void)
+void P_Main()
 {
     while (!(g_app.flags & APP_FLAG_QUIT))
     {

@@ -29,11 +29,19 @@
 #define DUEL6_MATH_H
 
 #include <cmath>
+#include "Type.h"
 
 namespace Duel6
 {
+	extern float d6Cos[450];
+
 	namespace Math
 	{
+		inline Float32 fastCos(Int32 angle)
+		{
+			return d6Cos[abs(angle) % 360];
+		}
+
 		template <class T>
 		T sqr(T val)
 		{

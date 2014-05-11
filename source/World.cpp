@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
+#include "core/co_core.h"
 #include "World.h"
 #include "Util.h"
 #include "ElevatorList.h"
@@ -76,7 +76,7 @@ namespace Duel6
 		return ki.picts;
 	}
 
-	void World::deInit()
+	void World::freeTextures()
 	{
 		glDeleteTextures(blockTextures.size(), &blockTextures[0]);
 		blockTextures.clear();
@@ -156,6 +156,8 @@ namespace Duel6
 		addWallFaces();
 		addSpriteFaces();
 		addWaterFaces();
+
+		floatingVertexes.build(water, waveHeight);
 	}
 
 	void World::findBonuses(std::vector<Bonus>& bonuses)
@@ -183,13 +185,16 @@ namespace Duel6
 
 	void World::update(Float32 elapsedTime)
 	{
-		if ((d6World.animWait += elapsedTime) > D6_ANM_SPEED)
+		animWait += elapsedTime;
+		if (animWait > animationSpeed)
 		{
-			d6World.animWait = 0;
+			animWait = 0;
 			walls.nextFrame();
 			sprites.nextFrame();
 			water.nextFrame();
 		}
+
+		floatingVertexes.update(elapsedTime);
 	}
 
 	void World::addWallFaces()

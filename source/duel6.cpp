@@ -33,8 +33,8 @@
 
 namespace Duel6
 {
-	World d6World;
-	float d6Sin[450];
+	World d6World(D6_ANM_SPEED, D6_WAVE_HEIGHT);
+	float d6Cos[450];
 	GLuint d6BackgroundTexture;
 	bool d6Wireframe = false;
 	int d6ZoomBlc = 13;
@@ -52,16 +52,6 @@ namespace Duel6
 	int	d6MaxRounds = 0;
 	InfoMessageQueue d6MessageQueue;
 	SpriteList d6SpriteList;
-
-	float D6_Sin(Int32 a)
-	{
-		return d6Sin[abs(a + 90) % 360];
-	}
-
-	float D6_Cos(Int32 a)
-	{
-		return d6Sin[abs(a) % 360];
-	}
 
 	void D6_ConSwitchW(con_c *con)
 	{
@@ -81,7 +71,7 @@ namespace Duel6
 			con->printf(MY_L("APP00023|Ukazatel fps vypnut\n"));
 	}
 
-	void D6_CheckWinner(void)
+	void D6_CheckWinner()
 	{
 		int numAlive = 0;
 		Player* lastAlive = nullptr;
@@ -128,12 +118,11 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
 		g_app.con->printf(MY_L("APP00063|...Sten    : %d\n"), d6World.getWalls().getFaces().size());
 		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.getSprites().getFaces().size());
-		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.getWater().getFaces().size());
+		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.getWater().getFaces().size());		
 
-		WATER_Build();
 		d6SpriteList.clear();
-		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
-		
+
+		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));		
 		for (Player& player : d6Players)
 		{
 			player.prepareForGame();
@@ -144,7 +133,7 @@ namespace Duel6
 		WPN_LevelInit();
 		EXPL_Init();
 		BONUS_Init(bonuses);
-		FIRE_Find();
+		FIRE_Find(d6World.getSprites());
 		RENDER_InitScreen();
 		d6Winner = -1;
 		d6PlayedRounds++;
@@ -201,7 +190,6 @@ namespace Duel6
 
 		d6World.update(elapsedTime);
 		d6SpriteList.update(elapsedTime * D6_SPEED_COEF);
-		WATER_Move(elapsedTime);
 		WPN_MoveShots(elapsedTime);
 		EXPL_MoveAll(elapsedTime);
 		ELEV_MoveAll(elapsedTime);
@@ -240,7 +228,7 @@ namespace Duel6
 		RENDER_DrawScene(d6ScreenMode);
 	}
 
-	void D6_GameLoop(void)
+	void D6_GameLoop()
 	{
 		CO_FpsSyncLoops(&D6_UpdateScene, &D6_RenderScene);
 

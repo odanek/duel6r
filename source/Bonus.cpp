@@ -26,9 +26,10 @@
 */
 
 #include <stdlib.h>
-#include "project.h"
+#include "Globals.h"
 #include "Bonus.h"
 #include "Weapon.h"
+#include "World.h"
 
 namespace Duel6
 {

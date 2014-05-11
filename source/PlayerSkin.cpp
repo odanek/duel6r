@@ -25,15 +25,16 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
+#include "mylib/mylib.h"
+#include "core/co_core.h"
 #include "PlayerSkin.h"
 
 namespace Duel6
 {
-	PlayerSkin::PlayerSkin(const PlayerSkinColors& colors)
+	PlayerSkin::PlayerSkin(const std::string& textureFile, const PlayerSkinColors& colors)
 		: colors(colors)
 	{
-		load(D6_FILE_PLAYER);
+		load(textureFile);
 	}
 
 	PlayerSkin::~PlayerSkin()
@@ -59,8 +60,8 @@ namespace Duel6
 		textures.resize(ki.picts);
 		
 		Size imgSize = ki.sizex * ki.sizey;
-		Uint16* hcData = (Uint16 *)MY_Alloc(imgSize << 1);
-		Uint8* tcData = (Uint8 *)MY_Alloc(imgSize << 2);
+		std::vector<Uint16> hcData(imgSize);
+		std::vector<Uint8> tcData(4 * imgSize);
 
 		glGenTextures(textures.size(), &textures[0]);
 
@@ -68,7 +69,7 @@ namespace Duel6
 		{
 			Color color;
 			Size pos = 0;
-			MY_KH3Load(i, hcData);
+			MY_KH3Load(i, &hcData[0]);
 
 			for (Size j = 0; j < imgSize; j++)
 			{
@@ -108,15 +109,13 @@ namespace Duel6
 			}
 
 			glBindTexture(GL_TEXTURE_2D, textures[i]);
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, tcData);
+			glTexImage2D(GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tcData[0]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		}
 
-		MY_Free(hcData);
-		MY_Free(tcData);
 		MY_KH3Close();
 	}
 }

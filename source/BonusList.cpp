@@ -79,7 +79,7 @@ namespace Duel6
 		}
 	}
 
-	void BONUS_AddDeadManGun(int x, int y, Player& player)
+	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player)
 	{
 		d6Bonuses.push_back(Bonus(x, y, player.getWeapon(), player.getAmmo()));
 	}

@@ -25,9 +25,10 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
+#include <SDL/SDL_opengl.h>
 #include "Elevator.h"
 #include "Math.h"
+#include "Player.h"
 
 #define D6_ELEV_SPEED           1.83f
 
@@ -44,14 +45,14 @@ namespace Duel6
 
 	void Elevator::update(Float32 elapsedTime)
 	{
-		position.x += add.x * elapsedTime;
-		position.y += add.y * elapsedTime;
-		travelled += elapsedTime;
-
 		if (travelled >= distance)
 		{
 			nextSection();
 		}
+
+		position.x += add.x * elapsedTime;
+		position.y += add.y * elapsedTime;
+		travelled += elapsedTime;
 	}
 
 	void Elevator::render() const

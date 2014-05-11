@@ -51,7 +51,7 @@ namespace Duel6
 	Chyba zvukoveho systemu
 	==================================================
 	*/
-	static void SOUND_Error(void)
+	static void SOUND_Error()
 	{
 		snd.inited = false;
 		snd.playing = false;
@@ -167,7 +167,7 @@ namespace Duel6
 	Zastaveni hudby
 	==================================================
 	*/
-	void SOUND_StopMusic(void)
+	void SOUND_StopMusic()
 	{
 		if (snd.playing && snd.inited)
 		{
@@ -237,7 +237,7 @@ namespace Duel6
 	Deinicializace zvukoveho systemu
 	==================================================
 	*/
-	void SOUND_DeInit(void)
+	void SOUND_DeInit()
 	{
 		int     i;
 

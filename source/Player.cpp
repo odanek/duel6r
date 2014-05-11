@@ -31,6 +31,7 @@
 #include "BonusList.h"
 #include "Weapon.h"
 #include "Elevator.h"
+#include "Math.h"
 
 namespace Duel6
 {
@@ -175,7 +176,7 @@ namespace Duel6
 		this->controls = &d6Controls[controls];
 	}
 
-	Player::~Player(void)
+	Player::~Player()
 	{
 	}
 
@@ -327,7 +328,7 @@ namespace Duel6
 				State.J = 270.0f;
 			}
 
-			State.Y += d6Sin[int(State.J)] * D6_PLAYER_JUMP_SPEED * sp;
+			State.Y += Math::fastCos(Int32(State.J)) * D6_PLAYER_JUMP_SPEED * sp;
 
 			if (State.J < 180.0f)
 			{
@@ -481,7 +482,7 @@ namespace Duel6
 		}
 	}
 
-	void Player::setAnm(void)
+	void Player::setAnm()
 	{
 		float   ad = 0.0;
 		short   *a;

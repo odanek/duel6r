@@ -25,7 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
+
+#include "core/co_core.h"
 #include "InfoMessageQueue.h"
 
 #define D6_INFO_DURATION        5
@@ -78,10 +79,10 @@ namespace Duel6
 		}
 	}
 
-	void InfoMessageQueue::renderAllMessages(const d6VIEW_s& view) const
+	void InfoMessageQueue::renderAllMessages(const d6VIEW_s& view, Int32 offsetY) const
 	{
-		int posX = view.X + 4;
-		int posY = view.Y + view.Height - (d6Players.size() > 4 ? 50 : 20);
+		Int32 posX = view.X + 4;
+		Int32 posY = view.Y + view.Height - offsetY;
 
 		CO_FontColor(255, 255, 0);
 

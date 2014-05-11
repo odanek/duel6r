@@ -30,7 +30,6 @@
 
 #include <string>
 #include <SDL/SDL_opengl.h>
-#include "console/console.h"
 #include "Type.h"
 
 namespace Duel6

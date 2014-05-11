@@ -62,9 +62,8 @@ namespace Duel6
 	extern bool d6WpnEnabled[D6_WEAPONS];
 	extern std::vector<GLuint> d6WpnTextures;
 
-	void WPN_LoadTextures();
 	void WPN_FreeTextures();
-	void WPN_Init();
+	void WPN_Init(const std::string& textureFile);
 	void WPN_DeInit();
 	void WPN_LevelInit();
 	void WPN_Shoot(Player& player);
