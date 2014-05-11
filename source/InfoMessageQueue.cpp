@@ -29,8 +29,6 @@
 #include "core/co_core.h"
 #include "InfoMessageQueue.h"
 
-#define D6_INFO_DURATION        5
-
 namespace Duel6
 {
 	InfoMessageQueue& InfoMessageQueue::add(const Player& player, const char *formatString, ...)
@@ -42,7 +40,7 @@ namespace Duel6
 		vsprintf(formattedText, formatString, argptr);
 		va_end(argptr);
 
-		messages.push_back(InfoMessage(player, formattedText, D6_INFO_DURATION));
+		messages.push_back(InfoMessage(player, formattedText, duration));
 		return *this;
 	}
 
@@ -64,8 +62,8 @@ namespace Duel6
 	void InfoMessageQueue::renderPlayerMessages(const Player& player) const
 	{
 		const d6VIEW_s& view = player.View;
-		int posX = view.X + 4;
-		int posY = view.Y + view.Height - 24;
+		Int32 posX = view.X + 4;
+		Int32 posY = view.Y + view.Height - 24;
 
 		CO_FontColor(255, 255, 0);
 
@@ -93,7 +91,7 @@ namespace Duel6
 		}
 	}
 
-	void InfoMessageQueue::renderMessage(int x, int y, const std::string& msg)
+	void InfoMessageQueue::renderMessage(Int32 x, Int32 y, const std::string& msg)
 	{
 		glColor4f(0, 0, 1, 0.7f);
 		glEnable(GL_BLEND);

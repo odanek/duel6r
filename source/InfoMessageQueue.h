@@ -37,9 +37,15 @@ namespace Duel6
 	class InfoMessageQueue
 	{
 	private:
+		/** How long each message stays on the screen (in seconds). */
+		Float32 duration;
 		std::list<InfoMessage> messages;
 
 	public:
+		InfoMessageQueue(Float32  duration)
+			: duration(duration)
+		{}
+
 		InfoMessageQueue& add(const Player& player, const char *formatString, ...);
 		InfoMessageQueue& update(float elapsedTime);
 
@@ -47,7 +53,7 @@ namespace Duel6
 		void renderAllMessages(const d6VIEW_s& view, Int32 offsetY) const;
 
 	private:
-		static void renderMessage(int x, int y, const std::string& msg);
+		static void renderMessage(Int32 x, Int32 y, const std::string& msg);
 	};
 }
 

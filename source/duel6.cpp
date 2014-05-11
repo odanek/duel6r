@@ -30,6 +30,7 @@
 #include "Weapon.h"
 #include "Util.h"
 #include "ELevatorList.h"
+#include "Menu.h"
 
 namespace Duel6
 {
@@ -50,7 +51,7 @@ namespace Duel6
 	bool d6ShowRanking = true;
 	int	d6PlayedRounds = 0;
 	int	d6MaxRounds = 0;
-	InfoMessageQueue d6MessageQueue;
+	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
 	SpriteList d6SpriteList;
 
 	void D6_ConSwitchW(con_c *con)

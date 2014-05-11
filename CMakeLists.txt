@@ -69,7 +69,8 @@ set(D6R_SOURCES
     source/LevelList.h
     source/LevelList.cpp
     source/Math.h
-    source/menu.cpp
+    source/Menu.h
+    source/Menu.cpp
     source/msdir.c
     source/msdir.h
     source/Orientation.h

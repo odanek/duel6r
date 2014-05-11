@@ -33,6 +33,7 @@
 #include "Util.h"
 #include "ElevatorList.h"
 #include "Math.h"
+#include "Menu.h"
 
 namespace Duel6
 {

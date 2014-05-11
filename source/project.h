@@ -73,6 +73,7 @@
 #define D6_MAX_PLAYERS      8
 #define D6_WATER_HIT		60
 #define D6_GAME_OVER_WAIT   3.0f
+#define D6_INFO_DURATION    5.0f
 
 #define D6_SOUNDS           25
 
@@ -151,18 +152,6 @@ namespace Duel6
 	void    FIRE_Init();
 	void    FIRE_Find(FaceList& sprites);
 	void    FIRE_Check(Float32 X, Float32 Y, Float32 d);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          menu.cpp                                //
-	//////////////////////////////////////////////////////////////////////
-	void    MENU_Init();
-	void    MENU_JoyRescan();
-	void    MENU_Free();
-	void    MENU_KeyEvent(int e);
-	void    MENU_Loop();
-	void    MENU_Restart(bool same_level);
-	void    MENU_Start();
-	void    MENU_SavePH();
 }
 
 #endif

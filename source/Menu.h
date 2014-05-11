@@ -25,42 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
-#include "Menu.h"
+#ifndef DUEL6_MENU_H
+#define DUEL6_MENU_H
 
-using namespace Duel6;
+#include "Type.h"
 
-void P_ActiveEvent (bool active)
+namespace Duel6
 {
-    if (active)
-    {
-        if (d6InMenu && d6PlayMusic)
-            SOUND_StartMusic (0, true);
-    }
-    else
-    {
-        if (d6InMenu)
-            SOUND_StopMusic ();
-    }
+	void    MENU_Init();
+	void    MENU_JoyRescan();
+	void    MENU_Free();
+	void    MENU_KeyEvent(int e);
+	void    MENU_Loop();
+	void    MENU_Restart(bool sameLevel);
+	void    MENU_Start();
+	void    MENU_SavePH();
 }
 
-void P_KeyEvent(int key)
-{
-	if (d6InMenu)
-	{
-		MENU_KeyEvent(key);
-	}
-}
-
-void P_Main()
-{
-    while (!(g_app.flags & APP_FLAG_QUIT))
-    {
-        CO_ProcessEvents ();
-
-        if (d6InMenu)
-            MENU_Loop ();
-        else
-            D6_GameLoop ();
-    }
-}
+#endif

@@ -531,11 +531,11 @@ namespace Duel6
 		d6PlayedRounds = 0;
 	}
 
-	void MENU_Restart(bool same_level)
+	void MENU_Restart(bool sameLevel)
 	{
 		static int  last = -1;
 
-		if (!same_level || last == -1)
+		if (!sameLevel || last == -1)
 		{
 			if (!myListbox[3]->CurItem())
 				last = rand() % d6LevelList.getLength();
