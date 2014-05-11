@@ -41,7 +41,7 @@ namespace Duel6
 	Shot& Shot::move(Float32 elapsedTime)
 	{
 		Float32 direction = (getOrientation() == Orientation::Right) ? 1.0f : -1.0f;
-		x += direction * getWeapon().ShotSpeed * elapsedTime;
+		x += direction * getWeapon().bulletSpeed * elapsedTime;
 		sprite->setPosition(x, y);
 		return *this;
 	}

@@ -27,6 +27,7 @@
 
 #include "project.h"
 #include "Weapon.h"
+#include "ElevatorList.h"
 
 namespace Duel6
 {
@@ -53,7 +54,7 @@ namespace Duel6
 	static void KONTR_Kontr3(Player& player, Int32 left, Int32 right, Int32 down)
 	{
 		ELEV_CheckMan(player);
-		if (player.State.Elev != -1)
+		if (player.isOnElevator())
 			return;
 
 		if (!d6World.isWall(left, down, true) && !d6World.isWall(right, down, true))

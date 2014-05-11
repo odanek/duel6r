@@ -58,8 +58,7 @@ namespace Duel6
 		void init(const std::string& textureFile, const std::string& blockMetaFile);
 		void deInit();
 
-		void loadLevelData(const std::string& path, std::vector<Int32>& elevatorData);
-		void mirrorLevelData();
+		void loadLevelData(const std::string& path, bool mirror);
 		void findBonuses(std::vector<Bonus>& bonuses);
 		void prepareFaces();
 
@@ -114,7 +113,8 @@ namespace Duel6
 		Size loadBlockTextures(const std::string& path);
 		void loadBlockMeta(const std::string& path, Size blocks);
 
-		void loadElevators(myFile_s* f, std::vector<Int32>& elevatorData);
+		void mirrorLevelData();
+		void loadElevators(myFile_s* f, bool mirror);
 
 		void addWallFaces();
 		void addSpriteFaces();

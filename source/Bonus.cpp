@@ -34,20 +34,10 @@ namespace Duel6
 {
 	int d6BonusArt[D6_BONUS_COUNT] = { 19, 20, 21, 22, 23, 24, 25, 46, 53, 26 };  // Question mark must be the last
 
-	Float32 Bonus::getScreenX() const
-	{
-		return Float32(x);
-	}
-
-	Float32 Bonus::getScreenY() const
-	{
-		return Float32(y);
-	}
-
 	void Bonus::render() const
 	{
-		Float32 rx = getScreenX();
-		Float32 ry = getScreenY();
+		Float32 rx = Float32(x);
+		Float32 ry = Float32(y);
 
 		glBindTexture(GL_TEXTURE_2D, getTexture());
 		glBegin(GL_QUADS);

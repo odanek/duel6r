@@ -25,52 +25,69 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_WEAPON_H
-#define DUEL6_WEAPON_H
-
-#include "Type.h"
-#include "Shot.h"
+#include <SDL/SDL_opengl.h>
 #include "Player.h"
+#include "ElevatorList.h"
+#include "Weapon.h"
 
-#define D6_WEAPONS          17
+#define D6_ELEV_TEXTURE         68
 
-// TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
 {
-	class Player; // Forward declaration, TODO: Remove
+	static std::vector<Elevator> d6Elevators;
 
-	struct Weapon
+	void ELEV_Init(void)
 	{
-		Float32 bulletSpeed;
-		bool Blood;
-		bool explodes;
-		Color explosionColor;
-		Int32 Boom;
-		Int32 Power;
-		Float32 reloadSpeed;
-		char Name[30];
-		Int32 ShSound;
-		Int32 BmSound;
-		Float32 ExpGrow;
-		bool shit; // TODO: Remove
-		Int16 animation[16];
-		Int16 shotAnimation[18];
-		Int16 boomAnimation[14];
-	};
+		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
 
-	extern Weapon d6WpnDef[D6_WEAPONS];
-	extern bool d6WpnEnabled[D6_WEAPONS];
-	extern std::vector<GLuint> d6WpnTextures;
+	void ELEV_Clear()
+	{
+		d6Elevators.clear();
+	}
 
-	void WPN_LoadTextures();
-	void WPN_FreeTextures();
-	void WPN_Init();
-	void WPN_DeInit();
-	void WPN_LevelInit();
-	void WPN_Shoot(Player& player);
-	void WPN_MoveShots(float elapsedTime);
-	void WPN_Boom(Shot& s, Player *p);
-	const Weapon& WPN_GetRandomWeapon();
+	void ELEV_Add(Elevator& elevator)
+	{
+		d6Elevators.push_back(elevator);
+		d6Elevators.back().start();
+	}
+
+	void ELEV_MoveAll(Float32 elapsedTime)
+	{
+		for (Elevator& elevator : d6Elevators)
+		{
+			elevator.update(elapsedTime);
+		}
+	}
+
+	void ELEV_DrawAll()
+	{
+		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
+		glBegin(GL_QUADS);
+
+		for (const Elevator& elevator : d6Elevators)
+		{
+			elevator.render();
+		}
+
+		glEnd();
+	}
+
+	void ELEV_CheckMan(Player& player)
+	{
+		Float32 x = player.getX() + 0.5f;
+		Float32 y = player.getY();
+
+		for (const Elevator& elevator : d6Elevators)
+		{
+			if (x < elevator.getX() || x > elevator.getX() + 1.0f ||
+				y < elevator.getY() - 0.05f || y > elevator.getY() + 0.05f)
+				continue;
+
+			player.assignElevator(elevator);
+			return;
+		}
+	}
 }
-
-#endif

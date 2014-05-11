@@ -31,6 +31,7 @@
 #include "project.h"
 #include "Weapon.h"
 #include "Util.h"
+#include "ElevatorList.h"
 
 namespace Duel6
 {
@@ -159,7 +160,6 @@ namespace Duel6
 		d6World.deInit();
 		WPN_FreeTextures();
 		MENU_Free();
-		ELEV_Free();
 		EXPL_Free();
 
 		WPN_DeInit();

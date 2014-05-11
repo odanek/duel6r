@@ -83,7 +83,6 @@ namespace Duel6
 			Uint16 tga[9] = { 0, 2, 0, 0, 0, 0, Uint16(g_vid.cl_width), Uint16(g_vid.cl_height), 272 };
 			Int32 x, y, r, g, b, num = 0;
 			char name[50];
-			Float32 *pix_data, *pix_ptr;
 			myFile_s *f;
 
 			// Vyhledani cisla pod ktere ukladat
@@ -108,23 +107,24 @@ namespace Duel6
 
 			MY_FWrite(tga, 2, 9, f);
 
-			pix_data = MY_MALLOC(float, 3 * g_vid.cl_height * g_vid.cl_width);
-			pix_ptr = pix_data;
-			glReadPixels(0, 0, g_vid.cl_width, g_vid.cl_height, GL_RGB, GL_FLOAT, pix_data);
+			std::vector<Float32> pixData(3 * g_vid.cl_height * g_vid.cl_width);			
+			glReadPixels(0, 0, g_vid.cl_width, g_vid.cl_height, GL_RGB, GL_FLOAT, &pixData[0]);
 
+			auto pixPtr = pixData.begin();
 			for (y = 0; y < g_vid.cl_height; y++)
 			{
 				for (x = 0; x < g_vid.cl_width; x++)
 				{
-					r = (Int32)(*(pix_ptr++) * 31);
-					g = (Int32)(*(pix_ptr++) * 31);
-					b = (Int32)(*(pix_ptr++) * 31);
+					r = (Int32)(pixPtr[0] * 31);
+					g = (Int32)(pixPtr[1] * 31);
+					b = (Int32)(pixPtr[2] * 31);
 					r = (r << 10) | (g << 5) | b;
 					MY_FWrite(&r, 2, 1, f);
+
+					pixPtr += 3;
 				}
 			}
 
-			MY_Free(pix_data);
 			MY_FClose(&f);
 			g_app.con->printf(MY_L("APP00082|Screenshot ulozen do %s\n"), name);
 		}

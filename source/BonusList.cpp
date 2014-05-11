@@ -97,7 +97,8 @@ namespace Duel6
 		}
 
 		// TODO: Unify screen and world coordinates!
-		return (fabs(bonus.getScreenX() - player.getX()) < 0.5f && fabs(bonus.getScreenY() - player.getY()) < 0.5f);
+		return (fabs(Float32(bonus.getX()) - player.getX()) < 0.5f && 
+			    fabs(Float32(bonus.getY()) - player.getY()) < 0.5f);
 	}
 
 	static void BONUS_Apply(const Bonus& bonus, Player& player)

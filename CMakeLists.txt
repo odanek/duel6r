@@ -50,7 +50,10 @@ set(D6R_SOURCES
     source/BonusList.cpp
     source/Color.h
     source/duel6.cpp
+    source/Elevator.h
     source/elevator.cpp
+    source/ElevatorList.h
+    source/ElevatorList.cpp
     source/explode.cpp
     source/Face.h
     source/FaceList.h

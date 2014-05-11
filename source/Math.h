@@ -28,6 +28,8 @@
 #ifndef DUEL6_MATH_H
 #define DUEL6_MATH_H
 
+#include <cmath>
+
 namespace Duel6
 {
 	namespace Math
@@ -39,9 +41,15 @@ namespace Duel6
 		}
 
 		template <class T>
+		T norm(T x, T y)
+		{
+			return std::sqrt(sqr(x) + sqr(y));
+		}
+
+		template <class T>
 		T distance(T x1, T y1, T x2, T y2)
 		{
-			return std::sqrt(sqr(x1 - x2) + sqr(y1 - y2));
+			return norm(x1 - x2, y1 - y2);
 		}
 	}
 }

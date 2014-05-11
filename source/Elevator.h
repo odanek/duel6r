@@ -25,52 +25,87 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_WEAPON_H
-#define DUEL6_WEAPON_H
+#ifndef DUEL6_ELEVATOR_H
+#define DUEL6_ELEVATOR_H
 
+#include <vector>
 #include "Type.h"
-#include "Shot.h"
-#include "Player.h"
 
-#define D6_WEAPONS          17
-
-// TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
 {
-	class Player; // Forward declaration, TODO: Remove
+	class Player; // Forward declaration
 
-	struct Weapon
+	class Elevator
 	{
-		Float32 bulletSpeed;
-		bool Blood;
-		bool explodes;
-		Color explosionColor;
-		Int32 Boom;
-		Int32 Power;
-		Float32 reloadSpeed;
-		char Name[30];
-		Int32 ShSound;
-		Int32 BmSound;
-		Float32 ExpGrow;
-		bool shit; // TODO: Remove
-		Int16 animation[16];
-		Int16 shotAnimation[18];
-		Int16 boomAnimation[14];
+	private:
+		struct Vector
+		{
+			Float32 x;
+			Float32 y;
+		};
+
+	public:
+		class ControlPoint
+		{
+		private:
+			Float32 x;
+			Float32 y;
+
+		public:
+			ControlPoint(Float32 x, Float32 y)
+				: x(x), y(y)
+			{}
+
+			ControlPoint(Int32 x, Int32 y)
+				: ControlPoint(Float32(x), Float32(y))
+			{}
+
+			Float32 getX() const
+			{
+				return x;
+			}
+
+			Float32 getY() const
+			{
+				return y;
+			}
+		};
+
+	private:
+		std::vector<ControlPoint> controlPoints;
+		Size section;
+		bool forward;
+		Float32 distance;
+		Float32 travelled;
+		Vector add;
+		Vector position;
+
+	public:
+		Elevator& addControlPoint(const ControlPoint& point)
+		{
+			controlPoints.push_back(point);
+			return *this;
+		}
+		
+		void start();
+		void update(Float32 elapsedTime);
+		void movePlayer(Player& player, Float32 elapsedTime) const;
+		void render() const;
+
+		Float32 getX() const
+		{
+			return position.x;
+		}
+
+		Float32 getY() const
+		{
+			return position.y;
+		}
+
+	private:
+		void nextSection();
+		void startSection();
 	};
-
-	extern Weapon d6WpnDef[D6_WEAPONS];
-	extern bool d6WpnEnabled[D6_WEAPONS];
-	extern std::vector<GLuint> d6WpnTextures;
-
-	void WPN_LoadTextures();
-	void WPN_FreeTextures();
-	void WPN_Init();
-	void WPN_DeInit();
-	void WPN_LevelInit();
-	void WPN_Shoot(Player& player);
-	void WPN_MoveShots(float elapsedTime);
-	void WPN_Boom(Shot& s, Player *p);
-	const Weapon& WPN_GetRandomWeapon();
 }
 
 #endif

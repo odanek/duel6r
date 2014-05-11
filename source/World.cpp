@@ -28,8 +28,7 @@
 #include "project.h"
 #include "World.h"
 #include "Util.h"
-
-//#define D6_RENDER_BACKS
+#include "ElevatorList.h"
 
 namespace Duel6
 {
@@ -83,7 +82,7 @@ namespace Duel6
 		blockTextures.clear();
 	}
 
-	void World::loadLevelData(const std::string& path, std::vector<Int32>& elevatorData)
+	void World::loadLevelData(const std::string& path, bool mirror)
 	{
 		levelData.clear();
 
@@ -93,14 +92,22 @@ namespace Duel6
 		MY_FSeek(f, 12, SEEK_SET);
 		levelData.resize(width * height);
 		MY_FRead(&levelData[0], 2, levelData.size(), f);
-		loadElevators(f, elevatorData);
+
+		if (mirror)
+		{
+			mirrorLevelData();
+		}
+
+		loadElevators(f, mirror);
 		MY_FClose(&f);
 	}
 
-	void World::loadElevators(myFile_s* f, std::vector<Int32>& elevatorData)
+	void World::loadElevators(myFile_s* f, bool mirror)
 	{
 		// The rest of file is elevator data
 		g_app.con->printf(MY_L("APP00026|...Nahravam vytahy - "));
+
+		std::vector<Int32> elevatorData;
 		while (!MY_FEof(f))
 		{
 			Int32 data;
@@ -108,12 +115,28 @@ namespace Duel6
 			elevatorData.push_back(data);
 		}
 
-		if (elevatorData.empty())
-		{
-			elevatorData.push_back(0);
-		}
+		Int32 elevators = elevatorData.empty() ? 0 : elevatorData[0];
+		g_app.con->printf(MY_L("APP00027|%d vytahu\n"), elevators);
 
-		g_app.con->printf(MY_L("APP00027|%d vytahu\n"), elevatorData[0]);
+		ELEV_Clear();
+
+		auto edata = std::next(elevatorData.begin());
+		while (elevators-- > 0)
+		{
+			Elevator elevator;
+			
+			Int32 controlPoints = edata[0];
+			elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - edata[1] : edata[1], height - edata[2]));
+			edata += 3;
+
+			while (controlPoints-- > 0)
+			{
+				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - edata[0] : edata[0], height - edata[1]));
+				edata += 2;
+			}
+
+			ELEV_Add(elevator);
+		}
 	}
 
 	void World::mirrorLevelData()

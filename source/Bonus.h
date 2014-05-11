@@ -103,8 +103,6 @@ namespace Duel6
 			return y;
 		}
 
-		Float32 getScreenX() const;
-		Float32 getScreenY() const;
 		void render() const;
 
 	private:

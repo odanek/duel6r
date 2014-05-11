@@ -56,6 +56,8 @@
 #define D6_FILE_LABEL       "data/label.kh3"
 #define D6_FILE_SKIN        "data/skin.txt"
 
+//#define D6_RENDER_BACKS
+
 #define D6_LEVEL_EXTENSION	".lev"
 
 #define D6_SPEED_COEF		61
@@ -122,7 +124,6 @@ namespace Duel6
 	extern std::vector<PlayerSkinColors> d6PlayerColors;
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList d6SpriteList;
-	extern std::vector<GLuint> d6WpnTextures;
 
 	//////////////////////////////////////////////////////////////////////
 	//                          duel6.cpp         
@@ -174,17 +175,6 @@ namespace Duel6
 	void    EXPL_MoveAll(Float32 elapsedTime);
 	void    EXPL_DrawAll();
 	void    EXPL_Add(Float32 x, Float32 y, Float32 s, Float32 m, const Color& color);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          elevator.cpp                            //
-	//////////////////////////////////////////////////////////////////////
-	void    ELEV_Init();
-	void    ELEV_Free();
-	void    ELEV_MoveAll(Float32 elapsedTime);
-	void    ELEV_DrawAll();
-	void    ELEV_Load(std::vector<Int32>& elevatorData, bool mirror);
-	void    ELEV_CheckMan(Player& player);
-	void    ELEV_MoveMan(Player& player, Float32 elapsedTime);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          fire.cpp                                //

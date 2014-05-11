@@ -35,6 +35,7 @@
 #include "PlayerSkin.h"
 #include "Orientation.h"
 #include "ScreenMode.h"
+#include "Bonus.h"
 
 #define D6_PLAYER_MAX_SPEED     32
 #define D6_PLAYER_ACCEL         0.001f
@@ -56,7 +57,9 @@
 
 namespace Duel6
 {
-	class Shot; // Forward declaration
+	// Forward declarations
+	class Elevator; 
+	class Shot;
 	struct Weapon;
 
 	struct d6VIEW_s
@@ -105,7 +108,7 @@ namespace Duel6
 		Float32     Life;       // Life
 		Float32     Air;        // Air
 		Int32       Ammo;       // Number of bullets
-		Int32       Elev;       // Standing on elevator
+		const Elevator* elevator;       // Standing on elevator
 		Int32       Bonus;      // Bonus
 		Float32     BD;         // Bonus duration
 		Float32     SD;         // Temporary skin duration
@@ -120,19 +123,6 @@ namespace Duel6
 		mycam_c camera;
 		d6CAMPOS_s cameraPos;
 		PlayerControls *controls;
-
-	private:
-		void moveLeft(float elapsedTime);
-		void moveRight(float elapsedTime);
-		void makeMove(float elapsedTime);
-		void checkKeys(float elapsedTime);
-		void checkWater(float elapsedTime);
-		void jump();
-		void fall();
-		void pick();
-		void setAnm();
-		void updateCam();
-		void switchToOriginalSkin();
 
 	public:
 		d6VIEW_s View;
@@ -264,29 +254,75 @@ namespace Duel6
 			return *this;
 		}
 
+		void useTemporarySkin(PlayerSkin& skin);
+		Player& pickWeapon(const Weapon& weapon, Int32 bulelts);
+		Player& assignElevator(const Elevator& elevator);
+
 		bool isReloading()
 		{
 			return State.SI > 0;
 		}
 
-		Player& pickWeapon(const Weapon& weapon, Int32 bulelts);
+		bool isKneeling() const
+		{
+			return (State.Flags & D6_FLAG_KNEE) != 0;
+		}
+		
+		bool isLying() const
+		{
+			return (State.Flags & D6_FLAG_LYING) != 0;
+		}
 
-		bool hasPowerfulShots() const;
-		bool isKneeling() const;
-		bool isLying() const;
-		bool isDead() const;
-		bool isInvulnerable() const;
+		bool isDead() const
+		{
+			return (State.Flags & D6_FLAG_DEAD) != 0;
+		}
+
+		bool isInWater() const
+		{
+			return (State.Flags & D6_FLAG_INWATER) != 0;
+		}
 
 		bool isInGame() const
 		{
 			return !isDead() || isLying();
 		}
 
-		void useTemporarySkin(PlayerSkin& skin);
+		bool isInvulnerable() const
+		{
+			return (State.Bonus == D6_BONUS_INVUL);
+		}
+
+		bool hasPowerfulShots() const
+		{
+			return (State.Bonus == D6_BONUS_SHOTP);
+		}
+
+		bool hasFastReload() const
+		{
+			return (State.Bonus == D6_BONUS_SHOTS);
+		}
+
+		bool isOnElevator() const
+		{
+			return State.elevator != nullptr;
+		}
 
 	private:
+		void moveLeft(Float32 elapsedTime);
+		void moveRight(Float32 elapsedTime);
+		void makeMove(Float32 elapsedTime);
+		void checkKeys(Float32 elapsedTime);
+		void checkWater(Float32 elapsedTime);
+		void jump();
+		void fall();
+		void pick();
+		void setAnm();
+		void updateCam();
+		void switchToOriginalSkin();
 		void findStartingPosition();
 		void dropWeapon();
+		Float32 getSpeed() const;
 	};
 
 	//////////////////////////////////////////////////////////////////////

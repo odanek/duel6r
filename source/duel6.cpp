@@ -29,6 +29,7 @@
 #include "BonusList.h"
 #include "Weapon.h"
 #include "Util.h"
+#include "ELevatorList.h"
 
 namespace Duel6
 {
@@ -119,13 +120,8 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
 
 		std::vector<Bonus> bonuses;
-		std::vector<Int32> elevatorData;
 		bool mirror = rand() % 2 == 0;
-		d6World.loadLevelData(levelPath, elevatorData);
-		if (mirror)
-		{
-			d6World.mirrorLevelData();
-		}
+		d6World.loadLevelData(levelPath, mirror);
 		d6World.findBonuses(bonuses);
 		d6World.prepareFaces();
 		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
@@ -148,7 +144,6 @@ namespace Duel6
 		WPN_LevelInit();
 		EXPL_Init();
 		BONUS_Init(bonuses);
-		ELEV_Load(elevatorData, mirror);
 		FIRE_Find();
 		RENDER_InitScreen();
 		d6Winner = -1;
@@ -207,9 +202,9 @@ namespace Duel6
 		d6World.update(elapsedTime);
 		d6SpriteList.update(elapsedTime * D6_SPEED_COEF);
 		WATER_Move(elapsedTime);
-		WPN_MoveShots(elapsedTime * D6_SPEED_COEF);
+		WPN_MoveShots(elapsedTime);
 		EXPL_MoveAll(elapsedTime);
-		ELEV_MoveAll(elapsedTime * D6_SPEED_COEF);
+		ELEV_MoveAll(elapsedTime);
 		d6MessageQueue.update(elapsedTime);
 
 		// Add new bonuses

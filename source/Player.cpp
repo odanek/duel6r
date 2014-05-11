@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "BonusList.h"
 #include "Weapon.h"
+#include "Elevator.h"
 
 namespace Duel6
 {
@@ -201,7 +202,7 @@ namespace Duel6
 		State.Life = D6_MAX_LIFE;
 		State.Air = D6_MAX_AIR;
 		State.Ammo = d6AmmoRangeMin + rand() % (d6AmmoRangeMax - d6AmmoRangeMin + 1);
-		State.Elev = -1;
+		State.elevator = nullptr;
 		State.Bonus = 0;
 		State.BD = 0;
 		State.SD = 0;
@@ -243,7 +244,7 @@ namespace Duel6
 		View.Height = h;
 	}
 
-	void Player::moveLeft(float elapsedTime)
+	void Player::moveLeft(Float32 elapsedTime)
 	{
 		if (State.Speed >= -D6_PLAYER_MAX_SPEED)
 			State.Flags |= D6_FLAG_REQ_LEFT;
@@ -253,7 +254,7 @@ namespace Duel6
 			State.O = Orientation::Left;
 	}
 
-	void Player::moveRight(float elapsedTime)
+	void Player::moveRight(Float32 elapsedTime)
 	{
 		if (State.Speed <= D6_PLAYER_MAX_SPEED)
 			State.Flags |= D6_FLAG_REQ_RIGHT;
@@ -263,7 +264,7 @@ namespace Duel6
 			State.O = Orientation::Right;
 	}
 
-	void Player::jump(void)
+	void Player::jump()
 	{
 		if (!State.J)
 		{
@@ -274,7 +275,7 @@ namespace Duel6
 		}
 	}
 
-	void Player::fall(void)
+	void Player::fall()
 	{
 		if (!State.J && !State.Speed)
 		{
@@ -289,9 +290,9 @@ namespace Duel6
 		}
 	}
 
-	void Player::pick(void)
+	void Player::pick()
 	{
-		if (!State.J && !State.Speed && State.Elev == -1)
+		if (!State.J && !State.Speed && !isOnElevator())
 		{
 			BONUS_CheckPick(*this);
 		}
@@ -312,58 +313,90 @@ namespace Duel6
 		return *this;
 	}
 
-	void Player::makeMove(float elapsedTime)
+	void Player::makeMove(Float32 elapsedTime)
 	{
-		float   sp;
-
-		if (State.Flags & D6_FLAG_INWATER)
-			sp = 0.67f;
-		else
-			sp = 1.0f;
-
-		if (State.SD)
-			sp *= 0.5;
-
-		if (State.Bonus == D6_BONUS_SPEED)
-			sp *= 1.43f;
-
-		sp *= elapsedTime;
-		State.Elev = -1;
+		Float32 coefElapsedTime = elapsedTime * D6_SPEED_COEF;
+		Float32 sp = getSpeed() * coefElapsedTime;
+		State.elevator = nullptr;
 
 		if (State.J > 0)
 		{
-			if ((State.J += 2 * elapsedTime) > 270.0)
+			State.J += 2 * coefElapsedTime;
+			if (State.J > 270.0)
+			{
 				State.J = 270.0f;
+			}
 
 			State.Y += d6Sin[int(State.J)] * D6_PLAYER_JUMP_SPEED * sp;
 
 			if (State.J < 180.0f)
+			{
 				KONTR_Kontr(*this, 1);
+			}
 			else
+			{
 				KONTR_Kontr(*this, 2);
+			}
 		}
 		else
+		{
 			KONTR_Kontr(*this, 3);
+		}
 
 		if (State.Speed != 0)
 		{
 			if (!(State.Flags & D6_FLAG_REQ_RIGHT) && State.Speed > 0)
-				if ((State.Speed -= elapsedTime) < 0)
+			{
+				State.Speed -= coefElapsedTime;
+				if (State.Speed < 0)
+				{
 					State.Speed = 0;
+				}
+			}
 			if (!(State.Flags & D6_FLAG_REQ_LEFT) && State.Speed < 0)
-				if ((State.Speed += elapsedTime) > 0)
+			{
+				State.Speed += coefElapsedTime;
+				if (State.Speed > 0)
+				{
 					State.Speed = 0;
+				}
+			}
 
 			State.X += State.Speed * D6_PLAYER_ACCEL * sp;
 			KONTR_Kontr(*this, 4);
 		}
 
-		ELEV_MoveMan(*this, elapsedTime);
+		if (isOnElevator())
+		{
+			State.elevator->movePlayer(*this, elapsedTime);
+		}
 
 		State.Flags &= ~(D6_FLAG_REQ_RIGHT | D6_FLAG_REQ_LEFT);
 	}
 
-	void Player::checkKeys(float elapsedTime)
+	Float32 Player::getSpeed() const
+	{
+		Float32 spd = 1.0f;
+
+		if (isInWater())
+		{
+			spd *= 0.67f;
+		}
+
+		if (State.SD)
+		{
+			spd *= 0.5f;
+		}
+
+		if (State.Bonus == D6_BONUS_SPEED)
+		{
+			spd *= 1.43f;
+		}
+
+		return spd;
+	}
+
+	void Player::checkKeys(Float32 elapsedTime)
 	{
 		if ((State.Flags & (D6_FLAG_DEAD | D6_FLAG_PICK)) != 0)
 			return;
@@ -399,7 +432,7 @@ namespace Duel6
 		}
 	}
 
-	void Player::update(ScreenMode screenMode, float elapsedTime)
+	void Player::update(ScreenMode screenMode, Float32 elapsedTime)
 	{
 		checkWater(elapsedTime);
 		if (!isDead())
@@ -408,13 +441,13 @@ namespace Duel6
 		}
 
 		checkKeys(elapsedTime * D6_SPEED_COEF);
-		makeMove(elapsedTime * D6_SPEED_COEF);
+		makeMove(elapsedTime);
 		setAnm();
 
 		// Move intervals
 		if (State.SI > 0)
 		{
-			if ((State.SI -= elapsedTime * D6_SPEED_COEF) <= 0)
+			if ((State.SI -= elapsedTime) <= 0)
 			{
 				State.SI = 0;
 			}
@@ -773,29 +806,12 @@ namespace Duel6
 		State.InWater = (water != WaterType::None);
 	}
 
-	bool Player::hasPowerfulShots() const
+	Player& Player::assignElevator(const Elevator& elevator)
 	{
-		return State.Bonus == D6_BONUS_SHOTP;
-	}
-
-	bool Player::isKneeling() const
-	{
-		return (State.Flags & D6_FLAG_KNEE) != 0;
-	}
-
-	bool Player::isLying() const
-	{
-		return (State.Flags & D6_FLAG_LYING) != 0;
-	}
-
-	bool Player::isDead() const
-	{
-		return (State.Flags & D6_FLAG_DEAD) != 0;
-	}
-
-	bool Player::isInvulnerable() const
-	{
-		return (State.Bonus == D6_BONUS_INVUL);
+		State.elevator = &elevator;
+		State.Y = elevator.getY();
+		State.J = 0;
+		return *this;
 	}
 
 	void Player::useTemporarySkin(PlayerSkin& skin)

@@ -25,52 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_WEAPON_H
-#define DUEL6_WEAPON_H
+#ifndef DUEL6_ELEVATORLIST_H
+#define DUEL6_ELEVATORLIST_H
 
+#include <vector>
 #include "Type.h"
-#include "Shot.h"
-#include "Player.h"
+#include "Elevator.h"
 
-#define D6_WEAPONS          17
-
-// TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
 {
-	class Player; // Forward declaration, TODO: Remove
+	class Player; // Forward declaration
 
-	struct Weapon
-	{
-		Float32 bulletSpeed;
-		bool Blood;
-		bool explodes;
-		Color explosionColor;
-		Int32 Boom;
-		Int32 Power;
-		Float32 reloadSpeed;
-		char Name[30];
-		Int32 ShSound;
-		Int32 BmSound;
-		Float32 ExpGrow;
-		bool shit; // TODO: Remove
-		Int16 animation[16];
-		Int16 shotAnimation[18];
-		Int16 boomAnimation[14];
-	};
-
-	extern Weapon d6WpnDef[D6_WEAPONS];
-	extern bool d6WpnEnabled[D6_WEAPONS];
-	extern std::vector<GLuint> d6WpnTextures;
-
-	void WPN_LoadTextures();
-	void WPN_FreeTextures();
-	void WPN_Init();
-	void WPN_DeInit();
-	void WPN_LevelInit();
-	void WPN_Shoot(Player& player);
-	void WPN_MoveShots(float elapsedTime);
-	void WPN_Boom(Shot& s, Player *p);
-	const Weapon& WPN_GetRandomWeapon();
+	void    ELEV_Init();
+	void    ELEV_Clear();
+	void    ELEV_Add(Elevator& elevator);
+	void    ELEV_MoveAll(Float32 elapsedTime);
+	void    ELEV_DrawAll();
+	void    ELEV_CheckMan(Player& player);
 }
 
 #endif

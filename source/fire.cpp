@@ -97,7 +97,7 @@ namespace Duel6
 		{
 			if (!fire.burned)
 			{
-				Float32 distance = Math::distance(X, fire.x, Y, fire.y);
+				Float32 distance = Math::distance(X, Y, fire.x, fire.y);
 
 				if (distance < d)
 				{
