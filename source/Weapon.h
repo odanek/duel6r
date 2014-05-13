@@ -41,6 +41,7 @@ namespace Duel6
 
 	struct Weapon
 	{
+		bool enabled;
 		Float32 bulletSpeed;
 		bool Blood;
 		bool explodes;
@@ -59,7 +60,6 @@ namespace Duel6
 	};
 
 	extern Weapon d6WpnDef[D6_WEAPONS];
-	extern bool d6WpnEnabled[D6_WEAPONS];
 	extern std::vector<GLuint> d6WpnTextures;
 
 	void WPN_FreeTextures();

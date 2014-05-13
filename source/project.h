@@ -57,7 +57,7 @@
 
 #define D6_LEVEL_EXTENSION	".lev"
 
-#define D6_SPEED_COEF		61
+#define D6_SPRITE_SPEED_COEF 61
 #define D6_CL_WIDTH         800
 #define D6_CL_HEIGHT        600
 #define D6_CL_BPP           32
@@ -111,9 +111,6 @@ namespace Duel6
 	//                          duel6.cpp         
 	//
 	//////////////////////////////////////////////////////////////////////
-	void    D6_ConSwitchW(con_c *con);
-	void    D6_ConShowFps(con_c *con);
-	void    D6_SetGLMode(int mode);
 	void    D6_StartGame(const std::string& levelPath);
 	void    D6_GameLoop();
 
@@ -125,6 +122,7 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	//                          render.cpp                              //
 	//////////////////////////////////////////////////////////////////////
+	void    RENDER_SetGLMode(Int32 mode);
 	void	RENDER_InitScreen();
 	void    RENDER_DrawScene(ScreenMode screenMode);
 

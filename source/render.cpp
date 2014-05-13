@@ -32,6 +32,46 @@
 
 namespace Duel6
 {
+	void RENDER_SetGLMode(int mode)
+	{
+		if (mode == D6_GL_PERSPECTIVE)
+		{
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+
+			//gluPerspective (g_vid.gl_fov, g_vid.gl_aspect, g_vid.gl_nearclip, g_vid.gl_farclip);        
+			float fovy = MM_D2R(g_vid.gl_fov) / 2;
+			float f = cos(fovy) / sin(fovy);
+
+			mat4_c<mval_t> p(0.0f);
+			p(0, 0) = f / g_vid.gl_aspect;
+			p(1, 1) = f;
+			p(2, 2) = (g_vid.gl_nearclip + g_vid.gl_farclip) / (g_vid.gl_nearclip - g_vid.gl_farclip);
+			p(3, 2) = (2 * g_vid.gl_nearclip * g_vid.gl_farclip) / (g_vid.gl_nearclip - g_vid.gl_farclip);
+			p(2, 3) = -1;
+			glMultMatrixf(&p(0, 0));
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_CULL_FACE);
+		}
+		else
+		{
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glOrtho(0, g_vid.cl_width, 0, g_vid.cl_height, -1, 1);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+
+			glDisable(GL_CULL_FACE);
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_DEPTH_TEST);
+		}
+	}
+
 	void RENDER_SetView(const PlayerView& w)
 	{
 		glViewport(w.X, w.Y, w.Width, w.Height);
@@ -323,7 +363,7 @@ namespace Duel6
 		const Player& player = d6Players.front();
 		RENDER_SetView(player.getView());
 		RENDER_Background();
-		D6_SetGLMode(D6_GL_PERSPECTIVE);
+		RENDER_SetGLMode(D6_GL_PERSPECTIVE);
 		RENDER_View(player);
 	}
 
@@ -331,7 +371,7 @@ namespace Duel6
 	{
 		for (const Player& player : d6Players)
 		{
-			D6_SetGLMode(D6_GL_ORTHO);
+			RENDER_SetGLMode(D6_GL_ORTHO);
 			RENDER_SplitBox(player.getView());
 
 			if (player.isDead())
@@ -340,7 +380,7 @@ namespace Duel6
 			RENDER_SetView(player.getView());
 			RENDER_Background();
 
-			D6_SetGLMode(D6_GL_PERSPECTIVE);
+			RENDER_SetGLMode(D6_GL_PERSPECTIVE);
 			RENDER_View(player);
 
 			glColor3f(1, 1, 1);
@@ -371,7 +411,7 @@ namespace Duel6
 			RENDER_SplitScreen();
 		}
 
-		D6_SetGLMode(D6_GL_ORTHO);
+		RENDER_SetGLMode(D6_GL_ORTHO);
 		RENDER_SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
 		glColor3f(1.0f, 1.0f, 1.0f);
 		

@@ -38,14 +38,6 @@
 #include "ScreenMode.h"
 #include "Bonus.h"
 
-#define D6_PLAYER_MAX_SPEED     32.0f
-#define D6_PLAYER_ACCEL         0.001f
-#define D6_PLAYER_JPHASE_SPEED  122
-#define D6_PLAYER_JUMP_SPEED    4.88f
-
-#define D6_CAM_TOLPER_X         30
-#define D6_CAM_TOLPER_Y         30
-
 #define D6_MAX_LIFE				100
 #define D6_MAX_AIR				200
 

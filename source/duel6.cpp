@@ -35,7 +35,7 @@
 namespace Duel6
 {
 	World d6World(D6_ANM_SPEED, D6_WAVE_HEIGHT);
-	float d6Cos[450];
+	Float32 d6Cos[450];
 	GLuint d6BackgroundTexture;
 	bool d6Wireframe = false;
 	int d6ZoomBlc = 13;
@@ -53,24 +53,6 @@ namespace Duel6
 	int	d6MaxRounds = 0;
 	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
 	SpriteList d6SpriteList;
-
-	void D6_ConSwitchW(con_c *con)
-	{
-		d6Wireframe = !d6Wireframe;
-		if (d6Wireframe)
-			con->printf(MY_L("APP00020|Vykreslovaci mod prepnut na dratovy\n"));
-		else
-			con->printf(MY_L("APP00021|Vykreslovaci mod prepnut na solidni\n"));
-	}
-
-	void D6_ConShowFps(con_c *con)
-	{
-		d6ShowFps = !d6ShowFps;
-		if (d6ShowFps)
-			con->printf(MY_L("APP00022|Ukazatel fps zapnut\n"));
-		else
-			con->printf(MY_L("APP00023|Ukazatel fps vypnut\n"));
-	}
 
 	void D6_CheckWinner()
 	{
@@ -130,6 +112,7 @@ namespace Duel6
 		}
 				
 		PLAYER_PrepareViews(d6ScreenMode);
+
 		g_app.con->printf(MY_L("APP00067|...Inicializace urovne\n"));
 		WPN_LevelInit();
 		EXPL_Init();
@@ -138,46 +121,6 @@ namespace Duel6
 		RENDER_InitScreen();
 		d6Winner = -1;
 		d6PlayedRounds++;
-	}
-
-	void D6_SetGLMode(int mode)
-	{
-		if (mode == D6_GL_PERSPECTIVE)
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-
-			//gluPerspective (g_vid.gl_fov, g_vid.gl_aspect, g_vid.gl_nearclip, g_vid.gl_farclip);        
-			float fovy = MM_D2R(g_vid.gl_fov) / 2;
-			float f = cos(fovy) / sin(fovy);
-
-			mat4_c<mval_t> p(0.0f);
-			p(0, 0) = f / g_vid.gl_aspect;
-			p(1, 1) = f;
-			p(2, 2) = (g_vid.gl_nearclip + g_vid.gl_farclip) / (g_vid.gl_nearclip - g_vid.gl_farclip);
-			p(3, 2) = (2 * g_vid.gl_nearclip * g_vid.gl_farclip) / (g_vid.gl_nearclip - g_vid.gl_farclip);
-			p(2, 3) = -1;
-			glMultMatrixf(&p(0, 0));
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
-		}
-		else
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glOrtho(0, g_vid.cl_width, 0, g_vid.cl_height, -1, 1);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_DEPTH_TEST);
-		}
 	}
 
 	static void D6_UpdateScene(float elapsedTime)
@@ -190,7 +133,7 @@ namespace Duel6
 		}
 
 		d6World.update(elapsedTime);
-		d6SpriteList.update(elapsedTime * D6_SPEED_COEF);
+		d6SpriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
 		WPN_MoveShots(elapsedTime);
 		EXPL_MoveAll(elapsedTime);
 		ELEV_MoveAll(elapsedTime);

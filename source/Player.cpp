@@ -33,6 +33,14 @@
 #include "ElevatorList.h"
 #include "Math.h"
 
+#define D6_PLAYER_MAX_SPEED     0.52f
+#define D6_PLAYER_ACCEL         3.721f
+#define D6_PLAYER_JPHASE_SPEED  122
+#define D6_PLAYER_JUMP_SPEED    4.88f
+
+#define D6_CAM_TOLPER_X         30
+#define D6_CAM_TOLPER_Y         30
+
 namespace Duel6
 {
 	static Int16 noAnim[4] = { 0, 50, 0, -1 };
@@ -197,7 +205,7 @@ namespace Duel6
 
 	void Player::moveLeft(Float32 elapsedTime)
 	{
-		State.velocity = std::max(State.velocity - elapsedTime * D6_SPEED_COEF, -D6_PLAYER_MAX_SPEED);
+		State.velocity = std::max(State.velocity - elapsedTime, -D6_PLAYER_MAX_SPEED);
 
 		if (State.velocity < 0)
 		{
@@ -207,7 +215,7 @@ namespace Duel6
 
 	void Player::moveRight(Float32 elapsedTime)
 	{
-		State.velocity = std::min(State.velocity + elapsedTime * D6_SPEED_COEF, D6_PLAYER_MAX_SPEED);
+		State.velocity = std::min(State.velocity + elapsedTime, D6_PLAYER_MAX_SPEED);
 
 		if (State.velocity > 0)
 		{
@@ -314,7 +322,7 @@ namespace Duel6
 
 		if (isMoving())
 		{
-			State.x += State.velocity * D6_PLAYER_ACCEL * D6_SPEED_COEF * speed;
+			State.x += State.velocity * D6_PLAYER_ACCEL * speed;
 			checkMoveAside();
 		}
 
@@ -367,7 +375,7 @@ namespace Duel6
 			}
 			else if (State.velocity < 0.0f)
 			{
-				State.velocity = std::min(State.velocity + elapsedTime * D6_SPEED_COEF, 0.0f);
+				State.velocity = std::min(State.velocity + elapsedTime, 0.0f);
 			}
 
 			if (CO_InpIsPressed(controls.Right))
@@ -376,7 +384,7 @@ namespace Duel6
 			}
 			else if (State.velocity > 0.0f)
 			{
-				State.velocity = std::max(State.velocity - elapsedTime * D6_SPEED_COEF, 0.0f);
+				State.velocity = std::max(State.velocity - elapsedTime, 0.0f);
 			}
 
 			if (CO_InpIsPressed(controls.Up))

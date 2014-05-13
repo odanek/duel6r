@@ -37,34 +37,22 @@
 
 namespace Duel6
 {
-	extern  int     d6Winner;
-	static  bool    d6BcgLoaded = false;
+	static bool d6BcgLoaded = false;
 
-	struct d6CONVAR_s
+	struct VideoMode
 	{
-		int     bpp;
-		int     aa;
-		int     vid_width;
-		int     vid_height;
+		Int32 bpp;
+		Int32 aa;
+		Int32 width;
+		Int32 height;
 	};
 
-	d6CONVAR_s  d6ConVar = { 
+	static VideoMode d6VideoMode = { 
 		D6_CL_BPP, 
 		D6_CL_AA, 
 		D6_CL_WIDTH, 
 		D6_CL_HEIGHT 
 	};
-
-	/*
-	==================================================
-	Inicializace zbrani - enabled jsou pouze ty stare
-	==================================================
-	*/
-	void SET_InitWeapons()
-	{
-		for (int i = 0; i < D6_WEAPONS; i++)
-			d6WpnEnabled[i] = i < 12;
-	}
 
 	/*
 	==================================================
@@ -77,22 +65,22 @@ namespace Duel6
 
 		// Get current video mode
 		const SDL_VideoInfo* cur_vid = SDL_GetVideoInfo();
-		if (!d6ConVar.vid_width)
+		if (!d6VideoMode.width)
 		{
-			d6ConVar.vid_width = cur_vid->current_w;
+			d6VideoMode.width = cur_vid->current_w;
 		}
-		if (!d6ConVar.vid_height)
+		if (!d6VideoMode.height)
 		{
-			d6ConVar.vid_height = cur_vid->current_h;
+			d6VideoMode.height = cur_vid->current_h;
 		}
-		if (!d6ConVar.bpp)
+		if (!d6VideoMode.bpp)
 		{
-			d6ConVar.bpp = cur_vid->vfmt->BitsPerPixel;
+			d6VideoMode.bpp = cur_vid->vfmt->BitsPerPixel;
 		}
 
 		// Set graphics mode
 #ifdef _DEBUG
-		VID_SetMode (800, 600, d6ConVar.bpp, d6ConVar.aa, false);  // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
+		VID_SetMode (800, 600, d6VideoMode.bpp, d6VideoMode.aa, false);  // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
 #else
 		VID_SetMode(d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
 #endif
@@ -108,7 +96,7 @@ namespace Duel6
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-		D6_SetGLMode(D6_GL_ORTHO);
+		RENDER_SetGLMode(D6_GL_ORTHO);
 	}
 
 	void SET_LoadBackground(int n)
@@ -155,18 +143,6 @@ namespace Duel6
 		}
 	}
 
-	void P_DeInit()
-	{
-		SOUND_DeInit();
-
-		d6World.freeTextures();
-		WPN_FreeTextures();
-		MENU_Free();
-		EXPL_Free();
-
-		WPN_DeInit();
-	}
-
 	/*
 	==================================================
 	Set language - console command
@@ -208,6 +184,24 @@ namespace Duel6
 			SOUND_Volume(atoi(con->argv(1)));
 	}
 
+	void SET_ToggleRenderMode(con_c *con)
+	{
+		d6Wireframe = !d6Wireframe;
+		if (d6Wireframe)
+			con->printf(MY_L("APP00020|Vykreslovaci mod prepnut na dratovy\n"));
+		else
+			con->printf(MY_L("APP00021|Vykreslovaci mod prepnut na solidni\n"));
+	}
+
+	void SET_ToggleShowFps(con_c *con)
+	{
+		d6ShowFps = !d6ShowFps;
+		if (d6ShowFps)
+			con->printf(MY_L("APP00022|Ukazatel fps zapnut\n"));
+		else
+			con->printf(MY_L("APP00023|Ukazatel fps vypnut\n"));
+	}
+
 	/*
 	==================================================
 	Zapnuti/vypnuti hudby v menu
@@ -240,7 +234,9 @@ namespace Duel6
 	void SET_JoyScan(con_c *con)
 	{
 		if (d6InMenu)
+		{
 			MENU_JoyRescan();
+		}
 	}
 
 	/*
@@ -310,19 +306,23 @@ namespace Duel6
 			gn = atoi(con->argv(1));
 			if (gn >= 0 && gn < D6_WEAPONS)
 			{
-				d6WpnEnabled[gn] = !strcmp(con->argv(2), "true");
-				if (d6WpnEnabled[gn])
+				d6WpnDef[gn].enabled = !strcmp(con->argv(2), "true");
+				if (d6WpnDef[gn].enabled)
 					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00113|povoleno"));
 				else
 					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00114|zakazano"));
 			}
 		}
 		else
+		{
 			for (gn = 0; gn < D6_WEAPONS; gn++)
-				if (d6WpnEnabled[gn])
+			{
+				if (d6WpnDef[gn].enabled)
 					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00113|povoleno"));
 				else
 					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00114|zakazano"));
+			}
+		}
 	}
 
 	/*
@@ -426,8 +426,8 @@ namespace Duel6
 
 		// Set some console functions
 		g_app.con->setlast(15);
-		g_app.con->regcmd(&D6_ConSwitchW, "switch_render_mode");
-		g_app.con->regcmd(&D6_ConShowFps, "show_fps");
+		g_app.con->regcmd(&SET_ToggleRenderMode, "switch_render_mode");
+		g_app.con->regcmd(&SET_ToggleShowFps, "show_fps");
 		g_app.con->regcmd(&SET_OpenGLInfo, "gl_info");
 		g_app.con->regcmd(&SET_Language, "lang");
 		g_app.con->regcmd(&SET_Volume, "volume");
@@ -438,11 +438,11 @@ namespace Duel6
 		g_app.con->regcmd(&SET_EnableWeapon, "gun");
 		g_app.con->regcmd(&SET_AmmoRange, "start_ammo_range");
 		g_app.con->regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
-		g_app.con->regvar(&d6ConVar.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6ConVar.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
+		g_app.con->regvar(&d6VideoMode.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
+		g_app.con->regvar(&d6VideoMode.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6MaxRounds, "rounds", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6ConVar.vid_width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6ConVar.vid_height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
+		g_app.con->regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
+		g_app.con->regvar(&d6VideoMode.height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
 
 		srand((unsigned)time(NULL));
 
@@ -451,7 +451,6 @@ namespace Duel6
 		SOUND_Init(20, 30, 1);
 
 		SET_InitUserFiles();
-		SET_InitWeapons();
 
 		// Read config file
 		g_app.con->printf("\n===Config===\n");
@@ -469,5 +468,17 @@ namespace Duel6
 
 		MENU_Init();
 		MENU_Start();
+	}
+
+	void P_DeInit()
+	{
+		SOUND_DeInit();
+
+		d6World.freeTextures();
+		WPN_FreeTextures();
+		MENU_Free();
+		EXPL_Free();
+
+		WPN_DeInit();
 	}
 }
