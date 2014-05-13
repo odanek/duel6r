@@ -61,7 +61,7 @@ namespace Duel6
 
 	public:
 		World(Float32 animationSpeed, Float32 waveHeight)
-			: walls(blockTextures), sprites(blockTextures), water(blockTextures), waveHeight(waveHeight), animationSpeed(animationSpeed)
+			: walls(blockTextures), sprites(blockTextures), water(blockTextures), animationSpeed(animationSpeed), waveHeight(waveHeight)
 		{}
 
 		void init(const std::string& textureFile, const std::string& blockMetaFile);

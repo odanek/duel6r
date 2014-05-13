@@ -51,7 +51,7 @@ set(D6R_SOURCES
     source/Color.h
     source/duel6.cpp
     source/Elevator.h
-    source/elevator.cpp
+    source/Elevator.cpp
     source/ElevatorList.h
     source/ElevatorList.cpp
     source/explode.cpp

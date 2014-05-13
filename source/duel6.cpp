@@ -29,7 +29,7 @@
 #include "BonusList.h"
 #include "Weapon.h"
 #include "Util.h"
-#include "ELevatorList.h"
+#include "ElevatorList.h"
 #include "Menu.h"
 
 namespace Duel6

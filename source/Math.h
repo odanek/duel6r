@@ -28,6 +28,7 @@
 #ifndef DUEL6_MATH_H
 #define DUEL6_MATH_H
 
+#include <math.h>
 #include <cmath>
 #include "Type.h"
 
