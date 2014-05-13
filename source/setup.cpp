@@ -82,7 +82,7 @@ namespace Duel6
 #ifdef _DEBUG
 		VID_SetMode (800, 600, d6VideoMode.bpp, d6VideoMode.aa, false);  // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
 #else
-		VID_SetMode(d6ConVar.vid_width, d6ConVar.vid_height, d6ConVar.bpp, d6ConVar.aa, true);
+		VID_SetMode(d6VideoMode.width, d6VideoMode.height, d6VideoMode.bpp, d6VideoMode.aa, true);
 #endif
 
 		g_vid.gl_fov = 45.0f;
