@@ -28,6 +28,7 @@
 #ifndef DUEL6_PLAYERSKIN_H
 #define DUEL6_PLAYERSKIN_H
 
+#include <string>
 #include <vector>
 #include <SDL/SDL_opengl.h>
 #include "PlayerSkinColors.h"

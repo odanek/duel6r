@@ -28,6 +28,7 @@
 #ifndef DUEL6_LOADER_H
 #define DUEL6_LOADER_H
 
+#include <string>
 #include <vector>
 #include "FaceList.h"
 #include "Bonus.h"

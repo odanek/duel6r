@@ -28,7 +28,7 @@
 #ifndef DUEL6_MATH_H
 #define DUEL6_MATH_H
 
-#include <math.h>
+#include <cstdlib>
 #include <cmath>
 #include "Type.h"
 
@@ -40,7 +40,7 @@ namespace Duel6
 	{
 		inline Float32 fastCos(Int32 angle)
 		{
-			return d6Cos[abs(angle) % 360];
+			return d6Cos[std::abs(angle) % 360];
 		}
 
 		template <class T>
