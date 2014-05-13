@@ -30,61 +30,11 @@
 #include "Player.h"
 #include "BonusList.h"
 #include "Weapon.h"
-#include "Elevator.h"
+#include "ElevatorList.h"
 #include "Math.h"
 
 namespace Duel6
 {
-	static PlayerControls d6Controls[12] =
-	{
-		// 1
-		{ APP_INP_KEY | SDLK_LEFT, APP_INP_KEY | SDLK_RIGHT, APP_INP_KEY | SDLK_UP,
-		APP_INP_KEY | SDLK_DOWN, APP_INP_KEY | SDLK_RCTRL, APP_INP_KEY | SDLK_RSHIFT },
-		// 2
-		{ APP_INP_KEY | SDLK_a, APP_INP_KEY | SDLK_d, APP_INP_KEY | SDLK_w,
-		APP_INP_KEY | SDLK_s, APP_INP_KEY | SDLK_q, APP_INP_KEY | SDLK_e },
-		// 3
-		{ APP_INP_KEY | SDLK_h, APP_INP_KEY | SDLK_k, APP_INP_KEY | SDLK_u,
-		APP_INP_KEY | SDLK_j, APP_INP_KEY | SDLK_o, APP_INP_KEY | SDLK_l },
-		// 4
-		{ APP_INP_KEY | SDLK_KP1, APP_INP_KEY | SDLK_KP3, APP_INP_KEY | SDLK_KP5,
-		APP_INP_KEY | SDLK_KP2, APP_INP_KEY | SDLK_KP0, APP_INP_KEY | SDLK_KP_PERIOD },
-		// 5
-		{ APP_INP_JOY1 | APP_INP_JOY_LEFT, APP_INP_JOY1 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY1 | APP_INP_JOY_BUT1, APP_INP_JOY1 | APP_INP_JOY_DOWN,
-		APP_INP_JOY1 | APP_INP_JOY_BUT2, APP_INP_JOY1 | APP_INP_JOY_BUT3 },
-		// 6
-		{ APP_INP_JOY2 | APP_INP_JOY_LEFT, APP_INP_JOY2 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY2 | APP_INP_JOY_BUT1, APP_INP_JOY2 | APP_INP_JOY_DOWN,
-		APP_INP_JOY2 | APP_INP_JOY_BUT2, APP_INP_JOY2 | APP_INP_JOY_BUT3 },
-		// 7
-		{ APP_INP_JOY3 | APP_INP_JOY_LEFT, APP_INP_JOY3 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY3 | APP_INP_JOY_BUT1, APP_INP_JOY3 | APP_INP_JOY_DOWN,
-		APP_INP_JOY3 | APP_INP_JOY_BUT2, APP_INP_JOY3 | APP_INP_JOY_BUT3 },
-		// 8
-		{ APP_INP_JOY4 | APP_INP_JOY_LEFT, APP_INP_JOY4 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY4 | APP_INP_JOY_BUT1, APP_INP_JOY4 | APP_INP_JOY_DOWN,
-		APP_INP_JOY4 | APP_INP_JOY_BUT2, APP_INP_JOY4 | APP_INP_JOY_BUT3 },
-		// 9
-		{ APP_INP_JOY5 | APP_INP_JOY_LEFT, APP_INP_JOY5 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY5 | APP_INP_JOY_BUT1, APP_INP_JOY5 | APP_INP_JOY_DOWN,
-		APP_INP_JOY5 | APP_INP_JOY_BUT2, APP_INP_JOY5 | APP_INP_JOY_BUT3 },
-		// 10
-		{ APP_INP_JOY6 | APP_INP_JOY_LEFT, APP_INP_JOY6 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY6 | APP_INP_JOY_BUT1, APP_INP_JOY6 | APP_INP_JOY_DOWN,
-		APP_INP_JOY6 | APP_INP_JOY_BUT2, APP_INP_JOY6 | APP_INP_JOY_BUT3 },
-		// 11
-		{ APP_INP_JOY7 | APP_INP_JOY_LEFT, APP_INP_JOY7 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY7 | APP_INP_JOY_BUT1, APP_INP_JOY7 | APP_INP_JOY_DOWN,
-		APP_INP_JOY7 | APP_INP_JOY_BUT2, APP_INP_JOY7 | APP_INP_JOY_BUT3 },
-		// 12
-		{ APP_INP_JOY8 | APP_INP_JOY_LEFT, APP_INP_JOY8 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY8 | APP_INP_JOY_BUT1, APP_INP_JOY8 | APP_INP_JOY_DOWN,
-		APP_INP_JOY8 | APP_INP_JOY_BUT2, APP_INP_JOY8 | APP_INP_JOY_BUT3 }
-	};
-
-	/* ==================================================================== */
-
 	static Int16 noAnim[4] = { 0, 50, 0, -1 };
 	static Int16 d6SAnim[22] = { 0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0 };
 	static Int16 d6WAnim[10] = { 6, 5, 5, 5, 6, 5, 7, 5, -1, 0 };
@@ -168,12 +118,11 @@ namespace Duel6
 	//
 	////////////////////////////////////////////////////////////////////////////////////////
 
-	Player::Player(Person& person, PlayerSkin* skin, Size controls)
-		: person(person), skin(skin)
+	Player::Player(Person& person, PlayerSkin* skin, const PlayerControls& controls)
+		: person(person), skin(skin), controls(controls)
 	{
 		camera.resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
 		camera.rotate(180.0, 0.0, 0.0);
-		this->controls = &d6Controls[controls];
 	}
 
 	Player::~Player()
@@ -185,30 +134,31 @@ namespace Duel6
 		findStartingPosition();
 		
 		Sprite manSprite(noAnim, skin->getTextures());
-		manSprite.setPosition(State.X, State.Y, 0.5f);
-		State.A = d6SpriteList.addSprite(manSprite);		
+		manSprite.setPosition(getX(), getY(), 0.5f);
+		State.sprite = d6SpriteList.addSprite(manSprite);		
 
 		State.weapon = &WPN_GetRandomWeapon();
 		Sprite gunSprite(State.weapon->animation, d6WpnTextures);
-		gunSprite.setPosition(State.X, State.Y, 0.5f)
+		gunSprite.setPosition(getX(), getY(), 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
-		State.GA = d6SpriteList.addSprite(gunSprite);
+		State.gunSprite = d6SpriteList.addSprite(gunSprite);
 
-		State.Flags = 0;
-		State.Speed = 0;
-		State.O = Orientation::Left;
-		State.J = 0;
-		State.SI = 0;
-		State.Life = D6_MAX_LIFE;
-		State.Air = D6_MAX_AIR;
-		State.Ammo = d6AmmoRangeMin + rand() % (d6AmmoRangeMax - d6AmmoRangeMin + 1);
+		State.flags = 0;
+		State.velocity = 0.0f;
+		State.orientation = Orientation::Left;
+		State.jumpPhase = 0;
+		State.reloadInterval = 0;
+		State.life = D6_MAX_LIFE;
+		State.air = D6_MAX_AIR;
+		State.ammo = d6AmmoRangeMin + rand() % (d6AmmoRangeMax - d6AmmoRangeMin + 1);
 		State.elevator = nullptr;
-		State.Bonus = 0;
-		State.BD = 0;
-		State.SD = 0;
+		State.bonus = 0;
+		State.bonusDuration = 0;
+		State.tempSkinDuration = 0;
+		State.feetInWater = false;
+
 		Person().setGames(Person().getGames() + 1);
-		State.InWater = false;
 	}
 
 	void Player::findStartingPosition()
@@ -228,8 +178,8 @@ namespace Duel6
 						break;
 					if (d6World.isWall(X, y2, true))
 					{
-						State.X = (Float32)X;
-						State.Y = (Float32)Y + 0.0001f;
+						State.x = (Float32)X;
+						State.y = (Float32)Y + 0.0001f;
 						return;
 					}
 				}
@@ -239,157 +189,162 @@ namespace Duel6
 
 	void Player::setView(int x, int y, int w, int h)
 	{
-		View.X = x;
-		View.Y = y;
-		View.Width = w;
-		View.Height = h;
+		view.X = x;
+		view.Y = y;
+		view.Width = w;
+		view.Height = h;
 	}
 
 	void Player::moveLeft(Float32 elapsedTime)
 	{
-		if (State.Speed >= -D6_PLAYER_MAX_SPEED)
-			State.Flags |= D6_FLAG_REQ_LEFT;
-		if ((State.Speed -= elapsedTime) < -D6_PLAYER_MAX_SPEED)
-			State.Speed = -D6_PLAYER_MAX_SPEED;
-		if (State.Speed < 0)
-			State.O = Orientation::Left;
+		State.velocity = std::max(State.velocity - elapsedTime * D6_SPEED_COEF, -D6_PLAYER_MAX_SPEED);
+
+		if (State.velocity < 0)
+		{
+			State.orientation = Orientation::Left;
+		}
 	}
 
 	void Player::moveRight(Float32 elapsedTime)
 	{
-		if (State.Speed <= D6_PLAYER_MAX_SPEED)
-			State.Flags |= D6_FLAG_REQ_RIGHT;
-		if ((State.Speed += elapsedTime) > D6_PLAYER_MAX_SPEED)
-			State.Speed = D6_PLAYER_MAX_SPEED;
-		if (State.Speed > 0)
-			State.O = Orientation::Right;
+		State.velocity = std::min(State.velocity + elapsedTime * D6_SPEED_COEF, D6_PLAYER_MAX_SPEED);
+
+		if (State.velocity > 0)
+		{
+			State.orientation = Orientation::Right;
+		}
 	}
 
 	void Player::jump()
 	{
-		if (!State.J)
+		if (isOnGround())
 		{
-			if (KONTR_CanJump(this))
+			Int32 up = (Int32)(getY() + 1.0f); // TODO: Coord
+			Int32 left = (Int32)(getX() + 0.1f); // TODO: Coord
+			Int32 right = (Int32)(getX() + 0.9f); // TODO: Coord
+
+			if (!d6World.isWall(left, up, true) && !d6World.isWall(right, up, true))
 			{
-				State.J = 90;
+				State.jumpPhase = 90.0f;
 			}
 		}
 	}
 
 	void Player::fall()
 	{
-		if (!State.J && !State.Speed)
+		if (isOnGround() && !isMoving())
 		{
-			State.Flags |= D6_FLAG_KNEE;
+			setFlag(FlagKnee);
 		}
 		else
 		{
-			if (State.J > 0 && State.J < 180)
+			if (isRising())
 			{
-				State.J = 180;
+				State.jumpPhase = 180.0f;
 			}
 		}
 	}
 
 	void Player::pick()
 	{
-		if (!State.J && !State.Speed && !isOnElevator())
+		if (isOnGround() && !isMoving() && !isOnElevator())
 		{
 			BONUS_CheckPick(*this);
 		}
 	}
 
+	void Player::shoot()
+	{
+		if (!getAmmo() || isReloading())
+			return;
+
+		State.reloadInterval = getWeapon().reloadSpeed;
+		if (hasFastReload())
+		{
+			State.reloadInterval /= 2.0f;
+		}
+
+		State.ammo--;
+		State.gunSprite->setFrame(0);
+		getPerson().setShots(getPerson().getShots() + 1);
+
+		WPN_AddShot(*this);
+	}
+
 	Player& Player::pickWeapon(const Weapon& weapon, Int32 bullets)
 	{
+		setFlag(FlagPick);
 		State.weapon = &weapon;
-		State.Ammo = bullets;
-		State.SI = 0;
-		State.Flags |= D6_FLAG_PICK;
+		State.ammo = bullets;
+		State.reloadInterval = 0;		
 					
-		State.GA->setAnimation(weapon.animation)
-			.setFrame(6)
-			.setDraw(false);
-		State.A->setFrame(0);
+		State.gunSprite->setAnimation(weapon.animation).setFrame(6);
 
 		return *this;
 	}
 
 	void Player::makeMove(Float32 elapsedTime)
 	{
-		Float32 coefElapsedTime = elapsedTime * D6_SPEED_COEF;
-		Float32 sp = getSpeed() * coefElapsedTime;
+		Float32 speed = getSpeed() * elapsedTime;
 		State.elevator = nullptr;
 
-		if (State.J > 0)
+		if (!isOnGround())
 		{
-			State.J += 2 * coefElapsedTime;
-			if (State.J > 270.0)
+			State.jumpPhase += D6_PLAYER_JPHASE_SPEED * elapsedTime;
+			if (State.jumpPhase > 270.0)
 			{
-				State.J = 270.0f;
+				State.jumpPhase = 270.0f;
 			}
 
-			State.Y += Math::fastCos(Int32(State.J)) * D6_PLAYER_JUMP_SPEED * sp;
+			State.y += Math::fastCos(Int32(State.jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
 
-			if (State.J < 180.0f)
+			if (isRising())
 			{
-				KONTR_Kontr(*this, 1);
+				checkMoveUp();
 			}
 			else
 			{
-				KONTR_Kontr(*this, 2);
+				checkMoveDown();
 			}
 		}
 		else
 		{
-			KONTR_Kontr(*this, 3);
+			checkFall();
 		}
 
-		if (State.Speed != 0)
+		if (isMoving())
 		{
-			if (!(State.Flags & D6_FLAG_REQ_RIGHT) && State.Speed > 0)
-			{
-				State.Speed -= coefElapsedTime;
-				if (State.Speed < 0)
-				{
-					State.Speed = 0;
-				}
-			}
-			if (!(State.Flags & D6_FLAG_REQ_LEFT) && State.Speed < 0)
-			{
-				State.Speed += coefElapsedTime;
-				if (State.Speed > 0)
-				{
-					State.Speed = 0;
-				}
-			}
-
-			State.X += State.Speed * D6_PLAYER_ACCEL * sp;
-			KONTR_Kontr(*this, 4);
+			State.x += State.velocity * D6_PLAYER_ACCEL * D6_SPEED_COEF * speed;
+			checkMoveAside();
 		}
 
 		if (isOnElevator())
 		{
-			State.elevator->movePlayer(*this, elapsedTime);
+			State.x += State.elevator->getMoveX() * elapsedTime;
+			State.y += State.elevator->getMoveY() * elapsedTime;
 		}
 
-		State.Flags &= ~(D6_FLAG_REQ_RIGHT | D6_FLAG_REQ_LEFT);
+		if (isPickingGun() && State.sprite->isFinished())
+		{
+			unsetFlag(FlagPick);
+		}
 	}
 
 	Float32 Player::getSpeed() const
 	{
 		Float32 spd = 1.0f;
 
-		if (isInWater())
+		if (isUnderWater())
 		{
 			spd *= 0.67f;
 		}
 
-		if (State.SD)
+		if (State.tempSkinDuration)
 		{
 			spd *= 0.5f;
 		}
 
-		if (State.Bonus == D6_BONUS_SPEED)
+		if (getBonus() == D6_BONUS_SPEED)
 		{
 			spd *= 1.43f;
 		}
@@ -399,35 +354,48 @@ namespace Duel6
 
 	void Player::checkKeys(Float32 elapsedTime)
 	{
-		if ((State.Flags & (D6_FLAG_DEAD | D6_FLAG_PICK)) != 0)
-			return;
-
-		if (!(State.Flags & D6_FLAG_KNEE))
+		if (isDead() || isPickingGun())
 		{
-			if (CO_InpIsPressed(controls->Left))
+			return;
+		}
+
+		if (!isKneeling())
+		{
+			if (CO_InpIsPressed(controls.Left))
 			{
 				moveLeft(elapsedTime);
 			}
-			if (CO_InpIsPressed(controls->Right))
+			else if (State.velocity < 0.0f)
+			{
+				State.velocity = std::min(State.velocity + elapsedTime * D6_SPEED_COEF, 0.0f);
+			}
+
+			if (CO_InpIsPressed(controls.Right))
 			{
 				moveRight(elapsedTime);
 			}
-			if (CO_InpIsPressed(controls->Up))
+			else if (State.velocity > 0.0f)
+			{
+				State.velocity = std::max(State.velocity - elapsedTime * D6_SPEED_COEF, 0.0f);
+			}
+
+			if (CO_InpIsPressed(controls.Up))
 			{
 				jump();
 			}
-			if (CO_InpIsPressed(controls->Pick))
+			if (CO_InpIsPressed(controls.Pick))
 			{
 				pick();
 			}
 		}
 
-		if (CO_InpIsPressed(controls->Shoot))
+		if (CO_InpIsPressed(controls.Shoot))
 		{
-			WPN_Shoot(*this);
+			shoot();
 		}
-		State.Flags &= ~D6_FLAG_KNEE;
-		if (CO_InpIsPressed(controls->Down))
+
+		unsetFlag(FlagKnee);
+		if (CO_InpIsPressed(controls.Down))
 		{
 			fall();
 		}
@@ -441,36 +409,35 @@ namespace Duel6
 			BONUS_Check(*this);
 		}
 
-		checkKeys(elapsedTime * D6_SPEED_COEF);
+		checkKeys(elapsedTime);
 		makeMove(elapsedTime);
 		setAnm();
 
 		// Move intervals
-		if (State.SI > 0)
+		if (State.reloadInterval > 0)
 		{
-			if ((State.SI -= elapsedTime) <= 0)
+			if ((State.reloadInterval -= elapsedTime) <= 0)
 			{
-				State.SI = 0;
+				State.reloadInterval = 0;
 			}
 		}
 
-		if (State.BD > 0)
+		if (State.bonusDuration > 0)
 		{
-			if ((State.BD -= elapsedTime) <= 0)
+			if ((State.bonusDuration -= elapsedTime) <= 0)
 			{
-				if (State.Bonus == D6_BONUS_INVIS)
+				if (getBonus() == D6_BONUS_INVIS)
 				{
-					State.A->setAlpha(1);
-					State.GA->setAlpha(1);
+					setAlpha(1.0f);
 				}
-				State.Bonus = 0;
-				State.BD = 0;
+				State.bonus = 0;
+				State.bonusDuration = 0;
 			}
 		}
 
-		if (State.SD > 0)
+		if (State.tempSkinDuration > 0)
 		{
-			if ((State.SD -= elapsedTime) <= 0)
+			if ((State.tempSkinDuration -= elapsedTime) <= 0)
 			{
 				switchToOriginalSkin();
 			}
@@ -484,52 +451,49 @@ namespace Duel6
 
 	void Player::setAnm()
 	{
-		float   ad = 0.0;
-		short   *a;
+		Float32 ad = 0.0;
+		Int16 *animation;
 
 		if (isDead())
 		{
 			if (isLying())
 			{
-				State.A->setPosition(State.X, State.Y)
-					.setOrientation(State.O)
-					.setAnimation(d6LAnim);;
+				animation = d6LAnim;
 			}
 			else
 			{
-				State.A->setPosition(State.X, State.Y)
-					.setOrientation(State.O)
-					.setAnimation(d6NAnim);
+				animation = d6NAnim;
 			}
-
-			return;
 		}
-
-		if (State.Flags & D6_FLAG_PICK)
-			a = d6PAnim;
-		else if (State.J)
-			a = d6JAnim;
-		else if (State.Flags & D6_FLAG_KNEE)
+		else if (isPickingGun())
 		{
-			a = d6DAnim;
+			animation = d6PAnim;
+		}
+		else if (!isOnGround())
+		{
+			animation = d6JAnim;
+		}
+		else if (isKneeling())
+		{
+			animation = d6DAnim;
 			ad = 0.2f;
 		}
-		else if (!State.Speed)
-			a = d6SAnim;
-		else
-			a = d6WAnim;
-
-		State.A->setPosition(State.X, State.Y).setOrientation(State.O).setAnimation(a);
-		State.GA->setPosition(State.X, State.Y - ad).setOrientation(State.O);
-
-		if (State.Flags & D6_FLAG_PICK)
+		else if (!isMoving())
 		{
-			if (State.A->isFinished())
-			{
-				State.GA->setDraw(true);
-				State.Flags &= ~D6_FLAG_PICK;
-			}
+			animation = d6SAnim;
 		}
+		else
+		{
+			animation = d6WAnim;
+		}
+
+		State.sprite->setPosition(getX(), getY())
+			.setOrientation(getOrientation())
+			.setAnimation(animation);
+
+		State.gunSprite->setPosition(getX(), getY() - ad)
+			.setOrientation(getOrientation())
+			.setDraw(!isDead() && !isPickingGun());
 	}
 
 	void Player::prepareCam(ScreenMode screenMode)
@@ -596,8 +560,8 @@ namespace Duel6
 	{
 		Float32 mX = 0.0, mY = 0.0, X, Y;
 
-		X = State.X + 0.5f;
-		Y = State.Y - 0.5f;
+		X = getX() + 0.5f;  // TODO: Coord
+		Y = getY() - 0.5f;  // TODO: Coord
 
 		if (X < cameraPos.Pos.x - cameraPos.TolX)
 		{
@@ -657,28 +621,29 @@ namespace Duel6
 		{
 			if (weapon.explodes && directHit)
 			{
-				State.Flags &= ~D6_FLAG_LYING;
+				unsetFlag(FlagLying);
 				EXPL_Add(getX() + 0.5f, getY() + 0.3f, 0.5f, 1.2f, weapon.explosionColor); // TODO: Coord
 			}
 			return false;
 		}
 
-		State.Life -= amount;
+		State.life -= amount;
 		
 		if (directHit)
 		{			
 			shootingPerson.setHits(shootingPerson.getHits() + 1);
 		}
 
-		if (State.Life < 1)
+		if (State.life < 1)
 		{
-			State.Life = 0;
-			State.Flags |= D6_FLAG_DEAD | D6_FLAG_LYING;
+			State.life = 0;
+			setFlag(FlagDead | FlagLying);
+			unsetFlag(FlagKnee | FlagPick);
 			
-			State.A->setPosition(State.X, State.Y).setLooping(AnimationLooping::OnceAndStop);
-			d6SpriteList.removeSprite(State.GA);
+			State.sprite->setPosition(getX(), getY()).setLooping(AnimationLooping::OnceAndStop);
+			State.gunSprite->setDraw(false);
 
-			State.O = (shot.getX() < State.X) ? Orientation::Left : Orientation::Right;
+			State.orientation = (shot.getX() < getX()) ? Orientation::Left : Orientation::Right;
 
 			if (!is(shot.getPlayer()))
 			{
@@ -693,10 +658,10 @@ namespace Duel6
 
 			if (weapon.explodes && directHit)
 			{
-				State.Flags &= ~D6_FLAG_LYING;
-				EXPL_Add(State.X + 0.5f, State.Y + 0.5f, 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
+				unsetFlag(FlagLying);
+				EXPL_Add(getX() + 0.5f, getY() + 0.5f, 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
 			}
-			else if (!State.J)
+			else if (isOnGround())
 			{
 				dropWeapon();
 			}
@@ -719,21 +684,21 @@ namespace Duel6
 		if (isInvulnerable() || isDead())
 			return false;
 
-		State.Life -= amount;
-
-		if (State.Life < 1)
+		State.life -= amount;
+		if (State.life < 1)
 		{
-			State.Life = 0;
-			State.Flags |= D6_FLAG_DEAD | D6_FLAG_LYING;
+			State.life = 0;
+			setFlag(FlagDead | FlagLying);
+			unsetFlag(FlagKnee | FlagPick);
 			
-			State.A->setPosition(State.X, State.Y).setLooping(AnimationLooping::OnceAndStop);
-			d6SpriteList.removeSprite(State.GA);
+			State.sprite->setPosition(getX(), getY()).setLooping(AnimationLooping::OnceAndStop);
+			State.gunSprite->setDraw(false);
 			d6MessageQueue.add(*this, MY_L("APP00054|Jsi mrtvy"));
 
 			SOUND_PlaySample(D6_SND_DEAD);
 
 			// Add lying weapon
-			if (!State.J)
+			if (isOnGround())
 			{
 				dropWeapon();
 			}
@@ -765,23 +730,23 @@ namespace Duel6
 
 	Player& Player::adjustLife(Float32 life)
 	{
-		State.Life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), State.Life + life));
+		State.life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), State.life + life));
 		return *this;
 	}
 
-	void Player::checkWater(float elapsedTime)
+	void Player::checkWater(Float32 elapsedTime)
 	{
-		float airHitAmount = D6_WATER_HIT * elapsedTime;
-		State.Flags &= ~D6_FLAG_INWATER;
+		Float32 airHitAmount = D6_WATER_HIT * elapsedTime;
+		unsetFlag(FlagUnderWater);
 
 		// Check if head is in water
 		WaterType water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.8f));   // TODO: Coord
 		if (water != WaterType::None)
 		{
-			State.Flags |= D6_FLAG_INWATER;
-			if ((State.Air -= airHitAmount) < 0)
+			setFlag(FlagUnderWater);
+			if ((State.air -= airHitAmount) < 0)
 			{
-				State.Air = 0;
+				State.air = 0;
 				if (hit(airHitAmount))
 				{
 					Person().setKills(Person().getKills() - 1);  // Player drowned = -1 kill
@@ -790,40 +755,112 @@ namespace Duel6
 			return;
 		}
 
-		State.Air = MY_Min(State.Air + 2 * airHitAmount, D6_MAX_AIR);
+		State.air = MY_Min(State.air + 2 * airHitAmount, D6_MAX_AIR);
 
 		// Check if foot is in water
 		water = d6World.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
-		if (water != WaterType::None && !State.InWater)
+		if (water != WaterType::None && !State.feetInWater)
 		{
 			Sprite waterSplash(wtAnim[(water == WaterType::Blue) ? 0 : 1], d6WpnTextures);
-			waterSplash.setPosition(State.X, State.Y, 0.5f)
+			waterSplash.setPosition(getX(), getY(), 0.5f)
 				.setLooping(AnimationLooping::OnceAndRemove);
 			d6SpriteList.addSprite(waterSplash);
 			
 			SOUND_PlaySample(D6_SND_WATER);
 		}
 
-		State.InWater = (water != WaterType::None);
+		State.feetInWater = (water != WaterType::None);
 	}
 
-	Player& Player::assignElevator(const Elevator& elevator)
+	void Player::checkMoveUp()
 	{
-		State.elevator = &elevator;
-		State.Y = elevator.getY();
-		State.J = 0;
-		return *this;
+		Int32 up = (Int32)(getY() + 0.94); // TODO: Coord
+		Int32 left = (Int32)(getX() + 0.1f); // TODO: Coord
+		Int32 right = (Int32)(getX() + 0.9f); // TODO: Coord
+
+		if (d6World.isWall(left, up, true) || d6World.isWall(right, up, true))
+		{
+			State.y = (Float32)(up) - 1.0f; // TODO: Coord
+			State.jumpPhase = 180.0f;
+		}
+	}
+
+	void Player::checkMoveDown()
+	{
+		Int32 down = (Int32)getY(); // TODO: Coord
+		Int32 left = (Int32)(getX() + 0.1f); // TODO: Coord
+		Int32 right = (Int32)(getX() + 0.9f); // TODO: Coord
+
+		if (d6World.isWall(left, down, true) || d6World.isWall(right, down, true))
+		{
+			State.y = (Float32)(down) + 1.0001f; // TODO: Coord
+			State.jumpPhase = 0.0f;
+		}
+
+		checkElevator();
+	}
+
+	void Player::checkFall()
+	{
+		checkElevator();
+
+		if (isOnElevator())
+			return;
+
+		Int32 down = (Int32)(getY() - 0.001f); // TODO: Coord
+		Int32 left = (Int32)(getX() + 0.1f); // TODO: Coord
+		Int32 right = (Int32)(getX() + 0.9f); // TODO: Coord
+
+		if (!d6World.isWall(left, down, true) && !d6World.isWall(right, down, true))
+		{
+			State.jumpPhase = 180.0f;
+		}
+	}
+
+	void Player::checkMoveAside()
+	{
+		Int32 up = (Int32)(getY() + 0.94); // TODO: Coord
+		Int32 down = (Int32)getY(); // TODO: Coord
+
+		if (State.velocity < 0)
+		{
+			Int32 left = (Int32)(getX() + 0.1f); // TODO: Coord
+			if (d6World.isWall(left, up, true) || d6World.isWall(left, down, true))
+			{
+				State.x = (Float32)left + 0.9001f; // TODO: Coord
+			}
+		}
+		else
+		{
+			Int32 right = (Int32)(getX() + 0.9f); // TODO: Coord
+			if (d6World.isWall(right, up, true) || d6World.isWall(right, down, true))
+			{
+				State.x = (Float32)right - 0.9001f; // TODO: Coord
+			}
+		}
+	}
+
+	void Player::checkElevator()
+	{
+		const Elevator* elevator = ELEV_CheckMan(*this);
+
+		if (elevator != nullptr)
+		{
+			State.elevator = elevator;
+			State.y = elevator->getY();
+			State.jumpPhase = 0.0f;
+		}
 	}
 
 	void Player::useTemporarySkin(PlayerSkin& skin)
 	{
-		State.SD = float(10 + rand() % 5);
-		State.A->setTextures(skin.getTextures());
+		State.tempSkinDuration = Float32(10 + rand() % 5);
+		State.sprite->setTextures(skin.getTextures());
 	}
 
 	void Player::switchToOriginalSkin()
 	{
-		State.SD = 0;
-		State.A->setTextures(skin->getTextures());
+		State.tempSkinDuration = 0;
+		State.sprite->setTextures(skin->getTextures());
 	}
 }

@@ -61,7 +61,7 @@ namespace Duel6
 
 	void InfoMessageQueue::renderPlayerMessages(const Player& player) const
 	{
-		const d6VIEW_s& view = player.View;
+		const PlayerView& view = player.getView();
 		Int32 posX = view.X + 4;
 		Int32 posY = view.Y + view.Height - 24;
 
@@ -77,7 +77,7 @@ namespace Duel6
 		}
 	}
 
-	void InfoMessageQueue::renderAllMessages(const d6VIEW_s& view, Int32 offsetY) const
+	void InfoMessageQueue::renderAllMessages(const PlayerView& view, Int32 offsetY) const
 	{
 		Int32 posX = view.X + 4;
 		Int32 posY = view.Y + view.Height - offsetY;

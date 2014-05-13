@@ -89,7 +89,6 @@ namespace Duel6
 		
 		void start();
 		void update(Float32 elapsedTime);
-		void movePlayer(Player& player, Float32 elapsedTime) const;
 		void render() const;
 
 		Float32 getX() const
@@ -100,6 +99,16 @@ namespace Duel6
 		Float32 getY() const
 		{
 			return position.y;
+		}
+
+		Float32 getMoveX() const
+		{
+			return add.x;
+		}
+
+		Float32 getMoveY() const
+		{
+			return add.y;
 		}
 
 	private:

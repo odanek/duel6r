@@ -35,7 +35,6 @@
 #include "Globals.h"
 #include "Type.h"
 #include "ScreenMode.h"
-#include "Player.h"
 #include "FaceList.h"
 #include "World.h"
 #include "InfoMessageQueue.h"
@@ -128,13 +127,6 @@ namespace Duel6
 	//////////////////////////////////////////////////////////////////////
 	void	RENDER_InitScreen();
 	void    RENDER_DrawScene(ScreenMode screenMode);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          kontrola.cpp                            //
-	//////////////////////////////////////////////////////////////////////
-	void    KONTR_Kontr(Player& player, int c);
-	bool    KONTR_Shot(Shot& s);
-	bool    KONTR_CanJump(Player *p);
 
 	//////////////////////////////////////////////////////////////////////
 	//                          explode.cpp                             //

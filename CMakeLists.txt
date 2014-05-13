@@ -65,7 +65,6 @@ set(D6R_SOURCES
     source/InfoMessage.h
     source/InfoMessageQueue.h
     source/InfoMessageQueue.cpp
-    source/kontrola.cpp
     source/LevelList.h
     source/LevelList.cpp
     source/Math.h
@@ -80,6 +79,8 @@ set(D6R_SOURCES
     source/PersonList.cpp
     source/Player.h
     source/Player.cpp
+    source/PlayerControls.h
+    source/PlayerControls.cpp
     source/PlayerSkin.h
     source/PlayerSkin.cpp
     source/PlayerSkinColors.h

@@ -115,84 +115,18 @@ namespace Duel6
 		d6Shots.clear();
 	}
 
-	void WPN_Shoot(Player& player)
+	void WPN_AddShot(Player& player)
 	{
-		// TODO: Move this to player
-		d6PLSTATE_s *s = &player.State;
-
-		if (!player.getAmmo() || player.isReloading())
-			return;
-
-		s->SI = player.getWeapon().reloadSpeed;
-		if (player.hasFastReload())
-		{
-			s->SI /= 2.0f;
-		}
-
-		s->Ammo--;
-
-		s->GA->setFrame(0);
-
-		player.getPerson().setShots(player.getPerson().getShots() + 1);
-
 		Float32 ad = player.isKneeling() ? 0.52f : 0.32f;
-		Float32 shotX = (s->O == Orientation::Left) ? (s->X - 0.65f) : (s->X + 0.65f);
-		Float32 shotY = s->Y - ad;
+		Float32 x = (player.getOrientation() == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
+		Float32 y = player.getY() - ad;
 
 		Sprite shotSprite(player.getWeapon().shotAnimation, d6WpnTextures);		
-		d6Shots.push_back(Shot(player, shotX, shotY, d6SpriteList.addSprite(shotSprite)));
+		d6Shots.push_back(Shot(player, x, y, d6SpriteList.addSprite(shotSprite)));
 		SOUND_PlaySample(player.getWeapon().ShSound);
 	}
 
-	static ShotIterator WPN_RemoveShot(ShotIterator shot)
-	{
-		d6SpriteList.removeSprite(shot->getSprite());
-		return d6Shots.erase(shot);
-	}
-
-	void WPN_MoveShots(float elapsedTime)
-	{
-		auto shot = d6Shots.begin();
-
-		while (shot != d6Shots.end())
-		{
-			const Weapon& weapon = shot->getWeapon();
-			shot->move(elapsedTime);
-
-			if (KONTR_Shot(*shot))
-			{				
-				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
-				
-				Sprite boom(weapon.boomAnimation, d6WpnTextures);
-				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
-					.setSpeed(2.0f)
-					.setLooping(AnimationLooping::OnceAndRemove)
-					.setOrientation(shot->getOrientation())
-					.setAlpha(0.6f);
-
-				SpriteIterator boomSprite = d6SpriteList.addSprite(boom);
-
-				if (shot->getPlayer().hasPowerfulShots())
-					boomSprite->setGrow(weapon.ExpGrow * 1.2f);
-				else
-					boomSprite->setGrow(weapon.ExpGrow);
-				if (weapon.BmSound != -1)
-					SOUND_PlaySample(weapon.BmSound);
-				if (weapon.Boom > 0)
-				{
-					boomSprite->setNoDepth(true);
-				}
-				
-				shot = WPN_RemoveShot(shot);
-			}
-			else
-			{
-				++shot;
-			}
-		}
-	}
-
-	void WPN_Boom(Shot& shot, Player* playerThatWasHit)
+	static void WPN_Boom(Shot& shot, Player* playerThatWasHit)
 	{
 		int killedPlayers = 0, initialAuthorKills = shot.getPlayer().getPerson().getKills();
 		bool killedSelf = false;
@@ -254,6 +188,112 @@ namespace Duel6
 		if (killedSelf)
 		{
 			shot.getPlayer().getPerson().setKills(initialAuthorKills - killedPlayers);
+		}
+	}
+
+	static bool WPN_ShotPlayerCollision(Shot& shot)
+	{
+		Float32 X = (shot.getOrientation() == Orientation::Left) ? shot.getX() : shot.getX() + 0.35f; // TODO: Coord
+
+		for (Player& player : d6Players)
+		{
+			if (player.getBonus() == D6_BONUS_INVIS || player.is(shot.getPlayer()))
+			{
+				continue;
+			}
+			if (!player.isInGame())
+			{
+				continue;
+			}
+
+			Float32 ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f); // TODO: Coord
+
+			if (X > player.getX() + 1.0f || X + 0.65f < player.getX() ||
+				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad) // TODO: Coord
+				continue;
+
+			WPN_Boom(shot, &player);
+			return true;
+		}
+
+		return false;
+	}
+
+	static bool WPN_ShotCollision(Shot& s)
+	{
+		if (WPN_ShotPlayerCollision(s))
+			return true;
+
+		Int32 up = (int)(s.getY() + 1.0f); // TODO: Coord
+		Int32 down = (int)(s.getY() + 0.65f); // TODO: Coord
+		
+		Int32 left, right;
+		if (s.getOrientation() == Orientation::Left)
+		{
+			left = (int)(s.getX());
+			right = (int)(s.getX() + 0.65f); // TODO: Coord
+		}
+		else
+		{
+			left = (int)(s.getX() + 0.35f); // TODO: Coord
+			right = (int)(s.getX() + 1.0f); // TODO: Coord
+		}
+
+		if (d6World.isWall(left, up, true) || d6World.isWall(left, down, true) ||
+			d6World.isWall(right, up, true) || d6World.isWall(right, down, true))
+		{
+			WPN_Boom(s, NULL);
+			return true;
+		}
+
+		return false;
+	}
+
+	static ShotIterator WPN_RemoveShot(ShotIterator shot)
+	{
+		d6SpriteList.removeSprite(shot->getSprite());
+		return d6Shots.erase(shot);
+	}
+
+	void WPN_MoveShots(float elapsedTime)
+	{
+		auto shot = d6Shots.begin();
+
+		while (shot != d6Shots.end())
+		{
+			const Weapon& weapon = shot->getWeapon();
+			shot->move(elapsedTime);
+
+			if (WPN_ShotCollision(*shot))
+			{				
+				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
+				
+				Sprite boom(weapon.boomAnimation, d6WpnTextures);
+				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
+					.setSpeed(2.0f)
+					.setLooping(AnimationLooping::OnceAndRemove)
+					.setOrientation(shot->getOrientation())
+					.setAlpha(0.6f);
+
+				SpriteIterator boomSprite = d6SpriteList.addSprite(boom);
+
+				if (shot->getPlayer().hasPowerfulShots())
+					boomSprite->setGrow(weapon.ExpGrow * 1.2f);
+				else
+					boomSprite->setGrow(weapon.ExpGrow);
+				if (weapon.BmSound != -1)
+					SOUND_PlaySample(weapon.BmSound);
+				if (weapon.Boom > 0)
+				{
+					boomSprite->setNoDepth(true);
+				}
+				
+				shot = WPN_RemoveShot(shot);
+			}
+			else
+			{
+				++shot;
+			}
 		}
 	}
 

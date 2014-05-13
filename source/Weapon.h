@@ -66,9 +66,9 @@ namespace Duel6
 	void WPN_Init(const std::string& textureFile);
 	void WPN_DeInit();
 	void WPN_LevelInit();
-	void WPN_Shoot(Player& player);
+	void WPN_AddShot(Player& player);
 	void WPN_MoveShots(float elapsedTime);
-	void WPN_Boom(Shot& s, Player *p);
+
 	const Weapon& WPN_GetRandomWeapon();
 }
 

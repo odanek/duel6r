@@ -33,24 +33,18 @@
 #include "SpriteList.h"
 #include "Person.h"
 #include "PlayerSkin.h"
+#include "PlayerControls.h"
 #include "Orientation.h"
 #include "ScreenMode.h"
 #include "Bonus.h"
 
-#define D6_PLAYER_MAX_SPEED     32
+#define D6_PLAYER_MAX_SPEED     32.0f
 #define D6_PLAYER_ACCEL         0.001f
-#define D6_PLAYER_JUMP_SPEED    0.08f
+#define D6_PLAYER_JPHASE_SPEED  122
+#define D6_PLAYER_JUMP_SPEED    4.88f
 
 #define D6_CAM_TOLPER_X         30
 #define D6_CAM_TOLPER_Y         30
-
-#define D6_FLAG_DEAD            0x01
-#define D6_FLAG_PICK            0x02
-#define D6_FLAG_KNEE            0x04
-#define D6_FLAG_REQ_LEFT        0x08
-#define D6_FLAG_REQ_RIGHT       0x10
-#define D6_FLAG_LYING           0x20
-#define D6_FLAG_INWATER         0x40
 
 #define D6_MAX_LIFE				100
 #define D6_MAX_AIR				200
@@ -62,7 +56,7 @@ namespace Duel6
 	class Shot;
 	struct Weapon;
 
-	struct d6VIEW_s
+	struct PlayerView
 	{
 		int     X;
 		int     Y;
@@ -70,17 +64,7 @@ namespace Duel6
 		int     Height;
 	};
 
-	struct PlayerControls
-	{
-		int Left;
-		int Right;
-		int Up;
-		int Down;
-		int Shoot;
-		int Pick;
-	};
-
-	struct d6CAMPOS_s
+	struct CameraPosition
 	{
 		float           Left;
 		float           Right;
@@ -91,44 +75,52 @@ namespace Duel6
 		float           TolY;
 	};
 
-	class d6PLSTATE_s
-	{
-	public:
-		Int32       Flags;      // Flags
-		SpriteIterator A;       // Player sprite
-		SpriteIterator GA;      // Gun sprite
-		const Weapon *weapon;
-		Float32     Speed;      // Speed of movement
-		Orientation O;          // Orientation
-		Float32     J;          // Jump phase
-		Float32     X;          // X position
-		Float32     Y;          // Y position
-		Float32     SI;         // Shot interval
-		Int32       IBP[2];     // Info bar position
-		Float32     Life;       // Life
-		Float32     Air;        // Air
-		Int32       Ammo;       // Number of bullets
-		const Elevator* elevator;       // Standing on elevator
-		Int32       Bonus;      // Bonus
-		Float32     BD;         // Bonus duration
-		Float32     SD;         // Temporary skin duration
-		bool        InWater;    // Player is in the water (feet)
-	};
-
 	class Player
 	{
+	private:
+		enum Flags
+		{
+			FlagDead = 0x01,
+			FlagPick = 0x02,
+			FlagKnee = 0x04,
+			FlagLying = 0x08,
+			FlagUnderWater = 0x10
+		};
+
+		struct PlayerState
+		{
+			Uint32 flags;
+			SpriteIterator sprite;    // Player sprite
+			SpriteIterator gunSprite;
+			const Weapon *weapon;
+			Float32 velocity;         // Move velocity
+			Orientation orientation;
+			Float32 jumpPhase;
+			Float32 x;
+			Float32 y;
+			Int32 IBP[2];     // Info bar position
+			Float32 life;
+			Float32 air; 
+			Int32 ammo;
+			Int32 bonus;
+			Float32 reloadInterval;
+			Float32 bonusDuration;
+			Float32 tempSkinDuration;
+			bool feetInWater;
+			const Elevator* elevator;
+		};
+
 	private:
 		Person& person;
 		std::shared_ptr<PlayerSkin> skin;
 		mycam_c camera;
-		d6CAMPOS_s cameraPos;
-		PlayerControls *controls;
+		CameraPosition cameraPos;
+		const PlayerControls& controls;
+		PlayerState State;
+		PlayerView view;
 
 	public:
-		d6VIEW_s View;
-		d6PLSTATE_s State;		
-
-		Player(Person& person, PlayerSkin* skin, Size controls);
+		Player(Person& person, PlayerSkin* skin, const PlayerControls& controls);
 		~Player();
 
 		bool is(const Player& player) const
@@ -139,19 +131,19 @@ namespace Duel6
 		void prepareForGame();
 
 		void setView(int x, int y, int w, int h);
-		void update(ScreenMode screenMode, float elapsedTime);
+		void update(ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(ScreenMode screenMode);
-		bool hit(float pw); // Returns true if the shot caused the player to die
-		bool hitByShot(float pw, Shot& s, bool directHit);
+		bool hit(Float32 pw); // Returns true if the shot caused the player to die
+		bool hitByShot(Float32 pw, Shot& s, bool directHit);
 
 		Float32 getX() const
 		{
-			return State.X;
+			return State.x;
 		}
 
 		Float32 getY() const
 		{
-			return State.Y;
+			return State.y;
 		}
 
 		Float32 getWidth() const
@@ -162,6 +154,11 @@ namespace Duel6
 		Float32 getHeight() const
 		{
 			return 1.0f;
+		}
+
+		const PlayerView& getView() const
+		{
+			return view;
 		}
 
 		Person& getPerson()
@@ -186,46 +183,46 @@ namespace Duel6
 
 		Int32 getAmmo() const
 		{
-			return State.Ammo;
+			return State.ammo;
 		}
 
 		Orientation getOrientation() const
 		{
-			return State.O;
+			return State.orientation;
 		}
 
 		Player& setAlpha(Float32 alpha)
 		{
-			State.A->setAlpha(alpha);
-			State.GA->setAlpha(alpha);
+			State.sprite->setAlpha(alpha);
+			State.gunSprite->setAlpha(alpha);
 			return *this;
 		}
 
 		Player& setBonus(Size type, Int32 duration)
 		{
-			State.Bonus = type;
-			State.BD = Float32(duration);
+			State.bonus = type;
+			State.bonusDuration = Float32(duration);
 			return *this;
 		}
 
 		Float32 getLife() const
 		{
-			return State.Life;
+			return State.life;
 		}
 
 		Float32 getAir() const
 		{
-			return State.Air;
+			return State.air;
 		}
 
 		Int32 getBonus() const
 		{
-			return State.Bonus;
+			return State.bonus;
 		}
 
 		Float32 getBonusDuration() const
 		{
-			return State.BD;
+			return State.bonusDuration;
 		}
 
 		Player& setInfoBarPosition(Int32 x, Int32 y)
@@ -244,43 +241,47 @@ namespace Duel6
 
 		Player& setFullLife()
 		{
-			State.Life = D6_MAX_LIFE;
+			State.life = D6_MAX_LIFE;
 			return *this;
 		}
 
-		Player& adjustAmmo(Int32 ammo)
+		Player& pickAmmo(Int32 ammo)
 		{
-			State.Ammo += ammo;
+			State.ammo += ammo;
 			return *this;
 		}
 
 		void useTemporarySkin(PlayerSkin& skin);
-		Player& pickWeapon(const Weapon& weapon, Int32 bulelts);
-		Player& assignElevator(const Elevator& elevator);
+		Player& pickWeapon(const Weapon& weapon, Int32 bulelts);		
 
 		bool isReloading()
 		{
-			return State.SI > 0;
+			return State.reloadInterval > 0;
 		}
 
 		bool isKneeling() const
 		{
-			return (State.Flags & D6_FLAG_KNEE) != 0;
+			return hasFlag(FlagKnee);
 		}
 		
 		bool isLying() const
 		{
-			return (State.Flags & D6_FLAG_LYING) != 0;
+			return hasFlag(FlagLying);
 		}
 
 		bool isDead() const
 		{
-			return (State.Flags & D6_FLAG_DEAD) != 0;
+			return hasFlag(FlagDead);
 		}
 
-		bool isInWater() const
+		bool isUnderWater() const
 		{
-			return (State.Flags & D6_FLAG_INWATER) != 0;
+			return hasFlag(FlagUnderWater);
+		}
+
+		bool isPickingGun() const
+		{
+			return hasFlag(FlagPick);
 		}
 
 		bool isInGame() const
@@ -290,22 +291,42 @@ namespace Duel6
 
 		bool isInvulnerable() const
 		{
-			return (State.Bonus == D6_BONUS_INVUL);
+			return (getBonus() == D6_BONUS_INVUL);
+		}
+
+		bool isRising() const
+		{
+			return (State.jumpPhase >= 90.0f && State.jumpPhase < 180.0f);
+		}
+
+		bool isFalling() const
+		{
+			return (State.jumpPhase >= 180.0f && State.jumpPhase <= 270.0f);
+		}
+
+		bool isOnGround() const
+		{
+			return (State.jumpPhase == 0.0f);
+		}
+
+		bool isMoving() const
+		{
+			return (State.velocity != 0.0f);
 		}
 
 		bool hasPowerfulShots() const
 		{
-			return (State.Bonus == D6_BONUS_SHOTP);
+			return (getBonus() == D6_BONUS_SHOTP);
 		}
 
 		bool hasFastReload() const
 		{
-			return (State.Bonus == D6_BONUS_SHOTS);
+			return (getBonus() == D6_BONUS_SHOTS);
 		}
 
 		bool isOnElevator() const
 		{
-			return State.elevator != nullptr;
+			return (State.elevator != nullptr);
 		}
 
 	private:
@@ -317,12 +338,34 @@ namespace Duel6
 		void jump();
 		void fall();
 		void pick();
+		void shoot();
 		void setAnm();
 		void updateCam();
 		void switchToOriginalSkin();
 		void findStartingPosition();
 		void dropWeapon();
 		Float32 getSpeed() const;
+
+		void checkMoveUp();
+		void checkMoveDown();
+		void checkFall();
+		void checkMoveAside();
+		void checkElevator();
+
+		bool hasFlag(Uint32 flag) const
+		{
+			return (State.flags & flag) == flag;
+		}
+
+		void setFlag(Uint32 flag)
+		{
+			State.flags |= flag;
+		}
+
+		void unsetFlag(Uint32 flag)
+		{
+			State.flags &= ~flag;
+		}
 	};
 
 	//////////////////////////////////////////////////////////////////////

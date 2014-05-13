@@ -151,7 +151,7 @@ namespace Duel6
 
 		case D6_BONUS_BULLT:
 			hit = 5 + rand() % 12;
-			player.adjustAmmo(hit);
+			player.pickAmmo(hit);
 			d6MessageQueue.add(player, MY_L("APP00018|Naboje +%d"), hit);
 			break;
 		}

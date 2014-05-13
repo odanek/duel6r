@@ -25,70 +25,24 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL/SDL_opengl.h>
-#include "Player.h"
-#include "ElevatorList.h"
-#include "Weapon.h"
+#ifndef DUEL6_PLAYERCONTROLS_H
+#define DUEL6_PLAYERCONTROLS_H
 
-#define D6_ELEV_TEXTURE         68
+#include "Type.h"
 
 namespace Duel6
 {
-	static std::vector<Elevator> d6Elevators;
-
-	void ELEV_Init()
+	struct PlayerControls
 	{
-		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
+		int Left;
+		int Right;
+		int Up;
+		int Down;
+		int Shoot;
+		int Pick;
+	};
 
-	void ELEV_Clear()
-	{
-		d6Elevators.clear();
-	}
-
-	void ELEV_Add(Elevator& elevator)
-	{
-		d6Elevators.push_back(elevator);
-		d6Elevators.back().start();
-	}
-
-	void ELEV_MoveAll(Float32 elapsedTime)
-	{
-		for (Elevator& elevator : d6Elevators)
-		{
-			elevator.update(elapsedTime);
-		}
-	}
-
-	void ELEV_DrawAll()
-	{
-		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
-		glBegin(GL_QUADS);
-
-		for (const Elevator& elevator : d6Elevators)
-		{
-			elevator.render();
-		}
-
-		glEnd();
-	}
-
-	const Elevator* ELEV_CheckMan(Player& player)
-	{
-		Float32 x = player.getX() + 0.5f;
-		Float32 y = player.getY();
-
-		for (const Elevator& elevator : d6Elevators)
-		{
-			if (x >= elevator.getX() && x <= elevator.getX() + 1.0f &&
-				y >= elevator.getY() - 0.05f && y <= elevator.getY() + 0.05f)  // TODO: Coord
-			{
-				return &elevator;
-			}
-		}
-
-		return nullptr;
-	}
+	extern PlayerControls d6Controls[12];
 }
+
+#endif

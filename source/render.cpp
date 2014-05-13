@@ -32,7 +32,7 @@
 
 namespace Duel6
 {
-	void RENDER_SetView(const d6VIEW_s& w)
+	void RENDER_SetView(const PlayerView& w)
 	{
 		glViewport(w.X, w.Y, w.Width, w.Height);
 	}
@@ -95,7 +95,7 @@ namespace Duel6
 			maxNameLength = MY_Max(maxNameLength, 5 + rankNames.back().size());
 		}
 
-		const d6VIEW_s& view = d6Players.front().View;
+		const PlayerView& view = d6Players.front().getView();
 		int posX = view.X + view.Width - 8 * maxNameLength - 3;
 		int posY = view.Y + view.Height - (players > 4 ? 50 : 20);
 
@@ -267,7 +267,7 @@ namespace Duel6
 		}
 	}
 
-	static void RENDER_SplitBox(const d6VIEW_s& view)
+	static void RENDER_SplitBox(const PlayerView& view)
 	{
 		glViewport(view.X - 2, view.Y - 2, view.Width + 4, view.Height + 4);
 		glColor3f(1, 0, 0);
@@ -321,7 +321,7 @@ namespace Duel6
 		}
 
 		const Player& player = d6Players.front();
-		RENDER_SetView(player.View);
+		RENDER_SetView(player.getView());
 		RENDER_Background();
 		D6_SetGLMode(D6_GL_PERSPECTIVE);
 		RENDER_View(player);
@@ -332,12 +332,12 @@ namespace Duel6
 		for (const Player& player : d6Players)
 		{
 			D6_SetGLMode(D6_GL_ORTHO);
-			RENDER_SplitBox(player.View);
+			RENDER_SplitBox(player.getView());
 
 			if (player.isDead())
 				glColor3f(1.0f, 0.5f, 0.5f);
 
-			RENDER_SetView(player.View);
+			RENDER_SetView(player.getView());
 			RENDER_Background();
 
 			D6_SetGLMode(D6_GL_PERSPECTIVE);
@@ -387,7 +387,7 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			d6MessageQueue.renderAllMessages(d6Players.front().View, (d6Players.size() > 4 ? 50 : 20));
+			d6MessageQueue.renderAllMessages(d6Players.front().getView(), (d6Players.size() > 4 ? 50 : 20));
 		}
 		else
 		{

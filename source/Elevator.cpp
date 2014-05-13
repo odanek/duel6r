@@ -97,12 +97,6 @@ namespace Duel6
 		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.3f);
 	}
 
-	void Elevator::movePlayer(Player& player, Float32 elapsedTime) const
-	{
-		player.State.X += add.x * elapsedTime;
-		player.State.Y += add.y * elapsedTime;
-	}
-
 	void Elevator::nextSection()
 	{
 		if (forward)

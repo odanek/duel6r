@@ -30,6 +30,7 @@
 #include "project.h"
 #include "LevelList.h"
 #include "PersonList.h"
+#include "PlayerControls.h"
 #include "Util.h"
 #include "glib.h"
 
@@ -582,7 +583,7 @@ namespace Duel6
 		d6Players.clear();
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(D6_FILE_PLAYER, d6PlayerColors[i]), controlSwitch[i]->CurItem()));
+			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(D6_FILE_PLAYER, d6PlayerColors[i]), d6Controls[controlSwitch[i]->CurItem()]));
 		}
 
 		MENU_Restart(false);
