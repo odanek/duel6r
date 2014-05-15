@@ -52,6 +52,8 @@ Popis: Hlavni hlavickovy soubor jadra
 #define APP_FLAG_NONE       0
 #define APP_FLAG_QUIT       1
 
+#define APP_KEY_LAST		1024
+
 /*
 ==================================================
 Datove struktury
@@ -64,7 +66,8 @@ struct app_s
     bool        flags;              // Flagy aplikace
     con_c       *con;               // Konzole
     bool        active;             // Je aplikace prave aktivni (ma focus?)
-    SDL_Surface *screen_surf;       // SDL_surface pro obrazovku
+    SDL_Window  *window;            // SDL window
+	SDL_GLContext glContext;       // OpenGL context
     myBYTE      *font;              // Ukazatel na font
 };
 
@@ -88,8 +91,10 @@ struct appVid_s
 struct appInp_s
 {
     int             flags;
-    int             keytrans[SDLK_LAST][2];
-    bool            key[SDLK_LAST];
+    /*int             keytrans[SDLK_LAST][2];
+    bool            key[SDLK_LAST];*/
+	int             keytrans[APP_KEY_LAST][2];
+    bool            key[APP_KEY_LAST];
     int             lastkey;
     int             lastkeychar;
     int             joy_num;

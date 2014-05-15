@@ -41,7 +41,7 @@ static void CO_InpInitKeyTranslation (void)
 {
     int     i;
 
-    for (i = 0; i < SDLK_LAST; i++)
+    for (i = 0; i < APP_KEY_LAST; i++)
     {
         g_inp.keytrans[i][0] = g_inp.keytrans[i][1] = i;
         g_inp.key[i] = false;
@@ -71,25 +71,25 @@ static void CO_InpInitKeyTranslation (void)
     g_inp.keytrans[SDLK_PERIOD][1] = '>';
     g_inp.keytrans[SDLK_SLASH][1] = '?';
 
-    g_inp.keytrans[SDLK_KP0][0] = g_inp.keytrans[SDLK_KP0][1] = '0';
-    g_inp.keytrans[SDLK_KP1][0] = g_inp.keytrans[SDLK_KP1][1] = '1';
-    g_inp.keytrans[SDLK_KP2][0] = g_inp.keytrans[SDLK_KP2][1] = '2';
-    g_inp.keytrans[SDLK_KP3][0] = g_inp.keytrans[SDLK_KP3][1] = '3';
-    g_inp.keytrans[SDLK_KP4][0] = g_inp.keytrans[SDLK_KP4][1] = '4';
-    g_inp.keytrans[SDLK_KP5][0] = g_inp.keytrans[SDLK_KP5][1] = '5';
-    g_inp.keytrans[SDLK_KP6][0] = g_inp.keytrans[SDLK_KP6][1] = '6';
-    g_inp.keytrans[SDLK_KP7][0] = g_inp.keytrans[SDLK_KP7][1] = '7';
-    g_inp.keytrans[SDLK_KP8][0] = g_inp.keytrans[SDLK_KP8][1] = '8';
-    g_inp.keytrans[SDLK_KP9][0] = g_inp.keytrans[SDLK_KP9][1] = '9';
+    g_inp.keytrans[SDL_SCANCODE_KP_0][0] = g_inp.keytrans[SDL_SCANCODE_KP_0][1] = '0';
+    g_inp.keytrans[SDL_SCANCODE_KP_1][0] = g_inp.keytrans[SDL_SCANCODE_KP_1][1] = '1';
+    g_inp.keytrans[SDL_SCANCODE_KP_2][0] = g_inp.keytrans[SDL_SCANCODE_KP_2][1] = '2';
+    g_inp.keytrans[SDL_SCANCODE_KP_3][0] = g_inp.keytrans[SDL_SCANCODE_KP_3][1] = '3';
+    g_inp.keytrans[SDL_SCANCODE_KP_4][0] = g_inp.keytrans[SDL_SCANCODE_KP_4][1] = '4';
+    g_inp.keytrans[SDL_SCANCODE_KP_5][0] = g_inp.keytrans[SDL_SCANCODE_KP_5][1] = '5';
+    g_inp.keytrans[SDL_SCANCODE_KP_6][0] = g_inp.keytrans[SDL_SCANCODE_KP_6][1] = '6';
+    g_inp.keytrans[SDL_SCANCODE_KP_7][0] = g_inp.keytrans[SDL_SCANCODE_KP_7][1] = '7';
+    g_inp.keytrans[SDL_SCANCODE_KP_8][0] = g_inp.keytrans[SDL_SCANCODE_KP_8][1] = '8';
+    g_inp.keytrans[SDL_SCANCODE_KP_9][0] = g_inp.keytrans[SDL_SCANCODE_KP_9][1] = '9';
 
-    g_inp.keytrans[SDLK_KP_PERIOD][0] = g_inp.keytrans[SDLK_KP_PERIOD][1] = ',';
-    g_inp.keytrans[SDLK_KP_DIVIDE][0] = g_inp.keytrans[SDLK_KP_DIVIDE][1] = '/';
-    g_inp.keytrans[SDLK_KP_MULTIPLY][0] = g_inp.keytrans[SDLK_KP_MULTIPLY][1] = '*';
-    g_inp.keytrans[SDLK_KP_MINUS][0] = g_inp.keytrans[SDLK_KP_MINUS][1] = '-';
-    g_inp.keytrans[SDLK_KP_PLUS][0] = g_inp.keytrans[SDLK_KP_PLUS][1] = '+';
-    g_inp.keytrans[SDLK_KP_EQUALS][0] = g_inp.keytrans[SDLK_KP_EQUALS][1] = '=';
+    g_inp.keytrans[SDL_SCANCODE_KP_PERIOD][0] = g_inp.keytrans[SDL_SCANCODE_KP_PERIOD][1] = ',';
+    g_inp.keytrans[SDL_SCANCODE_KP_DIVIDE][0] = g_inp.keytrans[SDL_SCANCODE_KP_DIVIDE][1] = '/';
+    g_inp.keytrans[SDL_SCANCODE_KP_MULTIPLY][0] = g_inp.keytrans[SDL_SCANCODE_KP_MULTIPLY][1] = '*';
+    g_inp.keytrans[SDL_SCANCODE_KP_MINUS][0] = g_inp.keytrans[SDL_SCANCODE_KP_MINUS][1] = '-';
+    g_inp.keytrans[SDL_SCANCODE_KP_PLUS][0] = g_inp.keytrans[SDL_SCANCODE_KP_PLUS][1] = '+';
+    g_inp.keytrans[SDL_SCANCODE_KP_EQUALS][0] = g_inp.keytrans[SDL_SCANCODE_KP_EQUALS][1] = '=';
 
-    g_inp.keytrans[SDLK_KP_ENTER][0] = g_inp.keytrans[SDLK_KP_ENTER][1] = SDLK_RETURN;
+    g_inp.keytrans[SDL_SCANCODE_KP_ENTER][0] = g_inp.keytrans[SDL_SCANCODE_KP_ENTER][1] = SDLK_RETURN;
 }
 
 /*
@@ -151,8 +151,8 @@ void CO_InpInit (int flags)
 
             for (i = 0; i < g_inp.joy_num; i++)
             {
-                g_app.con->printf ("... * %s\n", SDL_JoystickName(i));
                 g_inp.joy_dev[i] = SDL_JoystickOpen (i);
+                g_app.con->printf ("... * %s\n", SDL_JoystickName(g_inp.joy_dev[i]));
             }
         }
     }
@@ -189,7 +189,7 @@ bool CO_InpIsPressed (int code)
     switch (dev)
     {
     case APP_INP_KEY:
-        if (key >= SDLK_LAST)
+        if (key >= APP_KEY_LAST)
             return false;
         else
             return g_inp.key[key];

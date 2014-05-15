@@ -176,7 +176,7 @@ namespace Duel6
 	{
 		CO_FpsSyncLoops(&D6_UpdateScene, &D6_RenderScene);
 
-		if (g_inp.key[SDLK_ESCAPE])
+		if (g_inp.key[SDL_SCANCODE_ESCAPE])
 		{
 			MENU_SavePH();
 			MENU_Start();
@@ -186,15 +186,15 @@ namespace Duel6
 		{
 			// Restart game
 			bool roundLimit = (d6MaxRounds > 0) && (d6PlayedRounds >= d6MaxRounds);
-			if (g_inp.key[SDLK_F1] && !roundLimit)
+			if (g_inp.key[SDL_SCANCODE_F1] && !roundLimit)
 			{
 				MENU_SavePH();
-				MENU_Restart(g_inp.key[SDLK_LSHIFT]);
+				MENU_Restart(g_inp.key[SDL_SCANCODE_LSHIFT]);
 				return;
 			}
 
 			// Switch between fullscreen and split screen mode
-			if (g_inp.key[SDLK_F2] && d6Players.size() < 5)
+			if (g_inp.key[SDL_SCANCODE_F2] && d6Players.size() < 5)
 			{
 				d6ScreenMode = (d6ScreenMode == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen;
 				PLAYER_PrepareViews(d6ScreenMode);
@@ -203,14 +203,14 @@ namespace Duel6
 			}
 
 			// Turn on/off player statistics
-			if (g_inp.key[SDLK_F4])
+			if (g_inp.key[SDL_SCANCODE_F4])
 			{
 				d6ShowRanking = !d6ShowRanking;
 				d6KeyWait = 1.0f;
 			}
 
 			// Save screenshot
-			if (g_inp.key[SDLK_F10])
+			if (g_inp.key[SDL_SCANCODE_F10])
 			{
 				Util::saveScreenTga();
 				d6KeyWait = 1.0f;

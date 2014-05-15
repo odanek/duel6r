@@ -64,18 +64,24 @@ namespace Duel6
 		g_app.con->printf(MY_L("APP00055|\n===Nastavuji OpenGL okno===\n"));
 
 		// Get current video mode
-		const SDL_VideoInfo* cur_vid = SDL_GetVideoInfo();
+		SDL_DisplayMode currentVideoMode;
+		
+		if (SDL_GetCurrentDisplayMode(0, &currentVideoMode))
+		{
+
+		}
+		
 		if (!d6VideoMode.width)
 		{
-			d6VideoMode.width = cur_vid->current_w;
+			d6VideoMode.width = currentVideoMode.w;
 		}
 		if (!d6VideoMode.height)
 		{
-			d6VideoMode.height = cur_vid->current_h;
+			d6VideoMode.height = currentVideoMode.h;
 		}
 		if (!d6VideoMode.bpp)
 		{
-			d6VideoMode.bpp = cur_vid->vfmt->BitsPerPixel;
+			d6VideoMode.bpp = 32;
 		}
 
 		// Set graphics mode
@@ -411,17 +417,17 @@ namespace Duel6
 	*/
 	void P_Init()
 	{
-		const SDL_version   *sdl_ver;
-		const char          *ver_str = MY_L("APP00072|verze");
+		SDL_version sdlVersion;
+		const char *ver_str = MY_L("APP00072|verze");
 
 		// Print application info
 		g_app.con->printf(MY_L("APP00073|\n===Informace o aplikaci===\n"));
 		g_app.con->printf("%s %s: %s\n", APP_NAME, ver_str, APP_VERSION);
 		g_app.con->printf("Mylib %s: %s\n", ver_str, MYLIB_VERSION);
-		sdl_ver = SDL_Linked_Version();
-		g_app.con->printf("SDL %s: %d.%d.%d\n", ver_str, sdl_ver->major, sdl_ver->minor, sdl_ver->patch);
-		sdl_ver = Mix_Linked_Version();
-		g_app.con->printf("SDL_mixer %s: %d.%d.%d\n", ver_str, sdl_ver->major, sdl_ver->minor, sdl_ver->patch);
+		SDL_GetVersion(&sdlVersion);
+		g_app.con->printf("SDL %s: %d.%d.%d\n", ver_str, sdlVersion.major, sdlVersion.minor, sdlVersion.patch);
+		const SDL_version* mixVersion = Mix_Linked_Version();
+		g_app.con->printf("SDL_mixer %s: %d.%d.%d\n", ver_str, mixVersion->major, mixVersion->minor, mixVersion->patch);
 		g_app.con->printf(MY_L("APP00074|Jazyk: cestina\n"));
 
 		// Set some console functions

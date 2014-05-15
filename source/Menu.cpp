@@ -551,7 +551,7 @@ namespace Duel6
 		else
 			SET_LoadBackground(myListbox[4]->CurItem() - 1);
 
-		g_inp.key[SDLK_ESCAPE] = 0;
+		g_inp.key[SDL_SCANCODE_ESCAPE] = 0;
 		d6KeyWait = 1.0f;
 
 		SOUND_PlaySample(D6_SND_LETS_ROCK);
@@ -650,7 +650,7 @@ namespace Duel6
 					MENU_CleanPH();
 				}
 			}
-			if (e == SDLK_ESCAPE)
+			if (e == SDL_SCANCODE_ESCAPE)
 			{
 				g_app.flags |= APP_FLAG_QUIT;
 				MENU_SavePH();
