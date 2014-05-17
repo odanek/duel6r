@@ -29,7 +29,7 @@
 #define DUEL6_UTIL_H
 
 #include <string>
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 
 namespace Duel6

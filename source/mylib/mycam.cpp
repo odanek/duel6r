@@ -30,7 +30,7 @@ Projekt: Knihovna mylib
 Popis: Prace s kamerou
 */
 
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include "mycam.h"
 
 /*

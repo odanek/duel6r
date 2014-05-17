@@ -163,7 +163,7 @@ else(WIN32)
 endif(WIN32)
 
 # SDL
-find_path(HEADERS_SDL SDL/SDL.h DOC "Path to SDL headers")
+find_path(HEADERS_SDL SDL2/SDL.h DOC "Path to SDL headers")
 include_directories(${HEADERS_SDL})
 if(WIN32)
     find_library(LIB_SDL SDL2 DOC "Path to SDL import library (release version)")

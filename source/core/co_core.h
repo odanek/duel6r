@@ -34,8 +34,8 @@ Popis: Hlavni hlavickovy soubor jadra
 #define __CO_CORE_H
 
 /* SDL */
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 
 /* Moje standardni knihovny */
 #include "../mylib/mylib.h"

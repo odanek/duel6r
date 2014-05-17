@@ -27,7 +27,7 @@
 
 #include <time.h>
 #include <stdlib.h>
-#include <SDL/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
 #include "project.h"
 #include "Weapon.h"
 #include "Util.h"

@@ -126,7 +126,6 @@ void VID_SetMode (int w, int h, int bpp, int aa, bool full)
     g_app.con->printf (MY_L("COSTR0012|...Barva (%d), Z-buffer (%d), Alfa kanal (%d), Stencil (%d)\n"),
                        val[3], val[4], val[5], val[6]);
 
-    //SDL_GL_SetSwapInterval(1);
     SDL_ShowCursor(SDL_DISABLE);
 
     g_vid.inited = true;

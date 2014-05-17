@@ -32,7 +32,7 @@ Popis: Vykresleni konzoly
 
 #include <time.h>
 #include <string.h>
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include "console.h"
 
 static GLubyte  conCol[3][3] =

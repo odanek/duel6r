@@ -26,7 +26,7 @@
 */
 
 #include <vector>
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include "project.h"
 #include "Math.h"
 #include "FaceList.h"

@@ -28,7 +28,7 @@
 #ifndef DUEL6_BONUS_H
 #define DUEL6_BONUS_H
 
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 
 #define D6_BONUS_COUNT      10
