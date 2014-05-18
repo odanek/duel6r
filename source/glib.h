@@ -25,44 +25,108 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __GLIB_H
-#define __GLIB_H
+#ifndef GLIB_H
+#define GLIB_H
+
+#include <string>
+#include <vector>
 
 #define GLIB_SC_GROUP       0
 
-enum
+/*
+================
+desk_c
+================
+*/
+class DeskControl;
+
+class Desk
 {
-    GLIB_E_NONE,
-    GLIB_E_SLIDER,
-    GLIB_E_LISTBOX,
-    GLIB_E_LABEL,
-    GLIB_E_BUTTON,
-    GLIB_E_TEXTBOX,
-    GLIB_E_SWITCHBOX,
-    GLIB_E_PRESSED,
-    GLIB_E_CHANGE,
-    GLIB_E_RELEASED,
-    GLIB_E_ACTIVE
-};
+public:
+	enum class ControlType
+	{
+		Button,
+		Label,
+		Textbox,
+		Listbox,
+		Switchbox,
+		Slider
+	};
 
-class slider_c;
-class switchbox_c;
-class desk_c;
+	enum class EventType
+	{
+		None,
+		Pressed,
+		Change,
+		Released,
+		Active
+	};
 
-// Abstract class
-class glibObject_c
-{
-protected:
-    int     x, y, number, group;
+private:
+    int tr_x; // x translation
+    int tr_y; // y translation
+    std::vector<DeskControl*> controls;
 
-    virtual void    Check   (int &event, int &from, int &n, int &g) = 0;
-    virtual void    Draw    (void) = 0;
+    Desk();
 
 public:
-    virtual ~glibObject_c () {};
-    void    SetNG   (int n, int g) { number = n; group = g; }
+	~Desk();
+    static Desk* Create();
+    void ScreenSize(int SizeX, int SizeY, int tr_x, int tr_y);
+    void Check(EventType &event, DeskControl*& from);
+    void Draw();
 
-    friend class desk_c;
+	void keyEvent(SDL_Keycode keyCode);
+    void textInputEvent(const char* text);
+
+    void Register(DeskControl* control);
+};
+
+// Abstract class
+class DeskControl
+{
+protected:
+    int x, y, number, group;
+
+public:
+    virtual ~DeskControl() 
+	{}
+
+    virtual void Check(Desk::EventType &event, DeskControl*& from) = 0;
+    virtual void Draw() const = 0;
+	virtual Desk::ControlType getType() const = 0;
+
+	virtual void keyEvent(SDL_Keycode keyCode)
+	{}
+
+	virtual void textInputEvent(const char* text)
+	{}
+
+    void SetNG(int n, int g)
+	{ 
+		number = n; 
+		group = g; 
+	}
+
+	int getNumber() const
+	{
+		return number;
+	}
+
+	int getGroup() const
+	{
+		return group;
+	}
+
+	int getX() const
+	{
+		return x;
+	}
+
+	int getY() const
+	{
+		return y;
+	}
 };
 
 struct slider_s
@@ -77,23 +141,31 @@ struct slider_s
 button_c
 ================
 */
-class button_c : public glibObject_c
+class button_c 
+	: public DeskControl
 {
 private:
     int     width, height;
     bool    pressed;
-    char    *caption;
+    std::string caption;
 
 public:
             button_c    (void);
             ~button_c   (void);
-    void    SetCaption  (const char *c);
+    void    SetCaption  (const std::string& caption);
     void    SetPosition (int X, int Y, int W, int H);
-    void    Check       (int &event, int &from, int &n, int &g);
-    void    Draw        (void);
+    void    Check       (Desk::EventType &event, DeskControl*& from) override;
+    void    Draw        () const override;
 
-    friend class slider_c;
-    friend class switchbox_c;
+	bool isPressed() const
+	{
+		return pressed;
+	}
+
+	Desk::ControlType getType() const override
+	{
+		return Desk::ControlType::Button;
+	}
 };
 
 /*
@@ -101,26 +173,34 @@ public:
 listbox_c
 ================
 */
-class listbox_c : public glibObject_c
+class slider_c;
+
+class listbox_c 
+	: public DeskControl
 {
 private:
     bool        scrollBar;
     slider_c    *slider;
     int         width, height, now, field_height;
-    char        **list;
+    std::vector<std::string> items;
     slider_s    listPos;
 
 public:
             listbox_c   (bool sb);
             ~listbox_c  (void);
-    void    Check       (int &event, int &from, int &n, int &g);
-    void    Draw        (void);
+    void    Check       (Desk::EventType &event, DeskControl*& from) override;
+    void    Draw        (void) const override;
     void    SetPosition (int X, int Y, int W, int H, int fH);
-    void    AddItem     (const char *s);
+    void    AddItem     (const std::string& item);
     void    DelItem     (int n);
     int     CurItem     (void);
     void    SetCur      (int n);
     void    Clear       (void);
+
+	Desk::ControlType getType() const override
+	{
+		return Desk::ControlType::Listbox;
+	}
 };
 
 /*
@@ -128,24 +208,30 @@ public:
 switchbox_c
 ================
 */
-class switchbox_c : public glibObject_c
+class switchbox_c 
+	: public DeskControl
 {
 private:
     button_c    *left, *right;
-    int         width, now, items;
-    char        **list;
+    int         width, now;
+    std::vector<std::string> items;
 
 public:
-            switchbox_c   (void);
-            ~switchbox_c  (void);
-    void    Check       (int &event, int &from, int &n, int &g);
-    void    Draw        (void);
+            switchbox_c   ();
+            ~switchbox_c  ();
+    void    Check       (Desk::EventType &event, DeskControl*& from);
+    void    Draw        () const override;
     void    SetPosition (int X, int Y, int W, int H);
-    void    AddItem     (const char *s);
+    void    AddItem     (const std::string& item);
     void    DelItem     (int n);
     void    SetCur      (int n);
-    int     CurItem     (void);
-    void    Clear       (void);
+    int     CurItem     ();
+    void    Clear       ();
+
+	Desk::ControlType getType() const override
+	{
+		return Desk::ControlType::Switchbox;
+	}
 };
 
 /*
@@ -153,19 +239,25 @@ public:
 label_c
 ================
 */
-class label_c : public glibObject_c
+class label_c 
+	: public DeskControl
 {
 private:
     int     width, height;
-    char    *text;
+    std::string text;
 
 public:
-            label_c     (void);
-            ~label_c    (void);
-    void    SetCaption  (const char *s);
+            label_c     ();
+            ~label_c    ();
+    void    SetCaption  (const std::string& caption);
     void    SetPosition (int X, int Y, int W, int H);
-    void    Check       (int &event, int &from, int &n, int &g);
-    void    Draw        (void);
+    void    Check       (Desk::EventType &event, DeskControl*& from);
+    void    Draw        () const override;
+
+	Desk::ControlType getType() const override
+	{
+		return Desk::ControlType::Label;
+	}
 };
 
 /*
@@ -173,7 +265,8 @@ public:
 slider_c
 ================
 */
-class slider_c : public glibObject_c
+class slider_c 
+	: public DeskControl
 {
 private:
     slider_s    *pos;
@@ -181,11 +274,16 @@ private:
     int         height, dWait, pWait;
 
 public:
-            slider_c    (void);
+            slider_c    ();
     void    SetPosition (int X, int Y, int H);
     void    Connect     (slider_s *to);
-    void    Draw        (void);
-    void    Check       (int &event, int &from, int &n, int &g);
+    void    Draw        () const override;
+    void    Check       (Desk::EventType &event, DeskControl*& from);
+
+	Desk::ControlType getType() const override
+	{
+		return Desk::ControlType::Slider;
+	}
 };
 
 /*
@@ -193,58 +291,31 @@ public:
 textbox_c
 ================
 */
-class textbox_c : public glibObject_c
+class textbox_c 
+	: public DeskControl
 {
 private:
     int     max, width;
-    char    *text, *allow;
+	std::string text;
+	std::string allowedCharacters;
 
 public:
-            textbox_c   (void);
-            ~textbox_c  (void);
-    void    SetPosition (int X, int Y, int W, int M, const char *A);
-    void    KeyEvent    (int e);
-    char    *Text       (void);
-    void    Flush       (void);
-    void    Draw        (void);
-    void    Check       (int &event, int &from, int &n, int &g);
-};
+            textbox_c   ();
+            ~textbox_c  ();
+    void    SetPosition (int X, int Y, int W, int M, const std::string& allowed);
+    const std::string& Text() const;
+    void    Flush       ();
 
-/*
-================
-desk_c
-================
-*/
-struct desk_s
-{
-    glibObject_c    *Ptr;
-    int             Type;
-    struct desk_s   *Next;
-};
+	void Draw() const override;
+    void Check(Desk::EventType &event, DeskControl*& from) override;
+    void textInputEvent(const char* text) override;
+	void keyEvent(SDL_Keycode keyCode) override;
 
-class desk_c
-{
-private:
-    int             _tr_x;       // x translation
-    int             _tr_y;       // y translation
-    desk_s          *element;
 
-    void            Register    (int what, glibObject_c *p);
-                    desk_c      (void);
-public:
-                    ~desk_c     (void);
-    static desk_c   *Create     (void);
-    void            ScreenSize  (int SizeX, int SizeY, int tr_x, int tr_y);
-    void            Check       (int &event, int &from, int &n, int &g);
-    void            Draw        (void);
-    void            KeyEvent    (int e);
-
-    friend class button_c;
-    friend class listbox_c;
-    friend class label_c;
-    friend class slider_c;
-    friend class textbox_c;
-    friend class switchbox_c;
+	Desk::ControlType getType() const override
+	{
+		return Desk::ControlType::Textbox;
+	}
 };
 
 #endif

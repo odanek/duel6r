@@ -203,7 +203,7 @@ void con_c::blit (int res_x, int res_y)
     // Vypsani vstupniho radku
     x = CON_FSX;
     y -= CON_FSY;
-    d = ((int) strlen (m_input)) - m_inputscroll;
+    d = ((int)m_input.length()) - m_inputscroll;
 
     if (m_inputscroll)
         drawchar (0, y, '<');

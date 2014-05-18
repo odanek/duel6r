@@ -41,6 +41,7 @@ namespace Duel6
 
 void    P_Main          (void);
 void    P_KeyEvent      (int key);
+void	P_TextInputEvent(const char* text);
 void    P_ActiveEvent   (bool active);
 
 // Deklarace globalnich promenych
@@ -64,16 +65,16 @@ void CO_ProcessEvents (void)
         {
         case SDL_KEYDOWN:
             key = event.key.keysym;
-            g_inp.lastkey = key.scancode;
-            g_inp.lastkeychar = g_inp.keytrans[key.scancode][(key.mod & KMOD_SHIFT) != 0];
-            g_inp.key[key.scancode] = true;
-            g_app.con->keyevent (key.sym);
-            if (!g_app.con->isactive ())
-                P_KeyEvent (g_inp.lastkeychar);
+			g_inp.pressedKeys.insert(key.sym);
+			P_KeyEvent(key.sym);
             break;
         case SDL_KEYUP:
-            g_inp.key[event.key.keysym.scancode] = false;
+			key = event.key.keysym;
+			g_inp.pressedKeys.erase(key.sym);
             break;
+		case SDL_TEXTINPUT:
+			P_TextInputEvent(event.text.text);
+			break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             if (event.button.button == SDL_BUTTON_LEFT)
@@ -90,10 +91,6 @@ void CO_ProcessEvents (void)
         case SDL_QUIT:
             g_app.flags |= APP_FLAG_QUIT;
             break;
-        /*case SDL_ACTIVEEVENT:
-            g_app.active = event.active.gain == 1;
-            P_ActiveEvent (event.active.gain == 1);
-            break;*/
         }
     }
 }
@@ -152,25 +149,20 @@ static void CO_Init (void)
 
     SDL_SetWindowTitle(g_app.window, APP_NAME);
     SDL_SetWindowIcon(g_app.window, SDL_LoadBMP (APP_FILE_ICON));
-    /*SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);*/
 
     // Inicializace jadra
     CO_FontLoad (APP_FILE_FONT);
 
     // Inicializace konzoly
 #ifdef _DEBUG
-    g_app.con = new con_c (CON_F_EXPAND | CON_F_REG_INFO);
+    g_app.con = new con_c(CON_F_EXPAND | CON_F_REG_INFO);
 #else
-    g_app.con = new con_c (CON_F_EXPAND);
+    g_app.con = new con_c(CON_F_EXPAND);
 #endif
     MY_RegMem (g_app.con, sizeof (con_c));
 
     g_app.con->setfont (CO_FontGet ());
     CON_RegisterBasicCmd (g_app.con);
-
-    // Inicializace vstupnich zarizeni
-    g_inp.flags = APP_INP_INIT_NONE;
-    CO_InpInit (APP_INP_INIT_KEY);
 }
 
 /*
@@ -186,8 +178,10 @@ int main (int argc, char *argv[])
     Duel6::P_Init ();
 
     // Provedeni prikazu predanych z prikazove radky
-    for (int i = 1; i < argc; i++)
-        g_app.con->exec (argv[i]);
+	for (int i = 1; i < argc; i++)
+	{
+		g_app.con->exec(argv[i]);
+	}
 
     // Predani kontroly aplikaci
     P_Main ();

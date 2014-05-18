@@ -34,135 +34,34 @@ Popis: Obsluha vstupnih zarizeni - klavesnice, mys, joypad
 
 /*
 ==================================================
-Inicializace prekladu klaves
-==================================================
-*/
-static void CO_InpInitKeyTranslation (void)
-{
-    int     i;
-
-    for (i = 0; i < APP_KEY_LAST; i++)
-    {
-        g_inp.keytrans[i][0] = g_inp.keytrans[i][1] = i;
-        g_inp.key[i] = false;
-    }
-    for (i = SDLK_a; i <= SDLK_z; i++)
-        g_inp.keytrans[i][1] = 'A' + i - SDLK_a;
-
-    g_inp.keytrans[SDLK_0][1] = ')';
-    g_inp.keytrans[SDLK_1][1] = '!';
-    g_inp.keytrans[SDLK_2][1] = '@';
-    g_inp.keytrans[SDLK_3][1] = '#';
-    g_inp.keytrans[SDLK_4][1] = '$';
-    g_inp.keytrans[SDLK_5][1] = '%';
-    g_inp.keytrans[SDLK_6][1] = '^';
-    g_inp.keytrans[SDLK_7][1] = '&';
-    g_inp.keytrans[SDLK_8][1] = '*';
-    g_inp.keytrans[SDLK_9][1] = '(';
-
-    g_inp.keytrans[SDLK_MINUS][1] = '_';
-    g_inp.keytrans[SDLK_EQUALS][1] = '+';
-    g_inp.keytrans[SDLK_LEFTBRACKET][1] = '{';
-    g_inp.keytrans[SDLK_RIGHTBRACKET][1] = '}';
-    g_inp.keytrans[SDLK_SEMICOLON][1] = ':';
-    g_inp.keytrans[SDLK_QUOTE][1] = '"';
-    g_inp.keytrans[SDLK_BACKSLASH][1] = '|';
-    g_inp.keytrans[SDLK_COMMA][1] = '<';
-    g_inp.keytrans[SDLK_PERIOD][1] = '>';
-    g_inp.keytrans[SDLK_SLASH][1] = '?';
-
-    g_inp.keytrans[SDL_SCANCODE_KP_0][0] = g_inp.keytrans[SDL_SCANCODE_KP_0][1] = '0';
-    g_inp.keytrans[SDL_SCANCODE_KP_1][0] = g_inp.keytrans[SDL_SCANCODE_KP_1][1] = '1';
-    g_inp.keytrans[SDL_SCANCODE_KP_2][0] = g_inp.keytrans[SDL_SCANCODE_KP_2][1] = '2';
-    g_inp.keytrans[SDL_SCANCODE_KP_3][0] = g_inp.keytrans[SDL_SCANCODE_KP_3][1] = '3';
-    g_inp.keytrans[SDL_SCANCODE_KP_4][0] = g_inp.keytrans[SDL_SCANCODE_KP_4][1] = '4';
-    g_inp.keytrans[SDL_SCANCODE_KP_5][0] = g_inp.keytrans[SDL_SCANCODE_KP_5][1] = '5';
-    g_inp.keytrans[SDL_SCANCODE_KP_6][0] = g_inp.keytrans[SDL_SCANCODE_KP_6][1] = '6';
-    g_inp.keytrans[SDL_SCANCODE_KP_7][0] = g_inp.keytrans[SDL_SCANCODE_KP_7][1] = '7';
-    g_inp.keytrans[SDL_SCANCODE_KP_8][0] = g_inp.keytrans[SDL_SCANCODE_KP_8][1] = '8';
-    g_inp.keytrans[SDL_SCANCODE_KP_9][0] = g_inp.keytrans[SDL_SCANCODE_KP_9][1] = '9';
-
-    g_inp.keytrans[SDL_SCANCODE_KP_PERIOD][0] = g_inp.keytrans[SDL_SCANCODE_KP_PERIOD][1] = ',';
-    g_inp.keytrans[SDL_SCANCODE_KP_DIVIDE][0] = g_inp.keytrans[SDL_SCANCODE_KP_DIVIDE][1] = '/';
-    g_inp.keytrans[SDL_SCANCODE_KP_MULTIPLY][0] = g_inp.keytrans[SDL_SCANCODE_KP_MULTIPLY][1] = '*';
-    g_inp.keytrans[SDL_SCANCODE_KP_MINUS][0] = g_inp.keytrans[SDL_SCANCODE_KP_MINUS][1] = '-';
-    g_inp.keytrans[SDL_SCANCODE_KP_PLUS][0] = g_inp.keytrans[SDL_SCANCODE_KP_PLUS][1] = '+';
-    g_inp.keytrans[SDL_SCANCODE_KP_EQUALS][0] = g_inp.keytrans[SDL_SCANCODE_KP_EQUALS][1] = '=';
-
-    g_inp.keytrans[SDL_SCANCODE_KP_ENTER][0] = g_inp.keytrans[SDL_SCANCODE_KP_ENTER][1] = SDLK_RETURN;
-}
-
-/*
-==================================================
-Vraci posledni stisknutou klavesu
-==================================================
-*/
-int CO_InpGetKey (bool trans)
-{
-    int key = trans ? g_inp.lastkeychar : g_inp.lastkey;
-    g_inp.lastkey = 0;
-    g_inp.lastkeychar = 0;
-    return key;
-}
-
-/*
-==================================================
 Inicializace vstupnich systemu
 ==================================================
 */
-void CO_InpInit (int flags)
+void CO_JoystickScan()
 {
-    int     i;
-
-    // Pokud jeste nebyly inicializovany klavesy je treba to provest
-    if (g_inp.flags == APP_INP_INIT_NONE)
-        flags |= APP_INP_INIT_KEY;
-
     g_app.con->printf (MY_L("COSTR0004|\n===Inicializace vstupnich zarizeni===\n"));
+	g_inp.joysticks.clear();
 
-    // -----Klavesy-----
-    if (flags & APP_INP_INIT_KEY)
+	if (SDL_WasInit(SDL_INIT_JOYSTICK))
+	{
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+	}
+		
+    if (SDL_InitSubSystem (SDL_INIT_JOYSTICK))
     {
-        // Key translation
-        g_app.con->printf (MY_L("COSTR0005|...Spusteni prekladu klaves\n"));
-        CO_InpInitKeyTranslation ();
+        g_app.con->printf (MY_L("COSTR0002|...Nepodarilo se inicializovat subsystem pro joypady"));            
     }
-
-    // -----Joypady-----
-    if (flags & APP_INP_INIT_JOY)
+    else
     {
-        if (SDL_WasInit (SDL_INIT_JOYSTICK))
-            SDL_QuitSubSystem (SDL_INIT_JOYSTICK);
+        size_t joysticks = SDL_NumJoysticks();
+        g_app.con->printf (MY_L("COSTR0003|...Nalezeno %d joypadu\n"), joysticks);
 
-        if (SDL_InitSubSystem (SDL_INIT_JOYSTICK))
+        for (size_t i = 0; i < joysticks; i++)
         {
-            g_app.con->printf (MY_L("COSTR0002|...Nepodarilo se inicializovat subsystem pro joypady"));
-            g_inp.joy_num = 0;
-        }
-        else
-        {
-            g_inp.joy_num = SDL_NumJoysticks ();
-
-            // Momentalne podporovano maximalne 8 joyapdu
-            if (g_inp.joy_num > 8)
-                g_inp.joy_num = 8;
-
-            g_app.con->printf (MY_L("COSTR0003|...Nalezeno %d joypadu\n"), g_inp.joy_num);
-
-            for (i = 0; i < g_inp.joy_num; i++)
-            {
-                g_inp.joy_dev[i] = SDL_JoystickOpen (i);
-                g_app.con->printf ("... * %s\n", SDL_JoystickName(g_inp.joy_dev[i]));
-            }
+            g_inp.joysticks.push_back(SDL_JoystickOpen(i));
+            g_app.con->printf ("... * %s\n", SDL_JoystickName(g_inp.joysticks[i]));
         }
     }
-
-    // Aktualizuj seznam inicializovanych zarizeni
-    g_inp.flags |= flags;
-
-    // Pokud nejsou inicializovane joypady nastav pocet na 0
-    if (!(g_inp.flags & APP_INP_INIT_JOY))
-        g_inp.joy_num = 0;
 }
 
 /*
@@ -172,62 +71,9 @@ Update vstupnich zarizeni (hlavne joypadu)
 */
 void CO_InpUpdate (void)
 {
-    if ((g_inp.flags & APP_INP_INIT_JOY) != 0 && g_inp.joy_num > 0)
-        SDL_JoystickUpdate ();
+	if (!g_inp.joysticks.empty())
+	{
+		SDL_JoystickUpdate();
+	}
 }
 
-/*
-==================================================
-Zjisti zda je dana klavesa na danem vstupnim
-zarizeni stisknuta
-==================================================
-*/
-bool CO_InpIsPressed (int code)
-{
-    int     pos, dev = code & 0x0ff000, key = code & 0x0fff;
-
-    switch (dev)
-    {
-    case APP_INP_KEY:
-        if (key >= APP_KEY_LAST)
-            return false;
-        else
-            return g_inp.key[key];
-    case APP_INP_MOUSE:
-        if (key > 2)
-            return false;
-        else
-            return g_inp.mouse_but[key];
-    }
-
-    if (dev >= APP_INP_JOY1 && dev <= APP_INP_JOY8)
-    {
-        dev = (dev >> 12) - (APP_INP_JOY1 >> 12);
-
-        if (dev >= g_inp.joy_num)
-            return false;
-
-        if (key == APP_INP_JOY_LEFT || key == APP_INP_JOY_RIGHT)
-        {
-            pos = SDL_JoystickGetAxis (g_inp.joy_dev[dev], 0);
-            if (pos < -1000 && key == APP_INP_JOY_LEFT)
-                return true;
-            if (pos > 1000 && key == APP_INP_JOY_RIGHT)
-                return true;
-            return false;
-        }
-        if (key == APP_INP_JOY_UP || key == APP_INP_JOY_DOWN)
-        {
-            pos = SDL_JoystickGetAxis (g_inp.joy_dev[dev], 1);
-            if (pos > 1000 && key == APP_INP_JOY_DOWN)
-                return true;
-            if (pos < -1000 && key == APP_INP_JOY_UP)
-                return true;
-            return false;
-        }
-        if (key >= APP_INP_JOY_BUT1 || key <= APP_INP_JOY_BUT8)
-            return (SDL_JoystickGetButton (g_inp.joy_dev[dev], key - APP_INP_JOY_BUT1) == 1);
-    }
-
-    return false;
-}

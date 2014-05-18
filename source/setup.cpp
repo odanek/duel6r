@@ -158,9 +158,11 @@ namespace Duel6
 	{
 		if (con->argc() == 2)
 		{
-			if (!strcmp(con->argv(1), "lang/czech.lang"))
+			if (con->argv(1) == "lang/czech.lang")
+			{
 				MY_LangFree();
-			MY_LangLoad(con->argv(1));
+			}
+			MY_LangLoad(con->argv(1).c_str());
 		}
 		else
 			con->printf("%s: %s\n", MY_L("APP00070|Jazyk"), MY_L("APP00071|cestina"));
@@ -174,7 +176,7 @@ namespace Duel6
 	void SET_MaxRounds(con_c *con)
 	{
 		if (con->argc() == 2)
-			d6MaxRounds = atoi(con->argv(1));
+			d6MaxRounds = atoi(con->argv(1).c_str());
 		else
 			con->printf("Odehranych kol: %d | Max pocet kol: %d\n", d6PlayedRounds, d6MaxRounds);
 	}
@@ -187,7 +189,7 @@ namespace Duel6
 	void SET_Volume(con_c *con)
 	{
 		if (con->argc() == 2)
-			SOUND_Volume(atoi(con->argv(1)));
+			SOUND_Volume(atoi(con->argv(1).c_str()));
 	}
 
 	void SET_ToggleRenderMode(con_c *con)
@@ -217,13 +219,13 @@ namespace Duel6
 	{
 		if (con->argc() == 2)
 		{
-			if (!strcmp(con->argv(1), "on"))
+			if (con->argv(1) == "on")
 			{
 				d6PlayMusic = true;
 				if (d6InMenu)
 					SOUND_StartMusic(0, false);
 			}
-			if (!strcmp(con->argv(1), "off"))
+			if (con->argv(1) == "off")
 			{
 				d6PlayMusic = false;
 				if (d6InMenu)
@@ -256,12 +258,12 @@ namespace Duel6
 
 		if (con->argc() == 11)
 		{
-			pl = atoi(con->argv(1));
+			pl = atoi(con->argv(1).c_str());
 			if (pl >= 0 && pl < (int)d6PlayerColors.size())
 			{
 				for (i = 0; i < 9; i++)
 				{
-					pos = strlen(con->argv(i + 2)) - 1;
+					pos = con->argv(i + 2).length() - 1;
 					num = 0;
 					exp16 = 1;
 					while (pos >= 0)
@@ -284,7 +286,7 @@ namespace Duel6
 		}
 		if (con->argc() == 2)
 		{
-			pl = atoi(con->argv(1));
+			pl = atoi(con->argv(1).c_str());
 			if (pl >= 0 && pl < (int)d6PlayerColors.size())
 			{
 				con->printf("Skin %d: ", pl);
@@ -309,10 +311,10 @@ namespace Duel6
 
 		if (con->argc() == 3)
 		{
-			gn = atoi(con->argv(1));
+			gn = atoi(con->argv(1).c_str());
 			if (gn >= 0 && gn < D6_WEAPONS)
 			{
-				d6WpnDef[gn].enabled = !strcmp(con->argv(2), "true");
+				d6WpnDef[gn].enabled = (con->argv(2) == "true");
 				if (d6WpnDef[gn].enabled)
 					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00113|povoleno"));
 				else
@@ -340,7 +342,7 @@ namespace Duel6
 	{
 		if (con->argc() == 3)
 		{
-			int min = atoi(con->argv(1)), max = atoi(con->argv(2));
+			int min = atoi(con->argv(1).c_str()), max = atoi(con->argv(2).c_str());
 
 			if (min <= max && min >= 0)
 			{
@@ -354,7 +356,7 @@ namespace Duel6
 		}
 		else
 		{
-			con->printf("%s: %s [min max]\n", con->argv(0), con->argv(0));
+			con->printf("%s: %s [min max]\n", con->argv(0).c_str(), con->argv(0).c_str());
 		}
 	}
 
@@ -373,7 +375,7 @@ namespace Duel6
 
 		e = (const char *)glGetString(GL_EXTENSIONS);
 
-		if (strlen(e) < 2)
+		if (e == nullptr || strlen(e) < 2)
 		{
 			con->printf(MY_L("APP00080|...Zadne podporovane extenze\n"));
 		}
@@ -446,7 +448,7 @@ namespace Duel6
 		g_app.con->regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
 		g_app.con->regvar(&d6VideoMode.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6VideoMode.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6MaxRounds, "rounds", CON_F_NONE, CON_VAR_INT);
+		g_app.con->regvar(&d6MaxRounds, "g_rounds", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6VideoMode.height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
 
@@ -471,6 +473,7 @@ namespace Duel6
 		EXPL_Load(D6_FILE_EXPLODE);
 		ELEV_Init();
 		FIRE_Init();
+		CONTROLS_Init();
 
 		MENU_Init();
 		MENU_Start();

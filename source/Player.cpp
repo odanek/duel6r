@@ -369,7 +369,7 @@ namespace Duel6
 
 		if (!isKneeling())
 		{
-			if (CO_InpIsPressed(controls.Left))
+			if (controls.getLeft().isPressed())
 			{
 				moveLeft(elapsedTime);
 			}
@@ -378,7 +378,7 @@ namespace Duel6
 				State.velocity = std::min(State.velocity + elapsedTime, 0.0f);
 			}
 
-			if (CO_InpIsPressed(controls.Right))
+			if (controls.getRight().isPressed())
 			{
 				moveRight(elapsedTime);
 			}
@@ -387,23 +387,23 @@ namespace Duel6
 				State.velocity = std::max(State.velocity - elapsedTime, 0.0f);
 			}
 
-			if (CO_InpIsPressed(controls.Up))
+			if (controls.getUp().isPressed())
 			{
 				jump();
 			}
-			if (CO_InpIsPressed(controls.Pick))
+			if (controls.getPick().isPressed())
 			{
 				pick();
 			}
 		}
 
-		if (CO_InpIsPressed(controls.Shoot))
+		if (controls.getShoot().isPressed())
 		{
 			shoot();
 		}
 
 		unsetFlag(FlagKnee);
-		if (CO_InpIsPressed(controls.Down))
+		if (controls.getDown().isPressed())
 		{
 			fall();
 		}

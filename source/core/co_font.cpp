@@ -107,7 +107,7 @@ static void CO_FontDrawChar (int x, int y, int c)
 Vypsani retezce
 ==================================================
 */
-void CO_FontPrint (int x, int y, char *str)
+void CO_FontPrint (int x, int y, const char *str)
 {
     int     i, l = (int) strlen (str);
 

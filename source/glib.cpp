@@ -28,8 +28,7 @@
 #include "project.h"
 #include "glib.h"
 
-static desk_c       *glibMainDesk = NULL;
-static textbox_c    *glibTextbox;
+static Desk         *glibMainDesk = nullptr;
 static int          glibMouseX, glibMouseY, glibMouseZ, glibMouseB,
                     glibScrWidth, glibScrHeight, glibSCN;
 static GLubyte      glibCBack[3] = { 192, 192, 192 },
@@ -81,21 +80,17 @@ button_c
 */
 button_c::button_c (void)
 {
-    caption = NULL;
     pressed = false;
-    glibMainDesk->Register (GLIB_E_BUTTON, this);
+    glibMainDesk->Register(this);
 }
 
 button_c::~button_c (void)
 {
-    MY_Free (caption);
 }
 
-void button_c::SetCaption (const char *c)
+void button_c::SetCaption(const std::string& caption)
 {
-    MY_Free (caption);
-    caption = (char *) MY_Alloc (strlen (c) + 1);
-    strcpy (caption, c);
+	this->caption = caption;
 }
 
 void button_c::SetPosition (int X, int Y, int W, int H)
@@ -106,41 +101,38 @@ void button_c::SetPosition (int X, int Y, int W, int H)
     height = H;
 }
 
-void button_c::Check (int &event, int &from, int &n, int &g)
+void button_c::Check(Desk::EventType &event, DeskControl*& from)
 {
     if (glibMouseZ && GLib_MouseIn (x, y, width, height))
     {
         if (!pressed)
         {
-            event = GLIB_E_PRESSED;
-            from = GLIB_E_BUTTON;
-            n = number;
-            g = group;
+            event = Desk::EventType::Pressed;
+			from = this;
             pressed = true;
         }
-        return;
     }
+	else
+	{
+		if (pressed)
+		{
+			event = Desk::EventType::Released;
+			from = this;
+		}
 
-    if (pressed)
-    {
-        event = GLIB_E_RELEASED;
-        from = GLIB_E_BUTTON;
-        n = number;
-        g = group;
-    }
-
-    pressed = false;
+		pressed = false;
+	}
 }
 
-void button_c::Draw (void)
+void button_c::Draw() const
 {
     int     px, py;
 
     GLib_DrawFrame (x, y, width, height, pressed);
-    px = x + (width >> 1) - (strlen (caption) << 2) + pressed;
+    px = x + (width >> 1) - (caption.length() << 2) + pressed;
     py = y - (height >> 1) - 7 - pressed;
     CO_FontColor (0, 0, 0);
-    CO_FontPrint (px, py, caption);
+    CO_FontPrint (px, py, caption.c_str());
 }
 
 /*
@@ -148,13 +140,12 @@ void button_c::Draw (void)
 listbox_c
 ================
 */
-listbox_c::listbox_c (bool sb)
+listbox_c::listbox_c(bool sb)
 {
     listPos.Items = 0;
     listPos.Start = 0;
     now = -1;
-    list = NULL;
-    glibMainDesk->Register (GLIB_E_LISTBOX, this);
+    glibMainDesk->Register(this);
     scrollBar = sb;
     if (sb)
     {
@@ -165,27 +156,20 @@ listbox_c::listbox_c (bool sb)
     }
 }
 
-listbox_c::~listbox_c (void)
+listbox_c::~listbox_c()
 {
     Clear ();
 }
 
-void listbox_c::Clear (void)
+void listbox_c::Clear()
 {
-    int     i;
-
-    if (list != NULL)
-    {
-        for (i = 0; i < listPos.Items; i++)
-            MY_Free (list[i]);
-        MY_Free (list);
-    }
+	items.clear();
     listPos.Items = 0;
     listPos.Start = 0;
     now = -1;
 }
 
-int listbox_c::CurItem (void)
+int listbox_c::CurItem()
 {
     return now;
 }
@@ -198,49 +182,19 @@ void listbox_c::SetCur (int n)
 
 void listbox_c::DelItem (int n)
 {
-    int     i;
-    char    **newL;
-
     if (!listPos.Items || n < 0 || n >= listPos.Items)
         return;
 
-    if (--listPos.Items == 0)
-    {
-        MY_Free (list[0]);
-        MY_Free (list);
-        now = -1;
-        return;
-    }
-
-    newL = (char **) MY_Alloc (sizeof (char *) * listPos.Items);
-    for (i = 0; i < listPos.Items + 1; i++)
-        if (i < n)
-            newL[i] = list[i];
-        else if (i == n)
-            MY_Free (list[i]);
-        else if (i > n)
-            newL[i - 1] = list[i];
-
-    MY_Free (list);
-    list = newL;
-
+	items.erase(items.begin() + n);
+	listPos.Items--;
     if (now >= listPos.Items)
         now = listPos.Items - 1;
 }
 
-void listbox_c::AddItem (const char *s)
+void listbox_c::AddItem (const std::string& item)
 {
-    int     i;
-    char    **newL;
-
     listPos.Items++;
-    newL = (char **) MY_Alloc (sizeof (char *) * listPos.Items);
-    for (i = 0; i < listPos.Items - 1; i++)
-        newL[i] = list[i];
-    newL[i] = (char *) MY_Alloc (strlen (s) + 1);
-    strcpy (newL[i], s);
-    MY_Free (list);
-    list = newL;
+	items.push_back(item);
     if (listPos.Items == 1)
         now = 0;
 }
@@ -257,7 +211,7 @@ void listbox_c::SetPosition (int X, int Y, int W, int H, int fH)
         slider->SetPosition (X + (W << 3) + 4, Y, H * fH + 4);
 }
 
-void listbox_c::Check (int &event, int &from, int &n, int &g)
+void listbox_c::Check(Desk::EventType &event, DeskControl*& from)
 {
     int     ny = glibScrHeight - 1 - y;
 
@@ -266,14 +220,12 @@ void listbox_c::Check (int &event, int &from, int &n, int &g)
         now = listPos.Start + ((glibMouseY - ny) / field_height);
         if (now >= listPos.Items)
             now = listPos.Items - 1;
-        event = GLIB_E_CHANGE;
-        from = GLIB_E_LISTBOX;
-        n = number;
-        g = group;
+        event = Desk::EventType::Change;
+		from = this;
     }
 }
 
-void listbox_c::Draw (void)
+void listbox_c::Draw() const
 {
     int     Y, i, shift;
 
@@ -286,7 +238,7 @@ void listbox_c::Draw (void)
         glVertex2i (x, y - height + 1);
     glEnd ();
 
-    if (list == NULL)
+    if (items.empty())
         return;
 
     Y = y;
@@ -310,7 +262,7 @@ void listbox_c::Draw (void)
         else
             CO_FontColor (0, 0, 0);
 
-        CO_FontPrint (x, Y - shift, list[i]);
+        CO_FontPrint (x, Y - shift, items[i].c_str());
     }
 }
 
@@ -319,13 +271,11 @@ void listbox_c::Draw (void)
 switchbox_c
 ================
 */
-switchbox_c::switchbox_c (void)
+switchbox_c::switchbox_c()
 {
     now = -1;
-    list = NULL;
-    items = 0;
 
-    glibMainDesk->Register (GLIB_E_SWITCHBOX, this);
+    glibMainDesk->Register(this);
 
     left = new button_c;
     left->SetCaption (" ");
@@ -338,26 +288,18 @@ switchbox_c::switchbox_c (void)
     MY_RegMem (right, sizeof (button_c));
 }
 
-switchbox_c::~switchbox_c (void)
+switchbox_c::~switchbox_c()
 {
     Clear ();
 }
 
-void switchbox_c::Clear (void)
+void switchbox_c::Clear()
 {
-    int     i;
-
-    if (list != NULL)
-    {
-        for (i = 0; i < items; i++)
-            MY_Free (list[i]);
-        MY_Free (list);
-    }
-    items = 0;
+    items.clear();
     now = -1;
 }
 
-int switchbox_c::CurItem (void)
+int switchbox_c::CurItem()
 {
     return now;
 }
@@ -369,51 +311,21 @@ void switchbox_c::SetCur (int n)
 
 void switchbox_c::DelItem (int n)
 {
-    int     i;
-    char    **newL;
-
-    if (items < 0 || n < 0 || n >= items)
+    if (n < 0 || n >= (int)items.size())
         return;
 
-    if (--items == 0)
-    {
-        MY_Free (list[0]);
-        MY_Free (list);
-        now = -1;
-        return;
-    }
-
-    newL = (char **) MY_Alloc (sizeof (char *) * items);
-    for (i = 0; i < items + 1; i++)
-        if (i < n)
-            newL[i] = list[i];
-        else if (i == n)
-            MY_Free (list[i]);
-        else if (i > n)
-            newL[i - 1] = list[i];
-
-    MY_Free (list);
-    list = newL;
-
-    if (now >= items)
-        now = items - 1;
+	items.erase(items.begin() + n);
+    if (now >= (int)items.size())
+        now = int(items.size()) - 1;
 }
 
-void switchbox_c::AddItem (const char *s)
+void switchbox_c::AddItem(const std::string& item)
 {
-    int     i;
-    char    **newL;
-
-    items++;
-    newL = (char **) MY_Alloc (sizeof (char *) * items);
-    for (i = 0; i < items - 1; i++)
-        newL[i] = list[i];
-    newL[i] = (char *) MY_Alloc (strlen (s) + 1);
-    strcpy (newL[i], s);
-    MY_Free (list);
-    list = newL;
-    if (items == 1)
-        now = 0;
+	items.push_back(item);
+	if (items.size() == 1)
+	{
+		now = 0;
+	}
 }
 
 void switchbox_c::SetPosition (int X, int Y, int W, int H)
@@ -425,7 +337,7 @@ void switchbox_c::SetPosition (int X, int Y, int W, int H)
     y = glibScrHeight - Y;
 }
 
-void switchbox_c::Check (int &event, int &from, int &n, int &g)
+void switchbox_c::Check(Desk::EventType &event, DeskControl*& from)
 {
     static int  pWait = 0;
     bool        change = false;
@@ -433,7 +345,7 @@ void switchbox_c::Check (int &event, int &from, int &n, int &g)
     if (pWait)
         pWait--;
 
-    if (left->pressed && !pWait)
+    if (left->isPressed() && !pWait)
     {
         pWait = 120;  // TODO: Fix, hack to wait 2 seconds
         if (now > 0)
@@ -443,10 +355,10 @@ void switchbox_c::Check (int &event, int &from, int &n, int &g)
         }
     }
 
-    if (right->pressed && !pWait)
+    if (right->isPressed() && !pWait)
     {
         pWait = 120;  // TODO: Fix, hack to wait 2 seconds
-        if (now < items - 1)
+        if (now + 1 < (int)items.size())
         {
             now++;
             change = true;
@@ -455,14 +367,12 @@ void switchbox_c::Check (int &event, int &from, int &n, int &g)
 
     if (change)
     {
-        event = GLIB_E_CHANGE;
-        from = GLIB_E_SLIDER;
-        n = number;
-        g = group;
+        event = Desk::EventType::Change;
+		from = this;
     }
 }
 
-void switchbox_c::Draw (void)
+void switchbox_c::Draw() const
 {
     int     px, py;
 
@@ -476,24 +386,24 @@ void switchbox_c::Draw (void)
     glEnd ();
 
     glBegin (GL_TRIANGLES);
-        px = left->x + 7 + left->pressed;
-        py = left->y - 4 - left->pressed;
+        px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
+        py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
         glColor3ub (0, 0, 0);
         glVertex2i (px + 2, py);
         glVertex2i (px + 2, py - 7);
         glVertex2i (px - 2, py - 4);
 
-        px = right->x + 7 + right->pressed;
-        py = right->y - 4 - right->pressed;
+        px = right->getX() + 7 + (right->isPressed() ? 1 : 0);
+        py = right->getY() - 4 - (right->isPressed() ? 1 : 0);
         glVertex2i (px - 1, py);
         glVertex2i (px - 1, py - 7);
         glVertex2i (px + 3, py - 4);
     glEnd ();
 
-    if (list == NULL)
+    if (items.empty())
         return;
 
-    CO_FontPrint (x + 25, y - 15, list[now]);
+    CO_FontPrint (x + 25, y - 15, items[now].c_str());
 }
 
 /*
@@ -503,13 +413,11 @@ label_c
 */
 label_c::label_c (void)
 {
-    text = NULL;
-    glibMainDesk->Register (GLIB_E_LABEL, this);
+    glibMainDesk->Register(this);
 }
 
 label_c::~label_c (void)
 {
-    MY_Free (text);
 }
 
 void label_c::SetPosition (int X, int Y, int W, int H)
@@ -520,14 +428,12 @@ void label_c::SetPosition (int X, int Y, int W, int H)
     height = H;
 }
 
-void label_c::SetCaption (const char *s)
+void label_c::SetCaption (const std::string& caption)
 {
-    MY_Free (text);
-    text = (char *) MY_Alloc (strlen (s) + 1);
-    strcpy (text, s);
+	text = caption;
 }
 
-void label_c::Draw (void)
+void label_c::Draw() const
 {
     glBegin (GL_QUADS);
         glColor3ub (170, 170, 170);
@@ -538,12 +444,11 @@ void label_c::Draw (void)
     glEnd ();
 
     CO_FontColor (0, 0, 0);
-    CO_FontPrint (x, y - 15, text);
+    CO_FontPrint (x, y - 15, text.c_str());
 }
 
-void label_c::Check (int &event, int &from, int &n, int &g)
+void label_c::Check(Desk::EventType &event, DeskControl*& from)
 {
-
 }
 
 /*
@@ -553,7 +458,7 @@ slider_c
 */
 slider_c::slider_c (void)
 {
-    glibMainDesk->Register (GLIB_E_SLIDER, this);
+    glibMainDesk->Register(this);
     up = new button_c;
     up->SetCaption (" ");
     up->SetNG (glibSCN++, GLIB_SC_GROUP);
@@ -580,23 +485,23 @@ void slider_c::Connect (slider_s *to)
     pos = to;
 }
 
-void slider_c::Check (int &event, int &from, int &n, int &g)
+void slider_c::Check(Desk::EventType &event, DeskControl*& from)
 {
     int     h = height, o = pos->Start;
 
-    if (!up->pressed && !down->pressed)
+    if (!up->isPressed() && !down->isPressed())
         pWait = 0;
     else
         if (pWait)
             pWait--;
 
-    if (up->pressed && !pWait)
+    if (up->isPressed() && !pWait)
     {
         pWait = 6;
         pos->Start--;
     }
 
-    if (down->pressed && !pWait)
+    if (down->isPressed() && !pWait)
     {
         pWait = 6;
         pos->Start++;
@@ -623,19 +528,17 @@ void slider_c::Check (int &event, int &from, int &n, int &g)
 
     if (pos->Start != o)
     {
-        event = GLIB_E_CHANGE;
-        from = GLIB_E_SLIDER;
-        n = number;
-        g = group;
+        event = Desk::EventType::Change;
+        from = this;
     }
 }
 
-void slider_c::Draw (void)
+void slider_c::Draw() const
 {
     int px, py, h = height, s = 0;
 
-    px = up->x + 7 + up->pressed;
-    py = up->y - 4 - up->pressed;
+    px = up->getX() + 7 + (up->isPressed() ? 1 : 0);
+    py = up->getY() - 4 - (up->isPressed() ? 1 : 0);
     glBegin (GL_TRIANGLES);
         glColor3ub (0, 0, 0);
         glVertex2i (px, py);
@@ -643,8 +546,8 @@ void slider_c::Draw (void)
         glVertex2i (px - 3, py - 6);
     glEnd ();
 
-    px = down->x + 7 + down->pressed;
-    py = down->y - 4 - down->pressed;
+    px = down->getX() + 7 + (down->isPressed() ? 1 : 0);
+    py = down->getY() - 4 - (down->isPressed() ? 1 : 0);
     glBegin (GL_TRIANGLES);
         glColor3ub (0, 0, 0);
         glVertex2i (px - 3, py);
@@ -691,78 +594,65 @@ textbox_c
 */
 textbox_c::textbox_c (void)
 {
-    text = NULL;
-    allow = NULL;
-    glibMainDesk->Register (GLIB_E_TEXTBOX, this);
-    if (glibTextbox == NULL)
-        glibTextbox = this;
+    glibMainDesk->Register(this);
 }
 
 textbox_c::~textbox_c (void)
 {
-    MY_Free (text);
-    MY_Free (allow);
 }
 
-void textbox_c::SetPosition (int X, int Y, int W, int M, const char *A)
+void textbox_c::SetPosition (int X, int Y, int W, int M, const std::string& allowed)
 {
     x = X + 2;
     y = glibScrHeight - 1 - (Y + 2);
     max = M;
     width = W;
 
-    MY_Free (allow);
-    allow = MY_StrDup (A);
-
-    MY_Free (text);
-    text = (char *) MY_CAlloc (M + 1);
+	allowedCharacters = allowed;
+	text.clear();
 }
 
-void textbox_c::KeyEvent (int e)
+void textbox_c::keyEvent(SDL_Keycode keyCode)
 {
-    char    *a = allow;
-    int     l = strlen (text);
-
-    if (e == 8 && l)
-    {
-        text[l - 1] = 0;
-        l--;
-    }
-    else if (l < max)
-        while (*a)
-        {
-            if ((int) *a == e)
-            {
-                text[l++] = e;
-                text[l] = 0;
-            }
-            a++;
-        }
+	if (!text.empty() && keyCode == SDLK_BACKSPACE)
+	{
+		text.pop_back();
+	}
 }
 
-char *textbox_c::Text (void)
+void textbox_c::textInputEvent(const char* newText)
+{
+	while (*newText != 0)
+	{
+		if ((int)text.length() < max && allowedCharacters.find(*newText) != std::string::npos)
+		{
+			text.push_back(*newText);
+		}
+
+		++newText;
+	}
+}
+
+const std::string& textbox_c::Text() const
 {
     return text;
 }
 
-void textbox_c::Flush (void)
+void textbox_c::Flush()
 {
-    text[0] = 0;
+    text.clear();
 }
 
-void textbox_c::Check (int &event, int &from, int &n, int &g)
+void textbox_c::Check(Desk::EventType &event, DeskControl*& from)
 {
     if (glibMouseZ && GLib_MouseIn (x, y, (width + 1) << 3, 18))
     {
-        glibTextbox = this;
-        event = GLIB_E_ACTIVE;
-        from = GLIB_E_TEXTBOX;
-        n = number;
-        g = group;
+        event = Desk::EventType::Active;
+        from = this;
     }
 }
 
-void textbox_c::Draw (void)
+void textbox_c::Draw() const
 {
     int     w = (width << 3) + 8;
 
@@ -776,10 +666,7 @@ void textbox_c::Draw (void)
     glEnd ();
 
     CO_FontColor (0, 0, 0);
-    if (glibTextbox == this)
-        CO_FontPrintf (x, y - 16, "%s_", text);
-    else
-        CO_FontPrintf (x, y - 16, "%s ", text);
+    CO_FontPrintf (x, y - 16, "%s_", text.c_str());
 }
 
 /*
@@ -787,12 +674,12 @@ void textbox_c::Draw (void)
 desk_c
 ================
 */
-desk_c *desk_c::Create (void)
+Desk *Desk::Create (void)
 {
-    if (glibMainDesk == NULL)
-        glibMainDesk = new desk_c;
+    if (glibMainDesk == nullptr)
+        glibMainDesk = new Desk;
 
-    MY_RegMem (glibMainDesk, sizeof (desk_c));
+    MY_RegMem (glibMainDesk, sizeof (Desk));
 
     // Left mouse button (used by SDL_BUTTON(x))
     glibMouseB = 1;
@@ -800,84 +687,50 @@ desk_c *desk_c::Create (void)
     return glibMainDesk;
 }
 
-desk_c::desk_c (void)
+Desk::Desk()
 {
-    glibTextbox = NULL;
     glibSCN = 0;
-    element = NULL;
 }
 
-desk_c::~desk_c (void)
+Desk::~Desk()
 {
-    desk_s  *s = element, *o;
-
-    glibMainDesk = NULL;
-    glibTextbox = NULL;
-    while (s != NULL)
+    glibMainDesk = nullptr;
+    
+	for (DeskControl* control : controls)
     {
-        o = s->Next;
-        MY_UnregMem (s->Ptr);
-        switch (s->Type)
-        {
-        case GLIB_E_BUTTON:
-            delete (button_c *) s->Ptr; break;
-        case GLIB_E_LISTBOX:
-            delete (listbox_c *) s->Ptr; break;
-        case GLIB_E_LABEL:
-            delete (label_c *) s->Ptr; break;
-        case GLIB_E_SLIDER:
-            delete (slider_c *) s->Ptr; break;
-        case GLIB_E_TEXTBOX:
-            delete (textbox_c *) s->Ptr; break;
-        case GLIB_E_SWITCHBOX:
-            delete (switchbox_c *) s->Ptr; break;
-        }
-        MY_Free (s);
-        s = o;
+        MY_UnregMem(control);
+		delete control;
     }
 }
 
-void desk_c::Register (int what, glibObject_c *p)
+void Desk::Register(DeskControl *control)
 {
-    desk_s  *d;
-
-    d = (desk_s *) MY_Alloc (sizeof (desk_s));
-    d->Type = what;
-    d->Ptr = p;
-    d->Next = element;
-    element = d;
+	controls.push_back(control);
 }
 
-void desk_c::ScreenSize (int SizeX, int SizeY, int tr_x, int tr_y)
+void Desk::ScreenSize (int SizeX, int SizeY, int tr_x, int tr_y)
 {
     glibScrWidth = SizeX;
     glibScrHeight = SizeY;
-    _tr_x = tr_x;
-    _tr_y = tr_y;
+    this->tr_x = tr_x;
+    this->tr_y = tr_y;
 }
 
-void desk_c::Check (int &event, int &from, int &n, int &g)
+void Desk::Check (EventType &event, DeskControl*& from)
 {
-    desk_s  *d = element;
-
-    event = GLIB_E_NONE;
-
     glibMouseZ = SDL_GetMouseState (&glibMouseX, &glibMouseY) & SDL_BUTTON(glibMouseB);
+    glibMouseX -= tr_x;
+    glibMouseY -= tr_y;
 
-    glibMouseX -= _tr_x;
-    glibMouseY -= _tr_y;
-
-    while (d != NULL)
+	event = EventType::None;
+	for (DeskControl* control : controls)
     {
-        d->Ptr->Check (event, from, n, g);
-        d = d->Next;
+        control->Check(event, from);
     }
 }
 
-void desk_c::Draw (void)
+void Desk::Draw()
 {
-    desk_s  *d = element;
-
     glBegin (GL_QUADS);
         glColor3ubv (glibCBack);
         glVertex2i (0, 0);
@@ -887,19 +740,29 @@ void desk_c::Draw (void)
     glEnd ();
 
     glPushMatrix ();
-    glTranslatef ((GLfloat)_tr_x, (GLfloat)-_tr_y, 0);
+    glTranslatef ((GLfloat)tr_x, (GLfloat)-tr_y, 0);
 
-    while (d != NULL)
+	for (DeskControl* control : controls)
     {
-        d->Ptr->Draw ();
-        d = d->Next;
+        control->Draw();
     }
 
-    glPopMatrix ();
+    glPopMatrix();
 }
 
-void desk_c::KeyEvent (int e)
+void Desk::keyEvent(SDL_Keycode keyCode)
 {
-    if (glibTextbox != NULL)
-        glibTextbox->KeyEvent (e);
+	for (DeskControl* control : controls)
+    {
+		control->keyEvent(keyCode);
+	}
 }
+
+void Desk::textInputEvent(const char* text)
+{
+	for (DeskControl* control : controls)
+    {
+		control->textInputEvent(text);
+	}
+}
+

@@ -28,18 +28,20 @@
 #ifndef DUEL6_MENU_H
 #define DUEL6_MENU_H
 
+#include <SDL2/SDL_keyboard.h>
 #include "Type.h"
 
 namespace Duel6
 {
-	void    MENU_Init();
-	void    MENU_JoyRescan();
-	void    MENU_Free();
-	void    MENU_KeyEvent(int e);
-	void    MENU_Loop();
-	void    MENU_Restart(bool sameLevel);
-	void    MENU_Start();
-	void    MENU_SavePH();
+	void MENU_Init();
+	void MENU_JoyRescan();
+	void MENU_Free();
+	void MENU_TextInputEvent(const char* text);
+	void MENU_KeyEvent(SDL_Keycode keyCode);
+	void MENU_Loop();
+	void MENU_Restart(bool sameLevel);
+	void MENU_Start();
+	void MENU_SavePH();
 }
 
 #endif

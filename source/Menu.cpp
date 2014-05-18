@@ -41,7 +41,7 @@ namespace Duel6
 	static Size d6Playing;
 	static LevelList    d6LevelList;
 	static PersonList	d6Persons;
-	static desk_c       *myDesk;
+	static Desk         *myDesk;
 	static button_c     *myButton[7];
 	static listbox_c    *myListbox[7];
 	static label_c      *myLabel[8];
@@ -49,7 +49,6 @@ namespace Duel6
 	static textbox_c    *myTextbox;
 	static int          d6Backs, d6WillPlay[D6_MAX_PLAYERS];
 	static GLuint       d6MenuTex;
-	static bool         d6MenuKeyMask = false;
 	static const char   *d6SndFl[D6_SOUNDS] =
 	{
 		"sound/smrt.wav",
@@ -127,29 +126,36 @@ namespace Duel6
 	void MENU_JoyRescan(void)
 	{
 		char    f[30];
-		int     i, j;
 
-		CO_InpInit(APP_INP_INIT_JOY);
+		CO_JoystickScan();
 
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
+		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
+		{
 			controlSwitch[i]->Clear();
+		}
 
-		for (i = 0; i < 4; i++)
+		for (Int32 i = 0; i < 4; i++)
 		{
 			sprintf(f, "%s %d", MY_L("APP00045|Klavesy"), i + 1);
-			for (j = 0; j < D6_MAX_PLAYERS; j++)
+			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
+			{
 				controlSwitch[j]->AddItem(f);
+			}
 		}
 
-		for (i = 0; i < g_inp.joy_num; i++)
+		for (Uint32 i = 0; i < g_inp.joysticks.size(); i++)
 		{
 			sprintf(f, "Joypad %d", i + 1);
-			for (j = 0; j < D6_MAX_PLAYERS; j++)
+			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
+			{
 				controlSwitch[j]->AddItem(f);
+			}
 		}
 
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
-			controlSwitch[i]->SetCur(i % (4 + g_inp.joy_num));
+		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
+		{
+			controlSwitch[i]->SetCur(i % (4 + g_inp.joysticks.size()));
+		}
 	}
 
 	void MENU_Init(void)
@@ -161,7 +167,7 @@ namespace Duel6
 		d6MenuTex = Util::loadKH3Texture(D6_FILE_LABEL, 0, false);
 		MENU_LoadPH();
 		g_app.con->printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
-		myDesk = desk_c::Create();
+		myDesk = Desk::Create();
 		myDesk->ScreenSize(g_vid.cl_width, g_vid.cl_height,
 			(g_vid.cl_width - 800) / 2, (g_vid.cl_height - 600) / 2);
 
@@ -347,6 +353,7 @@ namespace Duel6
 	{
 		d6InMenu = false;
 		SDL_ShowCursor(SDL_DISABLE);
+		SDL_StopTextInput();
 		SOUND_StopMusic();
 	}
 
@@ -436,9 +443,9 @@ namespace Duel6
 
 	static void MENU_AddPH(void)
 	{
-		const char* personName = myTextbox->Text();
+		const std::string& personName = myTextbox->Text();
 
-		if (strlen(personName) > 0)
+		if (!personName.empty())
 		{
 			d6Persons.add(Person(personName));
 			myListbox[1]->AddItem(personName);
@@ -451,7 +458,6 @@ namespace Duel6
 	static bool MENU_DelQuestion(void)
 	{
 		int x = g_vid.cl_width / 2 - 150, y = g_vid.cl_height / 2 - 10;
-		d6MenuKeyMask = true;
 
 		glColor3f(1.0f, 0.8f, 0.8f);
 		glBegin(GL_QUADS);
@@ -473,22 +479,35 @@ namespace Duel6
 		CO_FontPrintf(x + 70, y + 2, MY_L("APP00090|Opravdu smazat? (A/N)"));
 		VID_SwapBuffers();
 
-		while (!g_inp.key[SDLK_a] && !g_inp.key[SDLK_y] && !g_inp.key[SDLK_n])
-			CO_ProcessEvents();
+		bool answer;
+		while (true)
+		{
+			SDL_Event event;
+			if (SDL_PollEvent(&event))
+			{
+				if (event.type == SDL_KEYDOWN)
+				{
+					if (event.key.keysym.sym == SDLK_a || event.key.keysym.sym == SDLK_y)
+					{
+						answer = true;
+						break;
+					}
+					else if (event.key.keysym.sym == SDLK_n)
+					{
+						answer = false;
+						break;
+					}
+				}
+			}
+		}
 
-		while (CO_InpGetKey(false))
-			CO_ProcessEvents();
-
-		d6MenuKeyMask = false;
-
-		return !g_inp.key[SDLK_n];
+		return answer;
 	}
 
 	// Vykresli info, ze hra skoncila
 	static bool MENU_NewGame(void)
 	{
 		int x = g_vid.cl_width / 2 - 150, y = g_vid.cl_height / 2 - 10;
-		d6MenuKeyMask = true;
 
 		glColor3f(1.0f, 0.8f, 0.8f);
 		glBegin(GL_QUADS);
@@ -510,15 +529,29 @@ namespace Duel6
 		CO_FontPrintf(x + 30, y + 2, MY_L("APP00090|Konec hry! Spustit znovu? (A/N)"));
 		VID_SwapBuffers();
 
-		while (!g_inp.key[SDLK_a] && !g_inp.key[SDLK_y] && !g_inp.key[SDLK_n])
-			CO_ProcessEvents();
+		bool answer;
+		while (true)
+		{
+			SDL_Event event;
+			if (SDL_PollEvent(&event))
+			{
+				if (event.type == SDL_KEYDOWN)
+				{
+					if (event.key.keysym.sym == SDLK_a || event.key.keysym.sym == SDLK_y)
+					{
+						answer = true;
+						break;
+					}
+					else if (event.key.keysym.sym == SDLK_n)
+					{
+						answer = false;
+						break;
+					}
+				}
+			}
+		}
 
-		while (CO_InpGetKey(false))
-			CO_ProcessEvents();
-
-		d6MenuKeyMask = false;
-		
-		return !g_inp.key[SDLK_n];
+		return answer;
 	}
 	
 	static void MENU_CleanPH(void)
@@ -551,9 +584,7 @@ namespace Duel6
 		else
 			SET_LoadBackground(myListbox[4]->CurItem() - 1);
 
-		g_inp.key[SDL_SCANCODE_ESCAPE] = 0;
 		d6KeyWait = 1.0f;
-
 		SOUND_PlaySample(D6_SND_LETS_ROCK);
 	}
 
@@ -583,7 +614,7 @@ namespace Duel6
 		d6Players.clear();
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(D6_FILE_PLAYER, d6PlayerColors[i]), d6Controls[controlSwitch[i]->CurItem()]));
+			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(D6_FILE_PLAYER, d6PlayerColors[i]), *d6Controls[controlSwitch[i]->CurItem()]));
 		}
 
 		MENU_Restart(false);
@@ -628,40 +659,51 @@ namespace Duel6
 	{
 		d6InMenu = true;
 		SDL_ShowCursor(SDL_ENABLE);
+		SDL_StartTextInput();
 		MENU_RebuildTable();
 		if (d6PlayMusic)
 			SOUND_StartMusic(0, false);
 	}
 
-	void MENU_KeyEvent(int e)
+	void MENU_TextInputEvent(const char* text)
 	{
-		if (!d6MenuKeyMask)
+		myDesk->textInputEvent(text);
+	}
+
+	void MENU_KeyEvent(SDL_Keycode keyCode)
+	{
+		myDesk->keyEvent(keyCode);
+
+		if (keyCode == SDLK_RETURN)
 		{
-			myDesk->KeyEvent(e);
-			if (e == SDLK_RETURN)
-				MENU_AddPH();
-			if (e == SDLK_F1)
-				if (d6Playing > 1)
-					MENU_Play();
-			if (e == SDLK_F3)
+			MENU_AddPH();
+		}
+
+		if (keyCode == SDLK_F1 && d6Playing > 1)
+		{
+			MENU_Play();
+		}
+
+		if (keyCode == SDLK_F3)
+		{
+			if (MENU_DelQuestion())
 			{
-				if (MENU_DelQuestion())
-				{
-					MENU_CleanPH();
-				}
+				MENU_CleanPH();
 			}
-			if (e == SDL_SCANCODE_ESCAPE)
-			{
-				g_app.flags |= APP_FLAG_QUIT;
-				MENU_SavePH();
-			}
+		}
+
+		if (keyCode == SDLK_ESCAPE)
+		{
+			g_app.flags |= APP_FLAG_QUIT;
+			MENU_SavePH();
 		}
 	}
 
 	static void MENU_Update(float elapsedTime)
 	{
 		static  float sync = 0, wait = 0.0163f;
-		int     event, from, n, g;
+		Desk::EventType event;
+		DeskControl* from;
 
 		sync += elapsedTime;
 
@@ -669,10 +711,10 @@ namespace Duel6
 		{
 			sync -= wait;
 
-			myDesk->Check(event, from, n, g);
-			if (g == 1 && event == GLIB_E_RELEASED)
+			myDesk->Check(event, from);
+			if (event == Desk::EventType::Released && from->getGroup() == 1)
 			{
-				switch (n)
+				switch (from->getNumber())
 				{
 				case 6:
 					MENU_PridejHrace();
@@ -689,7 +731,9 @@ namespace Duel6
 					break;
 				case 10:
 					if (d6Playing > 1)
+					{
 						MENU_Play();
+					}
 					break;
 				case 11:
 					MENU_End();

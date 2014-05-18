@@ -31,24 +31,20 @@ Popis: Hlavni hlavickovy soubor
 Potrebuje: Knihovnu mylib
 */
 
-#ifndef __CONSOLE_H
-#define __CONSOLE_H
+#ifndef CONSOLE_H
+#define CONSOLE_H
 
-#ifndef __MYLIB_H
+#include <string>
+#include <vector>
+#include <list>
+#include <SDL2/SDL_keyboard.h>
 #include "../mylib/mylib.h"
-#endif
 
-#define CON_GetMem          MY_Alloc
-#define CON_Free            MY_Free
 #define CON_Lang            MY_L
 
-#define CON_VERSION         "5.3.1"
+#define CON_VERSION         "5.4"
 #define CON_TEXT_SIZE       32000
-#define CON_MAX_INPUT       300
-#define CON_MAX_CBUF        8192
 #define CON_MAX_PSTR        2048
-#define CON_MAX_ARGS        50
-#define CON_MAX_NAME        50
 #define CON_MAX_ALIAS_REC   40
 #define CON_REM_HIST        15
 
@@ -65,18 +61,19 @@ enum
 };
 
 // Klavesy
-#define CON_C_SCROLL_UP     280
-#define CON_C_SCROLL_DOWN   281
-#define CON_C_HIST_UP       273
-#define CON_C_HIST_DOWN     274
-#define CON_C_INSERT        277
-#define CON_C_LEFT          276
-#define CON_C_RIGHT         275
-#define CON_C_HOME          278
-#define CON_C_END           279
-#define CON_C_BACK          8
-#define CON_C_DELETE        127
-#define CON_C_TAB           9
+#define CON_C_SCROLL_UP     SDLK_PAGEUP
+#define CON_C_SCROLL_DOWN   SDLK_PAGEDOWN
+#define CON_C_HIST_UP       SDLK_UP
+#define CON_C_HIST_DOWN     SDLK_DOWN
+#define CON_C_INSERT        SDLK_INSERT
+#define CON_C_LEFT          SDLK_LEFT
+#define CON_C_RIGHT         SDLK_RIGHT
+#define CON_C_HOME          SDLK_HOME
+#define CON_C_END           SDLK_END
+#define CON_C_BACK          SDLK_BACKSPACE
+#define CON_C_DELETE        SDLK_DELETE
+#define CON_C_TAB           SDLK_TAB
+#define CON_C_ENTER			SDLK_RETURN
 
 // Console flags
 #define CON_F_REG_INFO      0x00001
@@ -109,25 +106,22 @@ typedef unsigned short      conWORD;
 
 struct conCommand_s
 {
-    char                    *name;
-    conProc_t               execute;
-    struct conCommand_s     *next;
+    std::string name;
+    conProc_t execute;
 };
 
 struct conAlias_s
 {
-    char                *name;
-    char                *text;
-    struct conAlias_s   *next;
+    std::string name;
+    std::string command;
 };
 
 struct conVar_s
 {
-    char            *name;
-    void            *ptr;
-    int             flags;
-    conVarType_e    type;
-    struct conVar_s *next;
+    std::string name;
+    void *ptr;
+    int flags;
+    conVarType_e type;
 };
 
 /*
@@ -152,77 +146,101 @@ private:
     const conBYTE   *m_font;                        // Ukazatel na font (nahradit SDL_ttf?
     conProc_t       m_infoproc;                     // Procedura volana po printf
 
-    conCommand_s    *m_procs;                       // Seznam procedur
-    conVar_s        *m_vars;                        // Senam promenych
-    conAlias_s      *m_alias;                       // Seznam aliasu
+    std::vector<conCommand_s> m_procs;              // Seznam procedur
+    std::vector<conVar_s> m_vars;                   // Senam promenych
+    std::vector<conAlias_s> m_alias;                // Seznam aliasu
 
-    char            m_input[CON_MAX_INPUT + 2];     // Radek vstupu
+    std::string     m_input;                        // Radek vstupu
     int             m_inputscroll;                  // O kolik je se vstupem odskrolovano doprava
-    char            m_hist[CON_REM_HIST][CON_MAX_INPUT + 2];  // Ulozena historie prikazu
+    std::string     m_hist[CON_REM_HIST];           // Ulozena historie prikazu
     int             m_histcnt;                      // Pocet ulozenych prikazu historie
     int             m_histscroll;                   // O kolik je v historii odskrolovano
 
-    char            *m_argv[CON_MAX_ARGS];          // Argumenty funkce
-    int             m_argc;                         // Pocet argumentu funkce
-
-    char            m_cbuf[CON_MAX_CBUF];           // Prikazovy buffer
-    int             m_cbuflen;                      // Delka prikazoveho bufferu
+    std::vector<std::string> m_argv;				// Argumenty funkce
+    std::list<std::string> m_cbuf;					// Prikazovy buffer
     int             m_aliasloop;                    // Pocet provedenych aliasu (proti zacykleni)
 
 public:
-            con_c       (int flags);
-            ~con_c      ();
+	con_c(int flags);
+	~con_c();
 
-    void    blit        (int res_x, int res_y);
+    void blit(int res_x, int res_y);
 
-    void    printf      (const char *str, ...);
-    void    keyevent    (int k);
+    void printf(const char *str, ...);
+    void keyEvent(SDL_Keycode keyCode);
+	void textInputEvent(const char* text);
+	
+	void toggle()
+	{
+		m_visible = !m_visible;
+	}
 
-    void    setlast     (int sl);
-    void    setfont     (const conBYTE *p);
-    void    setinfoproc (conProc_t p);
+    bool isactive() 
+	{ 
+		return m_visible; 
+	}
 
-    char    *argv       (int l);
-    int     argc        (void);
+    void setlast(int sl);
+    void setfont(const conBYTE *p);
+    void setinfoproc(conProc_t p);
 
-    int     regcmd      (conProc_t p, const char *name);
-    int     regvar      (void *p, const char *name, int flags, conVarType_e typ);
-    int     regalias    (const char *alias, const char *cmd);
+	const std::string& argv(size_t index) const;
+    size_t argc() const;
 
-    const conCommand_s  *getcmd     (const char *name) const;
-    const conVar_s      *getvar     (const char *name) const;
-    const conAlias_s    *getalias   (const char *name) const;
-    const conBYTE       *gettext    (unsigned long *buf_pos, bool *buf_full) const;
+    int regcmd(conProc_t p, const std::string& name);
+    int regvar(void *p, const std::string& name, int flags, conVarType_e typ);
+    int regalias(const std::string& name, const std::string& cmd);
 
-    void    addcmd      (const char *cmd);
-    void    insertcmd   (const char *cmd);
-    void    exec        (const char *s);
-    void    execute     (void);
-    void    clear       (void);
-    bool    isactive    (void) { return m_visible; }
-    void    varinfo     (const conVar_s *v);
+	const std::vector<conCommand_s>& listCommands() const
+	{
+		return m_procs;
+	}
 
-    void    var_set     (const char *name, const char *val);
-    char    *var_get    (const conVar_s *v, char *val);
+	const std::vector<conVar_s>& listVars() const
+	{
+		return m_vars;
+	}
+
+	const std::vector<conAlias_s>& listAliases() const
+	{
+		return m_alias;
+	}
+
+    const conBYTE *gettext(unsigned long *buf_pos, bool *buf_full) const;
+	void clear();
+
+	con_c& appendCommands(const std::string& commands);
+	con_c& prependCommands(const std::string& commands);
+    void exec(const std::string& commands);
+    void execute();
+
+    void varInfo(const conVar_s& var);
+    void setVarValue(conVar_s& var, const std::string& val);
+    std::string getVarValue(const conVar_s& var) const;
 
 private:
-    int     namevalid   (const char *name, const char *proc, void *p);
-    void    expand      (char *tx);
-    int     gettoken    (char *t, int *s);
-    void    tokenize    (char *tx);
-    void    execline    (char *line);
-    bool    varcmd      (void);
+    int namevalid(const std::string& name, const char *proc, void *p);
+    std::string expandLine(const std::string& line);
+	std::string::const_iterator nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end);
+    void tokenizeLine(const std::string& line);
+    void executeSingleLine(const std::string& line);
+    void varCmd(conVar_s& var);
 
-    void    setinputscroll      (void);
-    void    inpfound            (char *name, int *fit, int *nf, char **ffName);
-    void    completecmd         (void);
+    void setinputscroll();
+    void completecmd();
 
-    void    dprint_line         (int y, unsigned long pos, int len);
-    void    dshow_hist          (int res_y);
-    void    drawchar            (int x, int y, int c);
+    void dprint_line(int y, unsigned long pos, int len);
+    void dshow_hist(int res_y);
+    void drawchar(int x, int y, int c);
+
+    conCommand_s* findCommand(const std::string& name);
+    conVar_s* findVar(const std::string& name);
+    conAlias_s *findAlias(const std::string& name);
+
+	void splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines);
 };
 
 // Dodelat vsude podporu multijazykoveho prostredi aby ji mohly vyuzivat vsechny knihovny a program
-void    CON_RegisterBasicCmd    (con_c *c_ptr);
+void CON_RegisterBasicCmd(con_c *c_ptr);
 
 #endif

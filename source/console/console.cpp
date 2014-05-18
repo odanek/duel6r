@@ -47,20 +47,13 @@ Inicializace/deinicializace konzole
 */
 con_c::con_c (int flags)
 {
-    m_procs = NULL;
-    m_vars = NULL;
-    m_alias = NULL;
-
     m_visible = false;
     m_insert = false;
     m_curpos = 0;
     m_inputscroll = 0;
     m_flags = flags;
 
-    m_cbuflen = 0;
-    m_argc = 0;
-    m_input[0] = 0;
-    m_input[1] = 0;
+    m_input.clear();
     m_histcnt = 0;
     m_histscroll = 0;
     m_font = NULL;
@@ -79,34 +72,9 @@ con_c::con_c (int flags)
 
 con_c::~con_c ()
 {
-    conCommand_s    *p;
-    conVar_s        *v;
-    conAlias_s      *a;
-
-    while (m_vars != NULL)
-    {
-        v = m_vars->next;
-        CON_Free (m_vars->name);
-        CON_Free (m_vars);
-        m_vars = v;
-    }
-
-    while (m_procs != NULL)
-    {
-        p = m_procs->next;
-        CON_Free (m_procs->name);
-        CON_Free (m_procs);
-        m_procs = p;
-    }
-
-    while (m_alias != NULL)
-    {
-        a = m_alias->next;
-        CON_Free (m_alias->name);
-        CON_Free (m_alias->text);
-        CON_Free (m_alias);
-        m_alias = a;
-    }
+	m_vars.clear();
+	m_procs.clear();
+	m_alias.clear();
 }
 
 /*
@@ -179,33 +147,23 @@ void con_c::printf (const char *str, ...)
 Kontrola pripustnosti jmena
 ==================================================
 */
-int con_c::namevalid (const char *name, const char *proc, void *p)
+int con_c::namevalid (const std::string& name, const char *proc, void *p)
 {
-    int     l;
-
-    if (name == NULL)
+	if (name.empty())
     {
-        printf (CON_Lang("CONSTR0031|%s : parametr name ma hodnotu NULL\n"));
+        printf (CON_Lang("CONSTR0032|%s : nazev \"%s\" ma neplatnou delku\n"), proc, name.c_str());
         return CON_FAILED;
     }
 
-    l = (int) strlen (name);
-
-    if (l > CON_MAX_NAME || l < 1)
+    if (findCommand(name) != nullptr || findVar(name) != nullptr || findAlias(name) != nullptr)
     {
-        printf (CON_Lang("CONSTR0032|%s : nazev \"%s\" ma neplatnou delku\n"), proc, name);
-        return CON_FAILED;
-    }
-
-    if (getcmd (name) != NULL || getvar (name) != NULL || getalias (name)!= NULL)
-    {
-        printf (CON_Lang("CONSTR0033|%s : nazev \"%s\" uz je registrovan\n"), proc, name);
+        printf (CON_Lang("CONSTR0033|%s : nazev \"%s\" uz je registrovan\n"), proc, name.c_str());
         return CON_ALREADY;
     }
 
-    if (p == NULL)
+    if (p == nullptr)
     {
-        printf (CON_Lang("CONSTR0034|%s : \"%s\" s NULL ukazatelem\n"), proc, name);
+        printf (CON_Lang("CONSTR0034|%s : \"%s\" s NULL ukazatelem\n"), proc, name.c_str());
         return CON_FAILED;
     }
 
@@ -217,37 +175,33 @@ int con_c::namevalid (const char *name, const char *proc, void *p)
 Registrovani prikazu
 ==================================================
 */
-int con_c::regcmd (conProc_t p, const char *name)
+int con_c::regcmd (conProc_t p, const std::string& name)
 {
-    int             i;
-    conCommand_s    *n, *last, *cur;
-
-    i = namevalid (name, CON_Lang("CONSTR0035|Registrace prikazu"), (void *) p);
+    int i = namevalid (name, CON_Lang("CONSTR0035|Registrace prikazu"), (void *) p);
     if (i != CON_SUCCES)
         return i;
 
-    n = (conCommand_s *) CON_GetMem (sizeof (conCommand_s));
-    n->name = (char *) CON_GetMem ((int) strlen (name) + 1);
-    strcpy (n->name, name);
-    n->execute = p;
+	conCommand_s newCommand;
+	newCommand.name = name;
+	newCommand.execute = p;
 
     // Zaradi novy prikaz tak, aby byly setridene podle abecedy
-    last = NULL;
-    for (cur = m_procs; cur != NULL; cur = cur->next)
+	size_t position = 0;
+    for (const conCommand_s& command : m_procs)
     {
-        if (strcmp (n->name, cur->name) <= 0)
-            break;
-        last = cur;
+		if (command.name.compare(newCommand.name) > 0)
+		{
+			break;
+		}
+		++position;
     }
 
-    n->next = cur;
-    if (last != NULL)
-        last->next = n;
-    else
-        m_procs = n;
+	m_procs.insert(m_procs.begin() + position, newCommand);
 
-    if (m_flags & CON_F_REG_INFO)
-        printf (CON_Lang("CONSTR0036|Registrace prikazu: \"%s\" na adrese 0x%p byla uspesna\n"), name, p);
+	if (m_flags & CON_F_REG_INFO)
+	{
+		printf(CON_Lang("CONSTR0036|Registrace prikazu: \"%s\" na adrese 0x%p byla uspesna\n"), name.c_str(), p);
+	}
 
     return CON_SUCCES;
 }
@@ -257,51 +211,42 @@ int con_c::regcmd (conProc_t p, const char *name)
 Registrace aliasu
 ==================================================
 */
-int con_c::regalias (const char *alias, const char *cmd)
+int con_c::regalias (const std::string& name, const std::string& cmd)
 {
-    int         i;
-    conAlias_s  *a, *last, *cur;
-
-    if (alias == NULL || cmd == NULL)
-        return CON_FAILED;
-
-    for (a = m_alias; a != NULL; a = a->next)
-        if (!strcmp (a->name, alias))
-            break;
+    conAlias_s *a = findAlias(name);
 
     if (a == NULL)
     {
-        i = namevalid (alias, CON_Lang("CONSTR0037|Registrace aliasu"), (void *) (1));
+        int i = namevalid (name, CON_Lang("CONSTR0037|Registrace aliasu"), (void *) (1));
         if (i != CON_SUCCES)
             return i;
 
-        a = (conAlias_s *) CON_GetMem (sizeof (conAlias_s));
-        a->name = (char *) CON_GetMem ((int) strlen (alias) + 1);
-        strcpy (a->name, alias);
+		conAlias_s newAlias;
+		newAlias.name = name;
+		newAlias.command = cmd;
 
         // Zaradi novy alias tak, aby byly setridene podle abecedy
-        last = NULL;
-        for (cur = m_alias; cur != NULL; cur = cur->next)
+		size_t position = 0;
+		for (const conAlias_s& alias : m_alias)
         {
-            if (strcmp (a->name, cur->name) <= 0)
-                break;
-            last = cur;
+			if (alias.name.compare(name) > 0)
+			{
+				break;
+			}
+			++position;
         }
 
-        a->next = cur;
-        if (last != NULL)
-            last->next = a;
-        else
-            m_alias = a;
+		m_alias.insert(m_alias.begin() + position, newAlias);
     }
-    else
-        CON_Free (a->text);
+	else
+	{
+		a->command = cmd;
+	}
 
-    a->text = (char *) CON_GetMem ((int) strlen (cmd) + 1);
-    strcpy (a->text, cmd);
-
-    if (m_flags & CON_F_REG_INFO)
-        printf (CON_Lang("CONSTR0038|Registrace aliasu: \"%s\" za \"%s\" byla uspesna\n"), alias, cmd);
+	if (m_flags & CON_F_REG_INFO)
+	{
+		printf(CON_Lang("CONSTR0038|Registrace aliasu: \"%s\" za \"%s\" byla uspesna\n"), name.c_str(), cmd.c_str());
+	}
 
     return CON_SUCCES;
 }
@@ -311,18 +256,17 @@ int con_c::regalias (const char *alias, const char *cmd)
 Vraceni ukazatele na prikaz
 ==================================================
 */
-const conCommand_s *con_c::getcmd (const char *name) const
+conCommand_s *con_c::findCommand(const std::string& name)
 {
-    conCommand_s    *p;
+	for (conCommand_s& command : m_procs)
+	{
+		if (command.name == name)
+		{
+			return &command;
+		}
+	}
 
-    if (name == NULL)
-        return m_procs;
-
-    for (p = m_procs; p != NULL; p = p->next)
-        if (!strcmp (p->name, name))
-            return p;
-
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -330,18 +274,17 @@ const conCommand_s *con_c::getcmd (const char *name) const
 Vraci ukazatel na alias s danym jmenem
 ==================================================
 */
-const conAlias_s *con_c::getalias (const char *name) const
+conAlias_s *con_c::findAlias(const std::string& name)
 {
-    conAlias_s  *p;
+	for (conAlias_s& alias : m_alias)
+	{
+		if (alias.name == name)
+		{
+			return &alias;
+		}
+	}
 
-    if (name == NULL)
-        return m_alias;
-
-    for (p = m_alias; p != NULL; p = p->next)
-        if (!strcmp (p->name, name))
-            return p;
-
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////

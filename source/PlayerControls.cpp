@@ -25,56 +25,69 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "core/co_core.h"
 #include "PlayerControls.h"
 
 namespace Duel6
 {
-	PlayerControls d6Controls[12] =
+	std::vector<std::unique_ptr<PlayerControls>> d6Controls;
+
+	void CONTROLS_Init()
 	{
-		// 1
-		{ APP_INP_KEY | SDLK_LEFT, APP_INP_KEY | SDLK_RIGHT, APP_INP_KEY | SDLK_UP,
-		APP_INP_KEY | SDLK_DOWN, APP_INP_KEY | SDLK_RCTRL, APP_INP_KEY | SDLK_RSHIFT },
-		// 2
-		{ APP_INP_KEY | SDLK_a, APP_INP_KEY | SDLK_d, APP_INP_KEY | SDLK_w,
-		APP_INP_KEY | SDLK_s, APP_INP_KEY | SDLK_q, APP_INP_KEY | SDLK_e },
-		// 3
-		{ APP_INP_KEY | SDLK_h, APP_INP_KEY | SDLK_k, APP_INP_KEY | SDLK_u,
-		APP_INP_KEY | SDLK_j, APP_INP_KEY | SDLK_o, APP_INP_KEY | SDLK_l },
-		// 4
-		{ APP_INP_KEY | SDLK_KP_1, APP_INP_KEY | SDLK_KP_3, APP_INP_KEY | SDLK_KP_5,
-		APP_INP_KEY | SDLK_KP_2, APP_INP_KEY | SDLK_KP_0, APP_INP_KEY | SDLK_KP_PERIOD },
-		// 5
-		{ APP_INP_JOY1 | APP_INP_JOY_LEFT, APP_INP_JOY1 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY1 | APP_INP_JOY_BUT1, APP_INP_JOY1 | APP_INP_JOY_DOWN,
-		APP_INP_JOY1 | APP_INP_JOY_BUT2, APP_INP_JOY1 | APP_INP_JOY_BUT3 },
-		// 6
-		{ APP_INP_JOY2 | APP_INP_JOY_LEFT, APP_INP_JOY2 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY2 | APP_INP_JOY_BUT1, APP_INP_JOY2 | APP_INP_JOY_DOWN,
-		APP_INP_JOY2 | APP_INP_JOY_BUT2, APP_INP_JOY2 | APP_INP_JOY_BUT3 },
-		// 7
-		{ APP_INP_JOY3 | APP_INP_JOY_LEFT, APP_INP_JOY3 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY3 | APP_INP_JOY_BUT1, APP_INP_JOY3 | APP_INP_JOY_DOWN,
-		APP_INP_JOY3 | APP_INP_JOY_BUT2, APP_INP_JOY3 | APP_INP_JOY_BUT3 },
-		// 8
-		{ APP_INP_JOY4 | APP_INP_JOY_LEFT, APP_INP_JOY4 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY4 | APP_INP_JOY_BUT1, APP_INP_JOY4 | APP_INP_JOY_DOWN,
-		APP_INP_JOY4 | APP_INP_JOY_BUT2, APP_INP_JOY4 | APP_INP_JOY_BUT3 },
-		// 9
-		{ APP_INP_JOY5 | APP_INP_JOY_LEFT, APP_INP_JOY5 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY5 | APP_INP_JOY_BUT1, APP_INP_JOY5 | APP_INP_JOY_DOWN,
-		APP_INP_JOY5 | APP_INP_JOY_BUT2, APP_INP_JOY5 | APP_INP_JOY_BUT3 },
-		// 10
-		{ APP_INP_JOY6 | APP_INP_JOY_LEFT, APP_INP_JOY6 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY6 | APP_INP_JOY_BUT1, APP_INP_JOY6 | APP_INP_JOY_DOWN,
-		APP_INP_JOY6 | APP_INP_JOY_BUT2, APP_INP_JOY6 | APP_INP_JOY_BUT3 },
-		// 11
-		{ APP_INP_JOY7 | APP_INP_JOY_LEFT, APP_INP_JOY7 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY7 | APP_INP_JOY_BUT1, APP_INP_JOY7 | APP_INP_JOY_DOWN,
-		APP_INP_JOY7 | APP_INP_JOY_BUT2, APP_INP_JOY7 | APP_INP_JOY_BUT3 },
-		// 12
-		{ APP_INP_JOY8 | APP_INP_JOY_LEFT, APP_INP_JOY8 | APP_INP_JOY_RIGHT,
-		APP_INP_JOY8 | APP_INP_JOY_BUT1, APP_INP_JOY8 | APP_INP_JOY_DOWN,
-		APP_INP_JOY8 | APP_INP_JOY_BUT2, APP_INP_JOY8 | APP_INP_JOY_BUT3 }
-	};
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new KeyboardButton(SDLK_LEFT), new KeyboardButton(SDLK_RIGHT), 
+			new KeyboardButton(SDLK_UP), new KeyboardButton(SDLK_DOWN),
+			new KeyboardButton(SDLK_RCTRL), new KeyboardButton(SDLK_RSHIFT)
+			)));
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new KeyboardButton(SDLK_a), new KeyboardButton(SDLK_d), 
+			new KeyboardButton(SDLK_w), new KeyboardButton(SDLK_s),
+			new KeyboardButton(SDLK_q), new KeyboardButton(SDLK_e)
+			)));
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new KeyboardButton(SDLK_h), new KeyboardButton(SDLK_k), 
+			new KeyboardButton(SDLK_u), new KeyboardButton(SDLK_j),
+			new KeyboardButton(SDLK_o), new KeyboardButton(SDLK_l)
+			)));
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new KeyboardButton(SDLK_KP_1), new KeyboardButton(SDLK_KP_3), 
+			new KeyboardButton(SDLK_KP_5), new KeyboardButton(SDLK_KP_2),
+			new KeyboardButton(SDLK_KP_0), new KeyboardButton(SDLK_KP_PERIOD)
+			)));
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new JoypadAxis(0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(0, 0),
+			new JoypadAxis(0, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(0, 1), new JoypadButton(0, 2)
+			)));
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new JoypadAxis(1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(1, 0),
+			new JoypadAxis(1, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(1, 1), new JoypadButton(1, 2)
+			)));
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new JoypadAxis(2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(2, 0),
+			new JoypadAxis(2, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(2, 1), new JoypadButton(2, 2)
+			)));
+		d6Controls.push_back(
+			std::unique_ptr<PlayerControls>(new PlayerControls(
+			new JoypadAxis(3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(3, 0),
+			new JoypadAxis(3, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(3, 1), new JoypadButton(3, 2)
+			)));
+	}
 }

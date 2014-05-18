@@ -34,19 +34,52 @@ void P_ActiveEvent (bool active)
 {
     if (active)
     {
-        if (d6InMenu && d6PlayMusic)
-            SOUND_StartMusic (0, true);
+		if (d6InMenu && d6PlayMusic)
+		{
+			SOUND_StartMusic(0, true);
+		}
     }
     else
     {
-        if (d6InMenu)
-            SOUND_StopMusic ();
+		if (d6InMenu)
+		{
+			SOUND_StopMusic();
+		}
     }
+}
+
+void P_TextInputEvent(const char* text)
+{
+	if (g_app.con->isactive())
+	{
+		g_app.con->textInputEvent(text);
+	}
+	else if (d6InMenu)
+	{
+		MENU_TextInputEvent(text);
+	}
 }
 
 void P_KeyEvent(int key)
 {
-	if (d6InMenu)
+	if (key == SDLK_BACKQUOTE)
+	{
+		g_app.con->toggle();
+		if (g_app.con->isactive())
+		{
+			SDL_StartTextInput();
+		}
+		else if (!d6InMenu)
+		{
+			SDL_StopTextInput();
+		}
+	}
+
+	if (g_app.con->isactive())
+	{
+		g_app.con->keyEvent(key);
+	}
+	else if (d6InMenu)
 	{
 		MENU_KeyEvent(key);
 	}

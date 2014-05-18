@@ -34,19 +34,19 @@ Popis: Zpracovani argumentu a prikazoveho bufferu
 #include <string.h>
 #include "console.h"
 
-static char conNullStr[3] = { 0, 0, 0 };
+static std::string emptyString;
 
 /*
 ==================================================
 Vraci dany argument funkce
 ==================================================
 */
-char *con_c::argv (int l)
+const std::string& con_c::argv(size_t index) const
 {
-    if (l < 0 || l >= m_argc)
-        return conNullStr;
+    if (index >= m_argv.size())
+        return emptyString;
 
-    return m_argv[l];
+    return m_argv[index];
 }
 
 /*
@@ -54,9 +54,9 @@ char *con_c::argv (int l)
 Vraci pocet argumentu funkce
 ==================================================
 */
-int con_c::argc (void)
+size_t con_c::argc() const
 {
-    return m_argc;
+    return m_argv.size();
 }
 
 /*
@@ -64,59 +64,52 @@ int con_c::argc (void)
 Expanduje promene v retezci
 ==================================================
 */
-void con_c::expand (char *tx)
+std::string con_c::expandLine(const std::string& line)
 {
-    const conVar_s  *v;
-    char            value[30];
-    int             i = 0, se, l, l2;
+	std::string output;
+	bool quotes = false;
+	auto current = line.begin(), lineEnd = line.end();
 
-    l = (int) strlen (tx) + 1;
+	while (current != lineEnd)
+	{
+		if (!quotes && current + 1 != lineEnd && current[0] == '$' && current[1] == '{')
+		{
+			auto varEnd = current + 2;
+			while (varEnd != lineEnd && *varEnd != '}')
+			{
+				++varEnd;
+			}
 
-    while (tx[i])
-    {
-        se = l2 = 0;
+			if (varEnd == lineEnd)
+			{
+				// No closing brace -> no variables to expand
+				output.append(line.substr(current - line.begin()));
+				return output;
+			}
+			else
+			{
+				// Try to expand variable
+				auto varBegin = current + 2;
+				const conVar_s *var = findVar(line.substr(varBegin - line.begin(), varEnd - varBegin));
+				if (var != nullptr)
+				{
+					output.append(getVarValue(*var));
+					current = varEnd + 1;
+					continue;
+				}
+			}
+		}
 
-        while (tx[i])
-        {
-            if (tx[i] == '$' && tx[i + 1] == '{' && !l2)
-                se = i + 2;
+		if (*current == '"')
+		{
+			quotes = !quotes;
+		}
 
-            if (tx[i] == '}' && se)
-                break;
+		output.push_back(*current);
+		++current;
+	}
 
-            if (tx[i] == '"')
-                l2 ^= 0x01;
-
-            i++;
-        }
-
-        if (!tx[i])
-            return;
-
-        if (i == se)
-            continue;
-
-        tx[i] = 0;
-        v = getvar (&tx[se]);
-        tx[i] = '}';
-
-        if (v == NULL)
-            continue;
-
-        var_get (v, value);
-
-        i++;
-        se -= 2;
-        l2 = (int) strlen (value);
-
-        if (se + l - i + l2 < 1024)
-        {
-            memmove (&tx[se + l2], &tx[i], l - i);
-            memcpy (&tx[se], value, l2);
-            l = se + l - i + l2;
-            i = se + l2;
-        }
-    }
+	return output;
 }
 
 /*
@@ -124,46 +117,60 @@ void con_c::expand (char *tx)
 Nalezne dalsi token v retezci
 ==================================================
 */
-int con_c::gettoken (char *t, int *s)
+std::string::const_iterator con_c::nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end)
 {
-    int     i = 0, u, l;
+	auto lineEnd = line.end();
 
-    while (true)
+    while (begin != lineEnd)
     {
-        while (t[i] == '"' && t[i + 1] == '"')
-            i += 2;
+		if (begin[0] > ' ')
+		{
+			break;
+		}
 
-        if (t[i] > ' ')
-            break;
-        else if (!t[i])
-            return 0;
-
-        i++;
+        ++begin;
     }
 
-    if (t[i] == '/' && t[i + 1] == '/')
-        return 0;
+	if (begin == lineEnd)
+	{
+		end = begin;
+		return end;
+	}
 
-    *s = i;
-    u = 0x00;
-    l = (int) strlen (t);
+	if (begin + 1 != lineEnd && begin[0] == '/' && begin[1] == '/')
+	{
+		// The rest is a comment, we are done
+		begin = end = lineEnd;
+		return end;
+	}
 
-    while (true)
+	bool quotes = (*begin == '"');
+	char sentinel = (quotes ? '"' : ' ');
+	end = begin + 1;
+
+	while (end != lineEnd && *end != sentinel)
     {
-        while (t[i] == '"')
-        {
-            memmove (&t[i], &t[i + 1], l - i);
-            u ^= 0x1;
-            l--;
-        }
-
-        if (t[i] <= ' ' - u)
-            break;
-
-        i++;
+		++end;
     }
 
-    return i - *s;
+	if (quotes)
+	{
+		begin = begin + 1;
+
+		if (end == lineEnd)
+		{
+			// This is error, unclosed quotes
+			return end;
+		}
+		else if (end + 1 != lineEnd && end[1] != ' ')
+		{
+			// This is also error, closing quote is not followed by space
+		}
+				
+		return end + 1;
+	}
+
+    return end;
 }
 
 /*
@@ -171,31 +178,20 @@ int con_c::gettoken (char *t, int *s)
 Prevod retezce na tokeny
 ==================================================
 */
-void con_c::tokenize (char *tx)
+void con_c::tokenizeLine(const std::string& line)
 {
-    int     start, len;
+	m_argv.clear();
 
-    m_argc = 0;
-    if (m_flags & CON_F_EXPAND)
-        expand (tx);
-
-    while (*tx)
+	auto current = line.begin();
+    while (current != line.end())
     {
-        len = gettoken (tx, &start);
+		std::string::const_iterator begin = current, end;
+        current = nextToken(line, begin, end);
 
-        if (!len)
-            return;
-
-        m_argv[m_argc++] = &tx[start];
-
-        if (!tx[start + len])
-            return;
-
-        tx[start + len] = 0;
-        tx += start + len + 1;
-
-        if (m_argc >= CON_MAX_ARGS)
-            return;
+		if (begin != line.end())
+		{
+			m_argv.push_back(line.substr(begin - line.begin(), end - begin));
+		}
     }
 }
 
@@ -204,98 +200,105 @@ void con_c::tokenize (char *tx)
 Provedeni jedne radky command bufferu
 ==================================================
 */
-void con_c::execline (char *line)
+void con_c::executeSingleLine(const std::string& line)
 {
-    const conCommand_s  *p;
-    const conAlias_s    *a;
-
-    if (!strlen (line))
+    if (line.empty())
         return;
 
-    tokenize (line);
+	if (m_flags & CON_F_EXPAND)
+	{
+		tokenizeLine(expandLine(line));
+	}
+	else
+	{
+		tokenizeLine(line);
+	}
 
-    if (m_argc > 0)
-    {
-        p = getcmd (m_argv[0]);
-        if (p != NULL)
-        {
-            p->execute (this);
-            return;
-        }
+	if (argc() > 0)
+	{
+		const conCommand_s* p = findCommand(argv(0));
+		if (p != nullptr)
+		{
+			p->execute(this);
+			return;
+		}
 
-        a = getalias (m_argv[0]);
-        if (a != NULL)
-        {
-            if (++m_aliasloop == CON_MAX_ALIAS_REC)
-                printf (CON_Lang("CONSTR0001|CON_Error : Zacykleni alias rekurze, zbyvajici aliasy jsou ignorovany\n"));
-            else if (m_aliasloop < CON_MAX_ALIAS_REC)
-                insertcmd (a->text);
-            return;
-        }
+		const conAlias_s* a = findAlias(argv(0));
+		if (a != nullptr)
+		{
+			if (++m_aliasloop == CON_MAX_ALIAS_REC)
+			{
+				printf(CON_Lang("CONSTR0001|CON_Error : Zacykleni alias rekurze, zbyvajici aliasy jsou ignorovany\n"));
+			}
+			else if (m_aliasloop < CON_MAX_ALIAS_REC)
+			{
+				prependCommands(a->command);
+			}
+			return;
+		}
 
-        if (!varcmd ())
-            printf (CON_Lang("CONSTR0002|Neznamy prikaz : \"%s\"\n"), m_argv[0]);
-    }
+		conVar_s* v = findVar(argv(0));
+		if (v != nullptr)
+		{
+			varCmd(*v);
+			return;
+		}
+
+		printf(CON_Lang("CONSTR0002|Neznamy prikaz : \"%s\"\n"), argv(0).c_str());
+	}
 }
 
-/*
-==================================================
-Pridani prikazu na konec command bufferu
-==================================================
-*/
-void con_c::addcmd (const char *cmd)
+void con_c::splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines)
 {
-    int     l = (int) strlen (cmd);
+	auto lineBegin = commands.begin(), lineEnd = lineBegin;
+	bool quotes = false;
 
-    if (!l)
-        return;
+	while (lineEnd != commands.end())
+	{
+		if (*lineEnd == '"')
+		{
+			quotes = !quotes;
+		}
 
-    if (m_cbuflen + l >= CON_MAX_CBUF)
-    {
-        printf (CON_Lang("CONSTR0003|CON_Error : preteceni bufferu, prikaz ignorovan\n"));
-        return;
-    }
+		if (*lineEnd == '\n' || (!quotes && *lineEnd == ';'))
+		{
+			if (lineBegin == lineEnd)
+			{
+				++lineBegin;
+			}
+			else
+			{
+				lines.push_back(commands.substr(lineBegin - commands.begin(), lineEnd - lineBegin));
+				lineBegin = lineEnd + 1;
+			}
+			lineEnd = lineBegin;
+		}
+		else
+		{
+			++lineEnd;
+		}
+	}
 
-    memcpy (&m_cbuf[m_cbuflen], cmd, l);
-    m_cbuflen += l;
-
-    if (cmd[l - 1] != '\n')
-        m_cbuf[m_cbuflen++] = '\n';
+	if (lineBegin != lineEnd)
+	{
+		lines.push_back(commands.substr(lineBegin - commands.begin(), lineEnd - lineBegin));
+	}
 }
 
-/*
-==================================================
-Pridani prikazu na zacetek command bufferu
-==================================================
-*/
-void con_c::insertcmd (const char *cmd)
+con_c& con_c::appendCommands(const std::string& commands)
 {
-    int     l = (int) strlen (cmd), n = 0;
+	std::vector<std::string> lines;
+	splitCommandsIntoLines(commands, lines);
+	m_cbuf.insert(m_cbuf.end(), lines.begin(), lines.end());
+	return *this;
+}
 
-    if (!l)
-        return;
-
-    if (!m_cbuflen)
-    {
-        addcmd (cmd);
-        return;
-    }
-
-    if (m_cbuflen + l >= CON_MAX_CBUF)
-    {
-        printf (CON_Lang("CONSTR0004|CON_Error : preteceni bufferu, vlozeni ignorovano\n"));
-        return;
-    }
-
-    if (cmd[l - 1] != '\n')
-        n = l++;
-
-    memmove (m_cbuf + l, m_cbuf, m_cbuflen);
-    memcpy (m_cbuf, cmd, l);
-    m_cbuflen += l;
-
-    if (n)
-        m_cbuf[n] = '\n';
+con_c& con_c::prependCommands(const std::string& commands)
+{
+	std::vector<std::string> lines;
+	splitCommandsIntoLines(commands, lines);
+	m_cbuf.insert(m_cbuf.begin(), lines.begin(), lines.end());
+	return *this;
 }
 
 /*
@@ -303,44 +306,15 @@ void con_c::insertcmd (const char *cmd)
 Provede obsah command bufferu
 ==================================================
 */
-void con_c::execute (void)
+void con_c::execute(void)
 {
-    int     i, zv;
-    char    line[1024], *text;
+	while (!m_cbuf.empty())
+	{
+		std::string line = m_cbuf.front();
+		m_cbuf.pop_front();
 
-    text = m_cbuf;
-    m_aliasloop = 0;
-
-    while (m_cbuflen)
-    {
-        for (i = 0, zv = 0; i < m_cbuflen; i++)
-        {
-            if (text[i] == '"')
-                zv ^= 1;
-            if (text[i] == '\n' || (!zv && text[i] == ';'))
-                break;
-            if (i > 1021)
-            {
-                printf (CON_Lang("CONSTR0005|CON_Error : preteceni pri provadeni, buffer vyprazdnen\n"));
-                m_cbuflen = 0;
-                return;
-            }
-        }
-
-        memcpy (line, text, i);
-        line[i] = 0;
-
-        if (i >= m_cbuflen - 1)
-            m_cbuflen = 0;
-        else
-        {
-            i++;
-            m_cbuflen -= i;
-            memmove (text, text + i, m_cbuflen);
-        }
-
-        execline (line);
-    }
+		executeSingleLine(line);
+	}
 }
 
 /*
@@ -348,8 +322,8 @@ void con_c::execute (void)
 Prida prika do command bufferu a zavola Execute
 ==================================================
 */
-void con_c::exec (const char *s)
+void con_c::exec(const std::string& commands)
 {
-    addcmd (s);
-    execute ();
+    appendCommands(commands);
+    execute();
 }

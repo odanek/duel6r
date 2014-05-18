@@ -30,7 +30,6 @@ Projekt: Konzole
 Popis: Zpracovani prikazove radky
 */
 
-#include <string.h>
 #include "console.h"
 
 /*
@@ -40,8 +39,7 @@ Opravi pozici od ktere se zobrazuje prikazova radka
 */
 void con_c::setinputscroll (void)
 {
-    int     l = (int) strlen (m_input),
-        width = m_width - 1;
+    int     l = (int)m_input.length(), width = m_width - 1;
 
     if (m_curpos == l)
     {
@@ -72,72 +70,73 @@ void con_c::setinputscroll (void)
 Dohledani prikazu
 ==================================================
 */
-void con_c::inpfound (char *name, int *fit, int *nf, char **ffName)
+static bool startsWith(const std::string& text, const std::string& prefix)
 {
-    static char *first;
-    int         i;
-
-    (*nf)++;
-    if (*nf == 1)
-        first = name;
-    else
-    {
-        if (*nf == 2)
-            printf (CON_Lang ("CONSTR0028|]Hledani: \"%s\"\n\t%s\n"), m_input, first);
-        printf ("\t%s\n", name);
-    }
-
-    if (*ffName == NULL)
-    {
-        *fit = (int) strlen (name);
-        *ffName = name;
-    }
-    else
-    {
-        i = 0;
-        while (i < *fit && name[i])
-            if (name[i] == (*ffName)[i])
-                i++;
-            else
-                break;
-
-        *fit = i;
-    }
+	return prefix.length() <= text.length() && text.compare(0, prefix.length(), prefix) == 0;
 }
 
 void con_c::completecmd (void)
 {
-    conAlias_s      *a;
-    conCommand_s    *p;
-    conVar_s        *v;
-    char            *ffName = NULL;
-    int             l = (int) strlen (m_input), fit = 0, nf = 0;
+	if (m_input.empty())
+	{
+		return;
+	}
 
-    if (!l)
-        return;
+	std::vector<std::string> fittingCommands;
+	for (const conCommand_s& command : m_procs)
+	{
+		if (startsWith(command.name, m_input))
+		{
+			fittingCommands.push_back(command.name);
+		}
+	}
+	for (const conVar_s& var : m_vars)
+	{
+		if (startsWith(var.name, m_input))
+		{
+			fittingCommands.push_back(var.name);
+		}
+	}
+	for (const conAlias_s& alias : m_alias)
+	{
+		if (startsWith(alias.name, m_input))
+		{
+			fittingCommands.push_back(alias.name);
+		}
+	}
 
-    for (p = m_procs; p != NULL; p = p->next)
-        if (!strncmp (m_input, p->name, l))
-            inpfound (p->name, &fit, &nf, &ffName);
-    for (v = m_vars; v != NULL; v = v->next)
-        if (!strncmp (m_input, v->name, l))
-            inpfound (v->name, &fit, &nf, &ffName);
-    for (a = m_alias; a != NULL; a = a->next)
-        if (!strncmp (m_input, a->name, l))
-            inpfound (a->name, &fit, &nf, &ffName);
+	if (fittingCommands.size() == 1)
+	{
+		m_input = fittingCommands.front();
+		m_input.append(" ");
+		m_curpos = m_input.length();
+	}
+	else if (fittingCommands.size() > 1)
+	{
+        printf(CON_Lang("CONSTR0028|]Hledani: \"%s\"\n"), m_input.c_str());
+		for (const std::string& command : fittingCommands)
+		{
+			printf("\t%s\n", command.c_str());
+		}
 
-    if (nf)
-    {
-        memcpy (m_input, ffName, fit);
-        if (nf == 1)
-        {
-            m_input[fit] = ' ';
-            m_input[++fit] = 0;
-        }
-        else
-            m_input[fit] = 0;
-        m_curpos = fit;
-    }
+		std::string largestFit = fittingCommands.front();
+		for (const std::string& command : fittingCommands)
+		{
+			size_t prefix = m_input.length();
+			while (prefix < largestFit.length() && prefix < command.length() && largestFit[prefix] == command[prefix])
+			{
+				++prefix;
+			}
+
+			if (prefix < largestFit.length())
+			{
+				largestFit = largestFit.substr(0, prefix);
+			}
+		}
+
+		m_input = largestFit;
+		m_curpos = m_input.length();
+	}
 }
 
 /*
@@ -145,20 +144,11 @@ void con_c::completecmd (void)
 Reakce na stisk klavesy
 ==================================================
 */
-void con_c::keyevent (int k)
+void con_c::keyEvent(SDL_Keycode keyCode)
 {
-    int len;
+    int len = (int)m_input.length();
 
-    if (k == '`')
-    {
-        m_visible = !m_visible;
-        return;
-    }
-
-    if (!m_visible)
-        return;
-
-    switch (k)
+    switch (keyCode)
     {
     case CON_C_SCROLL_UP:
         m_scroll++;
@@ -171,71 +161,96 @@ void con_c::keyevent (int k)
         if (m_histscroll < CON_REM_HIST && m_histcnt - m_histscroll > 0)
         {
             m_histscroll++;
-            strcpy (m_input, m_hist[(m_histcnt - m_histscroll) % CON_REM_HIST]);
-            m_curpos = (int) strlen (m_input);
+			m_input = m_hist[(m_histcnt - m_histscroll) % CON_REM_HIST];
+            m_curpos = (int)m_input.length();
         }
         break;
     case CON_C_HIST_DOWN:
         if (m_histscroll > 0)
         {
             m_histscroll--;
-            if (!m_histscroll)
-                m_input[0] = 0;
-            else
-                strcpy (m_input, m_hist[(m_histcnt - m_histscroll) % CON_REM_HIST]);
-            m_curpos = (int) strlen (m_input);
+			if (!m_histscroll)
+			{
+				m_input.clear();
+			}
+			else
+			{
+				m_input = m_hist[(m_histcnt - m_histscroll) % CON_REM_HIST];
+			}
+            m_curpos = (int) m_input.length();
         }
         break;
     case CON_C_INSERT:
         m_insert = !m_insert;
         break;
-    default:
-        len = (int) strlen (m_input);
-
-        if (k == CON_C_BACK && m_curpos)
+	case CON_C_BACK:
+		if (m_curpos > 0)
         {
-            memmove (&m_input[m_curpos - 1], &m_input[m_curpos], 1 + len - m_curpos);
-            len--;
+			m_input.erase(m_input.begin() + m_curpos - 1);
             m_curpos--;
         }
-        if (k == CON_C_DELETE && m_curpos < len)
+		break;
+	case CON_C_DELETE:
+		if (m_curpos < len)
         {
-            memmove (&m_input[m_curpos], &m_input[m_curpos + 1], len - m_curpos);
-            len--;
+			m_input.erase(m_input.begin() + m_curpos);
         }
-        else if (k == 13 && len)
+		break;
+	case CON_C_ENTER: 
+		if (len)
         {
-            strcpy (m_hist[m_histcnt % CON_REM_HIST], m_input);
+            m_hist[m_histcnt % CON_REM_HIST] = m_input;
             m_histcnt++;
             m_histscroll = 0;
-            printf ("]%s\n", m_input);
-            exec (m_input);
-            m_input[0] = 0;
+            printf ("]%s\n", m_input.c_str());
+            exec(m_input);
+            m_input.clear();
             m_curpos = 0;
         }
-        else if (k == CON_C_TAB)
-            completecmd ();
-        else if (len < CON_MAX_INPUT && k >= ' ' && k < 127)
-        {
-            if (!m_insert || m_curpos == len)
-            {
-                len++;
-                memmove (&m_input[m_curpos + 1], &m_input[m_curpos], len - m_curpos);
-                m_input[m_curpos++] = (char) k;
-            }
-            else
-                m_input[m_curpos++] = (char) k;
-        }
-        else if (k == CON_C_LEFT && m_curpos > 0)
-            m_curpos--;
-        else if (k == CON_C_RIGHT && m_curpos < len)
-            m_curpos++;
-        else if (k == CON_C_HOME)
-            m_curpos = 0;
-        else if (k == CON_C_END)
-            m_curpos = len;
+		break;
+	case CON_C_TAB:
+        completecmd();
+		break;
+	case CON_C_LEFT:
+		if (m_curpos > 0)
+		{
+			m_curpos--;
+		}
+		break;
+	case CON_C_RIGHT: 
+		if (m_curpos < len)
+		{
+			m_curpos++;
+		}
+		break;
+	case CON_C_HOME:
+        m_curpos = 0;
+		break;
+	case CON_C_END:
+        m_curpos = len;
         break;
     }
 
     setinputscroll ();
+}
+
+void con_c::textInputEvent(const char* text)
+{
+	while (*text != 0)
+	{
+		if (*text >= ' ' && *text < 128 && *text != '`')
+		{
+			if (!m_insert || m_curpos == m_input.length())
+			{
+				m_input.insert(m_input.begin() + m_curpos, *text);
+				++m_curpos;
+			}
+			else
+			{
+				m_input[m_curpos++] = *text;
+			}
+		}
+
+		text++;
+	}
 }
