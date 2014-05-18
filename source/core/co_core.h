@@ -33,7 +33,7 @@ Popis: Hlavni hlavickovy soubor jadra
 #ifndef CO_CORE_H
 #define CO_CORE_H
 
-#include <hash_set>
+#include <unordered_set>
 #include <vector>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -91,7 +91,7 @@ struct appVid_s
 class appInp_s
 {
 public:
-	std::hash_set<SDL_Keycode> pressedKeys;
+	std::unordered_set<SDL_Keycode> pressedKeys;
     std::vector<SDL_Joystick*> joysticks;
     bool mouse_but[3];
     int mouse_pos[2];
