@@ -157,28 +157,36 @@ set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 3.9.0 DEBUG_OUTPUT_NAME
 # OpenGL
 if(WIN32)
     target_link_libraries(${D6R_APP_NAME} opengl32.lib)
-else(WIN32)
+elseif(APPLE)
+    find_library(LIB_OPEN_GL OpenGL DOC "Path to OpenGL framework")
+    find_library(LIB_COCOA Cocoa DOC "Path to Cocoa framework")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL} ${LIB_COCOA})
+else(WIN32) # Linux GCC
     find_library(LIB_OPEN_GL GL DOC "Path to OpenGL import library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL})
 endif(WIN32)
 
 # SDL
-find_path(HEADERS_SDL SDL2/SDL.h DOC "Path to SDL headers")
-include_directories(${HEADERS_SDL})
+find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
+include_directories(${HEADERS_SDL2})
 if(WIN32)
-    find_library(LIB_SDL SDL2 DOC "Path to SDL import library (release version)")
-    find_library(LIB_SDL_MAIN SDL2main DOC "Path to SDLmain import library (release version)")
-    find_library(LIB_SDL_MIXER SDL2_mixer DOC "Path to SDL_mixer import library (release version)")
-    find_library(LIB_SDL_D SDL2d DOC "Path to SDL import library (debug version)")
-    find_library(LIB_SDL_MAIN_D SDL2maind DOC "Path to SDLmain import library (debug version)")
-    find_library(LIB_SDL_MIXER_D SDL2_mixerd DOC "Path to SDL_mixer import library (debug version)")
-    target_link_libraries(${D6R_APP_NAME} optimized ${LIB_SDL} optimized ${LIB_SDL_MAIN} optimized ${LIB_SDL_MIXER} 
-        debug ${LIB_SDL_D} debug ${LIB_SDL_MAIN_D} debug ${LIB_SDL_MIXER_D})
-else(WIN32)
-    find_library(LIB_SDL SDL2 DOC "Path to SDL import library")
-    find_library(LIB_SDL_MAIN SDL2main DOC "Path to SDLmain import library")
-    find_library(LIB_SDL_MIXER SDL2_mixer DOC "Path to SDL_mixer import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL} ${LIB_SDL_MAIN} ${LIB_SDL_MIXER})
+    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library (release version)")
+    find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library (release version)")
+    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library (release version)")
+    find_library(LIB_SDL2_D SDL2d DOC "Path to SDL2 import library (debug version)")
+    find_library(LIB_SDL2_MAIN_D SDL2maind DOC "Path to SDL2main import library (debug version)")
+    find_library(LIB_SDL2_MIXER_D SDL2_mixerd DOC "Path to SDL2_mixer import library (debug version)")
+    target_link_libraries(${D6R_APP_NAME} optimized ${LIB_SDL2} optimized ${LIB_SDL2_MAIN} optimized ${LIB_SDL2_MIXER} 
+        debug ${LIB_SDL2_D} debug ${LIB_SDL2_MAIN_D} debug ${LIB_SDL2_MIXER_D})
+elseif(APPLE)
+    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
+    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})    
+else(WIN32) # Linux GCC
+    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
+    find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
+    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MAIN} ${LIB_SDL2_MIXER})
 endif(WIN32)
 
 ########################
