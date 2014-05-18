@@ -240,7 +240,7 @@ void con_c::textInputEvent(const char* text)
 	{
 		if (*text >= ' ' && *text < 128 && *text != '`')
 		{
-			if (!m_insert || m_curpos == m_input.length())
+			if (!m_insert || m_curpos == (int)m_input.length())
 			{
 				m_input.insert(m_input.begin() + m_curpos, *text);
 				++m_curpos;
