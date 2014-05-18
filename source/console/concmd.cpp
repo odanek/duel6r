@@ -278,7 +278,7 @@ static void CON_CmdArchive (con_c *c_ptr)
 		{
 			i++;
 			c_ptr->printf("\t\"%s\"\n", var.name.c_str());
-			fprintf(f, "\"%s\" %s\n", var.name.c_str(), c_ptr->getVarValue(var));
+			fprintf(f, "\"%s\" %s\n", var.name.c_str(), c_ptr->getVarValue(var).c_str());
 		}
 	}
 
