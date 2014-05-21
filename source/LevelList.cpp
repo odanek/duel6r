@@ -30,7 +30,7 @@
 
 namespace Duel6
 {
-	void LevelList::Initialize(const std::string& directoryName, const std::string& fileExtension)
+	void LevelList::initialize(const std::string& directoryName, const std::string& fileExtension)
 	{
 		directory = directoryName;
 		fileNames.clear();

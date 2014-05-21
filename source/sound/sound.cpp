@@ -84,8 +84,8 @@ namespace Duel6
 		// Init SDL_mixer library
 		SND_TEST(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024))
 
-			// Allocate channels
-			channels = Mix_AllocateChannels(channels);
+		// Allocate channels
+		channels = Mix_AllocateChannels(channels);
 
 		g_app.con->printf(MY_L("APP00005|...Frekvence: %d\n...Kanalu: %d\n"), MIX_DEFAULT_FREQUENCY, channels);
 

@@ -41,7 +41,7 @@ namespace Duel6
 		std::vector<std::string> fileNames;
 
 	public:
-		void Initialize(const std::string& directoryName, const std::string& fileExtension);
+		void initialize(const std::string& directoryName, const std::string& fileExtension);
 		
 		Size getLength()
 		{ 

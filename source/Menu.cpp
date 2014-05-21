@@ -307,7 +307,7 @@ namespace Duel6
 		MENU_JoyRescan();
 
 		MENU_GetBcgCount();
-		d6LevelList.Initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
+		d6LevelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
 		myListbox[3]->AddItem(MY_L("APP00046|Nahodna"));
 		for (i = 0; i < (int)d6LevelList.getLength(); i++)
