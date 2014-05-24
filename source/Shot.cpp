@@ -49,12 +49,12 @@ namespace Duel6
 	Float32 Shot::getExplosionPower() const
 	{
 		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * getWeapon().Power;
+		return coef * getWeapon().power;
 	}
 
 	Float32 Shot::getExplosionRange() const
 	{
 		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * getWeapon().Boom;
+		return coef * getWeapon().boom;
 	}
 }

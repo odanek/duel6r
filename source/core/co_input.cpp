@@ -63,17 +63,3 @@ void CO_JoystickScan()
         }
     }
 }
-
-/*
-==================================================
-Update vstupnich zarizeni (hlavne joypadu)
-==================================================
-*/
-void CO_InpUpdate (void)
-{
-	if (!g_inp.joysticks.empty())
-	{
-		SDL_JoystickUpdate();
-	}
-}
-

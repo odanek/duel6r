@@ -33,32 +33,28 @@
 
 namespace Duel6
 {
+	class BlockData;
 	class World;
-	enum class ScreenMode;
 	class InfoMessageQueue;
 	class SpriteList;
 	class Player;
 	class PlayerSkinColors;
+	class Menu;
+	class Game;
 
-	extern float d6KeyWait;
-	extern World d6World;
+	extern Context* d6Context;
+	extern Menu d6Menu;
+	extern Game d6Game;
+	extern BlockData d6BlockData;
 	extern GLuint d6BackgroundTexture;
-	extern bool d6InMenu;
 	extern bool d6Wireframe;
-	extern int d6ZoomBlc;
 	extern bool d6ShowFps, d6PlayMusic;
 	extern int d6AmmoRangeMin, d6AmmoRangeMax;
-	extern ScreenMode d6ScreenMode;
 	extern bool d6ShowRanking;
-	extern std::vector<Player> d6Players;
 	extern std::vector<PlayerSkinColors> d6PlayerColors;
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList d6SpriteList;
-
-	extern int d6Winner;
-	extern float d6GameOverWait;
-	extern int d6PlayedRounds;
-	extern int d6MaxRounds;
+	extern World d6World;
 }
 
 #endif

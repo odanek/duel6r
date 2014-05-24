@@ -37,10 +37,41 @@
 
 namespace Duel6
 {
+	class BlockData
+	{
+	private:
+		std::vector<Block> meta;
+		std::vector<GLuint> textures;
+
+	private:
+		Size loadBlockTextures(const std::string& path);
+		void loadBlockMeta(const std::string& path, Size blocks);
+
+	public:
+		~BlockData()
+		{
+			freeTextures();
+		}
+
+		void init(const std::string& textureFile, const std::string& blockMetaFile);
+		
+		const std::vector<Block>& getMeta() const
+		{
+			return meta;
+		}
+
+		const std::vector<GLuint>& getTextures() const
+		{
+			return textures;
+		}
+
+		void freeTextures();
+	};
+
 	class World
 	{
 	private:
-		std::vector<Block> blockMeta;
+		const BlockData& blockData;
 
 		Int32 width;
 		Int32 height;
@@ -56,19 +87,13 @@ namespace Duel6
 		Float32 waveHeight;
 		WaterList floatingVertexes;
 
-
 	public:
-		std::vector<GLuint> blockTextures;
-
-	public:
-		World(Float32 animationSpeed, Float32 waveHeight)
-			: walls(blockTextures), sprites(blockTextures), water(blockTextures), animationSpeed(animationSpeed), waveHeight(waveHeight)
+		World(const BlockData& blockData, Float32 animationSpeed, Float32 waveHeight)
+			: blockData(blockData), walls(blockData.getTextures()), sprites(blockData.getTextures()), 
+			water(blockData.getTextures()), animationSpeed(animationSpeed), waveHeight(waveHeight)
 		{}
 
-		void init(const std::string& textureFile, const std::string& blockMetaFile);
-		void freeTextures();
-
-		void loadLevelData(const std::string& path, bool mirror);
+		void loadLevel(const std::string& path, bool mirror);
 		void findBonuses(std::vector<Bonus>& bonuses);
 		void prepareFaces();
 
@@ -79,12 +104,27 @@ namespace Duel6
 			return walls;
 		}
 
+		const FaceList& getWalls() const
+		{
+			return walls;
+		}
+
 		FaceList& getSprites()
 		{
 			return sprites;
 		}
 
+		const FaceList& getSprites() const
+		{
+			return sprites;
+		}
+
 		FaceList& getWater()
+		{
+			return water;
+		}
+
+		const FaceList& getWater() const
 		{
 			return water;
 		}
@@ -109,7 +149,7 @@ namespace Duel6
 			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
 		}
 
-		WaterType getWaterType(Int32 x, Int32 y)
+		WaterType getWaterType(Int32 x, Int32 y) const
 		{
 			if (isWater(x, y))
 			{
@@ -120,9 +160,6 @@ namespace Duel6
 		}
 
 	private:
-		Size loadBlockTextures(const std::string& path);
-		void loadBlockMeta(const std::string& path, Size blocks);
-
 		void mirrorLevelData();
 		void loadElevators(myFile_s* f, bool mirror);
 
@@ -148,7 +185,7 @@ namespace Duel6
 
 		const Block& getBlockMeta(Int32 x, Int32 y) const
 		{
-			return blockMeta[getBlock(x, y)];
+			return blockData.getMeta()[getBlock(x, y)];
 		}
 	};
 }

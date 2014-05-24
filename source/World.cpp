@@ -32,17 +32,17 @@
 
 namespace Duel6
 {
-	void World::init(const std::string& textureFile, const std::string& blockMetaFile)
+	void BlockData::init(const std::string& textureFile, const std::string& blockMetaFile)
 	{
 		Size blocks = loadBlockTextures(textureFile);
 		loadBlockMeta(blockMetaFile, blocks);
 	}
 
-	void World::loadBlockMeta(const std::string& path, Size blocks)
+	void BlockData::loadBlockMeta(const std::string& path, Size blocks)
 	{
 		g_app.con->printf(MY_L("APP00058|Nahravam animacni data (%s)\n"), path.c_str());
 		
-		blockMeta.clear();		
+		meta.clear();		
 		myFile_s* f = MY_FOpen(path.c_str(), 0, "rb", true);
 		for (Size i = 0; i < blocks; i++)
 		{
@@ -52,12 +52,12 @@ namespace Duel6
 			Int32 blockType;
 			MY_FRead(&blockType, 4, 1, f);
 
-			blockMeta.push_back(Block(blockMeta.size(), (Block::Type)blockType, blockAnimations));
+			meta.push_back(Block(meta.size(), (Block::Type)blockType, blockAnimations));
 		}
 		MY_FClose(&f);
 	}
 
-	Size World::loadBlockTextures(const std::string& path)
+	Size BlockData::loadBlockTextures(const std::string& path)
 	{		
 		g_app.con->printf(MY_L("APP00056|Nahravam textury urovne\n"));		
 		
@@ -66,23 +66,26 @@ namespace Duel6
 		MY_KH3GetInfo(&ki);
 		g_app.con->printf(MY_L("APP00057|...Soubor %s obsahuje %lu textur\n"), path.c_str(), ki.picts);
 
-		blockTextures.resize(ki.picts);
+		textures.resize(ki.picts);
 		for (Size i = 0; i < ki.picts; i++)
 		{
-			blockTextures[i] = Util::loadKH3Texture(path, i, false);
+			textures[i] = Util::loadKH3Texture(path, i, false);
 		}
 		MY_KH3Close();
 
 		return ki.picts;
 	}
 
-	void World::freeTextures()
+	void BlockData::freeTextures()
 	{
-		glDeleteTextures(blockTextures.size(), &blockTextures[0]);
-		blockTextures.clear();
+		if (!textures.empty())
+		{
+			glDeleteTextures(textures.size(), &textures[0]);
+			textures.clear();
+		}
 	}
 
-	void World::loadLevelData(const std::string& path, bool mirror)
+	void World::loadLevel(const std::string& path, bool mirror)
 	{
 		levelData.clear();
 
@@ -167,7 +170,7 @@ namespace Duel6
 			for (Int32 x = 0; x < getSizeX(); x++)
 			{
 				Int32 blockIndex = getBlock(x, y);
-				const Block& block = blockMeta[blockIndex];
+				const Block& block = blockData.getMeta()[blockIndex];
 
 				if (block.is(Block::EmptySpace))
 				{

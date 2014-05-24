@@ -35,14 +35,10 @@ Popis: Jadro - zakladni funkce, vstupni bod
 // Deklarace procedur ktere musi byt nekde implementovany
 namespace Duel6
 {
-	void    P_Init(void);
-	void    P_DeInit(void);
+	void    P_Init();
+	void    P_DeInit();
+	void    P_Main();
 }
-
-void    P_Main          (void);
-void    P_KeyEvent      (int key);
-void	P_TextInputEvent(const char* text);
-void    P_ActiveEvent   (bool active);
 
 // Deklarace globalnich promenych
 app_s       g_app;
@@ -51,60 +47,11 @@ appInp_s    g_inp;
 
 /*
 ==================================================
-Zpracovani eventu
-==================================================
-*/
-void CO_ProcessEvents (void)
-{
-    SDL_Event   event;
-    SDL_Keysym  key;
-
-    while (SDL_PollEvent (&event))
-    {
-        switch (event.type)
-        {
-        case SDL_KEYDOWN:
-            key = event.key.keysym;
-			g_inp.pressedKeys.insert(key.sym);
-			P_KeyEvent(key.sym);
-            break;
-        case SDL_KEYUP:
-			key = event.key.keysym;
-			g_inp.pressedKeys.erase(key.sym);
-            break;
-		case SDL_TEXTINPUT:
-			P_TextInputEvent(event.text.text);
-			break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            if (event.button.button == SDL_BUTTON_LEFT)
-                g_inp.mouse_but[0] = event.button.state == SDL_PRESSED;
-            if (event.button.button == SDL_BUTTON_RIGHT)
-                g_inp.mouse_but[1] = event.button.state == SDL_PRESSED;
-            if (event.button.button == SDL_BUTTON_MIDDLE)
-                g_inp.mouse_but[2] = event.button.state == SDL_PRESSED;
-            break;
-        case SDL_MOUSEMOTION:
-            g_inp.mouse_pos[0] = event.motion.x;
-            g_inp.mouse_pos[1] = event.motion.y;
-            break;
-        case SDL_QUIT:
-            g_app.flags |= APP_FLAG_QUIT;
-            break;
-        }
-    }
-}
-
-/*
-==================================================
 Deinicializace jadra
 ==================================================
 */
 static void CO_DeInit (void)
 {
-    MY_UnregMem (g_app.con);
-    delete g_app.con;
-    CO_FontFree ();
     MY_DeInit ();
     SDL_Quit ();
 }
@@ -116,14 +63,13 @@ Ulozeni obsahu konzoly na disk a uklid po chybe
 */
 static void CO_ErrorHandler (const char *str)
 {
-    if (g_app.con != NULL)
+    if (g_app.con.get() == nullptr)
     {
-        g_app.con->printf (str);
-        g_app.con->exec ("dump chyba.con");
+        g_app.con->printf(str);
+        g_app.con->exec("dump chyba.con");
     }
 
     Duel6::P_DeInit ();
-    VID_Shutdown ();
     CO_DeInit ();
 }
 
@@ -136,7 +82,7 @@ static void CO_Init (void)
 {
     // Inicializace promenych jadra
     g_app.flags = APP_FLAG_NONE;
-    g_app.con = NULL;
+	g_app.con.reset(new con_c(CON_F_EXPAND));
 
     // Inicializace me knihovny
     MY_Init ();
@@ -144,25 +90,19 @@ static void CO_Init (void)
     MY_ErrCallback (CO_ErrorHandler);
 
     // Inicializace SDL
-    if (SDL_Init (SDL_INIT_VIDEO) != 0)
-        MY_Err (MY_ErrDump ("%S: %s\n", MY_L("COSTR0006|Chyba pri inicializaci grafickeho modu"), SDL_GetError()));
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
+		MY_Err(MY_ErrDump("%S: %s\n", MY_L("COSTR0006|Chyba pri inicializaci grafickeho modu"), SDL_GetError()));
+	}
 
     SDL_SetWindowTitle(g_app.window, APP_NAME);
     SDL_SetWindowIcon(g_app.window, SDL_LoadBMP (APP_FILE_ICON));
 
     // Inicializace jadra
-    CO_FontLoad (APP_FILE_FONT);
+    CO_FontLoad(APP_FILE_FONT);
+    g_app.con->setfont(CO_FontGet());
 
-    // Inicializace konzoly
-#ifdef _DEBUG
-    g_app.con = new con_c(CON_F_EXPAND | CON_F_REG_INFO);
-#else
-    g_app.con = new con_c(CON_F_EXPAND);
-#endif
-    MY_RegMem (g_app.con, sizeof (con_c));
-
-    g_app.con->setfont (CO_FontGet ());
-    CON_RegisterBasicCmd (g_app.con);
+    CON_RegisterBasicCmd(g_app.con.get());
 }
 
 /*
@@ -174,7 +114,6 @@ int main (int argc, char *argv[])
 {
     // Inicializace
     CO_Init ();
-    VID_Init ();
     Duel6::P_Init ();
 
     // Provedeni prikazu predanych z prikazove radky
@@ -184,11 +123,10 @@ int main (int argc, char *argv[])
 	}
 
     // Predani kontroly aplikaci
-    P_Main ();
+    Duel6::P_Main();
 
     // Deinicializace
     Duel6::P_DeInit ();
-    VID_Shutdown ();   
     CO_DeInit ();
 
     return 0;

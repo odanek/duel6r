@@ -34,6 +34,7 @@ Popis: Hlavni hlavickovy soubor jadra
 #define CO_CORE_H
 
 #include <unordered_set>
+#include <memory>
 #include <vector>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -42,7 +43,7 @@ Popis: Hlavni hlavickovy soubor jadra
 #include "../Type.h"
 
 /* Makra a definice */
-#define APP_VERSION         "3.9.0"
+#define APP_VERSION         "3.10.0"
 #define APP_NAME            "Duel 6 Reloaded"
 #define APP_FILE_ICON       "data/duel6_icon.bmp"
 #define APP_FILE_CORE_PCK   "data/duel6.pck"
@@ -52,8 +53,6 @@ Popis: Hlavni hlavickovy soubor jadra
 #define APP_FLAG_NONE       0
 #define APP_FLAG_QUIT       1
 
-#define APP_KEY_LAST		1024
-
 /*
 ==================================================
 Datove struktury
@@ -62,30 +61,24 @@ Datove struktury
 struct app_s
 {
     float       fps;                // Aktualni pocet obrazku za sekundu
-    float       frame_interval;     // Cas straveny vykreslenim jednoho framu
     bool        flags;              // Flagy aplikace
-    con_c       *con;               // Konzole
+    std::unique_ptr<con_c> con;     // Konzole
     bool        active;             // Je aplikace prave aktivni (ma focus?)
     SDL_Window  *window;            // SDL window
-	SDL_GLContext glContext;       // OpenGL context
+	SDL_GLContext glContext;        // OpenGL context
     myBYTE      *font;              // Ukazatel na font
 };
 
 struct appVid_s
 {
-    bool        inited;             // Video inited?
-
     int         cl_width;           // Client width
     int         cl_height;          // Client height
-
     int         gl_bpp;             // Current bits per pixel
     int         gl_aa;              // Current anti alliasing samples
     float       gl_farclip;         // OpenGL far clipping plane
     float       gl_nearclip;        // OpenGL far clipping plane
     float       gl_fov;             // OpenGL field of view
     float       gl_aspect;          // OpenGL aspect - pokud je 0 tak dopocitat jako width/height
-    float       gl_cdepth;          // OpenGL color depth - 0 je default
-    float       gl_zdepth;          // OpenGL z-buffer depth
 };
 
 class appInp_s
@@ -93,8 +86,6 @@ class appInp_s
 public:
 	std::unordered_set<SDL_Keycode> pressedKeys;
     std::vector<SDL_Joystick*> joysticks;
-    bool mouse_but[3];
-    int mouse_pos[2];
 
 	bool isPressed(SDL_Keycode keyCode)
 	{
@@ -106,12 +97,26 @@ extern app_s    g_app;
 extern appVid_s g_vid;
 extern appInp_s g_inp;
 
-/*
-==================================================
-co_main.cpp
-==================================================
-*/
-void            CO_ProcessEvents    (void);
+class Context
+{
+public:
+	enum class Type
+	{
+		Menu,
+		Game
+	};
+
+public:
+	virtual ~Context()
+	{}
+
+	virtual void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) = 0;
+	virtual void textInputEvent(const char* text) = 0;
+	virtual void update(float elapsedTime) = 0;
+	virtual void render() const = 0;
+	virtual Type getType() const = 0;
+};
+
 
 /*
 ==================================================
@@ -119,7 +124,6 @@ co_input.cpp
 ==================================================
 */
 void CO_JoystickScan();
-void CO_InpUpdate();
 
 /*
 ==================================================
@@ -128,29 +132,26 @@ co_font.cpp
 */
 #define CO_FontColorPal(pal,x)      CO_FontColor (pal[x][0],pal[x][1],pal[x][2])
 
-void            CO_FontLoad         (const char *fontFile);
-void            CO_FontFree         (void);
+void            CO_FontLoad         (const std::string& fontFile);
 void            CO_FontColor        (GLubyte red, GLubyte green, GLubyte blue);
 void            CO_FontPrint        (int x, int y, const char *str);
 void            CO_FontPrintf       (int x, int y, const char *str, ...);
 void            CO_FontSetMode      (bool x_mul, bool y_mul, bool y_rev);
-const myBYTE    *CO_FontGet         (void);
+const myBYTE    *CO_FontGet         ();
 
 /*
 ==================================================
 co_fps.cpp
 ==================================================
 */
-void            CO_FpsSyncLoops     (void (*update)(float), void (*draw)(void));
+void CO_FpsSyncLoops(Context& context);
 
 /*
 ==================================================
 co_vid.cpp
 ==================================================
 */
-void            VID_SwapBuffers     (void);
-void            VID_Init            (void);
+void            VID_SwapBuffers     ();
 void            VID_SetMode         (int w, int h, int bpp, int aa, bool full);
-void            VID_Shutdown        (void);
 
 #endif

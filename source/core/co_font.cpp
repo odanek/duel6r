@@ -30,9 +30,10 @@ Projekt: Sablona aplikace
 Popis: Prace s fonty, psani na obrazovku
 */
 
+#include <vector>
 #include "co_core.h"
 
-static  myBYTE  *fontData = NULL;
+static  std::vector<myBYTE> fontData;
 static  int     fontSZX, fontSZY;
 static  GLubyte fontCol[3];
 static  char    fontStr[500];
@@ -45,27 +46,19 @@ static  bool    font_y_rev = false;         // Otocit osu y?
 Nahrani fontu ze souboru
 ==================================================
 */
-void CO_FontLoad (const char *fontFile)
+void CO_FontLoad (const std::string& fontFile)
 {
-    MY_Free (fontData);
+	size_t fileSize = MY_FSize(fontFile.c_str());
 
-    if (MY_FSize (fontFile) < 50)
-        MY_Err (MY_ErrDump(MY_L("COSTR0001|Nepodarilo se nahrat soubor s fontem %s"), fontFile));
+	if (fileSize < 50)
+	{
+		MY_Err(MY_ErrDump(MY_L("COSTR0001|Nepodarilo se nahrat soubor s fontem %s"), fontFile));
+	}
 
-    fontData = (myBYTE *) MY_Alloc (MY_FSize (fontFile) - 50);
-    MY_FLoadBlock (fontFile, 50, -1, (void *) fontData);
+    fontData.resize(fileSize - 50);
+    MY_FLoadBlock (fontFile.c_str(), 50, -1, &fontData[0]);
     fontSZX = (int) fontData[0];
     fontSZY = (int) fontData[1];
-}
-
-/*
-==================================================
-Uvolneni fontu z pameti
-==================================================
-*/
-void CO_FontFree (void)
-{
-    MY_Free (fontData);
 }
 
 /*
@@ -150,7 +143,7 @@ Vraci ukazatel na nahrany font
 */
 const myBYTE *CO_FontGet (void)
 {
-    return fontData;
+    return &fontData[0];
 }
 
 /*

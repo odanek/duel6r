@@ -77,7 +77,7 @@ namespace Duel6
 		}
 
 		void optimize();
-		void render();
+		void render() const;
 		void nextFrame();
 	};
 }

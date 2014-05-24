@@ -176,9 +176,13 @@ namespace Duel6
 	void SET_MaxRounds(con_c *con)
 	{
 		if (con->argc() == 2)
-			d6MaxRounds = atoi(con->argv(1).c_str());
+		{
+			d6Game.setMaxRounds(atoi(con->argv(1).c_str()));
+		}
 		else
-			con->printf("Odehranych kol: %d | Max pocet kol: %d\n", d6PlayedRounds, d6MaxRounds);
+		{
+			con->printf("Odehranych kol: %d | Max pocet kol: %d\n", d6Game.getPlayedRounds(), d6Game.getMaxRounds());
+		}
 	}
 	
 	/*
@@ -219,17 +223,23 @@ namespace Duel6
 	{
 		if (con->argc() == 2)
 		{
+			bool inGame = (d6Context != nullptr && d6Context->getType() == Context::Type::Game);
+
 			if (con->argv(1) == "on")
 			{
 				d6PlayMusic = true;
-				if (d6InMenu)
+				if (!inGame)
+				{
 					SOUND_StartMusic(0, false);
+				}
 			}
 			if (con->argv(1) == "off")
 			{
 				d6PlayMusic = false;
-				if (d6InMenu)
+				if (!inGame)
+				{
 					SOUND_StopMusic();
+				}
 			}
 		}
 	}
@@ -241,7 +251,7 @@ namespace Duel6
 	*/
 	void SET_JoyScan(con_c *con)
 	{
-		if (d6InMenu)
+		if (d6Context == nullptr || d6Context->getType() == Context::Type::Menu)
 		{
 			MENU_JoyRescan();
 		}
@@ -316,9 +326,9 @@ namespace Duel6
 			{
 				d6WpnDef[gn].enabled = (con->argv(2) == "true");
 				if (d6WpnDef[gn].enabled)
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00113|povoleno"));
+					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00113|povoleno"));
 				else
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00114|zakazano"));
+					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00114|zakazano"));
 			}
 		}
 		else
@@ -326,9 +336,9 @@ namespace Duel6
 			for (gn = 0; gn < D6_WEAPONS; gn++)
 			{
 				if (d6WpnDef[gn].enabled)
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00113|povoleno"));
+					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00113|povoleno"));
 				else
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].Name), MY_L("APP00114|zakazano"));
+					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00114|zakazano"));
 			}
 		}
 	}
@@ -448,7 +458,6 @@ namespace Duel6
 		g_app.con->regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
 		g_app.con->regvar(&d6VideoMode.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6VideoMode.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6MaxRounds, "g_rounds", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6VideoMode.height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
 
@@ -468,7 +477,7 @@ namespace Duel6
 		g_app.con->exec("exec data/skin.txt");
 
 		SET_InitVideo();
-		d6World.init(D6_FILE_ART, D6_FILE_ANM);
+		d6BlockData.init(D6_FILE_ART, D6_FILE_ANM);
 		WPN_Init(D6_FILE_WEAPON);
 		EXPL_Load(D6_FILE_EXPLODE);
 		ELEV_Init();
@@ -476,14 +485,14 @@ namespace Duel6
 		CONTROLS_Init();
 
 		MENU_Init();
-		MENU_Start();
+		d6Menu.startContext();
 	}
 
 	void P_DeInit()
 	{
 		SOUND_DeInit();
 
-		d6World.freeTextures();
+		d6BlockData.freeTextures();
 		WPN_FreeTextures();
 		MENU_Free();
 		EXPL_Free();

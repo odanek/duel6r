@@ -167,7 +167,7 @@ public:
     void blit(int res_x, int res_y);
 
     void printf(const char *str, ...);
-    void keyEvent(SDL_Keycode keyCode);
+    void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
 	void textInputEvent(const char* text);
 	
 	void toggle()

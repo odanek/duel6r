@@ -32,6 +32,7 @@
 #include "PlayerSkin.h"
 #include "Weapon.h"
 #include "Math.h"
+#include "Game.h"
 #include "Util.h"
 
 namespace Duel6
@@ -123,10 +124,10 @@ namespace Duel6
 
 		Sprite shotSprite(player.getWeapon().shotAnimation, d6WpnTextures);		
 		d6Shots.push_back(Shot(player, x, y, d6SpriteList.addSprite(shotSprite)));
-		SOUND_PlaySample(player.getWeapon().ShSound);
+		SOUND_PlaySample(player.getWeapon().shotSound);
 	}
 
-	static void WPN_Boom(Shot& shot, Player* playerThatWasHit)
+	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit)
 	{
 		int killedPlayers = 0, initialAuthorKills = shot.getPlayer().getPerson().getKills();
 		bool killedSelf = false;
@@ -143,7 +144,7 @@ namespace Duel6
 			FIRE_Check(X, Y, range);
 		}
 
-		for (Player& player : d6Players)
+		for (Player& player : players)
 		{
 			if (player.is(*playerThatWasHit))
 			{
@@ -191,11 +192,11 @@ namespace Duel6
 		}
 	}
 
-	static bool WPN_ShotPlayerCollision(Shot& shot)
+	static bool WPN_ShotPlayerCollision(Shot& shot, std::vector<Player>& players)
 	{
 		Float32 X = (shot.getOrientation() == Orientation::Left) ? shot.getX() : shot.getX() + 0.35f; // TODO: Coord
 
-		for (Player& player : d6Players)
+		for (Player& player : players)
 		{
 			if (player.getBonus() == D6_BONUS_INVIS || player.is(shot.getPlayer()))
 			{
@@ -212,17 +213,19 @@ namespace Duel6
 				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad) // TODO: Coord
 				continue;
 
-			WPN_Boom(shot, &player);
+			WPN_Boom(shot, players, &player);
 			return true;
 		}
 
 		return false;
 	}
 
-	static bool WPN_ShotCollision(Shot& s)
+	static bool WPN_ShotCollision(Game& game, Shot& s)
 	{
-		if (WPN_ShotPlayerCollision(s))
+		if (WPN_ShotPlayerCollision(s, game.getPlayers()))
+		{
 			return true;
+		}
 
 		Int32 up = (int)(s.getY() + 1.0f); // TODO: Coord
 		Int32 down = (int)(s.getY() + 0.65f); // TODO: Coord
@@ -239,10 +242,11 @@ namespace Duel6
 			right = (int)(s.getX() + 1.0f); // TODO: Coord
 		}
 
-		if (d6World.isWall(left, up, true) || d6World.isWall(left, down, true) ||
-			d6World.isWall(right, up, true) || d6World.isWall(right, down, true))
+		const World& world = game.getWorld();
+		if (world.isWall(left, up, true) || world.isWall(left, down, true) ||
+			world.isWall(right, up, true) || world.isWall(right, down, true))
 		{
-			WPN_Boom(s, NULL);
+			WPN_Boom(s, game.getPlayers(), NULL);
 			return true;
 		}
 
@@ -255,7 +259,7 @@ namespace Duel6
 		return d6Shots.erase(shot);
 	}
 
-	void WPN_MoveShots(float elapsedTime)
+	void WPN_MoveShots(Game& game, float elapsedTime)
 	{
 		auto shot = d6Shots.begin();
 
@@ -264,7 +268,7 @@ namespace Duel6
 			const Weapon& weapon = shot->getWeapon();
 			shot->move(elapsedTime);
 
-			if (WPN_ShotCollision(*shot))
+			if (WPN_ShotCollision(game, *shot))
 			{				
 				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
 				
@@ -278,12 +282,12 @@ namespace Duel6
 				SpriteIterator boomSprite = d6SpriteList.addSprite(boom);
 
 				if (shot->getPlayer().hasPowerfulShots())
-					boomSprite->setGrow(weapon.ExpGrow * 1.2f);
+					boomSprite->setGrow(weapon.expGrow * 1.2f);
 				else
-					boomSprite->setGrow(weapon.ExpGrow);
-				if (weapon.BmSound != -1)
-					SOUND_PlaySample(weapon.BmSound);
-				if (weapon.Boom > 0)
+					boomSprite->setGrow(weapon.expGrow);
+				if (weapon.boomSound != -1)
+					SOUND_PlaySample(weapon.boomSound);
+				if (weapon.boom > 0)
 				{
 					boomSprite->setNoDepth(true);
 				}

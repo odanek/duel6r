@@ -56,6 +56,6 @@ namespace Duel6
 			return d6WpnTextures[weaponType->animation[12]];
 		}
 
-		return d6World.blockTextures[type];
+		return d6BlockData.getTextures()[type];
 	}
 }

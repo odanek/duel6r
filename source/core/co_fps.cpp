@@ -44,14 +44,14 @@ Nasledne je vse vykresleno na obrazovku.
 Zaroven provadi vypocet fps.
 ==================================================
 */
-void CO_FpsSyncLoops (void (*update) (float), void (*draw) (void))
+void CO_FpsSyncLoops(Context& context)
 {
-    static unsigned long    cur_time = 0, last_fps_time = 0;
-    static int              frame_counter = 0;
-    unsigned long           last_time;
+    static unsigned long cur_time = 0, last_fps_time = 0;
+    static int frame_counter = 0;
+    unsigned long last_time;
 
     last_time = cur_time;
-    cur_time = SDL_GetTicks ();
+    cur_time = SDL_GetTicks();
 
     // Calculate fps
     if (cur_time - last_fps_time >= 1000)
@@ -63,13 +63,13 @@ void CO_FpsSyncLoops (void (*update) (float), void (*draw) (void))
 	frame_counter++;
 
 	// Draw
-    draw ();
-    VID_SwapBuffers ();
+    context.render();
+    VID_SwapBuffers();
 
     // Update
     if (cur_time - last_time < 70)
     {
-        g_app.frame_interval = (cur_time - last_time) * 0.001f;;
-        update(g_app.frame_interval);
+        float elapsedTime = (cur_time - last_time) * 0.001f;;
+        context.update(elapsedTime);
     }
 }

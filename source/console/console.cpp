@@ -62,12 +62,12 @@ con_c::con_c (int flags)
     m_width = CON_DEF_WIDTH;
     m_show = CON_DEF_SHOWLAST;
 
-    clear ();
+    clear();
 
-    printf ("==========================\n");
-    printf (CON_Lang("CONSTR0029|Konzole -- autor O.Danek\n"));
-    printf (CON_Lang("CONSTR0030|Verze %s\n"), CON_VERSION);
-    printf ("==========================\n");
+    printf("==========================\n");
+    printf(CON_Lang("CONSTR0029|Konzole -- autor O.Danek\n"));
+    printf(CON_Lang("CONSTR0030|Verze %s\n"), CON_VERSION);
+    printf("==========================\n");
 }
 
 con_c::~con_c ()

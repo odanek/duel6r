@@ -54,7 +54,7 @@ namespace Duel6
 		}
 	}
 
-	void FaceList::render()
+	void FaceList::render() const
 	{
 		if (faces.empty())
 		{
@@ -67,7 +67,7 @@ namespace Duel6
 		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
 
-		for (Face& face : faces)
+		for (const Face& face : faces)
 		{
 			if (textures[face.getCurrentTexture()] != curTexture)
 			{

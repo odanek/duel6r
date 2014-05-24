@@ -62,8 +62,8 @@ namespace Duel6
 	void InfoMessageQueue::renderPlayerMessages(const Player& player) const
 	{
 		const PlayerView& view = player.getView();
-		Int32 posX = view.X + 4;
-		Int32 posY = view.Y + view.Height - 24;
+		Int32 posX = view.getX() + 4;
+		Int32 posY = view.getY() + view.getHeight() - 24;
 
 		CO_FontColor(255, 255, 0);
 
@@ -79,8 +79,8 @@ namespace Duel6
 
 	void InfoMessageQueue::renderAllMessages(const PlayerView& view, Int32 offsetY) const
 	{
-		Int32 posX = view.X + 4;
-		Int32 posY = view.Y + view.Height - offsetY;
+		Int32 posX = view.getX() + 4;
+		Int32 posY = view.getY() + view.getHeight() - offsetY;
 
 		CO_FontColor(255, 255, 0);
 

@@ -59,6 +59,8 @@ set(D6R_SOURCES
     source/FaceList.h
     source/FaceList.cpp
     source/fire.cpp
+    source/Game.cpp
+    source/Game.h
     source/glib.cpp
     source/glib.h
     source/Globals.h
@@ -84,7 +86,6 @@ set(D6R_SOURCES
     source/PlayerSkin.h
     source/PlayerSkin.cpp
     source/PlayerSkinColors.h
-    source/project.cpp
     source/project.h
     source/render.cpp
     source/ScreenMode.h

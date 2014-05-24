@@ -28,20 +28,29 @@
 #ifndef DUEL6_MENU_H
 #define DUEL6_MENU_H
 
-#include <SDL2/SDL_keyboard.h>
 #include "Type.h"
 
 namespace Duel6
 {
+	class Menu
+		: public Context
+	{
+	public:
+		void startContext();
+
+		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
+		void textInputEvent(const char* text) override;
+		void update(Float32 elapsedTime) override;
+		void render() const override;
+		Type getType() const override
+		{
+			return Context::Type::Menu;
+		}
+	};
 	void MENU_Init();
 	void MENU_JoyRescan();
 	void MENU_Free();
-	void MENU_TextInputEvent(const char* text);
-	void MENU_KeyEvent(SDL_Keycode keyCode);
-	void MENU_Loop();
-	void MENU_Restart(bool sameLevel);
-	void MENU_Start();
-	void MENU_SavePH();
+	void MENU_SavePersonData();
 }
 
 #endif

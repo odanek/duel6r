@@ -26,195 +26,99 @@
 */
 
 #include "project.h"
-#include "BonusList.h"
-#include "Weapon.h"
-#include "Util.h"
-#include "ElevatorList.h"
+#include "Game.h"
 #include "Menu.h"
 
 namespace Duel6
 {
-	World d6World(D6_ANM_SPEED, D6_WAVE_HEIGHT);
+	Context *d6Context;
+	Game d6Game;
+	Menu d6Menu;
+	BlockData d6BlockData;
 	Float32 d6Cos[450];
 	GLuint d6BackgroundTexture;
 	bool d6Wireframe = false;
-	int d6ZoomBlc = 13;
-	ScreenMode d6ScreenMode = ScreenMode::FullScreen;
-	float d6KeyWait = 0;
 	bool d6ShowFps = false;
-	std::vector<Player> d6Players;
-	int d6Winner;
-	float d6GameOverWait;
-	bool d6InMenu = false, d6PlayMusic = false;
+	bool d6PlayMusic = false;
 	std::vector<PlayerSkinColors> d6PlayerColors(D6_MAX_PLAYERS);
 	int d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
 	bool d6ShowRanking = true;
-	int	d6PlayedRounds = 0;
-	int	d6MaxRounds = 0;
 	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
 	SpriteList d6SpriteList;
 
-	void D6_CheckWinner()
-	{
-		int numAlive = 0;
-		Player* lastAlive = nullptr;
+	World d6World(d6BlockData, D6_ANM_SPEED, D6_WAVE_HEIGHT);
 
-		for (Player& player : d6Players)
+	void P_TextInputEvent(Context& context, const char* text)
+	{
+		if (g_app.con->isactive())
 		{
-			if (!player.isDead())
+			g_app.con->textInputEvent(text);
+		}
+		else
+		{
+			d6Context->textInputEvent(text);
+		}
+	}
+
+	void P_KeyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers)
+	{
+		if (keyCode == SDLK_BACKQUOTE)
+		{
+			g_app.con->toggle();
+			if (g_app.con->isactive())
 			{
-				numAlive++;
-				lastAlive = &player;
+				SDL_StartTextInput();
+			}
+			else if (context.getType() == Context::Type::Game)
+			{
+				SDL_StopTextInput();
 			}
 		}
 
-		if (numAlive < 2)
+		if (g_app.con->isactive())
 		{
-			d6Winner = 1;
-			d6GameOverWait = D6_GAME_OVER_WAIT;
+			g_app.con->keyEvent(keyCode, keyModifiers);
+		}
+		else
+		{
+			d6Context->keyEvent(keyCode, keyModifiers);
+		}
+	}
 
-			if (numAlive == 1)
+	void P_ProcessEvents(Context& context)
+	{
+		SDL_Event   event;
+		SDL_Keysym  key;
+
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
 			{
-				d6MessageQueue.add(*lastAlive, MY_L("APP00024|Jsi vitez - stiskni ESC pro konec nebo F1 pro novou hru"));
-				lastAlive->getPerson().setWins(lastAlive->getPerson().getWins() + 1);
-			}
-			else
-			{
-				for (const Player& player : d6Players)
-				{
-					d6MessageQueue.add(player, MY_L("APP00025|Konec hry - bez viteze"));
-				}
+			case SDL_KEYDOWN:
+				key = event.key.keysym;
+				g_inp.pressedKeys.insert(key.sym);
+				P_KeyEvent(context, key.sym, key.mod);
+				break;
+			case SDL_KEYUP:
+				key = event.key.keysym;
+				g_inp.pressedKeys.erase(key.sym);
+				break;
+			case SDL_TEXTINPUT:
+				P_TextInputEvent(context, event.text.text);
+				break;
+			case SDL_QUIT:
+				g_app.flags |= APP_FLAG_QUIT;
+				break;
 			}
 		}
 	}
 
-	void D6_StartGame(const std::string& levelPath)
+	void P_Main()
 	{
-		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
-
-		std::vector<Bonus> bonuses;
-		bool mirror = rand() % 2 == 0;
-		d6World.loadLevelData(levelPath, mirror);
-		d6World.findBonuses(bonuses);
-		d6World.prepareFaces();
-		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
-		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
-		g_app.con->printf(MY_L("APP00063|...Sten    : %d\n"), d6World.getWalls().getFaces().size());
-		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.getSprites().getFaces().size());
-		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.getWater().getFaces().size());		
-
-		d6SpriteList.clear();
-
-		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));		
-		for (Player& player : d6Players)
+		while (!(g_app.flags & APP_FLAG_QUIT))
 		{
-			player.prepareForGame();
-		}
-				
-		PLAYER_PrepareViews(d6ScreenMode);
-
-		g_app.con->printf(MY_L("APP00067|...Inicializace urovne\n"));
-		WPN_LevelInit();
-		EXPL_Init();
-		BONUS_Init(bonuses);
-		FIRE_Find(d6World.getSprites());
-		RENDER_InitScreen();
-		d6Winner = -1;
-		d6PlayedRounds++;
-	}
-
-	static void D6_UpdateScene(float elapsedTime)
-	{
-		CO_InpUpdate();
-		
-		for (Player& player : d6Players)
-		{
-			player.update(d6ScreenMode, elapsedTime);
-		}
-
-		d6World.update(elapsedTime);
-		d6SpriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
-		WPN_MoveShots(elapsedTime);
-		EXPL_MoveAll(elapsedTime);
-		ELEV_MoveAll(elapsedTime);
-		d6MessageQueue.update(elapsedTime);
-
-		// Add new bonuses
-		if (rand() % int(3.0f / elapsedTime) == 0)
-		{
-			BONUS_AddNew();
-		}
-
-		// Ochrana pred nekolikanasobnym zmacknutim klavesy
-		d6KeyWait -= elapsedTime;
-		if (d6KeyWait < 0)
-			d6KeyWait = 0;
-
-		// Check if there's a winner
-		if (d6Winner == -1)
-		{
-			D6_CheckWinner();
-		}
-		else if (d6Winner == 1)
-		{
-			d6GameOverWait -= elapsedTime;
-			if (d6GameOverWait <= 0)
-			{
-				d6GameOverWait = 0;
-				d6Winner = 2;
-				SOUND_PlaySample(D6_SND_GAME_OVER);
-			}
-		}
-	}
-
-	static void D6_RenderScene()
-	{
-		RENDER_DrawScene(d6ScreenMode);
-	}
-
-	void D6_GameLoop()
-	{
-		CO_FpsSyncLoops(&D6_UpdateScene, &D6_RenderScene);
-
-		if (g_inp.isPressed(SDLK_ESCAPE))
-		{
-			MENU_SavePH();
-			MENU_Start();
-		}
-
-		if (!d6KeyWait)
-		{
-			// Restart game
-			bool roundLimit = (d6MaxRounds > 0) && (d6PlayedRounds >= d6MaxRounds);
-			if (g_inp.isPressed(SDLK_F1) && !roundLimit)
-			{
-				MENU_SavePH();
-				MENU_Restart(g_inp.isPressed(SDLK_LSHIFT));
-				return;
-			}
-
-			// Switch between fullscreen and split screen mode
-			if (g_inp.isPressed(SDLK_F2) && d6Players.size() < 5)
-			{
-				d6ScreenMode = (d6ScreenMode == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen;
-				PLAYER_PrepareViews(d6ScreenMode);
-				RENDER_InitScreen();
-				d6KeyWait = 1.0f;
-			}
-
-			// Turn on/off player statistics
-			if (g_inp.isPressed(SDLK_F4))
-			{
-				d6ShowRanking = !d6ShowRanking;
-				d6KeyWait = 1.0f;
-			}
-
-			// Save screenshot
-			if (g_inp.isPressed(SDLK_F10))
-			{
-				Util::saveScreenTga();
-				d6KeyWait = 1.0f;
-			}
+			P_ProcessEvents(*d6Context);
+			CO_FpsSyncLoops(*d6Context);
 		}
 	}
 }

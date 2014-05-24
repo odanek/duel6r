@@ -31,6 +31,7 @@
 #include "Type.h"
 #include "Shot.h"
 #include "Player.h"
+#include "Game.h"
 
 #define D6_WEAPONS          17
 
@@ -43,16 +44,16 @@ namespace Duel6
 	{
 		bool enabled;
 		Float32 bulletSpeed;
-		bool Blood;
+		bool blood;
 		bool explodes;
 		Color explosionColor;
-		Int32 Boom;
-		Int32 Power;
+		Int32 boom;
+		Int32 power;
 		Float32 reloadSpeed;
-		char Name[30];
-		Int32 ShSound;
-		Int32 BmSound;
-		Float32 ExpGrow;
+		char name[30];
+		Int32 shotSound;
+		Int32 boomSound;
+		Float32 expGrow;
 		bool shit; // TODO: Remove
 		Int16 animation[16];
 		Int16 shotAnimation[18];
@@ -67,7 +68,7 @@ namespace Duel6
 	void WPN_DeInit();
 	void WPN_LevelInit();
 	void WPN_AddShot(Player& player);
-	void WPN_MoveShots(float elapsedTime);
+	void WPN_MoveShots(Game& game, float elapsedTime);
 
 	const Weapon& WPN_GetRandomWeapon();
 }

@@ -33,6 +33,8 @@
 #include "PlayerControls.h"
 #include "Util.h"
 #include "glib.h"
+#include "Menu.h"
+#include "Game.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
 
@@ -89,7 +91,7 @@ namespace Duel6
 	Vytvori seznam urovni a zjisti pocet pozadi
 	==================================================
 	*/
-	static void MENU_GetBcgCount(void)
+	static void MENU_GetBcgCount()
 	{
 		myKh3info_s         ki;
 
@@ -99,7 +101,7 @@ namespace Duel6
 		MY_KH3Close();
 	}
 
-	static void MENU_LoadPH(void)
+	static void MENU_LoadPersonData()
 	{
 		myFile_s    *f;
 		int         i;
@@ -165,7 +167,7 @@ namespace Duel6
 
 		g_app.con->printf(MY_L("APP00029|\n===Menu inicializace===\n"));
 		d6MenuTex = Util::loadKH3Texture(D6_FILE_LABEL, 0, false);
-		MENU_LoadPH();
+		MENU_LoadPersonData();
 		g_app.con->printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
 		myDesk = Desk::Create();
 		myDesk->ScreenSize(g_vid.cl_width, g_vid.cl_height,
@@ -349,15 +351,7 @@ namespace Duel6
 			SOUND_LoadSample(d6SndFl[i]);
 	}
 
-	static void MENU_End(void)
-	{
-		d6InMenu = false;
-		SDL_ShowCursor(SDL_DISABLE);
-		SDL_StopTextInput();
-		SOUND_StopMusic();
-	}
-
-	void MENU_SavePH(void)
+	void MENU_SavePersonData()
 	{
 		myFile_s    *f;
 
@@ -441,7 +435,7 @@ namespace Duel6
 		}
 	}
 
-	static void MENU_AddPH(void)
+	static void MENU_AddPerson(void)
 	{
 		const std::string& personName = myTextbox->Text();
 
@@ -454,35 +448,35 @@ namespace Duel6
 		}
 	}
 
-	// Vykresli otazku, zda opravdu smazat
-	static bool MENU_DelQuestion(void)
+	static bool MENU_Question(const std::string& question)
 	{
-		int x = g_vid.cl_width / 2 - 150, y = g_vid.cl_height / 2 - 10;
+		Int32 width = question.size() * 8 + 60;
+		Int32 x = g_vid.cl_width / 2 - width / 2, y = g_vid.cl_height / 2 - 10;
 
 		glColor3f(1.0f, 0.8f, 0.8f);
 		glBegin(GL_QUADS);
-		glVertex2i(x, y);
-		glVertex2i(x, y + 20);
-		glVertex2i(x + 300, y + 20);
-		glVertex2i(x + 300, y);
+			glVertex2i(x, y);
+			glVertex2i(x, y + 20);
+			glVertex2i(x + width, y + 20);
+			glVertex2i(x + width, y);
 		glEnd();
 		glColor3f(0, 0, 0);
 		glLineWidth(2);
 		glBegin(GL_LINE_LOOP);
-		glVertex2i(x, y);
-		glVertex2i(x, y + 20);
-		glVertex2i(x + 300, y + 20);
-		glVertex2i(x + 300, y);
+			glVertex2i(x, y);
+			glVertex2i(x, y + 20);
+			glVertex2i(x + width, y + 20);
+			glVertex2i(x + width, y);
 		glEnd();
 		glLineWidth(1);
 		CO_FontColor(255, 0, 0);
-		CO_FontPrintf(x + 70, y + 2, MY_L("APP00090|Opravdu smazat? (A/N)"));
+		CO_FontPrintf(x + 30, y + 2, question.c_str());
 		VID_SwapBuffers();
 
+		SDL_Event event;
 		bool answer;
 		while (true)
-		{
-			SDL_Event event;
+		{			
 			if (SDL_PollEvent(&event))
 			{
 				if (event.type == SDL_KEYDOWN)
@@ -499,125 +493,91 @@ namespace Duel6
 					}
 				}
 			}
+		}
+
+		while (SDL_PollEvent(&event))
+		{
+			// Eat all remaining keyboard events;
 		}
 
 		return answer;
 	}
 
-	// Vykresli info, ze hra skoncila
-	static bool MENU_NewGame(void)
+	static bool MENU_DelQuestion()
 	{
-		int x = g_vid.cl_width / 2 - 150, y = g_vid.cl_height / 2 - 10;
-
-		glColor3f(1.0f, 0.8f, 0.8f);
-		glBegin(GL_QUADS);
-		glVertex2i(x, y);
-		glVertex2i(x, y + 20);
-		glVertex2i(x + 300, y + 20);
-		glVertex2i(x + 300, y);
-		glEnd();
-		glColor3f(0, 0, 0);
-		glLineWidth(2);
-		glBegin(GL_LINE_LOOP);
-		glVertex2i(x, y);
-		glVertex2i(x, y + 20);
-		glVertex2i(x + 300, y + 20);
-		glVertex2i(x + 300, y);
-		glEnd();
-		glLineWidth(1);
-		CO_FontColor(255, 0, 0);
-		CO_FontPrintf(x + 30, y + 2, MY_L("APP00090|Konec hry! Spustit znovu? (A/N)"));
-		VID_SwapBuffers();
-
-		bool answer;
-		while (true)
-		{
-			SDL_Event event;
-			if (SDL_PollEvent(&event))
-			{
-				if (event.type == SDL_KEYDOWN)
-				{
-					if (event.key.keysym.sym == SDLK_a || event.key.keysym.sym == SDLK_y)
-					{
-						answer = true;
-						break;
-					}
-					else if (event.key.keysym.sym == SDLK_n)
-					{
-						answer = false;
-						break;
-					}
-				}
-			}
-		}
-
-		return answer;
+		return MENU_Question(MY_L("APP00090|Opravdu smazat? (A/N)"));
 	}
 	
-	static void MENU_CleanPH(void)
+	static void MENU_CleanPersonData()
 	{
 		for (Person& person : d6Persons.list())
 		{
 			person.reset();
 		}
 		MENU_RebuildTable();
-		MENU_SavePH();
-		d6PlayedRounds = 0;
+		MENU_SavePersonData();
 	}
 
-	void MENU_Restart(bool sameLevel)
+	static void MENU_Play()
 	{
-		static int  last = -1;
+		bool roundLimit = (d6Game.getMaxRounds() > 0);
 
-		if (!sameLevel || last == -1)
+		if (roundLimit)
 		{
-			if (!myListbox[3]->CurItem())
-				last = rand() % d6LevelList.getLength();
-			else
-				last = myListbox[3]->CurItem() - 1;
-		}
-
-		D6_StartGame(d6LevelList.getPath(last));
-
-		if (!myListbox[4]->CurItem())
-			SET_LoadBackground(rand() % d6Backs);
-		else
-			SET_LoadBackground(myListbox[4]->CurItem() - 1);
-
-		d6KeyWait = 1.0f;
-		SOUND_PlaySample(D6_SND_LETS_ROCK);
-	}
-
-	static void MENU_Play(void)
-	{
-		bool roundLimit = (d6MaxRounds > 0) && (d6PlayedRounds >= d6MaxRounds);
-
-		if(roundLimit)
-		{
-			if(!MENU_NewGame())
+			if(!MENU_Question(MY_L("APP00090|Smazat data a spustit novou hru? (A/N)")))
 			{
 				return;
 				
 			}
-			MENU_CleanPH();
+			MENU_CleanPersonData();
 		}
-		
-		MENU_End();
-
-		if (d6Playing > 4)
-			d6ScreenMode = ScreenMode::FullScreen;
-		else
-			d6ScreenMode = (myListbox[5]->CurItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
-
-		d6ZoomBlc = myListbox[6]->CurItem() + 5;
-
-		d6Players.clear();
+				
+		// Persons, colors, controls
+		std::vector<Game::PlayerDefinition> playerDefinitions;
 		for (Size i = 0; i < d6Playing; i++)
 		{
-			d6Players.push_back(Player(d6Persons.get(d6WillPlay[i]), new PlayerSkin(D6_FILE_PLAYER, d6PlayerColors[i]), *d6Controls[controlSwitch[i]->CurItem()]));
+			Person& person = d6Persons.get(d6WillPlay[i]);
+			const PlayerSkinColors& colors = d6PlayerColors[i];
+			const PlayerControls& controls = *d6Controls[controlSwitch[i]->CurItem()];
+			playerDefinitions.push_back(Game::PlayerDefinition(person, colors, controls));
 		}
 
-		MENU_Restart(false);
+		// Levels
+		std::vector<std::string> levels;
+		if (!myListbox[3]->CurItem())
+		{
+			for (Size i = 0; i < d6LevelList.getLength(); ++i)
+			{
+				levels.push_back(d6LevelList.getPath(i));
+			}
+		}
+		else
+		{
+			levels.push_back(d6LevelList.getPath(myListbox[3]->CurItem() - 1));
+		}
+
+		// Game backgrounds
+		std::vector<Int32> backgrounds;
+		if (!myListbox[4]->CurItem())
+		{
+			for (Int32 i = 0; i < d6Backs; i++)
+			{
+				backgrounds.push_back(i);
+			}
+		}
+		else
+		{
+			backgrounds.push_back(myListbox[4]->CurItem() - 1);
+		}
+
+		// Screen
+		ScreenMode screenMode = (d6Playing > 4 || myListbox[5]->CurItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
+		Int32 screenZoom = myListbox[6]->CurItem() + 5; 
+
+		// Start
+		d6Game.startContext();		
+		d6Game.start(playerDefinitions, levels, backgrounds, screenMode, screenZoom);
+
 	}
 
 	static void MENU_UberHrace(int c)
@@ -634,7 +594,7 @@ namespace Duel6
 		}
 	}
 
-	static void MENU_DelPH(void)
+	static void MENU_DelPerson(void)
 	{
 		if (!MENU_DelQuestion())
 			return;
@@ -655,51 +615,19 @@ namespace Duel6
 		}
 	}
 
-	void MENU_Start(void)
+	void Menu::startContext()
 	{
-		d6InMenu = true;
+		d6Context = this;
 		SDL_ShowCursor(SDL_ENABLE);
 		SDL_StartTextInput();
 		MENU_RebuildTable();
 		if (d6PlayMusic)
+		{
 			SOUND_StartMusic(0, false);
-	}
-
-	void MENU_TextInputEvent(const char* text)
-	{
-		myDesk->textInputEvent(text);
-	}
-
-	void MENU_KeyEvent(SDL_Keycode keyCode)
-	{
-		myDesk->keyEvent(keyCode);
-
-		if (keyCode == SDLK_RETURN)
-		{
-			MENU_AddPH();
-		}
-
-		if (keyCode == SDLK_F1 && d6Playing > 1)
-		{
-			MENU_Play();
-		}
-
-		if (keyCode == SDLK_F3)
-		{
-			if (MENU_DelQuestion())
-			{
-				MENU_CleanPH();
-			}
-		}
-
-		if (keyCode == SDLK_ESCAPE)
-		{
-			g_app.flags |= APP_FLAG_QUIT;
-			MENU_SavePH();
 		}
 	}
 
-	static void MENU_Update(float elapsedTime)
+	void Menu::update(Float32 elapsedTime)
 	{
 		static  float sync = 0, wait = 0.0163f;
 		Desk::EventType event;
@@ -723,11 +651,11 @@ namespace Duel6
 					MENU_UberHrace(myListbox[2]->CurItem());
 					break;
 				case 8:
-					MENU_DelPH();
+					MENU_DelPerson();
 					MENU_RebuildTable();
 					break;
 				case 9:
-					MENU_AddPH();
+					MENU_AddPerson();
 					break;
 				case 10:
 					if (d6Playing > 1)
@@ -736,14 +664,14 @@ namespace Duel6
 					}
 					break;
 				case 11:
-					MENU_End();
+					SOUND_StopMusic();
 					g_app.flags |= APP_FLAG_QUIT;
-					MENU_SavePH();
+					MENU_SavePersonData();
 					return;
 				case 30:
 					if (MENU_DelQuestion())
 					{
-						MENU_CleanPH();
+						MENU_CleanPersonData();
 					}
 					break;
 				}
@@ -751,9 +679,9 @@ namespace Duel6
 		}
 	}
 
-	static void MENU_Draw(void)
+	void Menu::render() const
 	{
-		int     tr_x = (g_vid.cl_width - 800) / 2, tr_y = (g_vid.cl_height - 600) / 2;
+		Int32 tr_x = (g_vid.cl_width - 800) / 2, tr_y = (g_vid.cl_height - 600) / 2;
 
 		myDesk->Draw();
 
@@ -767,18 +695,48 @@ namespace Duel6
 		glBindTexture(GL_TEXTURE_2D, d6MenuTex);
 		glColor3ub(255, 255, 255);
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(300, g_vid.cl_height - 5);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(500, g_vid.cl_height - 5);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(500, g_vid.cl_height - 100);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(300, g_vid.cl_height - 100);
+			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, g_vid.cl_height - 5);
+			glTexCoord2f(1.0f, 0.0f); glVertex2i(500, g_vid.cl_height - 5);
+			glTexCoord2f(1.0f, 1.0f); glVertex2i(500, g_vid.cl_height - 100);
+			glTexCoord2f(0.0f, 1.0f); glVertex2i(300, g_vid.cl_height - 100);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 
 		glPopMatrix();
 	}
 
-	void MENU_Loop(void)
+	void Menu::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
-		CO_FpsSyncLoops(&MENU_Update, &MENU_Draw);
+		myDesk->keyEvent(keyCode);
+
+		if (keyCode == SDLK_RETURN)
+		{
+			MENU_AddPerson();
+		}
+
+		if (keyCode == SDLK_F1 && d6Playing > 1)
+		{
+			MENU_Play();
+		}
+
+		if (keyCode == SDLK_F3)
+		{
+			if (MENU_DelQuestion())
+			{
+				MENU_CleanPersonData();
+			}
+		}
+
+		if (keyCode == SDLK_ESCAPE)
+		{
+			g_app.flags |= APP_FLAG_QUIT;
+			MENU_SavePersonData();
+		}
 	}
+
+	void Menu::textInputEvent(const char* text)
+	{
+		myDesk->textInputEvent(text);
+	}
+
 }

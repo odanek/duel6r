@@ -59,7 +59,7 @@ namespace Duel6
 		{
 			for (Size j = 3; j < 4; j++)
 			{
-				glBindTexture(GL_TEXTURE_2D, d6World.blockTextures[d6FireType[i] + j]);
+				glBindTexture(GL_TEXTURE_2D, d6BlockData.getTextures()[d6FireType[i] + j]);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
@@ -107,7 +107,7 @@ namespace Duel6
 					fire.burned = true;
 					fire.face->hide();
 
-					Sprite fireSprite(d6FireAnm[fire.type], d6World.blockTextures);
+					Sprite fireSprite(d6FireAnm[fire.type], d6BlockData.getTextures());
 					fireSprite.setPosition(fire.x, fire.y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					d6SpriteList.addSprite(fireSprite);

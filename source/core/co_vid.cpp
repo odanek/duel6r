@@ -39,23 +39,10 @@ Swap buffers - prohodi buffery
 */
 void VID_SwapBuffers (void)
 {
-    if (!g_vid.inited)
-        return;
-
     if (g_app.con != NULL && g_app.con->isactive ())
         g_app.con->blit (g_vid.cl_width, g_vid.cl_height);
 
     SDL_GL_SwapWindow(g_app.window);
-}
-
-/*
-==================================================
-Inicializace videa
-==================================================
-*/
-void VID_Init (void)
-{
-    g_vid.inited = false;
 }
 
 /*
@@ -127,16 +114,4 @@ void VID_SetMode (int w, int h, int bpp, int aa, bool full)
                        val[3], val[4], val[5], val[6]);
 
     SDL_ShowCursor(SDL_DISABLE);
-
-    g_vid.inited = true;
-}
-
-/*
-==================================================
-Ukonceni grafickeho rezimu
-==================================================
-*/
-void VID_Shutdown (void)
-{
-    g_vid.inited = false;
 }

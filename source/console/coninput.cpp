@@ -144,7 +144,7 @@ void con_c::completecmd (void)
 Reakce na stisk klavesy
 ==================================================
 */
-void con_c::keyEvent(SDL_Keycode keyCode)
+void con_c::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 {
     int len = (int)m_input.length();
 

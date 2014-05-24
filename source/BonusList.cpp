@@ -55,18 +55,18 @@ namespace Duel6
 		glDisable(GL_ALPHA_TEST);
 	}
 
-	void BONUS_AddNew()
+	void BONUS_AddNew(const World& world)
 	{
 		bool weapon = ((rand() % 2) == 1);
-		Int32 x = rand() % d6World.getSizeX();
-		Int32 y = rand() % d6World.getSizeY();
+		Int32 x = rand() % world.getSizeX();
+		Int32 y = rand() % world.getSizeY();
 
-		if (weapon && !d6World.isWall(x, y - 1, true)) // Weapons must be on the ground
+		if (weapon && !world.isWall(x, y - 1, true)) // Weapons must be on the ground
 		{
 			return;
 		}
 
-		if (!d6World.isWall(x, y, true))
+		if (!world.isWall(x, y, true))
 		{
 			if (weapon)
 			{
@@ -96,7 +96,7 @@ namespace Duel6
 			return false;
 		}
 
-		// TODO: Unify screen and world coordinates!
+		// TODO: Coord
 		return (fabs(Float32(bonus.getX()) - player.getX()) < 0.5f && 
 			    fabs(Float32(bonus.getY()) - player.getY()) < 0.5f);
 	}
@@ -184,7 +184,7 @@ namespace Duel6
 		}
 
 		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());
-		d6MessageQueue.add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(bonus.getWeaponType().Name));
+		d6MessageQueue.add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(bonus.getWeaponType().name));
 	}
 
 	void BONUS_CheckPick(Player& player)
