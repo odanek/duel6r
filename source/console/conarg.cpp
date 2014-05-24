@@ -306,7 +306,7 @@ con_c& con_c::prependCommands(const std::string& commands)
 Provede obsah command bufferu
 ==================================================
 */
-void con_c::execute(void)
+void con_c::execute()
 {
 	while (!m_cbuf.empty())
 	{

@@ -37,7 +37,7 @@ Popis: Zpracovani prikazove radky
 Opravi pozici od ktere se zobrazuje prikazova radka
 ==================================================
 */
-void con_c::setinputscroll (void)
+void con_c::setinputscroll ()
 {
     int     l = (int)m_input.length(), width = m_width - 1;
 
@@ -75,7 +75,7 @@ static bool startsWith(const std::string& text, const std::string& prefix)
 	return prefix.length() <= text.length() && text.compare(0, prefix.length(), prefix) == 0;
 }
 
-void con_c::completecmd (void)
+void con_c::completecmd ()
 {
 	if (m_input.empty())
 	{

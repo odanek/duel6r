@@ -141,7 +141,7 @@ void CO_FontPrintf (int x, int y, const char *str, ...)
 Vraci ukazatel na nahrany font
 ==================================================
 */
-const myBYTE *CO_FontGet (void)
+const myBYTE *CO_FontGet ()
 {
     return &fontData[0];
 }

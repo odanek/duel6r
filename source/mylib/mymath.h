@@ -65,22 +65,22 @@ public:
     T   d[N];
 
     // Konstruktory
-    vec_c       (void) {};
+    vec_c       () {};
     vec_c       (T val) { set (val); }
     vec_c       (const vec_c<T,N> &v) { *this = v; }
 
     // Funkce
-    mval_t          len         (void) const;
-    vec_c&          normalize   (void);
-    matrix_c<T,1,N> mat_h       (void) const { matrix_c<T,1,N> m; memcpy (m.d, d, sizeof (d)); return m; }
-    matrix_c<T,N,1> mat_v       (void) const { matrix_c<T,N,1> m; memcpy (m.d, d, sizeof (d)); return m; }
+    mval_t          len         () const;
+    vec_c&          normalize   ();
+    matrix_c<T,1,N> mat_h       () const { matrix_c<T,1,N> m; memcpy (m.d, d, sizeof (d)); return m; }
+    matrix_c<T,N,1> mat_v       () const { matrix_c<T,N,1> m; memcpy (m.d, d, sizeof (d)); return m; }
     void            set         (T vx) { for (int i = 0; i < N; i++) d[i] = vx; }
     void            set         (const T *v) { memcpy (d, v, sizeof (d)); }
 
     // Operatory
     vec_c       operator+   (const vec_c &v) const;
     vec_c&      operator+=  (const vec_c &v) { for (int i = 0; i < N; i++) d[i] += v.d[i]; return *this; }
-    vec_c       operator-   (void) const;
+    vec_c       operator-   () const;
     vec_c       operator-   (const vec_c &v) const;
     vec_c&      operator-=  (const vec_c &v) { for (int i = 0; i < N; i++) d[i] -= v.d[i]; return *this; }
     vec_c       operator*   (T n) const;
@@ -94,7 +94,7 @@ public:
     T           operator*   (const vec_c &v) const;
 };
 
-template<class T, int N> mval_t vec_c<T,N>::len (void) const
+template<class T, int N> mval_t vec_c<T,N>::len () const
 {
     T   sum = 0;
 
@@ -103,7 +103,7 @@ template<class T, int N> mval_t vec_c<T,N>::len (void) const
     return sqrt ((mval_t) sum);
 }
 
-template<class T, int N> inline vec_c<T,N>& vec_c<T,N>::normalize (void)
+template<class T, int N> inline vec_c<T,N>& vec_c<T,N>::normalize ()
 {
     mval_t  l = len ();
     for (int i = 0; i < N; i++)
@@ -119,7 +119,7 @@ template<class T, int N> inline vec_c<T,N> vec_c<T,N>::operator+ (const vec_c<T,
     return a;
 }
 
-template<class T, int N> inline vec_c<T,N> vec_c<T,N>::operator- (void) const
+template<class T, int N> inline vec_c<T,N> vec_c<T,N>::operator- () const
 {
     vec_c<T,N>  a;
     for (int i = 0; i < N; i++)
@@ -195,7 +195,7 @@ public:
     T   x, y;
 
     // Konstruktory
-    vec2_c      (void) {};
+    vec2_c      () {};
     vec2_c      (T val) : x(val), y(val) {}
     vec2_c      (const vec2_c &v) : x(v.x), y(v.y) {}
     vec2_c      (const vec_c<T,2> &v) : x(v.d[0]), y(v.d[1]) {}
@@ -203,11 +203,11 @@ public:
     vec2_c      (T *v) { set (v); }
 
     // Funkce
-    mval_t          len         (void) const { return sqrt ((mval_t) (x * x + y * y)); }
-    vec2_c&         normalize   (void);
-    vec_c<T,2>      vec         (void) const { vec_c<T,2> v; v.d[0] = x; v.d[1] = y; return v; }
-    matrix_c<T,1,2> mat_h       (void) const { matrix_c<T,1,2> m; m.d[0] = x; m.d[1] = y; return m; }
-    matrix_c<T,2,1> mat_v       (void) const { matrix_c<T,2,1> m; m.d[0] = x; m.d[1] = y; return m; }
+    mval_t          len         () const { return sqrt ((mval_t) (x * x + y * y)); }
+    vec2_c&         normalize   ();
+    vec_c<T,2>      vec         () const { vec_c<T,2> v; v.d[0] = x; v.d[1] = y; return v; }
+    matrix_c<T,1,2> mat_h       () const { matrix_c<T,1,2> m; m.d[0] = x; m.d[1] = y; return m; }
+    matrix_c<T,2,1> mat_v       () const { matrix_c<T,2,1> m; m.d[0] = x; m.d[1] = y; return m; }
     void            set         (T vx, T vy) { x = vx; y = vy; }
     void            set         (const T *v) { x = v[0]; y = v[1]; }
 
@@ -215,7 +215,7 @@ public:
     vec2_c&     operator=   (const vec_c<T,2> &v) { x = v.d[0]; y = v.d[1]; return *this; }
     vec2_c      operator+   (const vec2_c &v) const { return vec2_c<T> (x + v.x, y + v.y); }
     vec2_c&     operator+=  (const vec2_c &v) { x += v.x; y += v.y; return *this; }
-    vec2_c      operator-   (void) const { return vec2_c<T> (-x, -y); }
+    vec2_c      operator-   () const { return vec2_c<T> (-x, -y); }
     vec2_c      operator-   (const vec2_c &v) const { return vec2_c<T> (x - v.x, y - v.y);  }
     vec2_c&     operator-=  (const vec2_c &v) { x -= v.x; y -= v.y; return *this; }
     vec2_c      operator*   (T n) const { return vec2_c<T> (x * n, y * n); }
@@ -227,7 +227,7 @@ public:
     T           operator*   (const vec2_c &v) const { return x * v.x + y * v.y; }
 };
 
-template<class T> inline vec2_c<T>& vec2_c<T>::normalize (void)
+template<class T> inline vec2_c<T>& vec2_c<T>::normalize ()
 {
     mval_t l = len ();
     x = (T) (x / l);
@@ -251,7 +251,7 @@ public:
     T   x, y, z;
 
     // Konstruktory
-    vec3_c      (void) {};
+    vec3_c      () {};
     vec3_c      (T val) : x(val), y(val), z(val) {}
     vec3_c      (const vec3_c &v) : x(v.x), y(v.y), z(v.z) {}
     vec3_c      (const vec_c<T,3> &v) : x(v.d[0]), y(v.d[1]), z(v.d[2]) {}
@@ -259,11 +259,11 @@ public:
     vec3_c      (T *v) { set (v); }
 
     // Funkce
-    mval_t          len         (void) const { return sqrt ((mval_t) (x * x + y * y + z * z)); }
-    vec3_c&         normalize   (void);
-    vec_c<T,3>      vec         (void) const { vec_c<T,3> v; v.d[0] = x; v.d[1] = y; v.d[2] = z; return v; }
-    matrix_c<T,1,3> mat_h       (void) const { matrix_c<T,1,3> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; return m; }
-    matrix_c<T,3,1> mat_v       (void) const { matrix_c<T,3,1> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; return m; }
+    mval_t          len         () const { return sqrt ((mval_t) (x * x + y * y + z * z)); }
+    vec3_c&         normalize   ();
+    vec_c<T,3>      vec         () const { vec_c<T,3> v; v.d[0] = x; v.d[1] = y; v.d[2] = z; return v; }
+    matrix_c<T,1,3> mat_h       () const { matrix_c<T,1,3> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; return m; }
+    matrix_c<T,3,1> mat_v       () const { matrix_c<T,3,1> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; return m; }
     void            set         (T vx, T vy, T vz) { x = vx; y = vy; z = vz; }
     void            set         (const T *v) { x = v[0]; y = v[1]; z = v[2]; }
 
@@ -271,7 +271,7 @@ public:
     vec3_c&     operator=   (const vec_c<T,3> &v) { x = v.d[0]; y = v.d[1]; z = v.d[2]; return *this; }
     vec3_c      operator+   (const vec3_c &v) const { return vec3_c<T> (x + v.x, y + v.y, z + v.z); }
     vec3_c&     operator+=  (const vec3_c &v) { x += v.x; y += v.y; z += v.z; return *this; }
-    vec3_c      operator-   (void) const { return vec3_c<T> (-x, -y, -z); }
+    vec3_c      operator-   () const { return vec3_c<T> (-x, -y, -z); }
     vec3_c      operator-   (const vec3_c &v) const { return vec3_c<T> (x - v.x, y - v.y, z - v.z); }
     vec3_c&     operator-=  (const vec3_c &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
     vec3_c      operator*   (T n) const { return vec3_c<T> (x * n, y * n, z * n); }
@@ -284,7 +284,7 @@ public:
     vec3_c      operator%   (const vec3_c &v) const;
 };
 
-template<class T> inline vec3_c<T>& vec3_c<T>::normalize (void)
+template<class T> inline vec3_c<T>& vec3_c<T>::normalize ()
 {
     mval_t l = len ();
     x = (T) (x / l);
@@ -314,7 +314,7 @@ public:
     T   x, y, z, w;
 
     // Konstruktory
-    vec4_c      (void) {};
+    vec4_c      () {};
     vec4_c      (T val) : x(val), y(val), z(val), w((T) 1) {}
     vec4_c      (const vec4_c &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
     vec4_c      (const vec_c<T,4> &v) : x(v.d[0]), y(v.d[1]), z(v.d[2]), w(v.d[3]) {}
@@ -322,11 +322,11 @@ public:
     vec4_c      (T *v) { set (v); }
 
     // Funkce
-    mval_t          len         (void) const { return sqrt ((mval_t) (x * x + y * y + z * z)); }
-    vec4_c&         normalize   (void);
-    vec_c<T,4>      vec         (void) const { vec_c<T,4> v; v.d[0] = x; v.d[1] = y; v.d[2] = z; v.d[3] = w; return v; }
-    matrix_c<T,1,4> mat_h       (void) const { matrix_c<T,1,4> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; m.d[3] = w; return m; }
-    matrix_c<T,4,1> mat_v       (void) const { matrix_c<T,4,1> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; m.d[3] = w; return m; }
+    mval_t          len         () const { return sqrt ((mval_t) (x * x + y * y + z * z)); }
+    vec4_c&         normalize   ();
+    vec_c<T,4>      vec         () const { vec_c<T,4> v; v.d[0] = x; v.d[1] = y; v.d[2] = z; v.d[3] = w; return v; }
+    matrix_c<T,1,4> mat_h       () const { matrix_c<T,1,4> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; m.d[3] = w; return m; }
+    matrix_c<T,4,1> mat_v       () const { matrix_c<T,4,1> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; m.d[3] = w; return m; }
     void            set         (T vx, T vy, T vz, T vw = (T) 1) { x = vx; y = vy; z = vz; w = vw; }
     void            set         (const T *v) { x = v[0]; y = v[1]; z = v[2]; w = v[3]; }
 
@@ -334,7 +334,7 @@ public:
     vec4_c&     operator=   (const vec_c<T,4> &v) { x = v.d[0]; y = v.d[1]; z = v.d[2]; w = v.d[3]; return *this; }
     vec4_c      operator+   (const vec4_c &v) const { return vec4_c<T> (x + v.x, y + v.y, z + v.z, w + v.w); }
     vec4_c&     operator+=  (const vec4_c &v) { x += v.x; y += v.y; z += v.z; w += v.w; return *this; }
-    vec4_c      operator-   (void) const { return vec4_c<T> (-x, -y, -z, -w); }
+    vec4_c      operator-   () const { return vec4_c<T> (-x, -y, -z, -w); }
     vec4_c      operator-   (const vec4_c &v) const { return vec4_c<T> (x - v.x, y - v.y, z - v.z, w - v.w); }
     vec4_c&     operator-=  (const vec4_c &v) { x -= v.x; y -= v.y; z -= v.z; w -= v.w; return *this; }
     vec4_c      operator*   (T n) const { return vec4_c<T> (x * n, y * n, z * n, w * n); }
@@ -346,7 +346,7 @@ public:
     T           operator*   (const vec4_c &v) const { return x * v.x + y * v.y + z * v.z + w * v.w; }
 };
 
-template<class T> inline vec4_c<T>& vec4_c<T>::normalize (void)
+template<class T> inline vec4_c<T>& vec4_c<T>::normalize ()
 {
     x /= w;
     y /= w;
@@ -379,12 +379,12 @@ public:
     T   d[R * S];
 
     // Kontstruktory
-    matrix_c    (void) {};
+    matrix_c    () {};
     matrix_c    (T val) { set (val); }
     matrix_c    (const matrix_c &m) { *this = m; }
 
     // Funkce
-    matrix_c&   identity        (void);
+    matrix_c&   identity        ();
     void        set             (T val) { for (int i = R * S - 1; i >= 0; i--) d[i] = val; }
     void        set             (const T *v) { memcpy (d, v, sizeof (d)); }
     vec_c<T,R>  col             (int n) const;
@@ -393,7 +393,7 @@ public:
     // Operatory
     matrix_c<T,R,S>     operator+       (const matrix_c<T,R,S> &m) const;
     matrix_c<T,R,S>&    operator+=      (const matrix_c<T,R,S> &m);
-    matrix_c<T,R,S>     operator-       (void) const;
+    matrix_c<T,R,S>     operator-       () const;
     matrix_c<T,R,S>     operator-       (const matrix_c<T,R,S> &m) const;
     matrix_c<T,R,S>&    operator-=      (const matrix_c<T,R,S> &m);
     matrix_c<T,R,S>     operator*       (T n) const;
@@ -405,11 +405,11 @@ public:
 
     T&              operator()      (int r, int s) { return d[r * S + s]; }
     const T&        operator()      (int r, int s) const { return d[r * S + s]; }
-    matrix_c<T,S,R> operator~       (void) const;
+    matrix_c<T,S,R> operator~       () const;
 };
 
 template<class T, int R, int S>
-    inline matrix_c<T,R,S>& matrix_c<T,R,S>::identity (void)
+    inline matrix_c<T,R,S>& matrix_c<T,R,S>::identity ()
 {
     int     i, j, p = 0;
 
@@ -477,7 +477,7 @@ template<class T, int R, int S>
 }
 
 template<class T, int R, int S>
-    inline matrix_c<T,R,S> matrix_c<T,R,S>::operator- (void) const
+    inline matrix_c<T,R,S> matrix_c<T,R,S>::operator- () const
 {
     matrix_c<T,R,S> a;
     int             i = R * S;
@@ -560,7 +560,7 @@ template<class T, int R, int S>
 }
 
 template<class T, int R, int S>
-    matrix_c<T,S,R> matrix_c<T,R,S>::operator~ (void) const
+    matrix_c<T,S,R> matrix_c<T,R,S>::operator~ () const
 {
     matrix_c<T,S,R> n;
     int             i, j, p = 0, p2 = 0;
@@ -651,15 +651,15 @@ public:
     T   d[4];
 
     // Kontstruktory
-    mat2_c  (void) {};
+    mat2_c  () {};
     mat2_c  (T val) { d[0] = val; d[1] = val; d[2] = val; d[3] = val; }
     mat2_c  (T v1, T v2, T v3, T v4) { d[0] = v1; d[1] = v2; d[2] = v3; d[3] = v4; }
     mat2_c  (const matrix_c<T,2,2> &m) { set (m.d); }
     mat2_c  (const mat2_c &m) { *this = m; }
 
     // Funkce
-    mat2_c&         identity    (void) { d[0] = (T) 1; d[1] = (T) 0; d[2] = (T) 0; d[3] = (T) 1; return *this; }
-    matrix_c<T,2,2> mat         (void) const { matrix_c<T,2,2> m; memcpy (m.d, d, sizeof (d)); return m; }
+    mat2_c&         identity    () { d[0] = (T) 1; d[1] = (T) 0; d[2] = (T) 0; d[3] = (T) 1; return *this; }
+    matrix_c<T,2,2> mat         () const { matrix_c<T,2,2> m; memcpy (m.d, d, sizeof (d)); return m; }
     void            set         (T v1, T v2, T v3, T v4) { d[0] = v1; d[1] = v2; d[2] = v3; d[3] = v4; }
     void            set         (const T *v) { memcpy (d, v, sizeof (d)); }
     vec2_c<T>       row         (int n) const { if (!n) return vec2_c<T> (d[0], d[1]); return vec2_c<T> (d[2], d[3]); }
@@ -669,7 +669,7 @@ public:
     mat2_c&     operator=       (const matrix_c<T,2,2> &m) { set (m.d); return *this; }
     mat2_c      operator+       (const mat2_c &m) const;
     mat2_c&     operator+=      (const mat2_c &m);
-    mat2_c      operator-       (void) const;
+    mat2_c      operator-       () const;
     mat2_c      operator-       (const mat2_c &m) const;
     mat2_c&     operator-=      (const mat2_c &m);
     mat2_c      operator*       (T n) const;
@@ -684,7 +684,7 @@ public:
 
     T&          operator()      (int r, int s) { return d[(r << 1) + s]; }
     const T&    operator()      (int r, int s) const { return d[(r << 1) + s]; }
-    mat2_c      operator~       (void) const;
+    mat2_c      operator~       () const;
 };
 
 template<class T>
@@ -701,7 +701,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat2_c<T> mat2_c<T>::operator- (void) const
+    inline mat2_c<T> mat2_c<T>::operator- () const
 {
     return mat2_c<T> (-d[0], -d[1], -d[2], -d[3]);
 }
@@ -758,7 +758,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat2_c<T> mat2_c<T>::operator~ (void) const
+    inline mat2_c<T> mat2_c<T>::operator~ () const
 {
     return mat2_c<T> (d[0], d[2], d[1], d[3]);
 }
@@ -799,15 +799,15 @@ public:
     T   d[9];
 
     // Kontstruktory
-    mat3_c  (void) {};
+    mat3_c  () {};
     mat3_c  (T val);
     mat3_c  (T v1, T v2, T v3, T v4, T v5, T v6, T v7, T v8, T v9);
     mat3_c  (const matrix_c<T,3,3> &m) { set (m.d); }
     mat3_c  (const mat3_c &m) { *this = m; }
 
     // Funkce
-    mat3_c&         identity    (void);
-    matrix_c<T,3,3> mat         (void) const { matrix_c<T,3,3> m; memcpy (m.d, d, sizeof (d)); return m; }
+    mat3_c&         identity    ();
+    matrix_c<T,3,3> mat         () const { matrix_c<T,3,3> m; memcpy (m.d, d, sizeof (d)); return m; }
     void            set         (T v1, T v2, T v3, T v4, T v5, T v6, T v7, T v8, T v9);
     void            set         (const T *v) { memcpy (d, v, sizeof (d)); }
     vec3_c<T>       row         (int n) const { n *= 3; return vec3_c<T> (d[n], d[n + 1], d[n + 2]); }
@@ -817,7 +817,7 @@ public:
     mat3_c&     operator=       (const matrix_c<T,3,3> &m) { set (m.d); return *this; }
     mat3_c      operator+       (const mat3_c &m) const;
     mat3_c&     operator+=      (const mat3_c &m);
-    mat3_c      operator-       (void) const;
+    mat3_c      operator-       () const;
     mat3_c      operator-       (const mat3_c &m) const;
     mat3_c&     operator-=      (const mat3_c &m);
     mat3_c      operator*       (T n) const;
@@ -832,7 +832,7 @@ public:
 
     T&          operator()      (int r, int s) { return d[3 * r + s]; }
     const T&    operator()      (int r, int s) const { return d[3 * r + s]; }
-    mat3_c      operator~       (void) const;
+    mat3_c      operator~       () const;
 };
 
 template<class T>
@@ -852,7 +852,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat3_c<T>& mat3_c<T>::identity (void)
+    inline mat3_c<T>& mat3_c<T>::identity ()
 {
     d[0] = (T) 1; d[1] = (T) 0; d[2] = (T) 0;
     d[3] = (T) 0; d[4] = (T) 1; d[5] = (T) 0;
@@ -886,7 +886,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat3_c<T> mat3_c<T>::operator- (void) const
+    inline mat3_c<T> mat3_c<T>::operator- () const
 {
     return mat3_c<T> (-d[0], -d[1], -d[2], -d[3], -d[4], -d[5], -d[6], -d[7], -d[8]);
 }
@@ -959,7 +959,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat3_c<T> mat3_c<T>::operator~ (void) const
+    inline mat3_c<T> mat3_c<T>::operator~ () const
 {
     return mat3_c<T> (d[0], d[3], d[6], d[1], d[4], d[7], d[2], d[5], d[8]);
 }
@@ -1013,14 +1013,14 @@ public:
     T   d[16];
 
     // Kontstruktory
-    mat4_c  (void) {};
+    mat4_c  () {};
     mat4_c  (T val);
     mat4_c  (const matrix_c<T,4,4> &m) { set (m.d); }
     mat4_c  (const mat4_c &m) { *this = m; }
 
     // Funkce
-    mat4_c&         identity    (void);
-    matrix_c<T,4,4> mat         (void) const { matrix_c<T,4,4> m; memcpy (m.d, d, sizeof (d)); return m; }
+    mat4_c&         identity    ();
+    matrix_c<T,4,4> mat         () const { matrix_c<T,4,4> m; memcpy (m.d, d, sizeof (d)); return m; }
     void            set         (const T *v) { memcpy (d, v, sizeof (d)); }
     vec4_c<T>       row         (int n) const { n <<= 2; return vec4_c<T> (d[n], d[n + 1], d[n + 2], d[n + 3]); }
     vec4_c<T>       col         (int n) const { return vec4_c<T> (d[n], d[n + 4], d[n + 8], d[n + 12]); }
@@ -1029,7 +1029,7 @@ public:
     mat4_c&     operator=       (const matrix_c<T,4,4> &m) { set (m.d); return *this; }
     mat4_c      operator+       (const mat4_c &m) const;
     mat4_c&     operator+=      (const mat4_c &m);
-    mat4_c      operator-       (void) const;
+    mat4_c      operator-       () const;
     mat4_c      operator-       (const mat4_c &m) const;
     mat4_c&     operator-=      (const mat4_c &m);
     mat4_c      operator*       (T n) const;
@@ -1044,7 +1044,7 @@ public:
 
     T&          operator()      (int r, int s) { return d[(r << 2) + s]; }
     const T&    operator()      (int r, int s) const { return d[(r << 2) + s]; }
-    mat4_c      operator~       (void) const;
+    mat4_c      operator~       () const;
 };
 
 template<class T>
@@ -1055,7 +1055,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat4_c<T>& mat4_c<T>::identity (void)
+    inline mat4_c<T>& mat4_c<T>::identity ()
 {
     d[0] = (T) 1; d[1] = (T) 0; d[2] = (T) 0; d[3] = (T) 0;
     d[4] = (T) 1; d[5] = (T) 1; d[6] = (T) 0; d[7] = (T) 0;
@@ -1082,7 +1082,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat4_c<T> mat4_c<T>::operator- (void) const
+    inline mat4_c<T> mat4_c<T>::operator- () const
 {
     mat4_c<T>   n;
     for (int i = 0; i < 16; i++)
@@ -1160,7 +1160,7 @@ template<class T>
 }
 
 template<class T>
-    inline mat4_c<T> mat4_c<T>::operator~ (void) const
+    inline mat4_c<T> mat4_c<T>::operator~ () const
 {
     mat4_c<T>   n;
     n.d[0] = d[0]; n.d[1] = d[4]; n.d[2] = d[8]; n.d[3] = d[12];
@@ -1245,7 +1245,7 @@ public:
     vec3_c<T>   m_normal;
     T           m_dist;
 
-    plane3_c    (void) {};
+    plane3_c    () {};
     plane3_c    (const plane3_c &p) { *this = p; }
     plane3_c    (const vec3_c<T> &p1, const vec3_c<T> &p2, const vec3_c<T> &p3) { get (p1, p2, p3); }
 

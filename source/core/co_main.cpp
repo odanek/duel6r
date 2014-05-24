@@ -50,7 +50,7 @@ appInp_s    g_inp;
 Deinicializace jadra
 ==================================================
 */
-static void CO_DeInit (void)
+static void CO_DeInit ()
 {
     MY_DeInit ();
     SDL_Quit ();
@@ -78,7 +78,7 @@ static void CO_ErrorHandler (const char *str)
 Inicializace jadra
 ==================================================
 */
-static void CO_Init (void)
+static void CO_Init ()
 {
     // Inicializace promenych jadra
     g_app.flags = APP_FLAG_NONE;

@@ -67,8 +67,8 @@ typedef size_t          mySIZE;
 #define MY_FAILED               1
 #define MY_ALREADY              2
 
-void    MY_Init                 (void);
-void    MY_DeInit               (void);
+void    MY_Init                 ();
+void    MY_DeInit               ();
 
 /////////////////////////////////////////////////////////////////////
 //                          MYerror.cpp
@@ -100,7 +100,7 @@ struct myFile_s
 };
 
 int     MY_AddPck           (const char *fr);
-void    MY_FreePck          (void);
+void    MY_FreePck          ();
 myFile_s *MY_FOpen          (const char *fl, long ofst, const char *mod, bool must);
 mySIZE  MY_FSize            (const char *fl);
 void    MY_FSeek            (myFile_s *f, long pos, int style);
@@ -141,7 +141,7 @@ template<class T>
 
 // Leak checking
 #if defined(_MSC_VER) || defined (MY_LEAK_CHECK)
-mySIZE  MY_MemUsed          (void);
+mySIZE  MY_MemUsed          ();
 #endif
 
 #ifdef MY_LEAK_CHECK
@@ -177,8 +177,8 @@ struct myKh3info_s
 };
 
 int     MY_KH3Open      (const char *fl);
-void    MY_KH3Close     (void);
-int     MY_KH3Images    (void);
+void    MY_KH3Close     ();
+int     MY_KH3Images    ();
 void    MY_KH3Load      (myWORD n, myWORD *data);
 int     MY_KH3GetInfo   (myKh3info_s *info);
 
@@ -189,7 +189,7 @@ int     MY_KH3GetInfo   (myKh3info_s *info);
 #define MY_LANG_MAX_STR     500
 
 bool        MY_LangLoad     (const char *lang_file);
-void        MY_LangFree     (void);
+void        MY_LangFree     ();
 const char  *MY_L           (const char *text);
 
 /////////////////////////////////////////////////////////////////////

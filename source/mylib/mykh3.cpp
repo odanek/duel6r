@@ -83,7 +83,7 @@ int MY_KH3Open (const char *fl)
 Zavreni knihovny
 ==================================================
 */
-void MY_KH3Close (void)
+void MY_KH3Close ()
 {
     MY_FClose (&myKh3File);
 }
@@ -93,7 +93,7 @@ void MY_KH3Close (void)
 Vraci pocet obazku v knihovne
 ==================================================
 */
-int MY_KH3Images (void)
+int MY_KH3Images ()
 {
     if (myKh3File == NULL)
         return 0;

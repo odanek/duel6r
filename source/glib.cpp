@@ -78,13 +78,13 @@ static void GLib_DrawFrame (int x, int y, int w, int h, bool p)
 button_c
 ================
 */
-button_c::button_c (void)
+button_c::button_c ()
 {
     pressed = false;
     glibMainDesk->Register(this);
 }
 
-button_c::~button_c (void)
+button_c::~button_c ()
 {
 }
 
@@ -411,12 +411,12 @@ void switchbox_c::Draw() const
 label_c
 ================
 */
-label_c::label_c (void)
+label_c::label_c ()
 {
     glibMainDesk->Register(this);
 }
 
-label_c::~label_c (void)
+label_c::~label_c ()
 {
 }
 
@@ -456,7 +456,7 @@ void label_c::Check(Desk::EventType &event, DeskControl*& from)
 slider_c
 ================
 */
-slider_c::slider_c (void)
+slider_c::slider_c ()
 {
     glibMainDesk->Register(this);
     up = new button_c;
@@ -592,12 +592,12 @@ void slider_c::Draw() const
 textbox_c
 ================
 */
-textbox_c::textbox_c (void)
+textbox_c::textbox_c ()
 {
     glibMainDesk->Register(this);
 }
 
-textbox_c::~textbox_c (void)
+textbox_c::~textbox_c ()
 {
 }
 
@@ -674,7 +674,7 @@ void textbox_c::Draw() const
 desk_c
 ================
 */
-Desk *Desk::Create (void)
+Desk *Desk::Create ()
 {
     if (glibMainDesk == nullptr)
         glibMainDesk = new Desk;

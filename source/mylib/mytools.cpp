@@ -59,7 +59,7 @@ Pouze pro Visual studio nebo s MY_LEAK_CHECK
 ==================================================
 */
 #if defined (_MSC_VER) || defined (MY_LEAK_CHECK)
-mySIZE MY_MemUsed (void)
+mySIZE MY_MemUsed ()
 {
     return myMemUsed;
 }

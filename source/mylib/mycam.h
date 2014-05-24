@@ -56,7 +56,7 @@ class myfrust_c
         bool    in              (const bbox3_c<mval_t> &b) const;
 
     private:
-        void    rebuild         (void);
+        void    rebuild         ();
 };
 
 /*
@@ -79,20 +79,20 @@ class mycam_c
             CM_FLY
         };
 
-                mycam_c         (void);
-                ~mycam_c        (void);
+                mycam_c         ();
+                ~mycam_c        ();
         void    setpos          (const vec3_c<mval_t> &p);
         void    getpos          (vec3_c<mval_t> &p) const;
         void    getdir          (vec3_c<mval_t> &front, vec3_c<mval_t> &side, vec3_c<mval_t> &up) const;
         void    move            (mval_t spd);
         void    strafe          (mval_t spd);
         void    rotate          (mval_t h, mval_t p, mval_t r);
-        void    look            (void) const;
-        void    facecam         (void) const;
+        void    look            () const;
+        void    facecam         () const;
         void    resize          (bool fr, mval_t fov, float a);
 
     private:
-        void    makerotation    (void);
+        void    makerotation    ();
 };
 
 

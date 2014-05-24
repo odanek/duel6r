@@ -150,8 +150,8 @@ private:
     std::string caption;
 
 public:
-            button_c    (void);
-            ~button_c   (void);
+            button_c    ();
+            ~button_c   ();
     void    SetCaption  (const std::string& caption);
     void    SetPosition (int X, int Y, int W, int H);
     void    Check       (Desk::EventType &event, DeskControl*& from) override;
@@ -187,15 +187,15 @@ private:
 
 public:
             listbox_c   (bool sb);
-            ~listbox_c  (void);
+            ~listbox_c  ();
     void    Check       (Desk::EventType &event, DeskControl*& from) override;
-    void    Draw        (void) const override;
+    void    Draw        () const override;
     void    SetPosition (int X, int Y, int W, int H, int fH);
     void    AddItem     (const std::string& item);
     void    DelItem     (int n);
-    int     CurItem     (void);
+    int     CurItem     ();
     void    SetCur      (int n);
-    void    Clear       (void);
+    void    Clear       ();
 
 	Desk::ControlType getType() const override
 	{

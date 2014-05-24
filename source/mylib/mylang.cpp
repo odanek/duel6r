@@ -158,7 +158,7 @@ static void MY_LangExpandString (char *str)
 Uvolneni pameti obsazene aktualnim jazykem
 ==================================================
 */
-void MY_LangFree (void)
+void MY_LangFree ()
 {
     map<string,char*>::iterator     m_it;
 

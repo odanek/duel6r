@@ -82,7 +82,7 @@ con_c::~con_c ()
 Vyprazdneni textoveho bufferu
 ==================================================
 */
-void con_c::clear (void)
+void con_c::clear ()
 {
     m_bufpos = 0;
     m_scroll = 0;

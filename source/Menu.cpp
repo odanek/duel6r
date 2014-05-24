@@ -80,7 +80,7 @@ namespace Duel6
 		"sound/gameover.wav"
 	};
 
-	void MENU_Free(void)
+	void MENU_Free()
 	{
 		MY_UnregMem(myDesk);
 		delete myDesk;
@@ -125,7 +125,7 @@ namespace Duel6
 	nove pripojena zarizeni.
 	==================================================
 	*/
-	void MENU_JoyRescan(void)
+	void MENU_JoyRescan()
 	{
 		char    f[30];
 
@@ -160,7 +160,7 @@ namespace Duel6
 		}
 	}
 
-	void MENU_Init(void)
+	void MENU_Init()
 	{
 		char        f[30];
 		int         i;
@@ -375,7 +375,7 @@ namespace Duel6
 			*(r++) = r2[i++];
 	}
 
-	static void MENU_RebuildTable(void)
+	static void MENU_RebuildTable()
 	{
 		myListbox[0]->Clear();
 		if (d6Persons.isEmpty())
@@ -420,7 +420,7 @@ namespace Duel6
 		}
 	}
 
-	static void MENU_PridejHrace(void)
+	static void MENU_PridejHrace()
 	{
 		int     i, c;
 
@@ -435,7 +435,7 @@ namespace Duel6
 		}
 	}
 
-	static void MENU_AddPerson(void)
+	static void MENU_AddPerson()
 	{
 		const std::string& personName = myTextbox->Text();
 
@@ -594,7 +594,7 @@ namespace Duel6
 		}
 	}
 
-	static void MENU_DelPerson(void)
+	static void MENU_DelPerson()
 	{
 		if (!MENU_DelQuestion())
 			return;

@@ -37,10 +37,12 @@ Popis: Obsluha grafickeho rezimu
 Swap buffers - prohodi buffery
 ==================================================
 */
-void VID_SwapBuffers (void)
+void VID_SwapBuffers ()
 {
-    if (g_app.con != NULL && g_app.con->isactive ())
-        g_app.con->blit (g_vid.cl_width, g_vid.cl_height);
+	if (g_app.con != nullptr && g_app.con->isactive())
+	{
+		g_app.con->blit(g_vid.cl_width, g_vid.cl_height);
+	}
 
     SDL_GL_SwapWindow(g_app.window);
 }

@@ -57,7 +57,7 @@ static myFile_s     myFile[MYFILE_MAX_OPENED];
 Inicializace knihovny
 ==================================================
 */
-void MY_Init (void)
+void MY_Init ()
 {
     int     i;
 
@@ -71,7 +71,7 @@ void MY_Init (void)
 Deinicializace knihovny
 ==================================================
 */
-void MY_DeInit (void)
+void MY_DeInit ()
 {
     MY_FreePck ();
     MY_LangFree ();
@@ -164,7 +164,7 @@ int MY_AddPck (const char *fr)
 Uvolni vsechny knihovny z pameti
 ==================================================
 */
-void MY_FreePck (void)
+void MY_FreePck ()
 {
     int         i;
     myPcklib_s  *plib, *next;

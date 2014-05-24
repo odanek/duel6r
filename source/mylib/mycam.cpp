@@ -105,7 +105,7 @@ void myfrust_c::reset (mval_t fov, mval_t aspect)
 vypocte frustum
 ==================================================
 */
-void myfrust_c::rebuild (void)
+void myfrust_c::rebuild ()
 {
     for (int i = 0; i < 5; i++)
     {
@@ -168,7 +168,7 @@ trida mycam_c
 konstruktor
 ==================================================
 */
-mycam_c::mycam_c (void)
+mycam_c::mycam_c ()
 {
     m_pos.set (0.0f, 0.0f, 0.0f);
     m_side.set (1.0f, 0.0f, 0.0f);
@@ -187,7 +187,7 @@ mycam_c::mycam_c (void)
 destruktor
 ==================================================
 */
-mycam_c::~mycam_c (void)
+mycam_c::~mycam_c ()
 {
     if (m_frustum != NULL)
         delete m_frustum;
@@ -260,7 +260,7 @@ void mycam_c::strafe (mval_t spd)
 opengl transformace podle pohledu kamery
 ==================================================
 */
-void mycam_c::look (void) const
+void mycam_c::look () const
 {
     //gluLookAt (m_pos.x, m_pos.y, m_pos.z,
     //           m_pos.x + m_front.x, m_pos.y + m_front.y, m_pos.z + m_front.z,
@@ -283,7 +283,7 @@ void mycam_c::look (void) const
 nastavi vektory kamery podle rotace
 ==================================================
 */
-void mycam_c::makerotation (void)
+void mycam_c::makerotation ()
 {
     mat3_c<mval_t>  m;
     mval_t          a, b, c, d, e, f;
@@ -332,7 +332,7 @@ void mycam_c::rotate (mval_t h, mval_t p, mval_t r)
 je treba volat pred kreslenim "billboard" polygonu
 ==================================================
 */
-void mycam_c::facecam (void) const
+void mycam_c::facecam () const
 {
     glRotatef (MM_R2D (m_heading), 0, 1.0f, 0);
     glRotatef (MM_R2D (m_pitch), 1.0f, 0, 0);
