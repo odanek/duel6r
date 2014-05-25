@@ -52,7 +52,7 @@ void CO_FontLoad (const std::string& fontFile)
 
 	if (fileSize < 50)
 	{
-		MY_Err(MY_ErrDump(MY_L("COSTR0001|Nepodarilo se nahrat soubor s fontem %s"), fontFile));
+		MY_Err(MY_ErrDump(MY_L("COSTR0001|Nepodarilo se nahrat soubor s fontem %s"), fontFile.c_str()));
 	}
 
     fontData.resize(fileSize - 50);
