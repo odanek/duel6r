@@ -187,7 +187,7 @@ namespace Duel6
 
 	void Game::startContext()
 	{
-		d6Context = this;
+		makeCurrent();
 		SDL_ShowCursor(SDL_DISABLE);
 		SDL_StopTextInput();
 		SOUND_StopMusic();
@@ -239,7 +239,7 @@ namespace Duel6
 	{
 		if (keyCode == SDLK_ESCAPE)
 		{
-			MENU_SavePersonData();
+			d6Menu.savePersonData();
 			d6Menu.startContext();
 		}
 
@@ -247,7 +247,7 @@ namespace Duel6
 		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
 		if (keyCode == SDLK_F1 && !roundLimit)
 		{
-			MENU_SavePersonData();
+			d6Menu.savePersonData();
 			nextRound((keyModifiers & KMOD_SHIFT) != 0);
 			return;
 		}
@@ -305,13 +305,11 @@ namespace Duel6
 			lastLevel = rand() % levels.size();
 		}
 
-		SET_LoadBackground(backgrounds[rand() % backgrounds.size()]);
-
 		const std::string levelPath = levels[lastLevel];
 		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
 		std::vector<Bonus> bonuses;
 		bool mirror = rand() % 2 == 0;
-		d6World.loadLevel(levelPath, mirror);
+		d6World.loadLevel(levelPath, backgrounds[rand() % backgrounds.size()], mirror);
 		d6World.findBonuses(bonuses);
 		d6World.prepareFaces();
 		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());

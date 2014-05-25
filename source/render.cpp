@@ -108,10 +108,10 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	static void RENDER_Background()
+	static void RENDER_Background(GLuint texture)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, d6BackgroundTexture);
+		glBindTexture(GL_TEXTURE_2D, texture);
 
 		glBegin(GL_QUADS);
 		glTexCoord2f(0, 0); glVertex2i(0, g_vid.cl_height);
@@ -355,7 +355,7 @@ namespace Duel6
 
 		const Player& player = game.getPlayers().front();
 		RENDER_SetView(player.getView());
-		RENDER_Background();
+		RENDER_Background(game.getWorld().getBackgroundTexture());
 		RENDER_SetGLMode(D6_GL_PERSPECTIVE);
 		RENDER_View(game, player);
 	}
@@ -371,7 +371,7 @@ namespace Duel6
 				glColor3f(1.0f, 0.5f, 0.5f);
 
 			RENDER_SetView(player.getView());
-			RENDER_Background();
+			RENDER_Background(game.getWorld().getBackgroundTexture());
 
 			RENDER_SetGLMode(D6_GL_PERSPECTIVE);
 			RENDER_View(game, player);

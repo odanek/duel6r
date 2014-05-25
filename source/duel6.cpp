@@ -31,21 +31,17 @@
 
 namespace Duel6
 {
-	Context *d6Context;
 	Game d6Game;
 	Menu d6Menu;
 	BlockData d6BlockData;
 	Float32 d6Cos[450];
-	GLuint d6BackgroundTexture;
 	bool d6Wireframe = false;
 	bool d6ShowFps = false;
-	bool d6PlayMusic = false;
 	std::vector<PlayerSkinColors> d6PlayerColors(D6_MAX_PLAYERS);
 	int d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
 	bool d6ShowRanking = true;
 	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
 	SpriteList d6SpriteList;
-
 	World d6World(d6BlockData, D6_ANM_SPEED, D6_WAVE_HEIGHT);
 
 	void P_TextInputEvent(Context& context, const char* text)
@@ -56,7 +52,7 @@ namespace Duel6
 		}
 		else
 		{
-			d6Context->textInputEvent(text);
+			context.textInputEvent(text);
 		}
 	}
 
@@ -69,7 +65,7 @@ namespace Duel6
 			{
 				SDL_StartTextInput();
 			}
-			else if (context.getType() == Context::Type::Game)
+			else if (context.is(d6Game))
 			{
 				SDL_StopTextInput();
 			}
@@ -81,7 +77,7 @@ namespace Duel6
 		}
 		else
 		{
-			d6Context->keyEvent(keyCode, keyModifiers);
+			context.keyEvent(keyCode, keyModifiers);
 		}
 	}
 
@@ -113,12 +109,42 @@ namespace Duel6
 		}
 	}
 
+	static void P_SyncUpdateAndRender(Context& context)
+	{
+		static unsigned long cur_time = 0, last_fps_time = 0;
+		static int frame_counter = 0;
+		unsigned long last_time;
+
+		last_time = cur_time;
+		cur_time = SDL_GetTicks();
+
+		// Calculate fps
+		if (cur_time - last_fps_time >= 1000)
+		{
+			g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
+			last_fps_time = cur_time;
+			frame_counter = 0;
+		}
+		frame_counter++;
+
+		// Draw
+		context.render();
+		VID_SwapBuffers();
+
+		// Update
+		if (cur_time - last_time < 70)
+		{
+			float elapsedTime = (cur_time - last_time) * 0.001f;;
+			context.update(elapsedTime);
+		}
+	}
+
 	void P_Main()
 	{
 		while (!(g_app.flags & APP_FLAG_QUIT))
 		{
-			P_ProcessEvents(*d6Context);
-			CO_FpsSyncLoops(*d6Context);
+			P_ProcessEvents(Context::getCurrent());
+			P_SyncUpdateAndRender(Context::getCurrent());
 		}
 	}
 }

@@ -34,11 +34,10 @@
 #include "ElevatorList.h"
 #include "Math.h"
 #include "Menu.h"
+#include "Context.h"
 
 namespace Duel6
 {
-	static bool d6BcgLoaded = false;
-
 	struct VideoMode
 	{
 		Int32 bpp;
@@ -103,18 +102,6 @@ namespace Duel6
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		RENDER_SetGLMode(D6_GL_ORTHO);
-	}
-
-	void SET_LoadBackground(int n)
-	{
-		if (d6BcgLoaded)
-		{
-			glDeleteTextures(1, &d6BackgroundTexture);
-		}
-
-		g_app.con->printf(MY_L("APP00059|...Nahravam pozadi (%s, %d)\n"), D6_FILE_BACK, n);
-		d6BackgroundTexture = Util::loadKH3Texture(D6_FILE_BACK, n, false);
-		d6BcgLoaded = true;
 	}
 
 	/*
@@ -223,23 +210,9 @@ namespace Duel6
 	{
 		if (con->argc() == 2)
 		{
-			bool inGame = (d6Context != nullptr && d6Context->getType() == Context::Type::Game);
-
-			if (con->argv(1) == "on")
+			if (con->argv(1) == "on" || con->argv(1) == "off")
 			{
-				d6PlayMusic = true;
-				if (!inGame)
-				{
-					SOUND_StartMusic(0, false);
-				}
-			}
-			if (con->argv(1) == "off")
-			{
-				d6PlayMusic = false;
-				if (!inGame)
-				{
-					SOUND_StopMusic();
-				}
+				d6Menu.enableMusic(con->argv(1) == "on");
 			}
 		}
 	}
@@ -251,9 +224,9 @@ namespace Duel6
 	*/
 	void SET_JoyScan(con_c *con)
 	{
-		if (d6Context == nullptr || d6Context->getType() == Context::Type::Menu)
+		if (d6Menu.isCurrent())
 		{
-			MENU_JoyRescan();
+			d6Menu.joyRescan();
 		}
 	}
 
@@ -478,13 +451,14 @@ namespace Duel6
 
 		SET_InitVideo();
 		d6BlockData.init(D6_FILE_ART, D6_FILE_ANM);
+		d6World.loadBackgrounds(D6_FILE_BACK);
 		WPN_Init(D6_FILE_WEAPON);
 		EXPL_Load(D6_FILE_EXPLODE);
 		ELEV_Init();
 		FIRE_Init();
 		CONTROLS_Init();
 
-		MENU_Init();
+		d6Menu.init();
 		d6Menu.startContext();
 	}
 
@@ -493,8 +467,9 @@ namespace Duel6
 		SOUND_DeInit();
 
 		d6BlockData.freeTextures();
+		d6World.freeTextures();
 		WPN_FreeTextures();
-		MENU_Free();
+		d6Menu.free();
 		EXPL_Free();
 
 		WPN_DeInit();

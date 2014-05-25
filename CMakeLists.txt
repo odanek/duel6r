@@ -49,6 +49,8 @@ set(D6R_SOURCES
     source/BonusList.h
     source/BonusList.cpp
     source/Color.h
+    source/Context.h
+    source/Context.cpp
     source/duel6.cpp
     source/Elevator.h
     source/Elevator.cpp
@@ -110,7 +112,6 @@ set(D6R_SOURCES
     
     source/core/co_core.h
     source/core/co_font.cpp
-    source/core/co_fps.cpp
     source/core/co_input.cpp
     source/core/co_main.cpp
     source/core/co_vid.cpp

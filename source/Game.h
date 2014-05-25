@@ -30,7 +30,9 @@
 
 #include "Type.h"
 #include "ScreenMode.h"
-#include "Globals.h"
+#include "Context.h"
+
+#include "Globals.h" // TODO: Remove
 
 namespace Duel6
 {
@@ -92,11 +94,6 @@ namespace Duel6
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
-
-		Type getType() const override
-		{
-			return Context::Type::Menu;
-		}
 
 		World& getWorld()
 		{

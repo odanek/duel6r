@@ -72,10 +72,12 @@ namespace Duel6
 	{
 	private:
 		const BlockData& blockData;
+		std::vector<GLuint> backgroundTextures;
 
 		Int32 width;
 		Int32 height;
 		std::vector<Uint16> levelData;
+		Size background;
 
 		FaceList walls;
 		FaceList sprites;
@@ -91,9 +93,18 @@ namespace Duel6
 		World(const BlockData& blockData, Float32 animationSpeed, Float32 waveHeight)
 			: blockData(blockData), walls(blockData.getTextures()), sprites(blockData.getTextures()), 
 			water(blockData.getTextures()), animationSpeed(animationSpeed), waveHeight(waveHeight)
-		{}
+		{
+		}
 
-		void loadLevel(const std::string& path, bool mirror);
+		~World()
+		{
+			freeTextures();
+		}
+
+		void loadBackgrounds(const std::string& path);
+		void freeTextures();
+
+		void loadLevel(const std::string& path, Size background, bool mirror);
 		void findBonuses(std::vector<Bonus>& bonuses);
 		void prepareFaces();
 
@@ -127,6 +138,11 @@ namespace Duel6
 		const FaceList& getWater() const
 		{
 			return water;
+		}
+
+		GLuint getBackgroundTexture() const
+		{
+			return backgroundTextures[background];
 		}
 
 		Int32 getSizeX() const
@@ -168,10 +184,7 @@ namespace Duel6
 		void addWaterFaces();
 		void addWall(FaceList& faceList, const Block& block, Int32 x, Int32 y);
 		void addWater(FaceList& faceList, const Block& block, Int32 x, Int32 y);
-		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);
-
-		/** Group faces with the same texture together so that they can be rendered in batches */
-		void optimize(FaceList& faceList);
+		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);		
 
 		bool isInside(Int32 x, Int32 y) const
 		{

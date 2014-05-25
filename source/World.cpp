@@ -85,8 +85,9 @@ namespace Duel6
 		}
 	}
 
-	void World::loadLevel(const std::string& path, bool mirror)
+	void World::loadLevel(const std::string& path, Size background, bool mirror)
 	{
+		this->background = background;
 		levelData.clear();
 
 		myFile_s* f = MY_FOpen(path.c_str(), 0, "rb", true);
@@ -103,6 +104,30 @@ namespace Duel6
 
 		loadElevators(f, mirror);
 		MY_FClose(&f);
+	}
+
+	void World::freeTextures()
+	{
+		if (!backgroundTextures.empty())
+		{
+			glDeleteTextures(backgroundTextures.size(), &backgroundTextures[0]);
+			backgroundTextures.clear();
+		}
+	}
+
+	void World::loadBackgrounds(const std::string& path)
+	{
+		myKh3info_s ki;
+		MY_KH3Open(path.c_str());
+		MY_KH3GetInfo(&ki);
+		MY_KH3Close();
+
+		g_app.con->printf(MY_L("APP00059|...Nahravam pozadi (%s, %d textur)\n"), path.c_str(), ki.picts);
+		backgroundTextures.clear();
+		for (Size i = 0; i < ki.picts; ++i)
+		{
+			backgroundTextures.push_back(Util::loadKH3Texture(path, i, false));
+		}
 	}
 
 	void World::loadElevators(myFile_s* f, bool mirror)

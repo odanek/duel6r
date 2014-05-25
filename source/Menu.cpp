@@ -28,29 +28,15 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "project.h"
-#include "LevelList.h"
-#include "PersonList.h"
 #include "PlayerControls.h"
-#include "Util.h"
-#include "glib.h"
 #include "Menu.h"
 #include "Game.h"
+#include "Util.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
 
 namespace Duel6
 {
-	static Size d6Playing;
-	static LevelList    d6LevelList;
-	static PersonList	d6Persons;
-	static Desk         *myDesk;
-	static button_c     *myButton[7];
-	static listbox_c    *myListbox[7];
-	static label_c      *myLabel[8];
-	static switchbox_c  *controlSwitch[D6_MAX_PLAYERS];
-	static textbox_c    *myTextbox;
-	static int          d6Backs, d6WillPlay[D6_MAX_PLAYERS];
-	static GLuint       d6MenuTex;
 	static const char   *d6SndFl[D6_SOUNDS] =
 	{
 		"sound/smrt.wav",
@@ -80,10 +66,15 @@ namespace Duel6
 		"sound/gameover.wav"
 	};
 
-	void MENU_Free()
+	Menu::Menu()		
+		: playMusic(false)
+	{}
+
+	void Menu::free()
 	{
-		MY_UnregMem(myDesk);
-		delete myDesk;
+		glDeleteTextures(1, &menuBannerTexture);
+		MY_UnregMem(desk);
+		delete desk;
 	}
 
 	/*
@@ -91,17 +82,18 @@ namespace Duel6
 	Vytvori seznam urovni a zjisti pocet pozadi
 	==================================================
 	*/
-	static void MENU_GetBcgCount()
+	Size Menu::getBackgroundCount()
 	{
-		myKh3info_s         ki;
+		myKh3info_s ki;
 
 		MY_KH3Open(D6_FILE_BACK);
 		MY_KH3GetInfo(&ki);
-		d6Backs = ki.picts;
 		MY_KH3Close();
+
+		return ki.picts;
 	}
 
-	static void MENU_LoadPersonData()
+	void Menu::loadPersonData()
 	{
 		myFile_s    *f;
 		int         i;
@@ -109,13 +101,15 @@ namespace Duel6
 		if (MY_FSize(D6_FILE_PHIST) < 20)
 		{
 			for (i = 0; i < D6_MAX_PLAYERS; i++)
-				d6WillPlay[i] = -1;
+			{
+				willPlay[i] = -1;
+			}
 			return;
 		}
 
 		f = MY_FOpen(D6_FILE_PHIST, 0, "rb", true);
-		d6Persons.load(f->file);		
-		MY_FRead(d6WillPlay, 4, 8, f);
+		persons.load(f->file);		
+		MY_FRead(willPlay, 4, 8, f);
 		MY_FClose(&f);
 	}
 
@@ -125,7 +119,7 @@ namespace Duel6
 	nove pripojena zarizeni.
 	==================================================
 	*/
-	void MENU_JoyRescan()
+	void Menu::joyRescan()
 	{
 		char    f[30];
 
@@ -160,142 +154,142 @@ namespace Duel6
 		}
 	}
 
-	void MENU_Init()
+	void Menu::init()
 	{
 		char        f[30];
 		int         i;
 
 		g_app.con->printf(MY_L("APP00029|\n===Menu inicializace===\n"));
-		d6MenuTex = Util::loadKH3Texture(D6_FILE_LABEL, 0, false);
-		MENU_LoadPersonData();
+		menuBannerTexture = Util::loadKH3Texture(D6_FILE_LABEL, 0, false);
+		loadPersonData();
 		g_app.con->printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
-		myDesk = Desk::Create();
-		myDesk->ScreenSize(g_vid.cl_width, g_vid.cl_height,
+		desk = Desk::Create();
+		desk->ScreenSize(g_vid.cl_width, g_vid.cl_height,
 			(g_vid.cl_width - 800) / 2, (g_vid.cl_height - 600) / 2);
 
-		myListbox[0] = new listbox_c(true);
-		MY_RegMem(myListbox[0], sizeof (listbox_c));
-		myListbox[0]->SetPosition(10, 400, 94, 12, 16);
-		myListbox[0]->SetNG(12, 1);
+		listbox[0] = new listbox_c(true);
+		MY_RegMem(listbox[0], sizeof (listbox_c));
+		listbox[0]->SetPosition(10, 400, 94, 12, 16);
+		listbox[0]->SetNG(12, 1);
 
-		myListbox[1] = new listbox_c(true);
-		MY_RegMem(myListbox[1], sizeof (listbox_c));
-		myListbox[1]->SetPosition(10, 129, 20, 13, 18);
-		myListbox[1]->SetNG(0, 1);
+		listbox[1] = new listbox_c(true);
+		MY_RegMem(listbox[1], sizeof (listbox_c));
+		listbox[1]->SetPosition(10, 129, 20, 13, 18);
+		listbox[1]->SetNG(0, 1);
 
-		myListbox[2] = new listbox_c(false);
-		MY_RegMem(myListbox[2], sizeof (listbox_c));
-		myListbox[2]->SetPosition(200, 129, 20, D6_MAX_PLAYERS, 18);
-		myListbox[2]->SetNG(1, 1);
+		listbox[2] = new listbox_c(false);
+		MY_RegMem(listbox[2], sizeof (listbox_c));
+		listbox[2]->SetPosition(200, 129, 20, D6_MAX_PLAYERS, 18);
+		listbox[2]->SetNG(1, 1);
 
-		myListbox[3] = new listbox_c(true);
-		MY_RegMem(myListbox[3], sizeof (listbox_c));
-		myListbox[3]->SetPosition(644, 189, 13, 6, 16);
-		myListbox[3]->SetNG(2, 1);
+		listbox[3] = new listbox_c(true);
+		MY_RegMem(listbox[3], sizeof (listbox_c));
+		listbox[3]->SetPosition(644, 189, 13, 6, 16);
+		listbox[3]->SetNG(2, 1);
 
-		myListbox[4] = new listbox_c(true);
-		MY_RegMem(myListbox[4], sizeof (listbox_c));
-		myListbox[4]->SetPosition(500, 236, 13, 3, 16);
-		myListbox[4]->SetNG(3, 1);
+		listbox[4] = new listbox_c(true);
+		MY_RegMem(listbox[4], sizeof (listbox_c));
+		listbox[4]->SetPosition(500, 236, 13, 3, 16);
+		listbox[4]->SetNG(3, 1);
 
-		myListbox[5] = new listbox_c(false);
-		MY_RegMem(myListbox[5], sizeof (listbox_c));
-		myListbox[5]->SetPosition(644, 129, 15, 2, 16);
-		myListbox[5]->SetNG(4, 1);
-		myListbox[5]->AddItem(MY_L("APP00031|Cela obrazovka"));
-		myListbox[5]->AddItem(MY_L("APP00032|Split screen"));
+		listbox[5] = new listbox_c(false);
+		MY_RegMem(listbox[5], sizeof (listbox_c));
+		listbox[5]->SetPosition(644, 129, 15, 2, 16);
+		listbox[5]->SetNG(4, 1);
+		listbox[5]->AddItem(MY_L("APP00031|Cela obrazovka"));
+		listbox[5]->AddItem(MY_L("APP00032|Split screen"));
 
-		myListbox[6] = new listbox_c(true);
-		MY_RegMem(myListbox[6], sizeof (listbox_c));
-		myListbox[6]->SetPosition(500, 129, 13, 5, 16);
-		myListbox[6]->SetNG(5, 1);
+		listbox[6] = new listbox_c(true);
+		MY_RegMem(listbox[6], sizeof (listbox_c));
+		listbox[6]->SetPosition(500, 129, 13, 5, 16);
+		listbox[6]->SetNG(5, 1);
 
-		myButton[0] = new button_c;
-		MY_RegMem(myButton[0], sizeof (button_c));
-		myButton[0]->SetPosition(200, 281, 80, 31);
-		myButton[0]->SetCaption(">>");
-		myButton[0]->SetNG(6, 1);
+		button[0] = new button_c;
+		MY_RegMem(button[0], sizeof (button_c));
+		button[0]->SetPosition(200, 281, 80, 31);
+		button[0]->SetCaption(">>");
+		button[0]->SetNG(6, 1);
 
-		myButton[1] = new button_c;
-		MY_RegMem(myButton[1], sizeof (button_c));
-		myButton[1]->SetPosition(200, 316, 80, 31);
-		myButton[1]->SetCaption("<<");
-		myButton[1]->SetNG(7, 1);
+		button[1] = new button_c;
+		MY_RegMem(button[1], sizeof (button_c));
+		button[1]->SetPosition(200, 316, 80, 31);
+		button[1]->SetCaption("<<");
+		button[1]->SetNG(7, 1);
 
-		myButton[2] = new button_c;
-		MY_RegMem(myButton[2], sizeof (button_c));
-		myButton[2]->SetPosition(284, 281, 80, 31);
-		myButton[2]->SetCaption(MY_L("APP00033|Smaz"));
-		myButton[2]->SetNG(8, 1);
+		button[2] = new button_c;
+		MY_RegMem(button[2], sizeof (button_c));
+		button[2]->SetPosition(284, 281, 80, 31);
+		button[2]->SetCaption(MY_L("APP00033|Smaz"));
+		button[2]->SetNG(8, 1);
 
-		myButton[3] = new button_c;
-		MY_RegMem(myButton[3], sizeof (button_c));
-		myButton[3]->SetPosition(284, 316, 80, 31);
-		myButton[3]->SetCaption(MY_L("APP00034|Pridej"));
-		myButton[3]->SetNG(9, 1);
+		button[3] = new button_c;
+		MY_RegMem(button[3], sizeof (button_c));
+		button[3]->SetPosition(284, 316, 80, 31);
+		button[3]->SetCaption(MY_L("APP00034|Pridej"));
+		button[3]->SetNG(9, 1);
 
-		myButton[6] = new button_c;
-		MY_RegMem(myButton[6], sizeof (button_c));
-		myButton[6]->SetPosition(370, 281, 120, 31);
-		myButton[6]->SetCaption(MY_L("APP00092|Vynuluj (F3)"));
-		myButton[6]->SetNG(30, 1);
+		button[6] = new button_c;
+		MY_RegMem(button[6], sizeof (button_c));
+		button[6]->SetPosition(370, 281, 120, 31);
+		button[6]->SetCaption(MY_L("APP00092|Vynuluj (F3)"));
+		button[6]->SetNG(30, 1);
 
-		myButton[4] = new button_c;
-		MY_RegMem(myButton[4], sizeof (button_c));
-		myButton[4]->SetPosition(500, 300, 125, 73);
-		myButton[4]->SetCaption(MY_L("APP00035|Hrat (F1)"));
-		myButton[4]->SetNG(10, 1);
+		button[4] = new button_c;
+		MY_RegMem(button[4], sizeof (button_c));
+		button[4]->SetPosition(500, 300, 125, 73);
+		button[4]->SetCaption(MY_L("APP00035|Hrat (F1)"));
+		button[4]->SetNG(10, 1);
 
-		myButton[5] = new button_c;
-		MY_RegMem(myButton[5], sizeof (button_c));
-		myButton[5]->SetPosition(644, 300, 125, 73);
-		myButton[5]->SetCaption(MY_L("APP00036|Konec (ESC)"));
-		myButton[5]->SetNG(11, 1);
+		button[5] = new button_c;
+		MY_RegMem(button[5], sizeof (button_c));
+		button[5]->SetPosition(644, 300, 125, 73);
+		button[5]->SetCaption(MY_L("APP00036|Konec (ESC)"));
+		button[5]->SetNG(11, 1);
 
-		myLabel[0] = new label_c;
-		MY_RegMem(myLabel[0], sizeof (label_c));
-		myLabel[0]->SetPosition(10, 380, 772, 18);
-		myLabel[0]->SetCaption(MY_L("APP00037|       Jmeno        |    Her    | Vitezstvi |   Strel   | Presnost  |   Zabiti   |   Bodu"));
+		label[0] = new label_c;
+		MY_RegMem(label[0], sizeof (label_c));
+		label[0]->SetPosition(10, 380, 772, 18);
+		label[0]->SetCaption(MY_L("APP00037|       Jmeno        |    Her    | Vitezstvi |   Strel   | Presnost  |   Zabiti   |   Bodu"));
 
-		myLabel[1] = new label_c;
-		MY_RegMem(myLabel[1], sizeof (label_c));
-		myLabel[1]->SetPosition(500, 216, 125, 18);
-		myLabel[1]->SetCaption(MY_L("APP00038|Pozadi"));
+		label[1] = new label_c;
+		MY_RegMem(label[1], sizeof (label_c));
+		label[1]->SetPosition(500, 216, 125, 18);
+		label[1]->SetCaption(MY_L("APP00038|Pozadi"));
 
-		myLabel[2] = new label_c;
-		MY_RegMem(myLabel[2], sizeof (label_c));
-		myLabel[2]->SetPosition(644, 170, 125, 18);
-		myLabel[2]->SetCaption(MY_L("APP00039|Mapa"));
+		label[2] = new label_c;
+		MY_RegMem(label[2], sizeof (label_c));
+		label[2]->SetPosition(644, 170, 125, 18);
+		label[2]->SetCaption(MY_L("APP00039|Mapa"));
 
-		myLabel[3] = new label_c;
-		MY_RegMem(myLabel[3], sizeof (label_c));
-		myLabel[3]->SetPosition(644, 110, 125, 18);
-		myLabel[3]->SetCaption(MY_L("APP00040|Mod obrazovky"));
+		label[3] = new label_c;
+		MY_RegMem(label[3], sizeof (label_c));
+		label[3]->SetPosition(644, 110, 125, 18);
+		label[3]->SetCaption(MY_L("APP00040|Mod obrazovky"));
 
-		myLabel[4] = new label_c;
-		MY_RegMem(myLabel[4], sizeof (label_c));
-		myLabel[4]->SetPosition(500, 110, 125, 18);
-		myLabel[4]->SetCaption(MY_L("APP00041|Zoom"));
+		label[4] = new label_c;
+		MY_RegMem(label[4], sizeof (label_c));
+		label[4]->SetPosition(500, 110, 125, 18);
+		label[4]->SetCaption(MY_L("APP00041|Zoom"));
 
-		myLabel[5] = new label_c;
-		MY_RegMem(myLabel[5], sizeof (label_c));
-		myLabel[5]->SetPosition(10, 110, 181, 18);
-		myLabel[5]->SetCaption(MY_L("APP00042|Databaze hracu"));
+		label[5] = new label_c;
+		MY_RegMem(label[5], sizeof (label_c));
+		label[5]->SetPosition(10, 110, 181, 18);
+		label[5]->SetCaption(MY_L("APP00042|Databaze hracu"));
 
-		myLabel[6] = new label_c;
-		MY_RegMem(myLabel[6], sizeof (label_c));
-		myLabel[6]->SetPosition(200, 110, 165, 18);
-		myLabel[6]->SetCaption(MY_L("APP00043|Hraci"));
+		label[6] = new label_c;
+		MY_RegMem(label[6], sizeof (label_c));
+		label[6]->SetPosition(200, 110, 165, 18);
+		label[6]->SetCaption(MY_L("APP00043|Hraci"));
 
-		myLabel[7] = new label_c;
-		MY_RegMem(myLabel[7], sizeof (label_c));
-		myLabel[7]->SetPosition(370, 110, 120, 18);
-		myLabel[7]->SetCaption(MY_L("APP00044|Ovladani"));
+		label[7] = new label_c;
+		MY_RegMem(label[7], sizeof (label_c));
+		label[7]->SetPosition(370, 110, 120, 18);
+		label[7]->SetCaption(MY_L("APP00044|Ovladani"));
 
-		myTextbox = new textbox_c;
-		MY_RegMem(myTextbox, sizeof (textbox_c));
-		myTextbox->SetPosition(200, 351, 19, 13, D6_ALL_CHR);
-		myTextbox->SetNG(13, 1);
+		textbox = new textbox_c;
+		MY_RegMem(textbox, sizeof (textbox_c));
+		textbox->SetPosition(200, 351, 19, 13, D6_ALL_CHR);
+		textbox->SetNG(13, 1);
 
 		// Switchbox - volba ovladani
 		for (i = 0; i < D6_MAX_PLAYERS; i++)
@@ -306,58 +300,60 @@ namespace Duel6
 			controlSwitch[i]->SetNG(14 + i, 1);
 		}
 
-		MENU_JoyRescan();
+		joyRescan();
 
-		MENU_GetBcgCount();
-		d6LevelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
+		backgroundCount = getBackgroundCount();
+		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
-		myListbox[3]->AddItem(MY_L("APP00046|Nahodna"));
-		for (i = 0; i < (int)d6LevelList.getLength(); i++)
-			myListbox[3]->AddItem(d6LevelList.getFileName((Size)i).c_str());
+		listbox[3]->AddItem(MY_L("APP00046|Nahodna"));
+		for (i = 0; i < (int)levelList.getLength(); i++)
+			listbox[3]->AddItem(levelList.getFileName((Size)i).c_str());
 
-		myListbox[4]->AddItem(MY_L("APP00047|Nahodne"));
-		for (i = 0; i < d6Backs; i++)
+		listbox[4]->AddItem(MY_L("APP00047|Nahodne"));
+		for (i = 0; i < backgroundCount; i++)
 		{
 			sprintf(f, "%d", i + 1);
-			myListbox[4]->AddItem(f);
+			listbox[4]->AddItem(f);
 		}
 
 		for (i = 5; i < 21; i++)
 		{
 			sprintf(f, "%d", i);
-			myListbox[6]->AddItem(f);
+			listbox[6]->AddItem(f);
 		}
-		myListbox[6]->SetCur(8);
+		listbox[6]->SetCur(8);
 
-		for (const Person& person : d6Persons.list())
+		for (const Person& person : persons.list())
 		{
-			myListbox[1]->AddItem(person.getName().c_str());
+			listbox[1]->AddItem(person.getName().c_str());
 		}
 
-		d6Playing = 0;
+		playing = 0;
 		for (i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			if (d6WillPlay[i] != -1)
+			if (willPlay[i] != -1)
 			{
-				const Person& person = d6Persons.get(d6WillPlay[i]);
-				myListbox[2]->AddItem(person.getName().c_str());
-				d6Playing++;
+				const Person& person = persons.get(willPlay[i]);
+				listbox[2]->AddItem(person.getName().c_str());
+				playing++;
 			}
 		}
 
 		g_app.con->printf(MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
 		SOUND_LoadModule("sound/undead.xm");
 		for (i = 0; i < D6_SOUNDS; i++)
+		{
 			SOUND_LoadSample(d6SndFl[i]);
+		}
 	}
 
-	void MENU_SavePersonData()
+	void Menu::savePersonData()
 	{
 		myFile_s    *f;
 
 		f = MY_FOpen(D6_FILE_PHIST, 0, "wb", true);
-		d6Persons.save(f->file);
-		MY_FWrite(d6WillPlay, 4, 8, f);
+		persons.save(f->file);
+		MY_FWrite(willPlay, 4, 8, f);
 		MY_FClose(&f);
 	}
 
@@ -375,24 +371,24 @@ namespace Duel6
 			*(r++) = r2[i++];
 	}
 
-	static void MENU_RebuildTable()
+	void Menu::rebuildTable()
 	{
-		myListbox[0]->Clear();
-		if (d6Persons.isEmpty())
+		listbox[0]->Clear();
+		if (persons.isEmpty())
 			return;
 
-		std::vector<Size> pi(d6Persons.getLength());
-		for (Size i = 0; i < d6Persons.getLength(); i++)
+		std::vector<Size> pi(persons.getLength());
+		for (Size i = 0; i < persons.getLength(); i++)
 		{
 			pi[i] = i;
 		}
 
 		// Bubble sort persons according to total points
-		for (Size k = 0; k < d6Persons.getLength() - 1; k++)
+		for (Size k = 0; k < persons.getLength() - 1; k++)
 		{
-			for (Size i = 0; i < d6Persons.getLength() - 1 - k; i++)
+			for (Size i = 0; i < persons.getLength() - 1 - k; i++)
 			{
-				if (d6Persons.get(pi[i + 1]).getTotalPoints() > d6Persons.get(pi[i]).getTotalPoints())
+				if (persons.get(pi[i + 1]).getTotalPoints() > persons.get(pi[i]).getTotalPoints())
 				{
 					std::swap(pi[i], pi[i + 1]);
 				}
@@ -400,9 +396,9 @@ namespace Duel6
 		}
 
 		char ret[100];
-		for (Size i = 0; i < d6Persons.getLength(); i++)
+		for (Size i = 0; i < persons.getLength(); i++)
 		{
-			const Person& person = d6Persons.get(pi[i]);
+			const Person& person = persons.get(pi[i]);
 
 			memset(ret, 0, 100);
 			memset(ret, ' ', 94);
@@ -416,39 +412,39 @@ namespace Duel6
 				MENU_Pit(&ret[56], "| 0%%");
 			MENU_Pit(&ret[68], "| %d", person.getKills());
 			MENU_Pit(&ret[81], "| %d", person.getTotalPoints());
-			myListbox[0]->AddItem(ret);
+			listbox[0]->AddItem(ret);
 		}
 	}
 
-	static void MENU_PridejHrace()
+	void Menu::addPlayer()
 	{
 		int     i, c;
 
-		c = myListbox[1]->CurItem();
-		if (c != -1 && d6Playing < D6_MAX_PLAYERS)
+		c = listbox[1]->CurItem();
+		if (c != -1 && playing < D6_MAX_PLAYERS)
 		{
 			for (i = 0; i < D6_MAX_PLAYERS; i++)
-				if (d6WillPlay[i] == c)
+				if (willPlay[i] == c)
 					return;
-			d6WillPlay[d6Playing++] = c;
-			myListbox[2]->AddItem(d6Persons.get(c).getName().c_str());
+			willPlay[playing++] = c;
+			listbox[2]->AddItem(persons.get(c).getName().c_str());
 		}
 	}
 
-	static void MENU_AddPerson()
+	void Menu::addPerson()
 	{
-		const std::string& personName = myTextbox->Text();
+		const std::string& personName = textbox->Text();
 
 		if (!personName.empty())
 		{
-			d6Persons.add(Person(personName));
-			myListbox[1]->AddItem(personName);
-			MENU_RebuildTable();
-			myTextbox->Flush();
+			persons.add(Person(personName));
+			listbox[1]->AddItem(personName);
+			rebuildTable();
+			textbox->Flush();
 		}
 	}
 
-	static bool MENU_Question(const std::string& question)
+	bool Menu::question(const std::string& question)
 	{
 		Int32 width = question.size() * 8 + 60;
 		Int32 x = g_vid.cl_width / 2 - width / 2, y = g_vid.cl_height / 2 - 10;
@@ -503,40 +499,40 @@ namespace Duel6
 		return answer;
 	}
 
-	static bool MENU_DelQuestion()
+	bool Menu::deleteQuestion()
 	{
-		return MENU_Question(MY_L("APP00090|Opravdu smazat? (A/N)"));
+		return question(MY_L("APP00090|Opravdu smazat? (A/N)"));
 	}
 	
-	static void MENU_CleanPersonData()
+	void Menu::cleanPersonData()
 	{
-		for (Person& person : d6Persons.list())
+		for (Person& person : persons.list())
 		{
 			person.reset();
 		}
-		MENU_RebuildTable();
-		MENU_SavePersonData();
+		rebuildTable();
+		savePersonData();
 	}
 
-	static void MENU_Play()
+	void Menu::play()
 	{
 		bool roundLimit = (d6Game.getMaxRounds() > 0);
 
 		if (roundLimit)
 		{
-			if(!MENU_Question(MY_L("APP00090|Smazat data a spustit novou hru? (A/N)")))
+			if(!question(MY_L("APP00090|Smazat data a spustit novou hru? (A/N)")))
 			{
 				return;
 				
 			}
-			MENU_CleanPersonData();
+			cleanPersonData();
 		}
 				
 		// Persons, colors, controls
 		std::vector<Game::PlayerDefinition> playerDefinitions;
-		for (Size i = 0; i < d6Playing; i++)
+		for (Size i = 0; i < playing; i++)
 		{
-			Person& person = d6Persons.get(d6WillPlay[i]);
+			Person& person = persons.get(willPlay[i]);
 			const PlayerSkinColors& colors = d6PlayerColors[i];
 			const PlayerControls& controls = *d6Controls[controlSwitch[i]->CurItem()];
 			playerDefinitions.push_back(Game::PlayerDefinition(person, colors, controls));
@@ -544,35 +540,35 @@ namespace Duel6
 
 		// Levels
 		std::vector<std::string> levels;
-		if (!myListbox[3]->CurItem())
+		if (!listbox[3]->CurItem())
 		{
-			for (Size i = 0; i < d6LevelList.getLength(); ++i)
+			for (Size i = 0; i < levelList.getLength(); ++i)
 			{
-				levels.push_back(d6LevelList.getPath(i));
+				levels.push_back(levelList.getPath(i));
 			}
 		}
 		else
 		{
-			levels.push_back(d6LevelList.getPath(myListbox[3]->CurItem() - 1));
+			levels.push_back(levelList.getPath(listbox[3]->CurItem() - 1));
 		}
 
 		// Game backgrounds
 		std::vector<Int32> backgrounds;
-		if (!myListbox[4]->CurItem())
+		if (!listbox[4]->CurItem())
 		{
-			for (Int32 i = 0; i < d6Backs; i++)
+			for (Int32 i = 0; i < backgroundCount; i++)
 			{
 				backgrounds.push_back(i);
 			}
 		}
 		else
 		{
-			backgrounds.push_back(myListbox[4]->CurItem() - 1);
+			backgrounds.push_back(listbox[4]->CurItem() - 1);
 		}
 
 		// Screen
-		ScreenMode screenMode = (d6Playing > 4 || myListbox[5]->CurItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
-		Int32 screenZoom = myListbox[6]->CurItem() + 5; 
+		ScreenMode screenMode = (playing > 4 || listbox[5]->CurItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
+		Int32 screenZoom = listbox[6]->CurItem() + 5; 
 
 		// Start
 		d6Game.startContext();		
@@ -580,48 +576,50 @@ namespace Duel6
 
 	}
 
-	static void MENU_UberHrace(int c)
+	void Menu::removePlayer(Int32 c)
 	{
 		int     i;
 
 		if (c != -1)
 		{
-			myListbox[2]->DelItem(c);
+			listbox[2]->DelItem(c);
 			for (i = c; i < D6_MAX_PLAYERS - 1; i++)
-				d6WillPlay[i] = d6WillPlay[i + 1];
-			d6WillPlay[i] = -1;
-			d6Playing--;
+			{
+				willPlay[i] = willPlay[i + 1];
+			}
+			willPlay[i] = -1;
+			playing--;
 		}
 	}
 
-	static void MENU_DelPerson()
+	void Menu::deletePerson()
 	{
-		if (!MENU_DelQuestion())
+		if (!deleteQuestion())
 			return;
 
-		int c = myListbox[1]->CurItem();
+		int c = listbox[1]->CurItem();
 		if (c != -1)
 		{
-			myListbox[1]->DelItem(c);
+			listbox[1]->DelItem(c);
 			for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 			{
-				if (d6WillPlay[i] == c)
+				if (willPlay[i] == c)
 				{
-					MENU_UberHrace(i);
+					removePlayer(i);
 				}
 			}
 
-			d6Persons.remove(c);
+			persons.remove(c);
 		}
 	}
 
 	void Menu::startContext()
 	{
-		d6Context = this;
+		makeCurrent();
 		SDL_ShowCursor(SDL_ENABLE);
 		SDL_StartTextInput();
-		MENU_RebuildTable();
-		if (d6PlayMusic)
+		rebuildTable();
+		if (playMusic)
 		{
 			SOUND_StartMusic(0, false);
 		}
@@ -639,39 +637,39 @@ namespace Duel6
 		{
 			sync -= wait;
 
-			myDesk->Check(event, from);
+			desk->Check(event, from);
 			if (event == Desk::EventType::Released && from->getGroup() == 1)
 			{
 				switch (from->getNumber())
 				{
 				case 6:
-					MENU_PridejHrace();
+					addPlayer();
 					break;
 				case 7:
-					MENU_UberHrace(myListbox[2]->CurItem());
+					removePlayer(listbox[2]->CurItem());
 					break;
 				case 8:
-					MENU_DelPerson();
-					MENU_RebuildTable();
+					deletePerson();
+					rebuildTable();
 					break;
 				case 9:
-					MENU_AddPerson();
+					addPerson();
 					break;
 				case 10:
-					if (d6Playing > 1)
+					if (playing > 1)
 					{
-						MENU_Play();
+						play();
 					}
 					break;
 				case 11:
 					SOUND_StopMusic();
 					g_app.flags |= APP_FLAG_QUIT;
-					MENU_SavePersonData();
+					savePersonData();
 					return;
 				case 30:
-					if (MENU_DelQuestion())
+					if (deleteQuestion())
 					{
-						MENU_CleanPersonData();
+						cleanPersonData();
 					}
 					break;
 				}
@@ -683,7 +681,7 @@ namespace Duel6
 	{
 		Int32 tr_x = (g_vid.cl_width - 800) / 2, tr_y = (g_vid.cl_height - 600) / 2;
 
-		myDesk->Draw();
+		desk->Draw();
 
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
@@ -692,7 +690,7 @@ namespace Duel6
 		CO_FontPrintf(687, g_vid.cl_height - 20, "%s %s", MY_L("APP00048|verze"), APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, d6MenuTex);
+		glBindTexture(GL_TEXTURE_2D, menuBannerTexture);
 		glColor3ub(255, 255, 255);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, g_vid.cl_height - 5);
@@ -707,36 +705,52 @@ namespace Duel6
 
 	void Menu::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
-		myDesk->keyEvent(keyCode);
+		desk->keyEvent(keyCode);
 
 		if (keyCode == SDLK_RETURN)
 		{
-			MENU_AddPerson();
+			addPerson();
 		}
 
-		if (keyCode == SDLK_F1 && d6Playing > 1)
+		if (keyCode == SDLK_F1 && playing > 1)
 		{
-			MENU_Play();
+			play();
 		}
 
 		if (keyCode == SDLK_F3)
 		{
-			if (MENU_DelQuestion())
+			if (deleteQuestion())
 			{
-				MENU_CleanPersonData();
+				cleanPersonData();
 			}
 		}
 
 		if (keyCode == SDLK_ESCAPE)
 		{
 			g_app.flags |= APP_FLAG_QUIT;
-			MENU_SavePersonData();
+			savePersonData();
 		}
 	}
 
 	void Menu::textInputEvent(const char* text)
 	{
-		myDesk->textInputEvent(text);
+		desk->textInputEvent(text);
 	}
 
+	void Menu::enableMusic(bool enable)
+	{
+		playMusic = enable;
+
+		if (isCurrent())
+		{
+			if (enable)
+			{
+				SOUND_StartMusic(0, false);
+			}
+			else
+			{
+				SOUND_StopMusic();
+			}
+		}
+	}
 }

@@ -42,13 +42,11 @@ namespace Duel6
 	class Menu;
 	class Game;
 
-	extern Context* d6Context;
 	extern Menu d6Menu;
 	extern Game d6Game;
 	extern BlockData d6BlockData;
-	extern GLuint d6BackgroundTexture;
 	extern bool d6Wireframe;
-	extern bool d6ShowFps, d6PlayMusic;
+	extern bool d6ShowFps;
 	extern int d6AmmoRangeMin, d6AmmoRangeMax;
 	extern bool d6ShowRanking;
 	extern std::vector<PlayerSkinColors> d6PlayerColors;

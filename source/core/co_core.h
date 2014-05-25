@@ -97,27 +97,6 @@ extern app_s    g_app;
 extern appVid_s g_vid;
 extern appInp_s g_inp;
 
-class Context
-{
-public:
-	enum class Type
-	{
-		Menu,
-		Game
-	};
-
-public:
-	virtual ~Context()
-	{}
-
-	virtual void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) = 0;
-	virtual void textInputEvent(const char* text) = 0;
-	virtual void update(float elapsedTime) = 0;
-	virtual void render() const = 0;
-	virtual Type getType() const = 0;
-};
-
-
 /*
 ==================================================
 co_input.cpp
@@ -138,13 +117,6 @@ void            CO_FontPrint        (int x, int y, const char *str);
 void            CO_FontPrintf       (int x, int y, const char *str, ...);
 void            CO_FontSetMode      (bool x_mul, bool y_mul, bool y_rev);
 const myBYTE    *CO_FontGet         ();
-
-/*
-==================================================
-co_fps.cpp
-==================================================
-*/
-void CO_FpsSyncLoops(Context& context);
 
 /*
 ==================================================

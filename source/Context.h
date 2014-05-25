@@ -25,51 +25,49 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Fps - vypocet a synchronizace
-*/
+#ifndef DUEL6_CONTEXT_H
+#define DUEL6_CONTEXT_H
 
-#include <time.h>
-#include "co_core.h"
+#include <SDL2/SDL_keycode.h>
+#include "Type.h"
 
-/*
-==================================================
-CO_FpsSyncLoops
-
-Nastavi promenou frame_interval ktera udava jak dlouho
-trval predchozi update. Rychlosti tomu odpovidajici
-jsou potom upraveny promene v procedure move.
-Nasledne je vse vykresleno na obrazovku.
-Zaroven provadi vypocet fps.
-==================================================
-*/
-void CO_FpsSyncLoops(Context& context)
+namespace Duel6
 {
-    static unsigned long cur_time = 0, last_fps_time = 0;
-    static int frame_counter = 0;
-    unsigned long last_time;
+	class Context
+	{
+	private:
+		static Context* currentContext;
 
-    last_time = cur_time;
-    cur_time = SDL_GetTicks();
+	public:
+		virtual ~Context()
+		{}
 
-    // Calculate fps
-    if (cur_time - last_fps_time >= 1000)
-    {
-        g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
-        last_fps_time = cur_time;
-        frame_counter = 0;
-    }
-	frame_counter++;
+		static Context& getCurrent()
+		{
+			return *currentContext;
+		}
 
-	// Draw
-    context.render();
-    VID_SwapBuffers();
+		virtual bool isCurrent() const final
+		{
+			return (this == currentContext);
+		}
 
-    // Update
-    if (cur_time - last_time < 70)
-    {
-        float elapsedTime = (cur_time - last_time) * 0.001f;;
-        context.update(elapsedTime);
-    }
+		virtual bool is(const Context& context) const final
+		{
+			return (this == &context);
+		}
+
+		virtual void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) = 0;
+		virtual void textInputEvent(const char* text) = 0;
+		virtual void update(Float32 elapsedTime) = 0;
+		virtual void render() const = 0;
+
+	protected:
+		virtual void makeCurrent() final
+		{
+			currentContext = this;
+		}
+	};
 }
+
+#endif
