@@ -25,9 +25,13 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
+#include "Globals.h"
+#include "InfoMessageQueue.h"
 #include "Game.h"
 #include "Menu.h"
+#include "World.h"
+#include "Setup.h"
+#include "Main.h"
 
 namespace Duel6
 {
@@ -44,7 +48,7 @@ namespace Duel6
 	SpriteList d6SpriteList;
 	World d6World(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT);
 
-	void P_TextInputEvent(Context& context, const char* text)
+	void Main::textInputEvent(Context& context, const char* text)
 	{
 		if (g_app.con->isactive())
 		{
@@ -56,7 +60,7 @@ namespace Duel6
 		}
 	}
 
-	void P_KeyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers)
+	void Main::keyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
 		if (keyCode == SDLK_BACKQUOTE)
 		{
@@ -81,7 +85,7 @@ namespace Duel6
 		}
 	}
 
-	void P_ProcessEvents(Context& context)
+	void Main::processEvents(Context& context)
 	{
 		SDL_Event   event;
 		SDL_Keysym  key;
@@ -93,14 +97,14 @@ namespace Duel6
 			case SDL_KEYDOWN:
 				key = event.key.keysym;
 				g_inp.pressedKeys.insert(key.sym);
-				P_KeyEvent(context, key.sym, key.mod);
+				keyEvent(context, key.sym, key.mod);
 				break;
 			case SDL_KEYUP:
 				key = event.key.keysym;
 				g_inp.pressedKeys.erase(key.sym);
 				break;
 			case SDL_TEXTINPUT:
-				P_TextInputEvent(context, event.text.text);
+				textInputEvent(context, event.text.text);
 				break;
 			case SDL_QUIT:
 				g_app.flags |= APP_FLAG_QUIT;
@@ -109,7 +113,7 @@ namespace Duel6
 		}
 	}
 
-	static void P_SyncUpdateAndRender(Context& context)
+	void Main::syncUpdateAndRender(Context& context)
 	{
 		static unsigned long cur_time = 0, last_fps_time = 0;
 		static int frame_counter = 0;
@@ -139,12 +143,54 @@ namespace Duel6
 		}
 	}
 
-	void P_Main()
+	void Main::run()
 	{
 		while (!(g_app.flags & APP_FLAG_QUIT))
 		{
-			P_ProcessEvents(Context::getCurrent());
-			P_SyncUpdateAndRender(Context::getCurrent());
+			Context& context = Context::getCurrent();
+			processEvents(context);
+			syncUpdateAndRender(context);
 		}
 	}
+}
+
+/*
+==================================================
+Ulozeni obsahu konzoly na disk a uklid po chybe
+==================================================
+*/
+static void MAIN_ErrorHandler(const char *str)
+{
+    if (g_app.con.get() == nullptr)
+    {
+        g_app.con->printf(str);
+        g_app.con->exec("dump chyba.con");
+    }
+
+    Duel6::SET_DeInit ();
+    CO_DeInit ();
+}
+
+/*
+==================================================
+Vstupni bod aplikace
+==================================================
+*/
+int main(int argc, char *argv[])
+{
+    CO_Init(MAIN_ErrorHandler);
+    Duel6::SET_Init ();
+
+	for (int i = 1; i < argc; i++)
+	{
+		g_app.con->exec(argv[i]);
+	}
+
+	Duel6::Main app;
+	app.run();
+
+    Duel6::SET_DeInit();
+    CO_DeInit();
+
+    return 0;
 }

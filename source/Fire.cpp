@@ -27,10 +27,12 @@
 
 #include <vector>
 #include <SDL2/SDL_opengl.h>
-#include "project.h"
+#include "Globals.h"
 #include "Math.h"
 #include "FaceList.h"
 #include "Sprite.h"
+#include "TextureManager.h"
+#include "SpriteList.h"
 
 #define D6_FIRES        2
 

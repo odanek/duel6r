@@ -27,6 +27,7 @@
 
 #include <SDL2/SDL_opengl.h>
 #include "FaceList.h"
+#include "TextureManager.h"
 #include "Globals.h"
 
 namespace Duel6

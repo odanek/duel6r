@@ -28,7 +28,8 @@
 #include "mylib/mylib.h"
 #include "core/co_core.h"
 #include "PlayerSkin.h"
-#include "project.h"
+#include "TextureManager.h"
+#include "Globals.h"
 
 namespace Duel6
 {

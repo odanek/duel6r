@@ -28,13 +28,17 @@
 #include <time.h>
 #include <stdlib.h>
 #include <SDL2/SDL_mixer.h>
-#include "project.h"
+#include "Sound.h"
 #include "Weapon.h"
 #include "Util.h"
 #include "ElevatorList.h"
 #include "Math.h"
 #include "Menu.h"
 #include "Context.h"
+#include "TextureManager.h"
+#include "Render.h"
+#include "Fire.h"
+#include "Globals.h"
 
 namespace Duel6
 {
@@ -368,7 +372,7 @@ namespace Duel6
 	Main init
 	==================================================
 	*/
-	void P_Init()
+	void SET_Init()
 	{
 		SDL_version sdlVersion;
 		const char *ver_str = MY_L("APP00072|verze");
@@ -432,7 +436,7 @@ namespace Duel6
 		d6Menu.startContext();
 	}
 
-	void P_DeInit()
+	void SET_DeInit()
 	{
 		SOUND_DeInit();
 		d6TextureManager.freeAll();

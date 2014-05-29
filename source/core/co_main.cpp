@@ -32,14 +32,6 @@ Popis: Jadro - zakladni funkce, vstupni bod
 
 #include "co_core.h"
 
-// Deklarace procedur ktere musi byt nekde implementovany
-namespace Duel6
-{
-	void    P_Init();
-	void    P_DeInit();
-	void    P_Main();
-}
-
 // Deklarace globalnich promenych
 app_s       g_app;
 appVid_s    g_vid;
@@ -50,7 +42,7 @@ appInp_s    g_inp;
 Deinicializace jadra
 ==================================================
 */
-static void CO_DeInit ()
+void CO_DeInit()
 {
     MY_DeInit ();
     SDL_Quit ();
@@ -58,27 +50,10 @@ static void CO_DeInit ()
 
 /*
 ==================================================
-Ulozeni obsahu konzoly na disk a uklid po chybe
-==================================================
-*/
-static void CO_ErrorHandler (const char *str)
-{
-    if (g_app.con.get() == nullptr)
-    {
-        g_app.con->printf(str);
-        g_app.con->exec("dump chyba.con");
-    }
-
-    Duel6::P_DeInit ();
-    CO_DeInit ();
-}
-
-/*
-==================================================
 Inicializace jadra
 ==================================================
 */
-static void CO_Init ()
+void CO_Init(void (*errProc)(const char *))
 {
     // Inicializace promenych jadra
     g_app.flags = APP_FLAG_NONE;
@@ -86,7 +61,7 @@ static void CO_Init ()
 
     // Inicializace me knihovny
     MY_Init ();
-    MY_ErrCallback (CO_ErrorHandler);
+    MY_ErrCallback(errProc);
 
     // Inicializace SDL
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -102,31 +77,4 @@ static void CO_Init ()
     g_app.con->setfont(CO_FontGet());
 
     CON_RegisterBasicCmd(g_app.con.get());
-}
-
-/*
-==================================================
-Vstupni bod aplikace
-==================================================
-*/
-int main (int argc, char *argv[])
-{
-    // Inicializace
-    CO_Init ();
-    Duel6::P_Init ();
-
-    // Provedeni prikazu predanych z prikazove radky
-	for (int i = 1; i < argc; i++)
-	{
-		g_app.con->exec(argv[i]);
-	}
-
-    // Predani kontroly aplikaci
-    Duel6::P_Main();
-
-    // Deinicializace
-    Duel6::P_DeInit ();
-    CO_DeInit ();
-
-    return 0;
 }

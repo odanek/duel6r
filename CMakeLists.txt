@@ -51,26 +51,30 @@ set(D6R_SOURCES
     source/Color.h
     source/Context.h
     source/Context.cpp
-    source/duel6.cpp
     source/Elevator.h
     source/Elevator.cpp
     source/ElevatorList.h
     source/ElevatorList.cpp
-    source/explode.cpp
+    source/Explosion.h
+    source/Explosion.cpp
     source/Face.h
     source/FaceList.h
     source/FaceList.cpp
-    source/fire.cpp
+    source/Fire.h
+    source/Fire.cpp
     source/Game.cpp
     source/Game.h
-    source/glib.cpp
-    source/glib.h
+    source/Image.h
+    source/Gui.h
+    source/Gui.cpp
     source/Globals.h
     source/InfoMessage.h
     source/InfoMessageQueue.h
     source/InfoMessageQueue.cpp
     source/LevelList.h
     source/LevelList.cpp
+    source/Main.h
+    source/Main.cpp
     source/Math.h
     source/Menu.h
     source/Menu.cpp
@@ -88,16 +92,19 @@ set(D6R_SOURCES
     source/PlayerSkin.h
     source/PlayerSkin.cpp
     source/PlayerSkinColors.h
-    source/project.h
-    source/render.cpp
+    source/Render.h
+    source/Render.cpp
     source/ScreenMode.h
     source/Shot.h
     source/Shot.cpp
+    source/Sound.cpp
+    source/Sound.h
     source/Sprite.h
     source/Sprite.cpp
     source/SpriteList.h
     source/SpriteList.cpp
-    source/setup.cpp
+    source/Setup.h
+    source/Setup.cpp
     source/TextureManager.h
     source/TextureManager.cpp
     source/Type.h
@@ -135,10 +142,7 @@ set(D6R_SOURCES
     source/console/coninput.cpp
     source/console/console.cpp
     source/console/console.h
-    source/console/convar.cpp
-    
-    source/sound/sound.cpp
-    source/sound/sound.h
+    source/console/convar.cpp    
 )
 
 if(WIN32)

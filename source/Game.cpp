@@ -26,13 +26,19 @@
 */
 
 #include <algorithm>
+#include "Sound.h"
 #include "BonusList.h"
 #include "Weapon.h"
 #include "Util.h"
 #include "ElevatorList.h"
 #include "Menu.h"
+#include "World.h"
+#include "InfoMessageQueue.h"
+#include "Explosion.h"
+#include "Render.h"
+#include "Fire.h"
+#include "Globals.h"
 #include "Game.h"
-#include "project.h"
 
 namespace Duel6
 {
@@ -348,5 +354,15 @@ namespace Duel6
 		}
 
 		return Color(255, overlay, overlay);
+	}
+
+	World& Game::getWorld()
+	{
+		return d6World;
+	}
+
+	const World& Game::getWorld() const
+	{
+		return d6World;
 	}
 }

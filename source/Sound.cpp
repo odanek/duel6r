@@ -25,8 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-#include "../project.h"
+#include "core/co_core.h"
 
 #define SND_TEST(x) if (x == -1) { SOUND_Error (); return; }
 

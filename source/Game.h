@@ -31,8 +31,8 @@
 #include "Type.h"
 #include "ScreenMode.h"
 #include "Context.h"
-
-#include "Globals.h" // TODO: Remove
+#include "World.h"
+#include "Player.h"
 
 namespace Duel6
 {
@@ -98,15 +98,9 @@ namespace Duel6
 		virtual void beforeClose(Context* newContext) override
 		{}
 
-		World& getWorld()
-		{
-			return d6World;
-		}
+		World& getWorld();
 
-		const World& getWorld() const
-		{
-			return d6World;
-		}
+		const World& getWorld() const;
 
 		std::vector<Player>& getPlayers()
 		{

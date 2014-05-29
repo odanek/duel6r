@@ -28,6 +28,7 @@
 #include <list>
 #include "Color.h"
 #include "Util.h"
+#include "TextureManager.h"
 #include "Globals.h"
 
 #define D6_EXPL_SPEED       0.61f

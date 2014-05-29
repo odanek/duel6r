@@ -29,6 +29,8 @@
 #include "Player.h"
 #include "ElevatorList.h"
 #include "Weapon.h"
+#include "TextureManager.h"
+#include "Globals.h"
 
 #define D6_ELEV_TEXTURE         68
 

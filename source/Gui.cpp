@@ -25,8 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
-#include "glib.h"
+#include <SDL2/SDL_opengl.h>
+#include "core/co_core.h"
+#include "Gui.h"
 
 static Desk         *glibMainDesk = nullptr;
 static int          glibMouseX, glibMouseY, glibMouseZ, glibMouseB,

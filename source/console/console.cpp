@@ -56,8 +56,8 @@ con_c::con_c (int flags)
     m_input.clear();
     m_histcnt = 0;
     m_histscroll = 0;
-    m_font = NULL;
-    m_infoproc = NULL;
+    m_font = nullptr;
+    m_infoproc = nullptr;
 
     m_width = CON_DEF_WIDTH;
     m_show = CON_DEF_SHOWLAST;

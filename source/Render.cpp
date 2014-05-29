@@ -25,11 +25,16 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "project.h"
 #include "BonusList.h"
 #include "ElevatorList.h"
 #include "Math.h"
 #include "Game.h"
+#include "FaceList.h"
+#include "TextureManager.h"
+#include "Game.h"
+#include "InfoMessageQueue.h"
+#include "Explosion.h"
+#include "Globals.h"
 
 namespace Duel6
 {

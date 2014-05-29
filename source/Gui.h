@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GLIB_H
-#define GLIB_H
+#ifndef DUEL6_GUI_H
+#define DUEL6_GUI_H
 
 #include <string>
 #include <vector>

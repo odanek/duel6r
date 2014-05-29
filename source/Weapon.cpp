@@ -27,13 +27,17 @@
 
 #include <stdlib.h>
 #include <list>
-#include "project.h"
+#include "Sound.h"
 #include "Player.h"
 #include "PlayerSkin.h"
 #include "Weapon.h"
 #include "Math.h"
 #include "Game.h"
 #include "Util.h"
+#include "TextureManager.h"
+#include "World.h"
+#include "Fire.h"
+#include "Globals.h"
 
 namespace Duel6
 {

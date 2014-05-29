@@ -26,11 +26,16 @@
 */
 
 #include <algorithm>
-#include "project.h"
+#include "Sound.h"
+#include "Globals.h"
+#include "TextureManager.h"
+#include "InfoMessageQueue.h"
+#include "World.h"
 #include "Player.h"
 #include "BonusList.h"
 #include "Weapon.h"
 #include "ElevatorList.h"
+#include "Explosion.h"
 #include "Math.h"
 
 #define D6_PLAYER_MAX_SPEED     0.52f

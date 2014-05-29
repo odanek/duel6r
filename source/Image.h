@@ -25,76 +25,59 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_MENU_H
-#define DUEL6_MENU_H
+#ifndef DUEL6_IMAGE_H
+#define DUEL6_IMAGE_H
 
-#include <SDL2/SDL_opengl.h>
+#include <vector>
 #include "Type.h"
-#include "Context.h"
-#include "LevelList.h"
-#include "PersonList.h"
-#include "Gui.h"
-#include "Globals.h"
+#include "Color.h"
 
 namespace Duel6
 {
-	class Menu
-		: public Context
+	class Image
 	{
 	private:
-		Size playing;
-		LevelList levelList;
-		PersonList persons;
-		Desk* desk;
-		button_c* button[7];
-		listbox_c* listbox[7];
-		label_c* label[8];
-		switchbox_c* controlSwitch[D6_MAX_PLAYERS];
-		textbox_c* textbox;
-		Int32 willPlay[D6_MAX_PLAYERS];
-		Int32 backgroundCount;
-		GLuint menuBannerTexture;
-		bool playMusic;
+		Size dimensions[2];
+		std::vector<Color> data;
 
 	public:
-		Menu();
-
-		~Menu()
-		{
-			free();
-		}
-
-		void startContext();
-
-		void init();		
-
-		void joyRescan();
-
-		void savePersonData();
-
-		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
-		void textInputEvent(const char* text) override;
-		void update(Float32 elapsedTime) override;
-		void render() const override;
-
-		virtual void beforeClose(Context* newContext) override
+		Image()
+			: Image(0, 0)
 		{}
 
-		void enableMusic(bool enable);
+		Image(Size width, Size height)
+		{
+			resize(width, height);
+		}
 
-	private:
-		void free();
-		void play();
-		void loadPersonData();
-		void cleanPersonData();
-		void addPerson();
-		void deletePerson();
-		void addPlayer();
-		void removePlayer(Int32 c);
-		void rebuildTable();
-		Size getBackgroundCount();
-		bool question(const std::string& question);
-		bool deleteQuestion();
+		Image& resize(Size width, Size height)
+		{
+			dimensions[0] = width;
+			dimensions[1] = height;
+			data.clear();
+			data.resize(width * height);
+			return *this;
+		}
+
+		Size getWidth() const
+		{
+			return dimensions[0];
+		}
+
+		Size getHeight() const
+		{
+			return dimensions[1];
+		}
+
+		Color& at(Size index)
+		{
+			return data[index];
+		}
+
+		const Color& at(Size index) const
+		{
+			return data[index];
+		}
 	};
 }
 

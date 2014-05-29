@@ -31,7 +31,7 @@
 #include <string>
 #include <unordered_set>
 #include "PlayerSkinColors.h"
-#include "Globals.h"
+#include "TextureManager.h"
 
 namespace Duel6
 {

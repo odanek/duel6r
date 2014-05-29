@@ -29,6 +29,7 @@
 #include "World.h"
 #include "Util.h"
 #include "ElevatorList.h"
+#include "TextureManager.h"
 #include "Globals.h"
 
 namespace Duel6

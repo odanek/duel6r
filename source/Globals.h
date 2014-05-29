@@ -30,7 +30,7 @@
 
 #include <vector>
 #include "core/co_core.h"
-#include "TextureManager.h"
+#include "PlayerSkinColors.h"
 
 #define D6_FILE_CONFIG      "data/config.txt"
 #define D6_FILE_ANM         "data/duel6.anm"
@@ -115,6 +115,7 @@ namespace Duel6
 	class PlayerSkinColors;
 	class Menu;
 	class Game;
+	class TextureManager;
 
 	extern Menu d6Menu;
 	extern Game d6Game;

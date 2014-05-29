@@ -27,8 +27,10 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
-#include "project.h"
+#include "Sound.h"
+#include "Globals.h"
 #include "PlayerControls.h"
+#include "TextureManager.h"
 #include "Menu.h"
 #include "Game.h"
 #include "Util.h"

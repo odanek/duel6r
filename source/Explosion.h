@@ -25,43 +25,18 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_PROJECT_H
-#define DUEL6_PROJECT_H
+#ifndef DUEL6_EXPLOSION_H
+#define DUEL6_EXPLOSION_H
 
-#include <string>
-#include "core/co_core.h"
-#include "mylib/mycam.h"
-#include "sound/sound.h"
-#include "Globals.h"
 #include "Type.h"
-#include "ScreenMode.h"
-#include "FaceList.h"
-#include "World.h"
-#include "InfoMessageQueue.h"
+#include "Color.h"
 
 namespace Duel6
 {
-	//////////////////////////////////////////////////////////////////////
-	//                          render.cpp                              //
-	//////////////////////////////////////////////////////////////////////
-	void RENDER_SetGLMode(Int32 mode);
-	void RENDER_InitScreen();
-	void RENDER_DrawScene(const Game& game);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          explode.cpp                             //
-	//////////////////////////////////////////////////////////////////////
-	void    EXPL_Init();
-	void    EXPL_MoveAll(Float32 elapsedTime);
-	void    EXPL_DrawAll();
-	void    EXPL_Add(Float32 x, Float32 y, Float32 s, Float32 m, const Color& color);
-
-	//////////////////////////////////////////////////////////////////////
-	//                          fire.cpp                                //
-	//////////////////////////////////////////////////////////////////////
-	void    FIRE_Init();
-	void    FIRE_Find(FaceList& sprites);
-	void    FIRE_Check(Float32 X, Float32 Y, Float32 d);
+	void EXPL_Init();
+	void EXPL_MoveAll(Float32 elapsedTime);
+	void EXPL_DrawAll();
+	void EXPL_Add(Float32 x, Float32 y, Float32 s, Float32 m, const Color& color);
 }
 
 #endif
