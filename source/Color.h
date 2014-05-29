@@ -166,7 +166,7 @@ namespace Duel6
 	class ColorHash
 	{
 	public:
-		size_t operator()(const Color& color)
+		size_t operator()(const Color& color) const
 		{
 			std::hash<Uint32> hashFunction;
 			return hashFunction((color.getAlpha() << 24) + (color.getRed() << 16) + (color.getGreen() << 8) + color.getBlue());

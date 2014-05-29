@@ -185,18 +185,12 @@ namespace Duel6
 		{
 			if (i < snd.samples.size() && snd.inited)
 			{
-				if (Mix_Playing(-1) >= snd.channels)
-					return;
-
 				for (Size j = 0; j < snd.channels; j++)
 				{
-					if (!Mix_Playing(j))
+					if (!Mix_Playing(j) && !Mix_Paused(j))
 					{
-						if (!Mix_Paused(j))
-						{
-							SND_TEST(Mix_PlayChannel(j, snd.samples[i], 0))
-							return;
-						}
+						SND_TEST(Mix_PlayChannel(j, snd.samples[i], 0))
+						return;
 					}
 				}
 			}

@@ -154,7 +154,7 @@ namespace Duel6
 			}
 
 			// Header
-			Uint16 header[9] = { 0, 10, 0, 0, 0, 0, image.getWidth(), image.getHeight(), 0x18 };  // 0x2018
+			Uint16 header[9] = { 0, 10, 0, 0, 0, 0, (Uint16)image.getWidth(), (Uint16)image.getHeight(), 0x18 };  // 0x2018
 			fwrite(header, 2, 9, f);
 
 			// Data
