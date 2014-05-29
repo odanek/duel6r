@@ -462,7 +462,7 @@ slider_c::slider_c ()
     down = new button_c;
     down->SetCaption (" ");
     down->SetNG (glibSCN++, GLIB_SC_GROUP);
-    pos = NULL;
+    pos = nullptr;
 }
 
 void slider_c::SetPosition (int X, int Y, int H)

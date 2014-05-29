@@ -28,16 +28,22 @@
 #ifndef DUEL6_SOUND_H
 #define DUEL6_SOUND_H
 
+#include <string>
+#include "Type.h"
+
 namespace Duel6
 {
-	void    SOUND_Init(int channels, int samples, int modules);
-	int     SOUND_LoadModule(const char *nm);
-	int     SOUND_LoadSample(const char *nm);
-	void    SOUND_StopMusic();
-	void    SOUND_StartMusic(int i, bool loop);
-	void    SOUND_PlaySample(int i);
-	void    SOUND_Volume(int volume);
-	void    SOUND_DeInit();
+	namespace Sound
+	{
+		void init(Size channels);
+		Size loadModule(const std::string& nm);
+		Size loadSample(const std::string& nm);
+		void stopMusic();
+		void startMusic(Size i, bool loop);
+		void playSample(Size i);
+		void volume(Int32 volume);
+		void deInit();
+	}
 }
 
 #endif

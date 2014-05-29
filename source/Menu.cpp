@@ -300,10 +300,10 @@ namespace Duel6
 		}
 
 		g_app.con->printf(MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
-		SOUND_LoadModule("sound/undead.xm");
+		Sound::loadModule("sound/undead.xm");
 		for (i = 0; i < D6_SOUNDS; i++)
 		{
-			SOUND_LoadSample(d6SndFl[i]);
+			Sound::loadSample(d6SndFl[i]);
 		}
 	}
 
@@ -581,7 +581,7 @@ namespace Duel6
 		rebuildTable();
 		if (playMusic)
 		{
-			SOUND_StartMusic(0, false);
+			Sound::startMusic(0, false);
 		}
 	}
 
@@ -622,7 +622,7 @@ namespace Duel6
 					}
 					break;
 				case 11:
-					SOUND_StopMusic();
+					Sound::stopMusic();
 					g_app.flags |= APP_FLAG_QUIT;
 					savePersonData();
 					return;
@@ -697,6 +697,12 @@ namespace Duel6
 		desk->textInputEvent(text);
 	}
 
+	void Menu::beforeClose(Context* newContext)
+	{
+		SDL_StopTextInput();
+		Sound::stopMusic();
+	}
+
 	void Menu::enableMusic(bool enable)
 	{
 		playMusic = enable;
@@ -705,11 +711,11 @@ namespace Duel6
 		{
 			if (enable)
 			{
-				SOUND_StartMusic(0, false);
+				Sound::startMusic(0, false);
 			}
 			else
 			{
-				SOUND_StopMusic();
+				Sound::stopMusic();
 			}
 		}
 	}

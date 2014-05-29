@@ -572,13 +572,13 @@ namespace Duel6
 				dropWeapon();
 			}
 
-			SOUND_PlaySample(D6_SND_DEAD);
+			Sound::playSample(D6_SND_DEAD);
 			return true;
 		}
 		
 		if (directHit)
 		{
-			SOUND_PlaySample(D6_SND_HIT);
+			Sound::playSample(D6_SND_HIT);
 		}
 
 		return false;
@@ -601,7 +601,7 @@ namespace Duel6
 			gunSprite->setDraw(false);
 			d6MessageQueue.add(*this, MY_L("APP00054|Jsi mrtvy"));
 
-			SOUND_PlaySample(D6_SND_DEAD);
+			Sound::playSample(D6_SND_DEAD);
 
 			// Add lying weapon
 			if (isOnGround())
@@ -671,7 +671,7 @@ namespace Duel6
 				.setLooping(AnimationLooping::OnceAndRemove);
 			d6SpriteList.addSprite(waterSplash);
 			
-			SOUND_PlaySample(D6_SND_WATER);
+			Sound::playSample(D6_SND_WATER);
 			setFlag(FlagFeetInWater);
 		}
 		else if (water == WaterType::None)

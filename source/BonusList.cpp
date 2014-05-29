@@ -168,7 +168,7 @@ namespace Duel6
 			if (BONUS_IsApplicable(*bonusIter, player, false))
 			{
 				BONUS_Apply(*bonusIter, player);
-				SOUND_PlaySample(D6_SND_BNPICK);
+				Sound::playSample(D6_SND_BNPICK);
 				bonusIter = d6Bonuses.erase(bonusIter);
 			}
 			else

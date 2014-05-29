@@ -100,7 +100,7 @@ namespace Duel6
 
 		Sprite shotSprite(player.getWeapon().shotAnimation, d6TextureManager.get(D6_TEXTURE_WPN_KEY));		
 		d6Shots.push_back(Shot(player, x, y, d6SpriteList.addSprite(shotSprite)));
-		SOUND_PlaySample(player.getWeapon().shotSound);
+		Sound::playSample(player.getWeapon().shotSound);
 	}
 
 	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit)
@@ -222,7 +222,7 @@ namespace Duel6
 		if (world.isWall(left, up, true) || world.isWall(left, down, true) ||
 			world.isWall(right, up, true) || world.isWall(right, down, true))
 		{
-			WPN_Boom(s, game.getPlayers(), NULL);
+			WPN_Boom(s, game.getPlayers(), nullptr);
 			return true;
 		}
 
@@ -262,7 +262,7 @@ namespace Duel6
 				else
 					boomSprite->setGrow(weapon.expGrow);
 				if (weapon.boomSound != -1)
-					SOUND_PlaySample(weapon.boomSound);
+					Sound::playSample(weapon.boomSound);
 				if (weapon.boom > 0)
 				{
 					boomSprite->setNoDepth(true);

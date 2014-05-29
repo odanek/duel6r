@@ -76,9 +76,7 @@ namespace Duel6
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
-
-		virtual void beforeClose(Context* newContext) override
-		{}
+		void beforeClose(Context* newContext) override;
 
 		void enableMusic(bool enable);
 

@@ -195,8 +195,6 @@ namespace Duel6
 	{
 		makeCurrent();
 		SDL_ShowCursor(SDL_DISABLE);
-		SDL_StopTextInput();
-		SOUND_StopMusic();
 	}
 
 	void Game::update(Float32 elapsedTime)
@@ -231,7 +229,7 @@ namespace Duel6
 			{
 				gameOverWait = 0;
 				winner = 2;
-				SOUND_PlaySample(D6_SND_GAME_OVER);
+				Sound::playSample(D6_SND_GAME_OVER);
 			}
 		}
 	}
@@ -339,7 +337,7 @@ namespace Duel6
 		winner = -1;
 		playedRounds++;
 
-		SOUND_PlaySample(D6_SND_LETS_ROCK);
+		Sound::playSample(D6_SND_LETS_ROCK);
 	}
 
 	Color Game::getGameOverOverlay() const

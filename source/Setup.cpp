@@ -152,25 +152,35 @@ namespace Duel6
 	void SET_Volume(con_c *con)
 	{
 		if (con->argc() == 2)
-			SOUND_Volume(atoi(con->argv(1).c_str()));
+		{
+			Sound::volume(atoi(con->argv(1).c_str()));
+		}
 	}
 
 	void SET_ToggleRenderMode(con_c *con)
 	{
 		d6Wireframe = !d6Wireframe;
 		if (d6Wireframe)
+		{
 			con->printf(MY_L("APP00020|Vykreslovaci mod prepnut na dratovy\n"));
+		}
 		else
+		{
 			con->printf(MY_L("APP00021|Vykreslovaci mod prepnut na solidni\n"));
+		}
 	}
 
 	void SET_ToggleShowFps(con_c *con)
 	{
 		d6ShowFps = !d6ShowFps;
 		if (d6ShowFps)
+		{
 			con->printf(MY_L("APP00022|Ukazatel fps zapnut\n"));
+		}
 		else
+		{
 			con->printf(MY_L("APP00023|Ukazatel fps vypnut\n"));
+		}
 	}
 
 	/*
@@ -319,7 +329,7 @@ namespace Duel6
 	void SET_OpenGLInfo(con_c *con)
 	{
 		const char *e;
-		char *txp = NULL, *tx, tx2[200];
+		char *txp = nullptr, *tx, tx2[200];
 		int len, i;
 
 		con->printf(MY_L("APP00075|\n===OpenGL info===\n"));
@@ -406,11 +416,11 @@ namespace Duel6
 		g_app.con->regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
 		g_app.con->regvar(&d6VideoMode.height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
 
-		srand((unsigned)time(NULL));
+		srand((unsigned)time(nullptr));
 
 		MY_FLoadBlock(D6_FILE_COS, 0, -1, (void *)d6Cos);
 
-		SOUND_Init(20, 30, 1);
+		Sound::init(20);
 
 		// Read config file
 		g_app.con->printf("\n===Config===\n");
@@ -438,7 +448,7 @@ namespace Duel6
 
 	void SET_DeInit()
 	{
-		SOUND_DeInit();
+		Sound::deInit();
 		d6TextureManager.freeAll();
 	}
 }
