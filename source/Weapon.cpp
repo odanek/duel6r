@@ -37,8 +37,6 @@
 
 namespace Duel6
 {
-	bool d6WpnEnabled[D6_WEAPONS];
-	std::vector<GLuint> d6WpnTextures;
 	Weapon d6WpnDef[D6_WEAPONS] =
 	{
 		{ true, 9.15f, true, false, Color(0, 0, 0), 0, 30, 0.98f, "APP00095|pistole", D6_SND_SHOT_PI, -1, 0, false, { 25, 5, 26, 5, 27, 5, 28, 5, 29, 5, 30, 5, 24, 50, -1, 0 }, { 0, 50, -1, 0 }, { 14, 5, 15, 5, 14, 5, 15, 5, 14, 5, 15, 5, -1, 0 } },
@@ -62,53 +60,27 @@ namespace Duel6
 	
 	namespace
 	{
-		std::unique_ptr<PlayerSkin> brownSkin;
+		PlayerSkin brownSkin;
 		std::list<Shot> d6Shots;
 		typedef std::list<Shot>::iterator ShotIterator;
 	}
 
-	static void WPN_LoadTextures(const std::string& textureFile)
+	void WPN_Init()
 	{
-		myKh3info_s     ki;
-		int             i;
-
-		g_app.con->printf(MY_L("APP00084|Nahravam textury zbrani\n"));
-		MY_KH3Open(textureFile.c_str());
-		MY_KH3GetInfo(&ki);
-		g_app.con->printf(MY_L("APP00085|...Soubor %s obsahue %d textur\n"), textureFile.c_str(), ki.picts);
-		d6WpnTextures.resize(ki.picts);
-
-		for (i = 0; i < (int)ki.picts; i++)
+		const TextureManager::TextureList& textures = d6TextureManager.get(D6_TEXTURE_WPN_KEY);
+		for (Size i = 0; i < textures.size(); ++i)
 		{
-			d6WpnTextures[i] = Util::loadKH3Texture(textureFile, i, true);
 			if (i < 14 || (i > 21 && i < 78) || i > 79)
 			{
+				glBindTexture(GL_TEXTURE_2D, textures[i]);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
 		}
 
-		MY_KH3Close();
-	}
-
-	void WPN_FreeTextures()
-	{
-		glDeleteTextures(d6WpnTextures.size(), &d6WpnTextures[0]);
-		d6WpnTextures.clear();
-	}
-
-	void WPN_Init(const std::string& textureFile)
-	{
-		WPN_LoadTextures(textureFile);
-
 		Color brownColor(83, 44, 0);
 		PlayerSkinColors skinColors(brownColor);
-		brownSkin.reset(new PlayerSkin(D6_FILE_PLAYER, skinColors));
-	}
-
-	void WPN_DeInit()
-	{
-		brownSkin.reset();
+		brownSkin = PlayerSkin::create("textures/man/", skinColors);
 	}
 
 	void WPN_LevelInit()
@@ -122,7 +94,7 @@ namespace Duel6
 		Float32 x = (player.getOrientation() == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
 		Float32 y = player.getY() - ad;
 
-		Sprite shotSprite(player.getWeapon().shotAnimation, d6WpnTextures);		
+		Sprite shotSprite(player.getWeapon().shotAnimation, d6TextureManager.get(D6_TEXTURE_WPN_KEY));		
 		d6Shots.push_back(Shot(player, x, y, d6SpriteList.addSprite(shotSprite)));
 		SOUND_PlaySample(player.getWeapon().shotSound);
 	}
@@ -150,7 +122,7 @@ namespace Duel6
 			{
 				if (shit)
 				{
-					player.useTemporarySkin(*brownSkin);
+					player.useTemporarySkin(brownSkin);
 				}
 				else
 				{
@@ -168,7 +140,7 @@ namespace Duel6
 				{
 					if (shit)
 					{
-						player.useTemporarySkin(*brownSkin);
+						player.useTemporarySkin(brownSkin);
 					}
 					else
 					{
@@ -272,7 +244,7 @@ namespace Duel6
 			{				
 				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
 				
-				Sprite boom(weapon.boomAnimation, d6WpnTextures);
+				Sprite boom(weapon.boomAnimation, d6TextureManager.get(D6_TEXTURE_WPN_KEY));
 				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)

@@ -95,6 +95,9 @@ namespace Duel6
 		void update(Float32 elapsedTime) override;
 		void render() const override;
 
+		virtual void beforeClose(Context* newContext) override
+		{}
+
 		World& getWorld()
 		{
 			return d6World;

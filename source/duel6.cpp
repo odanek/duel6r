@@ -33,7 +33,7 @@ namespace Duel6
 {
 	Game d6Game;
 	Menu d6Menu;
-	BlockData d6BlockData;
+	TextureManager d6TextureManager;
 	Float32 d6Cos[450];
 	bool d6Wireframe = false;
 	bool d6ShowFps = false;
@@ -42,7 +42,7 @@ namespace Duel6
 	bool d6ShowRanking = true;
 	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
 	SpriteList d6SpriteList;
-	World d6World(d6BlockData, D6_ANM_SPEED, D6_WAVE_HEIGHT);
+	World d6World(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT);
 
 	void P_TextInputEvent(Context& context, const char* text)
 	{

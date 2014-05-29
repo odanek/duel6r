@@ -34,11 +34,13 @@
 
 namespace Duel6
 {
+	static GLuint elevTexture;
 	static std::vector<Elevator> d6Elevators;
 
 	void ELEV_Init()
 	{
-		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
+		elevTexture = d6TextureManager.get(D6_TEXTURE_WPN_KEY)[D6_ELEV_TEXTURE];
+		glBindTexture(GL_TEXTURE_2D, elevTexture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
@@ -64,7 +66,7 @@ namespace Duel6
 
 	void ELEV_DrawAll()
 	{
-		glBindTexture(GL_TEXTURE_2D, d6WpnTextures[D6_ELEV_TEXTURE]);
+		glBindTexture(GL_TEXTURE_2D, elevTexture);
 		glBegin(GL_QUADS);
 
 		for (const Elevator& elevator : d6Elevators)

@@ -29,38 +29,39 @@
 #define DUEL6_PLAYERSKIN_H
 
 #include <string>
-#include <vector>
-#include <SDL2/SDL_opengl.h>
+#include <unordered_set>
 #include "PlayerSkinColors.h"
+#include "Globals.h"
 
 namespace Duel6
 {
 	class PlayerSkin
 	{
 	private:
-		PlayerSkinColors colors;
-		std::vector<GLuint> textures;
-
-	private: // Forbid copying
-		PlayerSkin(const PlayerSkin& skin) = delete;
-		PlayerSkin& operator=(const PlayerSkin& skin) = delete;
-
-	public:
-		explicit PlayerSkin(const std::string& textureFile, const PlayerSkinColors& colors);
-		~PlayerSkin();
-
-		const PlayerSkinColors& getColors() const
-		{
-			return colors;
-		}
-
-		const std::vector<GLuint>& getTextures() const
-		{
-			return textures;
-		}
+		static std::unordered_set<Size> skinIds;
 
 	private:
-		void load(const std::string& fileName);
+		std::string key;
+		const TextureManager::TextureList* textures;
+
+	public:
+		PlayerSkin()
+			: textures(nullptr)
+		{}
+
+		const TextureManager::TextureList& getTextures() const
+		{
+			return *textures;
+		}
+
+		static PlayerSkin create(const std::string& texturePath, const PlayerSkinColors& colors);
+
+		static void freeAll();
+
+	private:
+		PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors);
+		static std::string getNewKey();
+		static std::string getKey(Size id);
 	};
 }
 

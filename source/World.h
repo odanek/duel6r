@@ -37,47 +37,15 @@
 
 namespace Duel6
 {
-	class BlockData
-	{
-	private:
-		std::vector<Block> meta;
-		std::vector<GLuint> textures;
-
-	private:
-		Size loadBlockTextures(const std::string& path);
-		void loadBlockMeta(const std::string& path, Size blocks);
-
-	public:
-		~BlockData()
-		{
-			freeTextures();
-		}
-
-		void init(const std::string& textureFile, const std::string& blockMetaFile);
-		
-		const std::vector<Block>& getMeta() const
-		{
-			return meta;
-		}
-
-		const std::vector<GLuint>& getTextures() const
-		{
-			return textures;
-		}
-
-		void freeTextures();
-	};
-
 	class World
 	{
 	private:
-		const BlockData& blockData;
-		std::vector<GLuint> backgroundTextures;
+		std::vector<Block> blockMeta;
+		GLuint backgroundTexture;
 
 		Int32 width;
 		Int32 height;
 		std::vector<Uint16> levelData;
-		Size background;
 
 		FaceList walls;
 		FaceList sprites;
@@ -90,19 +58,11 @@ namespace Duel6
 		WaterList floatingVertexes;
 
 	public:
-		World(const BlockData& blockData, Float32 animationSpeed, Float32 waveHeight)
-			: blockData(blockData), walls(blockData.getTextures()), sprites(blockData.getTextures()), 
-			water(blockData.getTextures()), animationSpeed(animationSpeed), waveHeight(waveHeight)
+		World(const std::string& blockMetaFile, Float32 animationSpeed, Float32 waveHeight)
+			: animationSpeed(animationSpeed), waveHeight(waveHeight)
 		{
+			loadBlockMeta(blockMetaFile);
 		}
-
-		~World()
-		{
-			freeTextures();
-		}
-
-		void loadBackgrounds(const std::string& path);
-		void freeTextures();
 
 		void loadLevel(const std::string& path, Size background, bool mirror);
 		void findBonuses(std::vector<Bonus>& bonuses);
@@ -142,7 +102,7 @@ namespace Duel6
 
 		GLuint getBackgroundTexture() const
 		{
-			return backgroundTextures[background];
+			return backgroundTexture;
 		}
 
 		Int32 getSizeX() const
@@ -176,6 +136,8 @@ namespace Duel6
 		}
 
 	private:
+		void loadBlockMeta(const std::string& path);
+
 		void mirrorLevelData();
 		void loadElevators(myFile_s* f, bool mirror);
 
@@ -198,7 +160,7 @@ namespace Duel6
 
 		const Block& getBlockMeta(Int32 x, Int32 y) const
 		{
-			return blockData.getMeta()[getBlock(x, y)];
+			return blockMeta[getBlock(x, y)];
 		}
 	};
 }

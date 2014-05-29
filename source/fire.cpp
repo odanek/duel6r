@@ -55,11 +55,13 @@ namespace Duel6
 
 	void FIRE_Init()
 	{
+		const TextureManager::TextureList& textures = d6TextureManager.get(D6_TEXTURE_BLOCK_KEY);
+
 		for (Size i = 0; i < D6_FIRES; i++)
 		{
 			for (Size j = 3; j < 4; j++)
 			{
-				glBindTexture(GL_TEXTURE_2D, d6BlockData.getTextures()[d6FireType[i] + j]);
+				glBindTexture(GL_TEXTURE_2D, textures[d6FireType[i] + j]);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
@@ -96,6 +98,7 @@ namespace Duel6
 		X -= 0.5f;
 		Y += 0.5f;
 
+		const TextureManager::TextureList& textures = d6TextureManager.get(D6_TEXTURE_BLOCK_KEY);
 		for (Fire& fire : d6Fires)
 		{
 			if (!fire.burned)
@@ -107,7 +110,7 @@ namespace Duel6
 					fire.burned = true;
 					fire.face->hide();
 
-					Sprite fireSprite(d6FireAnm[fire.type], d6BlockData.getTextures());
+					Sprite fireSprite(d6FireAnm[fire.type], textures);
 					fireSprite.setPosition(fire.x, fire.y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					d6SpriteList.addSprite(fireSprite);

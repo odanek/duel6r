@@ -285,9 +285,10 @@ namespace Duel6
 	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Int32>& backgrounds, ScreenMode screenMode, Int32 screenZoom)
 	{
 		players.clear();
+		PlayerSkin::freeAll();
 		for (const PlayerDefinition& playerDef : playerDefinitions)
-		{
-			players.push_back(Player(playerDef.getPerson(), new PlayerSkin(D6_FILE_PLAYER, playerDef.getColors()), playerDef.getControls()));
+		{			
+			players.push_back(Player(playerDef.getPerson(), PlayerSkin::create(D6_TEXTURE_MAN_PATH, playerDef.getColors()), playerDef.getControls()));
 		}
 		this->levels = levels;
 		this->backgrounds = backgrounds;

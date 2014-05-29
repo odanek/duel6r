@@ -72,25 +72,7 @@ namespace Duel6
 
 	void Menu::free()
 	{
-		glDeleteTextures(1, &menuBannerTexture);
-		MY_UnregMem(desk);
 		delete desk;
-	}
-
-	/*
-	==================================================
-	Vytvori seznam urovni a zjisti pocet pozadi
-	==================================================
-	*/
-	Size Menu::getBackgroundCount()
-	{
-		myKh3info_s ki;
-
-		MY_KH3Open(D6_FILE_BACK);
-		MY_KH3GetInfo(&ki);
-		MY_KH3Close();
-
-		return ki.picts;
 	}
 
 	void Menu::loadPersonData()
@@ -160,7 +142,7 @@ namespace Duel6
 		int         i;
 
 		g_app.con->printf(MY_L("APP00029|\n===Menu inicializace===\n"));
-		menuBannerTexture = Util::loadKH3Texture(D6_FILE_LABEL, 0, false);
+		menuBannerTexture = d6TextureManager.get(D6_TEXTURE_MENU_KEY)[0];
 		loadPersonData();
 		g_app.con->printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
 		desk = Desk::Create();
@@ -168,126 +150,103 @@ namespace Duel6
 			(g_vid.cl_width - 800) / 2, (g_vid.cl_height - 600) / 2);
 
 		listbox[0] = new listbox_c(true);
-		MY_RegMem(listbox[0], sizeof (listbox_c));
 		listbox[0]->SetPosition(10, 400, 94, 12, 16);
 		listbox[0]->SetNG(12, 1);
 
 		listbox[1] = new listbox_c(true);
-		MY_RegMem(listbox[1], sizeof (listbox_c));
 		listbox[1]->SetPosition(10, 129, 20, 13, 18);
 		listbox[1]->SetNG(0, 1);
 
 		listbox[2] = new listbox_c(false);
-		MY_RegMem(listbox[2], sizeof (listbox_c));
 		listbox[2]->SetPosition(200, 129, 20, D6_MAX_PLAYERS, 18);
 		listbox[2]->SetNG(1, 1);
 
 		listbox[3] = new listbox_c(true);
-		MY_RegMem(listbox[3], sizeof (listbox_c));
 		listbox[3]->SetPosition(644, 189, 13, 6, 16);
 		listbox[3]->SetNG(2, 1);
 
 		listbox[4] = new listbox_c(true);
-		MY_RegMem(listbox[4], sizeof (listbox_c));
 		listbox[4]->SetPosition(500, 236, 13, 3, 16);
 		listbox[4]->SetNG(3, 1);
 
 		listbox[5] = new listbox_c(false);
-		MY_RegMem(listbox[5], sizeof (listbox_c));
 		listbox[5]->SetPosition(644, 129, 15, 2, 16);
 		listbox[5]->SetNG(4, 1);
 		listbox[5]->AddItem(MY_L("APP00031|Cela obrazovka"));
 		listbox[5]->AddItem(MY_L("APP00032|Split screen"));
 
 		listbox[6] = new listbox_c(true);
-		MY_RegMem(listbox[6], sizeof (listbox_c));
 		listbox[6]->SetPosition(500, 129, 13, 5, 16);
 		listbox[6]->SetNG(5, 1);
 
 		button[0] = new button_c;
-		MY_RegMem(button[0], sizeof (button_c));
 		button[0]->SetPosition(200, 281, 80, 31);
 		button[0]->SetCaption(">>");
 		button[0]->SetNG(6, 1);
 
 		button[1] = new button_c;
-		MY_RegMem(button[1], sizeof (button_c));
 		button[1]->SetPosition(200, 316, 80, 31);
 		button[1]->SetCaption("<<");
 		button[1]->SetNG(7, 1);
 
 		button[2] = new button_c;
-		MY_RegMem(button[2], sizeof (button_c));
 		button[2]->SetPosition(284, 281, 80, 31);
 		button[2]->SetCaption(MY_L("APP00033|Smaz"));
 		button[2]->SetNG(8, 1);
 
 		button[3] = new button_c;
-		MY_RegMem(button[3], sizeof (button_c));
 		button[3]->SetPosition(284, 316, 80, 31);
 		button[3]->SetCaption(MY_L("APP00034|Pridej"));
 		button[3]->SetNG(9, 1);
 
 		button[6] = new button_c;
-		MY_RegMem(button[6], sizeof (button_c));
 		button[6]->SetPosition(370, 281, 120, 31);
 		button[6]->SetCaption(MY_L("APP00092|Vynuluj (F3)"));
 		button[6]->SetNG(30, 1);
 
 		button[4] = new button_c;
-		MY_RegMem(button[4], sizeof (button_c));
 		button[4]->SetPosition(500, 300, 125, 73);
 		button[4]->SetCaption(MY_L("APP00035|Hrat (F1)"));
 		button[4]->SetNG(10, 1);
 
 		button[5] = new button_c;
-		MY_RegMem(button[5], sizeof (button_c));
 		button[5]->SetPosition(644, 300, 125, 73);
 		button[5]->SetCaption(MY_L("APP00036|Konec (ESC)"));
 		button[5]->SetNG(11, 1);
 
 		label[0] = new label_c;
-		MY_RegMem(label[0], sizeof (label_c));
 		label[0]->SetPosition(10, 380, 772, 18);
 		label[0]->SetCaption(MY_L("APP00037|       Jmeno        |    Her    | Vitezstvi |   Strel   | Presnost  |   Zabiti   |   Bodu"));
 
 		label[1] = new label_c;
-		MY_RegMem(label[1], sizeof (label_c));
 		label[1]->SetPosition(500, 216, 125, 18);
 		label[1]->SetCaption(MY_L("APP00038|Pozadi"));
 
 		label[2] = new label_c;
-		MY_RegMem(label[2], sizeof (label_c));
 		label[2]->SetPosition(644, 170, 125, 18);
 		label[2]->SetCaption(MY_L("APP00039|Mapa"));
 
 		label[3] = new label_c;
-		MY_RegMem(label[3], sizeof (label_c));
 		label[3]->SetPosition(644, 110, 125, 18);
 		label[3]->SetCaption(MY_L("APP00040|Mod obrazovky"));
 
 		label[4] = new label_c;
-		MY_RegMem(label[4], sizeof (label_c));
 		label[4]->SetPosition(500, 110, 125, 18);
 		label[4]->SetCaption(MY_L("APP00041|Zoom"));
 
 		label[5] = new label_c;
-		MY_RegMem(label[5], sizeof (label_c));
 		label[5]->SetPosition(10, 110, 181, 18);
 		label[5]->SetCaption(MY_L("APP00042|Databaze hracu"));
 
 		label[6] = new label_c;
-		MY_RegMem(label[6], sizeof (label_c));
 		label[6]->SetPosition(200, 110, 165, 18);
 		label[6]->SetCaption(MY_L("APP00043|Hraci"));
 
 		label[7] = new label_c;
-		MY_RegMem(label[7], sizeof (label_c));
 		label[7]->SetPosition(370, 110, 120, 18);
 		label[7]->SetCaption(MY_L("APP00044|Ovladani"));
 
 		textbox = new textbox_c;
-		MY_RegMem(textbox, sizeof (textbox_c));
 		textbox->SetPosition(200, 351, 19, 13, D6_ALL_CHR);
 		textbox->SetNG(13, 1);
 
@@ -295,14 +254,13 @@ namespace Duel6
 		for (i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			controlSwitch[i] = new switchbox_c;
-			MY_RegMem(controlSwitch[i], sizeof (switchbox_c));
 			controlSwitch[i]->SetPosition(370, 131 + i * 18, 120, 0);
 			controlSwitch[i]->SetNG(14 + i, 1);
 		}
 
 		joyRescan();
 
-		backgroundCount = getBackgroundCount();
+		backgroundCount = d6TextureManager.get(D6_TEXTURE_BCG_KEY).size();
 		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
 		listbox[3]->AddItem(MY_L("APP00046|Nahodna"));

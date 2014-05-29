@@ -25,75 +25,54 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef DUEL6_TEXTUREMANAGER_H
+#define DUEL6_TEXTUREMANAGER_H
+
+#include <unordered_map>
+#include <string>
 #include <SDL2/SDL_opengl.h>
-#include "FaceList.h"
-#include "Globals.h"
+#include "Type.h"
+#include "Color.h"
+#include "Util.h"
 
 namespace Duel6
 {
-	void FaceList::optimize()
+	class TextureManager
 	{
-		for (Size i = 0; i < faces.size(); i++)
+	public:
+		typedef std::vector<GLuint> TextureList;
+		typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
+
+	private:
+		std::unordered_map<std::string, TextureList> textureMap;
+
+	public:
+		~TextureManager()
 		{
-			Uint32 curTexture = faces[i].getCurrentTexture();
-			Size curFace = i + 1;
-
-			for (Size j = i + 1; j < faces.size(); j++)
-			{
-				if (faces[j].getCurrentTexture() == curTexture && j != curFace)
-				{
-					std::swap(faces[curFace], faces[j]);
-
-					for (Size k = 0; k < 4; k++)
-					{
-						std::swap(vertexes[curFace * 4 + k], vertexes[j * 4 + k]);
-					}
-
-					curFace++;
-				}
-			}
-		}
-	}
-
-	void FaceList::render() const
-	{
-		if (faces.empty())
-		{
-			return;
+			freeAll();
 		}
 
-		const TextureManager::TextureList& textures = d6TextureManager.get(D6_TEXTURE_BLOCK_KEY);
-		GLuint curTexture = textures[faces[0].getCurrentTexture()];
-		Size first = 0, count = 0;
+		void freeAll();
 
-		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
+		void load(const std::string& key, const std::string& path, GLint filtering);
+		void load(const std::string& key, const std::string& path, GLint filtering, const SubstitutionTable& substitutionTable);
 
-		for (const Face& face : faces)
+		const TextureList& get(const std::string& key) const
 		{
-			if (textures[face.getCurrentTexture()] != curTexture)
-			{
-				glBindTexture(GL_TEXTURE_2D, curTexture);
-				glDrawArrays(GL_QUADS, first, count);
-				curTexture = textures[face.getCurrentTexture()];
-				first += count;
-				count = 4;
-			}
-			else
-			{
-				count += 4;
-			}
+			return textureMap.at(key);
 		}
 
-		glBindTexture(GL_TEXTURE_2D, curTexture);
-		glDrawArrays(GL_QUADS, first, count);
-	}
-
-	void FaceList::nextFrame()
-	{
-		for (Face& face : faces)
+		TextureManager& remove(const std::string& key)
 		{
-			face.nextFrame();
+			textureMap.erase(key);
+			return *this;
 		}
-	}
+
+	private:
+		void freeTextureList(const TextureList& list);
+		void substituteColors(Image& image, const SubstitutionTable& substitutionTable);
+		bool nameEndsWith(const std::string& name, const std::string& suffix) const;
+	};
 }
+
+#endif

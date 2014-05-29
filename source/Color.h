@@ -28,6 +28,7 @@
 #ifndef DUEL6_COLOR_H
 #define DUEL6_COLOR_H
 
+#include <functional>
 #include "Type.h"
 
 namespace Duel6
@@ -35,20 +36,24 @@ namespace Duel6
 	class Color
 	{
 	private:
-		Uint8 color[3];
+		Uint8 color[4];
 
 	public:
 		Color()
-			: Color(0, 0, 0)
+			: Color(0, 0, 0, 255)
 		{}
 
 		explicit Color(Uint8 value)
-			: Color(value, value, value)
+			: Color(value, value, value, 255)
 		{}
 
 		Color(Uint8 red, Uint8 green, Uint8 blue)
+			: Color(red, green, blue, 255)
+		{}
+
+		Color(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
 		{
-			set(red, green, blue);
+			set(red, green, blue, alpha);
 		}
 
 		Color(const Color& color)
@@ -63,9 +68,26 @@ namespace Duel6
 				setRed(color.getRed());
 				setGreen(color.getGreen());
 				setBlue(color.getBlue());
+				setAlpha(color.getAlpha());
 			}
 
 			return *this;
+		}
+
+		bool operator==(const Color& color) const
+		{
+			return (getRed() == color.getRed() && 
+				    getGreen() == color.getGreen() && 
+					getBlue() == color.getBlue() &&
+					getAlpha() == color.getAlpha());
+		}
+
+		bool operator!=(const Color& color) const
+		{
+			return (getRed() != color.getRed() ||
+				    getGreen() != color.getGreen() ||
+					getBlue() != color.getBlue() ||
+					getAlpha() != color.getAlpha());
 		}
 
 		Uint8 getRed() const
@@ -83,6 +105,11 @@ namespace Duel6
 			return color[2];
 		}
 
+		Uint8 getAlpha() const
+		{
+			return color[3];
+		}
+
 		Uint8 get(Size index) const
 		{
 			return color[index];
@@ -93,6 +120,15 @@ namespace Duel6
 			setRed(red);
 			setGreen(green);
 			setBlue(blue);
+			return *this;
+		}
+
+		Color& set(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
+		{
+			setRed(red);
+			setGreen(green);
+			setBlue(blue);
+			setAlpha(alpha);
 			return *this;
 		}
 
@@ -114,10 +150,26 @@ namespace Duel6
 			return *this;
 		}
 
+		Color& setAlpha(Uint8 value)
+		{
+			color[3] = value;
+			return *this;
+		}
+
 		Color& set(Size index, Uint8 value)
 		{
 			color[index] = value;
 			return *this;
+		}
+	};
+
+	class ColorHash
+	{
+	public:
+		size_t operator()(const Color& color)
+		{
+			std::hash<Uint32> hashFunction;
+			return hashFunction((color.getAlpha() << 24) + (color.getRed() << 16) + (color.getGreen() << 8) + color.getBlue());
 		}
 	};
 }

@@ -57,7 +57,7 @@ namespace Duel6
 		{ 83, 5, 84, 5, 85, 5, 86, 5, 87, 5, 88, 5, 89, 5, 90, 5, 91, 5, 92, 5, -1, 0 }
 	};
 
-	Player::Player(Person& person, PlayerSkin* skin, const PlayerControls& controls)
+	Player::Player(Person& person, PlayerSkin skin, const PlayerControls& controls)
 		: person(person), skin(skin), controls(controls)
 	{
 		camera.resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
@@ -73,12 +73,12 @@ namespace Duel6
 		state.x = (Float32)startBlockX;
 		state.y = (Float32)startBlockY + 0.0001f;
 
-		Sprite manSprite(noAnim, skin->getTextures());
+		Sprite manSprite(noAnim, skin.getTextures());
 		manSprite.setPosition(getX(), getY(), 0.5f);
 		sprite = d6SpriteList.addSprite(manSprite);		
 
 		state.weapon = &WPN_GetRandomWeapon();
-		Sprite gunSprite(state.weapon->animation, d6WpnTextures);
+		Sprite gunSprite(state.weapon->animation, d6TextureManager.get(D6_TEXTURE_WPN_KEY));
 		gunSprite.setPosition(getX(), getY(), 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
@@ -661,7 +661,7 @@ namespace Duel6
 		water = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
 		if (water != WaterType::None && !hasFlag(FlagFeetInWater))
 		{
-			Sprite waterSplash(wtAnim[(water == WaterType::Blue) ? 0 : 1], d6WpnTextures);
+			Sprite waterSplash(wtAnim[(water == WaterType::Blue) ? 0 : 1], d6TextureManager.get(D6_TEXTURE_WPN_KEY));
 			waterSplash.setPosition(getX(), getY(), 0.5f)
 				.setLooping(AnimationLooping::OnceAndRemove);
 			d6SpriteList.addSprite(waterSplash);
@@ -764,6 +764,6 @@ namespace Duel6
 	void Player::switchToOriginalSkin()
 	{
 		state.tempSkinDuration = 0;
-		sprite->setTextures(skin->getTextures());
+		sprite->setTextures(skin.getTextures());
 	}
 }

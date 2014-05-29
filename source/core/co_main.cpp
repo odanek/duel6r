@@ -86,7 +86,6 @@ static void CO_Init ()
 
     // Inicializace me knihovny
     MY_Init ();
-    MY_AddPck (APP_FILE_CORE_PCK);
     MY_ErrCallback (CO_ErrorHandler);
 
     // Inicializace SDL

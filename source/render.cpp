@@ -227,7 +227,7 @@ namespace Duel6
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, d6BlockData.getTextures()[player.getBonus()]);
+			glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_BLOCK_KEY)[player.getBonus()]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 133, ibp[1] - 3);

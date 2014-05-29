@@ -106,38 +106,6 @@ namespace Duel6
 
 	/*
 	==================================================
-	Pokud neexistuji soubory config.txt a duel6.dat tak
-	je vytvori - pro snadnejsi update dodavany bez techto
-	souboru
-	==================================================
-	*/
-	void SET_InitUserFiles()
-	{
-		char        def_file[50];
-		const char *user_file[3] = { D6_FILE_CONFIG, D6_FILE_PHIST, D6_FILE_SKIN };
-		int         i;
-		mySIZE      len;
-		myBYTE      *ptr;
-		myFile_s    *f;
-
-		for (i = 0; i < 3; i++)
-		{
-			if (MY_FSize(user_file[i]) < 1)
-			{
-				sprintf(def_file, "%s.def", user_file[i]);
-				len = MY_FSize(def_file);
-				ptr = (myBYTE *)MY_Alloc(len);
-				MY_FLoad(def_file, ptr);
-				f = MY_FOpen(user_file[i], 0, "wb", true);
-				MY_FWrite(ptr, 1, len, f);
-				MY_FClose(&f);
-				MY_Free(ptr);
-			}
-		}
-	}
-
-	/*
-	==================================================
 	Set language - console command
 	==================================================
 	*/
@@ -440,8 +408,6 @@ namespace Duel6
 
 		SOUND_Init(20, 30, 1);
 
-		SET_InitUserFiles();
-
 		// Read config file
 		g_app.con->printf("\n===Config===\n");
 		g_app.con->exec("exec data/config.txt");
@@ -450,10 +416,14 @@ namespace Duel6
 		g_app.con->exec("exec data/skin.txt");
 
 		SET_InitVideo();
-		d6BlockData.init(D6_FILE_ART, D6_FILE_ANM);
-		d6World.loadBackgrounds(D6_FILE_BACK);
-		WPN_Init(D6_FILE_WEAPON);
-		EXPL_Load(D6_FILE_EXPLODE);
+
+		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR);
+		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST);
+		d6TextureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR);
+		d6TextureManager.load(D6_TEXTURE_WPN_KEY, D6_TEXTURE_WPN_PATH, GL_LINEAR);
+		d6TextureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR);
+
+		WPN_Init();
 		ELEV_Init();
 		FIRE_Init();
 		CONTROLS_Init();
@@ -465,13 +435,6 @@ namespace Duel6
 	void P_DeInit()
 	{
 		SOUND_DeInit();
-
-		d6BlockData.freeTextures();
-		d6World.freeTextures();
-		WPN_FreeTextures();
-		d6Menu.free();
-		EXPL_Free();
-
-		WPN_DeInit();
+		d6TextureManager.freeAll();
 	}
 }

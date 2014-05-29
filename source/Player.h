@@ -131,7 +131,7 @@ namespace Duel6
 
 	private:
 		Person& person;
-		std::shared_ptr<PlayerSkin> skin;
+		PlayerSkin skin;
 		mycam_c camera;
 		CameraPosition cameraPos;
 		const PlayerControls& controls;
@@ -142,7 +142,7 @@ namespace Duel6
 		Int32 infoBarPosition[2];
 
 	public:
-		Player(Person& person, PlayerSkin* skin, const PlayerControls& controls);
+		Player(Person& person, PlayerSkin skin, const PlayerControls& controls);
 		~Player();
 
 		bool is(const Player& player) const

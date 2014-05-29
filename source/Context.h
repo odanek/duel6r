@@ -61,10 +61,15 @@ namespace Duel6
 		virtual void textInputEvent(const char* text) = 0;
 		virtual void update(Float32 elapsedTime) = 0;
 		virtual void render() const = 0;
+		virtual void beforeClose(Context* newContext) = 0;
 
 	protected:
 		virtual void makeCurrent() final
 		{
+			if (currentContext != nullptr)
+			{
+				currentContext->beforeClose(this);
+			}
 			currentContext = this;
 		}
 	};

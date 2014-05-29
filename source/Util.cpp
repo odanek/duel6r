@@ -34,59 +34,176 @@ namespace Duel6
 {
 	namespace Util
 	{
-		GLuint loadKH3Texture(const std::string& path, Int32 num, bool clamp)
+		GLuint createTexture(const Image& image, GLint filtering)
+		{
+			GLuint texture;
+			glGenTextures(1, &texture);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexImage2D(GL_TEXTURE_2D, 0, 4, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+
+			//  gluBuild2DMipmaps(GL_TEXTURE_2D, 4, info.SizeX, info.SizeY, GL_RGBA, GL_UNSIGNED_BYTE, tgaData);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filtering);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
+
+			// Clamp texture coordinates
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+			return texture;
+		}
+
+		void loadKH3Image(const std::string& path, Int32 num, Image& image)
 		{
 			myKh3info_s info;
 			std::vector<Uint16> pict;
 			Uint16 cl;
-			std::vector<Uint8> tgaData;
 
 			MY_KH3Open(path.c_str());
 			MY_KH3GetInfo(&info);
 			Size imgSize = info.sizex * info.sizey;
 
 			pict.resize(imgSize);
-			tgaData.resize(imgSize * 4);
+			image.resize(info.sizex, info.sizey);
 			MY_KH3Load(num, &pict[0]);
 			MY_KH3Close();
-
-			Size pos = 0;
+			
 			for (Size i = 0; i < imgSize; i++)
 			{
 				cl = pict[i];
-				tgaData[pos++] = (((cl >> 11) & 0x1F) * 255) / 31;
-				tgaData[pos++] = (((cl >> 5) & 0x3F) * 255) / 63;
-				tgaData[pos++] = ((cl & 0x1F) * 255) / 31;
-				if (!cl)
-					tgaData[pos++] = 0;
-				else
-					tgaData[pos++] = 255;
+				Color& color = image.at(i);
+				color.setRed((((cl >> 11) & 0x1F) * 255) / 31);
+				color.setGreen((((cl >> 5) & 0x3F) * 255) / 63);
+				color.setBlue(((cl & 0x1F) * 255) / 31);
+				color.setAlpha(cl == 0 ? 0 : 255);
 			}
+		}
 
-			GLuint texture;
-			glGenTextures(1, &texture);
-			glBindTexture(GL_TEXTURE_2D, texture);
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, info.sizex, info.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tgaData[0]);
-			//  gluBuild2DMipmaps(GL_TEXTURE_2D, 4, info.SizeX, info.SizeY, GL_RGBA, GL_UNSIGNED_BYTE, tgaData);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		static void readTgaColor(FILE *f, Color& color)
+		{
+			Uint8 colBytes[3];
+			fread(colBytes, 1, 3, f);
+			color.set(colBytes[2], colBytes[1], colBytes[0], (colBytes[0] == 0 && colBytes[1] == 0 && colBytes[2] == 0) ? 0 : 255);
+		}
 
-			// Clamp texture coordinates?
-			if (clamp)
+		static void writeTgaColor(FILE *f, const Color& color)
+		{
+			Uint8 colBytes[3] = { color.getBlue(), color.getGreen(), color.getRed() };
+			fwrite(colBytes, 1, 3, f);
+		}
+
+		void loadTargaImage(const std::string& path, Image& image)
+		{
+			FILE *f;
+			f = fopen(path.c_str() , "rb");
+			if (f == nullptr)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				MY_Err(MY_ErrDump(MY_L("APPxxxxx|loadTarga: nelze otevrit soubor %s\n"), path.c_str()));
 			}
 
-			return texture;
+			// Header
+			Uint16 header[9];
+			fread(header, 2, 9, f);
+
+			// Data
+			image.resize(header[6], header[7]);
+			Color color, *output = &image.at(0);
+			Size remainingData = header[6] * header[7];
+			Uint8 chunkLength, packet;
+
+			while (remainingData > 0)
+			{
+				fread(&packet, 1, 1, f);
+
+				if (packet >= 0x80) 
+				{
+					// RLE chunk
+					chunkLength = packet - 0x7f;
+										
+					readTgaColor(f, color);
+					for (Size i = 0; i < chunkLength; ++i)
+					{
+						*output++ = color;
+					}
+				}
+				else
+				{
+					// Raw chunk
+					chunkLength = packet + 1;
+
+					for (Size i = 0; i < chunkLength; ++i)
+					{
+						readTgaColor(f, color);
+						*output++ = color;
+					}					
+				}
+
+				remainingData -= chunkLength;
+			}
+
+			fclose(f);
+		}
+
+		void saveTarga(const std::string& path, const Image& image)
+		{
+			FILE *f;
+			f = fopen(path.c_str() , "wb");
+			if (f == nullptr)
+			{
+				g_app.con->printf(MY_L("APP00081|saveTarga: nelze otevrit soubor %s\n"), path.c_str());
+				return;
+			}
+
+			// Header
+			Uint16 header[9] = { 0, 10, 0, 0, 0, 0, image.getWidth(), image.getHeight(), 0x18 };  // 0x2018
+			fwrite(header, 2, 9, f);
+
+			// Data
+			Size remainingData = image.getWidth() * image.getHeight();
+			const Color* data = &image.at(0);
+			Uint8 chunkLength;
+			while (remainingData > 0)
+			{
+				if (remainingData > 1 && data[0] == data[1]) 
+				{
+					// RLE chunk
+					chunkLength = 2;
+					while (chunkLength < 128 && chunkLength < remainingData && data[0] == data[chunkLength])
+					{
+						++chunkLength;
+					}
+
+					Uint8 packet = 0x80 + (chunkLength - 1);
+					fwrite(&packet, 1, 1, f);
+					writeTgaColor(f, data[0]);
+				}
+				else
+				{
+					// Raw chunk
+					chunkLength = 1;
+					while (chunkLength < 128 && chunkLength < remainingData && data[chunkLength - 1] != data[chunkLength])
+					{
+						++chunkLength;
+					}
+
+					Uint8 packet = chunkLength - 1;
+					fwrite(&packet, 1, 1, f);
+					for (Size i = 0; i < chunkLength; ++i)
+					{
+						writeTgaColor(f, data[i]);
+					}
+				}
+
+				data += chunkLength;
+				remainingData -= chunkLength;
+			}
+
+			fclose(f);
 		}
 
 		void saveScreenTga()
 		{
-			Uint16 tga[9] = { 0, 2, 0, 0, 0, 0, Uint16(g_vid.cl_width), Uint16(g_vid.cl_height), 272 };
-			Int32 x, y, r, g, b, num = 0;
-			char name[50];
-			myFile_s *f;
+			Int32 num = 0;
+			char name[50];			
 
 			// Vyhledani cisla pod ktere ukladat
 			while (num < 1000)
@@ -101,34 +218,10 @@ namespace Duel6
 			if (num >= 1000)
 				return;
 
-			f = MY_FOpen(name, 0, "wb", false);
-			if (f == NULL)
-			{
-				g_app.con->printf(MY_L("APP00081|SaveScreenTga: nelze otevrit soubor %s\n"), name);
-				return;
-			}
+			Image image(g_vid.cl_width, g_vid.cl_height);			
+			glReadPixels(0, 0, g_vid.cl_width, g_vid.cl_height, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+			saveTarga(name, image);
 
-			MY_FWrite(tga, 2, 9, f);
-
-			std::vector<Float32> pixData(3 * g_vid.cl_height * g_vid.cl_width);			
-			glReadPixels(0, 0, g_vid.cl_width, g_vid.cl_height, GL_RGB, GL_FLOAT, &pixData[0]);
-
-			auto pixPtr = pixData.begin();
-			for (y = 0; y < g_vid.cl_height; y++)
-			{
-				for (x = 0; x < g_vid.cl_width; x++)
-				{
-					r = (Int32)(pixPtr[0] * 31);
-					g = (Int32)(pixPtr[1] * 31);
-					b = (Int32)(pixPtr[2] * 31);
-					r = (r << 10) | (g << 5) | b;
-					MY_FWrite(&r, 2, 1, f);
-
-					pixPtr += 3;
-				}
-			}
-
-			MY_FClose(&f);
 			g_app.con->printf(MY_L("APP00082|Screenshot ulozen do %s\n"), name);
 		}
 	}

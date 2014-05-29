@@ -150,7 +150,6 @@ listbox_c::listbox_c(bool sb)
     if (sb)
     {
         slider = new slider_c;
-        MY_RegMem (slider, sizeof (slider_c));
         slider->SetNG (glibSCN++, GLIB_SC_GROUP);
         slider->Connect (&listPos);
     }
@@ -283,9 +282,6 @@ switchbox_c::switchbox_c()
     right = new button_c;
     right->SetCaption (" ");
     right->SetNG (glibSCN++, GLIB_SC_GROUP);
-
-    MY_RegMem (left, sizeof (button_c));
-    MY_RegMem (right, sizeof (button_c));
 }
 
 switchbox_c::~switchbox_c()
@@ -466,9 +462,6 @@ slider_c::slider_c ()
     down->SetCaption (" ");
     down->SetNG (glibSCN++, GLIB_SC_GROUP);
     pos = NULL;
-
-    MY_RegMem (up, sizeof (button_c));
-    MY_RegMem (down, sizeof (button_c));
 }
 
 void slider_c::SetPosition (int X, int Y, int H)
@@ -679,8 +672,6 @@ Desk *Desk::Create ()
     if (glibMainDesk == nullptr)
         glibMainDesk = new Desk;
 
-    MY_RegMem (glibMainDesk, sizeof (Desk));
-
     // Left mouse button (used by SDL_BUTTON(x))
     glibMouseB = 1;
 
@@ -698,7 +689,6 @@ Desk::~Desk()
     
 	for (DeskControl* control : controls)
     {
-        MY_UnregMem(control);
 		delete control;
     }
 }

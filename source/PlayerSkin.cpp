@@ -28,94 +28,61 @@
 #include "mylib/mylib.h"
 #include "core/co_core.h"
 #include "PlayerSkin.h"
+#include "project.h"
 
 namespace Duel6
 {
-	PlayerSkin::PlayerSkin(const std::string& textureFile, const PlayerSkinColors& colors)
-		: colors(colors)
+	std::unordered_set<Size> PlayerSkin::skinIds;
+
+	PlayerSkin PlayerSkin::create(const std::string& texturePath, const PlayerSkinColors& colors)
 	{
-		load(textureFile);
+		PlayerSkin skin(getNewKey(), texturePath, colors);
+		return skin;
 	}
 
-	PlayerSkin::~PlayerSkin()
+	void PlayerSkin::freeAll()
 	{
-		if (!textures.empty())
+		for (Size id : skinIds)
 		{
-			glDeleteTextures(textures.size(), &textures[0]);
-			textures.clear();
+			d6TextureManager.remove(getKey(id));
 		}
+		skinIds.clear();
 	}
 
-	void PlayerSkin::load(const std::string& fileName)
+	std::string PlayerSkin::getNewKey()
+	{
+		Size id = 0;
+		while (skinIds.find(id) != skinIds.end())
+		{
+			++id;
+		}
+
+		skinIds.insert(id);
+		return getKey(id);
+	}
+
+	std::string PlayerSkin::getKey(Size id)
+	{
+		return std::string(D6_TEXTURE_MAN_KEY) + std::to_string(id);
+	}
+
+	PlayerSkin::PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors)
+		: key(key)
 	{
 		g_app.con->printf(MY_L("APP00049|Inicializace hrace - nahravam textury\n"));
 
-		if (MY_KH3Open(fileName.c_str()) != MY_OK)
-			MY_Err(MY_ErrDump(MY_L("APP00091|Nepodarilo se otevrit soubor %s s texturami postav"), fileName.c_str()));
+		TextureManager::SubstitutionTable substTable;
+		substTable[Color(255, 255, 0)] = colors.get(PlayerSkinColors::HairTop);
+		substTable[Color(222,218,0)] = colors.get(PlayerSkinColors::HairBottom);
+		substTable[Color(0, 0, 172)] = colors.get(PlayerSkinColors::BodyOuter);
+		substTable[Color(0, 0, 255)] = colors.get(PlayerSkinColors::BodyInner);
+		substTable[Color(0, 182, 0)] = colors.get(PlayerSkinColors::HandOuter);
+		substTable[Color(0, 255, 0)] = colors.get(PlayerSkinColors::HandInner);
+		substTable[Color(139, 0, 0)] = colors.get(PlayerSkinColors::Trousers);
+		substTable[Color(180, 182, 0)] = colors.get(PlayerSkinColors::Shoes);
+		substTable[Color(255, 145, 172)] = colors.get(PlayerSkinColors::Face);
 
-		myKh3info_s ki;
-		MY_KH3GetInfo(&ki);
-		g_app.con->printf(MY_L("APP00050|...Soubor %s obsahuje %d textur\n"), fileName.c_str(), ki.picts);
-
-		textures.resize(ki.picts);
-		
-		Size imgSize = ki.sizex * ki.sizey;
-		std::vector<Uint16> hcData(imgSize);
-		std::vector<Uint8> tcData(4 * imgSize);
-
-		glGenTextures(textures.size(), &textures[0]);
-
-		for (Size i = 0; i < textures.size(); i++)
-		{
-			Color color;
-			Size pos = 0;
-			MY_KH3Load(i, &hcData[0]);
-
-			for (Size j = 0; j < imgSize; j++)
-			{
-				// Get color from skin
-				bool isBodyPart = true;
-				PlayerSkinColors::BodyPart bodyPart;
-
-				switch (hcData[j])
-				{
-				case 65504: bodyPart = PlayerSkinColors::HairTop; break;
-				case 57024: bodyPart = PlayerSkinColors::HairBottom; break;
-				case 21: bodyPart = PlayerSkinColors::BodyOuter; break;
-				case 31: bodyPart = PlayerSkinColors::BodyInner; break;
-				case 1440: bodyPart = PlayerSkinColors::HandOuter; break;
-				case 2016: bodyPart = PlayerSkinColors::HandInner; break;
-				case 34816: bodyPart = PlayerSkinColors::Trousers; break;
-				case 46496: bodyPart = PlayerSkinColors::Shoes; break;
-				case 64661: bodyPart = PlayerSkinColors::Face; break;
-				default: isBodyPart = false;
-				}
-
-				if (!isBodyPart)
-				{
-					color.setRed((((hcData[j] >> 11) & 0x1F) * 255) / 31);
-					color.setGreen((((hcData[j] >> 5) & 0x3F) * 255) / 63);
-					color.setBlue(((hcData[j] & 0x1F) * 255) / 31);
-				}
-				else
-				{
-					color = colors.get(bodyPart);
-				}
-
-				tcData[pos++] = color.getRed();
-				tcData[pos++] = color.getGreen();
-				tcData[pos++] = color.getBlue();
-				tcData[pos++] = (!hcData[j]) ? 0 : 0xff; // Alpha mask, black pixels are transparent
-			}
-
-			glBindTexture(GL_TEXTURE_2D, textures[i]);
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, ki.sizex, ki.sizey, 0, GL_RGBA, GL_UNSIGNED_BYTE, &tcData[0]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		}
-
-		MY_KH3Close();
+		d6TextureManager.load(key, texturePath, GL_NEAREST, substTable);
+		textures = &d6TextureManager.get(key);
 	}
 }

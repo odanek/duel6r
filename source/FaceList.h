@@ -38,13 +38,11 @@ namespace Duel6
 	class FaceList
 	{
 	private:
-		const std::vector<GLuint>& textures;
 		std::vector<Vertex> vertexes;
 		std::vector<Face> faces;
 
 	public:
-		FaceList(const std::vector<GLuint>& textures)
-			: textures(textures)
+		FaceList()
 		{}
 
 		FaceList& clear()

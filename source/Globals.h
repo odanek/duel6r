@@ -30,9 +30,83 @@
 
 #include <vector>
 #include "core/co_core.h"
+#include "TextureManager.h"
+
+#define D6_FILE_CONFIG      "data/config.txt"
+#define D6_FILE_ANM         "data/duel6.anm"
+#define D6_FILE_COS         "data/sin.tab"
+#define D6_FILE_FONT        "data/duel6.fon"
+#define D6_FILE_LEVEL       "levels/"
+#define D6_FILE_PHIST       "data/duel6.dat"
+#define D6_FILE_SKIN        "data/skin.txt"
+
+#define D6_TEXTURE_MAN_PATH     "textures/man/"
+#define D6_TEXTURE_MAN_KEY		"man"
+#define D6_TEXTURE_BCG_PATH		"textures/backgrounds/"
+#define D6_TEXTURE_BCG_KEY		"bcg"
+#define D6_TEXTURE_EXPL_PATH	"textures/explosion/"
+#define D6_TEXTURE_EXPL_KEY		"expl"
+#define D6_TEXTURE_MENU_PATH	"textures/menu/"
+#define D6_TEXTURE_MENU_KEY		"menu"
+#define D6_TEXTURE_WPN_PATH		"textures/weapon/"
+#define D6_TEXTURE_WPN_KEY		"wpn"
+#define D6_TEXTURE_BLOCK_PATH	"textures/blocks/"
+#define D6_TEXTURE_BLOCK_KEY	"block"
+
+//#define D6_RENDER_BACKS
+
+#define D6_LEVEL_EXTENSION	".lev"
+
+#define D6_SPRITE_SPEED_COEF 61
+#define D6_CL_WIDTH         800
+#define D6_CL_HEIGHT        600
+#define D6_CL_BPP           32
+#define D6_CL_AA            2
+
+#define D6_GL_PERSPECTIVE   1
+#define D6_GL_ORTHO         2
+
+#define D6_ANM_SPEED        0.328f
+#define D6_WAVE_HEIGHT      0.1f
+
+#define D6_MAX_PLAYERS      8
+#define D6_WATER_HIT		60
+#define D6_GAME_OVER_WAIT   3.0f
+#define D6_INFO_DURATION    5.0f
+
+#define D6_SOUNDS           25
 
 namespace Duel6
 {
+	enum
+	{
+		D6_SND_DEAD,
+		D6_SND_BNPICK,
+		D6_SND_SHOT_BL,
+		D6_SND_BOOM_BL,
+		D6_SND_SHOT_LS,
+		D6_SND_SHOT_PI,
+		D6_SND_SHOT_PL,
+		D6_SND_SHOT_SG,
+		D6_SND_SHOT_BZ,
+		D6_SND_BOOM_BZ,
+		D6_SND_WATER,
+		D6_SND_SHOT_TZ,
+		D6_SND_SHOT_KM,
+		D6_SND_HIT,
+		D6_SND_SHOT_LK,
+		D6_SND_SHOT_SM,
+		D6_SND_SHOT_KD1,
+		D6_SND_SHOT_KD2,
+		D6_SND_SHOT_SPRAY,
+		D6_SND_SHOT_SLING,
+		D6_SND_SHOT_SPUNT,
+		D6_SND_SHOT_SHIT,
+		D6_SND_SHOT_SHIT_HIT,
+		D6_SND_LETS_ROCK,
+		D6_SND_GAME_OVER
+	};
+
 	class BlockData;
 	class World;
 	class InfoMessageQueue;
@@ -44,7 +118,7 @@ namespace Duel6
 
 	extern Menu d6Menu;
 	extern Game d6Game;
-	extern BlockData d6BlockData;
+	extern TextureManager d6TextureManager;
 	extern bool d6Wireframe;
 	extern bool d6ShowFps;
 	extern int d6AmmoRangeMin, d6AmmoRangeMax;

@@ -59,10 +59,14 @@ namespace Duel6
 	public:
 		Menu();
 
+		~Menu()
+		{
+			free();
+		}
+
 		void startContext();
 
-		void init();
-		void free();
+		void init();		
 
 		void joyRescan();
 
@@ -73,9 +77,13 @@ namespace Duel6
 		void update(Float32 elapsedTime) override;
 		void render() const override;
 
+		virtual void beforeClose(Context* newContext) override
+		{}
+
 		void enableMusic(bool enable);
 
 	private:
+		void free();
 		void play();
 		void loadPersonData();
 		void cleanPersonData();

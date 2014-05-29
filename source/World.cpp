@@ -29,22 +29,15 @@
 #include "World.h"
 #include "Util.h"
 #include "ElevatorList.h"
+#include "Globals.h"
 
 namespace Duel6
 {
-	void BlockData::init(const std::string& textureFile, const std::string& blockMetaFile)
+	void World::loadBlockMeta(const std::string& path)
 	{
-		Size blocks = loadBlockTextures(textureFile);
-		loadBlockMeta(blockMetaFile, blocks);
-	}
-
-	void BlockData::loadBlockMeta(const std::string& path, Size blocks)
-	{
-		g_app.con->printf(MY_L("APP00058|Nahravam animacni data (%s)\n"), path.c_str());
-		
-		meta.clear();		
+		blockMeta.clear();		
 		myFile_s* f = MY_FOpen(path.c_str(), 0, "rb", true);
-		for (Size i = 0; i < blocks; i++)
+		while (!MY_FEof(f))
 		{
 			Int32 blockAnimations;			
 			MY_FRead(&blockAnimations, 4, 1, f);
@@ -52,42 +45,14 @@ namespace Duel6
 			Int32 blockType;
 			MY_FRead(&blockType, 4, 1, f);
 
-			meta.push_back(Block(meta.size(), (Block::Type)blockType, blockAnimations));
+			blockMeta.push_back(Block(blockMeta.size(), (Block::Type)blockType, blockAnimations));
 		}
 		MY_FClose(&f);
 	}
 
-	Size BlockData::loadBlockTextures(const std::string& path)
-	{		
-		g_app.con->printf(MY_L("APP00056|Nahravam textury urovne\n"));		
-		
-		myKh3info_s ki;
-		MY_KH3Open(path.c_str());		
-		MY_KH3GetInfo(&ki);
-		g_app.con->printf(MY_L("APP00057|...Soubor %s obsahuje %lu textur\n"), path.c_str(), ki.picts);
-
-		textures.resize(ki.picts);
-		for (Size i = 0; i < ki.picts; i++)
-		{
-			textures[i] = Util::loadKH3Texture(path, i, false);
-		}
-		MY_KH3Close();
-
-		return ki.picts;
-	}
-
-	void BlockData::freeTextures()
-	{
-		if (!textures.empty())
-		{
-			glDeleteTextures(textures.size(), &textures[0]);
-			textures.clear();
-		}
-	}
-
 	void World::loadLevel(const std::string& path, Size background, bool mirror)
 	{
-		this->background = background;
+		backgroundTexture = d6TextureManager.get(D6_TEXTURE_BCG_KEY)[background];
 		levelData.clear();
 
 		myFile_s* f = MY_FOpen(path.c_str(), 0, "rb", true);
@@ -104,30 +69,6 @@ namespace Duel6
 
 		loadElevators(f, mirror);
 		MY_FClose(&f);
-	}
-
-	void World::freeTextures()
-	{
-		if (!backgroundTextures.empty())
-		{
-			glDeleteTextures(backgroundTextures.size(), &backgroundTextures[0]);
-			backgroundTextures.clear();
-		}
-	}
-
-	void World::loadBackgrounds(const std::string& path)
-	{
-		myKh3info_s ki;
-		MY_KH3Open(path.c_str());
-		MY_KH3GetInfo(&ki);
-		MY_KH3Close();
-
-		g_app.con->printf(MY_L("APP00059|...Nahravam pozadi (%s, %d textur)\n"), path.c_str(), ki.picts);
-		backgroundTextures.clear();
-		for (Size i = 0; i < ki.picts; ++i)
-		{
-			backgroundTextures.push_back(Util::loadKH3Texture(path, i, false));
-		}
 	}
 
 	void World::loadElevators(myFile_s* f, bool mirror)
@@ -195,7 +136,7 @@ namespace Duel6
 			for (Int32 x = 0; x < getSizeX(); x++)
 			{
 				Int32 blockIndex = getBlock(x, y);
-				const Block& block = blockData.getMeta()[blockIndex];
+				const Block& block = blockMeta[blockIndex];
 
 				if (block.is(Block::EmptySpace))
 				{

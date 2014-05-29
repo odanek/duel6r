@@ -28,6 +28,7 @@
 #include <list>
 #include "Color.h"
 #include "Util.h"
+#include "Globals.h"
 
 #define D6_EXPL_SPEED       0.61f
 
@@ -44,20 +45,7 @@ namespace Duel6
 			Color color;
 		};
 
-		GLuint d6ExTexture;
 		std::list<Explosion> d6Explosions;
-	}
-
-	void EXPL_Load(const std::string& textureFile)
-	{
-		d6ExTexture = Util::loadKH3Texture(textureFile.c_str(), 0, true);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-
-	void EXPL_Free()
-	{
-		glDeleteTextures(1, &d6ExTexture);
 	}
 
 	void EXPL_Init()
@@ -97,7 +85,7 @@ namespace Duel6
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, d6ExTexture);
+		glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_EXPL_KEY)[0]);
 		glBegin(GL_QUADS);
 
 		for (const Explosion& explosion : d6Explosions)
