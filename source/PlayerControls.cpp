@@ -25,11 +25,34 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <SDL2/SDL.h>
+#include "Globals.h"
 #include "PlayerControls.h"
 
 namespace Duel6
 {
 	std::vector<std::unique_ptr<PlayerControls>> d6Controls;
+
+	bool KeyboardButton::isPressed() const
+	{
+		return g_inp.isPressed(keyCode);
+	}
+
+	bool JoypadAxis::isPressed() const
+	{
+		if (joypadIndex < g_inp.joysticks.size())
+		{
+			Int16 axisPosition = SDL_JoystickGetAxis(g_inp.joysticks[joypadIndex], (axis == Axis::Horizontal) ? 0 : 1);
+			return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
+
+		}
+		return false;
+	}
+
+	bool JoypadButton::isPressed() const
+	{
+		return (joypadIndex < g_inp.joysticks.size() && SDL_JoystickGetButton(g_inp.joysticks[joypadIndex], button) == 1);
+	}
 
 	void CONTROLS_Init()
 	{

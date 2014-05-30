@@ -30,10 +30,10 @@
 
 namespace Duel6
 {
-	void PersonList::save(FILE* file) const
+	void PersonList::save(File& file) const
 	{
 		Uint32 length = getLength();
-		fwrite(&length, 4, 1, file);
+		file.write(&length, 4, 1);
 
 		for (const Person& person : persons)
 		{
@@ -41,10 +41,10 @@ namespace Duel6
 		}
 	}
 
-	void PersonList::load(FILE* file)
+	void PersonList::load(File& file)
 	{
 		Uint32 length;
-		fread(&length, 4, 1, file);
+		file.read(&length, 4, 1);
 
 		while (length-- > 0)
 		{

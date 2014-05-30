@@ -38,76 +38,11 @@
 #include "TextureManager.h"
 #include "Render.h"
 #include "Fire.h"
+#include "Video.h"
 #include "Globals.h"
 
 namespace Duel6
 {
-	struct VideoMode
-	{
-		Int32 bpp;
-		Int32 aa;
-		Int32 width;
-		Int32 height;
-	};
-
-	static VideoMode d6VideoMode = { 
-		D6_CL_BPP, 
-		D6_CL_AA, 
-		D6_CL_WIDTH, 
-		D6_CL_HEIGHT 
-	};
-
-	/*
-	==================================================
-	Video init
-	==================================================
-	*/
-	void SET_InitVideo()
-	{
-		g_app.con->printf(MY_L("APP00055|\n===Nastavuji OpenGL okno===\n"));
-
-		// Get current video mode
-		SDL_DisplayMode currentVideoMode;
-		
-		if (SDL_GetCurrentDisplayMode(0, &currentVideoMode))
-		{
-
-		}
-		
-		if (!d6VideoMode.width)
-		{
-			d6VideoMode.width = currentVideoMode.w;
-		}
-		if (!d6VideoMode.height)
-		{
-			d6VideoMode.height = currentVideoMode.h;
-		}
-		if (!d6VideoMode.bpp)
-		{
-			d6VideoMode.bpp = 32;
-		}
-
-		// Set graphics mode
-#ifdef _DEBUG
-		VID_SetMode (800, 600, d6VideoMode.bpp, d6VideoMode.aa, false);  // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
-#else
-		VID_SetMode(d6VideoMode.width, d6VideoMode.height, d6VideoMode.bpp, d6VideoMode.aa, true);
-#endif
-
-		g_vid.gl_fov = 45.0f;
-		g_vid.gl_nearclip = 0.1f;
-		g_vid.gl_farclip = 100.0f;
-
-		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-		glCullFace(GL_FRONT);
-		glAlphaFunc(GL_GEQUAL, 1);
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-		RENDER_SetGLMode(D6_GL_ORTHO);
-	}
-
 	/*
 	==================================================
 	Set language - console command
@@ -377,6 +312,44 @@ namespace Duel6
 		con->printf("\n");
 	}
 
+	void SET_RegisterCommands()
+	{
+		SDL_version sdlVersion;
+		const char *ver_str = MY_L("APP00072|verze");
+
+		// Print application info
+		d6Console.printf(MY_L("APP00073|\n===Informace o aplikaci===\n"));
+		d6Console.printf("%s %s: %s\n", APP_NAME, ver_str, APP_VERSION);
+		d6Console.printf("Mylib %s: %s\n", ver_str, MYLIB_VERSION);
+		SDL_GetVersion(&sdlVersion);
+		d6Console.printf("SDL %s: %d.%d.%d\n", ver_str, sdlVersion.major, sdlVersion.minor, sdlVersion.patch);
+		const SDL_version* mixVersion = Mix_Linked_Version();
+		d6Console.printf("SDL_mixer %s: %d.%d.%d\n", ver_str, mixVersion->major, mixVersion->minor, mixVersion->patch);
+		d6Console.printf(MY_L("APP00074|Jazyk: cestina\n"));
+
+		// Set some console functions
+		d6Console.setlast(15);
+		d6Console.regcmd(&SET_ToggleRenderMode, "switch_render_mode");
+		d6Console.regcmd(&SET_ToggleShowFps, "show_fps");
+		d6Console.regcmd(&SET_OpenGLInfo, "gl_info");
+		d6Console.regcmd(&SET_Language, "lang");
+		d6Console.regcmd(&SET_Volume, "volume");
+		d6Console.regcmd(&SET_MaxRounds, "rounds");
+		d6Console.regcmd(&SET_MusicOnOff, "music");
+		d6Console.regcmd(&SET_JoyScan, "joy_scan");
+		d6Console.regcmd(&SET_LoadSkin, "skin");
+		d6Console.regcmd(&SET_EnableWeapon, "gun");
+		d6Console.regcmd(&SET_AmmoRange, "start_ammo_range");		
+		
+		/* TODO:
+		d6Console.regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
+		d6Console.regvar(&d6VideoMode.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
+		d6Console.regvar(&d6VideoMode.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
+		d6Console.regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
+		d6Console.regvar(&d6VideoMode.height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
+		*/
+	}
+
 	/*
 	==================================================
 	Main init
@@ -384,52 +357,21 @@ namespace Duel6
 	*/
 	void SET_Init()
 	{
-		SDL_version sdlVersion;
-		const char *ver_str = MY_L("APP00072|verze");
-
-		// Print application info
-		g_app.con->printf(MY_L("APP00073|\n===Informace o aplikaci===\n"));
-		g_app.con->printf("%s %s: %s\n", APP_NAME, ver_str, APP_VERSION);
-		g_app.con->printf("Mylib %s: %s\n", ver_str, MYLIB_VERSION);
-		SDL_GetVersion(&sdlVersion);
-		g_app.con->printf("SDL %s: %d.%d.%d\n", ver_str, sdlVersion.major, sdlVersion.minor, sdlVersion.patch);
-		const SDL_version* mixVersion = Mix_Linked_Version();
-		g_app.con->printf("SDL_mixer %s: %d.%d.%d\n", ver_str, mixVersion->major, mixVersion->minor, mixVersion->patch);
-		g_app.con->printf(MY_L("APP00074|Jazyk: cestina\n"));
-
-		// Set some console functions
-		g_app.con->setlast(15);
-		g_app.con->regcmd(&SET_ToggleRenderMode, "switch_render_mode");
-		g_app.con->regcmd(&SET_ToggleShowFps, "show_fps");
-		g_app.con->regcmd(&SET_OpenGLInfo, "gl_info");
-		g_app.con->regcmd(&SET_Language, "lang");
-		g_app.con->regcmd(&SET_Volume, "volume");
-		g_app.con->regcmd(&SET_MaxRounds, "rounds");
-		g_app.con->regcmd(&SET_MusicOnOff, "music");
-		g_app.con->regcmd(&SET_JoyScan, "joy_scan");
-		g_app.con->regcmd(&SET_LoadSkin, "skin");
-		g_app.con->regcmd(&SET_EnableWeapon, "gun");
-		g_app.con->regcmd(&SET_AmmoRange, "start_ammo_range");
-		g_app.con->regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
-		g_app.con->regvar(&d6VideoMode.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6VideoMode.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
-		g_app.con->regvar(&d6VideoMode.height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
+		SET_RegisterCommands();
 
 		srand((unsigned)time(nullptr));
 
-		MY_FLoadBlock(D6_FILE_COS, 0, -1, (void *)d6Cos);
-
+		File::load(D6_FILE_COS, 0, d6Cos);
 		Sound::init(20);
 
 		// Read config file
-		g_app.con->printf("\n===Config===\n");
-		g_app.con->exec("exec data/config.txt");
+		d6Console.printf("\n===Config===\n");
+		d6Console.exec("exec data/config.txt");
 		// Init player skins
-		g_app.con->printf("\n====Skin====\n");
-		g_app.con->exec("exec data/skin.txt");
+		d6Console.printf("\n====Skin====\n");
+		d6Console.exec("exec data/skin.txt");
 
-		SET_InitVideo();
+		d6Video.initialize(APP_NAME, APP_FILE_ICON, d6Console);
 
 		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR);
 		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST);
@@ -444,11 +386,5 @@ namespace Duel6
 
 		d6Menu.init();
 		d6Menu.startContext();
-	}
-
-	void SET_DeInit()
-	{
-		Sound::deInit();
-		d6TextureManager.freeAll();
 	}
 }

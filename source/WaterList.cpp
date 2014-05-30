@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "core/co_core.h"
+#include "Globals.h"
 #include "Math.h"
 #include "WaterList.h"
 
@@ -33,7 +33,7 @@ namespace Duel6
 {
 	void WaterList::build(FaceList& waterFaces, Float32 waveHeight)
 	{
-		g_app.con->printf(MY_L("APP00083|...Sestavuji water-list\n"));
+		d6Console.printf(MY_L("APP00083|...Sestavuji water-list\n"));
 		this->waveHeight = waveHeight;
 		vertexes.clear();
 		for (Vertex& vertex : waterFaces.getVertexes())

@@ -27,54 +27,43 @@
 
 /*
 Projekt: Sablona aplikace
-Popis: Jadro - zakladni funkce, vstupni bod
+Popis: Hlavni hlavickovy soubor jadra
 */
 
-#include "co_core.h"
+#ifndef DUEL6_FONT_H
+#define DUEL6_FONT_H
 
-// Deklarace globalnich promenych
-app_s       g_app;
-appVid_s    g_vid;
-appInp_s    g_inp;
+#include <vector>
+#include "Type.h"
+#include "Color.h"
 
-/*
-==================================================
-Deinicializace jadra
-==================================================
-*/
-void CO_DeInit()
+namespace Duel6
 {
-    MY_DeInit ();
-    SDL_Quit ();
-}
-
-/*
-==================================================
-Inicializace jadra
-==================================================
-*/
-void CO_Init(void (*errProc)(const char *))
-{
-    // Inicializace promenych jadra
-    g_app.flags = APP_FLAG_NONE;
-	g_app.con.reset(new con_c(CON_F_EXPAND));
-
-    // Inicializace me knihovny
-    MY_Init ();
-    MY_ErrCallback(errProc);
-
-    // Inicializace SDL
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	class Font
 	{
-		MY_Err(MY_ErrDump("%S: %s\n", MY_L("COSTR0006|Chyba pri inicializaci grafickeho modu"), SDL_GetError()));
-	}
+	private:
+		std::vector<Uint8> data;
+		Int32 fontSZX, fontSZY;
+		Color color;
+		bool xMul;
+		bool yMul;
+		bool yRev;
 
-    SDL_SetWindowTitle(g_app.window, APP_NAME);
-    SDL_SetWindowIcon(g_app.window, SDL_LoadBMP (APP_FILE_ICON));
+	public:
+		Font()
+			: xMul(false), yMul(false), yRev(false)
+		{}
 
-    // Inicializace jadra
-    CO_FontLoad(APP_FILE_FONT);
-    g_app.con->setfont(CO_FontGet());
+		void load(const std::string& fontFile);
+		void setColor(const Color& color);
+		void print(Int32 x, Int32 y, const char* str) const;
+		void printf(Int32 x, Int32 y, const char* str, ...) const;
+		void setMode(bool xMul, bool yMul, bool yRev);
+		const Uint8* get();
 
-    CON_RegisterBasicCmd(g_app.con.get());
+	private:
+		void drawChar(Int32 x, Int32 y, Int32 c) const;
+	};
 }
+
+#endif

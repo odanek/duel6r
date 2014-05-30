@@ -25,41 +25,50 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Obsluha vstupnih zarizeni - klavesnice, mys, joypad
-*/
+#ifndef DUEL6_FILE_H
+#define DUEL6_FILE_H
 
-#include "co_core.h"
+#include <stdio.h>
+#include <string>
+#include <vector>
+#include "Type.h"
 
-/*
-==================================================
-Inicializace vstupnich systemu
-==================================================
-*/
-void CO_JoystickScan()
+namespace Duel6
 {
-    g_app.con->printf (MY_L("COSTR0004|\n===Inicializace vstupnich zarizeni===\n"));
-	g_inp.joysticks.clear();
-
-	if (SDL_WasInit(SDL_INIT_JOYSTICK))
+	class File
 	{
-		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-	}
-		
-    if (SDL_InitSubSystem (SDL_INIT_JOYSTICK))
-    {
-        g_app.con->printf (MY_L("COSTR0002|...Nepodarilo se inicializovat subsystem pro joypady"));            
-    }
-    else
-    {
-        size_t joysticks = SDL_NumJoysticks();
-        g_app.con->printf (MY_L("COSTR0003|...Nalezeno %d joypadu\n"), joysticks);
+	public:
+		enum class Seek
+		{
+			Set,
+			Cur,
+			End
+		};
 
-        for (size_t i = 0; i < joysticks; i++)
-        {
-            g_inp.joysticks.push_back(SDL_JoystickOpen(i));
-            g_app.con->printf ("... * %s\n", SDL_JoystickName(g_inp.joysticks[i]));
-        }
-    }
+	private:
+		FILE* handle;
+
+	public:
+		File(const std::string& path, const char* mode);
+		~File()
+		{
+			close();
+		}
+
+		File& open(const std::string& path, const char* mode);
+		File& close();
+
+		File& read(void* ptr, Size size, Size count);
+		File& write(const void* ptr, Size size, Size count);
+		File& seek(long offset, Seek seek);
+
+		bool isEof() const;
+
+		static Size getSize(const std::string& path);
+		static bool exists(const std::string& path);
+		static void load(const std::string& path, long offset, void* ptr);
+		static void listDirectory(const std::string& path, std::vector<std::string> fileNames);
+	};
 }
+
+#endif

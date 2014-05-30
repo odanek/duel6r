@@ -28,8 +28,8 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-#include "core/co_core.h"
 #include "Type.h"
+#include "Globals.h"
 
 #define SND_TEST(x) if (x == -1) { SOUND_Error (); return; }
 
@@ -77,13 +77,13 @@ namespace Duel6
 				return;
 			}
 
-			g_app.con->printf(MY_L("APP00002|\n===Inicializace zvukoveho systemu===\n"));
-			g_app.con->printf(MY_L("APP00003|...Startuji knihovnu SDL_mixer\n"));
+			d6Console.printf(MY_L("APP00002|\n===Inicializace zvukoveho systemu===\n"));
+			d6Console.printf(MY_L("APP00003|...Startuji knihovnu SDL_mixer\n"));
 
 			// Init SDL audio sub sytem
 			if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
 			{
-				g_app.con->printf(MY_L("APP00004|SDL_mixer chyba: neuspesna inicializace\n"));
+				d6Console.printf(MY_L("APP00004|SDL_mixer chyba: neuspesna inicializace\n"));
 				return;
 			}
 
@@ -93,7 +93,7 @@ namespace Duel6
 			// Allocate channels
 			channels = Mix_AllocateChannels(channels);
 
-			g_app.con->printf(MY_L("APP00005|...Frekvence: %d\n...Kanalu: %d\n"), MIX_DEFAULT_FREQUENCY, channels);
+			d6Console.printf(MY_L("APP00005|...Frekvence: %d\n...Kanalu: %d\n"), MIX_DEFAULT_FREQUENCY, channels);
 
 			// Set up variables
 			snd.channels = channels;
@@ -113,11 +113,11 @@ namespace Duel6
 				Mix_Music *module = Mix_LoadMUS(nm.c_str());
 				if (module == nullptr)
 				{
-					g_app.con->printf(MY_L("APP00006|SDL_mixer chyba: nelze nacist %s\n"), nm.c_str());
+					d6Console.printf(MY_L("APP00006|SDL_mixer chyba: nelze nacist %s\n"), nm.c_str());
 					return -1;
 				}
 				snd.modules.push_back(module);
-				g_app.con->printf(MY_L("APP00007|...Nacten modul %s\n"), nm.c_str());
+				d6Console.printf(MY_L("APP00007|...Nacten modul %s\n"), nm.c_str());
 				return snd.modules.size() - 1;
 			}
 
@@ -136,11 +136,11 @@ namespace Duel6
 				Mix_Chunk* sample = Mix_LoadWAV(nm.c_str());					
 				if (sample == nullptr)
 				{
-					g_app.con->printf(MY_L("APP00008|SDL_mixer chyba: nelze nacist %s\n"), nm.c_str());
+					d6Console.printf(MY_L("APP00008|SDL_mixer chyba: nelze nacist %s\n"), nm.c_str());
 					return -1;
 				}
 				snd.samples.push_back(sample);
-				g_app.con->printf(MY_L("APP00009|...Nacten sampl %s\n"), nm.c_str());
+				d6Console.printf(MY_L("APP00009|...Nacten sampl %s\n"), nm.c_str());
 				return snd.samples.size() - 1;
 			}
 
@@ -205,7 +205,7 @@ namespace Duel6
 		{
 			if (snd.inited)
 			{
-				g_app.con->printf(MY_L("APP00010|...Nastaveni hlasitosti %d\n"), volume);
+				d6Console.printf(MY_L("APP00010|...Nastaveni hlasitosti %d\n"), volume);
 				Mix_VolumeMusic(volume);
 				Mix_Volume(-1, volume);
 			}

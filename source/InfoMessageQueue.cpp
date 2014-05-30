@@ -26,8 +26,10 @@
 */
 
 
-#include "core/co_core.h"
+#include "Font.h"
+#include "Globals.h"
 #include "InfoMessageQueue.h"
+
 
 namespace Duel6
 {
@@ -65,7 +67,7 @@ namespace Duel6
 		Int32 posX = view.getX() + 4;
 		Int32 posY = view.getY() + view.getHeight() - 24;
 
-		CO_FontColor(255, 255, 0);
+		d6Font.setColor(Color(255, 255, 0));
 
 		for (const InfoMessage& msg : messages)
 		{
@@ -82,7 +84,7 @@ namespace Duel6
 		Int32 posX = view.getX() + 4;
 		Int32 posY = view.getY() + view.getHeight() - offsetY;
 
-		CO_FontColor(255, 255, 0);
+		d6Font.setColor(Color(255, 255, 0));
 
 		for (const InfoMessage& msg : messages)
 		{
@@ -104,7 +106,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 
-		CO_FontPrintf(x, y, msg.c_str());
+		d6Font.print(x, y, msg.c_str());
 	}
 
 }

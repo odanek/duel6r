@@ -293,13 +293,13 @@ static void CON_CmdArchive (con_c *c_ptr)
 Registrace zakladnich prikazu
 ==================================================
 */
-void CON_RegisterBasicCmd (con_c *c_ptr)
+void CON_RegisterBasicCmd(con_c& c_ptr)
 {
-    c_ptr->regcmd (&CON_CmdClear, "clear");
-    c_ptr->regcmd (&CON_CmdEcho, "echo");
-    c_ptr->regcmd (&CON_CmdList, "list");
-    c_ptr->regcmd (&CON_CmdDump, "dump");
-    c_ptr->regcmd (&CON_CmdParse, "exec");
-    c_ptr->regcmd (&CON_CmdAlias, "alias");
-    c_ptr->regcmd (&CON_CmdArchive, "archive");
+    c_ptr.regcmd (&CON_CmdClear, "clear");
+    c_ptr.regcmd (&CON_CmdEcho, "echo");
+    c_ptr.regcmd (&CON_CmdList, "list");
+    c_ptr.regcmd (&CON_CmdDump, "dump");
+    c_ptr.regcmd (&CON_CmdParse, "exec");
+    c_ptr.regcmd (&CON_CmdAlias, "alias");
+    c_ptr.regcmd (&CON_CmdArchive, "archive");
 }

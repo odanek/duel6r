@@ -31,12 +31,20 @@
 #include "Menu.h"
 #include "World.h"
 #include "Setup.h"
+#include "Sound.h"
+#include "Video.h"
+#include "Font.h"
 #include "Main.h"
 
 namespace Duel6
 {
+	app_s g_app;
+	appInp_s g_inp;
+	con_c d6Console(CON_F_EXPAND);
+	Video d6Video;
 	Game d6Game;
 	Menu d6Menu;
+	Font d6Font;
 	TextureManager d6TextureManager;
 	Float32 d6Cos[450];
 	bool d6Wireframe = false;
@@ -50,9 +58,9 @@ namespace Duel6
 
 	void Main::textInputEvent(Context& context, const char* text)
 	{
-		if (g_app.con->isactive())
+		if (d6Console.isActive())
 		{
-			g_app.con->textInputEvent(text);
+			d6Console.textInputEvent(text);
 		}
 		else
 		{
@@ -64,8 +72,8 @@ namespace Duel6
 	{
 		if (keyCode == SDLK_BACKQUOTE)
 		{
-			g_app.con->toggle();
-			if (g_app.con->isactive())
+			d6Console.toggle();
+			if (d6Console.isActive())
 			{
 				SDL_StartTextInput();
 			}
@@ -75,9 +83,9 @@ namespace Duel6
 			}
 		}
 
-		if (g_app.con->isactive())
+		if (d6Console.isActive())
 		{
-			g_app.con->keyEvent(keyCode, keyModifiers);
+			d6Console.keyEvent(keyCode, keyModifiers);
 		}
 		else
 		{
@@ -87,8 +95,8 @@ namespace Duel6
 
 	void Main::processEvents(Context& context)
 	{
-		SDL_Event   event;
-		SDL_Keysym  key;
+		SDL_Event event;
+		SDL_Keysym key;
 
 		while (SDL_PollEvent(&event))
 		{
@@ -115,30 +123,20 @@ namespace Duel6
 
 	void Main::syncUpdateAndRender(Context& context)
 	{
-		static unsigned long cur_time = 0, last_fps_time = 0;
-		static int frame_counter = 0;
-		unsigned long last_time;
+		static Uint32 curTime = 0;
+		Uint32 lastTime = 0;
 
-		last_time = cur_time;
-		cur_time = SDL_GetTicks();
-
-		// Calculate fps
-		if (cur_time - last_fps_time >= 1000)
-		{
-			g_app.fps = frame_counter * 1000 / float(cur_time - last_fps_time);
-			last_fps_time = cur_time;
-			frame_counter = 0;
-		}
-		frame_counter++;
+		lastTime = curTime;
+		curTime = SDL_GetTicks();
 
 		// Draw
 		context.render();
-		VID_SwapBuffers();
+		d6Video.swapBuffers(d6Console);
 
 		// Update
-		if (cur_time - last_time < 70)
+		if (curTime - lastTime < 70)
 		{
-			float elapsedTime = (cur_time - last_time) * 0.001f;;
+			float elapsedTime = (curTime - lastTime) * 0.001f;;
 			context.update(elapsedTime);
 		}
 	}
@@ -159,16 +157,13 @@ namespace Duel6
 Ulozeni obsahu konzoly na disk a uklid po chybe
 ==================================================
 */
-static void MAIN_ErrorHandler(const char *str)
+void MAIN_ErrorHandler(const char *str)
 {
-    if (g_app.con.get() == nullptr)
-    {
-        g_app.con->printf(str);
-        g_app.con->exec("dump chyba.con");
-    }
+    Duel6::d6Console.printf(str);
+    Duel6::d6Console.exec("dump chyba.con");
 
-    Duel6::SET_DeInit ();
-    CO_DeInit ();
+    MY_DeInit ();
+    SDL_Quit ();
 }
 
 /*
@@ -178,19 +173,37 @@ Vstupni bod aplikace
 */
 int main(int argc, char *argv[])
 {
-    CO_Init(MAIN_ErrorHandler);
+	//Duel6::Main app;
+	//return app.run();
+
+    Duel6::g_app.flags = APP_FLAG_NONE;
+
+    MY_Init ();
+    MY_ErrCallback(MAIN_ErrorHandler);
+
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
+		MY_Err(MY_ErrDump("%S: %s\n", MY_L("COSTR0006|Chyba pri inicializaci grafickeho modu"), SDL_GetError()));
+	}
+
+    Duel6::d6Font.load(APP_FILE_FONT);
+    Duel6::d6Console.setfont(Duel6::d6Font.get());
+    CON_RegisterBasicCmd(Duel6::d6Console);
     Duel6::SET_Init ();
 
 	for (int i = 1; i < argc; i++)
 	{
-		g_app.con->exec(argv[i]);
+		Duel6::d6Console.exec(argv[i]);
 	}
 
 	Duel6::Main app;
 	app.run();
 
-    Duel6::SET_DeInit();
-    CO_DeInit();
+    Duel6::Sound::deInit();
+	Duel6::d6TextureManager.freeAll();
+
+    MY_DeInit ();
+    SDL_Quit ();
 
     return 0;
 }

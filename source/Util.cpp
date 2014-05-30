@@ -27,8 +27,11 @@
 
 #include <vector>
 #include "mylib/mylib.h"
-#include "core/co_core.h"
 #include "Util.h"
+#include "File.h"
+#include "Video.h"
+#include "File.h"
+#include "Globals.h"
 
 namespace Duel6
 {
@@ -149,7 +152,7 @@ namespace Duel6
 			f = fopen(path.c_str() , "wb");
 			if (f == nullptr)
 			{
-				g_app.con->printf(MY_L("APP00081|saveTarga: nelze otevrit soubor %s\n"), path.c_str());
+				d6Console.printf(MY_L("APP00081|saveTarga: nelze otevrit soubor %s\n"), path.c_str());
 				return;
 			}
 
@@ -210,19 +213,21 @@ namespace Duel6
 			{
 				num++;
 				sprintf(name, "screenshot_%d.tga", num);
-				if (MY_FSize(name) <= 0)
+				if (!File::exists(name))
+				{
 					break;
+				}
 			}
 
 			// Maximalne 1000 screenshotu
 			if (num >= 1000)
 				return;
 
-			Image image(g_vid.cl_width, g_vid.cl_height);			
-			glReadPixels(0, 0, g_vid.cl_width, g_vid.cl_height, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+			Image image(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
+			glReadPixels(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
 			saveTarga(name, image);
 
-			g_app.con->printf(MY_L("APP00082|Screenshot ulozen do %s\n"), name);
+			d6Console.printf(MY_L("APP00082|Screenshot ulozen do %s\n"), name);
 		}
 	}
 }

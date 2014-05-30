@@ -28,12 +28,15 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "Sound.h"
-#include "Globals.h"
+#include "Video.h"
 #include "PlayerControls.h"
 #include "TextureManager.h"
 #include "Menu.h"
 #include "Game.h"
 #include "Util.h"
+#include "File.h"
+#include "Font.h"
+#include "Globals.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
 
@@ -79,22 +82,19 @@ namespace Duel6
 
 	void Menu::loadPersonData()
 	{
-		myFile_s    *f;
-		int         i;
-
-		if (MY_FSize(D6_FILE_PHIST) < 20)
+		if (File::getSize(D6_FILE_PHIST) < 20)
 		{
-			for (i = 0; i < D6_MAX_PLAYERS; i++)
+			for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 			{
 				willPlay[i] = -1;
 			}
 			return;
 		}
 
-		f = MY_FOpen(D6_FILE_PHIST, 0, "rb", true);
-		persons.load(f->file);		
-		MY_FRead(willPlay, 4, 8, f);
-		MY_FClose(&f);
+		File file(D6_FILE_PHIST, "rb");
+		persons.load(file);		
+		file.read(willPlay, 4, 8);
+		file.close();;
 	}
 
 	/*
@@ -105,17 +105,38 @@ namespace Duel6
 	*/
 	void Menu::joyRescan()
 	{
-		char    f[30];
+		d6Console.printf (MY_L("COSTR0004|\n===Inicializace vstupnich zarizeni===\n"));
+		g_inp.joysticks.clear();
 
-		CO_JoystickScan();
+		if (SDL_WasInit(SDL_INIT_JOYSTICK))
+		{
+			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+		}
+		
+		if (SDL_InitSubSystem (SDL_INIT_JOYSTICK))
+		{
+			d6Console.printf (MY_L("COSTR0002|...Nepodarilo se inicializovat subsystem pro joypady"));            
+		}
+		else
+		{
+			size_t joysticks = SDL_NumJoysticks();
+			d6Console.printf (MY_L("COSTR0003|...Nalezeno %d joypadu\n"), joysticks);
+
+			for (size_t i = 0; i < joysticks; i++)
+			{
+				g_inp.joysticks.push_back(SDL_JoystickOpen(i));
+				d6Console.printf ("... * %s\n", SDL_JoystickName(g_inp.joysticks[i]));
+			}
+		}
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			controlSwitch[i]->Clear();
 		}
 
+		char f[30];
 		for (Int32 i = 0; i < 4; i++)
-		{
+		{			
 			sprintf(f, "%s %d", MY_L("APP00045|Klavesy"), i + 1);
 			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
 			{
@@ -139,17 +160,14 @@ namespace Duel6
 	}
 
 	void Menu::init()
-	{
-		char        f[30];
-		int         i;
-
-		g_app.con->printf(MY_L("APP00029|\n===Menu inicializace===\n"));
+	{		
+		d6Console.printf(MY_L("APP00029|\n===Menu inicializace===\n"));
 		menuBannerTexture = d6TextureManager.get(D6_TEXTURE_MENU_KEY)[0];
 		loadPersonData();
-		g_app.con->printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
+		d6Console.printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
 		desk = Desk::Create();
-		desk->ScreenSize(g_vid.cl_width, g_vid.cl_height,
-			(g_vid.cl_width - 800) / 2, (g_vid.cl_height - 600) / 2);
+		desk->ScreenSize(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight(),
+			(d6Video.getScreen().getClientWidth() - 800) / 2, (d6Video.getScreen().getClientHeight() - 600) / 2);
 
 		listbox[0] = new listbox_c(true);
 		listbox[0]->SetPosition(10, 400, 94, 12, 16);
@@ -253,7 +271,7 @@ namespace Duel6
 		textbox->SetNG(13, 1);
 
 		// Switchbox - volba ovladani
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
+		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			controlSwitch[i] = new switchbox_c;
 			controlSwitch[i]->SetPosition(370, 131 + i * 18, 120, 0);
@@ -266,17 +284,20 @@ namespace Duel6
 		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
 		listbox[3]->AddItem(MY_L("APP00046|Nahodna"));
-		for (i = 0; i < (int)levelList.getLength(); i++)
-			listbox[3]->AddItem(levelList.getFileName((Size)i).c_str());
+		for (Size i = 0; i < levelList.getLength(); i++)
+		{
+			listbox[3]->AddItem(levelList.getFileName(i).c_str());
+		}
 
+		char f[30];
 		listbox[4]->AddItem(MY_L("APP00047|Nahodne"));
-		for (i = 0; i < backgroundCount; i++)
+		for (Size i = 0; i < backgroundCount; i++)
 		{
 			sprintf(f, "%d", i + 1);
 			listbox[4]->AddItem(f);
 		}
-
-		for (i = 5; i < 21; i++)
+		
+		for (Int32 i = 5; i < 21; i++)
 		{
 			sprintf(f, "%d", i);
 			listbox[6]->AddItem(f);
@@ -289,7 +310,7 @@ namespace Duel6
 		}
 
 		playing = 0;
-		for (i = 0; i < D6_MAX_PLAYERS; i++)
+		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			if (willPlay[i] != -1)
 			{
@@ -299,9 +320,9 @@ namespace Duel6
 			}
 		}
 
-		g_app.con->printf(MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
+		d6Console.printf(MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
 		Sound::loadModule("sound/undead.xm");
-		for (i = 0; i < D6_SOUNDS; i++)
+		for (Size i = 0; i < D6_SOUNDS; i++)
 		{
 			Sound::loadSample(d6SndFl[i]);
 		}
@@ -309,12 +330,10 @@ namespace Duel6
 
 	void Menu::savePersonData()
 	{
-		myFile_s    *f;
-
-		f = MY_FOpen(D6_FILE_PHIST, 0, "wb", true);
-		persons.save(f->file);
-		MY_FWrite(willPlay, 4, 8, f);
-		MY_FClose(&f);
+		File file(D6_FILE_PHIST, "wb");
+		persons.save(file);
+		file.write(willPlay, 4, 8);
+		file.close();
 	}
 
 	static void MENU_Pit(char *r, const char *f, ...)
@@ -407,7 +426,7 @@ namespace Duel6
 	bool Menu::question(const std::string& question)
 	{
 		Int32 width = question.size() * 8 + 60;
-		Int32 x = g_vid.cl_width / 2 - width / 2, y = g_vid.cl_height / 2 - 10;
+		Int32 x = d6Video.getScreen().getClientWidth() / 2 - width / 2, y = d6Video.getScreen().getClientHeight() / 2 - 10;
 
 		glColor3f(1.0f, 0.8f, 0.8f);
 		glBegin(GL_QUADS);
@@ -425,9 +444,9 @@ namespace Duel6
 			glVertex2i(x + width, y);
 		glEnd();
 		glLineWidth(1);
-		CO_FontColor(255, 0, 0);
-		CO_FontPrintf(x + 30, y + 2, question.c_str());
-		VID_SwapBuffers();
+		d6Font.setColor(Color(255, 0, 0));
+		d6Font.print(x + 30, y + 2, question.c_str());
+		d6Video.swapBuffers(d6Console);
 
 		SDL_Event event;
 		bool answer;
@@ -513,10 +532,10 @@ namespace Duel6
 		}
 
 		// Game backgrounds
-		std::vector<Int32> backgrounds;
+		std::vector<Size> backgrounds;
 		if (!listbox[4]->CurItem())
 		{
-			for (Int32 i = 0; i < backgroundCount; i++)
+			for (Size i = 0; i < backgroundCount; i++)
 			{
 				backgrounds.push_back(i);
 			}
@@ -639,24 +658,24 @@ namespace Duel6
 
 	void Menu::render() const
 	{
-		Int32 tr_x = (g_vid.cl_width - 800) / 2, tr_y = (g_vid.cl_height - 600) / 2;
+		Int32 tr_x = (d6Video.getScreen().getClientWidth() - 800) / 2, tr_y = (d6Video.getScreen().getClientHeight() - 600) / 2;
 
 		desk->Draw();
 
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
 
-		CO_FontColor(255, 255, 255);
-		CO_FontPrintf(687, g_vid.cl_height - 20, "%s %s", MY_L("APP00048|verze"), APP_VERSION);
+		d6Font.setColor(Color(255, 255, 255));
+		d6Font.printf(687, d6Video.getScreen().getClientHeight() - 20, "%s %s", MY_L("APP00048|verze"), APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, menuBannerTexture);
 		glColor3ub(255, 255, 255);
 		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, g_vid.cl_height - 5);
-			glTexCoord2f(1.0f, 0.0f); glVertex2i(500, g_vid.cl_height - 5);
-			glTexCoord2f(1.0f, 1.0f); glVertex2i(500, g_vid.cl_height - 100);
-			glTexCoord2f(0.0f, 1.0f); glVertex2i(300, g_vid.cl_height - 100);
+			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, d6Video.getScreen().getClientHeight() - 5);
+			glTexCoord2f(1.0f, 0.0f); glVertex2i(500, d6Video.getScreen().getClientHeight() - 5);
+			glTexCoord2f(1.0f, 1.0f); glVertex2i(500, d6Video.getScreen().getClientHeight() - 100);
+			glTexCoord2f(0.0f, 1.0f); glVertex2i(300, d6Video.getScreen().getClientHeight() - 100);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 

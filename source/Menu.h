@@ -52,7 +52,7 @@ namespace Duel6
 		switchbox_c* controlSwitch[D6_MAX_PLAYERS];
 		textbox_c* textbox;
 		Int32 willPlay[D6_MAX_PLAYERS];
-		Int32 backgroundCount;
+		Size backgroundCount;
 		GLuint menuBannerTexture;
 		bool playMusic;
 

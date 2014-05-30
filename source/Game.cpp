@@ -37,6 +37,7 @@
 #include "Explosion.h"
 #include "Render.h"
 #include "Fire.h"
+#include "Video.h"
 #include "Globals.h"
 #include "Game.h"
 
@@ -44,7 +45,7 @@ namespace Duel6
 {
 	void Game::splitScreenView(Player& player, Int32 x, Int32 y)
 	{
-		PlayerView view(x, y, g_vid.cl_width / 2 - 4, g_vid.cl_height / 2 - 4);
+		PlayerView view(x, y, d6Video.getScreen().getClientWidth() / 2 - 4, d6Video.getScreen().getClientHeight() / 2 - 4);
 		player.setView(view);
 		player.setInfoBarPosition(x + view.getWidth() / 2 - 76, y + 30);
 	}
@@ -58,20 +59,20 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			Int32 xShift = (g_vid.cl_width / 4) / 2 - 70;
+			Int32 xShift = (d6Video.getScreen().getClientWidth() / 4) / 2 - 70;
 			Size index = 0;
 
 			for (Player& player : getPlayers())
 			{
-				player.setView(PlayerView(0, 0, g_vid.cl_width, g_vid.cl_height));
+				player.setView(PlayerView(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight()));
 
 				if (index < 4)
 				{
-					player.setInfoBarPosition((g_vid.cl_width / 4) * index + xShift, 30);
+					player.setInfoBarPosition((d6Video.getScreen().getClientWidth() / 4) * index + xShift, 30);
 				}
 				else
 				{
-					player.setInfoBarPosition((g_vid.cl_width / 4) * (index - 4) + xShift, g_vid.cl_height - 7);
+					player.setInfoBarPosition((d6Video.getScreen().getClientWidth() / 4) * (index - 4) + xShift, d6Video.getScreen().getClientHeight() - 7);
 				}
 
 				index++;
@@ -83,23 +84,23 @@ namespace Duel6
 		{
 			if (getPlayers().size() == 2)
 			{
-				splitScreenView(getPlayers()[0], g_vid.cl_width / 4 + 2, 2);
-				splitScreenView(getPlayers()[1], g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
+				splitScreenView(getPlayers()[0], d6Video.getScreen().getClientWidth() / 4 + 2, 2);
+				splitScreenView(getPlayers()[1], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
 			}
 
 			if (getPlayers().size() == 3)
 			{
 				splitScreenView(getPlayers()[0], 2, 2);
-				splitScreenView(getPlayers()[1], g_vid.cl_width / 2 + 2, 2);
-				splitScreenView(getPlayers()[2], g_vid.cl_width / 4 + 2, g_vid.cl_height / 2 + 2);
+				splitScreenView(getPlayers()[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
+				splitScreenView(getPlayers()[2], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
 			}
 
 			if (getPlayers().size() == 4)
 			{
 				splitScreenView(getPlayers()[0], 2, 2);
-				splitScreenView(getPlayers()[1], g_vid.cl_width / 2 + 2, 2);
-				splitScreenView(getPlayers()[2], 2, g_vid.cl_height / 2 + 2);
-				splitScreenView(getPlayers()[3], g_vid.cl_width / 2 + 2, g_vid.cl_height / 2 + 2);
+				splitScreenView(getPlayers()[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
+				splitScreenView(getPlayers()[2], 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(getPlayers()[3], d6Video.getScreen().getClientWidth() / 2 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
 			}
 		}
 	}
@@ -286,7 +287,7 @@ namespace Duel6
 		RENDER_InitScreen();
 	}
 
-	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Int32>& backgrounds, ScreenMode screenMode, Int32 screenZoom)
+	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom)
 	{
 		players.clear();
 		PlayerSkin::freeAll();
@@ -311,24 +312,24 @@ namespace Duel6
 		}
 
 		const std::string levelPath = levels[lastLevel];
-		g_app.con->printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
+		d6Console.printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
 		std::vector<Bonus> bonuses;
 		bool mirror = rand() % 2 == 0;
 		d6World.loadLevel(levelPath, backgrounds[rand() % backgrounds.size()], mirror);
 		d6World.findBonuses(bonuses);
 		d6World.prepareFaces();
-		g_app.con->printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
-		g_app.con->printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
-		g_app.con->printf(MY_L("APP00063|...Sten    : %d\n"), d6World.getWalls().getFaces().size());
-		g_app.con->printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.getSprites().getFaces().size());
-		g_app.con->printf(MY_L("APP00065|...Voda    : %d\n"), d6World.getWater().getFaces().size());
+		d6Console.printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
+		d6Console.printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
+		d6Console.printf(MY_L("APP00063|...Sten    : %d\n"), d6World.getWalls().getFaces().size());
+		d6Console.printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.getSprites().getFaces().size());
+		d6Console.printf(MY_L("APP00065|...Voda    : %d\n"), d6World.getWater().getFaces().size());
 
 		d6SpriteList.clear();
 
-		g_app.con->printf(MY_L("APP00066|...Pripravuji hrace\n"));
+		d6Console.printf(MY_L("APP00066|...Pripravuji hrace\n"));
 		preparePlayers();
 
-		g_app.con->printf(MY_L("APP00067|...Inicializace urovne\n"));
+		d6Console.printf(MY_L("APP00067|...Inicializace urovne\n"));
 		WPN_LevelInit();
 		EXPL_Init();
 		BONUS_Init(bonuses);

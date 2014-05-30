@@ -34,50 +34,12 @@
 #include "Game.h"
 #include "InfoMessageQueue.h"
 #include "Explosion.h"
+#include "Video.h"
+#include "Font.h"
 #include "Globals.h"
 
 namespace Duel6
 {
-	void RENDER_SetGLMode(int mode)
-	{
-		if (mode == D6_GL_PERSPECTIVE)
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-
-			//gluPerspective (g_vid.gl_fov, g_vid.gl_aspect, g_vid.gl_nearclip, g_vid.gl_farclip);        
-			float fovy = MM_D2R(g_vid.gl_fov) / 2;
-			float f = cos(fovy) / sin(fovy);
-
-			mat4_c<mval_t> p(0.0f);
-			p(0, 0) = f / g_vid.gl_aspect;
-			p(1, 1) = f;
-			p(2, 2) = (g_vid.gl_nearclip + g_vid.gl_farclip) / (g_vid.gl_nearclip - g_vid.gl_farclip);
-			p(3, 2) = (2 * g_vid.gl_nearclip * g_vid.gl_farclip) / (g_vid.gl_nearclip - g_vid.gl_farclip);
-			p(2, 3) = -1;
-			glMultMatrixf(&p(0, 0));
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
-		}
-		else
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glOrtho(0, g_vid.cl_width, 0, g_vid.cl_height, -1, 1);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_DEPTH_TEST);
-		}
-	}
-
 	void RENDER_SetView(const PlayerView& view)
 	{
 		glViewport(view.getX(), view.getY(), view.getWidth(), view.getHeight());
@@ -119,9 +81,9 @@ namespace Duel6
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex2i(0, g_vid.cl_height);
-		glTexCoord2f(1, 0); glVertex2i(g_vid.cl_width, g_vid.cl_height);
-		glTexCoord2f(1, 1); glVertex2i(g_vid.cl_width, 0);
+		glTexCoord2f(0, 0); glVertex2i(0, d6Video.getScreen().getClientHeight());
+		glTexCoord2f(1, 0); glVertex2i(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
+		glTexCoord2f(1, 1); glVertex2i(d6Video.getScreen().getClientWidth(), 0);
 		glTexCoord2f(0, 1); glVertex2i(0, 0);
 		glEnd();
 
@@ -145,7 +107,7 @@ namespace Duel6
 		int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
 		int posY = view.getY() + view.getHeight() - (players.size() > 4 ? 50 : 20);
 
-		CO_FontColor(255, 255, 0);
+		d6Font.setColor(Color(255, 255, 0));
 
 		for (Size i = 0; i < players.size(); i++)
 		{
@@ -170,8 +132,8 @@ namespace Duel6
 			glEnd();
 			glDisable(GL_BLEND);
 
-			CO_FontPrintf(posX, posY, rankNames[best].c_str());
-			CO_FontPrintf(posX + 8 * (maxNameLength - 5), posY, "|%4d", rankPoints[best]);
+			d6Font.print(posX, posY, rankNames[best].c_str());
+			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", rankPoints[best]);
 
 			if (best < players.size() - i - 1)
 			{
@@ -224,9 +186,9 @@ namespace Duel6
 		glEnd();
 
 		const std::string& playerName = player.getPerson().getName();
-		CO_FontColor(0, 0, 255);
-		CO_FontPrintf(ibp[0] + 5, ibp[1] - 13, "%d", player.getAmmo());
-		CO_FontPrintf(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName.c_str());
+		d6Font.setColor(Color(0, 0, 255));
+		d6Font.printf(ibp[0] + 5, ibp[1] - 13, "%d", player.getAmmo());
+		d6Font.printf(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName.c_str());
 
 		if (player.getBonus() != 0)
 		{
@@ -249,9 +211,9 @@ namespace Duel6
 
 	static void RENDER_FpsCounter()
 	{
-		int x = g_vid.cl_width - 80;
-		int y = g_vid.cl_height - 20;
-		int fps = (int)g_app.fps;
+		int x = d6Video.getScreen().getClientWidth() - 80;
+		int y = d6Video.getScreen().getClientHeight() - 20;
+ 		int fps = (int)d6Video.getFps();
 		int length = 0;
 		if (fps < 10)
 			length = 1;
@@ -271,8 +233,8 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		CO_FontColor(255, 255, 255);
-		CO_FontPrintf(x, y, "FPS - %d", (int)g_app.fps);
+		d6Font.setColor(Color(255, 255, 255));
+		d6Font.printf(x, y, "FPS - %d", (int)d6Video.getFps());
 	}
 
 	static void RENDER_InvulRing(const Player& player)
@@ -320,9 +282,9 @@ namespace Duel6
 		glColor3f(1, 0, 0);
 		glBegin(GL_QUADS);
 		glVertex2i(0, 0);
-		glVertex2i(0, g_vid.cl_height);
-		glVertex2i(g_vid.cl_width, g_vid.cl_height);
-		glVertex2i(g_vid.cl_width, 0);
+		glVertex2i(0, d6Video.getScreen().getClientHeight());
+		glVertex2i(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
+		glVertex2i(d6Video.getScreen().getClientWidth(), 0);
 		glEnd();
 		glColor3f(1, 1, 1);
 	}
@@ -361,7 +323,7 @@ namespace Duel6
 		const Player& player = game.getPlayers().front();
 		RENDER_SetView(player.getView());
 		RENDER_Background(game.getWorld().getBackgroundTexture());
-		RENDER_SetGLMode(D6_GL_PERSPECTIVE);
+		d6Video.setMode(Video::Mode::Perspective);
 		RENDER_View(game, player);
 	}
 
@@ -369,7 +331,7 @@ namespace Duel6
 	{
 		for (const Player& player : game.getPlayers())
 		{
-			RENDER_SetGLMode(D6_GL_ORTHO);
+			d6Video.setMode(Video::Mode::Orthogonal);
 			RENDER_SplitBox(player.getView());
 
 			if (player.isDead())
@@ -378,7 +340,7 @@ namespace Duel6
 			RENDER_SetView(player.getView());
 			RENDER_Background(game.getWorld().getBackgroundTexture());
 
-			RENDER_SetGLMode(D6_GL_PERSPECTIVE);
+			d6Video.setMode(Video::Mode::Perspective);
 			RENDER_View(game, player);
 
 			glColor3f(1, 1, 1);
@@ -409,8 +371,8 @@ namespace Duel6
 			RENDER_SplitScreen(game);
 		}
 
-		RENDER_SetGLMode(D6_GL_ORTHO);
-		RENDER_SetView(0, 0, g_vid.cl_width, g_vid.cl_height);
+		d6Video.setMode(Video::Mode::Orthogonal);
+		RENDER_SetView(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
 		glColor3f(1.0f, 1.0f, 1.0f);
 		
 		for (const Player& player : game.getPlayers())

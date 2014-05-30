@@ -30,7 +30,7 @@
 
 #include <memory>
 #include <vector>
-#include "core/co_core.h"
+#include <SDL2/SDL_keycode.h>
 #include "Type.h"
 
 namespace Duel6
@@ -54,10 +54,7 @@ namespace Duel6
 			: keyCode(keyCode)
 		{}
 
-		bool isPressed() const override
-		{
-			return g_inp.isPressed(keyCode);
-		}
+		bool isPressed() const override;
 	};
 
 	class JoypadAxis
@@ -86,16 +83,7 @@ namespace Duel6
 			: joypadIndex(joypadIndex), axis(axis), direction(direction)
 		{}
 
-		bool isPressed() const override
-		{
-			if (joypadIndex < g_inp.joysticks.size())
-			{
-				Int16 axisPosition = SDL_JoystickGetAxis(g_inp.joysticks[joypadIndex], (axis == Axis::Horizontal) ? 0 : 1);
-				return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
-
-			}
-			return false;
-		}
+		bool isPressed() const override;
 	};
 
 	class JoypadButton
@@ -110,12 +98,8 @@ namespace Duel6
 			: joypadIndex(joypadIndex), button(button)
 		{}
 
-		bool isPressed() const override
-		{
-			return (joypadIndex < g_inp.joysticks.size() && SDL_JoystickGetButton(g_inp.joysticks[joypadIndex], button) == 1);
-		}
+		bool isPressed() const override;
 	};
-
 
 	class PlayerControls
 	{

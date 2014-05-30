@@ -34,6 +34,7 @@
 #include "Bonus.h"
 #include "WaterType.h"
 #include "WaterList.h"
+#include "File.h"
 
 namespace Duel6
 {
@@ -139,7 +140,7 @@ namespace Duel6
 		void loadBlockMeta(const std::string& path);
 
 		void mirrorLevelData();
-		void loadElevators(myFile_s* f, bool mirror);
+		void loadElevators(File& f, bool mirror);
 
 		void addWallFaces();
 		void addSpriteFaces();

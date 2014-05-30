@@ -45,7 +45,7 @@ Popis: Hlavni funkce
 Inicializace/deinicializace konzole
 ==================================================
 */
-con_c::con_c (int flags)
+con_c::con_c(int flags)
 {
     m_visible = false;
     m_insert = false;
@@ -53,7 +53,6 @@ con_c::con_c (int flags)
     m_inputscroll = 0;
     m_flags = flags;
 
-    m_input.clear();
     m_histcnt = 0;
     m_histscroll = 0;
     m_font = nullptr;
@@ -62,6 +61,7 @@ con_c::con_c (int flags)
     m_width = CON_DEF_WIDTH;
     m_show = CON_DEF_SHOWLAST;
 
+	m_text.resize(CON_TEXT_SIZE);
     clear();
 
     printf("==========================\n");
@@ -87,7 +87,7 @@ void con_c::clear ()
     m_bufpos = 0;
     m_scroll = 0;
     m_buffull = false;
-    memset (m_text, '\n', CON_TEXT_SIZE);
+    memset(&m_text[0], '\n', CON_TEXT_SIZE);
 }
 
 /*
@@ -327,9 +327,9 @@ void con_c::setlast (int sl)
 Vraci ukazatel na textovy buffer konzole
 ==================================================
 */
-const conBYTE *con_c::gettext (unsigned long *buf_pos, bool *buf_full) const
+const conBYTE *con_c::gettext(unsigned long *buf_pos, bool *buf_full) const
 {
     *buf_pos = m_bufpos;
     *buf_full = m_buffull;
-    return m_text;
+    return &m_text[0];
 }

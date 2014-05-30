@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "core/co_core.h"
 #include "World.h"
 #include "Util.h"
 #include "ElevatorList.h"
@@ -37,18 +36,18 @@ namespace Duel6
 	void World::loadBlockMeta(const std::string& path)
 	{
 		blockMeta.clear();		
-		myFile_s* f = MY_FOpen(path.c_str(), 0, "rb", true);
-		while (!MY_FEof(f))
+		File file(path, "rb");
+		while (!file.isEof())
 		{
 			Int32 blockAnimations;			
-			MY_FRead(&blockAnimations, 4, 1, f);
+			file.read(&blockAnimations, 4, 1);
 
 			Int32 blockType;
-			MY_FRead(&blockType, 4, 1, f);
+			file.read(&blockType, 4, 1);
 
 			blockMeta.push_back(Block(blockMeta.size(), (Block::Type)blockType, blockAnimations));
 		}
-		MY_FClose(&f);
+		file.close();
 	}
 
 	void World::loadLevel(const std::string& path, Size background, bool mirror)
@@ -56,37 +55,37 @@ namespace Duel6
 		backgroundTexture = d6TextureManager.get(D6_TEXTURE_BCG_KEY)[background];
 		levelData.clear();
 
-		myFile_s* f = MY_FOpen(path.c_str(), 0, "rb", true);
-		MY_FRead(&width, 4, 1, f);
-		MY_FRead(&height, 4, 1, f);
-		MY_FSeek(f, 12, SEEK_SET);
+		File file(path, "rb");
+		file.read(&width, 4, 1);
+		file.read(&height, 4, 1);
+		file.seek(12, File::Seek::Set);
 		levelData.resize(width * height);
-		MY_FRead(&levelData[0], 2, levelData.size(), f);
+		file.read(&levelData[0], 2, levelData.size());
 
 		if (mirror)
 		{
 			mirrorLevelData();
 		}
 
-		loadElevators(f, mirror);
-		MY_FClose(&f);
+		loadElevators(file, mirror);
+		file.close();
 	}
 
-	void World::loadElevators(myFile_s* f, bool mirror)
+	void World::loadElevators(File& file, bool mirror)
 	{
 		// The rest of file is elevator data
-		g_app.con->printf(MY_L("APP00026|...Nahravam vytahy - "));
+		d6Console.printf(MY_L("APP00026|...Nahravam vytahy - "));
 
 		std::vector<Int32> elevatorData;
-		while (!MY_FEof(f))
+		while (!file.isEof())
 		{
 			Int32 data;
-			MY_FRead(&data, 4, 1, f);
+			file.read(&data, 4, 1);
 			elevatorData.push_back(data);
 		}
 
 		Int32 elevators = elevatorData.empty() ? 0 : elevatorData[0];
-		g_app.con->printf(MY_L("APP00027|%d vytahu\n"), elevators);
+		d6Console.printf(MY_L("APP00027|%d vytahu\n"), elevators);
 
 		ELEV_Clear();
 

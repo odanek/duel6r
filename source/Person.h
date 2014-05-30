@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <string>
 #include "Type.h"
+#include "File.h"
 
 namespace Duel6
 {
@@ -122,8 +123,8 @@ namespace Duel6
 
 		Person& reset();
 
-		void serialize(FILE* file) const;
-		void deSerialize(FILE* file);
+		void serialize(File& file) const;
+		void deSerialize(File& file);
 	};
 }
 

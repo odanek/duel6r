@@ -28,9 +28,19 @@
 #ifndef DUEL6_GLOBALS_H
 #define DUEL6_GLOBALS_H
 
+#include <unordered_set>
 #include <vector>
-#include "core/co_core.h"
+#include <SDL2/SDL.h>
+#include "console/console.h"
 #include "PlayerSkinColors.h"
+
+#define APP_VERSION         "3.10.1"
+#define APP_NAME            "Duel 6 Reloaded"
+#define APP_FILE_ICON       "data/duel6_icon.bmp"
+#define APP_FILE_FONT       "data/duel6.fon"
+
+#define APP_FLAG_NONE       0
+#define APP_FLAG_QUIT       1
 
 #define D6_FILE_CONFIG      "data/config.txt"
 #define D6_FILE_ANM         "data/duel6.anm"
@@ -58,13 +68,6 @@
 #define D6_LEVEL_EXTENSION	".lev"
 
 #define D6_SPRITE_SPEED_COEF 61
-#define D6_CL_WIDTH         800
-#define D6_CL_HEIGHT        600
-#define D6_CL_BPP           32
-#define D6_CL_AA            2
-
-#define D6_GL_PERSPECTIVE   1
-#define D6_GL_ORTHO         2
 
 #define D6_ANM_SPEED        0.328f
 #define D6_WAVE_HEIGHT      0.1f
@@ -107,6 +110,27 @@ namespace Duel6
 		D6_SND_GAME_OVER
 	};
 
+	struct app_s
+	{
+		bool flags;              // Flagy aplikace
+		bool active;             // Je aplikace prave aktivni (ma focus?)
+	};
+
+	class appInp_s
+	{
+	public:
+		std::unordered_set<SDL_Keycode> pressedKeys;
+		std::vector<SDL_Joystick*> joysticks;
+
+		bool isPressed(SDL_Keycode keyCode)
+		{
+			return pressedKeys.find(keyCode) != pressedKeys.end();
+		}
+	};
+
+	extern app_s g_app;
+	extern appInp_s g_inp;
+
 	class BlockData;
 	class World;
 	class InfoMessageQueue;
@@ -116,9 +140,14 @@ namespace Duel6
 	class Menu;
 	class Game;
 	class TextureManager;
+	class Video;
+	class Font;
 
+	extern con_c d6Console;
+	extern Video d6Video;
 	extern Menu d6Menu;
 	extern Game d6Game;
+	extern Font d6Font;
 	extern TextureManager d6TextureManager;
 	extern bool d6Wireframe;
 	extern bool d6ShowFps;

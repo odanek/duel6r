@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <vector>
 #include "Person.h"
+#include "File.h"
 
 namespace Duel6
 {
@@ -80,8 +81,8 @@ namespace Duel6
 			return *this;
 		}
 
-		void save(FILE* file) const;
-		void load(FILE* file);
+		void save(File& file) const;
+		void load(File& file);
 	};
 }
 

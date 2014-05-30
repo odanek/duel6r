@@ -133,7 +133,7 @@ class con_c
 {
 private:
     bool            m_visible;                      // Je konzole viditelna/aktivni?
-    conBYTE         m_text[CON_TEXT_SIZE];          // Textovy buffer
+    std::vector<conBYTE> m_text;					// Textovy buffer
     int             m_width;                        // Sirka konzoly ve znacich
     unsigned long   m_bufpos;                       // Pozice v bufferu kam se tiskne
     bool            m_buffull;                      // Uz byl buffer prerotovan? Je plny?
@@ -175,7 +175,7 @@ public:
 		m_visible = !m_visible;
 	}
 
-    bool isactive() 
+    bool isActive() const
 	{ 
 		return m_visible; 
 	}
@@ -229,9 +229,9 @@ private:
     void setinputscroll();
     void completecmd();
 
-    void dprint_line(int y, unsigned long pos, int len);
-    void dshow_hist(int res_y);
-    void drawchar(int x, int y, int c);
+    void dprint_line(int y, unsigned long pos, int len) const;
+    void dshow_hist(int res_y) const;
+    void drawchar(int x, int y, int c) const;
 
     conCommand_s* findCommand(const std::string& name);
     conVar_s* findVar(const std::string& name);
@@ -241,6 +241,6 @@ private:
 };
 
 // Dodelat vsude podporu multijazykoveho prostredi aby ji mohly vyuzivat vsechny knihovny a program
-void CON_RegisterBasicCmd(con_c *c_ptr);
+void CON_RegisterBasicCmd(con_c& c_ptr);
 
 #endif

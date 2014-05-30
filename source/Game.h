@@ -70,7 +70,7 @@ namespace Duel6
 
 	private:
 		std::vector<std::string> levels;
-		std::vector<Int32> backgrounds;
+		std::vector<Size> backgrounds;
 		Size lastLevel;
 		ScreenMode screenMode;
 		Int32 screenZoom;
@@ -89,7 +89,7 @@ namespace Duel6
 		}
 
 		void startContext();
-		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Int32>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
+		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;

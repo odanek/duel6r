@@ -37,6 +37,7 @@
 #include "ElevatorList.h"
 #include "Explosion.h"
 #include "Math.h"
+#include "Video.h"
 
 #define D6_PLAYER_MAX_SPEED     0.52f
 #define D6_PLAYER_ACCEL         3.721f
@@ -65,7 +66,7 @@ namespace Duel6
 	Player::Player(Person& person, PlayerSkin skin, const PlayerControls& controls)
 		: person(person), skin(skin), controls(controls)
 	{
-		camera.resize(false, (mval_t)g_vid.gl_fov, float(g_vid.cl_width) / g_vid.cl_height);
+		camera.resize(false, (mval_t)d6Video.getView().getFieldOfView(), d6Video.getScreen().getAspect());
 		camera.rotate(180.0, 0.0, 0.0);
 	}
 
@@ -415,13 +416,12 @@ namespace Duel6
 	void Player::prepareCam(ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY)
 	{
 		Float32 fovX, fovY, mZ, dX = 0.0, dY = 0.0;
-
-		fovY = (Float32)tan(MM_D2R(g_vid.gl_fov) / 2.0f);
-		fovX = g_vid.gl_aspect * fovY;
+		fovY = (Float32)tan(MM_D2R(d6Video.getView().getFieldOfView()) / 2.0f);
+		fovX = d6Video.getScreen().getAspect() * fovY;
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			if (levelSizeX > g_vid.gl_aspect * levelSizeY)
+			if (levelSizeX > d6Video.getScreen().getAspect() * levelSizeY)
 				dX = (Float32)levelSizeX;
 			else
 				dY = (Float32)levelSizeY;

@@ -60,8 +60,12 @@ set(D6R_SOURCES
     source/Face.h
     source/FaceList.h
     source/FaceList.cpp
+    source/File.h
+    source/File.cpp
     source/Fire.h
     source/Fire.cpp
+    source/Font.h
+    source/Font.cpp
     source/Game.cpp
     source/Game.h
     source/Image.h
@@ -111,6 +115,8 @@ set(D6R_SOURCES
     source/Util.h
     source/Util.cpp
     source/Vertex.h
+    source/Video.h
+    source/Video.cpp    
     source/WaterList.h
     source/WaterList.cpp
     source/WaterType.h
@@ -118,13 +124,7 @@ set(D6R_SOURCES
     source/Weapon.cpp
     source/World.h
     source/World.cpp
-    
-    source/core/co_core.h
-    source/core/co_font.cpp
-    source/core/co_input.cpp
-    source/core/co_main.cpp
-    source/core/co_vid.cpp
-    
+        
     source/mylib/mycam.cpp
     source/mylib/mycam.h
     source/mylib/myerror.cpp

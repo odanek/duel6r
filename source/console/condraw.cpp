@@ -47,7 +47,7 @@ static GLubyte  conCol[3][3] =
 Vykresleni jednoho znaku
 ==================================================
 */
-void con_c::drawchar (int x, int y, int c)
+void con_c::drawchar(int x, int y, int c) const
 {
     const conBYTE   *frm;
     conWORD         i, j, b;
@@ -73,7 +73,7 @@ Vypsani poslednich m_show radek - bere do uvahy scrolling
 a rotace bufferu. Varovani: HARDCORE ALGORITMUS!!! :-)
 ==================================================
 */
-void con_c::dprint_line (int y, unsigned long pos, int len)
+void con_c::dprint_line(int y, unsigned long pos, int len) const
 {
     int     i, x = 0;
 
@@ -81,11 +81,11 @@ void con_c::dprint_line (int y, unsigned long pos, int len)
     {
         if (pos >= CON_TEXT_SIZE)
             pos -= CON_TEXT_SIZE;
-        drawchar (x, y, (int)m_text[pos++]);
+        drawchar(x, y, (int)m_text[pos++]);
     }
 }
 
-void con_c::dshow_hist (int res_y)
+void con_c::dshow_hist(int res_y) const
 {
     unsigned long   pl_pos = m_bufpos, pl_max;
     int             pl_disp, pl_y, len, ld_start, ld_num, i;
@@ -139,7 +139,7 @@ void con_c::dshow_hist (int res_y)
 Vykresleni konzole na obrazovku
 ==================================================
 */
-void con_c::blit (int res_x, int res_y)
+void con_c::blit(int res_x, int res_y)
 {
     long    sizeY;
     char    cursor;
@@ -183,8 +183,10 @@ void con_c::blit (int res_x, int res_y)
     glBegin (GL_POINTS);
 
     // Vypsani poslednich m_show radku
-    if (m_show > 0)
-        dshow_hist (res_y);
+	if (m_show > 0)
+	{
+		dshow_hist(res_y);
+	}
 
     // Vypsani oddelovace
     x = 0;
@@ -196,8 +198,10 @@ void con_c::blit (int res_x, int res_y)
         d = '=';
 
     glColor3ub (255, 0, 0);
-    for (i = 0; i < m_width; i++, x += CON_FSX)
-        drawchar (x, y, d);
+	for (i = 0; i < m_width; i++, x += CON_FSX)
+	{
+		drawchar(x, y, d);
+	}
     glColor3ub (conCol[0][0], conCol[0][1], conCol[0][2]);
 
     // Vypsani vstupniho radku
@@ -205,18 +209,26 @@ void con_c::blit (int res_x, int res_y)
     y -= CON_FSY;
     d = ((int)m_input.length()) - m_inputscroll;
 
-    if (m_inputscroll)
-        drawchar (0, y, '<');
-    else
-        drawchar (0, y, ']');
+	if (m_inputscroll)
+	{
+		drawchar(0, y, '<');
+	}
+	else
+	{
+		drawchar(0, y, ']');
+	}
 
-    for (i = 0; i < d; i++, x += CON_FSX)
-        drawchar (x, y, (conBYTE) m_input[m_inputscroll + i]);
+	for (i = 0; i < d; i++, x += CON_FSX)
+	{
+		drawchar(x, y, (conBYTE)m_input[m_inputscroll + i]);
+	}
 
     x = CON_FSX * (m_curpos - m_inputscroll + 1);
     cursor = m_insert ? 219 : '_';
-    if ((clock () % CLOCKS_PER_SEC) > (CLOCKS_PER_SEC >> 1))
-        drawchar (x, y, cursor);
+	if ((clock() % CLOCKS_PER_SEC) > (CLOCKS_PER_SEC >> 1))
+	{
+		drawchar(x, y, cursor);
+	}
 
     glEnd ();
 }
