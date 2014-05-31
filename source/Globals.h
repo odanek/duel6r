@@ -50,6 +50,8 @@
 #define D6_FILE_PHIST       "data/duel6.dat"
 #define D6_FILE_SKIN        "data/skin.txt"
 
+#define D6_TEXTURE_EXTENSION	".tga"
+
 #define D6_TEXTURE_MAN_PATH     "textures/man/"
 #define D6_TEXTURE_MAN_KEY		"man"
 #define D6_TEXTURE_BCG_PATH		"textures/backgrounds/"

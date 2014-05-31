@@ -67,7 +67,7 @@ namespace Duel6
 		static Size getSize(const std::string& path);
 		static bool exists(const std::string& path);
 		static void load(const std::string& path, long offset, void* ptr);
-		static void listDirectory(const std::string& path, std::vector<std::string> fileNames);
+		static void listDirectory(const std::string& path, const std::string& extension, std::vector<std::string>& fileNames);
 	};
 }
 

@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "msdir.h"
 #include "File.h"
 
 namespace Duel6
@@ -161,8 +162,33 @@ namespace Duel6
 		file.close();
 	}
 
-	void File::listDirectory(const std::string& path, std::vector<std::string> fileNames)
+	static bool nameEndsWith(const std::string& name, const std::string& suffix)
 	{
+		if (name.length() >= suffix.length())
+		{
+			return (name.compare(name.length() - suffix.length(), suffix.length(), suffix) == 0);
+		}
 
+		return false;
+	}
+
+	void File::listDirectory(const std::string& path, const std::string& extension, std::vector<std::string>& fileNames)
+	{
+		fileNames.clear();
+
+		DIR* handle = opendir(path.c_str());
+		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
+
+		while (ff != nullptr)
+		{
+			if (nameEndsWith(ff->d_name, extension))
+			{
+				fileNames.push_back(ff->d_name);
+			}
+
+			ff = readdir(handle);
+		}
+
+		closedir(handle);
 	}
 }

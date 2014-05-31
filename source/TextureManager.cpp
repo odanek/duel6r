@@ -25,11 +25,10 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "msdir.h"
+#include <algorithm>
 #include "TextureManager.h"
 #include "Util.h"
-
-#define D6_TEXTURE_EXTENSION	".tga"
+#include "File.h"
 
 namespace Duel6
 {
@@ -50,26 +49,19 @@ namespace Duel6
 
 	void TextureManager::load(const std::string& key, const std::string& path, GLint filtering, const SubstitutionTable& substitutionTable)
 	{
+		std::vector<std::string> textureFiles;
+		File::listDirectory(path, textureFileExtension, textureFiles);
+		std::sort(textureFiles.begin(), textureFiles.end());
+
 		TextureList list;
-
-		DIR* handle = opendir(path.c_str());
-		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
-
-		while (ff != nullptr)
+		for (std::string& file : textureFiles)
 		{
-			if (nameEndsWith(ff->d_name, D6_TEXTURE_EXTENSION))
-			{
-				Image image;
-				Util::loadTargaImage(path + ff->d_name, image);
-				substituteColors(image, substitutionTable);
-				GLuint texture = Util::createTexture(image, filtering);
-				list.push_back(texture);
-			}
-
-			ff = readdir(handle);
+			Image image;
+			Util::loadTargaImage(path + file, image);
+			substituteColors(image, substitutionTable);
+			GLuint texture = Util::createTexture(image, filtering);
+			list.push_back(texture);
 		}
-
-		closedir(handle);
 
 		auto existingEntry = textureMap.find(key);
 		if (existingEntry != textureMap.end())
@@ -103,15 +95,5 @@ namespace Duel6
 				color = substituteColor->second;
 			}
 		}
-	}
-
-	bool TextureManager::nameEndsWith(const std::string& name, const std::string& suffix) const
-	{
-		if (name.length() >= suffix.length())
-		{
-			return (name.compare(name.length() - suffix.length(), suffix.length(), suffix) == 0);
-		}
-
-		return false;
 	}
 }

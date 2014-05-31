@@ -45,7 +45,7 @@ namespace Duel6
 	Game d6Game;
 	Menu d6Menu;
 	Font d6Font;
-	TextureManager d6TextureManager;
+	TextureManager d6TextureManager(D6_TEXTURE_EXTENSION);
 	Float32 d6Cos[450];
 	bool d6Wireframe = false;
 	bool d6ShowFps = false;

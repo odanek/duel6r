@@ -57,9 +57,6 @@ namespace Duel6
 		{ 
 			return directory + getFileName(index); 
 		}
-
-	private:
-		bool nameEndsWith(const std::string& name, const std::string& suffix) const;
 	};
 }
 

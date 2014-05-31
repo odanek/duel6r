@@ -44,9 +44,14 @@ namespace Duel6
 		typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
 	private:
+		std::string textureFileExtension;
 		std::unordered_map<std::string, TextureList> textureMap;
 
 	public:
+		TextureManager(const std::string& fileExtension)
+			: textureFileExtension(fileExtension)
+		{}
+
 		~TextureManager()
 		{
 			freeAll();
@@ -71,7 +76,6 @@ namespace Duel6
 	private:
 		void freeTextureList(const TextureList& list);
 		void substituteColors(Image& image, const SubstitutionTable& substitutionTable);
-		bool nameEndsWith(const std::string& name, const std::string& suffix) const;
 	};
 }
 

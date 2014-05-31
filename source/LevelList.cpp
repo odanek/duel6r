@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "msdir.h"
+#include "File.h"
 #include "LevelList.h"
 
 namespace Duel6
@@ -33,31 +33,6 @@ namespace Duel6
 	void LevelList::initialize(const std::string& directoryName, const std::string& fileExtension)
 	{
 		directory = directoryName;
-		fileNames.clear();
-
-		DIR* handle = opendir(directoryName.c_str());
-		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
-
-		while (ff != nullptr)
-		{
-			if (nameEndsWith(ff->d_name, fileExtension))
-			{
-				fileNames.push_back(ff->d_name);
-			}
-
-			ff = readdir(handle);
-		}
-
-		closedir(handle);
-	}
-
-	bool LevelList::nameEndsWith(const std::string& name, const std::string& suffix) const
-	{
-		if (name.length() >= suffix.length())
-		{
-			return (name.compare(name.length() - suffix.length(), suffix.length(), suffix) == 0);
-		}
-
-		return false;
+		File::listDirectory(directoryName, fileExtension, fileNames);
 	}
 }
