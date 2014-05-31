@@ -93,14 +93,11 @@ namespace Duel6
 	public:
 		Game();
 
-		void startContext();
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
-		void beforeClose(Context* newContext) override
-		{}
 
 		World& getWorld();
 
@@ -159,6 +156,10 @@ namespace Duel6
 		Color getGameOverOverlay() const;
 
 	private:
+		void beforeStart(Context* prevContext) override;
+		void beforeClose(Context* nextContext) override
+		{}
+
 		void preparePlayers();
 		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
 		bool isPossibleStartingPosition(int x, int y);

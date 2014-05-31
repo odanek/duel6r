@@ -64,8 +64,6 @@ namespace Duel6
 			delete desk;
 		}
 
-		void startContext();
-
 		void init();		
 
 		void joyRescan();
@@ -76,11 +74,13 @@ namespace Duel6
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
-		void beforeClose(Context* newContext) override;
 
 		void enableMusic(bool enable);
 
 	private:
+		void beforeStart(Context* prevContext) override;
+		void beforeClose(Context* nextContext) override;
+
 		void free();
 		void play();
 		void loadPersonData();
@@ -93,6 +93,7 @@ namespace Duel6
 		Size getBackgroundCount();
 		bool question(const std::string& question);
 		bool deleteQuestion();
+		void sendQuitEvent();
 	};
 }
 

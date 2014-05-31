@@ -101,7 +101,7 @@ namespace Duel6
 	void Menu::joyRescan()
 	{
 		d6Console.printf (MY_L("COSTR0004|\n===Inicializace vstupnich zarizeni===\n"));
-		g_inp.joysticks.clear();
+		d6Input.joysticks.clear();
 
 		if (SDL_WasInit(SDL_INIT_JOYSTICK))
 		{
@@ -119,8 +119,8 @@ namespace Duel6
 
 			for (size_t i = 0; i < joysticks; i++)
 			{
-				g_inp.joysticks.push_back(SDL_JoystickOpen(i));
-				d6Console.printf ("... * %s\n", SDL_JoystickName(g_inp.joysticks[i]));
+				d6Input.joysticks.push_back(SDL_JoystickOpen(i));
+				d6Console.printf ("... * %s\n", SDL_JoystickName(d6Input.joysticks[i]));
 			}
 		}
 
@@ -139,7 +139,7 @@ namespace Duel6
 			}
 		}
 
-		for (Uint32 i = 0; i < g_inp.joysticks.size(); i++)
+		for (Uint32 i = 0; i < d6Input.joysticks.size(); i++)
 		{
 			sprintf(f, "Joypad %d", i + 1);
 			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
@@ -150,7 +150,7 @@ namespace Duel6
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			controlSwitch[i]->SetCur(i % (4 + g_inp.joysticks.size()));
+			controlSwitch[i]->SetCur(i % (4 + d6Input.joysticks.size()));
 		}
 	}
 
@@ -545,9 +545,8 @@ namespace Duel6
 		Int32 screenZoom = listbox[6]->CurItem() + 5; 
 
 		// Start
-		d6Game.startContext();		
+		Context::switchTo(&d6Game);
 		d6Game.start(playerDefinitions, levels, backgrounds, screenMode, screenZoom);
-
 	}
 
 	void Menu::removePlayer(Int32 c)
@@ -587,9 +586,8 @@ namespace Duel6
 		}
 	}
 
-	void Menu::startContext()
+	void Menu::beforeStart(Context* prevContext)
 	{
-		makeCurrent();
 		SDL_ShowCursor(SDL_ENABLE);
 		SDL_StartTextInput();
 		rebuildTable();
@@ -636,9 +634,7 @@ namespace Duel6
 					}
 					break;
 				case 11:
-					Sound::stopMusic();
-					g_app.flags |= APP_FLAG_QUIT;
-					savePersonData();
+					sendQuitEvent();
 					return;
 				case 30:
 					if (deleteQuestion())
@@ -701,8 +697,7 @@ namespace Duel6
 
 		if (keyCode == SDLK_ESCAPE)
 		{
-			g_app.flags |= APP_FLAG_QUIT;
-			savePersonData();
+			sendQuitEvent();
 		}
 	}
 
@@ -715,6 +710,7 @@ namespace Duel6
 	{
 		SDL_StopTextInput();
 		Sound::stopMusic();
+		savePersonData();
 	}
 
 	void Menu::enableMusic(bool enable)
@@ -732,5 +728,12 @@ namespace Duel6
 				Sound::stopMusic();
 			}
 		}
+	}
+
+	void Menu::sendQuitEvent()
+	{
+		SDL_Event quitEvent;
+		quitEvent.type = SDL_QUIT;
+		SDL_PushEvent(&quitEvent);
 	}
 }

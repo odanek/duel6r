@@ -34,7 +34,14 @@ namespace Duel6
 {
 	class Main
 	{
+	private:
+		bool requestClose;
+
 	public:
+		Main()
+			: requestClose(false)
+		{}
+
 		void run();
 
 	private:

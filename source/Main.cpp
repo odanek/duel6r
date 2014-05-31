@@ -38,8 +38,7 @@
 
 namespace Duel6
 {
-	app_s g_app;
-	appInp_s g_inp;
+	Input d6Input;
 	Console d6Console(CON_F_EXPAND);
 	Video d6Video;
 	Game d6Game;
@@ -102,18 +101,18 @@ namespace Duel6
 			{
 			case SDL_KEYDOWN:
 				key = event.key.keysym;
-				g_inp.pressedKeys.insert(key.sym);
+				d6Input.pressedKeys.insert(key.sym);
 				keyEvent(context, key.sym, key.mod);
 				break;
 			case SDL_KEYUP:
 				key = event.key.keysym;
-				g_inp.pressedKeys.erase(key.sym);
+				d6Input.pressedKeys.erase(key.sym);
 				break;
 			case SDL_TEXTINPUT:
 				textInputEvent(context, event.text.text);
 				break;
 			case SDL_QUIT:
-				g_app.flags |= APP_FLAG_QUIT;
+				requestClose = true;
 				break;
 			}
 		}
@@ -141,12 +140,16 @@ namespace Duel6
 
 	void Main::run()
 	{
-		while (!(g_app.flags & APP_FLAG_QUIT))
+		Context::switchTo(&d6Menu);
+
+		while (!requestClose)
 		{
 			Context& context = Context::getCurrent();
 			processEvents(context);
 			syncUpdateAndRender(context);
 		}
+
+		Context::switchTo(nullptr);
 	}
 }
 
@@ -173,8 +176,6 @@ int main(int argc, char *argv[])
 {
 	//Duel6::Main app;
 	//return app.run();
-
-    Duel6::g_app.flags = APP_FLAG_NONE;
 
     MY_Init ();
     MY_ErrCallback(MAIN_ErrorHandler);

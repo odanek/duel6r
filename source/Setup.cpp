@@ -344,7 +344,6 @@ namespace Duel6
 		d6Console.registerCommand(&SET_AmmoRange, "start_ammo_range");		
 		
 		/* TODO:
-		d6Console.regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);
 		d6Console.regvar(&d6VideoMode.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
 		d6Console.regvar(&d6VideoMode.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
 		d6Console.regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
@@ -387,6 +386,5 @@ namespace Duel6
 		CONTROLS_Init();
 
 		d6Menu.init();
-		d6Menu.startContext();
 	}
 }

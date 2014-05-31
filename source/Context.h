@@ -61,17 +61,26 @@ namespace Duel6
 		virtual void textInputEvent(const char* text) = 0;
 		virtual void update(Float32 elapsedTime) = 0;
 		virtual void render() const = 0;
-		virtual void beforeClose(Context* newContext) = 0;
+
+		static void switchTo(Context* context)
+		{
+			Context* lastContext = currentContext;
+			if (lastContext != nullptr)
+			{
+				lastContext->beforeClose(context);
+			}
+
+			currentContext = context;
+
+			if (context != nullptr)
+			{
+				context->beforeStart(lastContext);
+			}
+		}
 
 	protected:
-		virtual void makeCurrent() final
-		{
-			if (currentContext != nullptr)
-			{
-				currentContext->beforeClose(this);
-			}
-			currentContext = this;
-		}
+		virtual void beforeStart(Context* prevContext) = 0;
+		virtual void beforeClose(Context* nextContext) = 0;
 	};
 }
 

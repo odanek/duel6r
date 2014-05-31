@@ -119,13 +119,7 @@ namespace Duel6
 		D6_SND_GAME_OVER
 	};
 
-	struct app_s
-	{
-		bool flags;              // Flagy aplikace
-		bool active;             // Je aplikace prave aktivni (ma focus?)
-	};
-
-	class appInp_s
+	class Input
 	{
 	public:
 		std::unordered_set<SDL_Keycode> pressedKeys;
@@ -137,8 +131,7 @@ namespace Duel6
 		}
 	};
 
-	extern app_s g_app;
-	extern appInp_s g_inp;
+	extern Input d6Input;
 
 	class BlockData;
 	class World;

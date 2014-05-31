@@ -205,9 +205,8 @@ namespace Duel6
 		}
 	}
 
-	void Game::startContext()
+	void Game::beforeStart(Context *prevContext)
 	{
-		makeCurrent();
 		SDL_ShowCursor(SDL_DISABLE);
 	}
 
@@ -258,7 +257,7 @@ namespace Duel6
 		if (keyCode == SDLK_ESCAPE)
 		{
 			d6Menu.savePersonData();
-			d6Menu.startContext();
+			Context::switchTo(&d6Menu);
 		}
 
 		// Restart game

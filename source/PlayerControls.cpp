@@ -35,14 +35,14 @@ namespace Duel6
 
 	bool KeyboardButton::isPressed() const
 	{
-		return g_inp.isPressed(keyCode);
+		return d6Input.isPressed(keyCode);
 	}
 
 	bool JoypadAxis::isPressed() const
 	{
-		if (joypadIndex < g_inp.joysticks.size())
+		if (joypadIndex < d6Input.joysticks.size())
 		{
-			Int16 axisPosition = SDL_JoystickGetAxis(g_inp.joysticks[joypadIndex], (axis == Axis::Horizontal) ? 0 : 1);
+			Int16 axisPosition = SDL_JoystickGetAxis(d6Input.joysticks[joypadIndex], (axis == Axis::Horizontal) ? 0 : 1);
 			return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
 
 		}
@@ -51,7 +51,7 @@ namespace Duel6
 
 	bool JoypadButton::isPressed() const
 	{
-		return (joypadIndex < g_inp.joysticks.size() && SDL_JoystickGetButton(g_inp.joysticks[joypadIndex], button) == 1);
+		return (joypadIndex < d6Input.joysticks.size() && SDL_JoystickGetButton(d6Input.joysticks[joypadIndex], button) == 1);
 	}
 
 	void CONTROLS_Init()
