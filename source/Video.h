@@ -130,8 +130,8 @@ namespace Duel6
 		ViewParameters view;
 
 	public:
-		void initialize(const std::string& name, const std::string& icon, con_c& console);
-		void swapBuffers(con_c& console);
+		void initialize(const std::string& name, const std::string& icon, Console& console);
+		void swapBuffers(Console& console);
 		void setMode(Mode mode);
 		void closeWindow();
 
@@ -152,8 +152,8 @@ namespace Duel6
 
 	private:
 		void calculateFps();
-		SDL_Window* createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, con_c& console);
-		SDL_GLContext createContext(const ScreenParameters& params, con_c& console);
+		SDL_Window* createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console);
+		SDL_GLContext createContext(const ScreenParameters& params, Console& console);
 	};
 }
 

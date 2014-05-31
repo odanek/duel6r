@@ -34,37 +34,12 @@ Popis: Zpracovani argumentu a prikazoveho bufferu
 #include <string.h>
 #include "console.h"
 
-static std::string emptyString;
-
-/*
-==================================================
-Vraci dany argument funkce
-==================================================
-*/
-const std::string& con_c::argv(size_t index) const
-{
-    if (index >= m_argv.size())
-        return emptyString;
-
-    return m_argv[index];
-}
-
-/*
-==================================================
-Vraci pocet argumentu funkce
-==================================================
-*/
-size_t con_c::argc() const
-{
-    return m_argv.size();
-}
-
 /*
 ==================================================
 Expanduje promene v retezci
 ==================================================
 */
-std::string con_c::expandLine(const std::string& line)
+std::string Console::expandLine(const std::string& line)
 {
 	std::string output;
 	bool quotes = false;
@@ -90,10 +65,10 @@ std::string con_c::expandLine(const std::string& line)
 			{
 				// Try to expand variable
 				auto varBegin = current + 2;
-				const conVar_s *var = findVar(line.substr(varBegin - line.begin(), varEnd - varBegin));
+				const Variable *var = findVar(line.substr(varBegin - line.begin(), varEnd - varBegin));
 				if (var != nullptr)
 				{
-					output.append(getVarValue(*var));
+					output.append(var->getValue());
 					current = varEnd + 1;
 					continue;
 				}
@@ -117,7 +92,7 @@ std::string con_c::expandLine(const std::string& line)
 Nalezne dalsi token v retezci
 ==================================================
 */
-std::string::const_iterator con_c::nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end)
+std::string::const_iterator Console::nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end)
 {
 	auto lineEnd = line.end();
 
@@ -178,9 +153,9 @@ std::string::const_iterator con_c::nextToken(const std::string& line, std::strin
 Prevod retezce na tokeny
 ==================================================
 */
-void con_c::tokenizeLine(const std::string& line)
+void Console::tokenizeLine(const std::string& line, Arguments& args)
 {
-	m_argv.clear();
+	args.clear();
 
 	auto current = line.begin();
     while (current != line.end())
@@ -190,7 +165,7 @@ void con_c::tokenizeLine(const std::string& line)
 
 		if (begin != line.end())
 		{
-			m_argv.push_back(line.substr(begin - line.begin(), end - begin));
+			args.add(line.substr(begin - line.begin(), end - begin));
 		}
     }
 }
@@ -200,55 +175,55 @@ void con_c::tokenizeLine(const std::string& line)
 Provedeni jedne radky command bufferu
 ==================================================
 */
-void con_c::executeSingleLine(const std::string& line)
+void Console::executeSingleLine(const std::string& line)
 {
     if (line.empty())
         return;
 
-	if (m_flags & CON_F_EXPAND)
+	if (flags & CON_F_EXPAND)
 	{
-		tokenizeLine(expandLine(line));
+		tokenizeLine(expandLine(line), arguments);
 	}
 	else
 	{
-		tokenizeLine(line);
+		tokenizeLine(line, arguments);
 	}
 
-	if (argc() > 0)
+	if (arguments.length() > 0)
 	{
-		const conCommand_s* p = findCommand(argv(0));
+		const Command* p = findCommand(arguments.get(0));
 		if (p != nullptr)
 		{
-			p->execute(this);
+			p->callback(*this, arguments);
 			return;
 		}
 
-		const conAlias_s* a = findAlias(argv(0));
+		const Alias* a = findAlias(arguments.get(0));
 		if (a != nullptr)
 		{
-			if (++m_aliasloop == CON_MAX_ALIAS_REC)
+			if (++aliasloop == CON_MAX_ALIAS_REC)
 			{
 				printf(CON_Lang("CONSTR0001|CON_Error : Zacykleni alias rekurze, zbyvajici aliasy jsou ignorovany\n"));
 			}
-			else if (m_aliasloop < CON_MAX_ALIAS_REC)
+			else if (aliasloop < CON_MAX_ALIAS_REC)
 			{
 				prependCommands(a->command);
 			}
 			return;
 		}
 
-		conVar_s* v = findVar(argv(0));
+		Variable* v = findVar(arguments.get(0));
 		if (v != nullptr)
 		{
-			varCmd(*v);
+			varCmd(*v, arguments);
 			return;
 		}
 
-		printf(CON_Lang("CONSTR0002|Neznamy prikaz : \"%s\"\n"), argv(0).c_str());
+		printf(CON_Lang("CONSTR0002|Neznamy prikaz : \"%s\"\n"), arguments.get(0).c_str());
 	}
 }
 
-void con_c::splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines)
+void Console::splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines)
 {
 	auto lineBegin = commands.begin(), lineEnd = lineBegin;
 	bool quotes = false;
@@ -285,19 +260,19 @@ void con_c::splitCommandsIntoLines(const std::string& commands, std::vector<std:
 	}
 }
 
-con_c& con_c::appendCommands(const std::string& commands)
+Console& Console::appendCommands(const std::string& commands)
 {
 	std::vector<std::string> lines;
 	splitCommandsIntoLines(commands, lines);
-	m_cbuf.insert(m_cbuf.end(), lines.begin(), lines.end());
+	cbuf.insert(cbuf.end(), lines.begin(), lines.end());
 	return *this;
 }
 
-con_c& con_c::prependCommands(const std::string& commands)
+Console& Console::prependCommands(const std::string& commands)
 {
 	std::vector<std::string> lines;
 	splitCommandsIntoLines(commands, lines);
-	m_cbuf.insert(m_cbuf.begin(), lines.begin(), lines.end());
+	cbuf.insert(cbuf.begin(), lines.begin(), lines.end());
 	return *this;
 }
 
@@ -306,12 +281,12 @@ con_c& con_c::prependCommands(const std::string& commands)
 Provede obsah command bufferu
 ==================================================
 */
-void con_c::execute()
+void Console::execute()
 {
-	while (!m_cbuf.empty())
+	while (!cbuf.empty())
 	{
-		std::string line = m_cbuf.front();
-		m_cbuf.pop_front();
+		std::string line = cbuf.front();
+		cbuf.pop_front();
 
 		executeSingleLine(line);
 	}
@@ -322,7 +297,7 @@ void con_c::execute()
 Prida prika do command bufferu a zavola Execute
 ==================================================
 */
-void con_c::exec(const std::string& commands)
+void Console::exec(const std::string& commands)
 {
     appendCommands(commands);
     execute();

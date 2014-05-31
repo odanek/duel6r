@@ -47,7 +47,7 @@ static GLubyte  conCol[3][3] =
 Vykresleni jednoho znaku
 ==================================================
 */
-void con_c::drawchar(int x, int y, int c) const
+void Console::drawChar(int x, int y, int c) const
 {
     const conBYTE   *frm;
     conWORD         i, j, b;
@@ -55,7 +55,7 @@ void con_c::drawchar(int x, int y, int c) const
     if (c == ' ' || !c)
         return;
 
-    frm = &m_font[2 + c * CON_FSY];
+    frm = &font[2 + c * CON_FSY];
 
     for (i = 0; i < CON_FSY; i++, frm++)
     {
@@ -69,11 +69,11 @@ void con_c::drawchar(int x, int y, int c) const
 
 /*
 ==================================================
-Vypsani poslednich m_show radek - bere do uvahy scrolling
+Vypsani poslednich show radek - bere do uvahy scrolling
 a rotace bufferu. Varovani: HARDCORE ALGORITMUS!!! :-)
 ==================================================
 */
-void con_c::dprint_line(int y, unsigned long pos, int len) const
+void Console::dprintLine(int y, unsigned long pos, int len) const
 {
     int     i, x = 0;
 
@@ -81,18 +81,18 @@ void con_c::dprint_line(int y, unsigned long pos, int len) const
     {
         if (pos >= CON_TEXT_SIZE)
             pos -= CON_TEXT_SIZE;
-        drawchar(x, y, (int)m_text[pos++]);
+        drawChar(x, y, (int)text[pos++]);
     }
 }
 
-void con_c::dshow_hist(int res_y) const
+void Console::dshowHist(int res_y) const
 {
-    unsigned long   pl_pos = m_bufpos, pl_max;
+    unsigned long   pl_pos = bufpos, pl_max;
     int             pl_disp, pl_y, len, ld_start, ld_num, i;
 
     pl_disp = 0;
-    pl_y = res_y - m_show * CON_FSY;
-    pl_max = m_buffull ? CON_TEXT_SIZE : m_bufpos;
+    pl_y = res_y - show * CON_FSY;
+    pl_max = buffull ? CON_TEXT_SIZE : bufpos;
 
     while (pl_max > 0)
     {
@@ -103,7 +103,7 @@ void con_c::dshow_hist(int res_y) const
 
         // Nalezeni zacatku radku a delky
         len = 0;
-        while (pl_max > 0 && m_text[pl_pos] != '\n')
+        while (pl_max > 0 && text[pl_pos] != '\n')
         {
             if (!pl_pos)
                 pl_pos = CON_TEXT_SIZE;
@@ -116,18 +116,18 @@ void con_c::dshow_hist(int res_y) const
         if (!len && !pl_disp)
             continue;
 
-        // Vypsani radku po fragmentech sirky m_width od konce
-        ld_num = (len - 1) / m_width;
-        ld_start = pl_pos + 1 + ld_num * m_width;
+        // Vypsani radku po fragmentech sirky width od konce
+        ld_num = (len - 1) / width;
+        ld_start = pl_pos + 1 + ld_num * width;
 
-        for (i = ld_num; i >= 0; i--, ld_start -= m_width)
-            if (pl_disp++ >= m_scroll)
+        for (i = ld_num; i >= 0; i--, ld_start -= width)
+            if (pl_disp++ >= scroll)
             {
                 pl_y += CON_FSY;
                 if (i == ld_num)
-                    dprint_line (pl_y, ld_start, len - ld_num * m_width);
+                    dprintLine (pl_y, ld_start, len - ld_num * width);
                 else
-                    dprint_line (pl_y, ld_start, m_width);
+                    dprintLine (pl_y, ld_start, width);
                 if (pl_y >= res_y)
                     return;
             }
@@ -139,30 +139,30 @@ void con_c::dshow_hist(int res_y) const
 Vykresleni konzole na obrazovku
 ==================================================
 */
-void con_c::blit(int res_x, int res_y)
+void Console::blit(int res_x, int res_y)
 {
     long    sizeY;
     char    cursor;
     int     i, d, x, y;
 
-    if (m_font == NULL || !m_visible)
+    if (font == NULL || !visible)
         return;
 
     // Preformatuje konzoli pokud se zmenila sirka
-    if (res_x / CON_FSX != m_width)
+    if (res_x / CON_FSX != width)
     {
-        m_width = res_x / CON_FSX;
-        if (m_width < 1)
-            m_width = 1;
-        setinputscroll ();
-        m_scroll = 0;
+        width = res_x / CON_FSX;
+        if (width < 1)
+            width = 1;
+        setInputScroll ();
+        scroll = 0;
     }
 
     // Vycisteni transformacni matice
     glLoadIdentity ();
 
     // Vykresleni pozadi
-    sizeY = (m_show + 2) * CON_FSY + 2;
+    sizeY = (show + 2) * CON_FSY + 2;
 
     glBegin (GL_QUADS);
     glColor4ub (conCol[1][0], conCol[1][1], conCol[1][2], 125);
@@ -182,52 +182,52 @@ void con_c::blit(int res_x, int res_y)
     glColor3ub (conCol[0][0], conCol[0][1], conCol[0][2]);
     glBegin (GL_POINTS);
 
-    // Vypsani poslednich m_show radku
-	if (m_show > 0)
+    // Vypsani poslednich show radku
+	if (show > 0)
 	{
-		dshow_hist(res_y);
+		dshowHist(res_y);
 	}
 
     // Vypsani oddelovace
     x = 0;
-    y = res_y - m_show * CON_FSY;
+    y = res_y - show * CON_FSY;
 
-    if (m_scroll)
+    if (scroll)
         d = '^';
     else
         d = '=';
 
     glColor3ub (255, 0, 0);
-	for (i = 0; i < m_width; i++, x += CON_FSX)
+	for (i = 0; i < width; i++, x += CON_FSX)
 	{
-		drawchar(x, y, d);
+		drawChar(x, y, d);
 	}
     glColor3ub (conCol[0][0], conCol[0][1], conCol[0][2]);
 
     // Vypsani vstupniho radku
     x = CON_FSX;
     y -= CON_FSY;
-    d = ((int)m_input.length()) - m_inputscroll;
+    d = ((int)input.length()) - inputscroll;
 
-	if (m_inputscroll)
+	if (inputscroll)
 	{
-		drawchar(0, y, '<');
+		drawChar(0, y, '<');
 	}
 	else
 	{
-		drawchar(0, y, ']');
+		drawChar(0, y, ']');
 	}
 
 	for (i = 0; i < d; i++, x += CON_FSX)
 	{
-		drawchar(x, y, (conBYTE)m_input[m_inputscroll + i]);
+		drawChar(x, y, (conBYTE)input[inputscroll + i]);
 	}
 
-    x = CON_FSX * (m_curpos - m_inputscroll + 1);
-    cursor = m_insert ? 219 : '_';
+    x = CON_FSX * (curpos - inputscroll + 1);
+    cursor = insert ? 219 : '_';
 	if ((clock() % CLOCKS_PER_SEC) > (CLOCKS_PER_SEC >> 1))
 	{
-		drawchar(x, y, cursor);
+		drawChar(x, y, cursor);
 	}
 
     glEnd ();

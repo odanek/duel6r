@@ -40,7 +40,7 @@ namespace Duel6
 {
 	app_s g_app;
 	appInp_s g_inp;
-	con_c d6Console(CON_F_EXPAND);
+	Console d6Console(CON_F_EXPAND);
 	Video d6Video;
 	Game d6Game;
 	Menu d6Menu;
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 	}
 
     Duel6::d6Font.load(APP_FILE_FONT);
-    Duel6::d6Console.setfont(Duel6::d6Font.get());
+    Duel6::d6Console.setFont(Duel6::d6Font.get());
     CON_RegisterBasicCmd(Duel6::d6Console);
     Duel6::SET_Init ();
 

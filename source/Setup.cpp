@@ -48,18 +48,20 @@ namespace Duel6
 	Set language - console command
 	==================================================
 	*/
-	void SET_Language(con_c *con)
+	void SET_Language(Console& console, const Console::Arguments& args)
 	{
-		if (con->argc() == 2)
+		if (args.length() == 2)
 		{
-			if (con->argv(1) == "lang/czech.lang")
+			if (args.get(1) == "lang/czech.lang")
 			{
 				MY_LangFree();
 			}
-			MY_LangLoad(con->argv(1).c_str());
+			MY_LangLoad(args.get(1).c_str());
 		}
 		else
-			con->printf("%s: %s\n", MY_L("APP00070|Jazyk"), MY_L("APP00071|cestina"));
+		{
+			console.printf("%s: %s\n", MY_L("APP00070|Jazyk"), MY_L("APP00071|cestina"));
+		}
 	}
 
 	/*
@@ -67,15 +69,15 @@ namespace Duel6
 	Nastaveni poctu kol pres konzoli
 	==================================================
 	*/
-	void SET_MaxRounds(con_c *con)
+	void SET_MaxRounds(Console& console, const Console::Arguments& args)
 	{
-		if (con->argc() == 2)
+		if (args.length() == 2)
 		{
-			d6Game.setMaxRounds(atoi(con->argv(1).c_str()));
+			d6Game.setMaxRounds(atoi(args.get(1).c_str()));
 		}
 		else
 		{
-			con->printf("Odehranych kol: %d | Max pocet kol: %d\n", d6Game.getPlayedRounds(), d6Game.getMaxRounds());
+			console.printf("Odehranych kol: %d | Max pocet kol: %d\n", d6Game.getPlayedRounds(), d6Game.getMaxRounds());
 		}
 	}
 	
@@ -84,37 +86,37 @@ namespace Duel6
 	Nastaveni volume hudby pres konzolu
 	==================================================
 	*/
-	void SET_Volume(con_c *con)
+	void SET_Volume(Console& console, const Console::Arguments& args)
 	{
-		if (con->argc() == 2)
+		if (args.length() == 2)
 		{
-			Sound::volume(atoi(con->argv(1).c_str()));
+			Sound::volume(atoi(args.get(1).c_str()));
 		}
 	}
 
-	void SET_ToggleRenderMode(con_c *con)
+	void SET_ToggleRenderMode(Console& console, const Console::Arguments& args)
 	{
 		d6Wireframe = !d6Wireframe;
 		if (d6Wireframe)
 		{
-			con->printf(MY_L("APP00020|Vykreslovaci mod prepnut na dratovy\n"));
+			console.printf(MY_L("APP00020|Vykreslovaci mod prepnut na dratovy\n"));
 		}
 		else
 		{
-			con->printf(MY_L("APP00021|Vykreslovaci mod prepnut na solidni\n"));
+			console.printf(MY_L("APP00021|Vykreslovaci mod prepnut na solidni\n"));
 		}
 	}
 
-	void SET_ToggleShowFps(con_c *con)
+	void SET_ToggleShowFps(Console& console, const Console::Arguments& args)
 	{
 		d6ShowFps = !d6ShowFps;
 		if (d6ShowFps)
 		{
-			con->printf(MY_L("APP00022|Ukazatel fps zapnut\n"));
+			console.printf(MY_L("APP00022|Ukazatel fps zapnut\n"));
 		}
 		else
 		{
-			con->printf(MY_L("APP00023|Ukazatel fps vypnut\n"));
+			console.printf(MY_L("APP00023|Ukazatel fps vypnut\n"));
 		}
 	}
 
@@ -123,13 +125,13 @@ namespace Duel6
 	Zapnuti/vypnuti hudby v menu
 	==================================================
 	*/
-	void SET_MusicOnOff(con_c *con)
+	void SET_MusicOnOff(Console& console, const Console::Arguments& args)
 	{
-		if (con->argc() == 2)
+		if (args.length() == 2)
 		{
-			if (con->argv(1) == "on" || con->argv(1) == "off")
+			if (args.get(1) == "on" || args.get(1) == "off")
 			{
-				d6Menu.enableMusic(con->argv(1) == "on");
+				d6Menu.enableMusic(args.get(1) == "on");
 			}
 		}
 	}
@@ -139,7 +141,7 @@ namespace Duel6
 	Vyhledani nove pripojenych joypadu
 	==================================================
 	*/
-	void SET_JoyScan(con_c *con)
+	void SET_JoyScan(Console& console, const Console::Arguments& args)
 	{
 		if (d6Menu.isCurrent())
 		{
@@ -152,23 +154,23 @@ namespace Duel6
 	Nastaveni skinu
 	==================================================
 	*/
-	void SET_LoadSkin(con_c *con)
+	void SET_LoadSkin(Console& console, const Console::Arguments& args)
 	{
 		int     i, pl, pos, num, exp16, c;
 
-		if (con->argc() == 11)
+		if (args.length() == 11)
 		{
-			pl = atoi(con->argv(1).c_str());
+			pl = atoi(args.get(1).c_str());
 			if (pl >= 0 && pl < (int)d6PlayerColors.size())
 			{
 				for (i = 0; i < 9; i++)
 				{
-					pos = con->argv(i + 2).length() - 1;
+					pos = args.get(i + 2).length() - 1;
 					num = 0;
 					exp16 = 1;
 					while (pos >= 0)
 					{
-						c = con->argv(i + 2)[pos];
+						c = args.get(i + 2)[pos];
 						if (c >= '0' && c <= '9')
 							num += (c - '0') * exp16;
 						if (c >= 'a' && c <= 'f')
@@ -181,21 +183,21 @@ namespace Duel6
 					d6PlayerColors[pl].set((PlayerSkinColors::BodyPart)i, color);
 				}
 
-				con->printf("Skin %d: OK\n", pl);
+				console.printf("Skin %d: OK\n", pl);
 			}
 		}
-		if (con->argc() == 2)
+		if (args.length() == 2)
 		{
-			pl = atoi(con->argv(1).c_str());
+			pl = atoi(args.get(1).c_str());
 			if (pl >= 0 && pl < (int)d6PlayerColors.size())
 			{
-				con->printf("Skin %d: ", pl);
+				console.printf("Skin %d: ", pl);
 				for (i = 0; i < 9; i++)
 				{
 					const Color& color = d6PlayerColors[pl].get((PlayerSkinColors::BodyPart)i);
-					con->printf("%02x%02x%02x ", color.getRed(), color.getGreen(), color.getBlue());
+					console.printf("%02x%02x%02x ", color.getRed(), color.getGreen(), color.getBlue());
 				}
-				con->printf("\n");
+				console.printf("\n");
 			}
 		}
 	}
@@ -205,20 +207,20 @@ namespace Duel6
 	Povoleni/zakazani zbrane
 	==================================================
 	*/
-	void SET_EnableWeapon(con_c *con)
+	void SET_EnableWeapon(Console& console, const Console::Arguments& args)
 	{
 		int gn;
 
-		if (con->argc() == 3)
+		if (args.length() == 3)
 		{
-			gn = atoi(con->argv(1).c_str());
+			gn = atoi(args.get(1).c_str());
 			if (gn >= 0 && gn < D6_WEAPONS)
 			{
-				d6WpnDef[gn].enabled = (con->argv(2) == "true");
+				d6WpnDef[gn].enabled = (args.get(2) == "true");
 				if (d6WpnDef[gn].enabled)
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00113|povoleno"));
+					console.printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00113|povoleno"));
 				else
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00114|zakazano"));
+					console.printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00114|zakazano"));
 			}
 		}
 		else
@@ -226,9 +228,9 @@ namespace Duel6
 			for (gn = 0; gn < D6_WEAPONS; gn++)
 			{
 				if (d6WpnDef[gn].enabled)
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00113|povoleno"));
+					console.printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00113|povoleno"));
 				else
-					con->printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00114|zakazano"));
+					console.printf("\t%02d. %-13s %s\n", gn, MY_L(d6WpnDef[gn].name), MY_L("APP00114|zakazano"));
 			}
 		}
 	}
@@ -238,46 +240,46 @@ namespace Duel6
 	Nastaveni rozsahu poctu naboju po startu hry
 	==================================================
 	*/
-	void SET_AmmoRange(con_c *con)
+	void SET_AmmoRange(Console& console, const Console::Arguments& args)
 	{
-		if (con->argc() == 3)
+		if (args.length() == 3)
 		{
-			int min = atoi(con->argv(1).c_str()), max = atoi(con->argv(2).c_str());
+			int min = atoi(args.get(1).c_str()), max = atoi(args.get(2).c_str());
 
 			if (min <= max && min >= 0)
 			{
 				d6Game.setAmmoRange(std::make_pair(min, max));
 			}
 		}
-		else if (con->argc() == 1)
+		else if (args.length() == 1)
 		{
 			const std::pair<Int32, Int32>& range = d6Game.getAmmoRange();
-			con->printf("\tmin = %d\n\tmax = %d\n", range.first, range.second);
+			console.printf("\tmin = %d\n\tmax = %d\n", range.first, range.second);
 		}
 		else
 		{
-			con->printf("%s: %s [min max]\n", con->argv(0).c_str(), con->argv(0).c_str());
+			console.printf("%s: %s [min max]\n", args.get(0).c_str(), args.get(0).c_str());
 		}
 	}
 
 	/** OpenGL info */
-	void SET_OpenGLInfo(con_c *con)
+	void SET_OpenGLInfo(Console& console, const Console::Arguments& args)
 	{
 		const char *e;
 		char *txp = nullptr, *tx, tx2[200];
 		int len, i;
 
-		con->printf(MY_L("APP00075|\n===OpenGL info===\n"));
-		con->printf(MY_L("APP00076|Vyrobce    : %s\n"), glGetString(GL_VENDOR));
-		con->printf(MY_L("APP00077|Renderer   : %s\n"), glGetString(GL_RENDERER));
-		con->printf(MY_L("APP00078|Verze      : %s\n"), glGetString(GL_VERSION));
-		con->printf(MY_L("APP00079|Extenze    :\n"));
+		console.printf(MY_L("APP00075|\n===OpenGL info===\n"));
+		console.printf(MY_L("APP00076|Vyrobce    : %s\n"), glGetString(GL_VENDOR));
+		console.printf(MY_L("APP00077|Renderer   : %s\n"), glGetString(GL_RENDERER));
+		console.printf(MY_L("APP00078|Verze      : %s\n"), glGetString(GL_VERSION));
+		console.printf(MY_L("APP00079|Extenze    :\n"));
 
 		e = (const char *)glGetString(GL_EXTENSIONS);
 
 		if (e == nullptr || strlen(e) < 2)
 		{
-			con->printf(MY_L("APP00080|...Zadne podporovane extenze\n"));
+			console.printf(MY_L("APP00080|...Zadne podporovane extenze\n"));
 		}
 		else
 		{
@@ -303,13 +305,13 @@ namespace Duel6
 
 				tx2[len] = 0;
 
-				con->printf("...%s\n", tx2);
+				console.printf("...%s\n", tx2);
 			}
 
 			MY_Free(txp);
 		}
 
-		con->printf("\n");
+		console.printf("\n");
 	}
 
 	void SET_RegisterCommands()
@@ -328,18 +330,18 @@ namespace Duel6
 		d6Console.printf(MY_L("APP00074|Jazyk: cestina\n"));
 
 		// Set some console functions
-		d6Console.setlast(15);
-		d6Console.regcmd(&SET_ToggleRenderMode, "switch_render_mode");
-		d6Console.regcmd(&SET_ToggleShowFps, "show_fps");
-		d6Console.regcmd(&SET_OpenGLInfo, "gl_info");
-		d6Console.regcmd(&SET_Language, "lang");
-		d6Console.regcmd(&SET_Volume, "volume");
-		d6Console.regcmd(&SET_MaxRounds, "rounds");
-		d6Console.regcmd(&SET_MusicOnOff, "music");
-		d6Console.regcmd(&SET_JoyScan, "joy_scan");
-		d6Console.regcmd(&SET_LoadSkin, "skin");
-		d6Console.regcmd(&SET_EnableWeapon, "gun");
-		d6Console.regcmd(&SET_AmmoRange, "start_ammo_range");		
+		d6Console.setLast(15);
+		d6Console.registerCommand(&SET_ToggleRenderMode, "switch_render_mode");
+		d6Console.registerCommand(&SET_ToggleShowFps, "show_fps");
+		d6Console.registerCommand(&SET_OpenGLInfo, "gl_info");
+		d6Console.registerCommand(&SET_Language, "lang");
+		d6Console.registerCommand(&SET_Volume, "volume");
+		d6Console.registerCommand(&SET_MaxRounds, "rounds");
+		d6Console.registerCommand(&SET_MusicOnOff, "music");
+		d6Console.registerCommand(&SET_JoyScan, "joy_scan");
+		d6Console.registerCommand(&SET_LoadSkin, "skin");
+		d6Console.registerCommand(&SET_EnableWeapon, "gun");
+		d6Console.registerCommand(&SET_AmmoRange, "start_ammo_range");		
 		
 		/* TODO:
 		d6Console.regvar(&g_app.fps, "g_fps", CON_F_RONLY, CON_VAR_FLOAT);

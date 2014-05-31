@@ -150,7 +150,7 @@ namespace Duel6
 	class Video;
 	class Font;
 
-	extern con_c d6Console;
+	extern Console d6Console;
 	extern Video d6Video;
 	extern Menu d6Menu;
 	extern Game d6Game;

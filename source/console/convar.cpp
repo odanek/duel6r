@@ -40,21 +40,21 @@ Popis: Zpracovani promenych
 Zaregistrovani promene
 ==================================================
 */
-int con_c::regvar (void *p, const std::string& name, int flags, conVarType_e typ)
+int Console::registerVariable(void *p, const std::string& name, int flags, Variable::Type type)
 {
-    int i = namevalid (name, CON_Lang("CONSTR0039|Regitrace promenne"), p);
+    int i = isNameValid(name, CON_Lang("CONSTR0039|Regitrace promenne"), p);
     if (i != CON_SUCCES)
         return i;
 
-	conVar_s newVar;
+	Variable newVar;
 	newVar.name = name;
     newVar.ptr = p;
     newVar.flags = flags;
-    newVar.type = typ;
+    newVar.type = type;
 
     // Zaradi novou promenou tak, aby byly setridene podle abecedy
 	size_t position = 0;
-	for (const conVar_s& var : m_vars)
+	for (const Variable& var : vars)
 	{
 		if (var.name.compare(newVar.name) > 0)
 		{
@@ -63,17 +63,17 @@ int con_c::regvar (void *p, const std::string& name, int flags, conVarType_e typ
 		++position;
 	}
 
-	m_vars.insert(m_vars.begin() + position, newVar);
+	vars.insert(vars.begin() + position, newVar);
 
-    if (m_flags & CON_F_REG_INFO)
+    if (flags & CON_F_REG_INFO)
         printf (CON_Lang("CONSTR0040|Registrace promenne: \"%s\" na adrese 0x%p byla uspesna\n"), name.c_str(), p);
 
     return CON_SUCCES;
 }
 
-conVar_s *con_c::findVar(const std::string& name)
+Console::Variable *Console::findVar(const std::string& name)
 {
-	for (conVar_s& var : m_vars)
+	for (Variable& var : vars)
 	{
 		if (var.name == name)
 		{
@@ -84,9 +84,9 @@ conVar_s *con_c::findVar(const std::string& name)
     return nullptr;
 }
 
-void con_c::varCmd(conVar_s& var)
+void Console::varCmd(Variable& var, Arguments& args)
 {
-    int c = argc ();
+    size_t c = args.length();
 
     if (c > 2)
     {
@@ -96,12 +96,12 @@ void con_c::varCmd(conVar_s& var)
 
 	if (c == 1)
 	{
-		varInfo(var);
+		var.printInfo(*this);
 	}
 	else
 	{
 		if (!(var.flags & CON_F_RONLY))
-			setVarValue(var, argv(1));
+			var.setValue(args.get(1));
 		else
 			printf(CON_Lang("CONSTR0042|Promenna \"%s\" je pouze pro cteni\n"), var.name.c_str());
 	}
@@ -112,7 +112,7 @@ void con_c::varCmd(conVar_s& var)
 Vytiskne na konzolu info o promene
 ==================================================
 */
-void con_c::varInfo(const conVar_s& var)
+void Console::Variable::printInfo(Console& console) const
 {
     const char  flagstr[CON_FLAGS + 1] = "ra",
                 *typestr[3] = { "float", "int", "bool" };
@@ -120,13 +120,13 @@ void con_c::varInfo(const conVar_s& var)
 
 	for (i = 0; i < CON_FLAGS; i++, f <<= 1)
 	{
-		if (var.flags & f)
-			printf("%c", flagstr[i]);
+		if (flags & f)
+			console.printf("%c", flagstr[i]);
 		else
-			printf("-");
+			console.printf("-");
 	}
 
-    printf (CON_Lang("CONSTR0043| %-5s \"%s\" s hodnotou %s\n"), typestr[var.type], var.name.c_str(), getVarValue(var).c_str());
+    console.printf(CON_Lang("CONSTR0043| %-5s \"%s\" s hodnotou %s\n"), typestr[(int)type], name.c_str(), getValue().c_str());
 }
 
 /*
@@ -134,13 +134,13 @@ void con_c::varInfo(const conVar_s& var)
 Nastavi hodnotu promene podle retezce val
 ==================================================
 */
-void con_c::setVarValue(conVar_s& var, const std::string& val)
+void Console::Variable::setValue(const std::string& val)
 {
-    switch (var.type)
+    switch (type)
     {
-    case CON_VAR_FLOAT: *((float *)var.ptr) = (float) atof(val.c_str()); break;
-    case CON_VAR_INT: *((int *)var.ptr) = atoi(val.c_str()); break;
-    case CON_VAR_BOOL: *((bool *)var.ptr) = (val == "true"); break;
+	case Type::Float: *((float *)ptr) = (float) atof(val.c_str()); break;
+	case Type::Int: *((int *)ptr) = atoi(val.c_str()); break;
+	case Type::Bool: *((bool *)ptr) = (val == "true"); break;
     }
 }
 
@@ -149,25 +149,25 @@ void con_c::setVarValue(conVar_s& var, const std::string& val)
 Ulozi hodnotu promene do retezce val
 ==================================================
 */
-std::string con_c::getVarValue(const conVar_s& var) const
+std::string Console::Variable::getValue() const
 {
-	if (var.type == CON_VAR_FLOAT)
+	if (type == Type::Float)
 	{
 		std::ostringstream stream;
-		float *val = (float *)var.ptr;
+		float *val = (float *)ptr;
 		stream << *val;
 		return stream.str();
 	}
-	else if (var.type == CON_VAR_INT)
+	else if (type == Type::Int)
 	{
 		std::ostringstream stream;
-		int *val = (int *)var.ptr;
+		int *val = (int *)ptr;
 		stream << *val;
 		return stream.str();
 	}
-	else if (var.type == CON_VAR_BOOL)
+	else if (type == Type::Bool)
 	{
-		return (*((bool *)var.ptr) == true) ? "true" : "false";
+		return (*((bool *)ptr) == true) ? "true" : "false";
 	}
 
 	return "";

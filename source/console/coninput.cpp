@@ -37,32 +37,32 @@ Popis: Zpracovani prikazove radky
 Opravi pozici od ktere se zobrazuje prikazova radka
 ==================================================
 */
-void con_c::setinputscroll ()
+void Console::setInputScroll ()
 {
-    int     l = (int)m_input.length(), width = m_width - 1;
+    int l = (int)input.length(), w = width - 1;
 
-    if (m_curpos == l)
+    if (curpos == l)
     {
-        m_inputscroll = (l + 2) - m_width;
-        if (m_inputscroll < 0)
-            m_inputscroll = 0;
+        inputscroll = (l + 2) - width;
+        if (inputscroll < 0)
+            inputscroll = 0;
         return;
     }
 
-    if (l <= width)
+    if (l <= w)
     {
-        m_inputscroll = 0;
+        inputscroll = 0;
         return;
     }
 
-    if (l - m_inputscroll < width)
-        m_inputscroll = l - width;
+    if (l - inputscroll < w)
+        inputscroll = l - w;
 
-    if (m_curpos < m_inputscroll)
-        m_inputscroll = m_curpos;
+    if (curpos < inputscroll)
+        inputscroll = curpos;
 
-    if (m_curpos >= m_inputscroll + width)
-        m_inputscroll = 1 + m_curpos - width;
+    if (curpos >= inputscroll + w)
+        inputscroll = 1 + curpos - w;
 }
 
 /*
@@ -75,31 +75,31 @@ static bool startsWith(const std::string& text, const std::string& prefix)
 	return prefix.length() <= text.length() && text.compare(0, prefix.length(), prefix) == 0;
 }
 
-void con_c::completecmd ()
+void Console::completeCmd ()
 {
-	if (m_input.empty())
+	if (input.empty())
 	{
 		return;
 	}
 
 	std::vector<std::string> fittingCommands;
-	for (const conCommand_s& command : m_procs)
+	for (const Command& command : cmds)
 	{
-		if (startsWith(command.name, m_input))
+		if (startsWith(command.name, input))
 		{
 			fittingCommands.push_back(command.name);
 		}
 	}
-	for (const conVar_s& var : m_vars)
+	for (const Variable& var : vars)
 	{
-		if (startsWith(var.name, m_input))
+		if (startsWith(var.name, input))
 		{
 			fittingCommands.push_back(var.name);
 		}
 	}
-	for (const conAlias_s& alias : m_alias)
+	for (const Alias& alias : aliases)
 	{
-		if (startsWith(alias.name, m_input))
+		if (startsWith(alias.name, input))
 		{
 			fittingCommands.push_back(alias.name);
 		}
@@ -107,13 +107,13 @@ void con_c::completecmd ()
 
 	if (fittingCommands.size() == 1)
 	{
-		m_input = fittingCommands.front();
-		m_input.append(" ");
-		m_curpos = m_input.length();
+		input = fittingCommands.front();
+		input.append(" ");
+		curpos = input.length();
 	}
 	else if (fittingCommands.size() > 1)
 	{
-        printf(CON_Lang("CONSTR0028|]Hledani: \"%s\"\n"), m_input.c_str());
+        printf(CON_Lang("CONSTR0028|]Hledani: \"%s\"\n"), input.c_str());
 		for (const std::string& command : fittingCommands)
 		{
 			printf("\t%s\n", command.c_str());
@@ -122,7 +122,7 @@ void con_c::completecmd ()
 		std::string largestFit = fittingCommands.front();
 		for (const std::string& command : fittingCommands)
 		{
-			size_t prefix = m_input.length();
+			size_t prefix = input.length();
 			while (prefix < largestFit.length() && prefix < command.length() && largestFit[prefix] == command[prefix])
 			{
 				++prefix;
@@ -134,8 +134,8 @@ void con_c::completecmd ()
 			}
 		}
 
-		m_input = largestFit;
-		m_curpos = m_input.length();
+		input = largestFit;
+		curpos = input.length();
 	}
 }
 
@@ -144,110 +144,110 @@ void con_c::completecmd ()
 Reakce na stisk klavesy
 ==================================================
 */
-void con_c::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
+void Console::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 {
-    int len = (int)m_input.length();
+    int len = (int)input.length();
 
     switch (keyCode)
     {
     case CON_C_SCROLL_UP:
-        m_scroll++;
+        scroll++;
         break;
     case CON_C_SCROLL_DOWN:
-        if (m_scroll > 0)
-            m_scroll--;
+        if (scroll > 0)
+            scroll--;
         break;
     case CON_C_HIST_UP:
-        if (m_histscroll < CON_REM_HIST && m_histcnt - m_histscroll > 0)
+        if (histscroll < CON_REM_HIST && histcnt - histscroll > 0)
         {
-            m_histscroll++;
-			m_input = m_hist[(m_histcnt - m_histscroll) % CON_REM_HIST];
-            m_curpos = (int)m_input.length();
+            histscroll++;
+			input = hist[(histcnt - histscroll) % CON_REM_HIST];
+            curpos = (int)input.length();
         }
         break;
     case CON_C_HIST_DOWN:
-        if (m_histscroll > 0)
+        if (histscroll > 0)
         {
-            m_histscroll--;
-			if (!m_histscroll)
+            histscroll--;
+			if (!histscroll)
 			{
-				m_input.clear();
+				input.clear();
 			}
 			else
 			{
-				m_input = m_hist[(m_histcnt - m_histscroll) % CON_REM_HIST];
+				input = hist[(histcnt - histscroll) % CON_REM_HIST];
 			}
-            m_curpos = (int) m_input.length();
+            curpos = (int) input.length();
         }
         break;
     case CON_C_INSERT:
-        m_insert = !m_insert;
+        insert = !insert;
         break;
 	case CON_C_BACK:
-		if (m_curpos > 0)
+		if (curpos > 0)
         {
-			m_input.erase(m_input.begin() + m_curpos - 1);
-            m_curpos--;
+			input.erase(input.begin() + curpos - 1);
+            curpos--;
         }
 		break;
 	case CON_C_DELETE:
-		if (m_curpos < len)
+		if (curpos < len)
         {
-			m_input.erase(m_input.begin() + m_curpos);
+			input.erase(input.begin() + curpos);
         }
 		break;
 	case CON_C_ENTER: 
 		if (len)
         {
-            m_hist[m_histcnt % CON_REM_HIST] = m_input;
-            m_histcnt++;
-            m_histscroll = 0;
-            printf ("]%s\n", m_input.c_str());
-            exec(m_input);
-            m_input.clear();
-            m_curpos = 0;
+            hist[histcnt % CON_REM_HIST] = input;
+            histcnt++;
+            histscroll = 0;
+            printf ("]%s\n", input.c_str());
+            exec(input);
+            input.clear();
+            curpos = 0;
         }
 		break;
 	case CON_C_TAB:
-        completecmd();
+        completeCmd();
 		break;
 	case CON_C_LEFT:
-		if (m_curpos > 0)
+		if (curpos > 0)
 		{
-			m_curpos--;
+			curpos--;
 		}
 		break;
 	case CON_C_RIGHT: 
-		if (m_curpos < len)
+		if (curpos < len)
 		{
-			m_curpos++;
+			curpos++;
 		}
 		break;
 	case CON_C_HOME:
-        m_curpos = 0;
+        curpos = 0;
 		break;
 	case CON_C_END:
-        m_curpos = len;
+        curpos = len;
         break;
     }
 
-    setinputscroll ();
+    setInputScroll ();
 }
 
-void con_c::textInputEvent(const char* text)
+void Console::textInputEvent(const char* text)
 {
 	while (*text != 0)
 	{
 		if (*text >= ' ' && *text < 128 && *text != '`')
 		{
-			if (!m_insert || m_curpos == (int)m_input.length())
+			if (!insert || curpos == (int)input.length())
 			{
-				m_input.insert(m_input.begin() + m_curpos, *text);
-				++m_curpos;
+				input.insert(input.begin() + curpos, *text);
+				++curpos;
 			}
 			else
 			{
-				m_input[m_curpos++] = *text;
+				input[curpos++] = *text;
 			}
 		}
 

@@ -31,7 +31,7 @@
 
 namespace Duel6
 {
-	void Video::swapBuffers(con_c& console)
+	void Video::swapBuffers(Console& console)
 	{		
 		if (console.isActive())
 		{
@@ -61,7 +61,7 @@ namespace Duel6
 	Video init
 	==================================================
 	*/
-	void Video::initialize(const std::string& name, const std::string& icon, con_c& console)
+	void Video::initialize(const std::string& name, const std::string& icon, Console& console)
 	{
 		console.printf(MY_L("APP00055|\n===Nastavuji OpenGL okno===\n"));
 
@@ -88,7 +88,7 @@ namespace Duel6
 		setMode(Mode::Orthogonal);
 	}
 
-	SDL_Window* Video::createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, con_c& console)
+	SDL_Window* Video::createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console)
 	{
 		Uint32 flags = 0;
 		
@@ -111,7 +111,7 @@ namespace Duel6
 		return sdlWin;
 	}
 
-	SDL_GLContext Video::createContext(const ScreenParameters& params, con_c& console)
+	SDL_GLContext Video::createContext(const ScreenParameters& params, Console& console)
 	{
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);

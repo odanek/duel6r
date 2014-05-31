@@ -45,23 +45,22 @@ Popis: Hlavni funkce
 Inicializace/deinicializace konzole
 ==================================================
 */
-con_c::con_c(int flags)
+Console::Console(int flags)
 {
-    m_visible = false;
-    m_insert = false;
-    m_curpos = 0;
-    m_inputscroll = 0;
-    m_flags = flags;
+    visible = false;
+    insert = false;
+    curpos = 0;
+    inputscroll = 0;
+    flags = flags;
 
-    m_histcnt = 0;
-    m_histscroll = 0;
-    m_font = nullptr;
-    m_infoproc = nullptr;
+    histcnt = 0;
+    histscroll = 0;
+    font = nullptr;
 
-    m_width = CON_DEF_WIDTH;
-    m_show = CON_DEF_SHOWLAST;
+    width = CON_DEF_WIDTH;
+    show = CON_DEF_SHOWLAST;
 
-	m_text.resize(CON_TEXT_SIZE);
+	text.resize(CON_TEXT_SIZE);
     clear();
 
     printf("==========================\n");
@@ -70,11 +69,11 @@ con_c::con_c(int flags)
     printf("==========================\n");
 }
 
-con_c::~con_c ()
+Console::~Console()
 {
-	m_vars.clear();
-	m_procs.clear();
-	m_alias.clear();
+	vars.clear();
+	cmds.clear();
+	aliases.clear();
 }
 
 /*
@@ -82,12 +81,12 @@ con_c::~con_c ()
 Vyprazdneni textoveho bufferu
 ==================================================
 */
-void con_c::clear ()
+void Console::clear()
 {
-    m_bufpos = 0;
-    m_scroll = 0;
-    m_buffull = false;
-    memset(&m_text[0], '\n', CON_TEXT_SIZE);
+    bufpos = 0;
+    scroll = 0;
+    buffull = false;
+    memset(&text[0], '\n', CON_TEXT_SIZE);
 }
 
 /*
@@ -96,7 +95,7 @@ Formatovany tisk do konzoly
 V infoproc by se nemelo s konzolou nic delat
 ==================================================
 */
-void con_c::printf (const char *str, ...)
+void Console::printf(const char *str, ...)
 {
     char    fstr[CON_MAX_PSTR + 1], *tx;
     va_list argptr;
@@ -112,30 +111,27 @@ void con_c::printf (const char *str, ...)
         switch (*tx)
         {
         case '\n':
-            m_text[m_bufpos++] = *tx;
+            text[bufpos++] = *tx;
             break;
         case '\t':
-            for (int i = 0; i < CON_TAB_WIDTH; i++, m_bufpos++)
-                m_text[m_bufpos % CON_TEXT_SIZE] = ' ';
+            for (int i = 0; i < CON_TAB_WIDTH; i++, bufpos++)
+                text[bufpos % CON_TEXT_SIZE] = ' ';
             break;
         default  :
             if (*tx >= ' ')
-                m_text[m_bufpos++] = *tx;
+                text[bufpos++] = *tx;
             break;
         }
 
-        if (m_bufpos >= CON_TEXT_SIZE)
+        if (bufpos >= CON_TEXT_SIZE)
         {
-            m_bufpos -= CON_TEXT_SIZE;
-            m_buffull = true;
+            bufpos -= CON_TEXT_SIZE;
+            buffull = true;
         }
         tx++;
     }
 
-    m_scroll = 0;
-
-    if (m_infoproc != NULL)
-        m_infoproc (this);
+    scroll = 0;
 }
 
 ///////////////////////////////////////////////////////
@@ -147,7 +143,7 @@ void con_c::printf (const char *str, ...)
 Kontrola pripustnosti jmena
 ==================================================
 */
-int con_c::namevalid (const std::string& name, const char *proc, void *p)
+int Console::isNameValid(const std::string& name, const char *proc, void *p)
 {
 	if (name.empty())
     {
@@ -175,19 +171,19 @@ int con_c::namevalid (const std::string& name, const char *proc, void *p)
 Registrovani prikazu
 ==================================================
 */
-int con_c::regcmd (conProc_t p, const std::string& name)
+int Console::registerCommand(Callback callback, const std::string& name)
 {
-    int i = namevalid (name, CON_Lang("CONSTR0035|Registrace prikazu"), (void *) p);
+    int i = isNameValid(name, CON_Lang("CONSTR0035|Registrace prikazu"), (void *)callback);
     if (i != CON_SUCCES)
         return i;
 
-	conCommand_s newCommand;
+	Command newCommand;
 	newCommand.name = name;
-	newCommand.execute = p;
+	newCommand.callback = callback;
 
     // Zaradi novy prikaz tak, aby byly setridene podle abecedy
 	size_t position = 0;
-    for (const conCommand_s& command : m_procs)
+    for (const Command& command : cmds)
     {
 		if (command.name.compare(newCommand.name) > 0)
 		{
@@ -196,11 +192,11 @@ int con_c::regcmd (conProc_t p, const std::string& name)
 		++position;
     }
 
-	m_procs.insert(m_procs.begin() + position, newCommand);
+	cmds.insert(cmds.begin() + position, newCommand);
 
-	if (m_flags & CON_F_REG_INFO)
+	if (flags & CON_F_REG_INFO)
 	{
-		printf(CON_Lang("CONSTR0036|Registrace prikazu: \"%s\" na adrese 0x%p byla uspesna\n"), name.c_str(), p);
+		printf(CON_Lang("CONSTR0036|Registrace prikazu: \"%s\" na adrese 0x%p byla uspesna\n"), name.c_str(), callback);
 	}
 
     return CON_SUCCES;
@@ -211,23 +207,23 @@ int con_c::regcmd (conProc_t p, const std::string& name)
 Registrace aliasu
 ==================================================
 */
-int con_c::regalias (const std::string& name, const std::string& cmd)
+int Console::registerAlias(const std::string& name, const std::string& cmd)
 {
-    conAlias_s *a = findAlias(name);
+    Alias* a = findAlias(name);
 
-    if (a == NULL)
+    if (a == nullptr)
     {
-        int i = namevalid (name, CON_Lang("CONSTR0037|Registrace aliasu"), (void *) (1));
+        int i = isNameValid(name, CON_Lang("CONSTR0037|Registrace aliasu"), (void *) (1));
         if (i != CON_SUCCES)
             return i;
 
-		conAlias_s newAlias;
+		Alias newAlias;
 		newAlias.name = name;
 		newAlias.command = cmd;
 
         // Zaradi novy alias tak, aby byly setridene podle abecedy
 		size_t position = 0;
-		for (const conAlias_s& alias : m_alias)
+		for (const Alias& alias : aliases)
         {
 			if (alias.name.compare(name) > 0)
 			{
@@ -236,14 +232,14 @@ int con_c::regalias (const std::string& name, const std::string& cmd)
 			++position;
         }
 
-		m_alias.insert(m_alias.begin() + position, newAlias);
+		aliases.insert(aliases.begin() + position, newAlias);
     }
 	else
 	{
 		a->command = cmd;
 	}
 
-	if (m_flags & CON_F_REG_INFO)
+	if (flags & CON_F_REG_INFO)
 	{
 		printf(CON_Lang("CONSTR0038|Registrace aliasu: \"%s\" za \"%s\" byla uspesna\n"), name.c_str(), cmd.c_str());
 	}
@@ -256,9 +252,9 @@ int con_c::regalias (const std::string& name, const std::string& cmd)
 Vraceni ukazatele na prikaz
 ==================================================
 */
-conCommand_s *con_c::findCommand(const std::string& name)
+Console::Command* Console::findCommand(const std::string& name)
 {
-	for (conCommand_s& command : m_procs)
+	for (Command& command : cmds)
 	{
 		if (command.name == name)
 		{
@@ -274,9 +270,9 @@ conCommand_s *con_c::findCommand(const std::string& name)
 Vraci ukazatel na alias s danym jmenem
 ==================================================
 */
-conAlias_s *con_c::findAlias(const std::string& name)
+Console::Alias* Console::findAlias(const std::string& name)
 {
-	for (conAlias_s& alias : m_alias)
+	for (Alias& alias : aliases)
 	{
 		if (alias.name == name)
 		{
@@ -287,29 +283,14 @@ conAlias_s *con_c::findAlias(const std::string& name)
     return nullptr;
 }
 
-///////////////////////////////////////////////////////
-//                Dalsi funkce                       //
-///////////////////////////////////////////////////////
-
-/*
-==================================================
-Nastaveni procedury ktera bude volana
-po kazdem con_c::printf jako notifikace
-==================================================
-*/
-void con_c::setinfoproc (conProc_t p)
-{
-    m_infoproc = p;
-}
-
 /*
 ==================================================
 Nastaveni ukazatele na font
 ==================================================
 */
-void con_c::setfont (const conBYTE *p)
+void Console::setFont(const conBYTE *p)
 {
-    m_font = p;
+    font = p;
 }
 
 /*
@@ -317,9 +298,9 @@ void con_c::setfont (const conBYTE *p)
 Nastaveni kolik predchozich radku bude zobrazeno
 ==================================================
 */
-void con_c::setlast (int sl)
+void Console::setLast(int sl)
 {
-    m_show = sl > 1 ? sl : 2;
+    show = sl > 1 ? sl : 2;
 }
 
 /*
@@ -327,9 +308,9 @@ void con_c::setlast (int sl)
 Vraci ukazatel na textovy buffer konzole
 ==================================================
 */
-const conBYTE *con_c::gettext(unsigned long *buf_pos, bool *buf_full) const
+const conBYTE *Console::getText(unsigned long *buf_pos, bool *buf_full) const
 {
-    *buf_pos = m_bufpos;
-    *buf_full = m_buffull;
-    return &m_text[0];
+    *buf_pos = bufpos;
+    *buf_full = buffull;
+    return &text[0];
 }

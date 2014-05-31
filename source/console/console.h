@@ -80,8 +80,8 @@ enum
 #define CON_F_EXPAND        0x00002
 
 // Velikost fontu
-#define CON_FSX             ((conWORD) m_font[0])
-#define CON_FSY             ((conWORD) m_font[1])
+#define CON_FSX             ((conWORD) font[0])
+#define CON_FSY             ((conWORD) font[1])
 
 // Variable fags
 #define CON_FLAGS           2
@@ -89,80 +89,107 @@ enum
 #define CON_F_RONLY         0x00001
 #define CON_F_ARCHIVE       0x00002
 
-// Variable types
-enum conVarType_e
-{
-    CON_VAR_FLOAT = 0,
-    CON_VAR_INT,
-    CON_VAR_BOOL
-};
-
-// Forward declaration
-class con_c;
-
-typedef void                (*conProc_t) (con_c *con);
 typedef unsigned char       conBYTE;
 typedef unsigned short      conWORD;
 
-struct conCommand_s
+class Console
 {
-    std::string name;
-    conProc_t execute;
-};
+public:
+	class Arguments
+	{
+	private:
+		std::vector<std::string> arguments;
 
-struct conAlias_s
-{
-    std::string name;
-    std::string command;
-};
+	public:
+		size_t length() const
+		{
+			return arguments.size();
+		}
 
-struct conVar_s
-{
-    std::string name;
-    void *ptr;
-    int flags;
-    conVarType_e type;
-};
+		const std::string& get(size_t index) const
+		{
+			return arguments[index];
+		}
 
-/*
-==================================================
-Trida con_c
-==================================================
-*/
-class con_c
-{
+		void clear()
+		{
+			arguments.clear();
+		}
+
+		void add(const std::string& arg)
+		{
+			arguments.push_back(arg);
+		}
+	};
+
+	typedef void (*Callback) (Console& console, const Console::Arguments& arguments);
+
+	class Command
+	{
+	public:
+		std::string name;
+		Callback callback;
+	};
+
+	struct Alias
+	{
+		std::string name;
+		std::string command;
+	};
+
+	class Variable
+	{
+	public:
+		enum class Type
+		{
+			Float,
+			Int,
+			Bool
+		};
+
+	public:
+		std::string name;
+		void *ptr;
+		int flags;
+		Type type;
+
+	public:
+		void printInfo(Console& console) const;
+		void setValue(const std::string& val);
+		std::string getValue() const;
+	};
+
 private:
-    bool            m_visible;                      // Je konzole viditelna/aktivni?
-    std::vector<conBYTE> m_text;					// Textovy buffer
-    int             m_width;                        // Sirka konzoly ve znacich
-    unsigned long   m_bufpos;                       // Pozice v bufferu kam se tiskne
-    bool            m_buffull;                      // Uz byl buffer prerotovan? Je plny?
-    bool            m_insert;                       // Prepinani vkladani/prepisovani
-    int             m_curpos;                       // Pozice kursoru na radku
-    int             m_show;                         // Kolik poslednich radku ukazat
-    int             m_scroll;                       // O kolik radku je odskrolovano
+    bool            visible;                      // Je konzole viditelna/aktivni?
+    std::vector<conBYTE> text;					// Textovy buffer
+    int             width;                        // Sirka konzoly ve znacich
+    unsigned long   bufpos;                       // Pozice v bufferu kam se tiskne
+    bool            buffull;                      // Uz byl buffer prerotovan? Je plny?
+    bool            insert;                       // Prepinani vkladani/prepisovani
+    int             curpos;                       // Pozice kursoru na radku
+    int             show;                         // Kolik poslednich radku ukazat
+    int             scroll;                       // O kolik radku je odskrolovano
 
-    int             m_flags;                        // Flagy
-    const conBYTE   *m_font;                        // Ukazatel na font (nahradit SDL_ttf?
-    conProc_t       m_infoproc;                     // Procedura volana po printf
+    int             flags;                        // Flagy
+    const conBYTE   *font;                        // Ukazatel na font (nahradit SDL_ttf?
 
-    std::vector<conCommand_s> m_procs;              // Seznam procedur
-    std::vector<conVar_s> m_vars;                   // Senam promenych
-    std::vector<conAlias_s> m_alias;                // Seznam aliasu
+    std::vector<Command> cmds;					  // Seznam procedur
+    std::vector<Variable> vars;                   // Senam promenych
+    std::vector<Alias> aliases;					  // Seznam aliasu
 
-    std::string     m_input;                        // Radek vstupu
-    int             m_inputscroll;                  // O kolik je se vstupem odskrolovano doprava
-    std::string     m_hist[CON_REM_HIST];           // Ulozena historie prikazu
-    int             m_histcnt;                      // Pocet ulozenych prikazu historie
-    int             m_histscroll;                   // O kolik je v historii odskrolovano
+    std::string     input;                        // Radek vstupu
+    int             inputscroll;                  // O kolik je se vstupem odskrolovano doprava
+    std::string     hist[CON_REM_HIST];           // Ulozena historie prikazu
+    int             histcnt;                      // Pocet ulozenych prikazu historie
+    int             histscroll;                   // O kolik je v historii odskrolovano
 
-    std::vector<std::string> m_argv;				// Argumenty funkce
-    std::list<std::string> m_cbuf;					// Prikazovy buffer
-    int             m_aliasloop;                    // Pocet provedenych aliasu (proti zacykleni)
+    Arguments arguments;							// Argumenty funkce
+    std::list<std::string> cbuf;					// Prikazovy buffer
+    int             aliasloop;                    // Pocet provedenych aliasu (proti zacykleni)
 
 public:
-	con_c(int flags);
-	~con_c();
+	Console(int flags);
+	~Console();
 
     void blit(int res_x, int res_y);
 
@@ -172,75 +199,67 @@ public:
 	
 	void toggle()
 	{
-		m_visible = !m_visible;
+		visible = !visible;
 	}
 
     bool isActive() const
 	{ 
-		return m_visible; 
+		return visible; 
 	}
 
-    void setlast(int sl);
-    void setfont(const conBYTE *p);
-    void setinfoproc(conProc_t p);
+    void setLast(int sl);
+    void setFont(const conBYTE *p);
 
-	const std::string& argv(size_t index) const;
-    size_t argc() const;
+    int registerCommand(Callback callback, const std::string& name);
+    int registerVariable(void *p, const std::string& name, int flags, Variable::Type type);
+    int registerAlias(const std::string& name, const std::string& cmd);
 
-    int regcmd(conProc_t p, const std::string& name);
-    int regvar(void *p, const std::string& name, int flags, conVarType_e typ);
-    int regalias(const std::string& name, const std::string& cmd);
-
-	const std::vector<conCommand_s>& listCommands() const
+	const std::vector<Command>& listCommands() const
 	{
-		return m_procs;
+		return cmds;
 	}
 
-	const std::vector<conVar_s>& listVars() const
+	const std::vector<Variable>& listVars() const
 	{
-		return m_vars;
+		return vars;
 	}
 
-	const std::vector<conAlias_s>& listAliases() const
+	const std::vector<Alias>& listAliases() const
 	{
-		return m_alias;
+		return aliases;
 	}
 
-    const conBYTE *gettext(unsigned long *buf_pos, bool *buf_full) const;
+    const conBYTE *getText(unsigned long *buf_pos, bool *buf_full) const;
 	void clear();
 
-	con_c& appendCommands(const std::string& commands);
-	con_c& prependCommands(const std::string& commands);
-    void exec(const std::string& commands);
+	Console& appendCommands(const std::string& commands);
+	Console& prependCommands(const std::string& commands);
     void execute();
-
-    void varInfo(const conVar_s& var);
-    void setVarValue(conVar_s& var, const std::string& val);
-    std::string getVarValue(const conVar_s& var) const;
+	void exec(const std::string& commands);
 
 private:
-    int namevalid(const std::string& name, const char *proc, void *p);
+    int isNameValid(const std::string& name, const char *proc, void *p);
     std::string expandLine(const std::string& line);
 	std::string::const_iterator nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end);
-    void tokenizeLine(const std::string& line);
+    void tokenizeLine(const std::string& line, Arguments& args);
     void executeSingleLine(const std::string& line);
-    void varCmd(conVar_s& var);
+    void varCmd(Variable& var, Arguments& args);
 
-    void setinputscroll();
-    void completecmd();
+    void setInputScroll();
+    void completeCmd();
 
-    void dprint_line(int y, unsigned long pos, int len) const;
-    void dshow_hist(int res_y) const;
-    void drawchar(int x, int y, int c) const;
+    void dprintLine(int y, unsigned long pos, int len) const;
+    void dshowHist(int res_y) const;
+    void drawChar(int x, int y, int c) const;
 
-    conCommand_s* findCommand(const std::string& name);
-    conVar_s* findVar(const std::string& name);
-    conAlias_s *findAlias(const std::string& name);
+    Command* findCommand(const std::string& name);
+    Variable* findVar(const std::string& name);
+    Alias* findAlias(const std::string& name);
 
 	void splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines);
 };
 
 // Dodelat vsude podporu multijazykoveho prostredi aby ji mohly vyuzivat vsechny knihovny a program
-void CON_RegisterBasicCmd(con_c& c_ptr);
+void CON_RegisterBasicCmd(Console& c_ptr);
 
 #endif
