@@ -148,7 +148,7 @@ namespace Duel6
 
 		// TODO: If possibleStartingPositions.empty() -> error
 
-		for (Player& player : players)
+		for (Size i = 0; i < players.size(); ++i)
 		{
 			Int32 arbitraryPosition = rand() % possibleStartingPositions.size();
 			startingPositions.push(possibleStartingPositions[arbitraryPosition]);

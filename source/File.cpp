@@ -97,12 +97,11 @@ namespace Duel6
 		}
 
 		int origin;
-
 		switch (seek)
 		{
-		case Seek::Cur: origin = SEEK_CUR; break;
 		case Seek::Set: origin = SEEK_SET; break;
 		case Seek::End: origin = SEEK_END; break;
+		default: origin = SEEK_CUR; break;
 		}
 
 		if (fseek(handle, offset, origin))
