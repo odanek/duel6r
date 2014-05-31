@@ -61,7 +61,7 @@ namespace Duel6
 
 		~Menu()
 		{
-			free();
+			delete desk;
 		}
 
 		void startContext();

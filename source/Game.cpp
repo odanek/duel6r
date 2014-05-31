@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <algorithm>
 #include "Sound.h"
 #include "BonusList.h"
 #include "Weapon.h"
@@ -43,6 +42,11 @@
 
 namespace Duel6
 {
+	Game::Game()		
+		: ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT)
+	{
+	}
+
 	void Game::splitScreenView(Player& player, Int32 x, Int32 y)
 	{
 		PlayerView view(x, y, d6Video.getScreen().getClientWidth() / 2 - 4, d6Video.getScreen().getClientHeight() / 2 - 4);
@@ -52,9 +56,9 @@ namespace Duel6
 
 	void Game::setPlayerViews()
 	{
-		for (Player& player : getPlayers())
+		for (Player& player : players)
 		{
-			player.prepareCam(getScreenMode(), getScreenZoom(), d6World.getSizeX(), d6World.getSizeY());
+			player.prepareCam(getScreenMode(), getScreenZoom(), world.getSizeX(), world.getSizeY());
 		}
 
 		if (screenMode == ScreenMode::FullScreen)
@@ -62,7 +66,7 @@ namespace Duel6
 			Int32 xShift = (d6Video.getScreen().getClientWidth() / 4) / 2 - 70;
 			Size index = 0;
 
-			for (Player& player : getPlayers())
+			for (Player& player : players)
 			{
 				player.setView(PlayerView(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight()));
 
@@ -82,43 +86,43 @@ namespace Duel6
 		}
 		else
 		{
-			if (getPlayers().size() == 2)
+			if (players.size() == 2)
 			{
-				splitScreenView(getPlayers()[0], d6Video.getScreen().getClientWidth() / 4 + 2, 2);
-				splitScreenView(getPlayers()[1], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[0], d6Video.getScreen().getClientWidth() / 4 + 2, 2);
+				splitScreenView(players[1], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
 			}
 
-			if (getPlayers().size() == 3)
+			if (players.size() == 3)
 			{
-				splitScreenView(getPlayers()[0], 2, 2);
-				splitScreenView(getPlayers()[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
-				splitScreenView(getPlayers()[2], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[0], 2, 2);
+				splitScreenView(players[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
+				splitScreenView(players[2], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
 			}
 
-			if (getPlayers().size() == 4)
+			if (players.size() == 4)
 			{
-				splitScreenView(getPlayers()[0], 2, 2);
-				splitScreenView(getPlayers()[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
-				splitScreenView(getPlayers()[2], 2, d6Video.getScreen().getClientHeight() / 2 + 2);
-				splitScreenView(getPlayers()[3], d6Video.getScreen().getClientWidth() / 2 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[0], 2, 2);
+				splitScreenView(players[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
+				splitScreenView(players[2], 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[3], d6Video.getScreen().getClientWidth() / 2 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
 			}
 		}
 	}
 
 	bool Game::isPossibleStartingPosition(Int32 x, Int32 y)
 	{
-		if (d6World.isWall(x, y, true) || d6World.isWater(x, y))
+		if (world.isWall(x, y, true) || world.isWater(x, y))
 		{
 			return false;
 		}
 
 		while (y-- > 0)
 		{
-			if (d6World.isWater(x, y))
+			if (world.isWater(x, y))
 			{
 				return false;
 			}
-			if (d6World.isWall(x, y, true))
+			if (world.isWall(x, y, true))
 			{
 				return true;
 			}
@@ -127,13 +131,13 @@ namespace Duel6
 		return false;
 	}
 
-	void Game::findStartingPositions()
+	void Game::findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions)
 	{
 		std::vector<std::pair<Int32, Int32>> possibleStartingPositions;
 
-		for (Int32 y = 1; y < d6World.getSizeY(); y++)
+		for (Int32 y = 1; y < world.getSizeY(); y++)
 		{
-			for (Int32 x = 0; x < d6World.getSizeX(); x++)
+			for (Int32 x = 0; x < world.getSizeX(); x++)
 			{
 				if (isPossibleStartingPosition(x, y))
 				{
@@ -144,17 +148,26 @@ namespace Duel6
 
 		// TODO: If possibleStartingPositions.empty() -> error
 
-		for (Player& player : getPlayers())
+		for (Player& player : players)
 		{
 			Int32 arbitraryPosition = rand() % possibleStartingPositions.size();
-			const std::pair<Int32, Int32>& position = possibleStartingPositions[arbitraryPosition];
-			player.startGame(position.first, position.second);
+			startingPositions.push(possibleStartingPositions[arbitraryPosition]);
 		}
 	}
 
 	void Game::preparePlayers()
 	{
-		findStartingPositions();
+		std::queue<std::pair<Int32, Int32>> startingPositions;
+		findStartingPositions(startingPositions);
+
+		for (Player& player : players)
+		{
+			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
+			std::pair<Int32, Int32>& position = startingPositions.front();
+			player.startGame(position.first, position.second, ammo);
+			startingPositions.pop();
+		}
+
 		setPlayerViews();
 	}
 
@@ -163,7 +176,7 @@ namespace Duel6
 		int numAlive = 0;
 		Player* lastAlive = nullptr;
 
-		for (Player& player : getPlayers())
+		for (Player& player : players)
 		{
 			if (!player.isDead())
 			{
@@ -184,7 +197,7 @@ namespace Duel6
 			}
 			else
 			{
-				for (const Player& player : getPlayers())
+				for (const Player& player : players)
 				{
 					d6MessageQueue.add(player, MY_L("APP00025|Konec hry - bez viteze"));
 				}
@@ -200,12 +213,12 @@ namespace Duel6
 
 	void Game::update(Float32 elapsedTime)
 	{
-		for (Player& player : getPlayers())
+		for (Player& player : players)
 		{
-			player.update(d6World, getScreenMode(), elapsedTime);
+			player.update(world, getScreenMode(), elapsedTime);
 		}
 
-		d6World.update(elapsedTime);
+		world.update(elapsedTime);
 		d6SpriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
 		WPN_MoveShots(*this, elapsedTime);
 		EXPL_MoveAll(elapsedTime);
@@ -215,7 +228,7 @@ namespace Duel6
 		// Add new bonuses
 		if (rand() % int(3.0f / elapsedTime) == 0)
 		{
-			BONUS_AddNew(d6World);
+			BONUS_AddNew(world);
 		}
 
 		// Check if there's a winner
@@ -258,7 +271,7 @@ namespace Duel6
 		}
 
 		// Switch between fullscreen and split screen mode
-		if (keyCode == SDLK_F2 && getPlayers().size() < 5)
+		if (keyCode == SDLK_F2 && players.size() < 5)
 		{
 			switchScreenMode();
 		}
@@ -315,14 +328,14 @@ namespace Duel6
 		d6Console.printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
 		std::vector<Bonus> bonuses;
 		bool mirror = rand() % 2 == 0;
-		d6World.loadLevel(levelPath, backgrounds[rand() % backgrounds.size()], mirror);
-		d6World.findBonuses(bonuses);
-		d6World.prepareFaces();
-		d6Console.printf(MY_L("APP00061|...Sirka   : %d\n"), d6World.getSizeX());
-		d6Console.printf(MY_L("APP00062|...Vyska   : %d\n"), d6World.getSizeY());
-		d6Console.printf(MY_L("APP00063|...Sten    : %d\n"), d6World.getWalls().getFaces().size());
-		d6Console.printf(MY_L("APP00064|...Spritu  : %d\n"), d6World.getSprites().getFaces().size());
-		d6Console.printf(MY_L("APP00065|...Voda    : %d\n"), d6World.getWater().getFaces().size());
+		world.loadLevel(levelPath, backgrounds[rand() % backgrounds.size()], mirror);
+		world.findBonuses(bonuses);
+		world.prepareFaces();
+		d6Console.printf(MY_L("APP00061|...Sirka   : %d\n"), world.getSizeX());
+		d6Console.printf(MY_L("APP00062|...Vyska   : %d\n"), world.getSizeY());
+		d6Console.printf(MY_L("APP00063|...Sten    : %d\n"), world.getWalls().getFaces().size());
+		d6Console.printf(MY_L("APP00064|...Spritu  : %d\n"), world.getSprites().getFaces().size());
+		d6Console.printf(MY_L("APP00065|...Voda    : %d\n"), world.getWater().getFaces().size());
 
 		d6SpriteList.clear();
 
@@ -333,7 +346,7 @@ namespace Duel6
 		WPN_LevelInit();
 		EXPL_Init();
 		BONUS_Init(bonuses);
-		FIRE_Find(d6World.getSprites());
+		FIRE_Find(world.getSprites());
 		RENDER_InitScreen();
 		winner = -1;
 		playedRounds++;
@@ -357,11 +370,11 @@ namespace Duel6
 
 	World& Game::getWorld()
 	{
-		return d6World;
+		return world;
 	}
 
 	const World& Game::getWorld() const
 	{
-		return d6World;
+		return world;
 	}
 }

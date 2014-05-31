@@ -28,6 +28,10 @@
 #ifndef DUEL6_GAME_H
 #define DUEL6_GAME_H
 
+#include <utility>
+#include <vector>
+#include <queue>
+#include <string>
 #include "Type.h"
 #include "ScreenMode.h"
 #include "Context.h"
@@ -74,19 +78,20 @@ namespace Duel6
 		Size lastLevel;
 		ScreenMode screenMode;
 		Int32 screenZoom;
+
+
 		Int32 winner;
+		std::pair<Int32, Int32> ammoRange;
 		Int32 playedRounds;
 		Int32 maxRounds;
 		
 		Float32 gameOverWait;
 
+		World world;
 		std::vector<Player> players;
 
 	public:
-		Game()
-		{
-			maxRounds = 0;
-		}
+		Game();
 
 		void startContext();
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
@@ -126,6 +131,16 @@ namespace Duel6
 			return winner > 0;
 		}
 
+		const std::pair<Int32, Int32>& getAmmoRange() const
+		{
+			return ammoRange;
+		}
+
+		void setAmmoRange(const std::pair<Int32, Int32>& range)
+		{
+			ammoRange = range;
+		}
+
 		Int32 getPlayedRounds() const
 		{
 			return playedRounds;
@@ -145,8 +160,8 @@ namespace Duel6
 
 	private:
 		void preparePlayers();
-		void findStartingPositions();
-		static bool isPossibleStartingPosition(int x, int y);
+		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
+		bool isPossibleStartingPosition(int x, int y);
 		void checkWinner();
 		void setPlayerViews();
 		void splitScreenView(Player& player, Int32 x, Int32 y);

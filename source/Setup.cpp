@@ -246,13 +246,13 @@ namespace Duel6
 
 			if (min <= max && min >= 0)
 			{
-				d6AmmoRangeMin = min;
-				d6AmmoRangeMax = max;
+				d6Game.setAmmoRange(std::make_pair(min, max));
 			}
 		}
 		else if (con->argc() == 1)
 		{
-			con->printf("\tmin = %d\n\tmax = %d\n", d6AmmoRangeMin, d6AmmoRangeMax);
+			const std::pair<Int32, Int32>& range = d6Game.getAmmoRange();
+			con->printf("\tmin = %d\n\tmax = %d\n", range.first, range.second);
 		}
 		else
 		{

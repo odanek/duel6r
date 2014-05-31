@@ -39,14 +39,6 @@
 #include "Math.h"
 #include "Video.h"
 
-#define D6_PLAYER_MAX_SPEED     0.52f
-#define D6_PLAYER_ACCEL         3.721f
-#define D6_PLAYER_JPHASE_SPEED  122
-#define D6_PLAYER_JUMP_SPEED    4.88f
-
-#define D6_CAM_TOLPER_X         30
-#define D6_CAM_TOLPER_Y         30
-
 namespace Duel6
 {
 	static Int16 noAnim[4] = { 0, 50, 0, -1 };
@@ -74,7 +66,7 @@ namespace Duel6
 	{
 	}
 
-	void Player::startGame(Int32 startBlockX, Int32 startBlockY)
+	void Player::startGame(Int32 startBlockX, Int32 startBlockY, Int32 ammo)
 	{
 		state.x = (Float32)startBlockX;
 		state.y = (Float32)startBlockY + 0.0001f;
@@ -90,14 +82,14 @@ namespace Duel6
 			.setFrame(6);
 		this->gunSprite = d6SpriteList.addSprite(gunSprite);
 
-		state.flags = 0;
+		state.flags = FlagHasGun;
 		state.velocity = 0.0f;
 		state.orientation = Orientation::Left;
 		state.jumpPhase = 0;
 		state.reloadInterval = 0;
 		state.life = D6_MAX_LIFE;
 		state.air = D6_MAX_AIR;
-		state.ammo = d6AmmoRangeMin + rand() % (d6AmmoRangeMax - d6AmmoRangeMin + 1);
+		state.ammo = ammo;
 		state.elevator = nullptr;
 		state.bonus = 0;
 		state.bonusDuration = 0;
@@ -112,38 +104,79 @@ namespace Duel6
 		this->view = view;
 	}
 
-	void Player::moveLeft(Float32 elapsedTime)
+	void Player::moveHorizontal(const World& world, Float32 elapsedTime, Float32 speed)
 	{
-		state.velocity = std::max(state.velocity - elapsedTime, -D6_PLAYER_MAX_SPEED);
-
-		if (state.velocity < 0)
+		if (hasFlag(FlagMoveLeft))
 		{
-			state.orientation = Orientation::Left;
+			state.velocity = std::max(state.velocity - elapsedTime, -D6_PLAYER_MAX_SPEED);
+
+			if (state.velocity < 0.0f)
+			{
+				state.orientation = Orientation::Left;
+			}
+		} 
+		else if (state.velocity < 0.0f)
+		{
+			state.velocity = std::min(state.velocity + elapsedTime, 0.0f);
+		}
+
+		if (hasFlag(FlagMoveRight))
+		{
+			state.velocity = std::min(state.velocity + elapsedTime, D6_PLAYER_MAX_SPEED);
+
+			if (state.velocity > 0.0f)
+			{
+				state.orientation = Orientation::Right;
+			}
+		} 
+		else if (state.velocity > 0.0f)
+		{
+			state.velocity = std::max(state.velocity - elapsedTime, 0.0f);
+		}
+
+		if (isMoving())
+		{
+			state.x += state.velocity * D6_PLAYER_ACCEL * speed;
+			checkHorizontalMove(world);
 		}
 	}
 
-	void Player::moveRight(Float32 elapsedTime)
+	void Player::moveVertical(const World& world, Float32 elapsedTime, Float32 speed)
 	{
-		state.velocity = std::min(state.velocity + elapsedTime, D6_PLAYER_MAX_SPEED);
-
-		if (state.velocity > 0)
-		{
-			state.orientation = Orientation::Right;
-		}
-	}
-
-	void Player::jump()
-	{
-		if (isOnGround())
+		if (isOnGround() && hasFlag(FlagMoveUp))
 		{
 			Int32 up = (Int32)(getY() + 1.0f); // TODO: Coord
 			Int32 left = (Int32)(getX() + 0.1f); // TODO: Coord
 			Int32 right = (Int32)(getX() + 0.9f); // TODO: Coord
 
-			if (!d6World.isWall(left, up, true) && !d6World.isWall(right, up, true))
+			if (!world.isWall(left, up, true) && !world.isWall(right, up, true))
 			{
 				state.jumpPhase = 90.0f;
 			}
+		}
+
+		if (!isOnGround())
+		{
+			state.jumpPhase += D6_PLAYER_JPHASE_SPEED * elapsedTime;
+			if (state.jumpPhase > 270.0)
+			{
+				state.jumpPhase = 270.0f;
+			}
+
+			state.y += Math::fastCos(Int32(state.jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
+
+			if (isRising())
+			{
+				checkMoveUp(world);
+			}
+			else
+			{
+				checkMoveDown(world);
+			}
+		}
+		else
+		{
+			checkFall(world);
 		}
 	}
 
@@ -205,35 +238,8 @@ namespace Duel6
 		Float32 speed = getSpeed() * elapsedTime;
 		state.elevator = nullptr;
 
-		if (!isOnGround())
-		{
-			state.jumpPhase += D6_PLAYER_JPHASE_SPEED * elapsedTime;
-			if (state.jumpPhase > 270.0)
-			{
-				state.jumpPhase = 270.0f;
-			}
-
-			state.y += Math::fastCos(Int32(state.jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
-
-			if (isRising())
-			{
-				checkMoveUp(world);
-			}
-			else
-			{
-				checkMoveDown(world);
-			}
-		}
-		else
-		{
-			checkFall(world);
-		}
-
-		if (isMoving())
-		{
-			state.x += state.velocity * D6_PLAYER_ACCEL * speed;
-			checkMoveAside(world);
-		}
+		moveVertical(world, elapsedTime, speed);
+		moveHorizontal(world, elapsedTime, speed);
 
 		if (isOnElevator())
 		{
@@ -245,6 +251,7 @@ namespace Duel6
 		{
 			unsetFlag(FlagPick);
 		}
+		unsetFlag(FlagMoveLeft | FlagMoveRight | FlagMoveUp);
 	}
 
 	Float32 Player::getSpeed() const
@@ -269,7 +276,7 @@ namespace Duel6
 		return spd;
 	}
 
-	void Player::checkKeys(Float32 elapsedTime)
+	void Player::checkKeys()
 	{
 		if (isDead() || isPickingGun())
 		{
@@ -280,25 +287,17 @@ namespace Duel6
 		{
 			if (controls.getLeft().isPressed())
 			{
-				moveLeft(elapsedTime);
-			}
-			else if (state.velocity < 0.0f)
-			{
-				state.velocity = std::min(state.velocity + elapsedTime, 0.0f);
+				setFlag(FlagMoveLeft);
 			}
 
 			if (controls.getRight().isPressed())
 			{
-				moveRight(elapsedTime);
-			}
-			else if (state.velocity > 0.0f)
-			{
-				state.velocity = std::max(state.velocity - elapsedTime, 0.0f);
+				setFlag(FlagMoveRight);
 			}
 
 			if (controls.getUp().isPressed())
 			{
-				jump();
+				setFlag(FlagMoveUp);
 			}
 			if (controls.getPick().isPressed())
 			{
@@ -326,9 +325,16 @@ namespace Duel6
 			BONUS_Check(*this);
 		}
 
-		checkKeys(elapsedTime);
+		checkKeys();
 		makeMove(world, elapsedTime);
 		setAnm();
+
+		// Drop gun if still has it and died
+		if (isLying() && hasGun() && isOnGround())
+		{
+			dropWeapon(world);
+			unsetFlag(FlagHasGun);
+		}
 
 		// Move intervals
 		if (state.reloadInterval > 0)
@@ -567,10 +573,6 @@ namespace Duel6
 				unsetFlag(FlagLying);
 				EXPL_Add(getX() + 0.5f, getY() + 0.5f, 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
 			}
-			else if (isOnGround())
-			{
-				dropWeapon();
-			}
 
 			Sound::playSample(D6_SND_DEAD);
 			return true;
@@ -602,31 +604,24 @@ namespace Duel6
 			d6MessageQueue.add(*this, MY_L("APP00054|Jsi mrtvy"));
 
 			Sound::playSample(D6_SND_DEAD);
-
-			// Add lying weapon
-			if (isOnGround())
-			{
-				dropWeapon();
-			}
-
 			return true;
 		}
 
 		return false;
 	}
 
-	void Player::dropWeapon()
+	void Player::dropWeapon(const World& world)
 	{
 		int x1 = int(getX() + 0.2f), x2 = int(getX() + 0.8f); // TODO: Coord
 		int y = int(getY() + 0.5f);  // TODO: Coord
 
-		if (d6World.isWall(x1, y - 1, true) && !d6World.isWall(x1, y, true))
+		if (world.isWall(x1, y - 1, true) && !world.isWall(x1, y, true))
 		{
 			BONUS_AddDeadManGun(x1, y, *this);
 		}
 		else
 		{
-			if (d6World.isWall(x2, y - 1, true) && !d6World.isWall(x2, y, true))
+			if (world.isWall(x2, y - 1, true) && !world.isWall(x2, y, true))
 			{
 				BONUS_AddDeadManGun(x2, y, *this);
 			}
@@ -725,7 +720,7 @@ namespace Duel6
 		}
 	}
 
-	void Player::checkMoveAside(const World& world)
+	void Player::checkHorizontalMove(const World& world)
 	{
 		Int32 up = (Int32)(getY() + 0.94); // TODO: Coord
 		Int32 down = (Int32)getY(); // TODO: Coord

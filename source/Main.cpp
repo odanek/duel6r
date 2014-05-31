@@ -50,11 +50,9 @@ namespace Duel6
 	bool d6Wireframe = false;
 	bool d6ShowFps = false;
 	std::vector<PlayerSkinColors> d6PlayerColors(D6_MAX_PLAYERS);
-	int d6AmmoRangeMin = 15, d6AmmoRangeMax = 15;
 	bool d6ShowRanking = true;
 	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
 	SpriteList d6SpriteList;
-	World d6World(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT);
 
 	void Main::textInputEvent(Context& context, const char* text)
 	{

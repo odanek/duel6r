@@ -67,17 +67,24 @@
 
 #define D6_LEVEL_EXTENSION	".lev"
 
-#define D6_SPRITE_SPEED_COEF 61
+#define D6_SPRITE_SPEED_COEF	61
 
-#define D6_ANM_SPEED        0.328f
-#define D6_WAVE_HEIGHT      0.1f
+#define D6_ANM_SPEED			0.328f
+#define D6_WAVE_HEIGHT			0.1f
 
-#define D6_MAX_PLAYERS      8
-#define D6_WATER_HIT		60
-#define D6_GAME_OVER_WAIT   3.0f
-#define D6_INFO_DURATION    5.0f
+#define D6_MAX_PLAYERS			8
+#define D6_WATER_HIT			60
+#define D6_GAME_OVER_WAIT		3.0f
+#define D6_INFO_DURATION		5.0f
+#define D6_PLAYER_MAX_SPEED     0.52f
+#define D6_PLAYER_ACCEL         3.721f
+#define D6_PLAYER_JPHASE_SPEED  122
+#define D6_PLAYER_JUMP_SPEED    4.88f
 
-#define D6_SOUNDS           25
+#define D6_CAM_TOLPER_X         30
+#define D6_CAM_TOLPER_Y         30
+
+#define D6_SOUNDS				25
 
 namespace Duel6
 {
@@ -150,13 +157,11 @@ namespace Duel6
 	extern Font d6Font;
 	extern TextureManager d6TextureManager;
 	extern bool d6Wireframe;
-	extern bool d6ShowFps;
-	extern int d6AmmoRangeMin, d6AmmoRangeMax;
+	extern bool d6ShowFps;	
 	extern bool d6ShowRanking;
 	extern std::vector<PlayerSkinColors> d6PlayerColors;
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList d6SpriteList;
-	extern World d6World;
 }
 
 #endif

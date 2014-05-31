@@ -179,7 +179,7 @@ mycam_c::mycam_c ()
     m_pitch = (mval_t) 0.0;
     m_roll = (mval_t) 0.0;
 
-    m_frustum = NULL;
+    m_frustum = nullptr;
 }
 
 /*
@@ -189,8 +189,10 @@ destruktor
 */
 mycam_c::~mycam_c ()
 {
-    if (m_frustum != NULL)
-        delete m_frustum;
+	if (m_frustum != nullptr)
+	{
+		delete m_frustum;
+	}
 }
 
 /*
@@ -200,7 +202,7 @@ zmena "field of view", pripadne "aspect ratio"
 */
 void mycam_c::resize (bool fr, mval_t fov, float a)
 {
-    if (m_frustum != NULL)
+    if (m_frustum != nullptr)
         delete m_frustum;
 
     if (fr)
@@ -215,7 +217,7 @@ nastavi kameru na pozici v prostoru
 void mycam_c::setpos (const vec3_c<mval_t> &p)
 {
     m_pos = p;
-    if (m_frustum != NULL)
+    if (m_frustum != nullptr)
         m_frustum->updatepos (m_pos);
 }
 
@@ -238,7 +240,7 @@ void mycam_c::move (mval_t spd)
 {
     m_pos += spd * m_front;
 
-    if (m_frustum != NULL)
+    if (m_frustum != nullptr)
         m_frustum->updatepos (m_pos);
 }
 
@@ -251,7 +253,7 @@ void mycam_c::strafe (mval_t spd)
 {
     m_pos += spd * m_side;
 
-    if (m_frustum != NULL)
+    if (m_frustum != nullptr)
         m_frustum->updatepos (m_pos);
 }
 
@@ -309,7 +311,7 @@ void mycam_c::makerotation ()
     m_up.set (m.d[1], m.d[4], m.d[7]);
     m_front.set (m.d[2], m.d[5], m.d[8]);
 
-    if (m_frustum != NULL)
+    if (m_frustum != nullptr)
         m_frustum->updatematrix (m);
 }
 

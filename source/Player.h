@@ -107,7 +107,11 @@ namespace Duel6
 			FlagKnee = 0x04,
 			FlagLying = 0x08,
 			FlagHeadUnderWater = 0x10,
-			FlagFeetInWater = 0x20
+			FlagFeetInWater = 0x20,
+			FlagMoveLeft = 0x40,
+			FlagMoveRight = 0x80,
+			FlagMoveUp = 0x100,
+			FlagHasGun = 0x200
 		};
 
 		struct PlayerState
@@ -150,7 +154,7 @@ namespace Duel6
 			return (this == &player);
 		}
 
-		void startGame(Int32 startBlockX, Int32 startBlockY);
+		void startGame(Int32 startBlockX, Int32 startBlockY, Int32 ammo);
 		void setView(const PlayerView& view);
 		void update(const World& world, ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
@@ -305,6 +309,11 @@ namespace Duel6
 			return hasFlag(FlagPick);
 		}
 
+		bool hasGun() const
+		{
+			return hasFlag(FlagHasGun);
+		}
+
 		bool isInGame() const
 		{
 			return !isDead() || isLying();
@@ -351,12 +360,11 @@ namespace Duel6
 		}
 
 	private:
-		void moveLeft(Float32 elapsedTime);
-		void moveRight(Float32 elapsedTime);
 		void makeMove(const World& world, Float32 elapsedTime);
-		void checkKeys(Float32 elapsedTime);
+		void moveHorizontal(const World& world, Float32 elapsedTime, Float32 speed);
+		void moveVertical(const World& world, Float32 elapsedTime, Float32 speed);
+		void checkKeys();
 		void checkWater(const World& world, Float32 elapsedTime);
-		void jump();
 		void fall();
 		void pick();
 		void shoot();
@@ -364,13 +372,13 @@ namespace Duel6
 		void updateCam(Int32 levelSizeX, Int32 levelSizeY);
 		void switchToOriginalSkin();
 		void findStartingPosition();
-		void dropWeapon();
+		void dropWeapon(const World& world);
 		Float32 getSpeed() const;
 
 		void checkMoveUp(const World& world);
 		void checkMoveDown(const World& world);
 		void checkFall(const World& world);
-		void checkMoveAside(const World& world);
+		void checkHorizontalMove(const World& world);
 		void checkElevator();
 
 		bool hasFlag(Uint32 flag) const

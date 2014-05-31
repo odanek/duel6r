@@ -75,11 +75,6 @@ namespace Duel6
 		: playMusic(false)
 	{}
 
-	void Menu::free()
-	{
-		delete desk;
-	}
-
 	void Menu::loadPersonData()
 	{
 		if (File::getSize(D6_FILE_PHIST) < 20)
