@@ -65,7 +65,7 @@ namespace Duel6
 	Player::~Player()
 	{
 	}
-
+	
 	void Player::startGame(Int32 startBlockX, Int32 startBlockY, Int32 ammo)
 	{
 		state.x = (Float32)startBlockX;
@@ -765,5 +765,5 @@ namespace Duel6
 	{
 		state.tempSkinDuration = 0;
 		sprite->setTextures(skin.getTextures());
-	}
+	}	
 }

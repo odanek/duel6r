@@ -352,13 +352,27 @@ namespace Duel6
 
 		Sound::playSample(D6_SND_LETS_ROCK);
 	}
+		
+	std::vector<Person> Game::getLadder() const
+	{
+		std::vector<Person> ladder;
 
+		for (const Player& player : players)
+		{
+			ladder.push_back(player.getPerson());
+		}
+		
+		std::sort(ladder.begin(), ladder.end(), [](Person a, Person b) {
+			return b.getTotalPoints() < a.getTotalPoints();
+		});
+		return ladder;
+	}
+
+	
 	Color Game::getGameOverOverlay() const
 	{
 		Uint8 overlay = Uint8(255.0f * gameOverWait / D6_GAME_OVER_WAIT);
-		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
-
-		if (roundLimit)
+		if (isOver())
 		{
 			overlay = std::min(overlay + 51, 255);
 			return Color(overlay);
@@ -375,6 +389,5 @@ namespace Duel6
 	const World& Game::getWorld() const
 	{
 		return world;
-	}
-	
+	}	
 }

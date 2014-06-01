@@ -89,36 +89,24 @@ namespace Duel6
 
 		glDisable(GL_TEXTURE_2D);
 	}
-
-	void RENDER_PlayerRankings(const std::vector<Player>& players)
+	
+	void RENDER_PlayerRankings(const Game& game)
 	{
-		std::vector<std::string> rankNames;
-		std::vector<Int32> rankPoints;
+		std::vector<Person> ladder = game.getLadder();
+		std::vector<Player> players = game.getPlayers();
 		Size maxNameLength = 0;;
 
-		for (const Player& player : players)
+		for (const Person& person : ladder)
 		{
-			rankNames.push_back(player.getPerson().getName());
-			rankPoints.push_back(player.getPerson().getTotalPoints());
-			maxNameLength = MY_Max(maxNameLength, 5 + rankNames.back().size());
+			maxNameLength = MY_Max(maxNameLength, 5 + person.getName().size());
 		}
 
 		const PlayerView& view = players.front().getView();
 		int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
-		int posY = view.getY() + view.getHeight() - (players.size() > 4 ? 50 : 20);
+		int posY = view.getY() + view.getHeight() - (ladder.size() > 4 ? 50 : 20);
 
-		for (Size i = 0; i < players.size(); i++)
-		{
-			Size best = 0;
-
-			for (Size j = 1; j < players.size() - i; j++)
-			{
-				if (rankPoints[j] > rankPoints[best])
-				{
-					best = j;
-				}
-			}
-
+		for (const Person& person : ladder)
+		{			
 			glColor4f(0, 0, 1, 0.7f);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -129,24 +117,68 @@ namespace Duel6
 				glVertex2i(posX, posY + 1);
 			glEnd();
 			glDisable(GL_BLEND);
-
-			d6Font.setColor(Color(255, players[i].isDead() ? 0 : 255, 0));
-			d6Font.print(posX, posY, rankNames[best].c_str());
-			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", rankPoints[best]);
-
-			if (best < players.size() - i - 1)
+			
+			bool isDead = false;
+			for (const Player& player : players)
 			{
-				rankNames[best] = rankNames[players.size() - i - 1];
-				rankPoints[best] = rankPoints[players.size() - i - 1];
-			}
+				if(player.getPerson().getName() == person.getName())
+				{
+					isDead = player.isDead();
+					break;
+				}
+			}			
+
+			d6Font.setColor(Color(255, isDead ? 0 : 255, 0));
+			d6Font.print(posX, posY, person.getName().c_str());
+			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", person.getTotalPoints());
 
 			posY -= 16;
 		}
 	}
 
+	void RENDER_GameOverSummary(const Game& game)
+	{
+		int width = 200;
+		int height = 50 + game.getPlayers().size() * 16;
+		int x = d6Video.getScreen().getClientWidth() / 2 - width / 2;
+		int y = d6Video.getScreen().getClientHeight() / 2 - height / 2;
+
+		glColor4f(1, 1, 1, 0.7f);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		
+		glBegin(GL_QUADS);
+			glVertex2i(x - 2, y + height + 2);
+			glVertex2i(x + width + 2, y + height + 2);
+			glVertex2i(x + width + 2, y - 2);
+			glVertex2i(x - 2, y - 2);
+		glEnd();
+
+		glColor4f(0, 0, 1, 0.7f);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		
+		glBegin(GL_QUADS);
+			glVertex2i(x, y + height);
+			glVertex2i(x + width, y + height);
+			glVertex2i(x + width, y );
+			glVertex2i(x, y);
+		glEnd();
+
+		d6Font.setColor(Color(255, 255, 255));
+		d6Font.printf(x + width / 2 - 35, y + height - 20, "Game Over");
+		
+		int count = 0;
+		int ladderY = y + height - 50;
+		for (const Person person : game.getLadder())
+		{
+			d6Font.print(x + 10, ladderY - 16*count, person.getName().c_str());
+			d6Font.printf(x + width - 40, ladderY - 16*count, "%4d", person.getTotalPoints());
+			count++;
+		}		
+	}
+
 	void RENDER_RoundsPlayed(const Game& game)
 	{
-		int width = 120;
+		int width = 135;
 		int x = d6Video.getScreen().getClientWidth() / 2 - width / 2;
 		int y = d6Video.getScreen().getClientHeight() - 20;
 		
@@ -159,7 +191,7 @@ namespace Duel6
 		glEnd();
 
 		d6Font.setColor(Color(255, 255, 255));
-		d6Font.printf(x + 8, y, "Rounds: %d|%d", game.getPlayedRounds(), game.getMaxRounds());
+		d6Font.printf(x + 8, y, "Rounds: %3d|%3d", game.getPlayedRounds(), game.getMaxRounds());
 	}
 
 	// TODO: Do zvlastni tridy
@@ -333,15 +365,15 @@ namespace Duel6
 	{
 		if (game.hasWinner())
 		{
-			Color overlayColor = game.getGameOverOverlay();
-			glColor3ub(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue());
+			Color overlayColor = game.getGameOverOverlay();			
+			glColor3ub(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue());			
 		}
 
 		const Player& player = game.getPlayers().front();
 		RENDER_SetView(player.getView());
 		RENDER_Background(game.getWorld().getBackgroundTexture());
 		d6Video.setMode(Video::Mode::Perspective);
-		RENDER_View(game, player);
+		RENDER_View(game, player);		
 	}
 
 	static void RENDER_SplitScreen(const Game& game)
@@ -416,7 +448,7 @@ namespace Duel6
 
 		if (d6ShowRanking && game.getScreenMode() == ScreenMode::FullScreen)
 		{
-			RENDER_PlayerRankings(game.getPlayers());
+			RENDER_PlayerRankings(game);
 		}
 		
 		if (game.getMaxRounds() > 0)
@@ -424,5 +456,9 @@ namespace Duel6
 			RENDER_RoundsPlayed(game);
 		}
 
+		if(game.hasWinner() && game.isOver())
+		{
+			RENDER_GameOverSummary(game);
+		}
 	}
 }

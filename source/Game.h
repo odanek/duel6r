@@ -32,6 +32,7 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <algorithm> 
 #include "Type.h"
 #include "ScreenMode.h"
 #include "Context.h"
@@ -153,7 +154,13 @@ namespace Duel6
 			this->maxRounds = maxRounds;
 		}
 
+		bool isOver() const
+		{
+			return (maxRounds > 0) && (playedRounds >= maxRounds);
+		}
+
 		Color getGameOverOverlay() const;
+		std::vector<Person> getLadder() const;	
 
 	private:
 		void beforeStart(Context* prevContext) override;
@@ -168,7 +175,7 @@ namespace Duel6
 		void splitScreenView(Player& player, Int32 x, Int32 y);
 		void switchScreenMode();
 		void nextRound(bool sameLevel);
-	};
+	};	
 }
 
 #endif
