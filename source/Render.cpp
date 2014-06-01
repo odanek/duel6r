@@ -107,8 +107,6 @@ namespace Duel6
 		int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
 		int posY = view.getY() + view.getHeight() - (players.size() > 4 ? 50 : 20);
 
-		d6Font.setColor(Color(255, 255, 0));
-
 		for (Size i = 0; i < players.size(); i++)
 		{
 			Size best = 0;
@@ -132,6 +130,7 @@ namespace Duel6
 			glEnd();
 			glDisable(GL_BLEND);
 
+			d6Font.setColor(Color(255, players[i].isDead() ? 0 : 255, 0));
 			d6Font.print(posX, posY, rankNames[best].c_str());
 			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", rankPoints[best]);
 
@@ -143,6 +142,24 @@ namespace Duel6
 
 			posY -= 16;
 		}
+	}
+
+	void RENDER_RoundsPlayed(const Game& game)
+	{
+		int width = 120;
+		int x = d6Video.getScreen().getClientWidth() / 2 - width / 2;
+		int y = d6Video.getScreen().getClientHeight() - 20;
+		
+		glBegin(GL_QUADS);
+			glColor3f(0.0f, 0.0f, 0.0f);
+			glVertex2i(x - 1, y + 17);
+			glVertex2i(x + width, y + 17);
+			glVertex2i(x + width, y - 1);
+			glVertex2i(x - 1, y - 1);
+		glEnd();
+
+		d6Font.setColor(Color(255, 255, 255));
+		d6Font.printf(x + 8, y, "Rounds: %d|%d", game.getPlayedRounds(), game.getMaxRounds());
 	}
 
 	// TODO: Do zvlastni tridy
@@ -401,5 +418,11 @@ namespace Duel6
 		{
 			RENDER_PlayerRankings(game.getPlayers());
 		}
+		
+		if (game.getMaxRounds() > 0)
+		{
+			RENDER_RoundsPlayed(game);
+		}
+
 	}
 }
