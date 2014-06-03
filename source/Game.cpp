@@ -353,17 +353,17 @@ namespace Duel6
 		Sound::playSample(D6_SND_LETS_ROCK);
 	}
 		
-	std::vector<Person> Game::getLadder() const
+	std::vector<const Player*> Game::getLadder() const
 	{
-		std::vector<Person> ladder;
+		std::vector<const Player*> ladder;
 
 		for (const Player& player : players)
 		{
-			ladder.push_back(player.getPerson());
+			ladder.push_back(&player);
 		}
 		
-		std::sort(ladder.begin(), ladder.end(), [](Person a, Person b) {
-			return b.getTotalPoints() < a.getTotalPoints();
+		std::sort(ladder.begin(), ladder.end(), [](const Player* pl1, const Player* pl2) {
+			return pl2->getPerson().getTotalPoints() < pl1->getPerson().getTotalPoints();
 		});
 		return ladder;
 	}

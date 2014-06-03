@@ -92,20 +92,19 @@ namespace Duel6
 	
 	void RENDER_PlayerRankings(const Game& game)
 	{
-		std::vector<Person> ladder = game.getLadder();
-		std::vector<Player> players = game.getPlayers();
+		std::vector<const Player*> ladder = game.getLadder();
 		Size maxNameLength = 0;;
 
-		for (const Person& person : ladder)
+		for (const Player* player : ladder)
 		{
-			maxNameLength = MY_Max(maxNameLength, 5 + person.getName().size());
+			maxNameLength = MY_Max(maxNameLength, 5 + player->getPerson().getName().size());
 		}
 
-		const PlayerView& view = players.front().getView();
+		const PlayerView& view = game.getPlayers().front().getView();
 		int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
 		int posY = view.getY() + view.getHeight() - (ladder.size() > 4 ? 50 : 20);
 
-		for (const Person& person : ladder)
+		for (const Player* player : ladder)
 		{			
 			glColor4f(0, 0, 1, 0.7f);
 			glEnable(GL_BLEND);
@@ -116,21 +115,11 @@ namespace Duel6
 				glVertex2i(posX + 8 * maxNameLength, posY + 1);
 				glVertex2i(posX, posY + 1);
 			glEnd();
-			glDisable(GL_BLEND);
-			
-			bool isDead = false;
-			for (const Player& player : players)
-			{
-				if(player.getPerson().getName() == person.getName())
-				{
-					isDead = player.isDead();
-					break;
-				}
-			}			
+			glDisable(GL_BLEND);			
 
-			d6Font.setColor(Color(255, isDead ? 0 : 255, 0));
-			d6Font.print(posX, posY, person.getName().c_str());
-			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", person.getTotalPoints());
+			d6Font.setColor(Color(255, player->isDead() ? 0 : 255, 0));
+			d6Font.print(posX, posY, player->getPerson().getName().c_str());
+			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", player->getPerson().getTotalPoints());
 
 			posY -= 16;
 		}
@@ -168,10 +157,10 @@ namespace Duel6
 		
 		int count = 0;
 		int ladderY = y + height - 50;
-		for (const Person person : game.getLadder())
+		for (const Player* player: game.getLadder())
 		{
-			d6Font.print(x + 10, ladderY - 16*count, person.getName().c_str());
-			d6Font.printf(x + width - 40, ladderY - 16*count, "%4d", person.getTotalPoints());
+			d6Font.print(x + 10, ladderY - 16*count, player->getPerson().getName().c_str());
+			d6Font.printf(x + width - 40, ladderY - 16*count, "%4d", player->getPerson().getTotalPoints());
 			count++;
 		}		
 	}
@@ -353,6 +342,7 @@ namespace Duel6
 		BONUS_DrawAll();
 		RENDER_InvulRings(game.getPlayers());
 		RENDER_Water(game.getWorld().getWater());
+
 		EXPL_DrawAll();
 
 		if (d6Wireframe)
@@ -435,7 +425,7 @@ namespace Duel6
 		}
 
 		if (game.getScreenMode() == ScreenMode::FullScreen)
-		{
+		{ 
 			d6MessageQueue.renderAllMessages(game.getPlayers().front().getView(), (game.getPlayers().size() > 4 ? 50 : 20));
 		}
 		else

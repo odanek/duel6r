@@ -369,7 +369,7 @@ namespace Duel6
 		if (screenMode == ScreenMode::SplitScreen)
 		{
 			updateCam(world.getSizeX(), world.getSizeY());
-		}
+		}		
 	}
 
 	void Player::setAnm()
