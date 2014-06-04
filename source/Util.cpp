@@ -36,7 +36,7 @@ namespace Duel6
 {
 	namespace Util
 	{
-		GLuint createTexture(const Image& image, GLint filtering)
+		GLuint createTexture(const Image& image, GLint filtering, bool clamp)
 		{
 			GLuint texture;
 			glGenTextures(1, &texture);
@@ -48,8 +48,8 @@ namespace Duel6
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
 
 			// Clamp texture coordinates
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 
 			return texture;
 		}
