@@ -358,6 +358,7 @@ namespace Duel6
 		{
 			return (state.elevator != nullptr);
 		}
+		
 
 	private:
 		void makeMove(const World& world, Float32 elapsedTime);
