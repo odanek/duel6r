@@ -25,31 +25,85 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "PersonList.h"
+#ifndef DUEL6_FORMATTER_H
+#define DUEL6_FORMATTER_H
+
+#include <string>
+#include <sstream>
+#include "Type.h"
 
 namespace Duel6
 {
-	void PersonList::save(File& file) const
+	template <class T>
+	class Formatter
 	{
-		Uint32 length = getLength();
-		file.write(&length, 4, 1);
-
-		for (const Person& person : persons)
+	public:
+		std::string format(const T& val)
 		{
-			person.serialize(file);
+			return std::to_string(val);
 		}
-	}
+	};
 
-	void PersonList::load(File& file)
+	template <>
+	class Formatter<std::string>
 	{
-		Uint32 length;
-		file.read(&length, 4, 1);
-
-		while (length-- > 0)
+	public:
+		std::string format(const std::string& val)
 		{
-			Person person;
-			person.deSerialize(file);
-			persons.push_back(person);
+			return val;
 		}
-	}
+	};
+
+	template <Size N>
+	class Formatter<const char[N]>
+	{
+	private:
+		typedef const char Type[N];
+
+	public:
+		std::string format(const Type& val)
+		{
+			return std::string(val);
+		}
+	};
+
+	template <>
+	class Formatter<const char*>
+	{
+	private:
+		typedef const char* Type;
+
+	public:
+		std::string format(const Type& val)
+		{
+			return std::string(val);
+		}
+	};
+
+	template <>
+	class Formatter<char>
+	{
+	public:
+		std::string format(const char& val)
+		{
+			return std::string(1, val);
+		}
+	};
+
+	template <class T>
+	class Formatter<T*>
+	{
+	private:
+		typedef T* Type;
+
+	public:
+		std::string format(const Type& val)
+		{
+			std::stringstream ret;
+			ret << "0x" << std::hex << val;
+			return ret.str();
+		}
+	};
 }
+
+#endif

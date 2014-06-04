@@ -29,6 +29,8 @@
 #include "Util.h"
 #include "ElevatorList.h"
 #include "TextureManager.h"
+#include "Format.h"
+#include "Lang.h"
 #include "Globals.h"
 
 namespace Duel6
@@ -37,7 +39,9 @@ namespace Duel6
 	{
 		blockMeta.clear();		
 		File file(path, "rb");
-		while (!file.isEof())
+
+		Size blocks = File::getSize(path) / 8;
+		for (Size i = 0; i < blocks; ++i)
 		{
 			Int32 blockAnimations;			
 			file.read(&blockAnimations, 4, 1);
@@ -45,7 +49,7 @@ namespace Duel6
 			Int32 blockType;
 			file.read(&blockType, 4, 1);
 
-			blockMeta.push_back(Block(blockMeta.size(), (Block::Type)blockType, blockAnimations));
+			blockMeta.push_back(Block(i, (Block::Type)blockType, blockAnimations));
 		}
 		file.close();
 	}
@@ -74,34 +78,27 @@ namespace Duel6
 	void World::loadElevators(File& file, bool mirror)
 	{
 		// The rest of file is elevator data
-		d6Console.printf(MY_L("APP00026|...Nahravam vytahy - "));
+		d6Console.print(D6_L("...Loading elevators - "));
+		
+		Int32 elevators;
+		file.read(&elevators, 4, 1);
 
-		std::vector<Int32> elevatorData;
-		while (!file.isEof())
-		{
-			Int32 data;
-			file.read(&data, 4, 1);
-			elevatorData.push_back(data);
-		}
-
-		Int32 elevators = elevatorData.empty() ? 0 : elevatorData[0];
-		d6Console.printf(MY_L("APP00027|%d vytahu\n"), elevators);
+		d6Console.print(Format(D6_L("{0} elevators\n")) << elevators);
 
 		ELEV_Clear();
-
-		auto edata = std::next(elevatorData.begin());
+		
 		while (elevators-- > 0)
 		{
 			Elevator elevator;
-			
-			Int32 controlPoints = edata[0];
-			elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - edata[1] : edata[1], height - edata[2]));
-			edata += 3;
 
-			while (controlPoints-- > 0)
+			Int32 controlPoints;
+			file.read(&controlPoints, 4, 1);
+
+			for (Int32 i = 0; i < controlPoints + 1; ++i)
 			{
-				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - edata[0] : edata[0], height - edata[1]));
-				edata += 2;
+				Int32 pos[2];
+				file.read(pos, 4, 2);
+				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - pos[0] : pos[0], height - pos[1]));
 			}
 
 			ELEV_Add(elevator);

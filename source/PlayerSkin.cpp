@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "mylib/mylib.h"
 #include "PlayerSkin.h"
 #include "TextureManager.h"
 #include "Globals.h"
@@ -69,7 +68,7 @@ namespace Duel6
 	PlayerSkin::PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors)
 		: key(key)
 	{
-		d6Console.printf(MY_L("APP00049|Inicializace hrace - nahravam textury\n"));
+		d6Console.print(D6_L("Loading player textures\n"));
 
 		TextureManager::SubstitutionTable substTable;
 		substTable[Color(255, 255, 0)] = colors.get(PlayerSkinColors::HairTop);

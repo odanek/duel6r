@@ -100,7 +100,7 @@ namespace Duel6
 		{
 			rankNames.push_back(player.getPerson().getName());
 			rankPoints.push_back(player.getPerson().getTotalPoints());
-			maxNameLength = MY_Max(maxNameLength, 5 + rankNames.back().size());
+			maxNameLength = std::max(maxNameLength, 5 + rankNames.back().size());
 		}
 
 		const PlayerView& view = players.front().getView();
@@ -132,8 +132,8 @@ namespace Duel6
 			glEnd();
 			glDisable(GL_BLEND);
 
-			d6Font.print(posX, posY, rankNames[best].c_str());
-			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", rankPoints[best]);
+			d6Font.print(posX, posY, rankNames[best]);
+			d6Font.print(posX + 8 * (maxNameLength - 5), posY, Format("|{0,4}") << rankPoints[best]);
 
 			if (best < players.size() - i - 1)
 			{
@@ -187,8 +187,8 @@ namespace Duel6
 
 		const std::string& playerName = player.getPerson().getName();
 		d6Font.setColor(Color(0, 0, 255));
-		d6Font.printf(ibp[0] + 5, ibp[1] - 13, "%d", player.getAmmo());
-		d6Font.printf(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName.c_str());
+		d6Font.print(ibp[0] + 5, ibp[1] - 13, std::to_string(player.getAmmo()));
+		d6Font.print(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName);
 
 		if (player.getBonus() != 0)
 		{
@@ -211,19 +211,11 @@ namespace Duel6
 
 	static void RENDER_FpsCounter()
 	{
-		int x = d6Video.getScreen().getClientWidth() - 80;
+		std::string fpsCount = Format("FPS - {0}") << Int32(d6Video.getFps());
+		Size width = 8 * fpsCount.size() + 2;
+
+		int x = d6Video.getScreen().getClientWidth() - width;
 		int y = d6Video.getScreen().getClientHeight() - 20;
- 		int fps = (int)d6Video.getFps();
-		int length = 0;
-		if (fps < 10)
-			length = 1;
-		else if (fps < 100)
-			length = 2;
-		else if (fps < 1000)
-			length = 3;
-		else
-			length = 4;
-		int width = ((6 + length) << 3) + 2;
 
 		glBegin(GL_QUADS);
 			glColor3f(0.0f, 0.0f, 0.0f);
@@ -234,7 +226,7 @@ namespace Duel6
 		glEnd();
 
 		d6Font.setColor(Color(255, 255, 255));
-		d6Font.printf(x, y, "FPS - %d", (int)d6Video.getFps());
+		d6Font.print(x, y, fpsCount);
 	}
 
 	static void RENDER_InvulRing(const Player& player)

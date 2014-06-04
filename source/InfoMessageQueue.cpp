@@ -33,16 +33,9 @@
 
 namespace Duel6
 {
-	InfoMessageQueue& InfoMessageQueue::add(const Player& player, const char *formatString, ...)
+	InfoMessageQueue& InfoMessageQueue::add(const Player& player, const std::string& msg)
 	{
-		char formattedText[100];
-		va_list argptr;
-
-		va_start(argptr, formatString);
-		vsprintf(formattedText, formatString, argptr);
-		va_end(argptr);
-
-		messages.push_back(InfoMessage(player, formattedText, duration));
+		messages.push_back(InfoMessage(player, msg, duration));
 		return *this;
 	}
 
@@ -106,7 +99,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 
-		d6Font.print(x, y, msg.c_str());
+		d6Font.print(x, y, msg);
 	}
 
 }

@@ -25,31 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "PersonList.h"
+#ifndef DUEL6_EXCEPTION_VIDEOEXCEPTION_H
+#define DUEL6_EXCEPTION_VIDEOEXCEPTION_H
+
+#include "Exception.h"
 
 namespace Duel6
 {
-	void PersonList::save(File& file) const
+	class VideoException
+		: public Exception
 	{
-		Uint32 length = getLength();
-		file.write(&length, 4, 1);
-
-		for (const Person& person : persons)
-		{
-			person.serialize(file);
-		}
-	}
-
-	void PersonList::load(File& file)
-	{
-		Uint32 length;
-		file.read(&length, 4, 1);
-
-		while (length-- > 0)
-		{
-			Person person;
-			person.deSerialize(file);
-			persons.push_back(person);
-		}
-	}
+	public:
+		VideoException(const std::string& file, Size line, const std::string& message)
+			: Exception(file, line, message)
+		{}
+	};
 }
+
+#endif

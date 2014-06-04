@@ -203,7 +203,7 @@ void Console::executeSingleLine(const std::string& line)
 		{
 			if (++aliasloop == CON_MAX_ALIAS_REC)
 			{
-				printf(CON_Lang("CONSTR0001|CON_Error : Zacykleni alias rekurze, zbyvajici aliasy jsou ignorovany\n"));
+				print(CON_Lang("Console error : Alias recursion overflow, remaining alias commands will be ignored\n"));
 			}
 			else if (aliasloop < CON_MAX_ALIAS_REC)
 			{
@@ -219,7 +219,7 @@ void Console::executeSingleLine(const std::string& line)
 			return;
 		}
 
-		printf(CON_Lang("CONSTR0002|Neznamy prikaz : \"%s\"\n"), arguments.get(0).c_str());
+		print(CON_Format(CON_Lang("Unknown command : \"{0}\"\n")) << arguments.get(0));
 	}
 }
 

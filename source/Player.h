@@ -38,8 +38,8 @@
 #include "ScreenMode.h"
 #include "Bonus.h"
 
-#define D6_MAX_LIFE				100
-#define D6_MAX_AIR				200
+#define D6_MAX_LIFE				100.0f
+#define D6_MAX_AIR				200.0f
 
 namespace Duel6
 {

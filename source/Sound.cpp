@@ -28,10 +28,11 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
+#include "SoundException.h"
 #include "Type.h"
 #include "Globals.h"
 
-#define SND_TEST(x) if (x == -1) { SOUND_Error (); return; }
+#define SND_TEST(x) if (x == -1) { SOUND_Error(); return; }
 
 namespace Duel6
 {
@@ -62,7 +63,7 @@ namespace Duel6
 			snd.inited = false;
 			snd.playing = false;
 			Mix_CloseAudio();
-			MY_Err(MY_ErrDump(MY_L("APP00001|SDL_mixer chyba : %s"), Mix_GetError()));
+			D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << Mix_GetError());
 		}
 
 		/*
@@ -77,15 +78,11 @@ namespace Duel6
 				return;
 			}
 
-			d6Console.printf(MY_L("APP00002|\n===Inicializace zvukoveho systemu===\n"));
-			d6Console.printf(MY_L("APP00003|...Startuji knihovnu SDL_mixer\n"));
+			d6Console.print(D6_L("\n===Initialization of sound sub-system===\n"));
+			d6Console.print(D6_L("...Starting SDL_mixer library\n"));
 
 			// Init SDL audio sub sytem
-			if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
-			{
-				d6Console.printf(MY_L("APP00004|SDL_mixer chyba: neuspesna inicializace\n"));
-				return;
-			}
+			SND_TEST(SDL_InitSubSystem(SDL_INIT_AUDIO))
 
 			// Init SDL_mixer library
 			SND_TEST(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024))
@@ -93,7 +90,7 @@ namespace Duel6
 			// Allocate channels
 			channels = Mix_AllocateChannels(channels);
 
-			d6Console.printf(MY_L("APP00005|...Frekvence: %d\n...Kanalu: %d\n"), MIX_DEFAULT_FREQUENCY, channels);
+			d6Console.print(Format(D6_L("...Frequency: {0}\n...Channels: {0}\n")) << MIX_DEFAULT_FREQUENCY << channels);
 
 			// Set up variables
 			snd.channels = channels;
@@ -113,11 +110,11 @@ namespace Duel6
 				Mix_Music *module = Mix_LoadMUS(nm.c_str());
 				if (module == nullptr)
 				{
-					d6Console.printf(MY_L("APP00006|SDL_mixer chyba: nelze nacist %s\n"), nm.c_str());
+					d6Console.print(Format(D6_L("SDL_mixer error: unable to load module {0}\n")) << nm);
 					return -1;
 				}
 				snd.modules.push_back(module);
-				d6Console.printf(MY_L("APP00007|...Nacten modul %s\n"), nm.c_str());
+				d6Console.print(Format(D6_L("...Module loaded: {0}\n")) << nm);
 				return snd.modules.size() - 1;
 			}
 
@@ -136,11 +133,11 @@ namespace Duel6
 				Mix_Chunk* sample = Mix_LoadWAV(nm.c_str());					
 				if (sample == nullptr)
 				{
-					d6Console.printf(MY_L("APP00008|SDL_mixer chyba: nelze nacist %s\n"), nm.c_str());
+					d6Console.print(Format(D6_L("SDL_mixer error: unable to load sample {0}\n")) << nm);
 					return -1;
 				}
 				snd.samples.push_back(sample);
-				d6Console.printf(MY_L("APP00009|...Nacten sampl %s\n"), nm.c_str());
+				d6Console.print(Format(D6_L("...Sample loaded: {0}\n")) << nm);
 				return snd.samples.size() - 1;
 			}
 
@@ -205,7 +202,7 @@ namespace Duel6
 		{
 			if (snd.inited)
 			{
-				d6Console.printf(MY_L("APP00010|...Nastaveni hlasitosti %d\n"), volume);
+				d6Console.print(Format(D6_L("...Volume set to {0}\n")) << volume);
 				Mix_VolumeMusic(volume);
 				Mix_Volume(-1, volume);
 			}
@@ -218,7 +215,7 @@ namespace Duel6
 		*/
 		void deInit()
 		{
-			if (!snd.inited)
+			if (snd.inited)
 			{
 				// Stop and free modules
 				stopMusic();

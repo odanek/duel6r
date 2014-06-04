@@ -33,7 +33,7 @@ namespace Duel6
 {
 	void WaterList::build(FaceList& waterFaces, Float32 waveHeight)
 	{
-		d6Console.printf(MY_L("APP00083|...Sestavuji water-list\n"));
+		d6Console.print(D6_L("...Building water-list\n"));
 		this->waveHeight = waveHeight;
 		vertexes.clear();
 		for (Vertex& vertex : waterFaces.getVertexes())

@@ -100,7 +100,7 @@ namespace Duel6
 	*/
 	void Menu::joyRescan()
 	{
-		d6Console.printf (MY_L("COSTR0004|\n===Inicializace vstupnich zarizeni===\n"));
+		d6Console.print(D6_L("\n===Initialization of input devices===\n"));
 		d6Input.joysticks.clear();
 
 		if (SDL_WasInit(SDL_INIT_JOYSTICK))
@@ -110,17 +110,17 @@ namespace Duel6
 		
 		if (SDL_InitSubSystem (SDL_INIT_JOYSTICK))
 		{
-			d6Console.printf (MY_L("COSTR0002|...Nepodarilo se inicializovat subsystem pro joypady"));            
+			d6Console.print(D6_L("...Unable to initialize joypad sub-system"));            
 		}
 		else
 		{
 			size_t joysticks = SDL_NumJoysticks();
-			d6Console.printf (MY_L("COSTR0003|...Nalezeno %d joypadu\n"), joysticks);
+			d6Console.print(Format(D6_L("...Found {0} joypads\n")) << joysticks);
 
 			for (size_t i = 0; i < joysticks; i++)
 			{
 				d6Input.joysticks.push_back(SDL_JoystickOpen(i));
-				d6Console.printf ("... * %s\n", SDL_JoystickName(d6Input.joysticks[i]));
+				d6Console.print(Format("... * {0}\n") << SDL_JoystickName(d6Input.joysticks[i]));
 			}
 		}
 
@@ -129,22 +129,21 @@ namespace Duel6
 			controlSwitch[i]->Clear();
 		}
 
-		char f[30];
 		for (Int32 i = 0; i < 4; i++)
 		{			
-			sprintf(f, "%s %d", MY_L("APP00045|Klavesy"), i + 1);
+			std::string keyboardDevice = Format("{0} {1}") << D6_L("Keys") << (i + 1);
 			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
 			{
-				controlSwitch[j]->AddItem(f);
+				controlSwitch[j]->AddItem(keyboardDevice);
 			}
 		}
 
 		for (Uint32 i = 0; i < d6Input.joysticks.size(); i++)
 		{
-			sprintf(f, "Joypad %d", i + 1);
+			std::string joypadDevice = Format("{0} {1}") << D6_L("Joypad") << (i + 1);
 			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
 			{
-				controlSwitch[j]->AddItem(f);
+				controlSwitch[j]->AddItem(joypadDevice);
 			}
 		}
 
@@ -156,10 +155,10 @@ namespace Duel6
 
 	void Menu::init()
 	{		
-		d6Console.printf(MY_L("APP00029|\n===Menu inicializace===\n"));
+		d6Console.print(D6_L("\n===Menu initialization===\n"));
 		menuBannerTexture = d6TextureManager.get(D6_TEXTURE_MENU_KEY)[0];
 		loadPersonData();
-		d6Console.printf(MY_L("APP00030|...Startuji knihovnu glib\n"));
+		d6Console.print(D6_L("...Starting GUI library\n"));
 		desk = Desk::Create();
 		desk->ScreenSize(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight(),
 			(d6Video.getScreen().getClientWidth() - 800) / 2, (d6Video.getScreen().getClientHeight() - 600) / 2);
@@ -187,8 +186,8 @@ namespace Duel6
 		listbox[5] = new listbox_c(false);
 		listbox[5]->SetPosition(644, 129, 15, 2, 16);
 		listbox[5]->SetNG(4, 1);
-		listbox[5]->AddItem(MY_L("APP00031|Cela obrazovka"));
-		listbox[5]->AddItem(MY_L("APP00032|Split screen"));
+		listbox[5]->AddItem(D6_L("Fullscreen"));
+		listbox[5]->AddItem(D6_L("Split screen"));
 
 		listbox[6] = new listbox_c(true);
 		listbox[6]->SetPosition(500, 129, 13, 5, 16);
@@ -206,60 +205,60 @@ namespace Duel6
 
 		button[2] = new button_c;
 		button[2]->SetPosition(284, 281, 80, 31);
-		button[2]->SetCaption(MY_L("APP00033|Smaz"));
+		button[2]->SetCaption(D6_L("Remove"));
 		button[2]->SetNG(8, 1);
 
 		button[3] = new button_c;
 		button[3]->SetPosition(284, 316, 80, 31);
-		button[3]->SetCaption(MY_L("APP00034|Pridej"));
+		button[3]->SetCaption(D6_L("Add"));
 		button[3]->SetNG(9, 1);
 
 		button[6] = new button_c;
 		button[6]->SetPosition(370, 281, 120, 31);
-		button[6]->SetCaption(MY_L("APP00092|Vynuluj (F3)"));
+		button[6]->SetCaption(D6_L("Clear (F3)"));
 		button[6]->SetNG(30, 1);
 
 		button[4] = new button_c;
 		button[4]->SetPosition(500, 300, 125, 73);
-		button[4]->SetCaption(MY_L("APP00035|Hrat (F1)"));
+		button[4]->SetCaption(D6_L("Play (F1)"));
 		button[4]->SetNG(10, 1);
 
 		button[5] = new button_c;
 		button[5]->SetPosition(644, 300, 125, 73);
-		button[5]->SetCaption(MY_L("APP00036|Konec (ESC)"));
+		button[5]->SetCaption(D6_L("Quit (ESC)"));
 		button[5]->SetNG(11, 1);
 
 		label[0] = new label_c;
 		label[0]->SetPosition(10, 380, 772, 18);
-		label[0]->SetCaption(MY_L("APP00037|       Jmeno        |    Her    | Vitezstvi |   Strel   | Presnost  |   Zabiti   |   Bodu"));
+		label[0]->SetCaption(D6_L("        Name        |   Games   |    Wins   |   Shots   | Accuracy  |    Kills   | Points"));
 
 		label[1] = new label_c;
 		label[1]->SetPosition(500, 216, 125, 18);
-		label[1]->SetCaption(MY_L("APP00038|Pozadi"));
+		label[1]->SetCaption(D6_L("Background"));
 
 		label[2] = new label_c;
 		label[2]->SetPosition(644, 170, 125, 18);
-		label[2]->SetCaption(MY_L("APP00039|Mapa"));
+		label[2]->SetCaption(D6_L("Level"));
 
 		label[3] = new label_c;
 		label[3]->SetPosition(644, 110, 125, 18);
-		label[3]->SetCaption(MY_L("APP00040|Mod obrazovky"));
+		label[3]->SetCaption(D6_L("Screen mode"));
 
 		label[4] = new label_c;
 		label[4]->SetPosition(500, 110, 125, 18);
-		label[4]->SetCaption(MY_L("APP00041|Zoom"));
+		label[4]->SetCaption(D6_L("Zoom"));
 
 		label[5] = new label_c;
 		label[5]->SetPosition(10, 110, 181, 18);
-		label[5]->SetCaption(MY_L("APP00042|Databaze hracu"));
+		label[5]->SetCaption(D6_L("Persons"));
 
 		label[6] = new label_c;
 		label[6]->SetPosition(200, 110, 165, 18);
-		label[6]->SetCaption(MY_L("APP00043|Hraci"));
+		label[6]->SetCaption(D6_L("Players"));
 
 		label[7] = new label_c;
 		label[7]->SetPosition(370, 110, 120, 18);
-		label[7]->SetCaption(MY_L("APP00044|Ovladani"));
+		label[7]->SetCaption(D6_L("Controller"));
 
 		textbox = new textbox_c;
 		textbox->SetPosition(200, 351, 19, 13, D6_ALL_CHR);
@@ -278,30 +277,27 @@ namespace Duel6
 		backgroundCount = d6TextureManager.get(D6_TEXTURE_BCG_KEY).size();
 		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
-		listbox[3]->AddItem(MY_L("APP00046|Nahodna"));
+		listbox[3]->AddItem(D6_L("Random"));
 		for (Size i = 0; i < levelList.getLength(); i++)
 		{
-			listbox[3]->AddItem(levelList.getFileName(i).c_str());
+			listbox[3]->AddItem(levelList.getFileName(i));
 		}
 
-		char f[30];
-		listbox[4]->AddItem(MY_L("APP00047|Nahodne"));
+		listbox[4]->AddItem(D6_L("Random"));
 		for (Size i = 0; i < backgroundCount; i++)
 		{
-			sprintf(f, "%d", i + 1);
-			listbox[4]->AddItem(f);
+			listbox[4]->AddItem(std::to_string(i + 1));
 		}
 		
 		for (Int32 i = 5; i < 21; i++)
 		{
-			sprintf(f, "%d", i);
-			listbox[6]->AddItem(f);
+			listbox[6]->AddItem(std::to_string(i));
 		}
 		listbox[6]->SetCur(8);
 
 		for (const Person& person : persons.list())
 		{
-			listbox[1]->AddItem(person.getName().c_str());
+			listbox[1]->AddItem(person.getName());
 		}
 
 		playing = 0;
@@ -310,12 +306,12 @@ namespace Duel6
 			if (willPlay[i] != -1)
 			{
 				const Person& person = persons.get(willPlay[i]);
-				listbox[2]->AddItem(person.getName().c_str());
+				listbox[2]->AddItem(person.getName());
 				playing++;
 			}
 		}
 
-		d6Console.printf(MY_L("APP00086|\n===Nacteni hudebnich souboru===\n"));
+		d6Console.print(D6_L("\n===Loading sound data===\n"));
 		Sound::loadModule("sound/undead.xm");
 		for (Size i = 0; i < D6_SOUNDS; i++)
 		{
@@ -329,20 +325,6 @@ namespace Duel6
 		persons.save(file);
 		file.write(willPlay, 4, 8);
 		file.close();
-	}
-
-	static void MENU_Pit(char *r, const char *f, ...)
-	{
-		char    r2[50];
-		int i = 0;
-		va_list argptr;
-
-		va_start(argptr, f);
-		vsprintf(r2, f, argptr);
-		va_end(argptr);
-
-		while (r2[i])
-			*(r++) = r2[i++];
 	}
 
 	void Menu::rebuildTable()
@@ -369,24 +351,13 @@ namespace Duel6
 			}
 		}
 
-		char ret[100];
 		for (Size i = 0; i < persons.getLength(); i++)
 		{
 			const Person& person = persons.get(pi[i]);
-
-			memset(ret, 0, 100);
-			memset(ret, ' ', 94);
-			MENU_Pit(ret, "%s", person.getName().c_str());
-			MENU_Pit(&ret[20], "| %d", person.getGames());
-			MENU_Pit(&ret[32], "| %d", person.getWins());
-			MENU_Pit(&ret[44], "| %d", person.getShots());
-			if (person.getShots() > 0)
-				MENU_Pit(&ret[56], "| %d%%", person.getHits() * 100 / person.getShots());
-			else
-				MENU_Pit(&ret[56], "| 0%%");
-			MENU_Pit(&ret[68], "| %d", person.getKills());
-			MENU_Pit(&ret[81], "| %d", person.getTotalPoints());
-			listbox[0]->AddItem(ret);
+			Int32 accuracy = (person.getShots() > 0) ? person.getHits() * 100 / person.getShots() : 0;
+			std::string personStat = Format("{0,-20}|{1,10} |{2,10} |{3,10} |{4,9}% |{5,11} |{6,10}") << person.getName()
+				<< person.getGames() << person.getWins() << person.getShots() << accuracy << person.getKills() << person.getTotalPoints();
+			listbox[0]->AddItem(personStat);
 		}
 	}
 
@@ -401,7 +372,7 @@ namespace Duel6
 				if (willPlay[i] == c)
 					return;
 			willPlay[playing++] = c;
-			listbox[2]->AddItem(persons.get(c).getName().c_str());
+			listbox[2]->AddItem(persons.get(c).getName());
 		}
 	}
 
@@ -440,7 +411,7 @@ namespace Duel6
 		glEnd();
 		glLineWidth(1);
 		d6Font.setColor(Color(255, 0, 0));
-		d6Font.print(x + 30, y + 2, question.c_str());
+		d6Font.print(x + 30, y + 2, question);
 		d6Video.swapBuffers(d6Console);
 
 		SDL_Event event;
@@ -475,7 +446,7 @@ namespace Duel6
 
 	bool Menu::deleteQuestion()
 	{
-		return question(MY_L("APP00090|Opravdu smazat? (A/N)"));
+		return question(D6_L("Really delete? (Y/N)"));
 	}
 	
 	void Menu::cleanPersonData()
@@ -494,7 +465,7 @@ namespace Duel6
 
 		if (roundLimit)
 		{
-			if(!question(MY_L("APP00090|Smazat data a spustit novou hru? (A/N)")))
+			if(!question(D6_L("Clear statistics and start a new game? (Y/N)")))
 			{
 				return;
 				
@@ -657,7 +628,7 @@ namespace Duel6
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
 
 		d6Font.setColor(Color(255, 255, 255));
-		d6Font.printf(687, d6Video.getScreen().getClientHeight() - 20, "%s %s", MY_L("APP00048|verze"), APP_VERSION);
+		d6Font.print(687, d6Video.getScreen().getClientHeight() - 20, Format("{0} {1}") << D6_L("version") << APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, menuBannerTexture);

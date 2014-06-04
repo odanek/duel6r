@@ -107,55 +107,55 @@ namespace Duel6
 	static void BONUS_Apply(const Bonus& bonus, Player& player)
 	{
 		Int32 duration = 13 + rand() % 17;
-		Int32 hit = (D6_MAX_LIFE / 7) + rand() % (D6_MAX_LIFE / 2);
+		Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
 		Size type = (bonus.getType() == D6_BONUS_GUESS) ? d6BonusArt[rand() % (D6_BONUS_COUNT - 1)] : bonus.getType();
 
 		switch (type)
 		{
 		case D6_BONUS_INVIS:
 			player.setBonus(type, duration).setAlpha(0.2f);
-			d6MessageQueue.add(player, MY_L("APP00094|Neviditelnost na %d sekund"), duration);
+			d6MessageQueue.add(player, Format(D6_L("Invisibility for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_SPEED:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, MY_L("APP00093|Rychly pohyb na %d sekund"), duration);
+			d6MessageQueue.add(player, Format(D6_L("Fast movement for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_LIFEP:
 			player.adjustLife(Float32(hit));
-			d6MessageQueue.add(player, MY_L("APP00012|Zivot +%d"), hit);
+			d6MessageQueue.add(player, Format(D6_L("Life +{0}")) << hit);
 			break;
 
 		case D6_BONUS_LIFEM:
 			player.hit(Float32(hit));
-			d6MessageQueue.add(player, MY_L("APP00013|Zivot -%d"), hit);
+			d6MessageQueue.add(player, Format(D6_L("Life -{0}")) << hit);
 			break;
 
 		case D6_BONUS_LIFEF:
 			player.setFullLife();
-			d6MessageQueue.add(player, MY_L("APP00014|Plny zivot"), hit);
+			d6MessageQueue.add(player, D6_L("Full life"));
 			break;
 
 		case D6_BONUS_SHOTS:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, MY_L("APP00015|Rychle nabiti na %d sekund"), duration);
+			d6MessageQueue.add(player, Format(D6_L("Fast reload for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_SHOTP:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, MY_L("APP00016|Silne strely na %d sekund"), duration);
+			d6MessageQueue.add(player, Format(D6_L("Powerful shots for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_INVUL:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, MY_L("APP00017|Nesmrtelnost na %d sekund"), duration);
+			d6MessageQueue.add(player, Format(D6_L("Invulnerability for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_BULLT:
 			hit = 5 + rand() % 12;
 			player.pickAmmo(hit);
-			d6MessageQueue.add(player, MY_L("APP00018|Naboje +%d"), hit);
+			d6MessageQueue.add(player, Format(D6_L("Bullets +{0}")) << hit);
 			break;
 		}
 	}
@@ -187,7 +187,7 @@ namespace Duel6
 		}
 
 		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());
-		d6MessageQueue.add(player, MY_L("APP00019|Sebral jsi zbran %s"), MY_L(bonus.getWeaponType().name));
+		d6MessageQueue.add(player, Format(D6_L("You picked up gun {0}")) << D6_L(bonus.getWeaponType().name));
 	}
 
 	void BONUS_CheckPick(Player& player)

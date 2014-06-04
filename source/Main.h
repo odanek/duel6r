@@ -42,7 +42,9 @@ namespace Duel6
 			: requestClose(false)
 		{}
 
+		void setup(Int32 argc, char** argv);
 		void run();
+		void tearDown();
 
 	private:
 		void processEvents(Context& context);
