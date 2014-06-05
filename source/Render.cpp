@@ -275,6 +275,37 @@ namespace Duel6
 		d6Font.printf(x, y, "FPS - %d", (int)d6Video.getFps());
 	}
 
+        static void RENDER_YouAreHere(const Game& game)
+	{
+            for (const Player& player : game.getPlayers())
+            {
+                float   x, y, X, Y;
+                int     p, uh, u;
+
+                x = player.getX() + 0.5f;  // TODO: Coord
+                y = player.getY() + 0.5f;  // TODO: Coord
+                p = int(player.getBonusDuration() * 30) % 360;
+
+                glColor3ub(255, 0, 0);
+                glDisable(GL_TEXTURE_2D);
+                glPointSize(4.0f);
+                glBegin(GL_POINTS);
+
+                for (uh = p; uh < 360 + p; uh += 1)
+                {
+                        u = uh % 360;
+                        X = x + 0.5f * Math::fastCos(90 + u);
+                        Y = y + 0.5f * Math::fastCos(u);
+                        glVertex3f(X, Y, 1.01f);
+                }
+
+                glEnd();
+                glEnable(GL_TEXTURE_2D);
+                glPointSize(1.0f);
+                glColor3ub(255, 255, 255);
+            }
+	}                
+        
 	static void RENDER_InvulRing(const Player& player)
 	{
 		float   x, y, X, Y;
@@ -341,8 +372,8 @@ namespace Duel6
 		d6SpriteList.render();
 		BONUS_DrawAll();
 		RENDER_InvulRings(game.getPlayers());
+                RENDER_YouAreHere(game);
 		RENDER_Water(game.getWorld().getWater());
-
 		EXPL_DrawAll();
 
 		if (d6Wireframe)
@@ -418,7 +449,7 @@ namespace Duel6
 		{
 			RENDER_PlayerStatus(player);
 		}
-
+                
 		if (d6ShowFps)
 		{
 			RENDER_FpsCounter();
@@ -449,6 +480,6 @@ namespace Duel6
 		if(game.hasWinner() && game.isOver())
 		{
 			RENDER_GameOverSummary(game);
-		}
+		}                
 	}
 }
