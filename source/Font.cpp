@@ -56,16 +56,6 @@ namespace Duel6
 
 	/*
 	==================================================
-	Nastaveni barvy jakou se bude psat
-	==================================================
-	*/
-	void Font::setColor(const Color& color)
-	{
-		this->color = color;
-	}
-
-	/*
-	==================================================
 	Vykresleni jednoho znaku
 	==================================================
 	*/
@@ -95,7 +85,7 @@ namespace Duel6
 	Vypsani retezce
 	==================================================
 	*/
-	void Font::print(Int32 x, Int32 y, const std::string& str) const
+	void Font::print(Int32 x, Int32 y, const Color& color, const std::string& str) const
 	{
 		if (xMul) x *= fontSZX;
 		if (yMul) y *= fontSZY;

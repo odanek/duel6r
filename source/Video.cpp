@@ -160,7 +160,7 @@ namespace Duel6
 		return glc;
 	}
 
-	void Video::setMode(Mode mode)
+	void Video::setMode(Mode mode) const
 	{
 		if (mode == Mode::Perspective)
 		{

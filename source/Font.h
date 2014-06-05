@@ -45,7 +45,6 @@ namespace Duel6
 	private:
 		std::vector<Uint8> data;
 		Int32 fontSZX, fontSZY;
-		Color color;
 		bool xMul;
 		bool yMul;
 		bool yRev;
@@ -56,8 +55,7 @@ namespace Duel6
 		{}
 
 		void load(const std::string& fontFile);
-		void setColor(const Color& color);
-		void print(Int32 x, Int32 y, const std::string& str) const;		
+		void print(Int32 x, Int32 y, const Color& color, const std::string& str) const;		
 		void setMode(bool xMul, bool yMul, bool yRev);
 		const Uint8* get();		
 				

@@ -38,6 +38,7 @@
 #include "Context.h"
 #include "World.h"
 #include "Player.h"
+#include "Render.h"
 
 namespace Duel6
 {
@@ -74,6 +75,7 @@ namespace Duel6
 		};
 
 	private:
+		Renderer renderer;
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
 		Size lastLevel;
@@ -157,6 +159,11 @@ namespace Duel6
 		bool isOver() const
 		{
 			return (maxRounds > 0) && (playedRounds >= maxRounds);
+		}
+
+		Renderer& getRenderer()
+		{
+			return renderer;
 		}
 
 		Color getGameOverOverlay() const;

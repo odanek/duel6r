@@ -37,20 +37,21 @@
 #include "Video.h"
 #include "Font.h"
 #include "Globals.h"
+#include "Render.h"
 
 namespace Duel6
 {
-	void RENDER_SetView(const PlayerView& view)
+	void Renderer::setView(const PlayerView& view) const
 	{
 		glViewport(view.getX(), view.getY(), view.getWidth(), view.getHeight());
 	}
 
-	void RENDER_SetView(int x, int y, int width, int height)
+	void Renderer::setView(int x, int y, int width, int height) const
 	{
 		glViewport(x, y, width, height);
 	}
 
-	static void RENDER_Water(const FaceList& water)
+	void Renderer::water(const FaceList& water) const
 	{
 		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
@@ -64,7 +65,7 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	static void RENDER_Sprites(const FaceList& sprites)
+	void Renderer::sprites(const FaceList& sprites) const
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
@@ -75,22 +76,22 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	static void RENDER_Background(GLuint texture)
+	void Renderer::background(GLuint texture) const
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex2i(0, d6Video.getScreen().getClientHeight());
-		glTexCoord2f(1, 0); glVertex2i(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
-		glTexCoord2f(1, 1); glVertex2i(d6Video.getScreen().getClientWidth(), 0);
+		glTexCoord2f(0, 0); glVertex2i(0, video.getScreen().getClientHeight());
+		glTexCoord2f(1, 0); glVertex2i(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
+		glTexCoord2f(1, 1); glVertex2i(video.getScreen().getClientWidth(), 0);
 		glTexCoord2f(0, 1); glVertex2i(0, 0);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
 	}
 	
-	void RENDER_PlayerRankings(const Game& game)
+	void Renderer::playerRankings() const
 	{
 		std::vector<const Player*> ladder = game.getLadder();
 		Size maxNameLength = 0;;
@@ -117,20 +118,20 @@ namespace Duel6
 			glEnd();
 			glDisable(GL_BLEND);			
 
-			d6Font.setColor(Color(255, player->isDead() ? 0 : 255, 0));
-			d6Font.print(posX, posY, player->getPerson().getName().c_str());
-			d6Font.print(posX + 8 * (maxNameLength - 5), posY, Format("|{0,4}") << player->getPerson().getTotalPoints());
+			Color fontColor(255, player->isDead() ? 0 : 255, 0);
+			font.print(posX, posY, fontColor, player->getPerson().getName());
+			font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << player->getPerson().getTotalPoints());
 
 			posY -= 16;
 		}
 	}
 
-	void RENDER_GameOverSummary(const Game& game)
+	void Renderer::gameOverSummary() const
 	{
 		int width = 200;
 		int height = 50 + game.getPlayers().size() * 16;
-		int x = d6Video.getScreen().getClientWidth() / 2 - width / 2;
-		int y = d6Video.getScreen().getClientHeight() / 2 - height / 2;
+		int x = video.getScreen().getClientWidth() / 2 - width / 2;
+		int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
 		glColor4f(1, 1, 1, 0.7f);
 		glEnable(GL_BLEND);
@@ -152,24 +153,24 @@ namespace Duel6
 			glVertex2i(x, y);
 		glEnd();
 
-		d6Font.setColor(Color(255, 255, 255));
-		d6Font.print(x + width / 2 - 35, y + height - 20, D6_L("Game Over"));
+		Color fontColor(255, 255, 255);
+		font.print(x + width / 2 - 35, y + height - 20, fontColor, D6_L("Game Over"));
 		
 		int count = 0;
 		int ladderY = y + height - 50;
 		for (const Player* player: game.getLadder())
 		{
-			d6Font.print(x + 10, ladderY - 16*count, player->getPerson().getName().c_str());
-			d6Font.print(x + width - 40, ladderY - 16*count, Format("{0,4}") << player->getPerson().getTotalPoints());
+			font.print(x + 10, ladderY - 16*count, fontColor, player->getPerson().getName());
+			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << player->getPerson().getTotalPoints());
 			count++;
 		}		
 	}
 
-	void RENDER_RoundsPlayed(const Game& game)
+	void Renderer::roundsPlayed() const
 	{
 		int width = 135;
-		int x = d6Video.getScreen().getClientWidth() / 2 - width / 2;
-		int y = d6Video.getScreen().getClientHeight() - 20;
+		int x = video.getScreen().getClientWidth() / 2 - width / 2;
+		int y = video.getScreen().getClientHeight() - 20;
 		
 		glBegin(GL_QUADS);
 			glColor3f(0.0f, 0.0f, 0.0f);
@@ -179,15 +180,15 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		d6Font.setColor(Color(255, 255, 255));
-		d6Font.print(x + 8, y, Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getMaxRounds());
+		font.print(x + 8, y, Color(255, 255, 255), Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getMaxRounds());
 	}
 
-	// TODO: Do zvlastni tridy
-	static void RENDER_PlayerStatus(const Player& player)
+	void Renderer::playerStatus(const Player& player) const
 	{
 		if (player.isDead())
+		{
 			return;
+		}
 
 		int alpha = 180;
 		int al = int((player.getAir() * 125) / D6_MAX_AIR);
@@ -224,9 +225,9 @@ namespace Duel6
 		glEnd();
 
 		const std::string& playerName = player.getPerson().getName();
-		d6Font.setColor(Color(0, 0, 255));
-		d6Font.print(ibp[0] + 5, ibp[1] - 13, std::to_string(player.getAmmo()));
-		d6Font.print(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName);
+		Color fontColor(0, 0, 255);
+		font.print(ibp[0] + 5, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
+		font.print(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
 
 		if (player.getBonus() != 0)
 		{
@@ -247,13 +248,13 @@ namespace Duel6
 		glDisable(GL_BLEND);
 	}
 
-	static void RENDER_FpsCounter()
+	void Renderer::fpsCounter() const
 	{
-		std::string fpsCount = Format("FPS - {0}") << Int32(d6Video.getFps());
+		std::string fpsCount = Format("FPS - {0}") << Int32(video.getFps());
 		Size width = 8 * fpsCount.size() + 2;
 
-		int x = d6Video.getScreen().getClientWidth() - width;
-		int y = d6Video.getScreen().getClientHeight() - 20;
+		int x = video.getScreen().getClientWidth() - width;
+		int y = video.getScreen().getClientHeight() - 20;
 
 		glBegin(GL_QUADS);
 			glColor3f(0.0f, 0.0f, 0.0f);
@@ -263,11 +264,10 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		d6Font.setColor(Color(255, 255, 255));
-		d6Font.print(x, y, fpsCount);
+		font.print(x, y, Color(255, 255, 255), fpsCount);
 	}
 
-	static void RENDER_InvulRing(const Player& player)
+	void Renderer::invulRing(const Player& player) const
 	{
 		float   x, y, X, Y;
 		int     p, uh, u;
@@ -295,55 +295,57 @@ namespace Duel6
 		glColor3ub(255, 255, 255);
 	}
 
-	static void RENDER_InvulRings(const std::vector<Player>& players)
+	void Renderer::invulRings(const std::vector<Player>& players) const
 	{
 		for (const Player& player : players)
 		{
 			if (player.isInvulnerable())
 			{
-				RENDER_InvulRing(player);
+				invulRing(player);
 			}
 		}
 	}
 
-	static void RENDER_SplitBox(const PlayerView& view)
+	void Renderer::splitBox(const PlayerView& view) const
 	{
 		glViewport(view.getX() - 2, view.getY() - 2, view.getWidth() + 4, view.getHeight() + 4);
 		glColor3f(1, 0, 0);
 		glBegin(GL_QUADS);
 		glVertex2i(0, 0);
-		glVertex2i(0, d6Video.getScreen().getClientHeight());
-		glVertex2i(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
-		glVertex2i(d6Video.getScreen().getClientWidth(), 0);
+		glVertex2i(0, video.getScreen().getClientHeight());
+		glVertex2i(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
+		glVertex2i(video.getScreen().getClientWidth(), 0);
 		glEnd();
 		glColor3f(1, 1, 1);
 	}
 
-	static void RENDER_View(const Game& game, const Player& player)
+	void Renderer::view(const Player& player) const
 	{
 		glLoadIdentity();
 		player.getCamera().look();
 
-		if (d6Wireframe)
+		if (wireframe)
+		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
 
 		game.getWorld().getWalls().render();
-		RENDER_Sprites(game.getWorld().getSprites());
+		sprites(game.getWorld().getSprites());
 		ELEV_DrawAll();
 		d6SpriteList.render();
 		BONUS_DrawAll();
-		RENDER_InvulRings(game.getPlayers());
-		RENDER_Water(game.getWorld().getWater());
+		invulRings(game.getPlayers());
+		water(game.getWorld().getWater());
 
 		EXPL_DrawAll();
 
-		if (d6Wireframe)
+		if (wireframe)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
 
-	static void RENDER_FullScreen(const Game& game)
+	void Renderer::fullScreen() const
 	{
 		if (game.hasWinner())
 		{
@@ -352,68 +354,74 @@ namespace Duel6
 		}
 
 		const Player& player = game.getPlayers().front();
-		RENDER_SetView(player.getView());
-		RENDER_Background(game.getWorld().getBackgroundTexture());
-		d6Video.setMode(Video::Mode::Perspective);
-		RENDER_View(game, player);		
+		setView(player.getView());
+		background(game.getWorld().getBackgroundTexture());
+		video.setMode(Video::Mode::Perspective);
+		view(player);		
 	}
 
-	static void RENDER_SplitScreen(const Game& game)
+	void Renderer::splitScreen() const
 	{
 		for (const Player& player : game.getPlayers())
 		{
-			d6Video.setMode(Video::Mode::Orthogonal);
-			RENDER_SplitBox(player.getView());
+			video.setMode(Video::Mode::Orthogonal);
+			splitBox(player.getView());
 
 			if (player.isDead())
+			{
 				glColor3f(1.0f, 0.5f, 0.5f);
+			}
 
-			RENDER_SetView(player.getView());
-			RENDER_Background(game.getWorld().getBackgroundTexture());
+			setView(player.getView());
+			background(game.getWorld().getBackgroundTexture());
 
-			d6Video.setMode(Video::Mode::Perspective);
-			RENDER_View(game, player);
+			video.setMode(Video::Mode::Perspective);
+			view(player);
 
 			glColor3f(1, 1, 1);
 		}
 	}
 
-	void RENDER_InitScreen()
+	void Renderer::initScreen()
 	{
 		glDrawBuffer(GL_FRONT_AND_BACK);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDrawBuffer(GL_BACK);
 	}
 
-	void RENDER_DrawScene(const Game& game)
+	void Renderer::render() const
 	{
-		if (d6Wireframe || game.getScreenMode() == ScreenMode::SplitScreen)
+		if (wireframe || game.getScreenMode() == ScreenMode::SplitScreen)
+		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 		else
+		{
 			glClear(GL_DEPTH_BUFFER_BIT);
+		}
 
 		glColor3f(1.0f, 1.0f, 1.0f);
 		if (game.getScreenMode() == ScreenMode::FullScreen)
 		{
-			RENDER_FullScreen(game);
+			fullScreen();
 		}
 		else
 		{
-			RENDER_SplitScreen(game);
+			splitScreen();
 		}
 
-		d6Video.setMode(Video::Mode::Orthogonal);
-		RENDER_SetView(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
+		video.setMode(Video::Mode::Orthogonal);
+		setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
 		glColor3f(1.0f, 1.0f, 1.0f);
 		
 		for (const Player& player : game.getPlayers())
 		{
-			RENDER_PlayerStatus(player);
+			playerStatus(player);
 		}
 
-		if (d6ShowFps)
+		if (showFps)
 		{
-			RENDER_FpsCounter();
+			fpsCounter();
 		}
 
 		if (game.getScreenMode() == ScreenMode::FullScreen)
@@ -428,19 +436,19 @@ namespace Duel6
 			}
 		}
 
-		if (d6ShowRanking && game.getScreenMode() == ScreenMode::FullScreen)
+		if (showRanking && game.getScreenMode() == ScreenMode::FullScreen)
 		{
-			RENDER_PlayerRankings(game);
+			playerRankings();
 		}
 		
 		if (game.getMaxRounds() > 0)
 		{
-			RENDER_RoundsPlayed(game);
+			roundsPlayed();
 		}
 
 		if(game.hasWinner() && game.isOver())
 		{
-			RENDER_GameOverSummary(game);
+			gameOverSummary();
 		}
 	}
 }

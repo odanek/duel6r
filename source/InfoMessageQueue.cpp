@@ -60,8 +60,6 @@ namespace Duel6
 		Int32 posX = view.getX() + 4;
 		Int32 posY = view.getY() + view.getHeight() - 24;
 
-		d6Font.setColor(Color(255, 255, 0));
-
 		for (const InfoMessage& msg : messages)
 		{
 			if (player.is(msg.getPlayer()))
@@ -76,8 +74,6 @@ namespace Duel6
 	{
 		Int32 posX = view.getX() + 4;
 		Int32 posY = view.getY() + view.getHeight() - offsetY;
-
-		d6Font.setColor(Color(255, 255, 0));
 
 		for (const InfoMessage& msg : messages)
 		{
@@ -99,7 +95,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 
-		d6Font.print(x, y, msg);
+		d6Font.print(x, y, Color(255, 255, 0), msg);
 	}
 
 }

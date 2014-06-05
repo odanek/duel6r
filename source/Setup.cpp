@@ -98,8 +98,10 @@ namespace Duel6
 
 	void SET_ToggleRenderMode(Console& console, const Console::Arguments& args)
 	{
-		d6Wireframe = !d6Wireframe;
-		if (d6Wireframe)
+		Renderer& renderer = d6Game.getRenderer();
+		renderer.setWireframe(!renderer.getWireframe());
+
+		if (renderer.getWireframe())
 		{
 			console.print(D6_L("Rendering mode switched to wireframe\n"));
 		}
@@ -111,8 +113,10 @@ namespace Duel6
 
 	void SET_ToggleShowFps(Console& console, const Console::Arguments& args)
 	{
-		d6ShowFps = !d6ShowFps;
-		if (d6ShowFps)
+		Renderer& renderer = d6Game.getRenderer();
+		renderer.setShowFps(!renderer.getShowFps());
+		
+		if (renderer.getShowFps())
 		{
 			console.print(D6_L("Fps counter shown\n"));
 		}

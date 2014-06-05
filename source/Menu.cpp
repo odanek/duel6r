@@ -410,8 +410,7 @@ namespace Duel6
 			glVertex2i(x + width, y);
 		glEnd();
 		glLineWidth(1);
-		d6Font.setColor(Color(255, 0, 0));
-		d6Font.print(x + 30, y + 2, question);
+		d6Font.print(x + 30, y + 2, Color(255, 0, 0), question);
 		d6Video.swapBuffers(d6Console);
 
 		SDL_Event event;
@@ -627,8 +626,7 @@ namespace Duel6
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
 
-		d6Font.setColor(Color(255, 255, 255));
-		d6Font.print(687, d6Video.getScreen().getClientHeight() - 20, Format("{0} {1}") << D6_L("version") << APP_VERSION);
+		d6Font.print(687, d6Video.getScreen().getClientHeight() - 20, Color(255, 255, 255), Format("{0} {1}") << D6_L("version") << APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, menuBannerTexture);

@@ -39,6 +39,16 @@ namespace Duel6
 
 	extern int d6BonusArt[D6_BONUS_COUNT];
 
+	/*
+	class BonusType
+	{
+	public:
+		virtual void apply(Player& player) const = 0;
+		virtual void cancel(Player& player) const = 0;
+		virtual void render() const = 0;
+	};
+	*/
+
 	enum BonusType
 	{
 		D6_BONUS_LIFEP = 19,
