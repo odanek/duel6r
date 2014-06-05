@@ -29,6 +29,7 @@
 #define DUEL6_TYPE_H
 
 #include <stdint.h>
+#include <cstdio>
 
 namespace Duel6
 {
