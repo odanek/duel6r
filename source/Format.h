@@ -25,31 +25,52 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "PersonList.h"
+#ifndef DUEL6_FORMAT_H
+#define DUEL6_FORMAT_H
+
+#include "Formatter.h"
 
 namespace Duel6
 {
-	void PersonList::save(File& file) const
+	/** Type-safe string formatting. */
+	class Format
 	{
-		Uint32 length = getLength();
-		file.write(&length, 4, 1);
-
-		for (const Person& person : persons)
+	private:
+		struct Placeholder
 		{
-			person.serialize(file);
+			Size offset;
+			Size length;
+			bool hasWidth;
+			Int32 width;
+		};
+
+	private:
+		Size paramIndex;
+		std::string format;
+
+	public:
+		explicit Format(const std::string& format)
+			: paramIndex(0), format(format)
+		{}
+
+		template <class T>
+		Format& operator<<(const T& val)
+		{			
+			Formatter<T> formatter;
+			std::string value = formatter.format(val);
+			insertParam(paramIndex++, value);
+			return *this;
 		}
-	}
 
-	void PersonList::load(File& file)
-	{
-		Uint32 length;
-		file.read(&length, 4, 1);
-
-		while (length-- > 0)
+		operator std::string() const
 		{
-			Person person;
-			person.deSerialize(file);
-			persons.push_back(person);
+			return format;
 		}
-	}
+
+	private:
+		void insertParam(Size index, const std::string& value);
+		bool getPlaceholder(Size index, Placeholder& placeholder);
+	};
 }
+
+#endif

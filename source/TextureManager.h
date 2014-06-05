@@ -59,8 +59,8 @@ namespace Duel6
 
 		void freeAll();
 
-		void load(const std::string& key, const std::string& path, GLint filtering);
-		void load(const std::string& key, const std::string& path, GLint filtering, const SubstitutionTable& substitutionTable);
+		void load(const std::string& key, const std::string& path, GLint filtering, bool clamp);
+		void load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable);
 
 		const TextureList& get(const std::string& key) const
 		{

@@ -560,12 +560,12 @@ namespace Duel6
 			if (!is(shot.getPlayer()))
 			{
 				shootingPerson.setKills(shootingPerson.getKills() + 1);
-				d6MessageQueue.add(*this, MY_L("APP00051|Jsi mrtvy - zabil te %s"), shootingPerson.getName().c_str());
-				d6MessageQueue.add(shot.getPlayer(), MY_L("APP00052|Zabil jsi hrace %s"), getPerson().getName().c_str());
+				d6MessageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
+				d6MessageQueue.add(shot.getPlayer(), Format(D6_L("You killed player {0}")) << getPerson().getName());
 			}
 			else
 			{
-				d6MessageQueue.add(*this, MY_L("APP00053|Jsi mrtvy"));
+				d6MessageQueue.add(*this, D6_L("You are dead"));
 			}
 
 			if (weapon.explodes && directHit)
@@ -601,7 +601,7 @@ namespace Duel6
 			
 			sprite->setPosition(getX(), getY()).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
-			d6MessageQueue.add(*this, MY_L("APP00054|Jsi mrtvy"));
+			d6MessageQueue.add(*this, D6_L("You are dead"));
 
 			Sound::playSample(D6_SND_DEAD);
 			return true;
@@ -655,7 +655,7 @@ namespace Duel6
 			return;
 		}
 
-		state.air = MY_Min(state.air + 2 * airHitAmount, D6_MAX_AIR);
+		state.air = std::min(state.air + 2 * airHitAmount, D6_MAX_AIR);
 
 		// Check if foot is in water
 		water = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord

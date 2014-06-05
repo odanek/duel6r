@@ -66,6 +66,9 @@ set(D6R_SOURCES
     source/Fire.cpp
     source/Font.h
     source/Font.cpp
+    source/Format.h
+    source/Format.cpp
+    source/Formatter.h
     source/Game.cpp
     source/Game.h
     source/Image.h
@@ -75,6 +78,8 @@ set(D6R_SOURCES
     source/InfoMessage.h
     source/InfoMessageQueue.h
     source/InfoMessageQueue.cpp
+    source/Lang.h
+    source/Lang.cpp
     source/LevelList.h
     source/LevelList.cpp
     source/Main.h
@@ -124,17 +129,17 @@ set(D6R_SOURCES
     source/Weapon.cpp
     source/World.h
     source/World.cpp
-        
+    
+    source/DataException.h
+    source/Exception.h
+    source/IoException.h
+    source/SoundException.h
+    source/VideoException.h
+    
     source/mylib/mycam.cpp
     source/mylib/mycam.h
-    source/mylib/myerror.cpp
-    source/mylib/myfile.cpp
-    source/mylib/mykh3.cpp
-    source/mylib/mylang.cpp
-    source/mylib/mylib.h
     source/mylib/mymath.cpp
     source/mylib/mymath.h
-    source/mylib/mytools.cpp
         
     source/console/conarg.cpp
     source/console/concmd.cpp
@@ -156,7 +161,7 @@ endif(WIN32)
 set(D6R_APP_NAME "duel6r" CACHE STRING "Filename of the application.")
 set(D6R_APP_DEBUG_NAME "duel6rd" CACHE STRING "Filename of the debug version of the application.")
 add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
-set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 3.10.1 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
+set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 3.11.0 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
 
 #########################################################################
 # External dependencies

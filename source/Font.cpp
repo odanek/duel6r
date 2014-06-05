@@ -31,7 +31,7 @@ Popis: Prace s fonty, psani na obrazovku
 */
 
 #include <SDL2/SDL_opengl.h>
-#include "mylib/mylib.h"
+#include "DataException.h"
 #include "File.h"
 #include "Video.h"
 #include "Globals.h"
@@ -45,7 +45,7 @@ namespace Duel6
 
 		if (fileSize < 50)
 		{
-			MY_Err(MY_ErrDump(MY_L("COSTR0001|Nepodarilo se nahrat soubor s fontem %s"), fontFile.c_str()));
+			D6_THROW(DataException, "Font file has unexpected size: " + fontFile);
 		}
 
 		data.resize(fileSize - 50);
@@ -95,10 +95,8 @@ namespace Duel6
 	Vypsani retezce
 	==================================================
 	*/
-	void Font::print(Int32 x, Int32 y, const char* str) const
+	void Font::print(Int32 x, Int32 y, const std::string& str) const
 	{
-		Int32 i, l = (Int32)strlen(str);
-
 		if (xMul) x *= fontSZX;
 		if (yMul) y *= fontSZY;
 		if (yRev) y = d6Video.getScreen().getClientHeight() - y - fontSZY;
@@ -108,7 +106,7 @@ namespace Duel6
 		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		glBegin(GL_POINTS);
 
-		for (i = 0; i < l; i++, x += 8)
+		for (Size i = 0; i < str.length(); i++, x += 8)
 		{
 			if (str[i] > 0 && str[i] != ' ')
 			{
@@ -117,23 +115,6 @@ namespace Duel6
 		}
 
 		glEnd();
-	}
-
-	/*
-	==================================================
-	Vypsani retezce
-	==================================================
-	*/
-	void Font::printf(Int32 x, Int32 y, const char *str, ...) const
-	{
-		static char fontStr[500];
-		va_list argptr;
-
-		va_start(argptr, str);
-		vsprintf(fontStr, str, argptr);
-		va_end(argptr);
-
-		print(x, y, fontStr);
 	}
 
 	/*

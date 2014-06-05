@@ -97,7 +97,7 @@ namespace Duel6
 
 		for (const Player* player : ladder)
 		{
-			maxNameLength = MY_Max(maxNameLength, 5 + player->getPerson().getName().size());
+			maxNameLength = std::max(maxNameLength, 5 + player->getPerson().getName().size());
 		}
 
 		const PlayerView& view = game.getPlayers().front().getView();
@@ -119,7 +119,7 @@ namespace Duel6
 
 			d6Font.setColor(Color(255, player->isDead() ? 0 : 255, 0));
 			d6Font.print(posX, posY, player->getPerson().getName().c_str());
-			d6Font.printf(posX + 8 * (maxNameLength - 5), posY, "|%4d", player->getPerson().getTotalPoints());
+			d6Font.print(posX + 8 * (maxNameLength - 5), posY, Format("|{0,4}") << player->getPerson().getTotalPoints());
 
 			posY -= 16;
 		}
@@ -153,14 +153,14 @@ namespace Duel6
 		glEnd();
 
 		d6Font.setColor(Color(255, 255, 255));
-		d6Font.printf(x + width / 2 - 35, y + height - 20, "Game Over");
+		d6Font.print(x + width / 2 - 35, y + height - 20, D6_L("Game Over"));
 		
 		int count = 0;
 		int ladderY = y + height - 50;
 		for (const Player* player: game.getLadder())
 		{
 			d6Font.print(x + 10, ladderY - 16*count, player->getPerson().getName().c_str());
-			d6Font.printf(x + width - 40, ladderY - 16*count, "%4d", player->getPerson().getTotalPoints());
+			d6Font.print(x + width - 40, ladderY - 16*count, Format("{0,4}") << player->getPerson().getTotalPoints());
 			count++;
 		}		
 	}
@@ -180,7 +180,7 @@ namespace Duel6
 		glEnd();
 
 		d6Font.setColor(Color(255, 255, 255));
-		d6Font.printf(x + 8, y, "Rounds: %3d|%3d", game.getPlayedRounds(), game.getMaxRounds());
+		d6Font.print(x + 8, y, Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getMaxRounds());
 	}
 
 	// TODO: Do zvlastni tridy
@@ -225,8 +225,8 @@ namespace Duel6
 
 		const std::string& playerName = player.getPerson().getName();
 		d6Font.setColor(Color(0, 0, 255));
-		d6Font.printf(ibp[0] + 5, ibp[1] - 13, "%d", player.getAmmo());
-		d6Font.printf(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName.c_str());
+		d6Font.print(ibp[0] + 5, ibp[1] - 13, std::to_string(player.getAmmo()));
+		d6Font.print(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, playerName);
 
 		if (player.getBonus() != 0)
 		{
@@ -249,19 +249,11 @@ namespace Duel6
 
 	static void RENDER_FpsCounter()
 	{
-		int x = d6Video.getScreen().getClientWidth() - 80;
+		std::string fpsCount = Format("FPS - {0}") << Int32(d6Video.getFps());
+		Size width = 8 * fpsCount.size() + 2;
+
+		int x = d6Video.getScreen().getClientWidth() - width;
 		int y = d6Video.getScreen().getClientHeight() - 20;
- 		int fps = (int)d6Video.getFps();
-		int length = 0;
-		if (fps < 10)
-			length = 1;
-		else if (fps < 100)
-			length = 2;
-		else if (fps < 1000)
-			length = 3;
-		else
-			length = 4;
-		int width = ((6 + length) << 3) + 2;
 
 		glBegin(GL_QUADS);
 			glColor3f(0.0f, 0.0f, 0.0f);
@@ -272,7 +264,7 @@ namespace Duel6
 		glEnd();
 
 		d6Font.setColor(Color(255, 255, 255));
-		d6Font.printf(x, y, "FPS - %d", (int)d6Video.getFps());
+		d6Font.print(x, y, fpsCount);
 	}
 
         static void RENDER_YouAreHere(const Game& game)

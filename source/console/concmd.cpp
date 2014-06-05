@@ -36,60 +36,58 @@ Popis: Zakladni prikazy pro beznou praci s konzolou
 
 /*
 ==================================================
-Prikaz clear
+Clear command
 ==================================================
 */
 static void CON_CmdClear(Console& console, const Console::Arguments& args)
 {
-    console.clear ();
+    console.clear();
 }
 
 /*
 ==================================================
-Prikaz echo
+Echo command
 ==================================================
 */
-static void CON_CmdEcho (Console& console, const Console::Arguments& args)
+static void CON_CmdEcho(Console& console, const Console::Arguments& args)
 {
-    int i, c = args.length();
+	for (size_t i = 1; i < args.length(); i++)
+	{
+		console.print(CON_Format("{0} ") << args.get(i));
+	}
 
-    for (i = 1; i < c; i++)
-        console.printf ("%s ", args.get(i).c_str());
-
-    console.printf ("\n");
+    console.print("\n");
 }
 
 /*
 ==================================================
-Prikaz list
+List command
 ==================================================
 */
-static void CON_CmdList (Console& console, const Console::Arguments& args)
+static void CON_CmdList(Console& console, const Console::Arguments& args)
 {
-    const char *v1 = args.get(0).c_str();
-
     if (args.length() != 2)
     {
-        console.printf (CON_Lang("CONSTR0006|%s : Pouziti %s <vars | cmds>\n"), v1, v1);
+		console.print(CON_Format(CON_Lang("{0} : Usage {0} <vars | cmds>\n")) << args.get(0));
         return;
     }
 
     if (args.get(1) == "vars")
     {
-        console.printf (CON_Lang("CONSTR0007|Registrovane promenne :\n"));
+        console.print(CON_Lang("Registered variables:\n"));
 
 		if (console.listVars().empty())
 		{
-			console.printf(CON_Lang("CONSTR0008|\tNejsou registrovany zadne promenne\n"));
+			console.print(CON_Lang("There are zero registered variables\n"));
 		}
 		else
 		{
 			for (const Console::Variable& var : console.listVars())
 			{
-				console.printf("\t");
+				console.print("\t");
 				var.printInfo(console);
 			}
-			console.printf (CON_Lang("CONSTR0009|\n\t%d promennych celkove\n"), console.listVars().size());
+			console.print(CON_Format(CON_Lang("\n\t{0} variables in total\n")) << console.listVars().size());
 		}
 
         return;
@@ -97,51 +95,49 @@ static void CON_CmdList (Console& console, const Console::Arguments& args)
 
     if (args.get(1) == "cmds")
     {
-        console.printf (CON_Lang("CONSTR0010|Registrovane prikazy :\n"));
+        console.print(CON_Lang("Registered commands:\n"));
 
 		if (console.listCommands().empty())
 		{
-			console.printf(CON_Lang("CONSTR0011|\tZadne prikazy nebyly registrovany\n"));
+			console.print(CON_Lang("There are zero registered commands\n"));
 		}
 		else
 		{
 			for (const Console::Command& command : console.listCommands())
 			{
-				console.printf("\t\"%s\"\n", command.name.c_str());
+				console.print(CON_Format("\t\"{0}\"\n") << command.name);
 			}
-			console.printf(CON_Lang("CONSTR0012|\n\t%d prikazu celkem\n"), console.listCommands().size());
+			console.print(CON_Format(CON_Lang("\n\t{0} commands in total\n")) << console.listCommands().size());
 		}
 
         return;
     }
 
-    console.printf (CON_Lang("CONSTR0013|%s : Pouziti %s <vars | cmds>\n"), v1, v1);
+	console.print(CON_Format(CON_Lang("{0} : Usage {0} <vars | cmds>\n")) << args.get(0));
 }
 
 /*
 ==================================================
-Prikaz dump
+Dump command
 ==================================================
 */
-static void CON_CmdDump (Console& console, const Console::Arguments& args)
+static void CON_CmdDump(Console& console, const Console::Arguments& args)
 {
     FILE            *f;
     unsigned long   i, bufpos;
     bool            bufful;
     const conBYTE   *buf;
-    const char      *v1 = args.get(0).c_str(),
-                    *v2 = args.get(1).c_str();
 
     if (args.length() != 2)
     {
-        console.printf (CON_Lang("CONSTR0014|%s : Pouziti %s <soubor>\n"), v1, v1);
+		console.print(CON_Format(CON_Lang("{0} : Usage {0} <file_name>\n")) << args.get(0));
         return;
     }
 
-    f = fopen (v2, "wb");
-    if (f == NULL)
+    f = fopen(args.get(1).c_str(), "wb");
+    if (f == nullptr)
     {
-        console.printf (CON_Lang("CONSTR0015|%s : Nelze otevrit soubor %s\n"), v1, v2);
+		console.print(CON_Format(CON_Lang("{0} : Unable to open file {1}\n")) << args.get(0) << args.get(1));
         return;
     }
 
@@ -158,76 +154,64 @@ static void CON_CmdDump (Console& console, const Console::Arguments& args)
 
     fclose (f);
 
-    console.printf (CON_Lang("CONSTR0016|Obsah konzole ulozen do souboru %s\n"), v2);
+	console.print(CON_Format(CON_Lang("Console content has been saved to file {0}\n")) << args.get(1));
 }
 
 /*
 ==================================================
-Prikaz parse
+Parse command
 ==================================================
 */
-static void CON_CmdParse (Console& console, const Console::Arguments& args)
+static void CON_CmdParse(Console& console, const Console::Arguments& args)
 {
     FILE    *f;
-	const char *v1 = args.get(0).c_str(), *v2 = args.get(1).c_str();
-	char o[100];
 
     if (args.length() != 2)
     {
-        console.printf (CON_Lang("CONSTR0017|%s : Pouziti %s <soubor>\n"), v1, v1);
+		console.print(CON_Format(CON_Lang("{0} : Usage {0} <file_name>\n")) << args.get(0));
         return;
     }
 
-    f = fopen (v2, "rb");
+    f = fopen(args.get(1).c_str(), "rb");
     if (f == nullptr)
     {
-        console.printf (CON_Lang("CONSTR0018|%s : Nelze otevrit soubor %s\n"), v1, v2);
+		console.print(CON_Format(CON_Lang("{0} : Unable to open file {1}\n")) << args.get(0) << args.get(1));
         return;
     }
 
-    console.printf (CON_Lang("CONSTR0019|Provadeni souboru %s\n"), v2);
-	std::string line;
+	console.print(CON_Format(CON_Lang("Executing file: {0}\n")) << args.get(1));
+	std::string content;
 	while (!feof(f))
 	{
 		char character;
 		fread(&character, 1, 1, f);
-
-		if (character == '\n')
-		{
-			console.appendCommands(line);
-			line.clear();
-		}
-		else
-		{
-			line.push_back(character);
-		}
+		content.push_back(character);
 	}
-	console.appendCommands(line);
 
-    sprintf (o, CON_Lang("CONSTR0020|echo Konec provadeni %s"), v2);
-    console.prependCommands(o);
+	console.prependCommands(CON_Format(CON_Lang("echo Finished execution of {0}")) << args.get(1));
+	console.prependCommands(content);
 }
 
 /*
 ==================================================
-Prikaz alias
+Alias command
 ==================================================
 */
-static void CON_CmdAlias (Console& console, const Console::Arguments& args)
+static void CON_CmdAlias(Console& console, const Console::Arguments& args)
 {
     if (args.length() == 1)
     {
-        console.printf (CON_Lang("CONSTR0021|Registrovane prikazy alias :\n"));
+        console.print(CON_Lang("Registered aliases:\n"));
 
 		if (console.listAliases().empty())
 		{
-			console.printf(CON_Lang("CONSTR0022|\tZadne\n"));
+			console.print(CON_Lang("\tNone\n"));
 		}
 		else
 		{
 			for (const Console::Alias& alias : console.listAliases())
 			{
-				console.printf("\t\"%s\" : %s\n", alias.name.c_str(), alias.command.c_str());
+				console.print(CON_Format("\t\"{0}\" : {1}\n") << alias.name << alias.command);
 			}
 		}
         return;
@@ -248,49 +232,50 @@ static void CON_CmdAlias (Console& console, const Console::Arguments& args)
 
 /*
 ==================================================
-Prikaz archive
+Archive command
 ==================================================
 */
-static void CON_CmdArchive (Console& console, const Console::Arguments& args)
+static void CON_CmdArchive(Console& console, const Console::Arguments& args)
 {
     int             i = 0;
     FILE            *f;
-	const char *v1 = args.get(0).c_str();
 
     if (args.length() != 2)
     {
-        console.printf (CON_Lang("CONSTR0023|%s : Pouziti %s <soubor>\n"), v1, v1);
+		console.print(CON_Format(CON_Lang("{0} : Usage {0} <file_name>\n")) << args.get(0));
         return;
     }
 
     f = fopen(args.get(1).c_str(), "wt");
     if (f == NULL)
     {
-        console.printf (CON_Lang("CONSTR0024|%s : Nelze otevrit soubor\n"), args.get(1).c_str());
+		console.print(CON_Format(CON_Lang("{0} : Unable to open file {1}\n")) << args.get(0) << args.get(1));
         return;
     }
 
-    console.printf (CON_Lang("CONSTR0025|Archivuji :\n"));
-    fprintf (f, "%s", CON_Lang("CONSTR0026|//Generovano prikazem archive\n//Nemente rucne\n\n"));
+    console.print(CON_Lang("Archivinig :\n"));
+    fprintf (f, "%s", CON_Lang("//Generated by archive command\n//Do not edit by hand\n\n").c_str());
 	for (const Console::Variable& var : console.listVars())
 	{
 		if (var.flags & CON_F_ARCHIVE)
 		{
 			i++;
-			console.printf("\t\"%s\"\n", var.name.c_str());
+			console.print(CON_Format("\t\"{0}\"\n") << var.name);
 			fprintf(f, "\"%s\" %s\n", var.name.c_str(), var.getValue().c_str());
 		}
 	}
 
     fclose (f);
 
-    if (!i)
-        console.printf (CON_Lang("CONSTR0027|\tZadna promenna nema archive flag\n"));
+	if (!i)
+	{
+		console.print(CON_Lang("\tThere are no variables with archive flag\n"));
+	}
 }
 
 /*
 ==================================================
-Registrace zakladnich prikazu
+Register basic console commands
 ==================================================
 */
 void CON_RegisterBasicCmd(Console& console)

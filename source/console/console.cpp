@@ -51,7 +51,7 @@ Console::Console(int flags)
     insert = false;
     curpos = 0;
     inputscroll = 0;
-    flags = flags;
+    this->flags = flags;
 
     histcnt = 0;
     histscroll = 0;
@@ -63,10 +63,10 @@ Console::Console(int flags)
 	text.resize(CON_TEXT_SIZE);
     clear();
 
-    printf("==========================\n");
-    printf(CON_Lang("CONSTR0029|Konzole -- autor O.Danek\n"));
-    printf(CON_Lang("CONSTR0030|Verze %s\n"), CON_VERSION);
-    printf("==========================\n");
+    print("==========================\n");
+    print(CON_Lang("Console -- author O.Danek\n"));
+	print(CON_Format(CON_Lang("Version {0}\n")) << CON_VERSION);
+    print("==========================\n");
 }
 
 Console::~Console()
@@ -95,31 +95,28 @@ Formatovany tisk do konzoly
 V infoproc by se nemelo s konzolou nic delat
 ==================================================
 */
-void Console::printf(const char *str, ...)
+void Console::print(const std::string& str)
 {
-    char    fstr[CON_MAX_PSTR + 1], *tx;
-    va_list argptr;
-
-    tx = fstr;
-
-    va_start (argptr, str);
-    vsprintf (tx, str, argptr);
-    va_end (argptr);
-
-    while (*tx)
+	for (size_t pos = 0; pos < str.length(); ++pos)
     {
-        switch (*tx)
+		char tx = str[pos];
+
+        switch (tx)
         {
         case '\n':
-            text[bufpos++] = *tx;
+            text[bufpos++] = tx;
             break;
         case '\t':
-            for (int i = 0; i < CON_TAB_WIDTH; i++, bufpos++)
-                text[bufpos % CON_TEXT_SIZE] = ' ';
+			for (int i = 0; i < CON_TAB_WIDTH; i++, bufpos++)
+			{
+				text[bufpos % CON_TEXT_SIZE] = ' ';
+			}
             break;
-        default  :
-            if (*tx >= ' ')
-                text[bufpos++] = *tx;
+        default:
+			if (tx >= ' ')
+			{
+				text[bufpos++] = tx;
+			}
             break;
         }
 
@@ -128,7 +125,6 @@ void Console::printf(const char *str, ...)
             bufpos -= CON_TEXT_SIZE;
             buffull = true;
         }
-        tx++;
     }
 
     scroll = 0;
@@ -143,23 +139,23 @@ void Console::printf(const char *str, ...)
 Kontrola pripustnosti jmena
 ==================================================
 */
-int Console::isNameValid(const std::string& name, const char *proc, void *p)
+int Console::isNameValid(const std::string& name, const std::string& proc, void *p)
 {
 	if (name.empty())
     {
-        printf (CON_Lang("CONSTR0032|%s : nazev \"%s\" ma neplatnou delku\n"), proc, name.c_str());
+		print(CON_Format(CON_Lang("{0} : cannot register empty name\n")) << proc);
         return CON_FAILED;
     }
 
     if (findCommand(name) != nullptr || findVar(name) != nullptr || findAlias(name) != nullptr)
     {
-        printf (CON_Lang("CONSTR0033|%s : nazev \"%s\" uz je registrovan\n"), proc, name.c_str());
+		print(CON_Format(CON_Lang("{0} : name \"{1}\" is already registered\n")) << proc << name);
         return CON_ALREADY;
     }
 
     if (p == nullptr)
     {
-        printf (CON_Lang("CONSTR0034|%s : \"%s\" s NULL ukazatelem\n"), proc, name.c_str());
+		print(CON_Format(CON_Lang("{0} : attempt to register \"{1}\" with null pointer\n")) << proc << name);
         return CON_FAILED;
     }
 
@@ -173,7 +169,7 @@ Registrovani prikazu
 */
 int Console::registerCommand(Callback callback, const std::string& name)
 {
-    int i = isNameValid(name, CON_Lang("CONSTR0035|Registrace prikazu"), (void *)callback);
+    int i = isNameValid(name, CON_Lang("Command registration"), (void *)callback);
     if (i != CON_SUCCES)
         return i;
 
@@ -196,7 +192,7 @@ int Console::registerCommand(Callback callback, const std::string& name)
 
 	if (flags & CON_F_REG_INFO)
 	{
-		printf(CON_Lang("CONSTR0036|Registrace prikazu: \"%s\" na adrese 0x%p byla uspesna\n"), name.c_str(), callback);
+		print(CON_Format(CON_Lang("Command registration: \"{0}\" at address {1} has been successful\n")) << name << callback);
 	}
 
     return CON_SUCCES;
@@ -213,7 +209,7 @@ int Console::registerAlias(const std::string& name, const std::string& cmd)
 
     if (a == nullptr)
     {
-        int i = isNameValid(name, CON_Lang("CONSTR0037|Registrace aliasu"), (void *) (1));
+        int i = isNameValid(name, CON_Lang("Alias registration"), (void *) (1));
         if (i != CON_SUCCES)
             return i;
 
@@ -241,7 +237,7 @@ int Console::registerAlias(const std::string& name, const std::string& cmd)
 
 	if (flags & CON_F_REG_INFO)
 	{
-		printf(CON_Lang("CONSTR0038|Registrace aliasu: \"%s\" za \"%s\" byla uspesna\n"), name.c_str(), cmd.c_str());
+		print(CON_Format(CON_Lang("Alias registration: \"{0}\" as \"{1}\" has been successful\n")) << name << cmd);
 	}
 
     return CON_SUCCES;

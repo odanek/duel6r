@@ -29,6 +29,7 @@
 #define DUEL6_TYPE_H
 
 #include <stdint.h>
+#include <cstdio>
 
 namespace Duel6
 {
@@ -45,7 +46,7 @@ namespace Duel6
 	typedef float Float32;
 	typedef double Float64;
 
-	typedef Uint32 Size;
+	typedef size_t Size;
 }
 
 #endif

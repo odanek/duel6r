@@ -26,7 +26,6 @@
 */
 
 #include <vector>
-#include "mylib/mylib.h"
 #include "Util.h"
 #include "File.h"
 #include "Video.h"
@@ -37,7 +36,7 @@ namespace Duel6
 {
 	namespace Util
 	{
-		GLuint createTexture(const Image& image, GLint filtering)
+		GLuint createTexture(const Image& image, GLint filtering, bool clamp)
 		{
 			GLuint texture;
 			glGenTextures(1, &texture);
@@ -49,63 +48,32 @@ namespace Duel6
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
 
 			// Clamp texture coordinates
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 
 			return texture;
 		}
 
-		void loadKH3Image(const std::string& path, Int32 num, Image& image)
-		{
-			myKh3info_s info;
-			std::vector<Uint16> pict;
-			Uint16 cl;
-
-			MY_KH3Open(path.c_str());
-			MY_KH3GetInfo(&info);
-			Size imgSize = info.sizex * info.sizey;
-
-			pict.resize(imgSize);
-			image.resize(info.sizex, info.sizey);
-			MY_KH3Load(num, &pict[0]);
-			MY_KH3Close();
-			
-			for (Size i = 0; i < imgSize; i++)
-			{
-				cl = pict[i];
-				Color& color = image.at(i);
-				color.setRed((((cl >> 11) & 0x1F) * 255) / 31);
-				color.setGreen((((cl >> 5) & 0x3F) * 255) / 63);
-				color.setBlue(((cl & 0x1F) * 255) / 31);
-				color.setAlpha(cl == 0 ? 0 : 255);
-			}
-		}
-
-		static void readTgaColor(FILE *f, Color& color)
+		static void readTgaColor(File& file, Color& color)
 		{
 			Uint8 colBytes[3];
-			fread(colBytes, 1, 3, f);
+			file.read(colBytes, 1, 3);
 			color.set(colBytes[2], colBytes[1], colBytes[0], (colBytes[0] == 0 && colBytes[1] == 0 && colBytes[2] == 0) ? 0 : 255);
 		}
 
-		static void writeTgaColor(FILE *f, const Color& color)
+		static void writeTgaColor(File& file, const Color& color)
 		{
 			Uint8 colBytes[3] = { color.getBlue(), color.getGreen(), color.getRed() };
-			fwrite(colBytes, 1, 3, f);
+			file.write(colBytes, 1, 3);
 		}
 
 		void loadTargaImage(const std::string& path, Image& image)
 		{
-			FILE *f;
-			f = fopen(path.c_str() , "rb");
-			if (f == nullptr)
-			{
-				MY_Err(MY_ErrDump(MY_L("APPxxxxx|loadTarga: nelze otevrit soubor %s\n"), path.c_str()));
-			}
+			File file(path, "rb");
 
 			// Header
 			Uint16 header[9];
-			fread(header, 2, 9, f);
+			file.read(header, 2, 9);
 
 			// Data
 			image.resize(header[6], header[7]);
@@ -115,14 +83,14 @@ namespace Duel6
 
 			while (remainingData > 0)
 			{
-				fread(&packet, 1, 1, f);
+				file.read(&packet, 1, 1);
 
 				if (packet >= 0x80) 
 				{
 					// RLE chunk
 					chunkLength = packet - 0x7f;
 										
-					readTgaColor(f, color);
+					readTgaColor(file, color);
 					for (Size i = 0; i < chunkLength; ++i)
 					{
 						*output++ = color;
@@ -135,30 +103,22 @@ namespace Duel6
 
 					for (Size i = 0; i < chunkLength; ++i)
 					{
-						readTgaColor(f, color);
+						readTgaColor(file, color);
 						*output++ = color;
 					}					
 				}
 
 				remainingData -= chunkLength;
 			}
-
-			fclose(f);
 		}
 
 		void saveTarga(const std::string& path, const Image& image)
 		{
-			FILE *f;
-			f = fopen(path.c_str() , "wb");
-			if (f == nullptr)
-			{
-				d6Console.printf(MY_L("APP00081|saveTarga: nelze otevrit soubor %s\n"), path.c_str());
-				return;
-			}
+			File file(path, "wb");
 
 			// Header
 			Uint16 header[9] = { 0, 10, 0, 0, 0, 0, (Uint16)image.getWidth(), (Uint16)image.getHeight(), 0x18 };  // 0x2018
-			fwrite(header, 2, 9, f);
+			file.write(header, 2, 9);
 
 			// Data
 			Size remainingData = image.getWidth() * image.getHeight();
@@ -176,8 +136,8 @@ namespace Duel6
 					}
 
 					Uint8 packet = 0x80 + (chunkLength - 1);
-					fwrite(&packet, 1, 1, f);
-					writeTgaColor(f, data[0]);
+					file.write(&packet, 1, 1);
+					writeTgaColor(file, data[0]);
 				}
 				else
 				{
@@ -189,30 +149,28 @@ namespace Duel6
 					}
 
 					Uint8 packet = chunkLength - 1;
-					fwrite(&packet, 1, 1, f);
+					file.write(&packet, 1, 1);
 					for (Size i = 0; i < chunkLength; ++i)
 					{
-						writeTgaColor(f, data[i]);
+						writeTgaColor(file, data[i]);
 					}
 				}
 
 				data += chunkLength;
 				remainingData -= chunkLength;
 			}
-
-			fclose(f);
 		}
 
 		void saveScreenTga()
 		{
 			Int32 num = 0;
-			char name[50];			
+			std::string name;
 
 			// Vyhledani cisla pod ktere ukladat
 			while (num < 1000)
 			{
 				num++;
-				sprintf(name, "screenshot_%d.tga", num);
+				name = Format("screenshot_{0}.tga") << num;
 				if (!File::exists(name))
 				{
 					break;
@@ -227,7 +185,7 @@ namespace Duel6
 			glReadPixels(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
 			saveTarga(name, image);
 
-			d6Console.printf(MY_L("APP00082|Screenshot ulozen do %s\n"), name);
+			d6Console.print(Format(D6_L("Screenshot saved to {0}\n")) << name);
 		}
 	}
 }

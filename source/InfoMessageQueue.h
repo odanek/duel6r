@@ -46,7 +46,7 @@ namespace Duel6
 			: duration(duration)
 		{}
 
-		InfoMessageQueue& add(const Player& player, const char *formatString, ...);
+		InfoMessageQueue& add(const Player& player, const std::string& msg);
 		InfoMessageQueue& update(float elapsedTime);
 
 		void renderPlayerMessages(const Player& player) const;

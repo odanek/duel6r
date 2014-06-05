@@ -38,13 +38,15 @@ Potrebuje: Knihovnu mylib
 #include <vector>
 #include <list>
 #include <SDL2/SDL_keyboard.h>
-#include "../mylib/mylib.h"
 
-#define CON_Lang            MY_L
+#include "../Format.h"
+#include "../Lang.h"
 
-#define CON_VERSION         "5.4"
+#define CON_Lang            D6_L
+#define CON_Format			Duel6::Format
+
+#define CON_VERSION         "5.5"
 #define CON_TEXT_SIZE       32000
-#define CON_MAX_PSTR        2048
 #define CON_MAX_ALIAS_REC   40
 #define CON_REM_HIST        15
 
@@ -193,7 +195,7 @@ public:
 
     void blit(int res_x, int res_y);
 
-    void printf(const char *str, ...);
+    void print(const std::string& str);
     void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
 	void textInputEvent(const char* text);
 	
@@ -238,7 +240,7 @@ public:
 	void exec(const std::string& commands);
 
 private:
-    int isNameValid(const std::string& name, const char *proc, void *p);
+    int isNameValid(const std::string& name, const std::string& proc, void *p);
     std::string expandLine(const std::string& line);
 	std::string::const_iterator nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end);
     void tokenizeLine(const std::string& line, Arguments& args);

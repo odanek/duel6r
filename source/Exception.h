@@ -25,31 +25,44 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "PersonList.h"
+#ifndef DUEL6_EXCEPTION_EXCEPTION_H
+#define DUEL6_EXCEPTION_EXCEPTION_H
+
+#include <string>
+#include "Type.h"
+#include "Lang.h"
+
+#define D6_THROW(exceptionClass, message) throw exceptionClass(__FILE__, __LINE__, message)
 
 namespace Duel6
 {
-	void PersonList::save(File& file) const
+	class Exception
 	{
-		Uint32 length = getLength();
-		file.write(&length, 4, 1);
+	private:
+		std::string file;
+		Int32 line;
+		std::string message;
 
-		for (const Person& person : persons)
+	public:
+		Exception(const std::string& file, Size line, const std::string& message)
+			: file(file), line(line), message(message)
+		{}
+
+		const std::string& getFile() const
 		{
-			person.serialize(file);
+			return file;
 		}
-	}
 
-	void PersonList::load(File& file)
-	{
-		Uint32 length;
-		file.read(&length, 4, 1);
-
-		while (length-- > 0)
+		Int32 getLine() const
 		{
-			Person person;
-			person.deSerialize(file);
-			persons.push_back(person);
+			return line;
 		}
-	}
+
+		const std::string& getMessage() const
+		{
+			return message;
+		}
+	};
 }
+
+#endif

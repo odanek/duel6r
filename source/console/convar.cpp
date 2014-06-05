@@ -42,7 +42,7 @@ Zaregistrovani promene
 */
 int Console::registerVariable(void *p, const std::string& name, int flags, Variable::Type type)
 {
-    int i = isNameValid(name, CON_Lang("CONSTR0039|Regitrace promenne"), p);
+    int i = isNameValid(name, CON_Lang("Variable registration"), p);
     if (i != CON_SUCCES)
         return i;
 
@@ -65,8 +65,10 @@ int Console::registerVariable(void *p, const std::string& name, int flags, Varia
 
 	vars.insert(vars.begin() + position, newVar);
 
-    if (flags & CON_F_REG_INFO)
-        printf (CON_Lang("CONSTR0040|Registrace promenne: \"%s\" na adrese 0x%p byla uspesna\n"), name.c_str(), p);
+	if (flags & CON_F_REG_INFO)
+	{
+		print(CON_Format(CON_Lang("Variable registration: \"{0}\" at address {1} has been successful\n")) << name << p);
+	}
 
     return CON_SUCCES;
 }
@@ -90,7 +92,7 @@ void Console::varCmd(Variable& var, Arguments& args)
 
     if (c > 2)
     {
-        printf (CON_Lang("CONSTR0041|Promenne : Pouziti jmeno_promenne [nova_hodnota]\n"));
+        print(CON_Lang("CONSTR0041|Variables : Usage variable_name [new_value]\n"));
         return;
     }
 
@@ -101,9 +103,13 @@ void Console::varCmd(Variable& var, Arguments& args)
 	else
 	{
 		if (!(var.flags & CON_F_RONLY))
+		{
 			var.setValue(args.get(1));
+		}
 		else
-			printf(CON_Lang("CONSTR0042|Promenna \"%s\" je pouze pro cteni\n"), var.name.c_str());
+		{
+			print(CON_Format(CON_Lang("Variable \"{0}\" is read-only\n")) << var.name);
+		}
 	}
 }
 
@@ -121,12 +127,16 @@ void Console::Variable::printInfo(Console& console) const
 	for (i = 0; i < CON_FLAGS; i++, f <<= 1)
 	{
 		if (flags & f)
-			console.printf("%c", flagstr[i]);
+		{
+			console.print(std::string(1, flagstr[i]));
+		}
 		else
-			console.printf("-");
+		{
+			console.print("-");
+		}
 	}
 
-    console.printf(CON_Lang("CONSTR0043| %-5s \"%s\" s hodnotou %s\n"), typestr[(int)type], name.c_str(), getValue().c_str());
+	console.print(CON_Format(CON_Lang(" {0} \"{1}\" with value {2}\n")) << typestr[(int)type] << name << getValue());
 }
 
 /*
@@ -138,8 +148,8 @@ void Console::Variable::setValue(const std::string& val)
 {
     switch (type)
     {
-	case Type::Float: *((float *)ptr) = (float) atof(val.c_str()); break;
-	case Type::Int: *((int *)ptr) = atoi(val.c_str()); break;
+	case Type::Float: *((float *)ptr) = std::stof(val); break;
+	case Type::Int: *((int *)ptr) = std::stoi(val); break;
 	case Type::Bool: *((bool *)ptr) = (val == "true"); break;
     }
 }

@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "VideoException.h"
 #include "Globals.h"
 #include "InfoMessageQueue.h"
 #include "Game.h"
@@ -138,6 +139,24 @@ namespace Duel6
 		}
 	}
 
+	void Main::setup(Int32 argc, char** argv)
+	{
+		if (SDL_Init(SDL_INIT_VIDEO) != 0)
+		{
+			D6_THROW(VideoException, std::string("Unable to set graphics mode: ") + SDL_GetError());
+		}
+
+		d6Font.load(APP_FILE_FONT);
+		d6Console.setFont(d6Font.get());
+		CON_RegisterBasicCmd(d6Console);
+		SET_Init();
+
+		for (int i = 1; i < argc; i++)
+		{
+			d6Console.exec(argv[i]);
+		}
+	}
+
 	void Main::run()
 	{
 		Context::switchTo(&d6Menu);
@@ -151,58 +170,41 @@ namespace Duel6
 
 		Context::switchTo(nullptr);
 	}
+
+	void Main::tearDown()
+	{
+		Sound::deInit();
+		d6TextureManager.freeAll();
+		SDL_Quit();
+	}
 }
 
-/*
-==================================================
-Ulozeni obsahu konzoly na disk a uklid po chybe
-==================================================
-*/
-void MAIN_ErrorHandler(const char *str)
-{
-    Duel6::d6Console.printf(str);
-    Duel6::d6Console.exec("dump chyba.con");
 
-    MY_DeInit ();
-    SDL_Quit ();
+static void reportError(const std::string& err)
+{
+	fprintf(stderr, "Error occured: %s\n", err.c_str());
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", err.c_str(), NULL);
 }
 
-/*
-==================================================
-Vstupni bod aplikace
-==================================================
-*/
-int main(int argc, char *argv[])
+int main(int argc, char** argv)
 {
-	//Duel6::Main app;
-	//return app.run();
-
-    MY_Init ();
-    MY_ErrCallback(MAIN_ErrorHandler);
-
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	try
 	{
-		MY_Err(MY_ErrDump("%S: %s\n", MY_L("COSTR0006|Chyba pri inicializaci grafickeho modu"), SDL_GetError()));
+		Duel6::Main app;
+		app.setup(argc, argv);
+		app.run();
+		app.tearDown();
+		return 0;
+	}
+	catch (const Duel6::Exception& e)
+	{
+		std::string msg = e.getMessage() + "\nAt: " + e.getFile() + ": " + std::to_string(e.getLine());
+		reportError(msg);
+	}
+	catch (const std::exception& e)
+	{
+		reportError(e.what());
 	}
 
-    Duel6::d6Font.load(APP_FILE_FONT);
-    Duel6::d6Console.setFont(Duel6::d6Font.get());
-    CON_RegisterBasicCmd(Duel6::d6Console);
-    Duel6::SET_Init ();
-
-	for (int i = 1; i < argc; i++)
-	{
-		Duel6::d6Console.exec(argv[i]);
-	}
-
-	Duel6::Main app;
-	app.run();
-
-    Duel6::Sound::deInit();
-	Duel6::d6TextureManager.freeAll();
-
-    MY_DeInit ();
-    SDL_Quit ();
-
-    return 0;
+	return 1;
 }

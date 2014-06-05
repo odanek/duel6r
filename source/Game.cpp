@@ -148,7 +148,7 @@ namespace Duel6
 
 		// TODO: If possibleStartingPositions.empty() -> error
 
-		for (Player& player : players)
+		for (Size i = 0; i < players.size(); ++i)
 		{
 			Int32 arbitraryPosition = rand() % possibleStartingPositions.size();
 			startingPositions.push(possibleStartingPositions[arbitraryPosition]);
@@ -192,14 +192,14 @@ namespace Duel6
 
 			if (numAlive == 1)
 			{
-				d6MessageQueue.add(*lastAlive, MY_L("APP00024|Jsi vitez - stiskni ESC pro konec nebo F1 pro novou hru"));
+				d6MessageQueue.add(*lastAlive, D6_L("You have won - press ESC to quit or F1 for another round"));
 				lastAlive->getPerson().setWins(lastAlive->getPerson().getWins() + 1);
 			}
 			else
 			{
 				for (const Player& player : players)
 				{
-					d6MessageQueue.add(player, MY_L("APP00025|Konec hry - bez viteze"));
+					d6MessageQueue.add(player, D6_L("End of round - no winner"));
 				}
 			}
 		}
@@ -324,24 +324,24 @@ namespace Duel6
 		}
 
 		const std::string levelPath = levels[lastLevel];
-		d6Console.printf(MY_L("APP00060|\n===Nahravam uroven %s===\n"), levelPath.c_str());
+		d6Console.print(Format(D6_L("\n===Loading level {0}===\n")) << levelPath);
 		std::vector<Bonus> bonuses;
 		bool mirror = rand() % 2 == 0;
 		world.loadLevel(levelPath, backgrounds[rand() % backgrounds.size()], mirror);
 		world.findBonuses(bonuses);
 		world.prepareFaces();
-		d6Console.printf(MY_L("APP00061|...Sirka   : %d\n"), world.getSizeX());
-		d6Console.printf(MY_L("APP00062|...Vyska   : %d\n"), world.getSizeY());
-		d6Console.printf(MY_L("APP00063|...Sten    : %d\n"), world.getWalls().getFaces().size());
-		d6Console.printf(MY_L("APP00064|...Spritu  : %d\n"), world.getSprites().getFaces().size());
-		d6Console.printf(MY_L("APP00065|...Voda    : %d\n"), world.getWater().getFaces().size());
+		d6Console.print(Format(D6_L("...Width   : {0}\n")) << world.getSizeX());
+		d6Console.print(Format(D6_L("...Height  : {0}\n")) << world.getSizeY());
+		d6Console.print(Format(D6_L("...Walls   : {0}\n")) << world.getWalls().getFaces().size());
+		d6Console.print(Format(D6_L("...Sprites : {0}\n")) << world.getSprites().getFaces().size());
+		d6Console.print(Format(D6_L("...Water   : {0}\n")) << world.getWater().getFaces().size());
 
 		d6SpriteList.clear();
 
-		d6Console.printf(MY_L("APP00066|...Pripravuji hrace\n"));
+		d6Console.print(D6_L("...Preparing players\n"));
 		preparePlayers();
 
-		d6Console.printf(MY_L("APP00067|...Inicializace urovne\n"));
+		d6Console.print(D6_L("...Level initialization\n"));
 		WPN_LevelInit();
 		EXPL_Init();
 		BONUS_Init(bonuses);

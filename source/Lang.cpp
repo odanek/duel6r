@@ -25,31 +25,12 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "PersonList.h"
+#include "Lang.h"
 
 namespace Duel6
 {
-	void PersonList::save(File& file) const
+	std::string Lang::Translate(const char* str)
 	{
-		Uint32 length = getLength();
-		file.write(&length, 4, 1);
-
-		for (const Person& person : persons)
-		{
-			person.serialize(file);
-		}
-	}
-
-	void PersonList::load(File& file)
-	{
-		Uint32 length;
-		file.read(&length, 4, 1);
-
-		while (length-- > 0)
-		{
-			Person person;
-			person.deSerialize(file);
-			persons.push_back(person);
-		}
+		return std::string(str);
 	}
 }

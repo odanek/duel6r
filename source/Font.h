@@ -36,6 +36,7 @@ Popis: Hlavni hlavickovy soubor jadra
 #include <vector>
 #include "Type.h"
 #include "Color.h"
+#include "Format.h"
 
 namespace Duel6
 {
@@ -56,11 +57,10 @@ namespace Duel6
 
 		void load(const std::string& fontFile);
 		void setColor(const Color& color);
-		void print(Int32 x, Int32 y, const char* str) const;
-		void printf(Int32 x, Int32 y, const char* str, ...) const;
+		void print(Int32 x, Int32 y, const std::string& str) const;		
 		void setMode(bool xMul, bool yMul, bool yRev);
-		const Uint8* get();
-
+		const Uint8* get();		
+				
 	private:
 		void drawChar(Int32 x, Int32 y, Int32 c) const;
 	};

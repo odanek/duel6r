@@ -26,6 +26,7 @@
 */
 
 #include "msdir.h"
+#include "IoException.h"
 #include "File.h"
 
 namespace Duel6
@@ -42,7 +43,7 @@ namespace Duel6
 		handle = fopen(path.c_str(), mode);
 		if (handle == nullptr)
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Unable to open file: " + path);
 		}
 
 		return *this;
@@ -63,12 +64,12 @@ namespace Duel6
 	{
 		if (handle == nullptr)
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Reading from a closed stream");
 		}
 
-		if (fread(ptr, size, count, handle) != size * count)
+		if (fread(ptr, size, count, handle) != count)
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Insufficient data in input stream");
 		}
 
 		return *this;
@@ -78,12 +79,12 @@ namespace Duel6
 	{
 		if (handle == nullptr)
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Writing to a closed stream");
 		}
 
-		if (fwrite(ptr, size, count, handle) != size * count)
+		if (fwrite(ptr, size, count, handle) != count)
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Not all data was correctly written");
 		}
 
 		return *this;
@@ -93,21 +94,20 @@ namespace Duel6
 	{
 		if (handle == nullptr)
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Trying to seek in a closed stream");
 		}
 
 		int origin;
-
 		switch (seek)
 		{
-		case Seek::Cur: origin = SEEK_CUR; break;
 		case Seek::Set: origin = SEEK_SET; break;
 		case Seek::End: origin = SEEK_END; break;
+		default: origin = SEEK_CUR; break;
 		}
 
 		if (fseek(handle, offset, origin))
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Seek operation failed");
 		}
 
 		return *this;
@@ -117,7 +117,7 @@ namespace Duel6
 	{
 		if (handle == nullptr)
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Querying closed stream for end of file");
 		}
 
 		return (feof(handle) != 0);
@@ -133,7 +133,7 @@ namespace Duel6
 
 		if (fseek(f, 0, SEEK_END))
 		{
-			// TODO: Exception
+			D6_THROW(IoException, "Unable to rewind to the end of a stream");
 		}
 		Size length = (Size)ftell(f);
 		fclose(f);

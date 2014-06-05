@@ -41,13 +41,13 @@ namespace Duel6
 		textureMap.clear();
 	}
 
-	void TextureManager::load(const std::string& key, const std::string& path, GLint filtering)
+	void TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp)
 	{
 		SubstitutionTable emptySubstitutionTable;
-		load(key, path, filtering, emptySubstitutionTable);
+		load(key, path, filtering, clamp, emptySubstitutionTable);
 	}
 
-	void TextureManager::load(const std::string& key, const std::string& path, GLint filtering, const SubstitutionTable& substitutionTable)
+	void TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable)
 	{
 		std::vector<std::string> textureFiles;
 		File::listDirectory(path, textureFileExtension, textureFiles);
@@ -59,7 +59,7 @@ namespace Duel6
 			Image image;
 			Util::loadTargaImage(path + file, image);
 			substituteColors(image, substitutionTable);
-			GLuint texture = Util::createTexture(image, filtering);
+			GLuint texture = Util::createTexture(image, filtering, clamp);
 			list.push_back(texture);
 		}
 

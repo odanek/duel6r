@@ -113,10 +113,10 @@ void Console::completeCmd ()
 	}
 	else if (fittingCommands.size() > 1)
 	{
-        printf(CON_Lang("CONSTR0028|]Hledani: \"%s\"\n"), input.c_str());
+		print(CON_Format(CON_Lang("Searching: \"{0}\"\n")) << input);
 		for (const std::string& command : fittingCommands)
 		{
-			printf("\t%s\n", command.c_str());
+			print(CON_Format("\t{0}\n") << command);
 		}
 
 		std::string largestFit = fittingCommands.front();
@@ -202,7 +202,7 @@ void Console::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
             hist[histcnt % CON_REM_HIST] = input;
             histcnt++;
             histscroll = 0;
-            printf ("]%s\n", input.c_str());
+			print(CON_Format("]{0}\n") << input);
             exec(input);
             input.clear();
             curpos = 0;

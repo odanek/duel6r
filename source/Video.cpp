@@ -27,7 +27,9 @@
 
 #include <SDL2/SDL_opengl.h>
 #include "mylib/mymath.h"
+#include "VideoException.h"
 #include "Video.h"
+#include "Globals.h"
 
 namespace Duel6
 {
@@ -63,7 +65,7 @@ namespace Duel6
 	*/
 	void Video::initialize(const std::string& name, const std::string& icon, Console& console)
 	{
-		console.printf(MY_L("APP00055|\n===Nastavuji OpenGL okno===\n"));
+		console.print(D6_L("\n===Video initialization===\n"));
 
 		// Get current video mode
 		SDL_DisplayMode currentVideoMode;		
@@ -98,11 +100,11 @@ namespace Duel6
 			flags |= SDL_WINDOW_FULLSCREEN;
 		}
 
-		console.printf (MY_L("COSTR0007|...Testuji zmenu grafickeho modu: %dx%dx%d\n"), params.getClientWidth(), params.getClientHeight(), params.getBitsPerPixel());
+		console.print(Format(D6_L("...Creating SDL window: {0}x{1}\n")) << params.getClientWidth() << params.getClientHeight());
 		SDL_Window* sdlWin = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, params.getClientWidth(), params.getClientHeight(), flags);
 		if (sdlWin == nullptr)
 		{
-			MY_Err(MY_ErrDump("%s: %s\n", MY_L("COSTR0009|Nelze nastavit graficky rezim"), SDL_GetError()));
+			D6_THROW(VideoException, std::string("Unable to create application window: ") + SDL_GetError());
 		}
 
 		SDL_SetWindowTitle(sdlWin, name.c_str());
@@ -122,23 +124,18 @@ namespace Duel6
 
 		if (params.getAntiAlias() > 0)
 		{
-			console.printf ("...Anti-aliasing: %dx\n", params.getAntiAlias());
+			console.print(Format(D6_L("...Anti-aliasing: {0}x\n")) << params.getAntiAlias());
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, params.getAntiAlias());
 		}
 
+		console.print(D6_L("...Creating OpenGL context\n"));
+		console.print(Format(D6_L("...Bits per-pixel: {0}\n")) << params.getBitsPerPixel());
 		SDL_GLContext glc = SDL_GL_CreateContext(window);
 		if (glc == nullptr)
 		{
-			MY_Err(MY_ErrDump("Creating opengl context failed: %s\n", SDL_GetError()));
+			D6_THROW(VideoException, std::string("Unable to OpenGL context: ") + SDL_GetError());
 		}
-    
-		/*
-		d6Console.printf (MY_L("COSTR0010|...Nastavuji novy graficky mod: %dx%dx%d\n"),
-						   g_app.window->w,
-						   g_app.screen_surf->h,
-						   g_app.screen_surf->format->BitsPerPixel);
-						   */
 
 		// Retrieve final video parameters
 		int val[7];		
@@ -150,8 +147,8 @@ namespace Duel6
 		SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &val[5]);
 		SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &val[6]);
 
-		console.printf (MY_L("COSTR0011|...RGB (%d, %d, %d)\n"), val[0], val[1], val[2]);
-		console.printf (MY_L("COSTR0012|...Barva (%d), Z-buffer (%d), Alfa kanal (%d), Stencil (%d)\n"), val[3], val[4], val[5], val[6]);
+		console.print(Format(D6_L("...RGB ({0}, {1}, {2})\n")) << val[0] << val[1] << val[2]);
+		console.print(Format(D6_L("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})\n")) << val[3] << val[4] << val[5] << val[6]);
 
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		glCullFace(GL_FRONT);
