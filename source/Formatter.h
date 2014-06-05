@@ -54,6 +54,16 @@ namespace Duel6
 		}
 	};
 
+	template <>
+	class Formatter<const char*>
+	{
+	public:
+		std::string format(const char* const& val)
+		{
+			return std::string(val);
+		}
+	};
+
 	template <Size N>
 	class Formatter<const char[N]>
 	{
@@ -67,11 +77,11 @@ namespace Duel6
 		}
 	};
 
-	template <>
-	class Formatter<const char*>
+	template <Size N>
+	class Formatter<char[N]>
 	{
 	private:
-		typedef const char* Type;
+		typedef char Type[N];
 
 	public:
 		std::string format(const Type& val)

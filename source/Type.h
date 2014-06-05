@@ -45,7 +45,7 @@ namespace Duel6
 	typedef float Float32;
 	typedef double Float64;
 
-	typedef Uint32 Size;
+	typedef size_t Size;
 }
 
 #endif
