@@ -25,16 +25,20 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <time.h>
 #include "VideoException.h"
 #include "Globals.h"
 #include "InfoMessageQueue.h"
 #include "Game.h"
 #include "Menu.h"
 #include "World.h"
-#include "Setup.h"
+#include "ConsoleCommands.h"
 #include "Sound.h"
 #include "Video.h"
 #include "Font.h"
+#include "Weapon.h"
+#include "ElevatorList.h"
+#include "Fire.h"
 #include "Main.h"
 
 namespace Duel6
@@ -141,6 +145,8 @@ namespace Duel6
 
 	void Main::setup(Int32 argc, char** argv)
 	{
+		srand((unsigned)time(nullptr));
+
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
 			D6_THROW(VideoException, std::string("Unable to set graphics mode: ") + SDL_GetError());
@@ -149,12 +155,38 @@ namespace Duel6
 		d6Font.load(APP_FILE_FONT);
 		d6Console.setFont(d6Font.get());
 		CON_RegisterBasicCmd(d6Console);
-		SET_Init();
+		
+		CC_Register(d6Console);
+
+		File::load(D6_FILE_COS, 0, d6Cos);
+		Sound::init(20);
+
+		// Read config file
+		d6Console.print("\n===Config===\n");
+		d6Console.exec("exec data/config.txt");
+		// Init player skins
+		d6Console.print("\n====Skin====\n");
+		d6Console.exec("exec data/skin.txt");
 
 		for (int i = 1; i < argc; i++)
 		{
 			d6Console.exec(argv[i]);
 		}
+
+		d6Video.initialize(APP_NAME, APP_FILE_ICON, d6Console);
+
+		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
+		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
+		d6TextureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
+		d6TextureManager.load(D6_TEXTURE_WPN_KEY, D6_TEXTURE_WPN_PATH, GL_LINEAR, true);
+		d6TextureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
+
+		WPN_Init();
+		ELEV_Init();
+		FIRE_Init();
+		CONTROLS_Init();
+
+		d6Menu.init();
 	}
 
 	void Main::run()

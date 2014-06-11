@@ -37,15 +37,18 @@ Potrebuje: Knihovnu mylib
 #include <string>
 #include <vector>
 #include <list>
+#include <functional>
+#include <memory>
 #include <SDL2/SDL_keyboard.h>
 
+#include "../Type.h"
 #include "../Format.h"
 #include "../Lang.h"
 
 #define CON_Lang            D6_L
-#define CON_Format			Duel6::Format
+#define CON_Format			Format
 
-#define CON_VERSION         "5.5"
+#define CON_VERSION         "5.6"
 #define CON_TEXT_SIZE       32000
 #define CON_MAX_ALIAS_REC   40
 #define CON_REM_HIST        15
@@ -54,13 +57,6 @@ Potrebuje: Knihovnu mylib
 #define CON_DEF_SHOWLAST    10
 #define CON_DEF_WIDTH       100
 #define CON_TAB_WIDTH       3
-
-enum
-{
-    CON_SUCCES,
-    CON_FAILED,
-    CON_ALREADY
-};
 
 // Klavesy
 #define CON_C_SCROLL_UP     SDLK_PAGEUP
@@ -82,186 +78,298 @@ enum
 #define CON_F_EXPAND        0x00002
 
 // Velikost fontu
-#define CON_FSX             ((conWORD) font[0])
-#define CON_FSY             ((conWORD) font[1])
+#define CON_FSX             ((Uint16) font[0])
+#define CON_FSY             ((Uint16) font[1])
 
-// Variable fags
-#define CON_FLAGS           2
-#define CON_F_NONE          0x00000
-#define CON_F_RONLY         0x00001
-#define CON_F_ARCHIVE       0x00002
-
-typedef unsigned char       conBYTE;
-typedef unsigned short      conWORD;
-
-class Console
+namespace Duel6
 {
-public:
-	class Arguments
-	{
-	private:
-		std::vector<std::string> arguments;
-
-	public:
-		size_t length() const
-		{
-			return arguments.size();
-		}
-
-		const std::string& get(size_t index) const
-		{
-			return arguments[index];
-		}
-
-		void clear()
-		{
-			arguments.clear();
-		}
-
-		void add(const std::string& arg)
-		{
-			arguments.push_back(arg);
-		}
-	};
-
-	typedef void (*Callback) (Console& console, const Console::Arguments& arguments);
-
-	class Command
+	class Console
 	{
 	public:
-		std::string name;
-		Callback callback;
-	};
-
-	struct Alias
-	{
-		std::string name;
-		std::string command;
-	};
-
-	class Variable
-	{
-	public:
-		enum class Type
+		class Arguments
 		{
-			Float,
-			Int,
-			Bool
+		private:
+			std::vector<std::string> arguments;
+
+		public:
+			Size length() const
+			{
+				return arguments.size();
+			}
+
+			const std::string& get(Size index) const
+			{
+				return arguments[index];
+			}
+
+			void clear()
+			{
+				arguments.clear();
+			}
+
+			void add(const std::string& arg)
+			{
+				arguments.push_back(arg);
+			}
+		};
+
+		typedef std::function<void(Console& console, const Arguments& arguments)> Command;
+
+		class Variable
+		{
+		public:
+			enum Flags
+			{
+				None = 0x00,
+				ReadOnly = 0x01,
+				Archive = 0x02
+			};
+
+		public:
+			virtual void setValue(const std::string& val) = 0;
+			virtual std::string getValue() const = 0;
+			virtual std::string getTypeName() const = 0;
+
+			template <class T>
+			static Variable* from(T& val);
+		};
+
+		class IntVariable
+			: public Variable
+		{
+		private:
+			Int32& value;
+
+		public:
+			IntVariable(Int32& value)
+				: value(value)
+			{}
+
+			void setValue(const std::string& val) override;
+			std::string getValue() const override;
+			std::string getTypeName() const override;
+		};
+
+		class BoolVariable
+			: public Variable
+		{
+		private:
+			bool& value;
+
+		public:
+			BoolVariable(bool& value)
+				: value(value)
+			{}
+
+			void setValue(const std::string& val) override;
+			std::string getValue() const override;
+			std::string getTypeName() const override;
+		};
+
+		class FloatVariable
+			: public Variable
+		{
+		private:
+			Float32& value;
+
+		public:
+			FloatVariable(Float32& value)
+				: value(value)
+			{}
+
+			void setValue(const std::string& val) override;
+			std::string getValue() const override;
+			std::string getTypeName() const override;
 		};
 
 	public:
-		std::string name;
-		void *ptr;
-		int flags;
-		Type type;
+		class CommandRecord
+		{
+		private:
+			std::string name;
+			Command command;
+
+		public:
+			CommandRecord(const std::string& name, Command command)
+				: name(name), command(command)
+			{}
+
+			const std::string& getName() const
+			{
+				return name;
+			}
+
+			const Command& getCommand() const
+			{
+				return command;
+			}
+		};
+
+		struct AliasRecord
+		{
+		private:
+			std::string name;
+			std::string command;
+
+		public:
+			AliasRecord(const std::string& name, const std::string& command)
+				: name(name), command(command)
+			{}
+
+			const std::string& getName() const
+			{
+				return name;
+			}
+
+			const std::string& getCommand() const
+			{
+				return command;
+			}
+
+			void setCommand(const std::string& command)
+			{
+				this->command = command;
+			}
+		};
+
+		class VarRecord
+		{
+		private:
+			std::string name;
+			Uint32 flags;
+			std::shared_ptr<Variable> var;
+
+		public:
+			VarRecord(const std::string& name, Variable* variable, Uint32 flags)
+				: name(name), var(variable), flags(flags)
+			{}
+
+			const std::string& getName() const
+			{
+				return name;
+			}
+
+			bool hasFlag(Uint32 flag) const
+			{
+				return (flags & flag) == flag;
+			}
+
+			std::string getValue() const
+			{
+				return var->getValue();
+			}
+
+			void setValue(const std::string& val)
+			{
+				var->setValue(val);
+			}
+
+			void printInfo(Console& console) const;
+		};
+
+	private:
+		bool            visible;                      // Je konzole viditelna/aktivni?
+		std::vector<Uint8> text;				 	  // Textovy buffer
+		int             width;                        // Sirka konzoly ve znacich
+		unsigned long   bufpos;                       // Pozice v bufferu kam se tiskne
+		bool            buffull;                      // Uz byl buffer prerotovan? Je plny?
+		bool            insert;                       // Prepinani vkladani/prepisovani
+		int             curpos;                       // Pozice kursoru na radku
+		int             show;                         // Kolik poslednich radku ukazat
+		int             scroll;                       // O kolik radku je odskrolovano
+
+		int             flags;                        // Flagy
+		const Uint8     *font;                        // Ukazatel na font (nahradit SDL_ttf?)
+
+		std::vector<CommandRecord> cmds;			// Seznam procedur
+		std::vector<VarRecord> vars;                   // Senam promenych
+		std::vector<AliasRecord> aliases;			 // Seznam aliasu
+
+		std::string     input;                        // Radek vstupu
+		int             inputscroll;                  // O kolik je se vstupem odskrolovano doprava
+		std::string     hist[CON_REM_HIST];           // Ulozena historie prikazu
+		int             histcnt;                      // Pocet ulozenych prikazu historie
+		int             histscroll;                   // O kolik je v historii odskrolovano
+
+		Arguments arguments;							// Argumenty funkce
+		std::list<std::string> cbuf;					// Prikazovy buffer
+		int             aliasloop;                    // Pocet provedenych aliasu (proti zacykleni)
 
 	public:
-		void printInfo(Console& console) const;
-		void setValue(const std::string& val);
-		std::string getValue() const;
+		Console(int flags);
+		~Console();
+
+		void blit(int resX, int resY);
+
+		void print(const std::string& str);
+		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
+		void textInputEvent(const char* text);
+
+		void toggle()
+		{
+			visible = !visible;
+		}
+
+		bool isActive() const
+		{
+			return visible;
+		}
+
+		void setLast(int sl);
+		void setFont(const Uint8* p);
+
+		void registerCommand(const std::string& name, Command command);
+		void registerVariable(const std::string& name, Variable* var, Uint32 flags);
+		void registerAlias(const std::string& name, const std::string& cmd);
+
+		const std::vector<CommandRecord>& listCommands() const
+		{
+			return cmds;
+		}
+
+		const std::vector<VarRecord>& listVars() const
+		{
+			return vars;
+		}
+
+		const std::vector<AliasRecord>& listAliases() const
+		{
+			return aliases;
+		}
+
+		const Uint8* getText(Size& bufPos, bool& bufFull) const;
+		void clear();
+
+		Console& appendCommands(const std::string& commands);
+		Console& prependCommands(const std::string& commands);
+		void execute();
+		void exec(const std::string& commands);
+
+	private:
+		void verifyRegistration(const std::string& proc, const std::string& name, bool isNull);
+
+		std::string expandLine(const std::string& line);
+		std::string::const_iterator nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end);
+		void tokenizeLine(const std::string& line, Arguments& args);
+		void executeSingleLine(const std::string& line);
+		void varCmd(VarRecord& var, Arguments& args);
+
+		void setInputScroll();
+		void completeCmd();
+
+		void dprintLine(int y, unsigned long pos, int len) const;
+		void dshowHist(int res_y) const;
+		void drawChar(int x, int y, int c) const;
+
+		CommandRecord* findCommand(const std::string& name);
+		VarRecord* findVar(const std::string& name);
+		AliasRecord* findAlias(const std::string& name);
+
+		void splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines);
 	};
 
-private:
-    bool            visible;                      // Je konzole viditelna/aktivni?
-    std::vector<conBYTE> text;					// Textovy buffer
-    int             width;                        // Sirka konzoly ve znacich
-    unsigned long   bufpos;                       // Pozice v bufferu kam se tiskne
-    bool            buffull;                      // Uz byl buffer prerotovan? Je plny?
-    bool            insert;                       // Prepinani vkladani/prepisovani
-    int             curpos;                       // Pozice kursoru na radku
-    int             show;                         // Kolik poslednich radku ukazat
-    int             scroll;                       // O kolik radku je odskrolovano
-
-    int             flags;                        // Flagy
-    const conBYTE   *font;                        // Ukazatel na font (nahradit SDL_ttf?
-
-    std::vector<Command> cmds;					  // Seznam procedur
-    std::vector<Variable> vars;                   // Senam promenych
-    std::vector<Alias> aliases;					  // Seznam aliasu
-
-    std::string     input;                        // Radek vstupu
-    int             inputscroll;                  // O kolik je se vstupem odskrolovano doprava
-    std::string     hist[CON_REM_HIST];           // Ulozena historie prikazu
-    int             histcnt;                      // Pocet ulozenych prikazu historie
-    int             histscroll;                   // O kolik je v historii odskrolovano
-
-    Arguments arguments;							// Argumenty funkce
-    std::list<std::string> cbuf;					// Prikazovy buffer
-    int             aliasloop;                    // Pocet provedenych aliasu (proti zacykleni)
-
-public:
-	Console(int flags);
-	~Console();
-
-    void blit(int res_x, int res_y);
-
-    void print(const std::string& str);
-    void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
-	void textInputEvent(const char* text);
-	
-	void toggle()
-	{
-		visible = !visible;
-	}
-
-    bool isActive() const
-	{ 
-		return visible; 
-	}
-
-    void setLast(int sl);
-    void setFont(const conBYTE *p);
-
-    int registerCommand(Callback callback, const std::string& name);
-    int registerVariable(void *p, const std::string& name, int flags, Variable::Type type);
-    int registerAlias(const std::string& name, const std::string& cmd);
-
-	const std::vector<Command>& listCommands() const
-	{
-		return cmds;
-	}
-
-	const std::vector<Variable>& listVars() const
-	{
-		return vars;
-	}
-
-	const std::vector<Alias>& listAliases() const
-	{
-		return aliases;
-	}
-
-    const conBYTE *getText(unsigned long *buf_pos, bool *buf_full) const;
-	void clear();
-
-	Console& appendCommands(const std::string& commands);
-	Console& prependCommands(const std::string& commands);
-    void execute();
-	void exec(const std::string& commands);
-
-private:
-    int isNameValid(const std::string& name, const std::string& proc, void *p);
-    std::string expandLine(const std::string& line);
-	std::string::const_iterator nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end);
-    void tokenizeLine(const std::string& line, Arguments& args);
-    void executeSingleLine(const std::string& line);
-    void varCmd(Variable& var, Arguments& args);
-
-    void setInputScroll();
-    void completeCmd();
-
-    void dprintLine(int y, unsigned long pos, int len) const;
-    void dshowHist(int res_y) const;
-    void drawChar(int x, int y, int c) const;
-
-    Command* findCommand(const std::string& name);
-    Variable* findVar(const std::string& name);
-    Alias* findAlias(const std::string& name);
-
-	void splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines);
-};
-
-// Dodelat vsude podporu multijazykoveho prostredi aby ji mohly vyuzivat vsechny knihovny a program
-void CON_RegisterBasicCmd(Console& c_ptr);
+	// Dodelat vsude podporu multijazykoveho prostredi aby ji mohly vyuzivat vsechny knihovny a program
+	void CON_RegisterBasicCmd(Console& c_ptr);
+}
 
 #endif

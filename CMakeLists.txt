@@ -49,6 +49,8 @@ set(D6R_SOURCES
     source/BonusList.h
     source/BonusList.cpp
     source/Color.h
+    source/ConsoleCommands.h
+    source/ConsoleCommands.cpp
     source/Context.h
     source/Context.cpp
     source/Elevator.h
@@ -112,8 +114,6 @@ set(D6R_SOURCES
     source/Sprite.cpp
     source/SpriteList.h
     source/SpriteList.cpp
-    source/Setup.h
-    source/Setup.cpp
     source/TextureManager.h
     source/TextureManager.cpp
     source/Type.h
@@ -148,6 +148,7 @@ set(D6R_SOURCES
     source/console/console.cpp
     source/console/console.h
     source/console/convar.cpp    
+    source/console/ConsoleException.h
 )
 
 if(WIN32)

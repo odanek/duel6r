@@ -25,13 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SETUP_H
-#define DUEL6_SETUP_H
+#ifndef DUEL6_CONSOLE_CONSOLEEXCEPTION_H
+#define DUEL6_CONSOLE_CONSOLEEXCEPTION_H
+
+#include "../Exception.h"
 
 namespace Duel6
 {
-	void SET_Init();
-	void SET_DeInit();
+	class ConsoleException
+		: public Exception
+	{
+	public:
+		ConsoleException(const std::string& file, Size line, const std::string& message)
+			: Exception(file, line, message)
+		{}
+	};
 }
 
 #endif

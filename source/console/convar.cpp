@@ -35,150 +35,163 @@ Popis: Zpracovani promenych
 #include <string.h>
 #include "console.h"
 
-/*
-==================================================
-Zaregistrovani promene
-==================================================
-*/
-int Console::registerVariable(void *p, const std::string& name, int flags, Variable::Type type)
+namespace Duel6
 {
-    int i = isNameValid(name, CON_Lang("Variable registration"), p);
-    if (i != CON_SUCCES)
-        return i;
-
-	Variable newVar;
-	newVar.name = name;
-    newVar.ptr = p;
-    newVar.flags = flags;
-    newVar.type = type;
-
-    // Zaradi novou promenou tak, aby byly setridene podle abecedy
-	size_t position = 0;
-	for (const Variable& var : vars)
+	/*
+	==================================================
+	Zaregistrovani promene
+	==================================================
+	*/
+	void Console::registerVariable(const std::string& name, Variable* ptr, Uint32 flags)
 	{
-		if (var.name.compare(newVar.name) > 0)
+		verifyRegistration(name, CON_Lang("Variable registration"), ptr == nullptr);
+
+		VarRecord newVar(name, ptr, flags);
+
+		// Zaradi novou promenou tak, aby byly setridene podle abecedy
+		Size position = 0;
+		for (const VarRecord& var : vars)
 		{
-			break;
+			if (var.getName().compare(name) > 0)
+			{
+				break;
+			}
+			++position;
 		}
-		++position;
-	}
 
-	vars.insert(vars.begin() + position, newVar);
+		vars.insert(vars.begin() + position, newVar);
 
-	if (flags & CON_F_REG_INFO)
-	{
-		print(CON_Format(CON_Lang("Variable registration: \"{0}\" at address {1} has been successful\n")) << name << p);
-	}
-
-    return CON_SUCCES;
-}
-
-Console::Variable *Console::findVar(const std::string& name)
-{
-	for (Variable& var : vars)
-	{
-		if (var.name == name)
+		if (flags & CON_F_REG_INFO)
 		{
-			return &var;
+			print(CON_Format(CON_Lang("Variable registration: \"{0}\" has been successful\n")) << name);
 		}
 	}
 
-    return nullptr;
-}
-
-void Console::varCmd(Variable& var, Arguments& args)
-{
-    size_t c = args.length();
-
-    if (c > 2)
-    {
-        print(CON_Lang("CONSTR0041|Variables : Usage variable_name [new_value]\n"));
-        return;
-    }
-
-	if (c == 1)
+	Console::VarRecord *Console::findVar(const std::string& name)
 	{
-		var.printInfo(*this);
-	}
-	else
-	{
-		if (!(var.flags & CON_F_RONLY))
+		for (VarRecord& var : vars)
 		{
-			var.setValue(args.get(1));
+			if (var.getName() == name)
+			{
+				return &var;
+			}
+		}
+
+		return nullptr;
+	}
+
+	void Console::varCmd(VarRecord& var, Arguments& args)
+	{
+		Size c = args.length();
+
+		if (c > 2)
+		{
+			print(CON_Lang("CONSTR0041|Variables : Usage variable_name [new_value]\n"));
+			return;
+		}
+
+		if (c == 1)
+		{
+			var.printInfo(*this);
 		}
 		else
 		{
-			print(CON_Format(CON_Lang("Variable \"{0}\" is read-only\n")) << var.name);
+			if (!(var.hasFlag(Variable::ReadOnly)))
+			{
+				var.setValue(args.get(1));
+			}
+			else
+			{
+				print(CON_Format(CON_Lang("Variable \"{0}\" is read-only\n")) << var.getName());
+			}
 		}
 	}
-}
 
-/*
-==================================================
-Vytiskne na konzolu info o promene
-==================================================
-*/
-void Console::Variable::printInfo(Console& console) const
-{
-    const char  flagstr[CON_FLAGS + 1] = "ra",
-                *typestr[3] = { "float", "int", "bool" };
-    int         i, f = 1;
-
-	for (i = 0; i < CON_FLAGS; i++, f <<= 1)
+	/*
+	==================================================
+	Vytiskne na konzolu info o promene
+	==================================================
+	*/
+	void Console::VarRecord::printInfo(Console& console) const
 	{
-		if (flags & f)
+		const char *flagstr = "ra";
+		int i, f = 1;
+
+		for (i = 0; i < 2; i++, f <<= 1)
 		{
-			console.print(std::string(1, flagstr[i]));
+			if (hasFlag(f))
+			{
+				console.print(std::string(1, flagstr[i]));
+			}
+			else
+			{
+				console.print("-");
+			}
 		}
-		else
-		{
-			console.print("-");
-		}
+
+		console.print(CON_Format(CON_Lang(" {0} \"{1}\" with value {2}\n")) << var->getTypeName() << name << getValue());
 	}
 
-	console.print(CON_Format(CON_Lang(" {0} \"{1}\" with value {2}\n")) << typestr[(int)type] << name << getValue());
-}
-
-/*
-==================================================
-Nastavi hodnotu promene podle retezce val
-==================================================
-*/
-void Console::Variable::setValue(const std::string& val)
-{
-    switch (type)
-    {
-	case Type::Float: *((float *)ptr) = std::stof(val); break;
-	case Type::Int: *((int *)ptr) = std::stoi(val); break;
-	case Type::Bool: *((bool *)ptr) = (val == "true"); break;
-    }
-}
-
-/*
-==================================================
-Ulozi hodnotu promene do retezce val
-==================================================
-*/
-std::string Console::Variable::getValue() const
-{
-	if (type == Type::Float)
+	std::string Console::IntVariable::getValue() const
 	{
-		std::ostringstream stream;
-		float *val = (float *)ptr;
-		stream << *val;
-		return stream.str();
-	}
-	else if (type == Type::Int)
-	{
-		std::ostringstream stream;
-		int *val = (int *)ptr;
-		stream << *val;
-		return stream.str();
-	}
-	else if (type == Type::Bool)
-	{
-		return (*((bool *)ptr) == true) ? "true" : "false";
+		return std::to_string(value);
 	}
 
-	return "";
+	void Console::IntVariable::setValue(const std::string& val)
+	{
+		value = std::stoi(val);
+	}
+
+	std::string Console::IntVariable::getTypeName() const
+	{
+		return "int";
+	}
+
+	std::string Console::BoolVariable::getValue() const
+	{
+		return value ? "true" : "false";
+	}
+
+	void Console::BoolVariable::setValue(const std::string& val)
+	{
+		value = (val == "true");
+	}
+
+	std::string Console::BoolVariable::getTypeName() const
+	{
+		return "bool";
+	}
+
+	std::string Console::FloatVariable::getValue() const
+	{
+		return std::to_string(value);
+	}
+
+	void Console::FloatVariable::setValue(const std::string& val)
+	{
+		value = std::stof(val);
+	}
+
+	std::string Console::FloatVariable::getTypeName() const
+	{
+		return "float";
+	}
+
+	template <>
+	Console::Variable* Console::Variable::from(Int32& val)
+	{
+		return new Console::IntVariable(val);
+	}
+
+	template <>
+	Console::Variable* Console::Variable::from(Float32& val)
+	{
+		return new Console::FloatVariable(val);
+	}
+
+	template <>
+	Console::Variable* Console::Variable::from(bool& val)
+	{
+		return new Console::BoolVariable(val);
+	}
 }

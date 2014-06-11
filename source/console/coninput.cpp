@@ -32,225 +32,228 @@ Popis: Zpracovani prikazove radky
 
 #include "console.h"
 
-/*
-==================================================
-Opravi pozici od ktere se zobrazuje prikazova radka
-==================================================
-*/
-void Console::setInputScroll ()
+namespace Duel6
 {
-    int l = (int)input.length(), w = width - 1;
-
-    if (curpos == l)
-    {
-        inputscroll = (l + 2) - width;
-        if (inputscroll < 0)
-            inputscroll = 0;
-        return;
-    }
-
-    if (l <= w)
-    {
-        inputscroll = 0;
-        return;
-    }
-
-    if (l - inputscroll < w)
-        inputscroll = l - w;
-
-    if (curpos < inputscroll)
-        inputscroll = curpos;
-
-    if (curpos >= inputscroll + w)
-        inputscroll = 1 + curpos - w;
-}
-
-/*
-==================================================
-Dohledani prikazu
-==================================================
-*/
-static bool startsWith(const std::string& text, const std::string& prefix)
-{
-	return prefix.length() <= text.length() && text.compare(0, prefix.length(), prefix) == 0;
-}
-
-void Console::completeCmd ()
-{
-	if (input.empty())
+	/*
+	==================================================
+	Opravi pozici od ktere se zobrazuje prikazova radka
+	==================================================
+	*/
+	void Console::setInputScroll()
 	{
-		return;
-	}
+		int l = (int)input.length(), w = width - 1;
 
-	std::vector<std::string> fittingCommands;
-	for (const Command& command : cmds)
-	{
-		if (startsWith(command.name, input))
+		if (curpos == l)
 		{
-			fittingCommands.push_back(command.name);
-		}
-	}
-	for (const Variable& var : vars)
-	{
-		if (startsWith(var.name, input))
-		{
-			fittingCommands.push_back(var.name);
-		}
-	}
-	for (const Alias& alias : aliases)
-	{
-		if (startsWith(alias.name, input))
-		{
-			fittingCommands.push_back(alias.name);
-		}
-	}
-
-	if (fittingCommands.size() == 1)
-	{
-		input = fittingCommands.front();
-		input.append(" ");
-		curpos = input.length();
-	}
-	else if (fittingCommands.size() > 1)
-	{
-		print(CON_Format(CON_Lang("Searching: \"{0}\"\n")) << input);
-		for (const std::string& command : fittingCommands)
-		{
-			print(CON_Format("\t{0}\n") << command);
+			inputscroll = (l + 2) - width;
+			if (inputscroll < 0)
+				inputscroll = 0;
+			return;
 		}
 
-		std::string largestFit = fittingCommands.front();
-		for (const std::string& command : fittingCommands)
+		if (l <= w)
 		{
-			size_t prefix = input.length();
-			while (prefix < largestFit.length() && prefix < command.length() && largestFit[prefix] == command[prefix])
+			inputscroll = 0;
+			return;
+		}
+
+		if (l - inputscroll < w)
+			inputscroll = l - w;
+
+		if (curpos < inputscroll)
+			inputscroll = curpos;
+
+		if (curpos >= inputscroll + w)
+			inputscroll = 1 + curpos - w;
+	}
+
+	/*
+	==================================================
+	Dohledani prikazu
+	==================================================
+	*/
+	static bool startsWith(const std::string& text, const std::string& prefix)
+	{
+		return prefix.length() <= text.length() && text.compare(0, prefix.length(), prefix) == 0;
+	}
+
+	void Console::completeCmd()
+	{
+		if (input.empty())
+		{
+			return;
+		}
+
+		std::vector<std::string> fittingCommands;
+		for (const CommandRecord& command : cmds)
+		{
+			if (startsWith(command.getName(), input))
 			{
-				++prefix;
+				fittingCommands.push_back(command.getName());
 			}
-
-			if (prefix < largestFit.length())
+		}
+		for (const VarRecord& var : vars)
+		{
+			if (startsWith(var.getName(), input))
 			{
-				largestFit = largestFit.substr(0, prefix);
+				fittingCommands.push_back(var.getName());
+			}
+		}
+		for (const AliasRecord& alias : aliases)
+		{
+			if (startsWith(alias.getName(), input))
+			{
+				fittingCommands.push_back(alias.getName());
 			}
 		}
 
-		input = largestFit;
-		curpos = input.length();
-	}
-}
-
-/*
-==================================================
-Reakce na stisk klavesy
-==================================================
-*/
-void Console::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
-{
-    int len = (int)input.length();
-
-    switch (keyCode)
-    {
-    case CON_C_SCROLL_UP:
-        scroll++;
-        break;
-    case CON_C_SCROLL_DOWN:
-        if (scroll > 0)
-            scroll--;
-        break;
-    case CON_C_HIST_UP:
-        if (histscroll < CON_REM_HIST && histcnt - histscroll > 0)
-        {
-            histscroll++;
-			input = hist[(histcnt - histscroll) % CON_REM_HIST];
-            curpos = (int)input.length();
-        }
-        break;
-    case CON_C_HIST_DOWN:
-        if (histscroll > 0)
-        {
-            histscroll--;
-			if (!histscroll)
+		if (fittingCommands.size() == 1)
+		{
+			input = fittingCommands.front();
+			input.append(" ");
+			curpos = input.length();
+		}
+		else if (fittingCommands.size() > 1)
+		{
+			print(CON_Format(CON_Lang("Searching: \"{0}\"\n")) << input);
+			for (const std::string& command : fittingCommands)
 			{
-				input.clear();
+				print(CON_Format("\t{0}\n") << command);
 			}
-			else
+
+			std::string largestFit = fittingCommands.front();
+			for (const std::string& command : fittingCommands)
 			{
+				size_t prefix = input.length();
+				while (prefix < largestFit.length() && prefix < command.length() && largestFit[prefix] == command[prefix])
+				{
+					++prefix;
+				}
+
+				if (prefix < largestFit.length())
+				{
+					largestFit = largestFit.substr(0, prefix);
+				}
+			}
+
+			input = largestFit;
+			curpos = input.length();
+		}
+	}
+
+	/*
+	==================================================
+	Reakce na stisk klavesy
+	==================================================
+	*/
+	void Console::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
+	{
+		int len = (int)input.length();
+
+		switch (keyCode)
+		{
+		case CON_C_SCROLL_UP:
+			scroll++;
+			break;
+		case CON_C_SCROLL_DOWN:
+			if (scroll > 0)
+				scroll--;
+			break;
+		case CON_C_HIST_UP:
+			if (histscroll < CON_REM_HIST && histcnt - histscroll > 0)
+			{
+				histscroll++;
 				input = hist[(histcnt - histscroll) % CON_REM_HIST];
+				curpos = (int)input.length();
 			}
-            curpos = (int) input.length();
-        }
-        break;
-    case CON_C_INSERT:
-        insert = !insert;
-        break;
-	case CON_C_BACK:
-		if (curpos > 0)
-        {
-			input.erase(input.begin() + curpos - 1);
-            curpos--;
-        }
-		break;
-	case CON_C_DELETE:
-		if (curpos < len)
-        {
-			input.erase(input.begin() + curpos);
-        }
-		break;
-	case CON_C_ENTER: 
-		if (len)
-        {
-            hist[histcnt % CON_REM_HIST] = input;
-            histcnt++;
-            histscroll = 0;
-			print(CON_Format("]{0}\n") << input);
-            exec(input);
-            input.clear();
-            curpos = 0;
-        }
-		break;
-	case CON_C_TAB:
-        completeCmd();
-		break;
-	case CON_C_LEFT:
-		if (curpos > 0)
-		{
-			curpos--;
+			break;
+		case CON_C_HIST_DOWN:
+			if (histscroll > 0)
+			{
+				histscroll--;
+				if (!histscroll)
+				{
+					input.clear();
+				}
+				else
+				{
+					input = hist[(histcnt - histscroll) % CON_REM_HIST];
+				}
+				curpos = (int)input.length();
+			}
+			break;
+		case CON_C_INSERT:
+			insert = !insert;
+			break;
+		case CON_C_BACK:
+			if (curpos > 0)
+			{
+				input.erase(input.begin() + curpos - 1);
+				curpos--;
+			}
+			break;
+		case CON_C_DELETE:
+			if (curpos < len)
+			{
+				input.erase(input.begin() + curpos);
+			}
+			break;
+		case CON_C_ENTER:
+			if (len)
+			{
+				hist[histcnt % CON_REM_HIST] = input;
+				histcnt++;
+				histscroll = 0;
+				print(CON_Format("]{0}\n") << input);
+				exec(input);
+				input.clear();
+				curpos = 0;
+			}
+			break;
+		case CON_C_TAB:
+			completeCmd();
+			break;
+		case CON_C_LEFT:
+			if (curpos > 0)
+			{
+				curpos--;
+			}
+			break;
+		case CON_C_RIGHT:
+			if (curpos < len)
+			{
+				curpos++;
+			}
+			break;
+		case CON_C_HOME:
+			curpos = 0;
+			break;
+		case CON_C_END:
+			curpos = len;
+			break;
 		}
-		break;
-	case CON_C_RIGHT: 
-		if (curpos < len)
-		{
-			curpos++;
-		}
-		break;
-	case CON_C_HOME:
-        curpos = 0;
-		break;
-	case CON_C_END:
-        curpos = len;
-        break;
-    }
 
-    setInputScroll ();
-}
+		setInputScroll();
+	}
 
-void Console::textInputEvent(const char* text)
-{
-	while (*text != 0)
+	void Console::textInputEvent(const char* text)
 	{
-		if (*text >= ' ' && *text < 128 && *text != '`')
+		while (*text != 0)
 		{
-			if (!insert || curpos == (int)input.length())
+			if (*text >= ' ' && *text < 128 && *text != '`')
 			{
-				input.insert(input.begin() + curpos, *text);
-				++curpos;
+				if (!insert || curpos == (int)input.length())
+				{
+					input.insert(input.begin() + curpos, *text);
+					++curpos;
+				}
+				else
+				{
+					input[curpos++] = *text;
+				}
 			}
-			else
-			{
-				input[curpos++] = *text;
-			}
-		}
 
-		text++;
+			text++;
+		}
 	}
 }

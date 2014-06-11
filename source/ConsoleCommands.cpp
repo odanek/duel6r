@@ -25,20 +25,19 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <time.h>
+
 #include <stdlib.h>
 #include <SDL2/SDL_mixer.h>
 #include "Sound.h"
-#include "Weapon.h"
 #include "Util.h"
-#include "ElevatorList.h"
 #include "Math.h"
 #include "Menu.h"
 #include "Context.h"
 #include "TextureManager.h"
 #include "Render.h"
-#include "Fire.h"
 #include "Video.h"
+#include "Game.h"
+#include "Weapon.h"
 #include "Globals.h"
 
 namespace Duel6
@@ -48,7 +47,7 @@ namespace Duel6
 	Set language - console command
 	==================================================
 	*/
-	void SET_Language(Console& console, const Console::Arguments& args)
+	void CC_Language(Console& console, const Console::Arguments& args)
 	{
 		/*
 		if (args.length() == 2)
@@ -71,7 +70,7 @@ namespace Duel6
 	Nastaveni poctu kol pres konzoli
 	==================================================
 	*/
-	void SET_MaxRounds(Console& console, const Console::Arguments& args)
+	void CC_MaxRounds(Console& console, const Console::Arguments& args)
 	{
 		if (args.length() == 2)
 		{
@@ -88,7 +87,7 @@ namespace Duel6
 	Nastaveni volume hudby pres konzolu
 	==================================================
 	*/
-	void SET_Volume(Console& console, const Console::Arguments& args)
+	void CC_Volume(Console& console, const Console::Arguments& args)
 	{
 		if (args.length() == 2)
 		{
@@ -96,7 +95,7 @@ namespace Duel6
 		}
 	}
 
-	void SET_ToggleRenderMode(Console& console, const Console::Arguments& args)
+	void CC_ToggleRenderMode(Console& console, const Console::Arguments& args)
 	{
 		Renderer& renderer = d6Game.getRenderer();
 		renderer.setWireframe(!renderer.getWireframe());
@@ -111,7 +110,7 @@ namespace Duel6
 		}
 	}
 
-	void SET_ToggleShowFps(Console& console, const Console::Arguments& args)
+	void CC_ToggleShowFps(Console& console, const Console::Arguments& args)
 	{
 		Renderer& renderer = d6Game.getRenderer();
 		renderer.setShowFps(!renderer.getShowFps());
@@ -131,7 +130,7 @@ namespace Duel6
 	Zapnuti/vypnuti hudby v menu
 	==================================================
 	*/
-	void SET_MusicOnOff(Console& console, const Console::Arguments& args)
+	void CC_MusicOnOff(Console& console, const Console::Arguments& args)
 	{
 		if (args.length() == 2)
 		{
@@ -147,7 +146,7 @@ namespace Duel6
 	Vyhledani nove pripojenych joypadu
 	==================================================
 	*/
-	void SET_JoyScan(Console& console, const Console::Arguments& args)
+	void CC_JoyScan(Console& console, const Console::Arguments& args)
 	{
 		if (d6Menu.isCurrent())
 		{
@@ -160,7 +159,7 @@ namespace Duel6
 	Nastaveni skinu
 	==================================================
 	*/
-	void SET_LoadSkin(Console& console, const Console::Arguments& args)
+	void CC_LoadSkin(Console& console, const Console::Arguments& args)
 	{
 		int     i, pl, pos, num, exp16, c;
 
@@ -207,12 +206,7 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Povoleni/zakazani zbrane
-	==================================================
-	*/
-	void SET_EnableWeapon(Console& console, const Console::Arguments& args)
+	void CC_EnableWeapon(Console& console, const Console::Arguments& args)
 	{
 		if (args.length() == 3)
 		{
@@ -234,12 +228,7 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Nastaveni rozsahu poctu naboju po startu hry
-	==================================================
-	*/
-	void SET_AmmoRange(Console& console, const Console::Arguments& args)
+	void CC_AmmoRange(Console& console, const Console::Arguments& args)
 	{
 		if (args.length() == 3)
 		{
@@ -261,8 +250,7 @@ namespace Duel6
 		}
 	}
 
-	/** OpenGL info */
-	void SET_OpenGLInfo(Console& console, const Console::Arguments& args)
+	void CC_OpenGLInfo(Console& console, const Console::Arguments& args)
 	{
 		console.print(D6_L("\n===OpenGL info===\n"));
 		console.print(Format(D6_L("Vendor     : {0}\n")) << (const char *)glGetString(GL_VENDOR));
@@ -304,76 +292,32 @@ namespace Duel6
 		console.print("\n");
 	}
 
-	void SET_RegisterCommands()
+	void CC_Register(Console& console)
 	{
 		SDL_version sdlVersion;
 		std::string verStr = D6_L("version");
 
 		// Print application info
-		d6Console.print(D6_L("\n===Application information===\n"));
-		d6Console.print(Format("{0} {1}: {2}\n") << APP_NAME << verStr << APP_VERSION);
+		console.print(D6_L("\n===Application information===\n"));
+		console.print(Format("{0} {1}: {2}\n") << APP_NAME << verStr << APP_VERSION);
 		SDL_GetVersion(&sdlVersion);
-		d6Console.print(Format("SDL {0}: {1}.{2}.{3}\n") << verStr << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
+		console.print(Format("SDL {0}: {1}.{2}.{3}\n") << verStr << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
 		const SDL_version* mixVersion = Mix_Linked_Version();
-		d6Console.print(Format("SDL_mixer {0}: {1}.{2}.{3}\n") << verStr << mixVersion->major << mixVersion->minor << mixVersion->patch);
-		d6Console.print(D6_L("Language: english\n"));
+		console.print(Format("SDL_mixer {0}: {1}.{2}.{3}\n") << verStr << mixVersion->major << mixVersion->minor << mixVersion->patch);
+		console.print(D6_L("Language: english\n"));
 
 		// Set some console functions
-		d6Console.setLast(15);
-		d6Console.registerCommand(&SET_ToggleRenderMode, "switch_render_mode");
-		d6Console.registerCommand(&SET_ToggleShowFps, "show_fps");
-		d6Console.registerCommand(&SET_OpenGLInfo, "gl_info");
-		d6Console.registerCommand(&SET_Language, "lang");
-		d6Console.registerCommand(&SET_Volume, "volume");
-		d6Console.registerCommand(&SET_MaxRounds, "rounds");
-		d6Console.registerCommand(&SET_MusicOnOff, "music");
-		d6Console.registerCommand(&SET_JoyScan, "joy_scan");
-		d6Console.registerCommand(&SET_LoadSkin, "skin");
-		d6Console.registerCommand(&SET_EnableWeapon, "gun");
-		d6Console.registerCommand(&SET_AmmoRange, "start_ammo_range");		
-		
-		/* TODO:
-		d6Console.regvar(&d6VideoMode.aa, "g_aa", CON_F_NONE, CON_VAR_INT);
-		d6Console.regvar(&d6VideoMode.bpp, "g_bpp", CON_F_NONE, CON_VAR_INT);
-		d6Console.regvar(&d6VideoMode.width, "g_cl_width", CON_F_NONE, CON_VAR_INT);
-		d6Console.regvar(&d6VideoMode.height, "g_cl_height", CON_F_NONE, CON_VAR_INT);
-		*/
-	}
-
-	/*
-	==================================================
-	Main init
-	==================================================
-	*/
-	void SET_Init()
-	{
-		SET_RegisterCommands();
-
-		srand((unsigned)time(nullptr));
-
-		File::load(D6_FILE_COS, 0, d6Cos);
-		Sound::init(20);
-
-		// Read config file
-		d6Console.print("\n===Config===\n");
-		d6Console.exec("exec data/config.txt");
-		// Init player skins
-		d6Console.print("\n====Skin====\n");
-		d6Console.exec("exec data/skin.txt");
-
-		d6Video.initialize(APP_NAME, APP_FILE_ICON, d6Console);
-
-		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
-		d6TextureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_WPN_KEY, D6_TEXTURE_WPN_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
-
-		WPN_Init();
-		ELEV_Init();
-		FIRE_Init();
-		CONTROLS_Init();
-
-		d6Menu.init();
+		console.setLast(15);
+		console.registerCommand("switch_render_mode", &CC_ToggleRenderMode);
+		console.registerCommand("show_fps", &CC_ToggleShowFps);
+		console.registerCommand("gl_info", &CC_OpenGLInfo);
+		console.registerCommand("lang", &CC_Language);
+		console.registerCommand("volume", &CC_Volume);
+		console.registerCommand("rounds", &CC_MaxRounds);
+		console.registerCommand("music", &CC_MusicOnOff);
+		console.registerCommand("joy_scan", &CC_JoyScan);
+		console.registerCommand("skin", &CC_LoadSkin);
+		console.registerCommand("gun", &CC_EnableWeapon);
+		console.registerCommand("start_ammo_range", &CC_AmmoRange);		
 	}
 }
