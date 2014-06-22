@@ -132,7 +132,7 @@ namespace Duel6
 		}
 	}
 
-	void Menu::init()
+	void Menu::initialize()
 	{		
 		d6Console.print(D6_L("\n===Menu initialization===\n"));
 		menuBannerTexture = d6TextureManager.get(D6_TEXTURE_MENU_KEY)[0];

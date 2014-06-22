@@ -81,7 +81,7 @@ namespace Duel6
 			this->game = game;
 		}
 
-		void init();		
+		void initialize();		
 
 		void joyRescan();
 

@@ -43,6 +43,8 @@ endif(UNIX)
 set(D6R_SOURCES
 
     source/AnimationLooping.h
+    source/Application.h
+    source/Application.cpp
     source/Block.h
     source/Bonus.h
     source/Bonus.cpp
@@ -86,9 +88,9 @@ set(D6R_SOURCES
     source/Lang.cpp
     source/LevelList.h
     source/LevelList.cpp
-    source/Main.h
     source/Main.cpp
     source/Math.h
+    source/Math.cpp
     source/Menu.h
     source/Menu.cpp
     source/msdir.c

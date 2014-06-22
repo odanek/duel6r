@@ -28,39 +28,44 @@
 #ifndef DUEL6_MATH_H
 #define DUEL6_MATH_H
 
+#include <string>
 #include <cstdlib>
 #include <cmath>
 #include "Type.h"
 
 namespace Duel6
 {
-	extern float d6Cos[450];
-
-	namespace Math
+	class Math
 	{
-		inline Float32 fastCos(Int32 angle)
+	private:
+		static Float32 cosineLookupTable[450];
+
+	public:
+		static void initialize(const std::string& cosTablePath);
+
+		static Float32 fastCos(Int32 angle)
 		{
-			return d6Cos[std::abs(angle) % 360];
+			return cosineLookupTable[std::abs(angle) % 360];
 		}
 
 		template <class T>
-		T sqr(T val)
+		static T sqr(T val)
 		{
 			return val * val;
 		}
 
 		template <class T>
-		T norm(T x, T y)
+		static T norm(T x, T y)
 		{
 			return std::sqrt(sqr(x) + sqr(y));
 		}
 
 		template <class T>
-		T distance(T x1, T y1, T x2, T y2)
+		static T distance(T x1, T y1, T x2, T y2)
 		{
 			return norm(x1 - x2, y1 - y2);
 		}
-	}
+	};
 }
 
 #endif

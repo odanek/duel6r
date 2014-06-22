@@ -25,183 +25,11 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <time.h>
-#include "VideoException.h"
-#include "Globals.h"
-#include "InfoMessageQueue.h"
-#include "Game.h"
-#include "Menu.h"
-#include "World.h"
-#include "ConsoleCommands.h"
-#include "Sound.h"
-#include "Video.h"
-#include "Font.h"
-#include "Weapon.h"
-#include "ElevatorList.h"
-#include "Fire.h"
-#include "Main.h"
-
-namespace Duel6
-{
-	Console d6Console(Console::ExpandFlag);
-	TextureManager d6TextureManager(D6_TEXTURE_EXTENSION);
-	Float32 d6Cos[450];
-	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
-	SpriteList d6SpriteList;
-
-	void Main::textInputEvent(Context& context, const char* text)
-	{
-		if (d6Console.isActive())
-		{
-			d6Console.textInputEvent(text);
-		}
-		else
-		{
-			context.textInputEvent(text);
-		}
-	}
-
-	void Main::keyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers)
-	{
-		if (keyCode == SDLK_BACKQUOTE)
-		{
-			d6Console.toggle();
-			if (d6Console.isActive())
-			{
-				SDL_StartTextInput();
-			}
-			else if (context.is(game))
-			{
-				SDL_StopTextInput();
-			}
-		}
-
-		if (d6Console.isActive())
-		{
-			d6Console.keyEvent(keyCode, keyModifiers);
-		}
-		else
-		{
-			context.keyEvent(keyCode, keyModifiers);
-		}
-	}
-
-	void Main::processEvents(Context& context)
-	{
-		SDL_Event event;
-		SDL_Keysym key;
-
-		while (SDL_PollEvent(&event))
-		{
-			switch (event.type)
-			{
-			case SDL_KEYDOWN:
-				key = event.key.keysym;
-				input.setPressed(key.sym, true);
-				keyEvent(context, key.sym, key.mod);
-				break;
-			case SDL_KEYUP:
-				key = event.key.keysym;
-				input.setPressed(key.sym, false);
-				break;
-			case SDL_TEXTINPUT:
-				textInputEvent(context, event.text.text);
-				break;
-			case SDL_QUIT:
-				requestClose = true;
-				break;
-			}
-		}
-	}
-
-	void Main::syncUpdateAndRender(Context& context)
-	{
-		static Uint32 curTime = 0;
-		Uint32 lastTime = 0;
-
-		lastTime = curTime;
-		curTime = SDL_GetTicks();
-
-		// Draw
-		context.render();
-		video.screenUpdate(d6Console, font);
-
-		// Update
-		if (curTime - lastTime < 70)
-		{
-			float elapsedTime = (curTime - lastTime) * 0.001f;;
-			context.update(elapsedTime);
-		}
-	}
-
-	void Main::setup(Int32 argc, char** argv)
-	{
-		srand((unsigned)time(nullptr));
-
-		if (SDL_Init(SDL_INIT_VIDEO) != 0)
-		{
-			D6_THROW(VideoException, std::string("Unable to set graphics mode: ") + SDL_GetError());
-		}
-
-		font.load(APP_FILE_FONT);		
-		menu.setGameReference(&game);
-		game.setMenuReference(&menu);
-
-		Console::registerBasicCommands(d6Console);
-		ConsoleCommands::registerCommands(d6Console, menu, game);
-
-		File::load(D6_FILE_COS, 0, d6Cos);
-		Sound::init(20);
-
-		// Read config file
-		d6Console.print("\n===Config===\n");
-		d6Console.exec("exec data/config.txt");
-		// Init player skins
-		d6Console.print("\n====Skin====\n");
-		d6Console.exec(std::string("exec ") + D6_FILE_SKIN);
-
-		for (int i = 1; i < argc; i++)
-		{
-			d6Console.exec(argv[i]);
-		}
-
-		video.initialize(APP_NAME, APP_FILE_ICON, d6Console);
-
-		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
-		d6TextureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_WPN_KEY, D6_TEXTURE_WPN_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
-
-		WPN_Init();
-		ELEV_Init();
-		FIRE_Init();
-
-		menu.init();
-	}
-
-	void Main::run()
-	{
-		Context::switchTo(&menu);
-
-		while (!requestClose)
-		{
-			Context& context = Context::getCurrent();
-			processEvents(context);
-			syncUpdateAndRender(context);
-		}
-
-		Context::switchTo(nullptr);
-	}
-
-	void Main::tearDown()
-	{
-		Sound::deInit();
-		d6TextureManager.freeAll();
-		SDL_Quit();
-	}
-}
-
+#include <stdio.h>
+#include <string>
+#include <SDL2/SDL.h>
+#include "Exception.h"
+#include "Application.h"
 
 static void reportError(const std::string& err)
 {
@@ -213,7 +41,7 @@ int main(int argc, char** argv)
 {
 	try
 	{
-		Duel6::Main app;
+		Duel6::Application app;
 		app.setup(argc, argv);
 		app.run();
 		app.tearDown();

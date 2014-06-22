@@ -33,8 +33,6 @@
 #include "Player.h"
 #include "Game.h"
 
-#define D6_WEAPONS          17
-
 // TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
 {
@@ -58,9 +56,7 @@ namespace Duel6
 		Int16 animation[16];
 		Int16 shotAnimation[18];
 		Int16 boomAnimation[14];
-	};
-
-	extern Weapon d6WpnDef[D6_WEAPONS];
+	};	
 
 	void WPN_Init();
 	void WPN_LevelInit();

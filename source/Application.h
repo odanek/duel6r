@@ -25,54 +25,42 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SOUND_H
-#define DUEL6_SOUND_H
+#ifndef DUEL6_APPLICATION_H
+#define DUEL6_APPLICATION_H
 
-#include <string>
-#include "Type.h"
+#include "Context.h"
+#include "Input.h"
+#include "Menu.h"
+#include "Game.h"
+#include "Video.h"
 
 namespace Duel6
 {
-	enum
+	class Application
 	{
-		D6_SND_DEAD,
-		D6_SND_BNPICK,
-		D6_SND_SHOT_BL,
-		D6_SND_BOOM_BL,
-		D6_SND_SHOT_LS,
-		D6_SND_SHOT_PI,
-		D6_SND_SHOT_PL,
-		D6_SND_SHOT_SG,
-		D6_SND_SHOT_BZ,
-		D6_SND_BOOM_BZ,
-		D6_SND_WATER,
-		D6_SND_SHOT_TZ,
-		D6_SND_SHOT_KM,
-		D6_SND_HIT,
-		D6_SND_SHOT_LK,
-		D6_SND_SHOT_SM,
-		D6_SND_SHOT_KD1,
-		D6_SND_SHOT_KD2,
-		D6_SND_SHOT_SPRAY,
-		D6_SND_SHOT_SLING,
-		D6_SND_SHOT_SPUNT,
-		D6_SND_SHOT_SHIT,
-		D6_SND_SHOT_SHIT_HIT,
-		D6_SND_LETS_ROCK,
-		D6_SND_GAME_OVER
-	};
+	private:
+		Video video;
+		Input input;
+		Font font;
+		Menu menu;
+		Game game;
+		bool requestClose;
 
-	namespace Sound
-	{
-		void initialize(Size channels);
-		Size loadModule(const std::string& nm);
-		Size loadSample(const std::string& nm);
-		void stopMusic();
-		void startMusic(Size i, bool loop);
-		void playSample(Size i);
-		void volume(Int32 volume);
-		void deInit();
-	}
+	public:
+		Application()
+			: menu(video, input, font), game(video, font), requestClose(false)
+		{}
+
+		void setup(Int32 argc, char** argv);
+		void run();
+		void tearDown();
+
+	private:
+		void processEvents(Context& context);
+		void textInputEvent(Context& context, const char* text);
+		void keyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers);
+		void syncUpdateAndRender(Context& context);
+	};
 }
 
 #endif

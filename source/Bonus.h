@@ -31,13 +31,9 @@
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
 
-#define D6_BONUS_COUNT      10
-
 namespace Duel6
 {
 	struct Weapon; // Forward declaration, TODO: Remove
-
-	extern int d6BonusArt[D6_BONUS_COUNT];
 
 	/*
 	class BonusType

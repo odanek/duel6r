@@ -71,7 +71,7 @@ namespace Duel6
 		Inicializace zvukoveho systemu
 		==================================================
 		*/
-		void init(Size channels)
+		void initialize(Size channels)
 		{
 			if (snd.inited)
 			{

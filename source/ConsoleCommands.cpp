@@ -26,7 +26,6 @@
 */
 
 
-#include <stdlib.h>
 #include <SDL2/SDL_mixer.h>
 #include "Sound.h"
 #include "Util.h"
@@ -38,7 +37,6 @@
 #include "Video.h"
 #include "Game.h"
 #include "Weapon.h"
-#include "Globals.h" // TODO: Remove
 #include "ConsoleCommands.h"
 
 namespace Duel6

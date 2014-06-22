@@ -1,3 +1,4 @@
+
 /*
 * Copyright (c) 2006, Ondrej Danek (www.ondrej-danek.net)
 * All rights reserved.
@@ -25,41 +26,15 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_MAIN_H
-#define DUEL6_MAIN_H
-
-#include "Context.h"
-#include "Input.h"
-#include "Menu.h"
-#include "Game.h"
+#include "File.h"
+#include "Math.h"
 
 namespace Duel6
 {
-	class Main
+	Float32 Math::cosineLookupTable[450];
+
+	void Math::initialize(const std::string& cosTablePath)
 	{
-	private:
-		Video video;
-		Input input;
-		Font font;
-		Menu menu;
-		Game game;
-		bool requestClose;
-
-	public:
-		Main()
-			: menu(video, input, font), game(video, font), requestClose(false)
-		{}
-
-		void setup(Int32 argc, char** argv);
-		void run();
-		void tearDown();
-
-	private:
-		void processEvents(Context& context);
-		void textInputEvent(Context& context, const char* text);
-		void keyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers);
-		void syncUpdateAndRender(Context& context);
-	};
+		File::load(cosTablePath, 0, cosineLookupTable);
+	}
 }
-
-#endif

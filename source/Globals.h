@@ -82,6 +82,8 @@
 #define D6_CAM_TOLPER_Y         30
 
 #define D6_SOUNDS				25
+#define D6_BONUS_COUNT			10
+#define D6_WEAPONS				17
 
 namespace Duel6
 {
@@ -89,11 +91,14 @@ namespace Duel6
 	class SpriteList;
 	class PlayerSkinColors;
 	class TextureManager;
+	struct Weapon;
 
 	extern Console d6Console;
 	extern TextureManager d6TextureManager;	
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList d6SpriteList;
+	extern Weapon d6WpnDef[D6_WEAPONS];
+	extern Int32 d6BonusArt[D6_BONUS_COUNT];
 }
 
 #endif
