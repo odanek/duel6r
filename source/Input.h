@@ -25,83 +25,44 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Prace s fonty, psani na obrazovku
-*/
+#ifndef DUEL6_INPUT_H
+#define DUEL6_INPUT_H
 
-#include <SDL2/SDL_opengl.h>
-#include "DataException.h"
-#include "File.h"
-#include "Video.h"
-#include "Globals.h"
-#include "Font.h"
+#include <unordered_set>
+#include <vector>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_joystick.h>
+#include "console/console.h"
+#include "Type.h"
 
 namespace Duel6
 {
-	void Font::load(const std::string& fontFile)
+	class Input
 	{
-		size_t fileSize = File::getSize(fontFile);
+	private:
+		std::unordered_set<SDL_Keycode> pressedKeys;
+		std::vector<SDL_Joystick*> joypads;
 
-		if (fileSize < 50)
+	public:
+		void setPressed(SDL_Keycode keyCode, bool pressed);
+
+		bool isPressed(SDL_Keycode keyCode) const
 		{
-			D6_THROW(DataException, "Font file has unexpected size: " + fontFile);
+			return pressedKeys.find(keyCode) != pressedKeys.end();
 		}
 
-		data.resize(fileSize - 50);
-		File::load(fontFile, 50, &data[0]);
-		charWidth = (Int32)data[0];
-		charHeight = (Int32)data[1];
-	}
-
-	/*
-	==================================================
-	Vykresleni jednoho znaku
-	==================================================
-	*/
-	void Font::drawChar(Int32 x, Int32 y, Int32 c) const
-	{
-		const Uint8* frm = &data[2 + c * charHeight];
-
-		for (Int32 i = 0; i < charHeight; i++, frm++)
+		Size getNumJoypads() const
 		{
-			Uint8 b = *frm;
-
-			for (Int32 j = 0; j < 8; j++)
-			{
-				if (b & (1 << (7 - j)))
-				{
-					glVertex2i(x + j, y - i);
-				}
-			}
-		}
-	}
-
-	void Font::print(Int32 x, Int32 y, const Color& color, const std::string& str) const
-	{
-		y += charHeight - 1;
-
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		glBegin(GL_POINTS);
-
-		for (Size i = 0; i < str.length(); i++, x += 8)
-		{
-			if (str[i] > 0 && str[i] != ' ')
-			{
-				drawChar(x, y, str[i]);
-			}
+			return joypads.size();
 		}
 
-		glEnd();
-	}
+		SDL_Joystick* getJoypad(Size index) const
+		{
+			return joypads[index];
+		}
 
-	void Font::print(Int32 x, Int32 y, const Color& color, char character) const
-	{
-		y += charHeight - 1;
-
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		glBegin(GL_POINTS);
-			drawChar(x, y, character);
-		glEnd();
-	}
+		void joyScan(Console& console);
+	};
 }
+
+#endif

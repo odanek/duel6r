@@ -54,7 +54,7 @@ namespace Duel6
 		return *this;
 	}
 
-	void InfoMessageQueue::renderPlayerMessages(const Player& player) const
+	void InfoMessageQueue::renderPlayerMessages(const Player& player, const Font& font) const
 	{
 		const PlayerView& view = player.getView();
 		Int32 posX = view.getX() + 4;
@@ -64,25 +64,25 @@ namespace Duel6
 		{
 			if (player.is(msg.getPlayer()))
 			{
-				renderMessage(posX, posY, msg.getText());
+				renderMessage(posX, posY, msg.getText(), font);
 				posY -= 16;
 			}
 		}
 	}
 
-	void InfoMessageQueue::renderAllMessages(const PlayerView& view, Int32 offsetY) const
+	void InfoMessageQueue::renderAllMessages(const PlayerView& view, Int32 offsetY, const Font& font) const
 	{
 		Int32 posX = view.getX() + 4;
 		Int32 posY = view.getY() + view.getHeight() - offsetY;
 
 		for (const InfoMessage& msg : messages)
 		{
-			renderMessage(posX, posY, msg.getPlayer().getPerson().getName() + ": " + msg.getText());
+			renderMessage(posX, posY, msg.getPlayer().getPerson().getName() + ": " + msg.getText(), font);
 			posY -= 16;
 		}
 	}
 
-	void InfoMessageQueue::renderMessage(Int32 x, Int32 y, const std::string& msg)
+	void InfoMessageQueue::renderMessage(Int32 x, Int32 y, const std::string& msg, const Font& font)
 	{
 		glColor4f(0, 0, 1, 0.7f);
 		glEnable(GL_BLEND);
@@ -95,7 +95,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 
-		d6Font.print(x, y, Color(255, 255, 0), msg);
+		font.print(x, y, Color(255, 255, 0), msg);
 	}
 
 }

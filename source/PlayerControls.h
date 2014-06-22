@@ -30,8 +30,8 @@
 
 #include <memory>
 #include <vector>
-#include <SDL2/SDL_keycode.h>
 #include "Type.h"
+#include "Input.h"
 
 namespace Duel6
 {
@@ -47,11 +47,12 @@ namespace Duel6
 		: public Control
 	{
 	private:
+		const Input& input;
 		SDL_Keycode keyCode;
 
 	public:
-		KeyboardButton(SDL_Keycode keyCode)
-			: keyCode(keyCode)
+		KeyboardButton(const Input& input, SDL_Keycode keyCode)
+			: input(input), keyCode(keyCode)
 		{}
 
 		bool isPressed() const override;
@@ -74,13 +75,14 @@ namespace Duel6
 		};
 
 	private:
+		const Input& input;
 		Size joypadIndex;
 		Axis axis;
 		Direction direction;
 
 	public:
-		JoypadAxis(Size joypadIndex, Axis axis, Direction direction)
-			: joypadIndex(joypadIndex), axis(axis), direction(direction)
+		JoypadAxis(const Input& input, Size joypadIndex, Axis axis, Direction direction)
+			: input(input), joypadIndex(joypadIndex), axis(axis), direction(direction)
 		{}
 
 		bool isPressed() const override;
@@ -90,12 +92,13 @@ namespace Duel6
 		: public Control
 	{
 	private:
+		const Input& input;
 		Size joypadIndex;
 		Size button;
 
 	public:
-		JoypadButton(Size joypadIndex, Size button)
-			: joypadIndex(joypadIndex), button(button)
+		JoypadButton(const Input& input, Size joypadIndex, Size button)
+			: input(input), joypadIndex(joypadIndex), button(button)
 		{}
 
 		bool isPressed() const override;
@@ -147,8 +150,24 @@ namespace Duel6
 		}
 	};
 
-	extern std::vector<std::unique_ptr<PlayerControls>> d6Controls;
-	void CONTROLS_Init();
+	class PlayerControlsManager
+	{
+	private:
+		static std::vector<std::unique_ptr<PlayerControls>> controls;
+
+	public:
+		PlayerControlsManager(const Input& input);
+		
+		Size getSize() const
+		{
+			return controls.size();
+		}
+
+		const PlayerControls& get(Size index) const
+		{
+			return *controls[index];
+		}
+	};
 }
 
 #endif

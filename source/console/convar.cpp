@@ -61,7 +61,7 @@ namespace Duel6
 
 		vars.insert(vars.begin() + position, newVar);
 
-		if (flags & CON_F_REG_INFO)
+		if (hasFlag(RegInfoFlag))
 		{
 			print(CON_Format(CON_Lang("Variable registration: \"{0}\" has been successful\n")) << name);
 		}
@@ -96,7 +96,7 @@ namespace Duel6
 		}
 		else
 		{
-			if (!(var.hasFlag(Variable::ReadOnly)))
+			if (!(var.hasFlag(Variable::ReadOnlyFlag)))
 			{
 				var.setValue(args.get(1));
 			}

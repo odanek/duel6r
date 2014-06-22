@@ -29,10 +29,29 @@
 #define DUEL6_CONSOLECOMMANDS_H
 
 #include "console/console.h"
+#include "Menu.h"
+#include "Game.h"
 
 namespace Duel6
 {
-	void CC_Register(Console& console);
+	class ConsoleCommands
+	{
+	private:
+		static void language(Console& console, const Console::Arguments& args);
+		static void maxRounds(Console& console, const Console::Arguments& args, Game& game);
+		static void volume(Console& console, const Console::Arguments& args);
+		static void toggleRenderMode(Console& console, const Console::Arguments& args, Game& game);
+		static void toggleShowFps(Console& console, const Console::Arguments& args, Game& game);
+		static void musicOnOff(Console& console, const Console::Arguments& args, Menu& menu);
+		static void joyScan(Console& console, const Console::Arguments& args, Menu& menu);
+		static void loadSkin(Console& console, const Console::Arguments& args, Menu& menu);
+		static void enableWeapon(Console& console, const Console::Arguments& args);
+		static void ammoRange(Console& console, const Console::Arguments& args, Game& game);
+		static void openGLInfo(Console& console, const Console::Arguments& args);
+
+	public:
+		static void registerCommands(Console& console, Menu& menu, Game& game);
+	};
 }
 
 #endif

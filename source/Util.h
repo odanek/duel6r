@@ -32,6 +32,7 @@
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Image.h"
+#include "Video.h"
 
 namespace Duel6
 {
@@ -40,7 +41,7 @@ namespace Duel6
 		void loadKH3Image(const std::string& path, Int32 num, Image& image);
 		void loadTargaImage(const std::string& path, Image& image);
 		GLuint createTexture(const Image& image, GLint filtering, bool clamp);
-		void saveScreenTga();
+		void saveScreenTga(const Video& video);
 	}
 }
 

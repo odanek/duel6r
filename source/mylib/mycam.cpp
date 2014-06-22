@@ -202,11 +202,15 @@ zmena "field of view", pripadne "aspect ratio"
 */
 void mycam_c::resize (bool fr, mval_t fov, float a)
 {
-    if (m_frustum != nullptr)
-        delete m_frustum;
+	if (m_frustum != nullptr)
+	{
+		delete m_frustum;
+	}
 
-    if (fr)
-        m_frustum = new myfrust_c (fov, a);
+	if (fr)
+	{
+		m_frustum = new myfrust_c(fov, a);
+	}
 }
 
 /*
@@ -217,8 +221,10 @@ nastavi kameru na pozici v prostoru
 void mycam_c::setpos (const vec3_c<mval_t> &p)
 {
     m_pos = p;
-    if (m_frustum != nullptr)
-        m_frustum->updatepos (m_pos);
+	if (m_frustum != nullptr)
+	{
+		m_frustum->updatepos(m_pos);
+	}
 }
 
 /*
@@ -240,8 +246,10 @@ void mycam_c::move (mval_t spd)
 {
     m_pos += spd * m_front;
 
-    if (m_frustum != nullptr)
-        m_frustum->updatepos (m_pos);
+	if (m_frustum != nullptr)
+	{
+		m_frustum->updatepos(m_pos);
+	}
 }
 
 /*
@@ -253,8 +261,10 @@ void mycam_c::strafe (mval_t spd)
 {
     m_pos += spd * m_side;
 
-    if (m_frustum != nullptr)
-        m_frustum->updatepos (m_pos);
+	if (m_frustum != nullptr)
+	{
+		m_frustum->updatepos(m_pos);
+	}
 }
 
 /*

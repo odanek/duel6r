@@ -157,7 +157,7 @@ namespace Duel6
 		void startGame(Int32 startBlockX, Int32 startBlockY, Int32 ammo);
 		void setView(const PlayerView& view);
 		void update(const World& world, ScreenMode screenMode, Float32 elapsedTime);
-		void prepareCam(ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
+		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
 		bool hitByShot(Float32 pw, Shot& s, bool directHit);
 

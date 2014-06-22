@@ -426,13 +426,13 @@ namespace Duel6
 
 		if (game.getScreenMode() == ScreenMode::FullScreen)
 		{ 
-			d6MessageQueue.renderAllMessages(game.getPlayers().front().getView(), (game.getPlayers().size() > 4 ? 50 : 20));
+			d6MessageQueue.renderAllMessages(game.getPlayers().front().getView(), (game.getPlayers().size() > 4 ? 50 : 20), font);
 		}
 		else
 		{
 			for (const Player& player : game.getPlayers())
 			{
-				d6MessageQueue.renderPlayerMessages(player);
+				d6MessageQueue.renderPlayerMessages(player, font);
 			}
 		}
 

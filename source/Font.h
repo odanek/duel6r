@@ -44,20 +44,26 @@ namespace Duel6
 	{
 	private:
 		std::vector<Uint8> data;
-		Int32 fontSZX, fontSZY;
-		bool xMul;
-		bool yMul;
-		bool yRev;
+		Int32 charWidth;
+		Int32 charHeight;
 
 	public:
 		Font()
-			: xMul(false), yMul(false), yRev(false)
 		{}
 
 		void load(const std::string& fontFile);
-		void print(Int32 x, Int32 y, const Color& color, const std::string& str) const;		
-		void setMode(bool xMul, bool yMul, bool yRev);
-		const Uint8* get();		
+		void print(Int32 x, Int32 y, const Color& color, const std::string& str) const;
+		void print(Int32 x, Int32 y, const Color& color, char character) const;		
+		
+		Int32 getCharWidth() const
+		{
+			return charWidth;
+		}
+
+		Int32 getCharHeight() const
+		{
+			return charHeight;
+		}
 				
 	private:
 		void drawChar(Int32 x, Int32 y, Int32 c) const;

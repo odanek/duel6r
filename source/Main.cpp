@@ -43,18 +43,9 @@
 
 namespace Duel6
 {
-	Input d6Input;
-	Console d6Console(CON_F_EXPAND);
-	Video d6Video;
-	Game d6Game;
-	Menu d6Menu;
-	Font d6Font;
+	Console d6Console(Console::ExpandFlag);
 	TextureManager d6TextureManager(D6_TEXTURE_EXTENSION);
 	Float32 d6Cos[450];
-	bool d6Wireframe = false;
-	bool d6ShowFps = false;
-	std::vector<PlayerSkinColors> d6PlayerColors(D6_MAX_PLAYERS);
-	bool d6ShowRanking = true;
 	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
 	SpriteList d6SpriteList;
 
@@ -79,7 +70,7 @@ namespace Duel6
 			{
 				SDL_StartTextInput();
 			}
-			else if (context.is(d6Game))
+			else if (context.is(game))
 			{
 				SDL_StopTextInput();
 			}
@@ -106,12 +97,12 @@ namespace Duel6
 			{
 			case SDL_KEYDOWN:
 				key = event.key.keysym;
-				d6Input.pressedKeys.insert(key.sym);
+				input.setPressed(key.sym, true);
 				keyEvent(context, key.sym, key.mod);
 				break;
 			case SDL_KEYUP:
 				key = event.key.keysym;
-				d6Input.pressedKeys.erase(key.sym);
+				input.setPressed(key.sym, false);
 				break;
 			case SDL_TEXTINPUT:
 				textInputEvent(context, event.text.text);
@@ -133,7 +124,7 @@ namespace Duel6
 
 		// Draw
 		context.render();
-		d6Video.swapBuffers(d6Console);
+		video.screenUpdate(d6Console, font);
 
 		// Update
 		if (curTime - lastTime < 70)
@@ -152,11 +143,12 @@ namespace Duel6
 			D6_THROW(VideoException, std::string("Unable to set graphics mode: ") + SDL_GetError());
 		}
 
-		d6Font.load(APP_FILE_FONT);
-		d6Console.setFont(d6Font.get());
-		CON_RegisterBasicCmd(d6Console);
-		
-		CC_Register(d6Console);
+		font.load(APP_FILE_FONT);		
+		menu.setGameReference(&game);
+		game.setMenuReference(&menu);
+
+		Console::registerBasicCommands(d6Console);
+		ConsoleCommands::registerCommands(d6Console, menu, game);
 
 		File::load(D6_FILE_COS, 0, d6Cos);
 		Sound::init(20);
@@ -166,14 +158,14 @@ namespace Duel6
 		d6Console.exec("exec data/config.txt");
 		// Init player skins
 		d6Console.print("\n====Skin====\n");
-		d6Console.exec("exec data/skin.txt");
+		d6Console.exec(std::string("exec ") + D6_FILE_SKIN);
 
 		for (int i = 1; i < argc; i++)
 		{
 			d6Console.exec(argv[i]);
 		}
 
-		d6Video.initialize(APP_NAME, APP_FILE_ICON, d6Console);
+		video.initialize(APP_NAME, APP_FILE_ICON, d6Console);
 
 		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
 		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
@@ -184,14 +176,13 @@ namespace Duel6
 		WPN_Init();
 		ELEV_Init();
 		FIRE_Init();
-		CONTROLS_Init();
 
-		d6Menu.init();
+		menu.init();
 	}
 
 	void Main::run()
 	{
-		Context::switchTo(&d6Menu);
+		Context::switchTo(&menu);
 
 		while (!requestClose)
 		{

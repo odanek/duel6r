@@ -73,13 +73,15 @@ set(D6R_SOURCES
     source/Formatter.h
     source/Game.cpp
     source/Game.h
-    source/Image.h
     source/Gui.h
     source/Gui.cpp
     source/Globals.h
+    source/Image.h    
     source/InfoMessage.h
     source/InfoMessageQueue.h
     source/InfoMessageQueue.cpp
+    source/Input.h
+    source/Input.cpp
     source/Lang.h
     source/Lang.cpp
     source/LevelList.h

@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include "Font.h"
 #include "Globals.h"
@@ -32,12 +33,11 @@
 
 namespace Duel6
 {
-	static Desk         *glibMainDesk = nullptr;
-	static int          glibMouseX, glibMouseY, glibMouseZ, glibMouseB,
-		glibScrWidth, glibScrHeight, glibSCN;
-	static GLubyte      glibCBack[3] = { 192, 192, 192 },
-		glibCFL[3] = { 235, 235, 235 },
-		glibCFD[3] = { 0, 0, 0 };
+	static Desk    *glibMainDesk = nullptr;
+	static int     glibMouseX, glibMouseY, glibMouseZ, glibMouseB, glibScrWidth, glibScrHeight, glibSCN;
+	static GLubyte glibCBack[3] = { 192, 192, 192 },
+				   glibCFL[3] = { 235, 235, 235 },
+				   glibCFD[3] = { 0, 0, 0 };
 
 	static bool GLib_MouseIn(int x, int y, int w, int h)
 	{
@@ -128,14 +128,14 @@ namespace Duel6
 		}
 	}
 
-	void button_c::Draw() const
+	void button_c::Draw(const Font& font) const
 	{
 		int     px, py;
 
 		GLib_DrawFrame(x, y, width, height, pressed);
 		px = x + (width >> 1) - (caption.length() << 2) + pressed;
 		py = y - (height >> 1) - 7 - pressed;
-		d6Font.print(px, py, Color(0), caption);
+		font.print(px, py, Color(0), caption);
 	}
 
 	/*
@@ -227,7 +227,7 @@ namespace Duel6
 		}
 	}
 
-	void listbox_c::Draw() const
+	void listbox_c::Draw(const Font& font) const
 	{
 		int     Y, i, shift;
 
@@ -261,7 +261,7 @@ namespace Duel6
 				glEnd();
 			}
 
-			d6Font.print(x, Y - shift, (i == now) ? Color(255) : Color(0), items[i]);
+			font.print(x, Y - shift, (i == now) ? Color(255) : Color(0), items[i]);
 		}
 	}
 
@@ -368,7 +368,7 @@ namespace Duel6
 		}
 	}
 
-	void switchbox_c::Draw() const
+	void switchbox_c::Draw(const Font& font) const
 	{
 		int     px, py;
 
@@ -399,7 +399,7 @@ namespace Duel6
 		if (items.empty())
 			return;
 
-		d6Font.print(x + 25, y - 15, Color(0), items[now]);
+		font.print(x + 25, y - 15, Color(0), items[now]);
 	}
 
 	/*
@@ -429,7 +429,7 @@ namespace Duel6
 		text = caption;
 	}
 
-	void label_c::Draw() const
+	void label_c::Draw(const Font& font) const
 	{
 		glBegin(GL_QUADS);
 		glColor3ub(170, 170, 170);
@@ -439,7 +439,7 @@ namespace Duel6
 		glVertex2i(x, y - height + 1);
 		glEnd();
 
-		d6Font.print(x, y - 15, Color(0), text);
+		font.print(x, y - 15, Color(0), text);
 	}
 
 	void label_c::Check(Desk::EventType &event, DeskControl*& from)
@@ -525,7 +525,7 @@ namespace Duel6
 		}
 	}
 
-	void slider_c::Draw() const
+	void slider_c::Draw(const Font& font) const
 	{
 		int px, py, h = height, s = 0;
 
@@ -644,7 +644,7 @@ namespace Duel6
 		}
 	}
 
-	void textbox_c::Draw() const
+	void textbox_c::Draw(const Font& font) const
 	{
 		int     w = (width << 3) + 8;
 
@@ -657,7 +657,7 @@ namespace Duel6
 		glVertex2i(x, y - 17);
 		glEnd();
 
-		d6Font.print(x, y - 16, Color(0), text + "_");
+		font.print(x, y - 16, Color(0), text + "_");
 	}
 
 	/*
@@ -717,7 +717,7 @@ namespace Duel6
 		}
 	}
 
-	void Desk::Draw()
+	void Desk::Draw(const Font& font)
 	{
 		glBegin(GL_QUADS);
 		glColor3ubv(glibCBack);
@@ -732,7 +732,7 @@ namespace Duel6
 
 		for (DeskControl* control : controls)
 		{
-			control->Draw();
+			control->Draw(font);
 		}
 
 		glPopMatrix();

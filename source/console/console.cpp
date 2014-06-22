@@ -48,7 +48,7 @@ namespace Duel6
 	Inicializace/deinicializace konzole
 	==================================================
 	*/
-	Console::Console(int flags)
+	Console::Console(Uint32 flags)
 	{
 		visible = false;
 		insert = false;
@@ -58,7 +58,6 @@ namespace Duel6
 
 		histcnt = 0;
 		histscroll = 0;
-		font = nullptr;
 
 		width = CON_DEF_WIDTH;
 		show = CON_DEF_SHOWLAST;
@@ -184,7 +183,7 @@ namespace Duel6
 
 		cmds.insert(cmds.begin() + position, newCommand);
 
-		if (flags & CON_F_REG_INFO)
+		if (hasFlag(RegInfoFlag))
 		{
 			print(CON_Format(CON_Lang("Command registration: \"{0}\" has been successful\n")) << name);
 		}
@@ -223,7 +222,7 @@ namespace Duel6
 			a->setCommand(cmd);
 		}
 
-		if (flags & CON_F_REG_INFO)
+		if (hasFlag(RegInfoFlag))
 		{
 			print(CON_Format(CON_Lang("Alias registration: \"{0}\" as \"{1}\" has been successful\n")) << name << cmd);
 		}
@@ -263,16 +262,6 @@ namespace Duel6
 		}
 
 		return nullptr;
-	}
-
-	/*
-	==================================================
-	Nastaveni ukazatele na font
-	==================================================
-	*/
-	void Console::setFont(const Uint8* p)
-	{
-		font = p;
 	}
 
 	/*

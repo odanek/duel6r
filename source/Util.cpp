@@ -161,7 +161,7 @@ namespace Duel6
 			}
 		}
 
-		void saveScreenTga()
+		void saveScreenTga(const Video& video)
 		{
 			Int32 num = 0;
 			std::string name;
@@ -181,8 +181,8 @@ namespace Duel6
 			if (num >= 1000)
 				return;
 
-			Image image(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight());
-			glReadPixels(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+			Image image(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
+			glReadPixels(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
 			saveTarga(name, image);
 
 			d6Console.print(Format(D6_L("Screenshot saved to {0}\n")) << name);

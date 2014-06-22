@@ -38,7 +38,8 @@
 #include "Video.h"
 #include "Game.h"
 #include "Weapon.h"
-#include "Globals.h"
+#include "Globals.h" // TODO: Remove
+#include "ConsoleCommands.h"
 
 namespace Duel6
 {
@@ -47,7 +48,7 @@ namespace Duel6
 	Set language - console command
 	==================================================
 	*/
-	void CC_Language(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::language(Console& console, const Console::Arguments& args)
 	{
 		/*
 		if (args.length() == 2)
@@ -65,29 +66,19 @@ namespace Duel6
 		*/
 	}
 
-	/*
-	==================================================
-	Nastaveni poctu kol pres konzoli
-	==================================================
-	*/
-	void CC_MaxRounds(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::maxRounds(Console& console, const Console::Arguments& args, Game& game)
 	{
 		if (args.length() == 2)
 		{
-			d6Game.setMaxRounds(std::stoi(args.get(1)));
+			game.setMaxRounds(std::stoi(args.get(1)));
 		}
 		else
 		{
-			console.print(Format(D6_L("Played rounds: {0} | Max rounds: {1}\n")) << d6Game.getPlayedRounds() << d6Game.getMaxRounds());
+			console.print(Format(D6_L("Played rounds: {0} | Max rounds: {1}\n")) << game.getPlayedRounds() << game.getMaxRounds());
 		}
 	}
 	
-	/*
-	==================================================
-	Nastaveni volume hudby pres konzolu
-	==================================================
-	*/
-	void CC_Volume(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::volume(Console& console, const Console::Arguments& args)
 	{
 		if (args.length() == 2)
 		{
@@ -95,9 +86,9 @@ namespace Duel6
 		}
 	}
 
-	void CC_ToggleRenderMode(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::toggleRenderMode(Console& console, const Console::Arguments& args, Game& game)
 	{
-		Renderer& renderer = d6Game.getRenderer();
+		Renderer& renderer = game.getRenderer();
 		renderer.setWireframe(!renderer.getWireframe());
 
 		if (renderer.getWireframe())
@@ -110,9 +101,9 @@ namespace Duel6
 		}
 	}
 
-	void CC_ToggleShowFps(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::toggleShowFps(Console& console, const Console::Arguments& args, Game& game)
 	{
-		Renderer& renderer = d6Game.getRenderer();
+		Renderer& renderer = game.getRenderer();
 		renderer.setShowFps(!renderer.getShowFps());
 		
 		if (renderer.getShowFps())
@@ -125,48 +116,34 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Zapnuti/vypnuti hudby v menu
-	==================================================
-	*/
-	void CC_MusicOnOff(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::musicOnOff(Console& console, const Console::Arguments& args, Menu& menu)
 	{
 		if (args.length() == 2)
 		{
 			if (args.get(1) == "on" || args.get(1) == "off")
 			{
-				d6Menu.enableMusic(args.get(1) == "on");
+				menu.enableMusic(args.get(1) == "on");
 			}
 		}
 	}
 
-	/*
-	==================================================
-	Vyhledani nove pripojenych joypadu
-	==================================================
-	*/
-	void CC_JoyScan(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::joyScan(Console& console, const Console::Arguments& args, Menu& menu)
 	{
-		if (d6Menu.isCurrent())
+		if (menu.isCurrent())
 		{
-			d6Menu.joyRescan();
+			menu.joyRescan();
 		}
 	}
 
-	/*
-	==================================================
-	Nastaveni skinu
-	==================================================
-	*/
-	void CC_LoadSkin(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::loadSkin(Console& console, const Console::Arguments& args, Menu& menu)
 	{
-		int     i, pl, pos, num, exp16, c;
+		std::vector<PlayerSkinColors>& colors = menu.getPlayerColors();
+		int i, pl, pos, num, exp16, c;
 
 		if (args.length() == 11)
 		{
 			pl = std::stoi(args.get(1));
-			if (pl >= 0 && pl < (int)d6PlayerColors.size())
+			if (pl >= 0 && pl < (int)colors.size())
 			{
 				for (i = 0; i < 9; i++)
 				{
@@ -185,28 +162,29 @@ namespace Duel6
 					}
 
 					Color color((num & 0xff0000) >> 16, (num & 0xff00) >> 8, num & 0xff);
-					d6PlayerColors[pl].set((PlayerSkinColors::BodyPart)i, color);
+					colors[pl].set((PlayerSkinColors::BodyPart)i, color);
 				}
 
 				console.print(Format(D6_L("Skin {0}: OK\n")) << pl);
 			}
 		}
+
 		if (args.length() == 2)
 		{
 			pl = std::stoi(args.get(1));
-			if (pl >= 0 && pl < (int)d6PlayerColors.size())
+			if (pl >= 0 && pl < (int)colors.size())
 			{
 				console.print(Format(D6_L("Skin {0}:\n")) << pl);
 				for (i = 0; i < 9; i++)
 				{
-					const Color& color = d6PlayerColors[pl].get((PlayerSkinColors::BodyPart)i);
+					const Color& color = colors[pl].get((PlayerSkinColors::BodyPart)i);
 					console.print(Format("({0}, {1}, {2})\n") << color.getRed() << color.getGreen() << color.getBlue());
 				}
 			}
 		}
 	}
 
-	void CC_EnableWeapon(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::enableWeapon(Console& console, const Console::Arguments& args)
 	{
 		if (args.length() == 3)
 		{
@@ -228,7 +206,7 @@ namespace Duel6
 		}
 	}
 
-	void CC_AmmoRange(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::ammoRange(Console& console, const Console::Arguments& args, Game& game)
 	{
 		if (args.length() == 3)
 		{
@@ -236,12 +214,12 @@ namespace Duel6
 
 			if (min <= max && min >= 0)
 			{
-				d6Game.setAmmoRange(std::make_pair(min, max));
+				game.setAmmoRange(std::make_pair(min, max));
 			}
 		}
 		else if (args.length() == 1)
 		{
-			const std::pair<Int32, Int32>& range = d6Game.getAmmoRange();
+			const std::pair<Int32, Int32>& range = game.getAmmoRange();
 			console.print(Format(D6_L("\tmin = {0}\n\tmax = {1}\n")) << range.first << range.second);
 		}
 		else
@@ -250,7 +228,7 @@ namespace Duel6
 		}
 	}
 
-	void CC_OpenGLInfo(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::openGLInfo(Console& console, const Console::Arguments& args)
 	{
 		console.print(D6_L("\n===OpenGL info===\n"));
 		console.print(Format(D6_L("Vendor     : {0}\n")) << (const char *)glGetString(GL_VENDOR));
@@ -292,7 +270,7 @@ namespace Duel6
 		console.print("\n");
 	}
 
-	void CC_Register(Console& console)
+	void ConsoleCommands::registerCommands(Console& console, Menu& menu, Game& game)
 	{
 		SDL_version sdlVersion;
 		std::string verStr = D6_L("version");
@@ -308,16 +286,16 @@ namespace Duel6
 
 		// Set some console functions
 		console.setLast(15);
-		console.registerCommand("switch_render_mode", &CC_ToggleRenderMode);
-		console.registerCommand("show_fps", &CC_ToggleShowFps);
-		console.registerCommand("gl_info", &CC_OpenGLInfo);
-		console.registerCommand("lang", &CC_Language);
-		console.registerCommand("volume", &CC_Volume);
-		console.registerCommand("rounds", &CC_MaxRounds);
-		console.registerCommand("music", &CC_MusicOnOff);
-		console.registerCommand("joy_scan", &CC_JoyScan);
-		console.registerCommand("skin", &CC_LoadSkin);
-		console.registerCommand("gun", &CC_EnableWeapon);
-		console.registerCommand("start_ammo_range", &CC_AmmoRange);		
+		console.registerCommand("switch_render_mode", std::bind(toggleRenderMode, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
+		console.registerCommand("show_fps", std::bind(toggleShowFps, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
+		console.registerCommand("gl_info", openGLInfo);
+		console.registerCommand("lang", language);
+		console.registerCommand("volume", volume);
+		console.registerCommand("rounds", std::bind(maxRounds, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
+		console.registerCommand("music", std::bind(musicOnOff, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));
+		console.registerCommand("joy_scan", std::bind(joyScan, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));
+		console.registerCommand("skin", std::bind(loadSkin, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));
+		console.registerCommand("gun", enableWeapon);
+		console.registerCommand("start_ammo_range", std::bind(ammoRange, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
 	}
 }

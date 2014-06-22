@@ -31,18 +31,18 @@
 
 namespace Duel6
 {
-	std::vector<std::unique_ptr<PlayerControls>> d6Controls;
+	std::vector<std::unique_ptr<PlayerControls>> PlayerControlsManager::controls;
 
 	bool KeyboardButton::isPressed() const
 	{
-		return d6Input.isPressed(keyCode);
+		return input.isPressed(keyCode);
 	}
 
 	bool JoypadAxis::isPressed() const
 	{
-		if (joypadIndex < d6Input.joysticks.size())
+		if (joypadIndex < input.getNumJoypads())
 		{
-			Int16 axisPosition = SDL_JoystickGetAxis(d6Input.joysticks[joypadIndex], (axis == Axis::Horizontal) ? 0 : 1);
+			Int16 axisPosition = SDL_JoystickGetAxis(input.getJoypad(joypadIndex), (axis == Axis::Horizontal) ? 0 : 1);
 			return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
 
 		}
@@ -51,66 +51,66 @@ namespace Duel6
 
 	bool JoypadButton::isPressed() const
 	{
-		return (joypadIndex < d6Input.joysticks.size() && SDL_JoystickGetButton(d6Input.joysticks[joypadIndex], button) == 1);
+		return (joypadIndex < input.getNumJoypads() && SDL_JoystickGetButton(input.getJoypad(joypadIndex), button) == 1);
 	}
 
-	void CONTROLS_Init()
+	PlayerControlsManager::PlayerControlsManager(const Input& input)
 	{
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new KeyboardButton(SDLK_LEFT), new KeyboardButton(SDLK_RIGHT), 
-			new KeyboardButton(SDLK_UP), new KeyboardButton(SDLK_DOWN),
-			new KeyboardButton(SDLK_RCTRL), new KeyboardButton(SDLK_RSHIFT)
+			new KeyboardButton(input, SDLK_LEFT), new KeyboardButton(input, SDLK_RIGHT), 
+			new KeyboardButton(input, SDLK_UP), new KeyboardButton(input, SDLK_DOWN),
+			new KeyboardButton(input, SDLK_RCTRL), new KeyboardButton(input, SDLK_RSHIFT)
 			)));
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new KeyboardButton(SDLK_a), new KeyboardButton(SDLK_d), 
-			new KeyboardButton(SDLK_w), new KeyboardButton(SDLK_s),
-			new KeyboardButton(SDLK_q), new KeyboardButton(SDLK_e)
+			new KeyboardButton(input, SDLK_a), new KeyboardButton(input, SDLK_d), 
+			new KeyboardButton(input, SDLK_w), new KeyboardButton(input, SDLK_s),
+			new KeyboardButton(input, SDLK_q), new KeyboardButton(input, SDLK_e)
 			)));
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new KeyboardButton(SDLK_h), new KeyboardButton(SDLK_k), 
-			new KeyboardButton(SDLK_u), new KeyboardButton(SDLK_j),
-			new KeyboardButton(SDLK_o), new KeyboardButton(SDLK_l)
+			new KeyboardButton(input, SDLK_h), new KeyboardButton(input, SDLK_k), 
+			new KeyboardButton(input, SDLK_u), new KeyboardButton(input, SDLK_j),
+			new KeyboardButton(input, SDLK_o), new KeyboardButton(input, SDLK_l)
 			)));
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new KeyboardButton(SDLK_KP_1), new KeyboardButton(SDLK_KP_3), 
-			new KeyboardButton(SDLK_KP_5), new KeyboardButton(SDLK_KP_2),
-			new KeyboardButton(SDLK_KP_0), new KeyboardButton(SDLK_KP_PERIOD)
+			new KeyboardButton(input, SDLK_KP_1), new KeyboardButton(input, SDLK_KP_3), 
+			new KeyboardButton(input, SDLK_KP_5), new KeyboardButton(input, SDLK_KP_2),
+			new KeyboardButton(input, SDLK_KP_0), new KeyboardButton(input, SDLK_KP_PERIOD)
 			)));
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new JoypadAxis(0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(0, 0),
-			new JoypadAxis(0, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(0, 1), new JoypadButton(0, 2)
+			new JoypadAxis(input, 0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(input, 0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 0, 0),
+			new JoypadAxis(input, 0, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 0, 1), new JoypadButton(input, 0, 2)
 			)));
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new JoypadAxis(1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(1, 0),
-			new JoypadAxis(1, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(1, 1), new JoypadButton(1, 2)
+			new JoypadAxis(input, 1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(input, 1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 1, 0),
+			new JoypadAxis(input, 1, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 1, 1), new JoypadButton(input, 1, 2)
 			)));
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new JoypadAxis(2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(2, 0),
-			new JoypadAxis(2, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(2, 1), new JoypadButton(2, 2)
+			new JoypadAxis(input, 2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(input, 2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 2, 0),
+			new JoypadAxis(input, 2, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 2, 1), new JoypadButton(input, 2, 2)
 			)));
-		d6Controls.push_back(
+		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls(
-			new JoypadAxis(3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(3, 0),
-			new JoypadAxis(3, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(3, 1), new JoypadButton(3, 2)
+			new JoypadAxis(input, 3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+			new JoypadAxis(input, 3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 3, 0),
+			new JoypadAxis(input, 3, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+			new JoypadButton(input, 3, 1), new JoypadButton(input, 3, 2)
 			)));
 	}
 }

@@ -71,8 +71,8 @@ namespace Duel6
 		"sound/gameover.wav"
 	};
 
-	Menu::Menu()		
-		: playMusic(false)
+	Menu::Menu(Video& video, Input& input, const Font& font)		
+		: video(video), input(input), font(font), controlsManager(input), playerColors(D6_MAX_PLAYERS), playMusic(false)
 	{}
 
 	void Menu::loadPersonData()
@@ -101,28 +101,7 @@ namespace Duel6
 	void Menu::joyRescan()
 	{
 		d6Console.print(D6_L("\n===Initialization of input devices===\n"));
-		d6Input.joysticks.clear();
-
-		if (SDL_WasInit(SDL_INIT_JOYSTICK))
-		{
-			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		}
-		
-		if (SDL_InitSubSystem (SDL_INIT_JOYSTICK))
-		{
-			d6Console.print(D6_L("...Unable to initialize joypad sub-system"));            
-		}
-		else
-		{
-			size_t joysticks = SDL_NumJoysticks();
-			d6Console.print(Format(D6_L("...Found {0} joypads\n")) << joysticks);
-
-			for (size_t i = 0; i < joysticks; i++)
-			{
-				d6Input.joysticks.push_back(SDL_JoystickOpen(i));
-				d6Console.print(Format("... * {0}\n") << SDL_JoystickName(d6Input.joysticks[i]));
-			}
-		}
+		input.joyScan(d6Console);
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
@@ -138,7 +117,7 @@ namespace Duel6
 			}
 		}
 
-		for (Uint32 i = 0; i < d6Input.joysticks.size(); i++)
+		for (Uint32 i = 0; i < input.getNumJoypads(); i++)
 		{
 			std::string joypadDevice = Format("{0} {1}") << D6_L("Joypad") << (i + 1);
 			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
@@ -149,7 +128,7 @@ namespace Duel6
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			controlSwitch[i]->SetCur(i % (4 + d6Input.joysticks.size()));
+			controlSwitch[i]->SetCur(i % (4 + input.getNumJoypads()));
 		}
 	}
 
@@ -160,8 +139,8 @@ namespace Duel6
 		loadPersonData();
 		d6Console.print(D6_L("...Starting GUI library\n"));
 		desk = Desk::Create();
-		desk->ScreenSize(d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight(),
-			(d6Video.getScreen().getClientWidth() - 800) / 2, (d6Video.getScreen().getClientHeight() - 600) / 2);
+		desk->ScreenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
+			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
 
 		listbox[0] = new listbox_c(true);
 		listbox[0]->SetPosition(10, 400, 94, 12, 16);
@@ -392,7 +371,8 @@ namespace Duel6
 	bool Menu::question(const std::string& question)
 	{
 		Int32 width = question.size() * 8 + 60;
-		Int32 x = d6Video.getScreen().getClientWidth() / 2 - width / 2, y = d6Video.getScreen().getClientHeight() / 2 - 10;
+		Int32 x = video.getScreen().getClientWidth() / 2 - width / 2, 
+			  y = video.getScreen().getClientHeight() / 2 - 10;
 
 		glColor3f(1.0f, 0.8f, 0.8f);
 		glBegin(GL_QUADS);
@@ -410,8 +390,8 @@ namespace Duel6
 			glVertex2i(x + width, y);
 		glEnd();
 		glLineWidth(1);
-		d6Font.print(x + 30, y + 2, Color(255, 0, 0), question);
-		d6Video.swapBuffers(d6Console);
+		font.print(x + 30, y + 2, Color(255, 0, 0), question);		
+		video.screenUpdate(d6Console, font);
 
 		SDL_Event event;
 		bool answer;
@@ -460,7 +440,7 @@ namespace Duel6
 
 	void Menu::play()
 	{
-		bool roundLimit = (d6Game.getMaxRounds() > 0);
+		bool roundLimit = (game->getMaxRounds() > 0);
 
 		if (roundLimit)
 		{
@@ -477,8 +457,8 @@ namespace Duel6
 		for (Size i = 0; i < playing; i++)
 		{
 			Person& person = persons.get(willPlay[i]);
-			const PlayerSkinColors& colors = d6PlayerColors[i];
-			const PlayerControls& controls = *d6Controls[controlSwitch[i]->CurItem()];
+			const PlayerSkinColors& colors = playerColors[i];
+			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->CurItem());
 			playerDefinitions.push_back(Game::PlayerDefinition(person, colors, controls));
 		}
 
@@ -515,8 +495,8 @@ namespace Duel6
 		Int32 screenZoom = listbox[6]->CurItem() + 5; 
 
 		// Start
-		Context::switchTo(&d6Game);
-		d6Game.start(playerDefinitions, levels, backgrounds, screenMode, screenZoom);
+		Context::switchTo(game);
+		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom);
 	}
 
 	void Menu::removePlayer(Int32 c)
@@ -619,23 +599,23 @@ namespace Duel6
 
 	void Menu::render() const
 	{
-		Int32 tr_x = (d6Video.getScreen().getClientWidth() - 800) / 2, tr_y = (d6Video.getScreen().getClientHeight() - 600) / 2;
+		Int32 tr_x = (video.getScreen().getClientWidth() - 800) / 2, tr_y = (video.getScreen().getClientHeight() - 600) / 2;
 
-		desk->Draw();
+		desk->Draw(font);
 
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
 
-		d6Font.print(687, d6Video.getScreen().getClientHeight() - 20, Color(255, 255, 255), Format("{0} {1}") << D6_L("version") << APP_VERSION);
+		font.print(687, video.getScreen().getClientHeight() - 20, Color(255, 255, 255), Format("{0} {1}") << D6_L("version") << APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, menuBannerTexture);
 		glColor3ub(255, 255, 255);
 		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, d6Video.getScreen().getClientHeight() - 5);
-			glTexCoord2f(1.0f, 0.0f); glVertex2i(500, d6Video.getScreen().getClientHeight() - 5);
-			glTexCoord2f(1.0f, 1.0f); glVertex2i(500, d6Video.getScreen().getClientHeight() - 100);
-			glTexCoord2f(0.0f, 1.0f); glVertex2i(300, d6Video.getScreen().getClientHeight() - 100);
+			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, video.getScreen().getClientHeight() - 5);
+			glTexCoord2f(1.0f, 0.0f); glVertex2i(500, video.getScreen().getClientHeight() - 5);
+			glTexCoord2f(1.0f, 1.0f); glVertex2i(500, video.getScreen().getClientHeight() - 100);
+			glTexCoord2f(0.0f, 1.0f); glVertex2i(300, video.getScreen().getClientHeight() - 100);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 

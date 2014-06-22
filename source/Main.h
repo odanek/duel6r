@@ -29,17 +29,25 @@
 #define DUEL6_MAIN_H
 
 #include "Context.h"
+#include "Input.h"
+#include "Menu.h"
+#include "Game.h"
 
 namespace Duel6
 {
 	class Main
 	{
 	private:
+		Video video;
+		Input input;
+		Font font;
+		Menu menu;
+		Game game;
 		bool requestClose;
 
 	public:
 		Main()
-			: requestClose(false)
+			: menu(video, input, font), game(video, font), requestClose(false)
 		{}
 
 		void setup(Int32 argc, char** argv);

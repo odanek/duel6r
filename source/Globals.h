@@ -28,9 +28,7 @@
 #ifndef DUEL6_GLOBALS_H
 #define DUEL6_GLOBALS_H
 
-#include <unordered_set>
 #include <vector>
-#include <SDL2/SDL.h>
 #include "console/console.h"
 #include "PlayerSkinColors.h"
 
@@ -38,9 +36,6 @@
 #define APP_NAME            "Duel 6 Reloaded"
 #define APP_FILE_ICON       "data/duel6_icon.bmp"
 #define APP_FILE_FONT       "data/duel6.fon"
-
-#define APP_FLAG_NONE       0
-#define APP_FLAG_QUIT       1
 
 #define D6_FILE_CONFIG      "data/config.txt"
 #define D6_FILE_ANM         "data/duel6.anm"
@@ -67,7 +62,7 @@
 
 //#define D6_RENDER_BACKS
 
-#define D6_LEVEL_EXTENSION	".lev"
+#define D6_LEVEL_EXTENSION		".lev"
 
 #define D6_SPRITE_SPEED_COEF	61
 
@@ -90,67 +85,13 @@
 
 namespace Duel6
 {
-	enum
-	{
-		D6_SND_DEAD,
-		D6_SND_BNPICK,
-		D6_SND_SHOT_BL,
-		D6_SND_BOOM_BL,
-		D6_SND_SHOT_LS,
-		D6_SND_SHOT_PI,
-		D6_SND_SHOT_PL,
-		D6_SND_SHOT_SG,
-		D6_SND_SHOT_BZ,
-		D6_SND_BOOM_BZ,
-		D6_SND_WATER,
-		D6_SND_SHOT_TZ,
-		D6_SND_SHOT_KM,
-		D6_SND_HIT,
-		D6_SND_SHOT_LK,
-		D6_SND_SHOT_SM,
-		D6_SND_SHOT_KD1,
-		D6_SND_SHOT_KD2,
-		D6_SND_SHOT_SPRAY,
-		D6_SND_SHOT_SLING,
-		D6_SND_SHOT_SPUNT,
-		D6_SND_SHOT_SHIT,
-		D6_SND_SHOT_SHIT_HIT,
-		D6_SND_LETS_ROCK,
-		D6_SND_GAME_OVER
-	};
-
-	class Input
-	{
-	public:
-		std::unordered_set<SDL_Keycode> pressedKeys;
-		std::vector<SDL_Joystick*> joysticks;
-
-		bool isPressed(SDL_Keycode keyCode)
-		{
-			return pressedKeys.find(keyCode) != pressedKeys.end();
-		}
-	};
-
-	extern Input d6Input;
-
-	class World;
 	class InfoMessageQueue;
 	class SpriteList;
-	class Player;
 	class PlayerSkinColors;
-	class Menu;
-	class Game;
 	class TextureManager;
-	class Video;
-	class Font;
 
 	extern Console d6Console;
-	extern Video d6Video;
-	extern Menu d6Menu;
-	extern Game d6Game;
-	extern Font d6Font;
-	extern TextureManager d6TextureManager;
-	extern std::vector<PlayerSkinColors> d6PlayerColors;
+	extern TextureManager d6TextureManager;	
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList d6SpriteList;
 }

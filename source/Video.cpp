@@ -33,13 +33,22 @@
 
 namespace Duel6
 {
-	void Video::swapBuffers(Console& console)
-	{		
+	void Video::screenUpdate(Console& console, const Font& font)
+	{
+		renderConsole(console, font);
+		swapBuffers();
+	}
+
+	void Video::renderConsole(Console& console, const Font& font)
+	{
 		if (console.isActive())
 		{
-			console.blit(screen.getClientWidth(), screen.getClientHeight());
+			console.render(screen.getClientWidth(), screen.getClientHeight(), font);
 		}
+	}
 
+	void Video::swapBuffers()
+	{
 		SDL_GL_SwapWindow(window);
 		calculateFps();
 	}

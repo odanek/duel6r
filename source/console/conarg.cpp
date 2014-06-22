@@ -182,7 +182,7 @@ namespace Duel6
 		if (line.empty())
 			return;
 
-		if (flags & CON_F_EXPAND)
+		if (hasFlag(ExpandFlag))
 		{
 			tokenizeLine(expandLine(line), arguments);
 		}

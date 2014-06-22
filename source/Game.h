@@ -42,6 +42,8 @@
 
 namespace Duel6
 {
+	class Menu; // Forward, TODO: Remove
+
 	class Game
 		: public Context
 	{
@@ -75,13 +77,14 @@ namespace Duel6
 		};
 
 	private:
+		Video& video;
+		Menu* menu;
 		Renderer renderer;
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
 		Size lastLevel;
 		ScreenMode screenMode;
 		Int32 screenZoom;
-
 
 		Int32 winner;
 		std::pair<Int32, Int32> ammoRange;
@@ -94,7 +97,12 @@ namespace Duel6
 		std::vector<Player> players;
 
 	public:
-		Game();
+		Game(Video& video, const Font& font);
+
+		void setMenuReference(Menu* menu)
+		{
+			this->menu = menu;
+		}
 
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;

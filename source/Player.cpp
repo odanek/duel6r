@@ -58,7 +58,6 @@ namespace Duel6
 	Player::Player(Person& person, PlayerSkin skin, const PlayerControls& controls)
 		: person(person), skin(skin), controls(controls)
 	{
-		camera.resize(false, (mval_t)d6Video.getView().getFieldOfView(), d6Video.getScreen().getAspect());
 		camera.rotate(180.0, 0.0, 0.0);
 	}
 
@@ -419,15 +418,17 @@ namespace Duel6
 			.setDraw(!isDead() && !isPickingGun());
 	}
 
-	void Player::prepareCam(ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY)
+	void Player::prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY)
 	{
+		static bool set = false;
+
 		Float32 fovX, fovY, mZ, dX = 0.0, dY = 0.0;
-		fovY = (Float32)tan(MM_D2R(d6Video.getView().getFieldOfView()) / 2.0f);
-		fovX = d6Video.getScreen().getAspect() * fovY;
+		fovY = (Float32)tan(MM_D2R(video.getView().getFieldOfView()) / 2.0f);
+		fovX = video.getScreen().getAspect() * fovY;
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			if (levelSizeX > d6Video.getScreen().getAspect() * levelSizeY)
+			if (levelSizeX > video.getScreen().getAspect() * levelSizeY)
 				dX = (Float32)levelSizeX;
 			else
 				dY = (Float32)levelSizeY;
@@ -457,7 +458,7 @@ namespace Duel6
 		cameraPos.Up = cameraPos.Pos.y + dY / 2.0f;
 		cameraPos.TolX = (dX * D6_CAM_TOLPER_X) / 200.0f;
 		cameraPos.TolY = (dY * D6_CAM_TOLPER_Y) / 200.0f;
-
+		
 		camera.setpos(cameraPos.Pos);
 
 		if (screenMode == ScreenMode::SplitScreen)

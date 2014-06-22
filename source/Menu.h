@@ -28,20 +28,32 @@
 #ifndef DUEL6_MENU_H
 #define DUEL6_MENU_H
 
+#include <vector>
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Context.h"
 #include "LevelList.h"
 #include "PersonList.h"
 #include "Gui.h"
+#include "PlayerControls.h"
+#include "PlayerSkinColors.h"
+#include "Video.h"
 #include "Globals.h"
 
 namespace Duel6
 {
+	class Game; // Forward, TODO: Remove
+
 	class Menu
 		: public Context
 	{
 	private:
+		Video& video;
+		Input& input;
+		Game* game;
+		const Font& font;
+		PlayerControlsManager controlsManager;
+		std::vector<PlayerSkinColors> playerColors;
 		Size playing;
 		LevelList levelList;
 		PersonList persons;
@@ -57,11 +69,16 @@ namespace Duel6
 		bool playMusic;
 
 	public:
-		Menu();
+		Menu(Video& video, Input& input, const Font& font);
 
 		~Menu()
 		{
 			delete desk;
+		}
+
+		void setGameReference(Game* game)
+		{
+			this->game = game;
 		}
 
 		void init();		
@@ -76,6 +93,11 @@ namespace Duel6
 		void render() const override;
 
 		void enableMusic(bool enable);
+
+		std::vector<PlayerSkinColors>& getPlayerColors()
+		{
+			return playerColors;
+		}
 
 	private:
 		void beforeStart(Context* prevContext) override;

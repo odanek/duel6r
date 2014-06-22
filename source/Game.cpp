@@ -42,14 +42,14 @@
 
 namespace Duel6
 {
-	Game::Game()		
-		: renderer(*this, d6Font, d6Video), ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT)
+	Game::Game(Video& video, const Font& font)		
+		: video(video), renderer(*this, font, video), ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT)
 	{
 	}
 
 	void Game::splitScreenView(Player& player, Int32 x, Int32 y)
 	{
-		PlayerView view(x, y, d6Video.getScreen().getClientWidth() / 2 - 4, d6Video.getScreen().getClientHeight() / 2 - 4);
+		PlayerView view(x, y, video.getScreen().getClientWidth() / 2 - 4, video.getScreen().getClientHeight() / 2 - 4);
 		player.setView(view);
 		player.setInfoBarPosition(x + view.getWidth() / 2 - 76, y + 30);
 	}
@@ -58,25 +58,25 @@ namespace Duel6
 	{
 		for (Player& player : players)
 		{
-			player.prepareCam(getScreenMode(), getScreenZoom(), world.getSizeX(), world.getSizeY());
+			player.prepareCam(video, getScreenMode(), getScreenZoom(), world.getSizeX(), world.getSizeY());
 		}
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			Int32 xShift = (d6Video.getScreen().getClientWidth() / 4) / 2 - 70;
+			Int32 xShift = (video.getScreen().getClientWidth() / 4) / 2 - 70;
 			Size index = 0;
 
 			for (Player& player : players)
 			{
-				player.setView(PlayerView(0, 0, d6Video.getScreen().getClientWidth(), d6Video.getScreen().getClientHeight()));
+				player.setView(PlayerView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight()));
 
 				if (index < 4)
 				{
-					player.setInfoBarPosition((d6Video.getScreen().getClientWidth() / 4) * index + xShift, 30);
+					player.setInfoBarPosition((video.getScreen().getClientWidth() / 4) * index + xShift, 30);
 				}
 				else
 				{
-					player.setInfoBarPosition((d6Video.getScreen().getClientWidth() / 4) * (index - 4) + xShift, d6Video.getScreen().getClientHeight() - 7);
+					player.setInfoBarPosition((video.getScreen().getClientWidth() / 4) * (index - 4) + xShift, video.getScreen().getClientHeight() - 7);
 				}
 
 				index++;
@@ -88,23 +88,23 @@ namespace Duel6
 		{
 			if (players.size() == 2)
 			{
-				splitScreenView(players[0], d6Video.getScreen().getClientWidth() / 4 + 2, 2);
-				splitScreenView(players[1], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[0], video.getScreen().getClientWidth() / 4 + 2, 2);
+				splitScreenView(players[1], video.getScreen().getClientWidth() / 4 + 2, video.getScreen().getClientHeight() / 2 + 2);
 			}
 
 			if (players.size() == 3)
 			{
 				splitScreenView(players[0], 2, 2);
-				splitScreenView(players[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
-				splitScreenView(players[2], d6Video.getScreen().getClientWidth() / 4 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[1], video.getScreen().getClientWidth() / 2 + 2, 2);
+				splitScreenView(players[2], video.getScreen().getClientWidth() / 4 + 2, video.getScreen().getClientHeight() / 2 + 2);
 			}
 
 			if (players.size() == 4)
 			{
 				splitScreenView(players[0], 2, 2);
-				splitScreenView(players[1], d6Video.getScreen().getClientWidth() / 2 + 2, 2);
-				splitScreenView(players[2], 2, d6Video.getScreen().getClientHeight() / 2 + 2);
-				splitScreenView(players[3], d6Video.getScreen().getClientWidth() / 2 + 2, d6Video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[1], video.getScreen().getClientWidth() / 2 + 2, 2);
+				splitScreenView(players[2], 2, video.getScreen().getClientHeight() / 2 + 2);
+				splitScreenView(players[3], video.getScreen().getClientWidth() / 2 + 2, video.getScreen().getClientHeight() / 2 + 2);
 			}
 		}
 	}
@@ -256,15 +256,15 @@ namespace Duel6
 	{
 		if (keyCode == SDLK_ESCAPE)
 		{
-			d6Menu.savePersonData();
-			Context::switchTo(&d6Menu);
+			menu->savePersonData();
+			Context::switchTo(menu);
 		}
 
 		// Restart game
 		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
 		if (keyCode == SDLK_F1 && !roundLimit)
 		{
-			d6Menu.savePersonData();
+			menu->savePersonData();
 			nextRound((keyModifiers & KMOD_SHIFT) != 0);
 			return;
 		}
@@ -284,7 +284,7 @@ namespace Duel6
 		// Save screenshot
 		if (keyCode == SDLK_F10)
 		{
-			Util::saveScreenTga();
+			Util::saveScreenTga(video);
 		}
 	}
 

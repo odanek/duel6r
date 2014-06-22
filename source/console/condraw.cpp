@@ -33,67 +33,40 @@ Popis: Vykresleni konzoly
 #include <time.h>
 #include <string.h>
 #include <SDL2/SDL_opengl.h>
+#include "../Color.h"
 #include "console.h"
 
 namespace Duel6
 {
-	static GLubyte  conCol[3][3] =
+	static Color conCol[4] =
 	{
-		{ 0x00, 0x00, 0x00 },   // Font
-		{ 0xee, 0xdd, 0xdd },   // Background Up
-		{ 0xee, 0xdd, 0x00 }    // Background Down
+		Color(0, 0, 0),			// Font
+		Color(238, 221, 221),	// Background Up
+		Color(238, 221, 0),		// Background Down
+		Color(255, 0, 0)        // Separator
 	};
 
-	/*
-	==================================================
-	Vykresleni jednoho znaku
-	==================================================
-	*/
-	void Console::drawChar(int x, int y, int c) const
+	void Console::renderLine(int y, Size pos, Int32 len, const Font& font) const
 	{
-		const Uint8   *frm;
-		Uint16         i, j, b;
+		Int32 x = 0;
 
-		if (c == ' ' || !c)
-			return;
-
-		frm = &font[2 + c * CON_FSY];
-
-		for (i = 0; i < CON_FSY; i++, frm++)
-		{
-			b = *frm;
-
-			for (j = 0; j < CON_FSX; j++)
-				if (b & (1 << (7 - j)))
-					glVertex2i(x + j, y - i);
-		}
-	}
-
-	/*
-	==================================================
-	Vypsani poslednich show radek - bere do uvahy scrolling
-	a rotace bufferu. Varovani: HARDCORE ALGORITMUS!!! :-)
-	==================================================
-	*/
-	void Console::dprintLine(int y, unsigned long pos, int len) const
-	{
-		int     i, x = 0;
-
-		for (i = 0; i < len; i++, x += CON_FSX)
+		for (Int32 i = 0; i < len; i++, x += font.getCharWidth())
 		{
 			if (pos >= CON_TEXT_SIZE)
+			{
 				pos -= CON_TEXT_SIZE;
-			drawChar(x, y, (int)text[pos++]);
+			}
+			font.print(x, y, conCol[0], text[pos++]);
 		}
 	}
 
-	void Console::dshowHist(int res_y) const
+	void Console::renderHistory(Int32 csY, const Font& font) const
 	{
 		unsigned long   pl_pos = bufpos, pl_max;
 		int             pl_disp, pl_y, len, ld_start, ld_num, i;
 
 		pl_disp = 0;
-		pl_y = res_y - show * CON_FSY;
+		pl_y = csY - (show + 1) * font.getCharHeight();
 		pl_max = buffull ? CON_TEXT_SIZE : bufpos;
 
 		while (pl_max > 0)
@@ -123,115 +96,113 @@ namespace Duel6
 			ld_start = pl_pos + 1 + ld_num * width;
 
 			for (i = ld_num; i >= 0; i--, ld_start -= width)
+			{
 				if (pl_disp++ >= scroll)
 				{
-				pl_y += CON_FSY;
-				if (i == ld_num)
-					dprintLine(pl_y, ld_start, len - ld_num * width);
-				else
-					dprintLine(pl_y, ld_start, width);
-				if (pl_y >= res_y)
-					return;
+					pl_y += font.getCharHeight();
+					if (i == ld_num)
+						renderLine(pl_y, ld_start, len - ld_num * width, font);
+					else
+						renderLine(pl_y, ld_start, width, font);
+					if (pl_y >= csY)
+						return;
 				}
+			}
+		}
+	}
+
+	void Console::renderBackground(Int32 csX, Int32 csY, const Font& font) const
+	{
+		Int32 sizeY = (show + 2) * font.getCharHeight() + 2;
+
+		glBegin(GL_QUADS);
+		glColor4ub(conCol[1].getRed(), conCol[1].getGreen(), conCol[1].getBlue(), 125);
+		glVertex2i(0, csY);
+		glVertex2i(csX, csY);
+		glColor4ub(conCol[2].getRed(), conCol[2].getGreen(), conCol[2].getBlue(), 125);
+		glVertex2i(csX, csY - sizeY);
+		glVertex2i(0, csY - sizeY);
+		glColor4ub(conCol[0].getRed(), conCol[0].getGreen(), conCol[0].getBlue(), 125);
+		glVertex2i(0, csY - sizeY);
+		glVertex2i(csX, csY - sizeY);
+		glVertex2i(csX, csY - sizeY - 3);
+		glVertex2i(0, csY - sizeY - 3);
+		glEnd();
+	}
+
+	void Console::renderSeparator(Int32 csY, const Font& font) const
+	{
+		Int32 x = 0;
+		Int32 y = csY - (show + 1) * font.getCharHeight();
+		char separatorChar = scroll ? '^' : '=';
+
+		for (Int32 i = 0; i < width; i++, x += font.getCharWidth())
+		{
+			font.print(x, y, conCol[3], separatorChar);
+		}
+	}
+
+	void Console::renderInputLine(Int32 csY, const Font& font) const
+	{
+		Int32 y = csY - (show + 2) * font.getCharHeight();
+		Int32 d = ((int)input.length()) - inputscroll;
+		
+		char openingChar = (inputscroll > 0) ? '<' : ']';
+		font.print(0, y, conCol[0], openingChar);
+
+		Int32 x = font.getCharWidth();
+		for (Int32 i = 0; i < d; i++, x += font.getCharWidth())
+		{
+			font.print(x, y, conCol[0], (Uint8)input[inputscroll + i]);
+		}
+
+		x = font.getCharWidth() * (curpos - inputscroll + 1);
+		char cursor = insert ? 219 : '_';
+		if ((clock() % CLOCKS_PER_SEC) > (CLOCKS_PER_SEC >> 1))
+		{
+			font.print(x, y, conCol[0], cursor);
 		}
 	}
 
 	/*
 	==================================================
-	Vykresleni konzole na obrazovku
+	Render the console content to screen
 	==================================================
 	*/
-	void Console::blit(int res_x, int res_y)
+	void Console::render(int csX, int csY, const Font& font)
 	{
-		long    sizeY;
-		char    cursor;
-		int     i, d, x, y;
-
-		if (font == NULL || !visible)
-			return;
-
-		// Preformatuje konzoli pokud se zmenila sirka
-		if (res_x / CON_FSX != width)
+		if (!visible)
 		{
-			width = res_x / CON_FSX;
+			return;
+		}
+
+		// Reformat console if the width has changed
+		if (csX / font.getCharWidth() != width)
+		{
+			width = csX / font.getCharWidth();
 			if (width < 1)
+			{
 				width = 1;
+			}
 			setInputScroll();
 			scroll = 0;
 		}
 
 		// Vycisteni transformacni matice
+		glPushMatrix();
 		glLoadIdentity();
 
-		// Vykresleni pozadi
-		sizeY = (show + 2) * CON_FSY + 2;
-
-		glBegin(GL_QUADS);
-		glColor4ub(conCol[1][0], conCol[1][1], conCol[1][2], 125);
-		glVertex2i(0, res_y);
-		glVertex2i(res_x, res_y);
-		glColor4ub(conCol[2][0], conCol[2][1], conCol[2][2], 125);
-		glVertex2i(res_x, res_y - sizeY);
-		glVertex2i(0, res_y - sizeY);
-		glColor4ub(conCol[0][0], conCol[0][1], conCol[0][2], 125);
-		glVertex2i(0, res_y - sizeY);
-		glVertex2i(res_x, res_y - sizeY);
-		glVertex2i(res_x, res_y - sizeY - 3);
-		glVertex2i(0, res_y - sizeY - 3);
-		glEnd();
-
-		// Vykresleni obsahu
-		glColor3ub(conCol[0][0], conCol[0][1], conCol[0][2]);
-		glBegin(GL_POINTS);
+		renderBackground(csX, csY, font);
 
 		// Vypsani poslednich show radku
 		if (show > 0)
 		{
-			dshowHist(res_y);
+			renderHistory(csY, font);
 		}
 
-		// Vypsani oddelovace
-		x = 0;
-		y = res_y - show * CON_FSY;
+		renderSeparator(csY, font);
+		renderInputLine(csY, font);
 
-		if (scroll)
-			d = '^';
-		else
-			d = '=';
-
-		glColor3ub(255, 0, 0);
-		for (i = 0; i < width; i++, x += CON_FSX)
-		{
-			drawChar(x, y, d);
-		}
-		glColor3ub(conCol[0][0], conCol[0][1], conCol[0][2]);
-
-		// Vypsani vstupniho radku
-		x = CON_FSX;
-		y -= CON_FSY;
-		d = ((int)input.length()) - inputscroll;
-
-		if (inputscroll)
-		{
-			drawChar(0, y, '<');
-		}
-		else
-		{
-			drawChar(0, y, ']');
-		}
-
-		for (i = 0; i < d; i++, x += CON_FSX)
-		{
-			drawChar(x, y, (Uint8)input[inputscroll + i]);
-		}
-
-		x = CON_FSX * (curpos - inputscroll + 1);
-		cursor = insert ? 219 : '_';
-		if ((clock() % CLOCKS_PER_SEC) > (CLOCKS_PER_SEC >> 1))
-		{
-			drawChar(x, y, cursor);
-		}
-
-		glEnd();
+		glPopMatrix();
 	}
 }

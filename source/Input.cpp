@@ -25,83 +25,48 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Prace s fonty, psani na obrazovku
-*/
-
-#include <SDL2/SDL_opengl.h>
-#include "DataException.h"
-#include "File.h"
-#include "Video.h"
-#include "Globals.h"
-#include "Font.h"
+#include <SDL2/SDL.h>
+#include "Format.h"
+#include "Lang.h"
+#include "Input.h"
 
 namespace Duel6
 {
-	void Font::load(const std::string& fontFile)
+	void Input::setPressed(SDL_Keycode keyCode, bool pressed)
 	{
-		size_t fileSize = File::getSize(fontFile);
-
-		if (fileSize < 50)
+		if (pressed)
 		{
-			D6_THROW(DataException, "Font file has unexpected size: " + fontFile);
+			pressedKeys.insert(keyCode);
 		}
-
-		data.resize(fileSize - 50);
-		File::load(fontFile, 50, &data[0]);
-		charWidth = (Int32)data[0];
-		charHeight = (Int32)data[1];
+		else
+		{
+			pressedKeys.erase(keyCode);
+		}
 	}
 
-	/*
-	==================================================
-	Vykresleni jednoho znaku
-	==================================================
-	*/
-	void Font::drawChar(Int32 x, Int32 y, Int32 c) const
+	void Input::joyScan(Console& console)
 	{
-		const Uint8* frm = &data[2 + c * charHeight];
+		joypads.clear();
 
-		for (Int32 i = 0; i < charHeight; i++, frm++)
+		if (SDL_WasInit(SDL_INIT_JOYSTICK))
 		{
-			Uint8 b = *frm;
+			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+		}
+		
+		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
+		{
+			console.print(D6_L("...Unable to initialize joypad sub-system"));            
+		}
+		else
+		{
+			size_t joysticks = SDL_NumJoysticks();
+			console.print(Format(D6_L("...Found {0} joypads\n")) << joysticks);
 
-			for (Int32 j = 0; j < 8; j++)
+			for (size_t i = 0; i < joysticks; i++)
 			{
-				if (b & (1 << (7 - j)))
-				{
-					glVertex2i(x + j, y - i);
-				}
+				joypads.push_back(SDL_JoystickOpen(i));
+				console.print(Format("... * {0}\n") << SDL_JoystickName(joypads[i]));
 			}
 		}
-	}
-
-	void Font::print(Int32 x, Int32 y, const Color& color, const std::string& str) const
-	{
-		y += charHeight - 1;
-
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		glBegin(GL_POINTS);
-
-		for (Size i = 0; i < str.length(); i++, x += 8)
-		{
-			if (str[i] > 0 && str[i] != ' ')
-			{
-				drawChar(x, y, str[i]);
-			}
-		}
-
-		glEnd();
-	}
-
-	void Font::print(Int32 x, Int32 y, const Color& color, char character) const
-	{
-		y += charHeight - 1;
-
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		glBegin(GL_POINTS);
-			drawChar(x, y, character);
-		glEnd();
 	}
 }

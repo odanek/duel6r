@@ -49,11 +49,11 @@ namespace Duel6
 		InfoMessageQueue& add(const Player& player, const std::string& msg);
 		InfoMessageQueue& update(float elapsedTime);
 
-		void renderPlayerMessages(const Player& player) const;
-		void renderAllMessages(const PlayerView& view, Int32 offsetY) const;
+		void renderPlayerMessages(const Player& player, const Font& font) const;
+		void renderAllMessages(const PlayerView& view, Int32 offsetY, const Font& font) const;
 
 	private:
-		static void renderMessage(Int32 x, Int32 y, const std::string& msg);
+		static void renderMessage(Int32 x, Int32 y, const std::string& msg, const Font& font);
 	};
 }
 

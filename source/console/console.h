@@ -44,11 +44,12 @@ Potrebuje: Knihovnu mylib
 #include "../Type.h"
 #include "../Format.h"
 #include "../Lang.h"
+#include "../Font.h"
 
 #define CON_Lang            D6_L
 #define CON_Format			Format
 
-#define CON_VERSION         "5.6"
+#define CON_VERSION         "5.7"
 #define CON_TEXT_SIZE       32000
 #define CON_MAX_ALIAS_REC   40
 #define CON_REM_HIST        15
@@ -73,18 +74,18 @@ Potrebuje: Knihovnu mylib
 #define CON_C_TAB           SDLK_TAB
 #define CON_C_ENTER			SDLK_RETURN
 
-// Console flags
-#define CON_F_REG_INFO      0x00001
-#define CON_F_EXPAND        0x00002
-
-// Velikost fontu
-#define CON_FSX             ((Uint16) font[0])
-#define CON_FSY             ((Uint16) font[1])
-
 namespace Duel6
 {
 	class Console
 	{
+	public:
+		enum Flags
+		{
+			NonFlag = 0x00,
+			RegInfoFlag = 0x01,
+			ExpandFlag = 0x02
+		};
+
 	public:
 		class Arguments
 		{
@@ -120,9 +121,9 @@ namespace Duel6
 		public:
 			enum Flags
 			{
-				None = 0x00,
-				ReadOnly = 0x01,
-				Archive = 0x02
+				NoneFlag = 0x00,
+				ReadOnlyFlag = 0x01,
+				ArchiveFlag = 0x02
 			};
 
 		public:
@@ -278,8 +279,7 @@ namespace Duel6
 		int             show;                         // Kolik poslednich radku ukazat
 		int             scroll;                       // O kolik radku je odskrolovano
 
-		int             flags;                        // Flagy
-		const Uint8     *font;                        // Ukazatel na font (nahradit SDL_ttf?)
+		Uint32          flags;                        // Flagy
 
 		std::vector<CommandRecord> cmds;			// Seznam procedur
 		std::vector<VarRecord> vars;                   // Senam promenych
@@ -291,15 +291,15 @@ namespace Duel6
 		int             histcnt;                      // Pocet ulozenych prikazu historie
 		int             histscroll;                   // O kolik je v historii odskrolovano
 
-		Arguments arguments;							// Argumenty funkce
-		std::list<std::string> cbuf;					// Prikazovy buffer
+		Arguments arguments;						  // Argumenty funkce
+		std::list<std::string> cbuf;				  // Prikazovy buffer
 		int             aliasloop;                    // Pocet provedenych aliasu (proti zacykleni)
 
 	public:
-		Console(int flags);
+		Console(Uint32 flags);
 		~Console();
 
-		void blit(int resX, int resY);
+		void render(Int32 csX, Int32 csY, const Font& font);
 
 		void print(const std::string& str);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
@@ -316,7 +316,6 @@ namespace Duel6
 		}
 
 		void setLast(int sl);
-		void setFont(const Uint8* p);
 
 		void registerCommand(const std::string& name, Command command);
 		void registerVariable(const std::string& name, Variable* var, Uint32 flags);
@@ -345,6 +344,8 @@ namespace Duel6
 		void execute();
 		void exec(const std::string& commands);
 
+		static void registerBasicCommands(Console& c_ptr);
+
 	private:
 		void verifyRegistration(const std::string& proc, const std::string& name, bool isNull);
 
@@ -352,24 +353,28 @@ namespace Duel6
 		std::string::const_iterator nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end);
 		void tokenizeLine(const std::string& line, Arguments& args);
 		void executeSingleLine(const std::string& line);
+		void splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines);
+		
 		void varCmd(VarRecord& var, Arguments& args);
 
 		void setInputScroll();
 		void completeCmd();
 
-		void dprintLine(int y, unsigned long pos, int len) const;
-		void dshowHist(int res_y) const;
-		void drawChar(int x, int y, int c) const;
+		void renderLine(int y, Size pos, Int32 len, const Font& font) const;
+		void renderHistory(int csY, const Font& font) const;
+		void renderBackground(Int32 csX, Int32 csY, const Font& font) const;
+		void renderSeparator(Int32 csY, const Font& font) const;
+		void renderInputLine(Int32 csY, const Font& font) const;
 
 		CommandRecord* findCommand(const std::string& name);
 		VarRecord* findVar(const std::string& name);
-		AliasRecord* findAlias(const std::string& name);
+		AliasRecord* findAlias(const std::string& name);		
 
-		void splitCommandsIntoLines(const std::string& commands, std::vector<std::string>& lines);
+		bool hasFlag(Uint32 flag) const
+		{
+			return (flags & flag) == flag;
+		}
 	};
-
-	// Dodelat vsude podporu multijazykoveho prostredi aby ji mohly vyuzivat vsechny knihovny a program
-	void CON_RegisterBasicCmd(Console& c_ptr);
 }
 
 #endif

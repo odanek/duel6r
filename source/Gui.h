@@ -71,7 +71,7 @@ namespace Duel6
 		static Desk* Create();
 		void ScreenSize(int SizeX, int SizeY, int tr_x, int tr_y);
 		void Check(EventType &event, DeskControl*& from);
-		void Draw();
+		void Draw(const Font& font);
 
 		void keyEvent(SDL_Keycode keyCode);
 		void textInputEvent(const char* text);
@@ -90,7 +90,7 @@ namespace Duel6
 		{}
 
 		virtual void Check(Desk::EventType &event, DeskControl*& from) = 0;
-		virtual void Draw() const = 0;
+		virtual void Draw(const Font& font) const = 0;
 		virtual Desk::ControlType getType() const = 0;
 
 		virtual void keyEvent(SDL_Keycode keyCode)
@@ -152,7 +152,7 @@ namespace Duel6
 		void    SetCaption(const std::string& caption);
 		void    SetPosition(int X, int Y, int W, int H);
 		void    Check(Desk::EventType &event, DeskControl*& from) override;
-		void    Draw() const override;
+		void    Draw(const Font& font) const override;
 
 		bool isPressed() const
 		{
@@ -186,7 +186,7 @@ namespace Duel6
 		listbox_c(bool sb);
 		~listbox_c();
 		void    Check(Desk::EventType &event, DeskControl*& from) override;
-		void    Draw() const override;
+		void    Draw(const Font& font) const override;
 		void    SetPosition(int X, int Y, int W, int H, int fH);
 		void    AddItem(const std::string& item);
 		void    DelItem(int n);
@@ -217,7 +217,7 @@ namespace Duel6
 		switchbox_c();
 		~switchbox_c();
 		void    Check(Desk::EventType &event, DeskControl*& from);
-		void    Draw() const override;
+		void    Draw(const Font& font) const override;
 		void    SetPosition(int X, int Y, int W, int H);
 		void    AddItem(const std::string& item);
 		void    DelItem(int n);
@@ -249,7 +249,7 @@ namespace Duel6
 		void    SetCaption(const std::string& caption);
 		void    SetPosition(int X, int Y, int W, int H);
 		void    Check(Desk::EventType &event, DeskControl*& from);
-		void    Draw() const override;
+		void    Draw(const Font& font) const override;
 
 		Desk::ControlType getType() const override
 		{
@@ -274,7 +274,7 @@ namespace Duel6
 		slider_c();
 		void    SetPosition(int X, int Y, int H);
 		void    Connect(slider_s *to);
-		void    Draw() const override;
+		void    Draw(const Font& font) const override;
 		void    Check(Desk::EventType &event, DeskControl*& from);
 
 		Desk::ControlType getType() const override
@@ -303,7 +303,7 @@ namespace Duel6
 		const std::string& Text() const;
 		void    Flush();
 
-		void Draw() const override;
+		void Draw(const Font& font) const override;
 		void Check(Desk::EventType &event, DeskControl*& from) override;
 		void textInputEvent(const char* text) override;
 		void keyEvent(SDL_Keycode keyCode) override;
