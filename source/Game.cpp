@@ -214,7 +214,7 @@ namespace Duel6
 
 	void Game::update(Float32 elapsedTime)
 	{
-		for (Player& player : players)
+                for (Player& player : players)
 		{
 			player.update(world, getScreenMode(), elapsedTime);
 		}

@@ -267,6 +267,35 @@ namespace Duel6
 		font.print(x, y, Color(255, 255, 255), fpsCount);
 	}
 
+	void Renderer::notifications() const
+	{
+                float remainingTime = game.getWorld().getRemainingYouAreHere();
+                if(remainingTime <= 0) return;
+                
+                glColor3ub(255, 0, 0);
+                glDisable(GL_TEXTURE_2D);
+                glPointSize(4.0f);
+                glDepthMask(GL_FALSE);
+                glDepthFunc(GL_ALWAYS);
+
+                for (const Player& player : game.getPlayers())
+		{
+                        glBegin(GL_POINTS);
+                        for (int u = 0; u < 360; u += 1)
+                        {
+                                float X = player.getX() + 0.5f + remainingTime * Math::fastCos(90 + u);
+                                float Y = player.getY() + 0.5f + remainingTime * Math::fastCos(u);
+                                glVertex3f(X, Y, 0.5f);
+                        }
+                        glEnd();
+		}
+                glEnable(GL_TEXTURE_2D);
+                glPointSize(2.0f);
+                glColor3ub(255, 255, 255);
+                glDepthMask(GL_TRUE);
+                glDepthFunc(GL_LESS);
+	}
+        
 	void Renderer::invulRing(const Player& player) const
 	{
 		float   x, y, X, Y;
@@ -336,6 +365,7 @@ namespace Duel6
 		BONUS_DrawAll();
 		invulRings(game.getPlayers());
 		water(game.getWorld().getWater());
+                notifications();
 
 		EXPL_DrawAll();
 
