@@ -133,7 +133,6 @@ namespace Duel6
 
 	extern Input d6Input;
 
-	class BlockData;
 	class World;
 	class InfoMessageQueue;
 	class SpriteList;
@@ -151,9 +150,6 @@ namespace Duel6
 	extern Game d6Game;
 	extern Font d6Font;
 	extern TextureManager d6TextureManager;
-	extern bool d6Wireframe;
-	extern bool d6ShowFps;	
-	extern bool d6ShowRanking;
 	extern std::vector<PlayerSkinColors> d6PlayerColors;
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList d6SpriteList;

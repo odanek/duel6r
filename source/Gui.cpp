@@ -135,8 +135,7 @@ namespace Duel6
 		GLib_DrawFrame(x, y, width, height, pressed);
 		px = x + (width >> 1) - (caption.length() << 2) + pressed;
 		py = y - (height >> 1) - 7 - pressed;
-		d6Font.setColor(Color(0));
-		d6Font.print(px, py, caption);
+		d6Font.print(px, py, Color(0), caption);
 	}
 
 	/*
@@ -260,14 +259,9 @@ namespace Duel6
 				glVertex2i(x + width - 1, Y - (field_height - 1));
 				glVertex2i(x, Y - (field_height - 1));
 				glEnd();
-				d6Font.setColor(Color(255, 255, 255));
-			}
-			else
-			{
-				d6Font.setColor(Color(0));
 			}
 
-			d6Font.print(x, Y - shift, items[i]);
+			d6Font.print(x, Y - shift, (i == now) ? Color(255) : Color(0), items[i]);
 		}
 	}
 
@@ -405,7 +399,7 @@ namespace Duel6
 		if (items.empty())
 			return;
 
-		d6Font.print(x + 25, y - 15, items[now]);
+		d6Font.print(x + 25, y - 15, Color(0), items[now]);
 	}
 
 	/*
@@ -445,8 +439,7 @@ namespace Duel6
 		glVertex2i(x, y - height + 1);
 		glEnd();
 
-		d6Font.setColor(Color(0, 0, 0));
-		d6Font.print(x, y - 15, text);
+		d6Font.print(x, y - 15, Color(0), text);
 	}
 
 	void label_c::Check(Desk::EventType &event, DeskControl*& from)
@@ -664,8 +657,7 @@ namespace Duel6
 		glVertex2i(x, y - 17);
 		glEnd();
 
-		d6Font.setColor(Color(0));
-		d6Font.print(x, y - 16, text + "_");
+		d6Font.print(x, y - 16, Color(0), text + "_");
 	}
 
 	/*

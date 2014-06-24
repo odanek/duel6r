@@ -25,17 +25,90 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDER_H
-#define DUEL6_RENDER_H
+#ifndef DUEL6_RENDERER_H
+#define DUEL6_RENDERER_H
 
+#include <vector>
 #include "Type.h"
-#include "Game.h"
+#include "Player.h"
+#include "Font.h"
+#include "Video.h"
+#include "FaceList.h"
 
 namespace Duel6
 {
-	void RENDER_SetGLMode(Int32 mode);
-	void RENDER_InitScreen();
-	void RENDER_DrawScene(const Game& game);
+	class Game;
+
+	class Renderer
+	{
+	private:
+		const Game& game;
+		const Font& font;
+		const Video& video;
+
+		bool wireframe;
+		bool showFps;	
+		bool showRanking;
+
+	public:
+		Renderer(const Game& game, const Font& font, const Video& video)
+			: game(game), font(font), video(video), wireframe(false), showFps(false), showRanking(true)
+		{}
+
+		void initScreen();
+		void render() const;
+
+		bool getWireframe() const
+		{
+			return wireframe;
+		}
+
+		Renderer& setWireframe(bool wireframe)
+		{
+			this->wireframe = wireframe;
+			return *this;
+		}
+
+		bool getShowFps() const
+		{
+			return showFps;
+		}
+
+		Renderer& setShowFps(bool showFps)
+		{
+			this->showFps = showFps;
+			return *this;
+		}
+
+		bool getShowRanking() const
+		{
+			return showRanking;
+		}
+
+		Renderer& setShowRanking(bool showRanking)
+		{
+			this->showRanking = showRanking;
+			return *this;
+		}
+
+	private:
+		void setView(const PlayerView& view) const;
+		void setView(int x, int y, int width, int height) const;
+		void view(const Player& player) const;
+		void fullScreen() const;
+		void splitScreen() const;
+		void water(const FaceList& water) const;
+		void sprites(const FaceList& sprites) const;
+		void background(GLuint texture) const;
+		void playerRankings() const;
+		void gameOverSummary() const;
+		void roundsPlayed() const;
+		void playerStatus(const Player& player) const;
+		void fpsCounter() const;
+		void invulRings(const std::vector<Player>& players) const;
+		void invulRing(const Player& player) const;
+		void splitBox(const PlayerView& view) const;
+	};
 }
 
 #endif

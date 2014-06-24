@@ -43,7 +43,7 @@
 namespace Duel6
 {
 	Game::Game()		
-		: ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT)
+		: renderer(*this, d6Font, d6Video), ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT)
 	{
 	}
 
@@ -249,7 +249,7 @@ namespace Duel6
 
 	void Game::render() const
 	{
-		RENDER_DrawScene(*this);
+		renderer.render();
 	}
 
 	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
@@ -278,7 +278,7 @@ namespace Duel6
 		// Turn on/off player statistics
 		if (keyCode == SDLK_F4)
 		{
-			d6ShowRanking = !d6ShowRanking;
+			renderer.setShowRanking(!renderer.getShowRanking());
 		}
 
 		// Save screenshot
@@ -296,7 +296,7 @@ namespace Duel6
 	{
 		screenMode = (screenMode == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen;
 		setPlayerViews();
-		RENDER_InitScreen();
+		renderer.initScreen();
 	}
 
 	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom)
@@ -346,7 +346,7 @@ namespace Duel6
 		EXPL_Init();
 		BONUS_Init(bonuses);
 		FIRE_Find(world.getSprites());
-		RENDER_InitScreen();
+		renderer.initScreen();
 		winner = -1;
 		playedRounds++;
 
