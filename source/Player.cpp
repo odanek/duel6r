@@ -94,6 +94,7 @@ namespace Duel6
 		state.bonus = 0;
 		state.bonusDuration = 0;
 		state.tempSkinDuration = 0;
+                state.roundKills = 0;
 		this->view = view;
 
 		Person().setGames(Person().getGames() + 1);
@@ -560,6 +561,7 @@ namespace Duel6
 			if (!is(shot.getPlayer()))
 			{
 				shootingPerson.setKills(shootingPerson.getKills() + 1);
+                                shot.getPlayer().addRoundKill();
 				d6MessageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
 				d6MessageQueue.add(shot.getPlayer(), Format(D6_L("You killed player {0}")) << getPerson().getName());
 			}
@@ -567,6 +569,7 @@ namespace Duel6
 			{
 				d6MessageQueue.add(*this, D6_L("You are dead"));
 			}
+                        state.roundKills = 0;
 
 			if (weapon.explodes && directHit)
 			{

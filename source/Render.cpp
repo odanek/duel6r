@@ -280,7 +280,7 @@ namespace Duel6
                 for (const Player& player : game.getPlayers())
 		{
                         glBegin(GL_POINTS);
-                        for (int u = 0; u < 360; u += 1)
+                        for (int u = 0; u < 360; u++)
                         {
                                 float X = player.getX() + 0.5f + remainingTime * Math::fastCos(90 + u);
                                 float Y = player.getY() + 0.5f + remainingTime * Math::fastCos(u);
@@ -292,6 +292,27 @@ namespace Duel6
                 glPointSize(2.0f);
                 glColor3ub(255, 255, 255);
                 glEnable(GL_DEPTH_TEST);
+	}
+
+	void Renderer::roundKills() const
+	{
+                glColor3ub(255, 0, 0);
+                glDisable(GL_TEXTURE_2D);
+                glPointSize(4.0f);
+                for (const Player& player : game.getPlayers())
+		{
+                        glBegin(GL_POINTS);
+                        for (int i = 0; i < player.getRoundKills(); i++)
+                        {
+                                Int32 kills = player.getRoundKills();
+                                Float32 X = player.getX() + (i * 0.2) - ((kills - 1) * 0.1) + 0.5;
+                                glVertex3f(X, player.getY() + 1.2, 0);
+                        }
+                        glEnd();
+		}
+                glEnable(GL_TEXTURE_2D);
+                glPointSize(2.0f);
+                glColor3ub(255, 255, 255);
 	}
         
 	void Renderer::invulRing(const Player& player) const
@@ -364,6 +385,7 @@ namespace Duel6
 		invulRings(game.getPlayers());
 		water(game.getWorld().getWater());
                 notifications();
+                roundKills();
 
 		EXPL_DrawAll();
 

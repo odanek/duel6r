@@ -126,6 +126,7 @@ namespace Duel6
 			Float32 air; 
 			Int32 ammo;
 			Int32 bonus;
+                        Int32 roundKills;
 			Float32 reloadInterval;
 			Float32 bonusDuration;
 			Float32 tempSkinDuration;
@@ -209,6 +210,16 @@ namespace Duel6
 		Int32 getAmmo() const
 		{
 			return state.ammo;
+		}
+
+                Int32 getRoundKills() const
+		{
+			return state.roundKills;
+		}
+
+                void addRoundKill()
+		{
+			state.roundKills++;
 		}
 
 		Orientation getOrientation() const
