@@ -275,8 +275,7 @@ namespace Duel6
                 glColor3ub(255, 0, 0);
                 glDisable(GL_TEXTURE_2D);
                 glPointSize(4.0f);
-                glDepthMask(GL_FALSE);
-                glDepthFunc(GL_ALWAYS);
+                glDisable(GL_DEPTH_TEST);
 
                 for (const Player& player : game.getPlayers())
 		{
@@ -292,8 +291,7 @@ namespace Duel6
                 glEnable(GL_TEXTURE_2D);
                 glPointSize(2.0f);
                 glColor3ub(255, 255, 255);
-                glDepthMask(GL_TRUE);
-                glDepthFunc(GL_LESS);
+                glEnable(GL_DEPTH_TEST);
 	}
         
 	void Renderer::invulRing(const Player& player) const
