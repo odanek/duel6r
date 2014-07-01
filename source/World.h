@@ -54,8 +54,6 @@ namespace Duel6
 		
 		Float32 animationSpeed;
 		Float32 animWait;
-                Float32 showYouAreHere;
-
 		Float32 waveHeight;
 		WaterList floatingVertexes;
 
@@ -116,11 +114,6 @@ namespace Duel6
 		{
 			return height;
 		}
-
-		Float32 getRemainingYouAreHere() const
-		{
-			return showYouAreHere;
-		}
                 
 		bool isWater(Int32 x, Int32 y) const
 		{
@@ -154,8 +147,6 @@ namespace Duel6
 		void addWall(FaceList& faceList, const Block& block, Int32 x, Int32 y);
 		void addWater(FaceList& faceList, const Block& block, Int32 x, Int32 y);
 		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);		
-
-                void updateNotifications(Float32 elapsedTime);
 
 		bool isInside(Int32 x, Int32 y) const
 		{

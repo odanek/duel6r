@@ -88,6 +88,7 @@ namespace Duel6
 		Int32 playedRounds;
 		Int32 maxRounds;
 		
+                Float32 showYouAreHere;
 		Float32 gameOverWait;
 
 		World world;
@@ -100,6 +101,8 @@ namespace Duel6
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
+                void updateNotifications(Float32 elapsedTime);
+
 		void render() const override;
 
 		World& getWorld();
@@ -154,6 +157,11 @@ namespace Duel6
 		void setMaxRounds(Int32 maxRounds)
 		{
 			this->maxRounds = maxRounds;
+		}
+
+                Float32 getRemainingYouAreHere() const
+		{
+			return showYouAreHere;
 		}
 
 		bool isOver() const

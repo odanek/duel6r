@@ -72,9 +72,7 @@ namespace Duel6
 		}
 
 		loadElevators(file, mirror);
-		file.close();
-                
-                showYouAreHere = 2;
+		file.close();                
 	}
 
 	void World::loadElevators(File& file, bool mirror)
@@ -163,19 +161,6 @@ namespace Duel6
 		}
 
 		floatingVertexes.update(elapsedTime);
-                updateNotifications(elapsedTime);
-	}
-
-        void World::updateNotifications(Float32 elapsedTime)
-	{
-                if (showYouAreHere > 0)
-                {
-                    showYouAreHere -= elapsedTime*3;
-                }
-                else
-                {
-                    showYouAreHere = 0;
-                }                
 	}
 
 	void World::addWallFaces()

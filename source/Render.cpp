@@ -269,7 +269,7 @@ namespace Duel6
 
 	void Renderer::notifications() const
 	{
-                float remainingTime = game.getWorld().getRemainingYouAreHere();
+                float remainingTime = game.getRemainingYouAreHere();
                 if(remainingTime <= 0) return;
                 
                 glColor3ub(255, 0, 0);
