@@ -167,7 +167,7 @@ namespace Duel6
 			player.startGame(position.first, position.second, ammo);
 			startingPositions.pop();
                         
-                        player.setBonus(D6_BONUS_INVUL, 2);
+			player.setBonus(D6_BONUS_INVUL, 2);
 		}
 
 		setPlayerViews();
@@ -214,7 +214,7 @@ namespace Duel6
 
 	void Game::update(Float32 elapsedTime)
 	{
-                for (Player& player : players)
+		for (Player& player : players)
 		{
 			player.update(world, getScreenMode(), elapsedTime);
 		}
@@ -250,19 +250,18 @@ namespace Duel6
                 updateNotifications(elapsedTime);
 	}
         
-        void Game::updateNotifications(Float32 elapsedTime)
+	void Game::updateNotifications(Float32 elapsedTime)
 	{
-                if (showYouAreHere > 0)
-                {
-                    showYouAreHere -= elapsedTime*3;
-                }
-                else
-                {
-                    showYouAreHere = 0;
-                }                
+		if (showYouAreHere > 0)
+		{
+			showYouAreHere -= elapsedTime * 3;
+		}
+		else
+		{
+			showYouAreHere = 0;
+		}                
 	}
         
-
 	void Game::render() const
 	{
 		renderer.render();
@@ -365,7 +364,7 @@ namespace Duel6
 		renderer.initScreen();
 		winner = -1;
 		playedRounds++;
-                showYouAreHere = 2;
+		showYouAreHere = 2;
 
 		Sound::playSample(D6_SND_LETS_ROCK);
 	}

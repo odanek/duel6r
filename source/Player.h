@@ -212,12 +212,12 @@ namespace Duel6
 			return state.ammo;
 		}
 
-                Int32 getRoundKills() const
+		Int32 getRoundKills() const
 		{
 			return state.roundKills;
 		}
 
-                void addRoundKill()
+		void addRoundKill()
 		{
 			state.roundKills++;
 		}

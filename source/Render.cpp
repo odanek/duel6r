@@ -269,50 +269,53 @@ namespace Duel6
 
 	void Renderer::notifications() const
 	{
-                float remainingTime = game.getRemainingYouAreHere();
-                if(remainingTime <= 0) return;
+		float remainingTime = game.getRemainingYouAreHere();
+		if(remainingTime <= 0) return;
                 
-                glColor3ub(255, 0, 0);
-                glDisable(GL_TEXTURE_2D);
-                glPointSize(4.0f);
-                glDisable(GL_DEPTH_TEST);
+		glColor3ub(255, 0, 0);
+		glDisable(GL_TEXTURE_2D);
+		glPointSize(4.0f);
+		glDisable(GL_DEPTH_TEST);
 
-                for (const Player& player : game.getPlayers())
-		{
-                        glBegin(GL_POINTS);
-                        for (int u = 0; u < 360; u++)
-                        {
-                                float X = player.getX() + 0.5f + remainingTime * Math::fastCos(90 + u);
-                                float Y = player.getY() + 0.5f + remainingTime * Math::fastCos(u);
-                                glVertex3f(X, Y, 0.5f);
-                        }
-                        glEnd();
+		glBegin(GL_POINTS);
+		for (const Player& player : game.getPlayers())
+		{			
+			for (int u = 0; u < 360; u++)
+			{
+					float X = player.getX() + 0.5f + remainingTime * Math::fastCos(90 + u);
+					float Y = player.getY() + 0.5f + remainingTime * Math::fastCos(u);
+					glVertex3f(X, Y, 0.5f);
+			}
 		}
-                glEnable(GL_TEXTURE_2D);
-                glPointSize(2.0f);
-                glColor3ub(255, 255, 255);
-                glEnable(GL_DEPTH_TEST);
+		glEnd();
+
+		glEnable(GL_TEXTURE_2D);
+		glPointSize(1.0f);
+		glColor3ub(255, 255, 255);
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void Renderer::roundKills() const
 	{
-                glColor3ub(255, 0, 0);
-                glDisable(GL_TEXTURE_2D);
-                glPointSize(4.0f);
-                for (const Player& player : game.getPlayers())
-		{
-                        glBegin(GL_POINTS);
-                        for (int i = 0; i < player.getRoundKills(); i++)
-                        {
-                                Int32 kills = player.getRoundKills();
-                                Float32 X = player.getX() + (i * 0.2) - ((kills - 1) * 0.1) + 0.5;
-                                glVertex3f(X, player.getY() + 1.2, 0);
-                        }
-                        glEnd();
+		glColor3ub(255, 0, 0);
+		glDisable(GL_TEXTURE_2D);
+		glPointSize(4.0f);
+
+		glBegin(GL_POINTS);
+		for (const Player& player : game.getPlayers())
+		{                        
+			for (int i = 0; i < player.getRoundKills(); i++)
+			{
+				Int32 kills = player.getRoundKills();
+				Float32 X = player.getX() + (i * 0.2) - ((kills - 1) * 0.1) + 0.5;
+				glVertex3f(X, player.getY() + 1.2, 0);
+			}
 		}
-                glEnable(GL_TEXTURE_2D);
-                glPointSize(2.0f);
-                glColor3ub(255, 255, 255);
+		glEnd();
+
+		glEnable(GL_TEXTURE_2D);
+		glPointSize(1.0f);
+		glColor3ub(255, 255, 255);
 	}
         
 	void Renderer::invulRing(const Player& player) const
@@ -384,8 +387,8 @@ namespace Duel6
 		BONUS_DrawAll();
 		invulRings(game.getPlayers());
 		water(game.getWorld().getWater());
-                notifications();
-                roundKills();
+		notifications();
+		roundKills();
 
 		EXPL_DrawAll();
 
