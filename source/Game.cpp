@@ -257,7 +257,7 @@ namespace Duel6
 		if (keyCode == SDLK_ESCAPE)
 		{
 			menu->savePersonData();
-			Context::switchTo(menu);
+			Context::pop();
 		}
 
 		// Restart game

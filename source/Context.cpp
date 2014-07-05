@@ -29,5 +29,5 @@
 
 namespace Duel6
 {
-	Context *Context::currentContext = nullptr;
+	std::stack<Context*> Context::contextStack;
 }

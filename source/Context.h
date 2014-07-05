@@ -28,6 +28,7 @@
 #ifndef DUEL6_CONTEXT_H
 #define DUEL6_CONTEXT_H
 
+#include <stack>
 #include <SDL2/SDL_keycode.h>
 #include "Type.h"
 
@@ -36,20 +37,25 @@ namespace Duel6
 	class Context
 	{
 	private:
-		static Context* currentContext;
+		static std::stack<Context*> contextStack;
 
 	public:
 		virtual ~Context()
 		{}
 
+		static bool exists()
+		{
+			return !contextStack.empty();
+		}
+
 		static Context& getCurrent()
 		{
-			return *currentContext;
+			return *getTopContext();
 		}
 
 		virtual bool isCurrent() const final
 		{
-			return (this == currentContext);
+			return (this == getTopContext());
 		}
 
 		virtual bool is(const Context& context) const final
@@ -62,25 +68,47 @@ namespace Duel6
 		virtual void update(Float32 elapsedTime) = 0;
 		virtual void render() const = 0;
 
-		static void switchTo(Context* context)
+		static void push(Context& context)
 		{
-			Context* lastContext = currentContext;
+			Context* lastContext = getTopContext();
 			if (lastContext != nullptr)
 			{
-				lastContext->beforeClose(context);
+				lastContext->beforeClose(&context);
 			}
 
-			currentContext = context;
+			contextStack.push(&context);
+			context.beforeStart(lastContext);
+		}
 
-			if (context != nullptr)
+		static void pop()
+		{			
+			if (exists())
 			{
-				context->beforeStart(lastContext);
+				Context& currentContext = getCurrent();
+				contextStack.pop();
+				Context* prevContext = getTopContext();
+				currentContext.beforeClose(prevContext);
+
+				if (prevContext != nullptr)
+				{
+					prevContext->beforeStart(&currentContext);
+				}
 			}
 		}
 
 	protected:
 		virtual void beforeStart(Context* prevContext) = 0;
 		virtual void beforeClose(Context* nextContext) = 0;
+
+		static Context* getTopContext()
+		{
+			if (contextStack.size() > 0)
+			{
+				return contextStack.top();
+			}
+
+			return nullptr;
+		}
 	};
 }
 

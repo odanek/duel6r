@@ -495,7 +495,7 @@ namespace Duel6
 		Int32 screenZoom = listbox[6]->CurItem() + 5; 
 
 		// Start
-		Context::switchTo(game);
+		Context::push(*game);
 		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom);
 	}
 

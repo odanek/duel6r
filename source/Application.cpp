@@ -183,7 +183,7 @@ namespace Duel6
 
 	void Application::run()
 	{
-		Context::switchTo(&menu);
+		Context::push(menu);
 
 		while (!requestClose)
 		{
@@ -192,7 +192,7 @@ namespace Duel6
 			syncUpdateAndRender(context);
 		}
 
-		Context::switchTo(nullptr);
+		Context::pop();
 	}
 
 	void Application::tearDown()
