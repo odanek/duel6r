@@ -72,7 +72,7 @@ namespace Duel6
 		}
 
 		loadElevators(file, mirror);
-		file.close();
+		file.close();                
 	}
 
 	void World::loadElevators(File& file, bool mirror)

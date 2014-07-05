@@ -54,7 +54,6 @@ namespace Duel6
 		
 		Float32 animationSpeed;
 		Float32 animWait;
-
 		Float32 waveHeight;
 		WaterList floatingVertexes;
 
@@ -115,7 +114,7 @@ namespace Duel6
 		{
 			return height;
 		}
-
+                
 		bool isWater(Int32 x, Int32 y) const
 		{
 			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Water) : false;
