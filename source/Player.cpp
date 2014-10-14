@@ -93,7 +93,7 @@ namespace Duel6
 		state.bonus = 0;
 		state.bonusDuration = 0;
 		state.tempSkinDuration = 0;
-                state.roundKills = 0;
+        state.roundKills = 0;
 		this->view = view;
 
 		Person().setGames(Person().getGames() + 1);

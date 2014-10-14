@@ -242,7 +242,7 @@ namespace Duel6
 
 		public:
 			VarRecord(const std::string& name, Variable* variable, Uint32 flags)
-				: name(name), var(variable), flags(flags)
+				: name(name), flags(flags), var(variable)
 			{}
 
 			const std::string& getName() const

@@ -126,7 +126,7 @@ namespace Duel6
 			Float32 air; 
 			Int32 ammo;
 			Int32 bonus;
-                        Int32 roundKills;
+            Int32 roundKills;
 			Float32 reloadInterval;
 			Float32 bonusDuration;
 			Float32 tempSkinDuration;
