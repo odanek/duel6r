@@ -421,8 +421,6 @@ namespace Duel6
 
 	void Player::prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY)
 	{
-		static bool set = false;
-
 		Float32 fovX, fovY, mZ, dX = 0.0, dY = 0.0;
 		fovY = (Float32)tan(MM_D2R(video.getView().getFieldOfView()) / 2.0f);
 		fovX = video.getScreen().getAspect() * fovY;

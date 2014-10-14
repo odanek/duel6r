@@ -247,7 +247,7 @@ namespace Duel6
 				Sound::playSample(D6_SND_GAME_OVER);
 			}
 		}
-                updateNotifications(elapsedTime);
+		updateNotifications(elapsedTime);
 	}
         
 	void Game::updateNotifications(Float32 elapsedTime)
@@ -364,7 +364,7 @@ namespace Duel6
 		renderer.initScreen();
 		winner = -1;
 		playedRounds++;
-		showYouAreHere = 2;
+		showYouAreHere = D6_YOU_ARE_HERE_DURATION;
 
 		Sound::playSample(D6_SND_LETS_ROCK);
 	}

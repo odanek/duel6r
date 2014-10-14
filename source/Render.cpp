@@ -269,28 +269,30 @@ namespace Duel6
 
 	void Renderer::notifications() const
 	{
-		float remainingTime = game.getRemainingYouAreHere();
+		Float32 remainingTime = game.getRemainingYouAreHere();
 		if(remainingTime <= 0) return;
                 
-		glColor3ub(255, 0, 0);
+		glColor3ub(255, 255, 0);
 		glDisable(GL_TEXTURE_2D);
-		glPointSize(4.0f);
 		glDisable(GL_DEPTH_TEST);
-
-		glBegin(GL_POINTS);
+		glLineWidth(3.0f);
+		
+		Float32 radius = 0.5f + 0.5f * fabs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
 		for (const Player& player : game.getPlayers())
-		{			
-			for (int u = 0; u < 360; u++)
-			{
-					float X = player.getX() + 0.5f + remainingTime * Math::fastCos(90 + u);
-					float Y = player.getY() + 0.5f + remainingTime * Math::fastCos(u);
-					glVertex3f(X, Y, 0.5f);
+		{
+			glBegin(GL_LINE_LOOP);
+			for (Int32 u = 0; u < 36; u++)
+			{				
+				Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
+				Float32 X = player.getX() + 0.5f + spike * radius * Math::fastCos(90 + u * 10);
+				Float32 Y = player.getY() + 0.5f + spike * radius * Math::fastCos(u * 10);
+				glVertex3f(X, Y, 0.5f);
 			}
-		}
-		glEnd();
+			glEnd();
+		}		
 
 		glEnable(GL_TEXTURE_2D);
-		glPointSize(1.0f);
+		glLineWidth(1.0f);
 		glColor3ub(255, 255, 255);
 		glEnable(GL_DEPTH_TEST);
 	}
@@ -303,12 +305,13 @@ namespace Duel6
 
 		glBegin(GL_POINTS);
 		for (const Player& player : game.getPlayers())
-		{                        
-			for (int i = 0; i < player.getRoundKills(); i++)
+		{
+			Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
+			Float32 X = player.getX() + 0.55f - width / 2;
+			Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f);
+			for (int i = 0; i < player.getRoundKills(); i++, X += 0.2f)
 			{
-				Int32 kills = player.getRoundKills();
-				Float32 X = player.getX() + (i * 0.2) - ((kills - 1) * 0.1) + 0.5;
-				glVertex3f(X, player.getY() + 1.2, 0);
+				glVertex3f(X, Y, 0.5f);
 			}
 		}
 		glEnd();
