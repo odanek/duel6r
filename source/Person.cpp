@@ -48,6 +48,7 @@ namespace Duel6
 		file.write(&hits, 4, 1);
 		file.write(&kills, 4, 1);
 		file.write(&wins, 4, 1);
+		file.write(&penalties, 4, 1);
 		file.write(&games, 4, 1);
 	}
 
@@ -69,6 +70,7 @@ namespace Duel6
 		file.read(&hits, 4, 1);
 		file.read(&kills, 4, 1);
 		file.read(&wins, 4, 1);
+		file.read(&penalties, 4, 1);
 		file.read(&games, 4, 1);
 	}
 }

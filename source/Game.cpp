@@ -195,7 +195,7 @@ namespace Duel6
 			if (numAlive == 1)
 			{
 				d6MessageQueue.add(*lastAlive, D6_L("You have won - press ESC to quit or F1 for another round"));
-				lastAlive->getPerson().setWins(lastAlive->getPerson().getWins() + 1);
+				lastAlive->getPerson().addWins(1);
 			}
 			else
 			{

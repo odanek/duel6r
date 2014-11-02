@@ -164,7 +164,7 @@ namespace Duel6
 
 		if (killedSelf)
 		{
-			shot.getPlayer().getPerson().setKills(initialAuthorKills - killedPlayers);
+			shot.getPlayer().getPerson().addPenalties(killedPlayers);
 		}
 	}
 

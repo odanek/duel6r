@@ -306,12 +306,15 @@ namespace Duel6
 		glBegin(GL_POINTS);
 		for (const Player& player : game.getPlayers())
 		{
-			Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
-			Float32 X = player.getX() + 0.55f - width / 2;
-			Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f);
-			for (int i = 0; i < player.getRoundKills(); i++, X += 0.2f)
+			if (!player.isDead())
 			{
-				glVertex3f(X, Y, 0.5f);
+				Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
+				Float32 X = player.getX() + 0.55f - width / 2;
+				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f);
+				for (int i = 0; i < player.getRoundKills(); i++, X += 0.2f)
+				{
+					glVertex3f(X, Y, 0.5f);
+				}
 			}
 		}
 		glEnd();

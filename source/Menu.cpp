@@ -209,7 +209,7 @@ namespace Duel6
 
 		label[0] = new label_c;
 		label[0]->SetPosition(10, 380, 772, 18);
-		label[0]->SetCaption(D6_L("        Name        |   Games   |    Wins   |   Shots   | Accuracy  |    Kills   | Points"));
+		label[0]->SetCaption(D6_L("      Name       |  Games  |   Wins  |  Shots  | Accuracy |  Kills  | Penalties |  Points"));
 
 		label[1] = new label_c;
 		label[1]->SetPosition(500, 216, 125, 18);
@@ -334,8 +334,8 @@ namespace Duel6
 		{
 			const Person& person = persons.get(pi[i]);
 			Int32 accuracy = (person.getShots() > 0) ? person.getHits() * 100 / person.getShots() : 0;
-			std::string personStat = Format("{0,-20}|{1,10} |{2,10} |{3,10} |{4,9}% |{5,11} |{6,10}") << person.getName()
-				<< person.getGames() << person.getWins() << person.getShots() << accuracy << person.getKills() << person.getTotalPoints();
+			std::string personStat = Format("{0,-17}|{1,8} |{2,8} |{3,8} |{4,8}% |{5,8} |{6,10} |{7,10}") << person.getName()
+				<< person.getGames() << person.getWins() << person.getShots() << accuracy << person.getKills() << person.getPenalties() << person.getTotalPoints();
 			listbox[0]->AddItem(personStat);
 		}
 	}

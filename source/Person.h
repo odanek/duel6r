@@ -43,11 +43,12 @@ namespace Duel6
 		Int32 hits;
 		Int32 kills;
 		Int32 wins;
+		Int32 penalties;
 		Int32 games;
 
 	public:
 		Person()
-			: shots(0), hits(0), kills(0), wins(0), games(0)
+			: shots(0), hits(0), kills(0), wins(0), penalties(0), games(0)
 		{}
 
 		explicit Person(const std::string& name)
@@ -81,6 +82,11 @@ namespace Duel6
 			return wins;
 		}
 
+		Int32 getPenalties() const
+		{
+			return penalties;
+		}
+
 		Int32 getGames() const
 		{
 			return games;
@@ -88,36 +94,42 @@ namespace Duel6
 
 		Int32 getTotalPoints() const
 		{
-			return getKills() + getWins();
+			return getKills() + getWins() - getPenalties();
 		}
 
-		Person& setShots(Int32 shots)
+		Person& addShots(Int32 shots)
 		{
-			this->shots = shots;
+			this->shots += shots;
 			return *this;
 		}
 
-		Person& setHits(Int32 hits)
+		Person& addHits(Int32 hits)
 		{
-			this->hits = hits;
+			this->hits += hits;
 			return *this;
 		}
 
-		Person& setKills(Int32 kills)
+		Person& addKills(Int32 kills)
 		{
-			this->kills = kills;
+			this->kills += kills;
 			return *this;
 		}
 
-		Person& setWins(Int32 wins)
+		Person& addPenalties(Int32 penalties)
 		{
-			this->wins = wins;
+			this->penalties += penalties;
 			return *this;
 		}
 
-		Person& setGames(Int32 games)
+		Person& addWins(Int32 wins)
 		{
-			this->games = games;
+			this->wins += wins;
+			return *this;
+		}
+
+		Person& addGames(Int32 games)
+		{
+			this->games += games;
 			return *this;
 		}
 

@@ -96,7 +96,7 @@ namespace Duel6
         state.roundKills = 0;
 		this->view = view;
 
-		Person().setGames(Person().getGames() + 1);
+		getPerson().addGames(1);
 	}
 
 	void Player::setView(const PlayerView& view)
@@ -216,7 +216,7 @@ namespace Duel6
 
 		state.ammo--;
 		gunSprite->setFrame(0);
-		getPerson().setShots(getPerson().getShots() + 1);
+		getPerson().addShots(1);
 
 		WPN_AddShot(*this);
 	}
@@ -543,7 +543,7 @@ namespace Duel6
 		
 		if (directHit)
 		{			
-			shootingPerson.setHits(shootingPerson.getHits() + 1);
+			shootingPerson.addHits(1);
 		}
 
 		if (state.life < 1)
@@ -559,8 +559,8 @@ namespace Duel6
 
 			if (!is(shot.getPlayer()))
 			{
-				shootingPerson.setKills(shootingPerson.getKills() + 1);
-                                shot.getPlayer().addRoundKill();
+				shootingPerson.addKills(1);
+				shot.getPlayer().addRoundKill();
 				d6MessageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
 				d6MessageQueue.add(shot.getPlayer(), Format(D6_L("You killed player {0}")) << getPerson().getName());
 			}
@@ -568,7 +568,6 @@ namespace Duel6
 			{
 				d6MessageQueue.add(*this, D6_L("You are dead"));
 			}
-                        state.roundKills = 0;
 
 			if (weapon.explodes && directHit)
 			{
@@ -651,7 +650,7 @@ namespace Duel6
 				state.air = 0;
 				if (hit(airHitAmount))
 				{
-					Person().setKills(Person().getKills() - 1);  // Player drowned = -1 kill
+					getPerson().addPenalties(1);  // Player drowned
 				}
 			}
 			return;
