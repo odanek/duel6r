@@ -135,49 +135,58 @@ namespace Duel6
 
 	void ConsoleCommands::loadSkin(Console& console, const Console::Arguments& args, Menu& menu)
 	{
-		std::vector<PlayerSkinColors>& colors = menu.getPlayerColors();
-		int i, pl, pos, num, exp16, c;
+		std::unordered_map<std::string, PlayerSkinColors>& colorMap = menu.getPlayerColors();
+		std::string bodyParts[] = {"Hair top", "Hair bottom", "Body outer", "Body inner", "Arm outer", "Arm inner", "Trousers", "Shoes", "Skin"};
+		std::string name;
+		Int32 i, pos, num, exp16, c;
 
 		if (args.length() == 11)
 		{
-			pl = std::stoi(args.get(1));
-			if (pl >= 0 && pl < (int)colors.size())
-			{
-				for (i = 0; i < 9; i++)
-				{
-					pos = args.get(i + 2).length() - 1;
-					num = 0;
-					exp16 = 1;
-					while (pos >= 0)
-					{
-						c = args.get(i + 2)[pos];
-						if (c >= '0' && c <= '9')
-							num += (c - '0') * exp16;
-						if (c >= 'a' && c <= 'f')
-							num += (c - 'a' + 10) * exp16;
-						pos--;
-						exp16 *= 16;
-					}
+			name = args.get(1);
+			PlayerSkinColors& colors = colorMap[name];
 
-					Color color((num & 0xff0000) >> 16, (num & 0xff00) >> 8, num & 0xff);
-					colors[pl].set((PlayerSkinColors::BodyPart)i, color);
+			for (i = 0; i < 9; i++)
+			{
+				pos = args.get(i + 2).length() - 1;
+				num = 0;
+				exp16 = 1;
+				while (pos >= 0)
+				{
+					c = args.get(i + 2)[pos];
+					if (c >= '0' && c <= '9')
+						num += (c - '0') * exp16;
+					if (c >= 'a' && c <= 'f')
+						num += (c - 'a' + 10) * exp16;
+					pos--;
+					exp16 *= 16;
 				}
 
-				console.print(Format(D6_L("Skin {0}: OK\n")) << pl);
+				Color color((num & 0xff0000) >> 16, (num & 0xff00) >> 8, num & 0xff);
+				colors.set((PlayerSkinColors::BodyPart)i, color);
+			}
+
+			console.print(Format(D6_L("Skin \"{0}\": OK\n")) << name);
+		}
+		else if (args.length() == 2)
+		{
+			name = args.get(1);
+			auto colors = colorMap.find(name);
+			if (colors != colorMap.end())
+			{
+				console.print(Format(D6_L("Skin \"{0}\":\n")) << name);
+				for (i = 0; i < 9; i++)
+				{
+					const Color& color = colors->second.get((PlayerSkinColors::BodyPart)i);
+					console.print(Format("   {0}: ({1}, {2}, {3})\n") << bodyParts[i] << color.getRed() << color.getGreen() << color.getBlue());
+				}
 			}
 		}
-
-		if (args.length() == 2)
+		else if (args.length() == 1)
 		{
-			pl = std::stoi(args.get(1));
-			if (pl >= 0 && pl < (int)colors.size())
+			console.print(Format("Available skins ({0}):\n") << colorMap.size());
+			for (auto& colors : colorMap)
 			{
-				console.print(Format(D6_L("Skin {0}:\n")) << pl);
-				for (i = 0; i < 9; i++)
-				{
-					const Color& color = colors[pl].get((PlayerSkinColors::BodyPart)i);
-					console.print(Format("({0}, {1}, {2})\n") << color.getRed() << color.getGreen() << color.getBlue());
-				}
+				console.print(Format("   \"{0}\"\n") << colors.first);
 			}
 		}
 	}

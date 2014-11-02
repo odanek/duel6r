@@ -29,6 +29,7 @@
 #define DUEL6_MENU_H
 
 #include <vector>
+#include <unordered_map>
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Context.h"
@@ -53,7 +54,7 @@ namespace Duel6
 		Game* game;
 		const Font& font;
 		PlayerControlsManager controlsManager;
-		std::vector<PlayerSkinColors> playerColors;
+		std::unordered_map<std::string, PlayerSkinColors> playerColors;
 		Size playing;
 		LevelList levelList;
 		PersonList persons;
@@ -94,7 +95,7 @@ namespace Duel6
 
 		void enableMusic(bool enable);
 
-		std::vector<PlayerSkinColors>& getPlayerColors()
+		std::unordered_map<std::string, PlayerSkinColors>& getPlayerColors()
 		{
 			return playerColors;
 		}

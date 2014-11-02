@@ -72,7 +72,7 @@ namespace Duel6
 	};
 
 	Menu::Menu(Video& video, Input& input, const Font& font)		
-		: video(video), input(input), font(font), controlsManager(input), playerColors(D6_MAX_PLAYERS), playMusic(false)
+		: video(video), input(input), font(font), controlsManager(input), playMusic(false)
 	{}
 
 	void Menu::loadPersonData()
@@ -334,8 +334,15 @@ namespace Duel6
 		{
 			const Person& person = persons.get(pi[i]);
 			Int32 accuracy = (person.getShots() > 0) ? person.getHits() * 100 / person.getShots() : 0;
-			std::string personStat = Format("{0,-17}|{1,8} |{2,8} |{3,8} |{4,8}% |{5,8} |{6,10} |{7,10}") << person.getName()
-				<< person.getGames() << person.getWins() << person.getShots() << accuracy << person.getKills() << person.getPenalties() << person.getTotalPoints();
+			std::string personStat = Format("{0,-17}|{1,8} |{2,8} |{3,8} |{4,8}% |{5,8} |{6,10} |{7,10}") 
+				<< person.getName()
+				<< person.getGames() 
+				<< person.getWins() 
+				<< person.getShots() 
+				<< accuracy 
+				<< person.getKills() 
+				<< person.getPenalties() 
+				<< person.getTotalPoints();
 			listbox[0]->AddItem(personStat);
 		}
 	}
@@ -457,7 +464,8 @@ namespace Duel6
 		for (Size i = 0; i < playing; i++)
 		{
 			Person& person = persons.get(willPlay[i]);
-			const PlayerSkinColors& colors = playerColors[i];
+			auto skinForName = playerColors.find(person.getName());
+			const PlayerSkinColors& colors = skinForName != playerColors.end() ? skinForName->second : playerColors.at(Format("default_{0}") << i);
 			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->CurItem());
 			playerDefinitions.push_back(Game::PlayerDefinition(person, colors, controls));
 		}
