@@ -143,116 +143,115 @@ namespace Duel6
 		menuBannerTexture = d6TextureManager.get(D6_TEXTURE_MENU_KEY)[0];
 		loadPersonData();
 		d6Console.print(D6_L("...Starting GUI library\n"));
-		desk = Desk::create();
-		desk->screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
+		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
 
-		listbox[0] = new listbox_c(true);
-		listbox[0]->setPosition(10, 400, 94, 12, 16);
+		listbox[0] = new Gui::Listbox(gui, true);
+		listbox[0]->setPosition(10, 199, 94, 12, 16);
 		listbox[0]->setNG(12, 1);
 
-		listbox[1] = new listbox_c(true);
-		listbox[1]->setPosition(10, 129, 20, 13, 18);
+		listbox[1] = new Gui::Listbox(gui, true);
+		listbox[1]->setPosition(10, 470, 20, 13, 18);
 		listbox[1]->setNG(0, 1);
 
-		listbox[2] = new listbox_c(false);
-		listbox[2]->setPosition(200, 129, 20, D6_MAX_PLAYERS, 18);
+		listbox[2] = new Gui::Listbox(gui, false);
+		listbox[2]->setPosition(200, 470, 20, D6_MAX_PLAYERS, 18);
 		listbox[2]->setNG(1, 1);
 
-		listbox[3] = new listbox_c(true);
-		listbox[3]->setPosition(644, 189, 13, 6, 16);
+		listbox[3] = new Gui::Listbox(gui, true);
+		listbox[3]->setPosition(644, 410, 13, 6, 16);
 		listbox[3]->setNG(2, 1);
 
-		listbox[4] = new listbox_c(true);
-		listbox[4]->setPosition(500, 236, 13, 3, 16);
+		listbox[4] = new Gui::Listbox(gui, true);
+		listbox[4]->setPosition(500, 363, 13, 3, 16);
 		listbox[4]->setNG(3, 1);
 
-		listbox[5] = new listbox_c(false);
-		listbox[5]->setPosition(644, 129, 15, 2, 16);
+		listbox[5] = new Gui::Listbox(gui, false);
+		listbox[5]->setPosition(644, 470, 15, 2, 16);
 		listbox[5]->setNG(4, 1);
 		listbox[5]->addItem(D6_L("Fullscreen"));
 		listbox[5]->addItem(D6_L("Split screen"));
 
-		listbox[6] = new listbox_c(true);
-		listbox[6]->setPosition(500, 129, 13, 5, 16);
+		listbox[6] = new Gui::Listbox(gui, true);
+		listbox[6]->setPosition(500, 470, 13, 5, 16);
 		listbox[6]->setNG(5, 1);
 
-		button[0] = new button_c;
-		button[0]->setPosition(200, 281, 80, 31);
+		button[0] = new Gui::Button(gui);
+		button[0]->setPosition(200, 318, 80, 31);
 		button[0]->setCaption(">>");
 		button[0]->setNG(6, 1);
 
-		button[1] = new button_c;
-		button[1]->setPosition(200, 316, 80, 31);
+		button[1] = new Gui::Button(gui);
+		button[1]->setPosition(200, 283, 80, 31);
 		button[1]->setCaption("<<");
 		button[1]->setNG(7, 1);
 
-		button[2] = new button_c;
-		button[2]->setPosition(284, 281, 80, 31);
+		button[2] = new Gui::Button(gui);
+		button[2]->setPosition(284, 318, 80, 31);
 		button[2]->setCaption(D6_L("Remove"));
 		button[2]->setNG(8, 1);
 
-		button[3] = new button_c;
-		button[3]->setPosition(284, 316, 80, 31);
+		button[3] = new Gui::Button(gui);
+		button[3]->setPosition(284, 283, 80, 31);
 		button[3]->setCaption(D6_L("Add"));
 		button[3]->setNG(9, 1);
 
-		button[6] = new button_c;
-		button[6]->setPosition(370, 281, 120, 31);
+		button[6] = new Gui::Button(gui);
+		button[6]->setPosition(370, 318, 120, 31);
 		button[6]->setCaption(D6_L("Clear (F3)"));
 		button[6]->setNG(30, 1);
 
-		button[4] = new button_c;
-		button[4]->setPosition(500, 300, 125, 73);
+		button[4] = new Gui::Button(gui);
+		button[4]->setPosition(500, 299, 125, 73);
 		button[4]->setCaption(D6_L("Play (F1)"));
 		button[4]->setNG(10, 1);
 
-		button[5] = new button_c;
-		button[5]->setPosition(644, 300, 125, 73);
+		button[5] = new Gui::Button(gui);
+		button[5]->setPosition(644, 299, 125, 73);
 		button[5]->setCaption(D6_L("Quit (ESC)"));
 		button[5]->setNG(11, 1);
 
-		label[0] = new label_c;
-		label[0]->setPosition(10, 380, 772, 18);
+		label[0] = new Gui::Label(gui);
+		label[0]->setPosition(10, 219, 772, 18);
 		label[0]->setCaption(D6_L("      Name       |  Games  |   Wins  |  Shots  | Accuracy |  Kills  | Penalties |  Points"));
 
-		label[1] = new label_c;
-		label[1]->setPosition(500, 216, 125, 18);
+		label[1] = new Gui::Label(gui);
+		label[1]->setPosition(500, 383, 125, 18);
 		label[1]->setCaption(D6_L("Background"));
 
-		label[2] = new label_c;
-		label[2]->setPosition(644, 170, 125, 18);
+		label[2] = new Gui::Label(gui);
+		label[2]->setPosition(644, 429, 125, 18);
 		label[2]->setCaption(D6_L("Level"));
 
-		label[3] = new label_c;
-		label[3]->setPosition(644, 110, 125, 18);
+		label[3] = new Gui::Label(gui);
+		label[3]->setPosition(644, 489, 125, 18);
 		label[3]->setCaption(D6_L("Screen mode"));
 
-		label[4] = new label_c;
-		label[4]->setPosition(500, 110, 125, 18);
+		label[4] = new Gui::Label(gui);
+		label[4]->setPosition(500, 489, 125, 18);
 		label[4]->setCaption(D6_L("Zoom"));
 
-		label[5] = new label_c;
-		label[5]->setPosition(10, 110, 181, 18);
+		label[5] = new Gui::Label(gui);
+		label[5]->setPosition(10, 489, 181, 18);
 		label[5]->setCaption(D6_L("Persons"));
 
-		label[6] = new label_c;
-		label[6]->setPosition(200, 110, 165, 18);
+		label[6] = new Gui::Label(gui);
+		label[6]->setPosition(200, 489, 165, 18);
 		label[6]->setCaption(D6_L("Players"));
 
-		label[7] = new label_c;
-		label[7]->setPosition(370, 110, 120, 18);
+		label[7] = new Gui::Label(gui);
+		label[7]->setPosition(370, 489, 120, 18);
 		label[7]->setCaption(D6_L("Controller"));
 
-		textbox = new textbox_c;
-		textbox->setPosition(200, 351, 19, 10, D6_ALL_CHR);
+		textbox = new Gui::Textbox(gui);
+		textbox->setPosition(200, 248, 19, 10, D6_ALL_CHR);
 		textbox->setNG(13, 1);
 
 		// Switchbox - volba ovladani
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			controlSwitch[i] = new switchbox_c;
-			controlSwitch[i]->setPosition(370, 131 + i * 18, 120, 0);
+			controlSwitch[i] = new Gui::Combobox(gui);
+			controlSwitch[i]->setPosition(370, 468 - i * 18, 120, 0);
 			controlSwitch[i]->setNG(14 + i, 1);
 		}
 
@@ -562,8 +561,8 @@ namespace Duel6
 	void Menu::update(Float32 elapsedTime)
 	{
 		static  float sync = 0, wait = 0.0163f;
-		Desk::EventType event;
-		DeskControl* from;
+		Gui::EventType event;
+		Gui::Control* from;
 
 		sync += elapsedTime;
 
@@ -571,8 +570,8 @@ namespace Duel6
 		{
 			sync -= wait;
 
-			desk->check(event, from);
-			if (event == Desk::EventType::Released && from->getGroup() == 1)
+			gui.check(event, from);
+			if (event == Gui::EventType::Released && from->getGroup() == 1)
 			{
 				switch (from->getNumber())
 				{
@@ -613,7 +612,7 @@ namespace Duel6
 	{
 		Int32 tr_x = (video.getScreen().getClientWidth() - 800) / 2, tr_y = (video.getScreen().getClientHeight() - 600) / 2;
 
-		desk->draw(font);
+		gui.draw(font);
 
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
@@ -636,7 +635,7 @@ namespace Duel6
 
 	void Menu::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
-		desk->keyEvent(keyCode);
+		gui.keyEvent(keyCode);
 
 		if (keyCode == SDLK_RETURN)
 		{
@@ -664,7 +663,7 @@ namespace Duel6
 
 	void Menu::textInputEvent(const char* text)
 	{
-		desk->textInputEvent(text);
+		gui.textInputEvent(text);
 	}
 
 	void Menu::beforeClose(Context* newContext)

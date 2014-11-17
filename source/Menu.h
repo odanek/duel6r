@@ -53,16 +53,16 @@ namespace Duel6
 		Input& input;
 		Game* game;
 		const Font& font;
+		Gui::Desktop gui;
 		PlayerControlsManager controlsManager;
 		std::unordered_map<std::string, PlayerSkinColors> playerColors;
 		LevelList levelList;
 		PersonList persons;
-		Desk* desk;
-		button_c* button[7];
-		listbox_c* listbox[7];
-		label_c* label[8];
-		switchbox_c* controlSwitch[D6_MAX_PLAYERS];
-		textbox_c* textbox;
+		Gui::Button* button[7];
+		Gui::Listbox* listbox[7];
+		Gui::Label* label[8];
+		Gui::Combobox* controlSwitch[D6_MAX_PLAYERS];
+		Gui::Textbox* textbox;
 		std::vector<Int32> playingPersons;
 		Size backgroundCount;
 		GLuint menuBannerTexture;
@@ -73,7 +73,6 @@ namespace Duel6
 
 		~Menu()
 		{
-			delete desk;
 		}
 
 		void setGameReference(Game* game)
