@@ -36,6 +36,7 @@ namespace Duel6
 		kills = 0;
 		wins = 0;
 		games = 0;
+		penalties = 0;
 		return *this;
 	}
 
