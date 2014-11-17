@@ -92,12 +92,12 @@ namespace Duel6
 	{
 	}
 
-	void button_c::SetCaption(const std::string& caption)
+	void button_c::setCaption(const std::string& caption)
 	{
 		this->caption = caption;
 	}
 
-	void button_c::SetPosition(int X, int Y, int W, int H)
+	void button_c::setPosition(int X, int Y, int W, int H)
 	{
 		x = X;
 		y = glibScrHeight - 1 - Y;
@@ -105,7 +105,7 @@ namespace Duel6
 		height = H;
 	}
 
-	void button_c::Check(Desk::EventType &event, DeskControl*& from)
+	void button_c::check(Desk::EventType &event, DeskControl*& from)
 	{
 		if (glibMouseZ && GLib_MouseIn(x, y, width, height))
 		{
@@ -128,7 +128,7 @@ namespace Duel6
 		}
 	}
 
-	void button_c::Draw(const Font& font) const
+	void button_c::draw(const Font& font) const
 	{
 		int     px, py;
 
@@ -145,89 +145,89 @@ namespace Duel6
 	*/
 	listbox_c::listbox_c(bool sb)
 	{
-		listPos.Items = 0;
-		listPos.Start = 0;
+		listPos.items = 0;
+		listPos.start = 0;
 		now = -1;
 		glibMainDesk->Register(this);
 		scrollBar = sb;
 		if (sb)
 		{
 			slider = new slider_c;
-			slider->SetNG(glibSCN++, GLIB_SC_GROUP);
-			slider->Connect(&listPos);
+			slider->setNG(glibSCN++, GLIB_SC_GROUP);
+			slider->connect(&listPos);
 		}
 	}
 
 	listbox_c::~listbox_c()
 	{
-		Clear();
+		clear();
 	}
 
-	void listbox_c::Clear()
+	void listbox_c::clear()
 	{
 		items.clear();
-		listPos.Items = 0;
-		listPos.Start = 0;
+		listPos.items = 0;
+		listPos.start = 0;
 		now = -1;
 	}
 
-	int listbox_c::CurItem()
+	int listbox_c::curItem()
 	{
 		return now;
 	}
 
-	void listbox_c::SetCur(int n)
+	void listbox_c::setCur(int n)
 	{
 		now = n;
-		listPos.Start = now - listPos.ShowCount / 2;
+		listPos.start = now - listPos.showCount / 2;
 	}
 
-	void listbox_c::DelItem(int n)
+	void listbox_c::delItem(int n)
 	{
-		if (!listPos.Items || n < 0 || n >= listPos.Items)
+		if (!listPos.items || n < 0 || n >= listPos.items)
 			return;
 
 		items.erase(items.begin() + n);
-		listPos.Items--;
-		if (now >= listPos.Items)
-			now = listPos.Items - 1;
+		listPos.items--;
+		if (now >= listPos.items)
+			now = listPos.items - 1;
 	}
 
-	void listbox_c::AddItem(const std::string& item)
+	void listbox_c::addItem(const std::string& item)
 	{
-		listPos.Items++;
+		listPos.items++;
 		items.push_back(item);
-		if (listPos.Items == 1)
+		if (listPos.items == 1)
 			now = 0;
 	}
 
-	void listbox_c::SetPosition(int X, int Y, int W, int H, int fH)
+	void listbox_c::setPosition(int X, int Y, int W, int H, int fH)
 	{
 		x = X + 2;
 		y = glibScrHeight - 1 - (Y + 2);
 		width = W << 3;
 		field_height = fH;
 		height = H * fH;
-		listPos.ShowCount = H;
+		listPos.showCount = H;
 		if (scrollBar)
-			slider->SetPosition(X + (W << 3) + 4, Y, H * fH + 4);
+			slider->setPosition(X + (W << 3) + 4, Y, H * fH + 4);
 	}
 
-	void listbox_c::Check(Desk::EventType &event, DeskControl*& from)
+	void listbox_c::check(Desk::EventType &event, DeskControl*& from)
 	{
 		int     ny = glibScrHeight - 1 - y;
 
 		if (glibMouseZ && GLib_MouseIn(x, y, width, height))
 		{
-			now = listPos.Start + ((glibMouseY - ny) / field_height);
-			if (now >= listPos.Items)
-				now = listPos.Items - 1;
+			now = listPos.start + ((glibMouseY - ny) / field_height);
+			if (now >= listPos.items)
+				now = listPos.items - 1;
 			event = Desk::EventType::Change;
 			from = this;
 		}
 	}
 
-	void listbox_c::Draw(const Font& font) const
+	void listbox_c::draw(const Font& font) const
 	{
 		int     Y, i, shift;
 
@@ -246,9 +246,9 @@ namespace Duel6
 		Y = y;
 		shift = 15 + (field_height - 16) / 2;
 
-		for (i = listPos.Start; i < listPos.Start + listPos.ShowCount; i++, Y -= field_height)
+		for (i = listPos.start; i < listPos.start + listPos.showCount; i++, Y -= field_height)
 		{
-			if (i >= listPos.Items)
+			if (i >= listPos.items)
 				break;
 			if (i == now)
 			{
@@ -277,35 +277,35 @@ namespace Duel6
 		glibMainDesk->Register(this);
 
 		left = new button_c;
-		left->SetCaption(" ");
-		left->SetNG(glibSCN++, GLIB_SC_GROUP);
+		left->setCaption(" ");
+		left->setNG(glibSCN++, GLIB_SC_GROUP);
 		right = new button_c;
-		right->SetCaption(" ");
-		right->SetNG(glibSCN++, GLIB_SC_GROUP);
+		right->setCaption(" ");
+		right->setNG(glibSCN++, GLIB_SC_GROUP);
 	}
 
 	switchbox_c::~switchbox_c()
 	{
-		Clear();
+		clear();
 	}
 
-	void switchbox_c::Clear()
+	void switchbox_c::clear()
 	{
 		items.clear();
 		now = -1;
 	}
 
-	int switchbox_c::CurItem()
+	int switchbox_c::curItem()
 	{
 		return now;
 	}
 
-	void switchbox_c::SetCur(int n)
+	void switchbox_c::setCur(int n)
 	{
 		now = n;
 	}
 
-	void switchbox_c::DelItem(int n)
+	void switchbox_c::delItem(int n)
 	{
 		if (n < 0 || n >= (int)items.size())
 			return;
@@ -315,7 +315,7 @@ namespace Duel6
 			now = int(items.size()) - 1;
 	}
 
-	void switchbox_c::AddItem(const std::string& item)
+	void switchbox_c::addItem(const std::string& item)
 	{
 		items.push_back(item);
 		if (items.size() == 1)
@@ -324,16 +324,16 @@ namespace Duel6
 		}
 	}
 
-	void switchbox_c::SetPosition(int X, int Y, int W, int H)
+	void switchbox_c::setPosition(int X, int Y, int W, int H)
 	{
-		left->SetPosition(X, Y - 1, 18, 18);
-		right->SetPosition(X + W - 18, Y - 1, 18, 18);
+		left->setPosition(X, Y - 1, 18, 18);
+		right->setPosition(X + W - 18, Y - 1, 18, 18);
 		width = W;
 		x = X;
 		y = glibScrHeight - Y;
 	}
 
-	void switchbox_c::Check(Desk::EventType &event, DeskControl*& from)
+	void switchbox_c::check(Desk::EventType &event, DeskControl*& from)
 	{
 		static int  pWait = 0;
 		bool        change = false;
@@ -368,7 +368,7 @@ namespace Duel6
 		}
 	}
 
-	void switchbox_c::Draw(const Font& font) const
+	void switchbox_c::draw(const Font& font) const
 	{
 		int     px, py;
 
@@ -416,7 +416,7 @@ namespace Duel6
 	{
 	}
 
-	void label_c::SetPosition(int X, int Y, int W, int H)
+	void label_c::setPosition(int X, int Y, int W, int H)
 	{
 		x = X;
 		y = glibScrHeight - Y - 1;
@@ -424,12 +424,12 @@ namespace Duel6
 		height = H;
 	}
 
-	void label_c::SetCaption(const std::string& caption)
+	void label_c::setCaption(const std::string& caption)
 	{
 		text = caption;
 	}
 
-	void label_c::Draw(const Font& font) const
+	void label_c::draw(const Font& font) const
 	{
 		glBegin(GL_QUADS);
 		glColor3ub(170, 170, 170);
@@ -442,7 +442,7 @@ namespace Duel6
 		font.print(x, y - 15, Color(0), text);
 	}
 
-	void label_c::Check(Desk::EventType &event, DeskControl*& from)
+	void label_c::check(Desk::EventType &event, DeskControl*& from)
 	{
 	}
 
@@ -455,31 +455,31 @@ namespace Duel6
 	{
 		glibMainDesk->Register(this);
 		up = new button_c;
-		up->SetCaption(" ");
-		up->SetNG(glibSCN++, GLIB_SC_GROUP);
+		up->setCaption(" ");
+		up->setNG(glibSCN++, GLIB_SC_GROUP);
 		down = new button_c;
-		down->SetCaption(" ");
-		down->SetNG(glibSCN++, GLIB_SC_GROUP);
+		down->setCaption(" ");
+		down->setNG(glibSCN++, GLIB_SC_GROUP);
 		pos = nullptr;
 	}
 
-	void slider_c::SetPosition(int X, int Y, int H)
+	void slider_c::setPosition(int X, int Y, int H)
 	{
-		up->SetPosition(X, Y, 16, 16);
-		down->SetPosition(X, Y + H - 16, 16, 16);
+		up->setPosition(X, Y, 16, 16);
+		down->setPosition(X, Y + H - 16, 16, 16);
 		x = X;
 		y = glibScrHeight - Y - 17;
 		height = H - 32;
 	}
 
-	void slider_c::Connect(slider_s *to)
+	void slider_c::connect(slider_s *to)
 	{
 		pos = to;
 	}
 
-	void slider_c::Check(Desk::EventType &event, DeskControl*& from)
+	void slider_c::check(Desk::EventType &event, DeskControl*& from)
 	{
-		int     h = height, o = pos->Start;
+		int     h = height, o = pos->start;
 
 		if (!up->isPressed() && !down->isPressed())
 			pWait = 0;
@@ -490,42 +490,42 @@ namespace Duel6
 		if (up->isPressed() && !pWait)
 		{
 			pWait = 6;
-			pos->Start--;
+			pos->start--;
 		}
 
 		if (down->isPressed() && !pWait)
 		{
 			pWait = 6;
-			pos->Start++;
+			pos->start++;
 		}
 
 		if (glibMouseZ && GLib_MouseIn(x, y, 16, height))
 		{
-			if (pos->Items)
+			if (pos->items)
 			{
-				h = pos->ShowCount * height / pos->Items;
+				h = pos->showCount * height / pos->items;
 				if (h > height)
 					h = height;
 				if (h < 5)
 					h = 5;
 			}
 			h = glibMouseY - (h >> 1) - (glibScrHeight - y - 1);
-			pos->Start = h * pos->Items / height;
+			pos->start = h * pos->items / height;
 		}
 
-		if (pos->Start > pos->Items - pos->ShowCount)
-			pos->Start = pos->Items - pos->ShowCount;
-		if (pos->Start < 0)
-			pos->Start = 0;
+		if (pos->start > pos->items - pos->showCount)
+			pos->start = pos->items - pos->showCount;
+		if (pos->start < 0)
+			pos->start = 0;
 
-		if (pos->Start != o)
+		if (pos->start != o)
 		{
 			event = Desk::EventType::Change;
 			from = this;
 		}
 	}
 
-	void slider_c::Draw(const Font& font) const
+	void slider_c::draw(const Font& font) const
 	{
 		int px, py, h = height, s = 0;
 
@@ -555,15 +555,15 @@ namespace Duel6
 		glVertex2i(x, y - height + 1);
 		glEnd();
 
-		if (pos->Items)
+		if (pos->items)
 		{
-			h = pos->ShowCount * height / pos->Items;
+			h = pos->showCount * height / pos->items;
 			if (h > height)
 				h = height;
 			if (h < 5)
 				h = 5;
 
-			s = pos->Start * height / pos->Items;
+			s = pos->start * height / pos->items;
 			if (s > height - h)
 				s = height - h;
 		}
@@ -593,7 +593,7 @@ namespace Duel6
 	{
 	}
 
-	void textbox_c::SetPosition(int X, int Y, int W, int M, const std::string& allowed)
+	void textbox_c::setPosition(int X, int Y, int W, int M, const std::string& allowed)
 	{
 		x = X + 2;
 		y = glibScrHeight - 1 - (Y + 2);
@@ -625,17 +625,17 @@ namespace Duel6
 		}
 	}
 
-	const std::string& textbox_c::Text() const
+	const std::string& textbox_c::getText() const
 	{
 		return text;
 	}
 
-	void textbox_c::Flush()
+	void textbox_c::flush()
 	{
 		text.clear();
 	}
 
-	void textbox_c::Check(Desk::EventType &event, DeskControl*& from)
+	void textbox_c::check(Desk::EventType &event, DeskControl*& from)
 	{
 		if (glibMouseZ && GLib_MouseIn(x, y, (width + 1) << 3, 18))
 		{
@@ -644,7 +644,7 @@ namespace Duel6
 		}
 	}
 
-	void textbox_c::Draw(const Font& font) const
+	void textbox_c::draw(const Font& font) const
 	{
 		int     w = (width << 3) + 8;
 
@@ -665,7 +665,7 @@ namespace Duel6
 	desk_c
 	================
 	*/
-	Desk *Desk::Create()
+	Desk *Desk::create()
 	{
 		if (glibMainDesk == nullptr)
 			glibMainDesk = new Desk;
@@ -696,7 +696,7 @@ namespace Duel6
 		controls.push_back(control);
 	}
 
-	void Desk::ScreenSize(int SizeX, int SizeY, int tr_x, int tr_y)
+	void Desk::screenSize(int SizeX, int SizeY, int tr_x, int tr_y)
 	{
 		glibScrWidth = SizeX;
 		glibScrHeight = SizeY;
@@ -704,7 +704,7 @@ namespace Duel6
 		this->tr_y = tr_y;
 	}
 
-	void Desk::Check(EventType &event, DeskControl*& from)
+	void Desk::check(EventType &event, DeskControl*& from)
 	{
 		glibMouseZ = SDL_GetMouseState(&glibMouseX, &glibMouseY) & SDL_BUTTON(glibMouseB);
 		glibMouseX -= tr_x;
@@ -713,11 +713,11 @@ namespace Duel6
 		event = EventType::None;
 		for (DeskControl* control : controls)
 		{
-			control->Check(event, from);
+			control->check(event, from);
 		}
 	}
 
-	void Desk::Draw(const Font& font)
+	void Desk::draw(const Font& font)
 	{
 		glBegin(GL_QUADS);
 		glColor3ubv(glibCBack);
@@ -732,7 +732,7 @@ namespace Duel6
 
 		for (DeskControl* control : controls)
 		{
-			control->Draw(font);
+			control->draw(font);
 		}
 
 		glPopMatrix();

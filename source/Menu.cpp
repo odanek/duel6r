@@ -79,16 +79,21 @@ namespace Duel6
 	{
 		if (File::getSize(D6_FILE_PHIST) < 20)
 		{
-			for (Size i = 0; i < D6_MAX_PLAYERS; i++)
-			{
-				willPlay[i] = -1;
-			}
 			return;
 		}
 
 		File file(D6_FILE_PHIST, "rb");
-		persons.load(file);		
-		file.read(willPlay, 4, 8);
+		persons.load(file);
+
+		Int32 playing;
+		file.read(&playing, 4, 1);
+		for (Int32 i = 0; i < playing; i++)
+		{
+			Int32 personIndex;
+			file.read(&personIndex, 4, 1);
+			playingPersons.push_back(personIndex);
+		}
+		
 		file.close();;
 	}
 
@@ -105,7 +110,7 @@ namespace Duel6
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			controlSwitch[i]->Clear();
+			controlSwitch[i]->clear();
 		}
 
 		for (Int32 i = 0; i < 4; i++)
@@ -113,7 +118,7 @@ namespace Duel6
 			std::string keyboardDevice = Format("{0} {1}") << D6_L("Keys") << (i + 1);
 			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
 			{
-				controlSwitch[j]->AddItem(keyboardDevice);
+				controlSwitch[j]->addItem(keyboardDevice);
 			}
 		}
 
@@ -122,13 +127,13 @@ namespace Duel6
 			std::string joypadDevice = Format("{0} {1}") << D6_L("Joypad") << (i + 1);
 			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
 			{
-				controlSwitch[j]->AddItem(joypadDevice);
+				controlSwitch[j]->addItem(joypadDevice);
 			}
 		}
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			controlSwitch[i]->SetCur(i % (4 + input.getNumJoypads()));
+			controlSwitch[i]->setCur(i % (4 + input.getNumJoypads()));
 		}
 	}
 
@@ -138,117 +143,117 @@ namespace Duel6
 		menuBannerTexture = d6TextureManager.get(D6_TEXTURE_MENU_KEY)[0];
 		loadPersonData();
 		d6Console.print(D6_L("...Starting GUI library\n"));
-		desk = Desk::Create();
-		desk->ScreenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
+		desk = Desk::create();
+		desk->screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
 
 		listbox[0] = new listbox_c(true);
-		listbox[0]->SetPosition(10, 400, 94, 12, 16);
-		listbox[0]->SetNG(12, 1);
+		listbox[0]->setPosition(10, 400, 94, 12, 16);
+		listbox[0]->setNG(12, 1);
 
 		listbox[1] = new listbox_c(true);
-		listbox[1]->SetPosition(10, 129, 20, 13, 18);
-		listbox[1]->SetNG(0, 1);
+		listbox[1]->setPosition(10, 129, 20, 13, 18);
+		listbox[1]->setNG(0, 1);
 
 		listbox[2] = new listbox_c(false);
-		listbox[2]->SetPosition(200, 129, 20, D6_MAX_PLAYERS, 18);
-		listbox[2]->SetNG(1, 1);
+		listbox[2]->setPosition(200, 129, 20, D6_MAX_PLAYERS, 18);
+		listbox[2]->setNG(1, 1);
 
 		listbox[3] = new listbox_c(true);
-		listbox[3]->SetPosition(644, 189, 13, 6, 16);
-		listbox[3]->SetNG(2, 1);
+		listbox[3]->setPosition(644, 189, 13, 6, 16);
+		listbox[3]->setNG(2, 1);
 
 		listbox[4] = new listbox_c(true);
-		listbox[4]->SetPosition(500, 236, 13, 3, 16);
-		listbox[4]->SetNG(3, 1);
+		listbox[4]->setPosition(500, 236, 13, 3, 16);
+		listbox[4]->setNG(3, 1);
 
 		listbox[5] = new listbox_c(false);
-		listbox[5]->SetPosition(644, 129, 15, 2, 16);
-		listbox[5]->SetNG(4, 1);
-		listbox[5]->AddItem(D6_L("Fullscreen"));
-		listbox[5]->AddItem(D6_L("Split screen"));
+		listbox[5]->setPosition(644, 129, 15, 2, 16);
+		listbox[5]->setNG(4, 1);
+		listbox[5]->addItem(D6_L("Fullscreen"));
+		listbox[5]->addItem(D6_L("Split screen"));
 
 		listbox[6] = new listbox_c(true);
-		listbox[6]->SetPosition(500, 129, 13, 5, 16);
-		listbox[6]->SetNG(5, 1);
+		listbox[6]->setPosition(500, 129, 13, 5, 16);
+		listbox[6]->setNG(5, 1);
 
 		button[0] = new button_c;
-		button[0]->SetPosition(200, 281, 80, 31);
-		button[0]->SetCaption(">>");
-		button[0]->SetNG(6, 1);
+		button[0]->setPosition(200, 281, 80, 31);
+		button[0]->setCaption(">>");
+		button[0]->setNG(6, 1);
 
 		button[1] = new button_c;
-		button[1]->SetPosition(200, 316, 80, 31);
-		button[1]->SetCaption("<<");
-		button[1]->SetNG(7, 1);
+		button[1]->setPosition(200, 316, 80, 31);
+		button[1]->setCaption("<<");
+		button[1]->setNG(7, 1);
 
 		button[2] = new button_c;
-		button[2]->SetPosition(284, 281, 80, 31);
-		button[2]->SetCaption(D6_L("Remove"));
-		button[2]->SetNG(8, 1);
+		button[2]->setPosition(284, 281, 80, 31);
+		button[2]->setCaption(D6_L("Remove"));
+		button[2]->setNG(8, 1);
 
 		button[3] = new button_c;
-		button[3]->SetPosition(284, 316, 80, 31);
-		button[3]->SetCaption(D6_L("Add"));
-		button[3]->SetNG(9, 1);
+		button[3]->setPosition(284, 316, 80, 31);
+		button[3]->setCaption(D6_L("Add"));
+		button[3]->setNG(9, 1);
 
 		button[6] = new button_c;
-		button[6]->SetPosition(370, 281, 120, 31);
-		button[6]->SetCaption(D6_L("Clear (F3)"));
-		button[6]->SetNG(30, 1);
+		button[6]->setPosition(370, 281, 120, 31);
+		button[6]->setCaption(D6_L("Clear (F3)"));
+		button[6]->setNG(30, 1);
 
 		button[4] = new button_c;
-		button[4]->SetPosition(500, 300, 125, 73);
-		button[4]->SetCaption(D6_L("Play (F1)"));
-		button[4]->SetNG(10, 1);
+		button[4]->setPosition(500, 300, 125, 73);
+		button[4]->setCaption(D6_L("Play (F1)"));
+		button[4]->setNG(10, 1);
 
 		button[5] = new button_c;
-		button[5]->SetPosition(644, 300, 125, 73);
-		button[5]->SetCaption(D6_L("Quit (ESC)"));
-		button[5]->SetNG(11, 1);
+		button[5]->setPosition(644, 300, 125, 73);
+		button[5]->setCaption(D6_L("Quit (ESC)"));
+		button[5]->setNG(11, 1);
 
 		label[0] = new label_c;
-		label[0]->SetPosition(10, 380, 772, 18);
-		label[0]->SetCaption(D6_L("      Name       |  Games  |   Wins  |  Shots  | Accuracy |  Kills  | Penalties |  Points"));
+		label[0]->setPosition(10, 380, 772, 18);
+		label[0]->setCaption(D6_L("      Name       |  Games  |   Wins  |  Shots  | Accuracy |  Kills  | Penalties |  Points"));
 
 		label[1] = new label_c;
-		label[1]->SetPosition(500, 216, 125, 18);
-		label[1]->SetCaption(D6_L("Background"));
+		label[1]->setPosition(500, 216, 125, 18);
+		label[1]->setCaption(D6_L("Background"));
 
 		label[2] = new label_c;
-		label[2]->SetPosition(644, 170, 125, 18);
-		label[2]->SetCaption(D6_L("Level"));
+		label[2]->setPosition(644, 170, 125, 18);
+		label[2]->setCaption(D6_L("Level"));
 
 		label[3] = new label_c;
-		label[3]->SetPosition(644, 110, 125, 18);
-		label[3]->SetCaption(D6_L("Screen mode"));
+		label[3]->setPosition(644, 110, 125, 18);
+		label[3]->setCaption(D6_L("Screen mode"));
 
 		label[4] = new label_c;
-		label[4]->SetPosition(500, 110, 125, 18);
-		label[4]->SetCaption(D6_L("Zoom"));
+		label[4]->setPosition(500, 110, 125, 18);
+		label[4]->setCaption(D6_L("Zoom"));
 
 		label[5] = new label_c;
-		label[5]->SetPosition(10, 110, 181, 18);
-		label[5]->SetCaption(D6_L("Persons"));
+		label[5]->setPosition(10, 110, 181, 18);
+		label[5]->setCaption(D6_L("Persons"));
 
 		label[6] = new label_c;
-		label[6]->SetPosition(200, 110, 165, 18);
-		label[6]->SetCaption(D6_L("Players"));
+		label[6]->setPosition(200, 110, 165, 18);
+		label[6]->setCaption(D6_L("Players"));
 
 		label[7] = new label_c;
-		label[7]->SetPosition(370, 110, 120, 18);
-		label[7]->SetCaption(D6_L("Controller"));
+		label[7]->setPosition(370, 110, 120, 18);
+		label[7]->setCaption(D6_L("Controller"));
 
 		textbox = new textbox_c;
-		textbox->SetPosition(200, 351, 19, 13, D6_ALL_CHR);
-		textbox->SetNG(13, 1);
+		textbox->setPosition(200, 351, 19, 10, D6_ALL_CHR);
+		textbox->setNG(13, 1);
 
 		// Switchbox - volba ovladani
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			controlSwitch[i] = new switchbox_c;
-			controlSwitch[i]->SetPosition(370, 131 + i * 18, 120, 0);
-			controlSwitch[i]->SetNG(14 + i, 1);
+			controlSwitch[i]->setPosition(370, 131 + i * 18, 120, 0);
+			controlSwitch[i]->setNG(14 + i, 1);
 		}
 
 		joyRescan();
@@ -256,38 +261,32 @@ namespace Duel6
 		backgroundCount = d6TextureManager.get(D6_TEXTURE_BCG_KEY).size();
 		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
-		listbox[3]->AddItem(D6_L("Random"));
+		listbox[3]->addItem(D6_L("Random"));
 		for (Size i = 0; i < levelList.getLength(); i++)
 		{
-			listbox[3]->AddItem(levelList.getFileName(i));
+			listbox[3]->addItem(levelList.getFileName(i));
 		}
 
-		listbox[4]->AddItem(D6_L("Random"));
+		listbox[4]->addItem(D6_L("Random"));
 		for (Size i = 0; i < backgroundCount; i++)
 		{
-			listbox[4]->AddItem(std::to_string(i + 1));
+			listbox[4]->addItem(std::to_string(i + 1));
 		}
 		
 		for (Int32 i = 5; i < 21; i++)
 		{
-			listbox[6]->AddItem(std::to_string(i));
+			listbox[6]->addItem(std::to_string(i));
 		}
-		listbox[6]->SetCur(8);
+		listbox[6]->setCur(8);
 
 		for (const Person& person : persons.list())
 		{
-			listbox[1]->AddItem(person.getName());
+			listbox[1]->addItem(person.getName());
 		}
 
-		playing = 0;
-		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
+		for (Int32 personIndex : playingPersons)
 		{
-			if (willPlay[i] != -1)
-			{
-				const Person& person = persons.get(willPlay[i]);
-				listbox[2]->AddItem(person.getName());
-				playing++;
-			}
+			listbox[2]->addItem(persons.get(personIndex).getName());
 		}
 
 		d6Console.print(D6_L("\n===Loading sound data===\n"));
@@ -302,13 +301,20 @@ namespace Duel6
 	{
 		File file(D6_FILE_PHIST, "wb");
 		persons.save(file);
-		file.write(willPlay, 4, 8);
+
+		Int32 playing = playingPersons.size();
+		file.write(&playing, 4, 1);
+		for (Int32 personIndex : playingPersons)
+		{
+			file.write(&personIndex, 4, 1);
+		}
+		
 		file.close();
 	}
 
 	void Menu::rebuildTable()
 	{
-		listbox[0]->Clear();
+		listbox[0]->clear();
 		if (persons.isEmpty())
 			return;
 
@@ -343,35 +349,34 @@ namespace Duel6
 				<< person.getKills() 
 				<< person.getPenalties() 
 				<< person.getTotalPoints();
-			listbox[0]->AddItem(personStat);
+			listbox[0]->addItem(personStat);
 		}
 	}
 
 	void Menu::addPlayer()
 	{
-		int     i, c;
-
-		c = listbox[1]->CurItem();
-		if (c != -1 && playing < D6_MAX_PLAYERS)
+		Int32 c = listbox[1]->curItem();
+		if (c != -1 && playingPersons.size() < D6_MAX_PLAYERS)
 		{
-			for (i = 0; i < D6_MAX_PLAYERS; i++)
-				if (willPlay[i] == c)
-					return;
-			willPlay[playing++] = c;
-			listbox[2]->AddItem(persons.get(c).getName());
+			if (std::find(playingPersons.begin(), playingPersons.end(), c) != playingPersons.end())
+			{
+				return;
+			}
+			playingPersons.push_back(c);
+			listbox[2]->addItem(persons.get(c).getName());
 		}
 	}
 
 	void Menu::addPerson()
 	{
-		const std::string& personName = textbox->Text();
+		const std::string& personName = textbox->getText();
 
 		if (!personName.empty())
 		{
 			persons.add(Person(personName));
-			listbox[1]->AddItem(personName);
+			listbox[1]->addItem(personName);
 			rebuildTable();
-			textbox->Flush();
+			textbox->flush();
 		}
 	}
 
@@ -461,18 +466,18 @@ namespace Duel6
 				
 		// Persons, colors, controls
 		std::vector<Game::PlayerDefinition> playerDefinitions;
-		for (Size i = 0; i < playing; i++)
+		for (Size i = 0; i < playingPersons.size(); i++)
 		{
-			Person& person = persons.get(willPlay[i]);
+			Person& person = persons.get(playingPersons[i]);
 			auto skinForName = playerColors.find(person.getName());
 			const PlayerSkinColors& colors = skinForName != playerColors.end() ? skinForName->second : playerColors.at(Format("default_{0}") << i);
-			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->CurItem());
+			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->curItem());
 			playerDefinitions.push_back(Game::PlayerDefinition(person, colors, controls));
 		}
 
 		// Levels
 		std::vector<std::string> levels;
-		if (!listbox[3]->CurItem())
+		if (!listbox[3]->curItem())
 		{
 			for (Size i = 0; i < levelList.getLength(); ++i)
 			{
@@ -481,12 +486,12 @@ namespace Duel6
 		}
 		else
 		{
-			levels.push_back(levelList.getPath(listbox[3]->CurItem() - 1));
+			levels.push_back(levelList.getPath(listbox[3]->curItem() - 1));
 		}
 
 		// Game backgrounds
 		std::vector<Size> backgrounds;
-		if (!listbox[4]->CurItem())
+		if (!listbox[4]->curItem())
 		{
 			for (Size i = 0; i < backgroundCount; i++)
 			{
@@ -495,12 +500,12 @@ namespace Duel6
 		}
 		else
 		{
-			backgrounds.push_back(listbox[4]->CurItem() - 1);
+			backgrounds.push_back(listbox[4]->curItem() - 1);
 		}
 
 		// Screen
-		ScreenMode screenMode = (playing > 4 || listbox[5]->CurItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
-		Int32 screenZoom = listbox[6]->CurItem() + 5; 
+		ScreenMode screenMode = (playingPersons.size() > 4 || listbox[5]->curItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
+		Int32 screenZoom = listbox[6]->curItem() + 5; 
 
 		// Start
 		Context::push(*game);
@@ -509,17 +514,10 @@ namespace Duel6
 
 	void Menu::removePlayer(Int32 c)
 	{
-		int     i;
-
 		if (c != -1)
 		{
-			listbox[2]->DelItem(c);
-			for (i = c; i < D6_MAX_PLAYERS - 1; i++)
-			{
-				willPlay[i] = willPlay[i + 1];
-			}
-			willPlay[i] = -1;
-			playing--;
+			listbox[2]->delItem(c);
+			playingPersons.erase(playingPersons.begin() + c);
 		}
 	}
 
@@ -528,15 +526,21 @@ namespace Duel6
 		if (!deleteQuestion())
 			return;
 
-		int c = listbox[1]->CurItem();
+		int c = listbox[1]->curItem();
 		if (c != -1)
 		{
-			listbox[1]->DelItem(c);
-			for (Size i = 0; i < D6_MAX_PLAYERS; i++)
+			listbox[1]->delItem(c);
+			auto iter = std::find(playingPersons.begin(), playingPersons.end(), c);
+			if (iter != playingPersons.end())
 			{
-				if (willPlay[i] == c)
+				removePlayer(iter - playingPersons.begin());
+			}
+
+			for (Int32& personIndex : playingPersons)
+			{
+				if (personIndex >= c)
 				{
-					removePlayer(i);
+					--personIndex;
 				}
 			}
 
@@ -567,7 +571,7 @@ namespace Duel6
 		{
 			sync -= wait;
 
-			desk->Check(event, from);
+			desk->check(event, from);
 			if (event == Desk::EventType::Released && from->getGroup() == 1)
 			{
 				switch (from->getNumber())
@@ -576,7 +580,7 @@ namespace Duel6
 					addPlayer();
 					break;
 				case 7:
-					removePlayer(listbox[2]->CurItem());
+					removePlayer(listbox[2]->curItem());
 					break;
 				case 8:
 					deletePerson();
@@ -586,7 +590,7 @@ namespace Duel6
 					addPerson();
 					break;
 				case 10:
-					if (playing > 1)
+					if (playingPersons.size() > 1)
 					{
 						play();
 					}
@@ -609,7 +613,7 @@ namespace Duel6
 	{
 		Int32 tr_x = (video.getScreen().getClientWidth() - 800) / 2, tr_y = (video.getScreen().getClientHeight() - 600) / 2;
 
-		desk->Draw(font);
+		desk->draw(font);
 
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
@@ -639,7 +643,7 @@ namespace Duel6
 			addPerson();
 		}
 
-		if (keyCode == SDLK_F1 && playing > 1)
+		if (keyCode == SDLK_F1 && playingPersons.size() > 1)
 		{
 			play();
 		}

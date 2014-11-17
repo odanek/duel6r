@@ -55,7 +55,6 @@ namespace Duel6
 		const Font& font;
 		PlayerControlsManager controlsManager;
 		std::unordered_map<std::string, PlayerSkinColors> playerColors;
-		Size playing;
 		LevelList levelList;
 		PersonList persons;
 		Desk* desk;
@@ -64,7 +63,7 @@ namespace Duel6
 		label_c* label[8];
 		switchbox_c* controlSwitch[D6_MAX_PLAYERS];
 		textbox_c* textbox;
-		Int32 willPlay[D6_MAX_PLAYERS];
+		std::vector<Int32> playingPersons;
 		Size backgroundCount;
 		GLuint menuBannerTexture;
 		bool playMusic;
