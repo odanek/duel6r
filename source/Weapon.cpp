@@ -105,7 +105,7 @@ namespace Duel6
 
 	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit)
 	{
-		int killedPlayers = 0, initialAuthorKills = shot.getPlayer().getPerson().getKills();
+		int killedPlayers = 0;
 		bool killedSelf = false;
 
 		Float32 range = shot.getExplosionRange();
