@@ -559,8 +559,6 @@ namespace Duel6
 
 			if (!is(shot.getPlayer()))
 			{
-				shootingPerson.addKills(1);
-				shot.getPlayer().addRoundKill();
 				d6MessageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
 				d6MessageQueue.add(shot.getPlayer(), Format(D6_L("You killed player {0}")) << getPerson().getName());
 			}

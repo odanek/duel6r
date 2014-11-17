@@ -166,6 +166,11 @@ namespace Duel6
 		{
 			shot.getPlayer().getPerson().addPenalties(killedPlayers);
 		}
+		else
+		{
+			shot.getPlayer().getPerson().addKills(killedPlayers);
+			shot.getPlayer().addRoundKills(killedPlayers);
+		}
 	}
 
 	static bool WPN_ShotPlayerCollision(Shot& shot, std::vector<Player>& players)

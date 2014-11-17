@@ -217,9 +217,9 @@ namespace Duel6
 			return state.roundKills;
 		}
 
-		void addRoundKill()
+		void addRoundKills(Int32 kills)
 		{
-			state.roundKills++;
+			state.roundKills += kills;
 		}
 
 		Orientation getOrientation() const
