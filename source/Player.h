@@ -127,7 +127,8 @@ namespace Duel6
 			Int32 ammo;
 			Int32 bonus;
             Int32 roundKills;
-			Float32 reloadInterval;
+			Float32 timeToReload;
+			Float32 bonusRemainingTime;
 			Float32 bonusDuration;
 			Float32 tempSkinDuration;
 			const Weapon *weapon;
@@ -237,6 +238,7 @@ namespace Duel6
 		Player& setBonus(Size type, Int32 duration)
 		{
 			state.bonus = type;
+			state.bonusRemainingTime = Float32(duration);
 			state.bonusDuration = Float32(duration);
 			return *this;
 		}
@@ -251,9 +253,21 @@ namespace Duel6
 			return state.air;
 		}
 
+		Float32 getReloadInterval() const;
+
+		Float32 getReloadTime() const
+		{
+			return state.timeToReload;
+		}
+
 		Int32 getBonus() const
 		{
 			return state.bonus;
+		}
+
+		Float32 getBonusRemainingTime() const
+		{
+			return state.bonusRemainingTime;
 		}
 
 		Float32 getBonusDuration() const
@@ -292,7 +306,7 @@ namespace Duel6
 
 		bool isReloading()
 		{
-			return state.reloadInterval > 0;
+			return state.timeToReload > 0;
 		}
 
 		bool isKneeling() const
@@ -369,7 +383,11 @@ namespace Duel6
 		{
 			return (state.elevator != nullptr);
 		}
-		
+
+		const PlayerSkin& getSkin() const
+		{
+			return skin;
+		}		
 
 	private:
 		void makeMove(const World& world, Float32 elapsedTime);

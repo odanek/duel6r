@@ -166,7 +166,7 @@ endif(WIN32)
 set(D6R_APP_NAME "duel6r" CACHE STRING "Filename of the application.")
 set(D6R_APP_DEBUG_NAME "duel6rd" CACHE STRING "Filename of the debug version of the application.")
 add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
-set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 3.11.0 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
+set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 3.13.0 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
 
 #########################################################################
 # External dependencies

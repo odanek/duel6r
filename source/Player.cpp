@@ -81,13 +81,14 @@ namespace Duel6
 		state.velocity = 0.0f;
 		state.orientation = Orientation::Left;
 		state.jumpPhase = 0;
-		state.reloadInterval = 0;
+		state.timeToReload = 0;
 		state.life = D6_MAX_LIFE;
 		state.air = D6_MAX_AIR;
 		state.ammo = ammo;
 		state.elevator = nullptr;
 		state.bonus = 0;
 		state.bonusDuration = 0;
+		state.bonusRemainingTime = 0;
 		state.tempSkinDuration = 0;
         state.roundKills = 0;
 		this->view = view;
@@ -204,12 +205,7 @@ namespace Duel6
 		if (!getAmmo() || isReloading())
 			return;
 
-		state.reloadInterval = getWeapon().reloadSpeed;
-		if (hasFastReload())
-		{
-			state.reloadInterval /= 2.0f;
-		}
-
+		state.timeToReload = getReloadInterval();
 		state.ammo--;
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
@@ -222,7 +218,7 @@ namespace Duel6
 		setFlag(FlagPick);
 		state.weapon = &weapon;
 		state.ammo = bullets;
-		state.reloadInterval = 0;		
+		state.timeToReload = 0;
 					
 		gunSprite->setAnimation(weapon.animation).setTextures(d6TextureManager.get(weapon.texture.gun)).setFrame(6);
 
@@ -270,6 +266,12 @@ namespace Duel6
 		}
 
 		return spd;
+	}
+
+	Float32 Player::getReloadInterval() const
+	{
+		Float32 coef = hasFastReload() ? 2.0f : 1.0f;
+		return getWeapon().reloadSpeed / coef;
 	}
 
 	void Player::checkKeys()
@@ -333,23 +335,24 @@ namespace Duel6
 		}
 
 		// Move intervals
-		if (state.reloadInterval > 0)
+		if (isReloading())
 		{
-			if ((state.reloadInterval -= elapsedTime) <= 0)
+			if ((state.timeToReload -= elapsedTime) <= 0)
 			{
-				state.reloadInterval = 0;
+				state.timeToReload = 0;
 			}
 		}
 
-		if (state.bonusDuration > 0)
+		if (getBonusRemainingTime() > 0)
 		{
-			if ((state.bonusDuration -= elapsedTime) <= 0)
+			if ((state.bonusRemainingTime -= elapsedTime) <= 0)
 			{
 				if (getBonus() == D6_BONUS_INVIS)
 				{
 					setAlpha(1.0f);
 				}
 				state.bonus = 0;
+				state.bonusRemainingTime = 0;
 				state.bonusDuration = 0;
 			}
 		}

@@ -51,7 +51,7 @@ namespace Duel6
 	{
 		PlayerView view(x, y, video.getScreen().getClientWidth() / 2 - 4, video.getScreen().getClientHeight() / 2 - 4);
 		player.setView(view);
-		player.setInfoBarPosition(x + view.getWidth() / 2 - 76, y + 30);
+		player.setInfoBarPosition(x + view.getWidth() / 2 - 76, y + 35);
 	}
 
 	void Game::setPlayerViews()
@@ -63,22 +63,13 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::FullScreen)
 		{
-			Int32 xShift = (video.getScreen().getClientWidth() / 4) / 2 - 70;
 			Size index = 0;
+			Size partition = video.getScreen().getClientWidth() / players.size();
 
 			for (Player& player : players)
 			{
-				player.setView(PlayerView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight()));
-
-				if (index < 4)
-				{
-					player.setInfoBarPosition((video.getScreen().getClientWidth() / 4) * index + xShift, 30);
-				}
-				else
-				{
-					player.setInfoBarPosition((video.getScreen().getClientWidth() / 4) * (index - 4) + xShift, video.getScreen().getClientHeight() - 7);
-				}
-
+				player.setView(PlayerView(0, 40, video.getScreen().getClientWidth(), video.getScreen().getClientHeight() - 40));
+				player.setInfoBarPosition(partition * index + partition / 2 - 80, 35);
 				index++;
 			}
 

@@ -103,7 +103,7 @@ namespace Duel6
 
 		const PlayerView& view = game.getPlayers().front().getView();
 		int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
-		int posY = view.getY() + view.getHeight() - (ladder.size() > 4 ? 50 : 20);
+		int posY = view.getY() + view.getHeight() - 20;
 
 		for (const Player* player : ladder)
 		{			
@@ -183,66 +183,113 @@ namespace Duel6
 		font.print(x + 8, y, Color(255, 255, 255), Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getMaxRounds());
 	}
 
-	void Renderer::playerStatus(const Player& player) const
+	void Renderer::playerStatuses() const
 	{
-		if (player.isDead())
+		if (game.getScreenMode() == ScreenMode::FullScreen)
 		{
-			return;
+			glBegin(GL_QUADS);
+			glColor3ub(0, 0, 0);
+			glVertex2i(0, 40);
+			glVertex2i(video.getScreen().getClientWidth(), 40);
+			glVertex2i(video.getScreen().getClientWidth(), 0);
+			glVertex2i(0, 0);
+			glEnd();
 		}
 
-		int alpha = 180;
-		int al = int((player.getAir() * 125) / D6_MAX_AIR);
-		int ll = int((player.getLife() * 125) / D6_MAX_LIFE);
-		const int *ibp = player.getInfoBarPosition();
+		for (const Player& player : game.getPlayers())
+		{
+			playerStatus(player);
+		}
+	}
+
+	void Renderer::playerStatus(const Player& player) const
+	{
+		Int32 alpha = 180, green = player.isDead() ? 0 : 1;
+		Int32 airBarLength = Int32((player.getAir() * 101) / D6_MAX_AIR);
+		Int32 lifeBarLength = Int32((player.getLife() * 101) / D6_MAX_LIFE);
+		Int32 reloadBarLength = 101 - Int32((player.getReloadTime() * 101) / player.getReloadInterval());
+		const Int32 *ibp = player.getInfoBarPosition();
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glBegin(GL_QUADS);
-		glColor4ub(255, 255, 0, alpha);
-		glVertex2i(ibp[0], ibp[1] + 2);
-		glVertex2i(ibp[0] + 151, ibp[1] + 2);
-		glVertex2i(ibp[0] + 151, ibp[1] - 25);
-		glVertex2i(ibp[0], ibp[1] - 25);
+		glColor4ub(255, green * 255, 0, alpha);
+		glVertex2i(ibp[0] + 32, ibp[1] + 2);
+		glVertex2i(ibp[0] + 157, ibp[1] + 2);
+		glVertex2i(ibp[0] + 157, ibp[1] - 32);
+		glVertex2i(ibp[0] + 32, ibp[1] - 32);
 
-		glColor4ub(200, 200, 0, alpha);
-		glVertex2i(ibp[0] + 23, ibp[1] + 1);
-		glVertex2i(ibp[0] + 130, ibp[1] + 1);
-		glVertex2i(ibp[0] + 130, ibp[1] - 13);
-		glVertex2i(ibp[0] + 23, ibp[1] - 13);
+		glColor4ub(150, green * 150, 0, alpha);
+		glVertex2i(ibp[0] + 53, ibp[1] + 1);
+		glVertex2i(ibp[0] + 136, ibp[1] + 1);
+		glVertex2i(ibp[0] + 136, ibp[1] - 13);
+		glVertex2i(ibp[0] + 53, ibp[1] - 13);
 
 		glColor4ub(255, 0, 0, alpha);
-		glVertex2i(ibp[0] + 5, ibp[1] - 14);
-		glVertex2i(ibp[0] + 5 + ll, ibp[1] - 14);
-		glVertex2i(ibp[0] + 5 + ll, ibp[1] - 18);
-		glVertex2i(ibp[0] + 5, ibp[1] - 18);
+		glVertex2i(ibp[0] + 35, ibp[1] - 14);
+		glVertex2i(ibp[0] + 35 + lifeBarLength, ibp[1] - 14);
+		glVertex2i(ibp[0] + 35 + lifeBarLength, ibp[1] - 18);
+		glVertex2i(ibp[0] + 35, ibp[1] - 18);
 
 		glColor4ub(0, 0, 255, alpha);
-		glVertex2i(ibp[0] + 5, ibp[1] - 19);
-		glVertex2i(ibp[0] + 5 + al, ibp[1] - 19);
-		glVertex2i(ibp[0] + 5 + al, ibp[1] - 23);
-		glVertex2i(ibp[0] + 5, ibp[1] - 23);
+		glVertex2i(ibp[0] + 35, ibp[1] - 20);
+		glVertex2i(ibp[0] + 35 + airBarLength, ibp[1] - 20);
+		glVertex2i(ibp[0] + 35 + airBarLength, ibp[1] - 24);
+		glVertex2i(ibp[0] + 35, ibp[1] - 24);
+
+		glColor4ub(0, 100, 0, alpha);
+		glVertex2i(ibp[0] + 35, ibp[1] - 26);
+		glVertex2i(ibp[0] + 35 + reloadBarLength, ibp[1] - 26);
+		glVertex2i(ibp[0] + 35 + reloadBarLength, ibp[1] - 30);
+		glVertex2i(ibp[0] + 35, ibp[1] - 30);
 		glEnd();
+
+		if (game.getScreenMode() == ScreenMode::FullScreen)
+		{
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_ALPHA_TEST);
+			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextures()[3]);
+			glColor3ub(255, 255, 255);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 0.0f); glVertex2i(ibp[0] + 3, ibp[1] + 1);
+			glTexCoord2f(1.0f, 0.0f); glVertex2i(ibp[0] + 33, ibp[1] + 1);
+			glTexCoord2f(1.0f, 1.0f); glVertex2i(ibp[0] + 33, ibp[1] - 31);
+			glTexCoord2f(0.0f, 1.0f); glVertex2i(ibp[0] + 3, ibp[1] - 31);
+			glEnd();
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_ALPHA_TEST);
+		}
 
 		const std::string& playerName = player.getPerson().getName();
 		Color fontColor(0, 0, 255);
-		font.print(ibp[0] + 5, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
-		font.print(ibp[0] + 76 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
+		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
+		font.print(ibp[0] + 92 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
 
 		if (player.getBonus() != 0)
 		{
+			Int32 bonusBarLength = Int32(0.5f + (player.getBonusRemainingTime() * 16) / player.getBonusDuration());
+
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
 			glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_BLOCK_KEY)[player.getBonus()]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
-			glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 133, ibp[1] - 3);
-			glTexCoord2f(0.7f, 0.3f); glVertex2i(ibp[0] + 148, ibp[1] - 3);
-			glTexCoord2f(0.7f, 0.7f); glVertex2i(ibp[0] + 148, ibp[1] - 18);
-			glTexCoord2f(0.3f, 0.7f); glVertex2i(ibp[0] + 133, ibp[1] - 18);
+				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);
+				glTexCoord2f(0.7f, 0.3f); glVertex2i(ibp[0] + 154, ibp[1] + 2);
+				glTexCoord2f(0.7f, 0.7f); glVertex2i(ibp[0] + 154, ibp[1] - 13);
+				glTexCoord2f(0.3f, 0.7f); glVertex2i(ibp[0] + 139, ibp[1] - 13);
 			glEnd();
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_ALPHA_TEST);
+
+			glBegin(GL_QUADS);
+				glColor4ub(200, 0, 200, alpha);
+				glVertex2i(ibp[0] + 139, ibp[1] - 30 + bonusBarLength);
+				glVertex2i(ibp[0] + 154, ibp[1] - 30 + bonusBarLength);
+				glVertex2i(ibp[0] + 154, ibp[1] - 30);
+				glVertex2i(ibp[0] + 139, ibp[1] - 30);
+			glEnd();
 		}
 
 		glDisable(GL_BLEND);
@@ -326,12 +373,12 @@ namespace Duel6
         
 	void Renderer::invulRing(const Player& player) const
 	{
-		float   x, y, X, Y;
-		int     p, uh, u;
+		Float32 x, y, X, Y;
+		Int32 p, uh, u;
 
 		x = player.getX() + 0.5f;  // TODO: Coord
 		y = player.getY() + 0.5f;  // TODO: Coord
-		p = int(player.getBonusDuration() * 30) % 360;
+		p = Int32(player.getBonusRemainingTime() * 30) % 360;
 
 		glColor3ub(255, 0, 0);
 		glDisable(GL_TEXTURE_2D);
@@ -374,6 +421,21 @@ namespace Duel6
 		glVertex2i(video.getScreen().getClientWidth(), 0);
 		glEnd();
 		glColor3f(1, 1, 1);
+	}
+
+	void Renderer::infoMessages() const
+	{
+		if (game.getScreenMode() == ScreenMode::FullScreen)
+		{
+			d6MessageQueue.renderAllMessages(game.getPlayers().front().getView(), 20, font);
+		}
+		else
+		{
+			for (const Player& player : game.getPlayers())
+			{
+				d6MessageQueue.renderPlayerMessages(player, font);
+			}
+		}
 	}
 
 	void Renderer::view(const Player& player) const
@@ -446,6 +508,7 @@ namespace Duel6
 		glDrawBuffer(GL_FRONT_AND_BACK);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDrawBuffer(GL_BACK);
+		d6Console.print("Initialize\n");
 	}
 
 	void Renderer::render() const
@@ -472,27 +535,13 @@ namespace Duel6
 		video.setMode(Video::Mode::Orthogonal);
 		setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
 		glColor3f(1.0f, 1.0f, 1.0f);
-		
-		for (const Player& player : game.getPlayers())
-		{
-			playerStatus(player);
-		}
+
+		playerStatuses();
+		infoMessages();
 
 		if (showFps)
 		{
 			fpsCounter();
-		}
-
-		if (game.getScreenMode() == ScreenMode::FullScreen)
-		{ 
-			d6MessageQueue.renderAllMessages(game.getPlayers().front().getView(), (game.getPlayers().size() > 4 ? 50 : 20), font);
-		}
-		else
-		{
-			for (const Player& player : game.getPlayers())
-			{
-				d6MessageQueue.renderPlayerMessages(player, font);
-			}
 		}
 
 		if (showRanking && game.getScreenMode() == ScreenMode::FullScreen)

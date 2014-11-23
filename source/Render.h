@@ -103,6 +103,7 @@ namespace Duel6
 		void playerRankings() const;
 		void gameOverSummary() const;
 		void roundsPlayed() const;
+		void playerStatuses() const;
 		void playerStatus(const Player& player) const;
 		void fpsCounter() const;
 		void notifications() const;
@@ -110,6 +111,7 @@ namespace Duel6
 		void invulRings(const std::vector<Player>& players) const;
 		void invulRing(const Player& player) const;
 		void splitBox(const PlayerView& view) const;
+		void infoMessages() const;
 	};
 }
 
