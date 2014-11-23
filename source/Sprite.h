@@ -92,6 +92,7 @@ namespace Duel6
 		Sprite& setFrame(Size frame)
 		{
 			this->frame = frame;
+			this->delay = 0;
 			return *this;
 		}
 

@@ -30,7 +30,6 @@
 
 namespace Duel6
 {
-
 	void Format::insertParam(Size index, const std::string& value)
 	{
 		Placeholder placeholder;
@@ -42,12 +41,12 @@ namespace Duel6
 			}
 			else if (placeholder.width > 0) // Right align
 			{
-				std::string paddedValue = std::string(placeholder.width - value.length(), ' ') + value;
+				std::string paddedValue = std::string(placeholder.width - value.length(), placeholder.paddingCharacter) + value;
 				format.replace(placeholder.offset, placeholder.length, paddedValue);
 			}
 			else // Left align
 			{
-				std::string paddedValue = value + std::string(-placeholder.width - value.length(), ' ');
+				std::string paddedValue = value + std::string(-placeholder.width - value.length(), placeholder.paddingCharacter);
 				format.replace(placeholder.offset, placeholder.length, paddedValue);
 			}
 		}
@@ -81,7 +80,18 @@ namespace Duel6
 		{
 			size_t widthStart = start + prefix.length() + 1;
 			placeholder.hasWidth = true;
-			placeholder.width = std::stoi(format.substr(widthStart, end - widthStart));
+			std::string widthSpec = format.substr(widthStart, end - widthStart);
+			size_t padDelimitPos = widthSpec.find('|');
+			if (padDelimitPos != std::string::npos && padDelimitPos + 2 == widthSpec.length())
+			{
+				placeholder.paddingCharacter = format[end - 1];
+				widthSpec = widthSpec.substr(0, padDelimitPos);
+			}
+			else
+			{
+				placeholder.paddingCharacter = ' ';
+			}
+			placeholder.width = std::stoi(widthSpec);
 			return true;
 		}
 			

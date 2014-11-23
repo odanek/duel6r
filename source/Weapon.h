@@ -37,9 +37,17 @@
 namespace Duel6
 {
 	class Player; // Forward declaration, TODO: Remove
+	
+	struct WeaponTextureKey
+	{
+		std::string boom;
+		std::string gun;
+		std::string shot;
+	};
 
 	struct Weapon
 	{
+		Int32 index;
 		bool enabled;
 		Float32 bulletSpeed;
 		bool blood;
@@ -56,6 +64,7 @@ namespace Duel6
 		Int16 animation[16];
 		Int16 shotAnimation[18];
 		Int16 boomAnimation[14];
+		WeaponTextureKey texture;
 	};	
 
 	void WPN_Init();

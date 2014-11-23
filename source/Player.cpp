@@ -49,11 +49,7 @@ namespace Duel6
 	static Int16 d6LAnim[16] = { 13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0 };
 	static Int16 d6NAnim[4] = { 25, 100, -1, 0 };
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
-	static Int16 wtAnim[2][24] =
-	{
-		{ 57, 5, 58, 5, 59, 5, 60, 5, 61, 5, 62, 5, 63, 5, 64, 5, 66, 5, 67, 5, -1, 0 },
-		{ 83, 5, 84, 5, 85, 5, 86, 5, 87, 5, 88, 5, 89, 5, 90, 5, 91, 5, 92, 5, -1, 0 }
-	};
+	static Int16 wtAnim[24] = { 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0 };
 
 	Player::Player(Person& person, PlayerSkin skin, const PlayerControls& controls)
 		: person(person), skin(skin), controls(controls)
@@ -75,7 +71,7 @@ namespace Duel6
 		sprite = d6SpriteList.addSprite(manSprite);		
 
 		state.weapon = &WPN_GetRandomWeapon();
-		Sprite gunSprite(state.weapon->animation, d6TextureManager.get(D6_TEXTURE_WPN_KEY));
+		Sprite gunSprite(state.weapon->animation, d6TextureManager.get(state.weapon->texture.gun));
 		gunSprite.setPosition(getX(), getY(), 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
@@ -228,7 +224,7 @@ namespace Duel6
 		state.ammo = bullets;
 		state.reloadInterval = 0;		
 					
-		gunSprite->setAnimation(weapon.animation).setFrame(6);
+		gunSprite->setAnimation(weapon.animation).setTextures(d6TextureManager.get(weapon.texture.gun)).setFrame(6);
 
 		return *this;
 	}
@@ -660,7 +656,7 @@ namespace Duel6
 		water = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
 		if (water != WaterType::None && !hasFlag(FlagFeetInWater))
 		{
-			Sprite waterSplash(wtAnim[(water == WaterType::Blue) ? 0 : 1], d6TextureManager.get(D6_TEXTURE_WPN_KEY));
+			Sprite waterSplash(wtAnim, d6TextureManager.get((water == WaterType::Blue) ? D6_TEXTURE_WATER_B_KEY : D6_TEXTURE_WATER_R_KEY));
 			waterSplash.setPosition(getX(), getY(), 0.5f)
 				.setLooping(AnimationLooping::OnceAndRemove);
 			d6SpriteList.addSprite(waterSplash);

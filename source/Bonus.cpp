@@ -53,7 +53,7 @@ namespace Duel6
 	{
 		if (weapon)
 		{
-			return d6TextureManager.get(D6_TEXTURE_WPN_KEY)[weaponType->animation[12]];
+			return d6TextureManager.get(weaponType->texture.gun)[weaponType->animation[12]];
 		}
 
 		return d6TextureManager.get(D6_TEXTURE_BLOCK_KEY)[type];

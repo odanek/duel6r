@@ -42,6 +42,7 @@ namespace Duel6
 			Size length;
 			bool hasWidth;
 			Int32 width;
+			char paddingCharacter;
 		};
 
 	private:

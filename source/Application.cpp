@@ -171,11 +171,15 @@ namespace Duel6
 		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
 		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
 		d6TextureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_WPN_KEY, D6_TEXTURE_WPN_PATH, GL_LINEAR, true);
+		d6TextureManager.load(D6_TEXTURE_ELEVATOR_KEY, D6_TEXTURE_ELEVATOR_PATH, GL_LINEAR, true);
 		d6TextureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
 
+		d6TextureManager.load(D6_TEXTURE_WATER_B_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true);
+		TextureManager::SubstitutionTable redWater;
+		redWater[Color(0, 182, 255)] = Color(197, 0, 0);
+		d6TextureManager.load(D6_TEXTURE_WATER_R_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, redWater);
+
 		WPN_Init();
-		ELEV_Init();
 		FIRE_Init();
 
 		menu.initialize();

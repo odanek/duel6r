@@ -573,6 +573,7 @@ namespace Duel6
 			gui.check(event, from);
 			if (event == Gui::EventType::Released && from->getGroup() == 1)
 			{
+				// TODO: Eliminate nubmer and group and change to callbacks
 				switch (from->getNumber())
 				{
 				case 6:

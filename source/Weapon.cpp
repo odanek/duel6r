@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <list>
+#include <set>
 #include "Sound.h"
 #include "Player.h"
 #include "PlayerSkin.h"
@@ -43,23 +44,23 @@ namespace Duel6
 {
 	Weapon d6WpnDef[D6_WEAPONS] =
 	{
-		{ true, 9.15f, true, false, Color(0, 0, 0), 0, 30, 0.98f, "pistol", D6_SND_SHOT_PI, -1, 0, false, { 25, 5, 26, 5, 27, 5, 28, 5, 29, 5, 30, 5, 24, 50, -1, 0 }, { 0, 50, -1, 0 }, { 14, 5, 15, 5, 14, 5, 15, 5, 14, 5, 15, 5, -1, 0 } },
-		{ true, 6.1f, false, true, Color(255, 0, 0), 3, 100, 3.28f, "bazooka", D6_SND_SHOT_BZ, D6_SND_BOOM_BZ, 0.01f, false, { 32, 5, 33, 5, 34, 5, 35, 5, 36, 5, 37, 5, 31, 50, -1, 0 }, { 1, 10, 2, 10, -1, 0 }, { 16, 5, 17, 5, 16, 5, 17, 5, 16, 5, 17, 5, -1, 0 } },
-		{ true, 12.2f, false, true, Color(0, 255, 255), 0, 100, 4.1f, "lightning gun", D6_SND_SHOT_BL, D6_SND_BOOM_BL, 0, false, { 39, 5, 40, 5, 41, 5, 42, 5, 38, 5, 38, 5, 38, 50, -1, 0 }, { 3, 10, 4, 10, -1, 0 }, { 18, 5, 19, 5, 18, 5, 19, 5, 18, 5, 19, 5, -1, 0 } },
-		{ true, 9.15f, true, false, Color(0, 0, 0), 0, 60, 2.29f, "shotgun", D6_SND_SHOT_SG, -1, 0, false, { 44, 5, 45, 5, 46, 5, 45, 5, 44, 5, 43, 5, 43, 50, -1, 0 }, { 5, 50, -1, 0 }, { 14, 5, 15, 5, 14, 5, 15, 5, 14, 5, 15, 5, -1, 0 } },
-		{ true, 12.2f, true, false, Color(0, 0, 0), 0, 25, 0.33f, "plasma gun", D6_SND_SHOT_PL, -1, 0, false, { 48, 5, 47, 5, 47, 5, 47, 5, 47, 5, 47, 5, 47, 50, -1, 0 }, { 6, 50, -1, 0 }, { 20, 5, 21, 5, 20, 5, 21, 5, 20, 5, 21, 5, -1, 0 } },
-		{ true, 15.25f, true, false, Color(0, 0, 0), 0, 35, 0.25f, "laser", D6_SND_SHOT_LS, -1, 0, false, { 50, 5, 49, 5, 49, 5, 49, 5, 49, 5, 49, 5, 49, 50, -1, 0 }, { 7, 50, -1, 0 }, { 22, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
-		{ true, 9.15f, true, false, Color(0, 0, 0), 0, 40, 0.66f, "machine gun", D6_SND_SHOT_KM, -1, 0, false, { 52, 5, 51, 5, 51, 5, 51, 5, 51, 5, 51, 5, 51, 50, -1, 0 }, { 8, 50, -1, 0 }, { 23, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
-		{ true, 6.1f, false, true, Color(255, 255, 0), 4, 200, 6.56f, "triton", D6_SND_SHOT_TZ, D6_SND_BOOM_BZ, 0.04f, false, { 54, 5, 55, 5, 56, 5, 53, 5, 53, 5, 53, 5, 53, 50, -1, 0 }, { 9, 8, 10, 8, 11, 8, 12, 8, 13, 8, 12, 8, 11, 8, 10, 8, -1, 0 }, { 16, 5, 17, 5, 16, 5, 17, 5, 16, 5, 17, 5, -1, 0 } },		
-		{ true, 10.98f, true, false, Color(0, 0, 0), 0, 15, 0.26f, "uzi", D6_SND_SHOT_PI, -1, 0, false, { 69, 5, 69, 5, 69, 5, 69, 5, 69, 5, 69, 5, 69, 50, -1, 0 }, { 0, 50, -1, 0 }, { 14, 5, 15, 5, 14, 5, 15, 5, 14, 5, 15, 5, -1, 0 } },
-		{ true, 12.2f, true, false, Color(0, 0, 0), 0, 25, 0.82f, "bow", D6_SND_SHOT_LK, -1, 0, false, { 71, 10, 72, 10, 70, 5, 70, 5, 70, 5, 70, 5, 70, 50, -1, 0 }, { 73, 50, -1, 0 }, { 22, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
-		{ true, 7.93f, true, false, Color(0, 0, 0), 0, 50, 1.31f, "slime gun", D6_SND_SHOT_SM, -1, 0, false, { 75, 10, 76, 10, 74, 5, 74, 5, 74, 5, 74, 5, 74, 50, -1, 0 }, { 77, 50, -1, 0 }, { 78, 5, 79, 5, 78, 5, 79, 5, 78, 5, 79, 5, -1, 0 } },
-		{ true, 12.2f, true, true, Color(255, 255, 0), 2, 80, 3.44f, "double laser", D6_SND_SHOT_LS, D6_SND_BOOM_BZ, 0.005f, false, { 81, 10, 80, 10, 80, 5, 80, 5, 80, 5, 80, 5, 80, 50, -1, 0 }, { 82, 50, -1, 0 }, { 16, 5, 17, 5, 16, 5, 17, 5, 16, 5, 17, 5, -1, 0 } },
-		{ false, 4.27f, false, true, Color(255, 0, 255), 0, 100, 3.11f, "kiss of death", D6_SND_SHOT_KD1, D6_SND_SHOT_KD2, 0.01f, false, { 94, 8, 95, 8, 96, 8, 95, 8, 94, 8, 94, 8, 94, 8, -1, 0 }, { 97, 10, 98, 10, 99, 10, 98, 10, -1, 0 }, { 20, 5, 21, 5, 20, 5, 21, 5, 20, 5, 21, 5, -1, 0 } },
-		{ false, 4.88f, false, false, Color(0, 0, 0), 0, 20, 0.66f, "spray", D6_SND_SHOT_SPRAY, -1, 0, false, { 100, 8, 101, 8, 100, 8, 101, 8, 100, 8, 100, 8, 100, 8, -1, 0 }, { 102, 5, 103, 5, -1, 0 }, { 104, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
-		{ false, 6.71f, true, false, Color(0, 0, 0), 0, 15, 0.82f, "sling", D6_SND_SHOT_SLING, -1, 0, false, { 105, 5, 106, 5, 105, 5, 107, 5, 105, 5, 105, 5, 105, 5, -1, 0 }, { 108, 50, -1, 0 }, { 22, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
-		{ false, 7.93f, true, false, Color(0, 0, 0), 0, 10, 0.9f, "stopper gun", D6_SND_SHOT_SPUNT, -1, 0, false, { 109, 5, 110, 5, 110, 5, 111, 5, 111, 5, 109, 5, 109, 5, -1, 0 }, { 112, 50, -1, 0 }, { 22, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
-		{ false, 5.49f, false, false, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", D6_SND_SHOT_SHIT, D6_SND_SHOT_SHIT_HIT, 0.04f, true, { 114, 5, 114, 5, 114, 5, 114, 5, 114, 5, 114, 5, 114, 5, -1, 0 }, { 115, 10, 116, 10, 117, 10, 116, 10, -1, 0 }, { 113, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
+		{ 0, true, 9.15f, true, false, Color(0, 0, 0), 0, 30, 0.98f, "pistol", D6_SND_SHOT_PI, -1, 0, false, { 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 1, true, 6.1f, false, true, Color(255, 0, 0), 3, 100, 3.28f, "bazooka", D6_SND_SHOT_BZ, D6_SND_BOOM_BZ, 0.01f, false, { 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0 }, { 0, 10, 1, 10, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 2, true, 12.2f, false, true, Color(0, 255, 255), 0, 100, 4.1f, "lightning gun", D6_SND_SHOT_BL, D6_SND_BOOM_BL, 0, false, { 1, 5, 2, 5, 3, 5, 4, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 10, 1, 10, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 3, true, 9.15f, true, false, Color(0, 0, 0), 0, 60, 2.29f, "shotgun", D6_SND_SHOT_SG, -1, 0, false, { 1, 5, 2, 5, 3, 5, 2, 5, 1, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 4, true, 12.2f, true, false, Color(0, 0, 0), 0, 25, 0.33f, "plasma gun", D6_SND_SHOT_PL, -1, 0, false, { 1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 5, true, 15.25f, true, false, Color(0, 0, 0), 0, 35, 0.25f, "laser", D6_SND_SHOT_LS, -1, 0, false, { 1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+		{ 6, true, 9.15f, true, false, Color(0, 0, 0), 0, 40, 0.66f, "machine gun", D6_SND_SHOT_KM, -1, 0, false, { 1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+		{ 7, true, 6.1f, false, true, Color(255, 255, 0), 4, 200, 6.56f, "triton", D6_SND_SHOT_TZ, D6_SND_BOOM_BZ, 0.04f, false, { 1, 5, 2, 5, 3, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 8, 1, 8, 2, 8, 3, 8, 4, 8, 3, 8, 2, 8, 1, 8, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },		
+		{ 8, true, 10.98f, true, false, Color(0, 0, 0), 0, 15, 0.26f, "uzi", D6_SND_SHOT_PI, -1, 0, false, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 9, true, 12.2f, true, false, Color(0, 0, 0), 0, 25, 0.82f, "bow", D6_SND_SHOT_LK, -1, 0, false, { 1, 10, 2, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+		{ 10, true, 7.93f, true, false, Color(0, 0, 0), 0, 50, 1.31f, "slime gun", D6_SND_SHOT_SM, -1, 0, false, { 1, 10, 2, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 11, true, 12.2f, true, true, Color(255, 255, 0), 2, 80, 3.44f, "double laser", D6_SND_SHOT_LS, D6_SND_BOOM_BZ, 0.005f, false, { 1, 10, 0, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 12, false, 4.27f, false, true, Color(255, 0, 255), 0, 100, 3.11f, "kiss of death", D6_SND_SHOT_KD1, D6_SND_SHOT_KD2, 0.01f, false, { 0, 8, 1, 8, 2, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
+		{ 13, false, 4.88f, false, false, Color(0, 0, 0), 0, 20, 0.66f, "spray", D6_SND_SHOT_SPRAY, -1, 0, false, { 0, 8, 1, 8, 0, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0 }, { 0, 5, 1, 5, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+		{ 14, false, 6.71f, true, false, Color(0, 0, 0), 0, 15, 0.82f, "sling", D6_SND_SHOT_SLING, -1, 0, false, { 0, 5, 1, 5, 0, 5, 2, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+		{ 15, false, 7.93f, true, false, Color(0, 0, 0), 0, 10, 0.9f, "stopper gun", D6_SND_SHOT_SPUNT, -1, 0, false, { 0, 5, 1, 5, 1, 5, 2, 5, 2, 5, 0, 5, 0, 5, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+		{ 16, false, 5.49f, false, false, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", D6_SND_SHOT_SHIT, D6_SND_SHOT_SHIT_HIT, 0.04f, true, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
 	};
 	
 	namespace
@@ -71,15 +72,18 @@ namespace Duel6
 
 	void WPN_Init()
 	{
-		const TextureManager::TextureList& textures = d6TextureManager.get(D6_TEXTURE_WPN_KEY);
-		for (Size i = 0; i < textures.size(); ++i)
+		std::set<Int32> nearestFilterBoom = { 5, 6, 9, 13, 14, 15, 16 };
+
+		for (Weapon& weap : d6WpnDef)
 		{
-			if (i < 14 || (i > 21 && i < 78) || i > 79)
-			{
-				glBindTexture(GL_TEXTURE_2D, textures[i]);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			}
+			const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << weap.index;
+			const std::string wi = std::to_string(weap.index);
+			weap.texture.boom = "wpn_boom_" + wi;
+			weap.texture.gun = "wpn_gun_" + wi;
+			weap.texture.shot = "wpn_shot_" + wi;
+			d6TextureManager.load(weap.texture.boom, Format("{0}/boom/") << wpnPath, nearestFilterBoom.find(weap.index) != nearestFilterBoom.end() ? GL_NEAREST : GL_LINEAR, true);
+			d6TextureManager.load(weap.texture.gun, Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
+			d6TextureManager.load(weap.texture.shot, Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
 		}
 
 		Color brownColor(83, 44, 0);
@@ -98,7 +102,7 @@ namespace Duel6
 		Float32 x = (player.getOrientation() == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
 		Float32 y = player.getY() - ad;
 
-		Sprite shotSprite(player.getWeapon().shotAnimation, d6TextureManager.get(D6_TEXTURE_WPN_KEY));		
+		Sprite shotSprite(player.getWeapon().shotAnimation, d6TextureManager.get(player.getWeapon().texture.shot));		
 		d6Shots.push_back(Shot(player, x, y, d6SpriteList.addSprite(shotSprite)));
 		Sound::playSample(player.getWeapon().shotSound);
 	}
@@ -253,7 +257,7 @@ namespace Duel6
 			{				
 				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
 				
-				Sprite boom(weapon.boomAnimation, d6TextureManager.get(D6_TEXTURE_WPN_KEY));
+				Sprite boom(weapon.boomAnimation, d6TextureManager.get(weapon.texture.boom));
 				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)

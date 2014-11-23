@@ -55,10 +55,16 @@
 #define D6_TEXTURE_EXPL_KEY		"expl"
 #define D6_TEXTURE_MENU_PATH	"textures/menu/"
 #define D6_TEXTURE_MENU_KEY		"menu"
-#define D6_TEXTURE_WPN_PATH		"textures/weapon/"
-#define D6_TEXTURE_WPN_KEY		"wpn"
 #define D6_TEXTURE_BLOCK_PATH	"textures/blocks/"
 #define D6_TEXTURE_BLOCK_KEY	"block"
+#define D6_TEXTURE_WATER_PATH	"textures/water/"
+#define D6_TEXTURE_WATER_B_KEY	"water_blue"
+#define D6_TEXTURE_WATER_R_KEY	"water_red"
+#define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
+#define D6_TEXTURE_ELEVATOR_KEY	"elev"
+
+#define D6_TEXTURE_WPN_PATH		"textures/weapon/"
+
 
 //#define D6_RENDER_BACKS
 
