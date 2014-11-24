@@ -65,7 +65,6 @@ namespace Duel6
 		}
 
 		void loadLevel(const std::string& path, Size background, bool mirror);
-		void findBonuses(std::vector<Bonus>& bonuses);
 		void prepareFaces();
 
 		void update(Float32 elapsedTime);

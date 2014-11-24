@@ -126,29 +126,6 @@ namespace Duel6
 		floatingVertexes.build(water, waveHeight);
 	}
 
-	void World::findBonuses(std::vector<Bonus>& bonuses)
-	{
-		for (Int32 y = 0; y < getSizeY(); y++)
-		{
-			for (Int32 x = 0; x < getSizeX(); x++)
-			{
-				Int32 blockIndex = getBlock(x, y);
-				const Block& block = blockMeta[blockIndex];
-
-				if (block.is(Block::EmptySpace))
-				{
-					for (Size k = 0; k < D6_BONUS_COUNT; k++)
-					{
-						if (blockIndex == d6BonusArt[k])
-						{
-							bonuses.push_back(Bonus(x, y, blockIndex));
-						}
-					}
-				}
-			}
-		}
-	}
-
 	void World::update(Float32 elapsedTime)
 	{
 		animWait += elapsedTime;

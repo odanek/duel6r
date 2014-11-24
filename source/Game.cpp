@@ -331,10 +331,8 @@ namespace Duel6
 
 		const std::string levelPath = levels[lastLevel];
 		d6Console.print(Format(D6_L("\n===Loading level {0}===\n")) << levelPath);
-		std::vector<Bonus> bonuses;
 		bool mirror = rand() % 2 == 0;
 		world.loadLevel(levelPath, backgrounds[rand() % backgrounds.size()], mirror);
-		world.findBonuses(bonuses);
 		world.prepareFaces();
 		d6Console.print(Format(D6_L("...Width   : {0}\n")) << world.getSizeX());
 		d6Console.print(Format(D6_L("...Height  : {0}\n")) << world.getSizeY());
@@ -350,7 +348,7 @@ namespace Duel6
 		d6Console.print(D6_L("...Level initialization\n"));
 		WPN_LevelInit();
 		EXPL_Init();
-		BONUS_Init(bonuses);
+		BONUS_Init();
 		FIRE_Find(world.getSprites());
 		renderer.initScreen();
 		winner = -1;

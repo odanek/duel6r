@@ -86,7 +86,7 @@ namespace Duel6
 		state.air = D6_MAX_AIR;
 		state.ammo = ammo;
 		state.elevator = nullptr;
-		state.bonus = 0;
+		state.bonus = -1;
 		state.bonusDuration = 0;
 		state.bonusRemainingTime = 0;
 		state.tempSkinDuration = 0;
@@ -351,7 +351,7 @@ namespace Duel6
 				{
 					setAlpha(1.0f);
 				}
-				state.bonus = 0;
+				state.bonus = -1;
 				state.bonusRemainingTime = 0;
 				state.bonusDuration = 0;
 			}

@@ -33,8 +33,6 @@
 
 namespace Duel6
 {
-	int d6BonusArt[D6_BONUS_COUNT] = { 19, 20, 21, 22, 23, 24, 25, 46, 53, 26 };  // Question mark must be the last
-
 	void Bonus::render() const
 	{
 		Float32 rx = Float32(x);
@@ -56,6 +54,6 @@ namespace Duel6
 			return d6TextureManager.get(weaponType->texture.gun)[weaponType->animation[12]];
 		}
 
-		return d6TextureManager.get(D6_TEXTURE_BLOCK_KEY)[type];
+		return d6TextureManager.get(D6_TEXTURE_BONUS_KEY)[type];
 	}
 }

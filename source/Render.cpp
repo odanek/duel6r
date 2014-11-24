@@ -266,13 +266,13 @@ namespace Duel6
 		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
 		font.print(ibp[0] + 92 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
 
-		if (player.getBonus() != 0)
+		if (player.getBonus() != -1)
 		{
 			Int32 bonusBarLength = Int32(0.5f + (player.getBonusRemainingTime() * 16) / player.getBonusDuration());
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_BLOCK_KEY)[player.getBonus()]);
+			glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_BONUS_KEY)[player.getBonus()]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);

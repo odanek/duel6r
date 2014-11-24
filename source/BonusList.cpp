@@ -37,13 +37,9 @@ namespace Duel6
 {
 	static std::list<Bonus> d6Bonuses;
 
-	void BONUS_Init(const std::vector<Bonus>& initialBonuses)
+	void BONUS_Init()
 	{
 		d6Bonuses.clear();
-		for (const Bonus& bonus : initialBonuses)
-		{
-			d6Bonuses.push_back(bonus);
-		}
 	}
 
 	void BONUS_DrawAll()
@@ -77,7 +73,7 @@ namespace Duel6
 			}
 			else
 			{
-				d6Bonuses.push_back(Bonus(x, y, d6BonusArt[rand() % D6_BONUS_COUNT]));				
+				d6Bonuses.push_back(Bonus(x, y, rand() % D6_BONUS_COUNT));				
 			}
 		}
 	}
@@ -108,7 +104,7 @@ namespace Duel6
 	{
 		Int32 duration = 13 + rand() % 17;
 		Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
-		Size type = (bonus.getType() == D6_BONUS_GUESS) ? d6BonusArt[rand() % (D6_BONUS_COUNT - 1)] : bonus.getType();
+		Size type = (bonus.getType() == D6_BONUS_GUESS) ? rand() % (D6_BONUS_COUNT - 1) : bonus.getType();
 
 		switch (type)
 		{

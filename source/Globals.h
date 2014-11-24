@@ -62,6 +62,9 @@
 #define D6_TEXTURE_WATER_R_KEY	"water_red"
 #define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
 #define D6_TEXTURE_ELEVATOR_KEY	"elev"
+#define D6_TEXTURE_BONUS_PATH	"textures/bonus/"
+#define D6_TEXTURE_BONUS_KEY	"bonus"
+#define D6_TEXTURE_FIRE_PATH	"textures/fire/"
 
 #define D6_TEXTURE_WPN_PATH		"textures/weapon/"
 
@@ -105,7 +108,6 @@ namespace Duel6
 	extern InfoMessageQueue d6MessageQueue;
 	extern SpriteList d6SpriteList;
 	extern Weapon d6WpnDef[D6_WEAPONS];
-	extern Int32 d6BonusArt[D6_BONUS_COUNT];
 }
 
 #endif

@@ -47,16 +47,16 @@ namespace Duel6
 
 	enum BonusType
 	{
-		D6_BONUS_LIFEP = 19,
+		D6_BONUS_LIFEP = 0,
 		D6_BONUS_LIFEM,
 		D6_BONUS_LIFEF,
 		D6_BONUS_SHOTS,
 		D6_BONUS_SHOTP,
 		D6_BONUS_INVUL,
 		D6_BONUS_BULLT,
-		D6_BONUS_GUESS,
-		D6_BONUS_SPEED = 46,
-		D6_BONUS_INVIS = 53
+		D6_BONUS_SPEED,
+		D6_BONUS_INVIS,
+		D6_BONUS_GUESS // GUESS must be the last type
 	};
 
 	// TODO: Split into Bonus and LyingWeapon

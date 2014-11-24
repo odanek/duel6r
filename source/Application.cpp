@@ -173,6 +173,7 @@ namespace Duel6
 		d6TextureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
 		d6TextureManager.load(D6_TEXTURE_ELEVATOR_KEY, D6_TEXTURE_ELEVATOR_PATH, GL_LINEAR, true);
 		d6TextureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
+		d6TextureManager.load(D6_TEXTURE_BONUS_KEY, D6_TEXTURE_BONUS_PATH, GL_LINEAR, true);
 
 		d6TextureManager.load(D6_TEXTURE_WATER_B_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true);
 		TextureManager::SubstitutionTable redWater;

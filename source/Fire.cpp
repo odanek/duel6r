@@ -38,35 +38,40 @@
 
 namespace Duel6
 {
+	struct FireType
+	{
+		Int32 index;
+		Int32 block;
+		std::string textureKey;
+	};
+
 	struct Fire
 	{
 		Float32 x;
 		Float32 y;
 		Face* face;
-		Size type;
+		FireType* type;
 		bool burned;
 	};
 
-	Size d6FireType[D6_FIRES] = { 11, 15 };
-	std::vector<Fire> d6Fires;
-	Int16 d6FireAnm[D6_FIRES][20] =
+	FireType d6FireTypes[D6_FIRES] = 
 	{
-		{ 12, 20, 13, 20, 12, 20, 13, 20, 12, 20, 13, 20, 12, 20, 13, 20, 14, 100, -1, 0 },
-		{ 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 16, 20, 17, 20, 18, 100, -1, 0 }
+		{ 0, 11 },
+		{ 1, 12 }
 	};
+	std::vector<Fire> d6Fires;
+	Int16 d6FireAnm[20] = { 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0 };
 
 	void FIRE_Init()
 	{
-		const TextureManager::TextureList& textures = d6TextureManager.get(D6_TEXTURE_BLOCK_KEY);
-
-		for (Size i = 0; i < D6_FIRES; i++)
+		for (FireType& ft : d6FireTypes)
 		{
-			for (Size j = 3; j < 4; j++)
-			{
-				glBindTexture(GL_TEXTURE_2D, textures[d6FireType[i] + j]);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			}
+			ft.textureKey = "fire_" + std::to_string(ft.index);
+			d6TextureManager.load(ft.textureKey, Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << ft.index, GL_LINEAR, true);
+
+			glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(ft.textureKey)[2]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
 	}
 
@@ -77,16 +82,16 @@ namespace Duel6
 		Size i = 0;
 		for (Face& face : sprites.getFaces())
 		{
-			for (Size j = 0; j < D6_FIRES; j++)
+			for (FireType& ft : d6FireTypes)
 			{
-				if (face.getBaseTexture() == d6FireType[j])
+				if (face.getBaseTexture() == ft.block)
 				{
 					Fire fire;
 					fire.x = sprites.getVertexes()[i << 2].x;
 					fire.y = sprites.getVertexes()[i << 2].y - 1.0f;
 					fire.burned = false;
 					fire.face = &face;
-					fire.type = j;
+					fire.type = &ft;
 					d6Fires.push_back(fire);
 				}
 			}
@@ -112,7 +117,7 @@ namespace Duel6
 					fire.burned = true;
 					fire.face->hide();
 
-					Sprite fireSprite(d6FireAnm[fire.type], textures);
+					Sprite fireSprite(d6FireAnm, d6TextureManager.get(fire.type->textureKey));
 					fireSprite.setPosition(fire.x, fire.y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					d6SpriteList.addSprite(fireSprite);

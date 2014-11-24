@@ -177,6 +177,11 @@ namespace Duel6
 		fileNames.clear();
 
 		DIR* handle = opendir(path.c_str());
+		if (handle == nullptr)
+		{
+			D6_THROW(IoException, "Invalid directory specified: " + path);
+		}
+
 		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
 
 		while (ff != nullptr)
