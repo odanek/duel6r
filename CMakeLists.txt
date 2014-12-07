@@ -153,6 +153,10 @@ set(D6R_SOURCES
     source/console/console.h
     source/console/convar.cpp    
     source/console/ConsoleException.h
+
+	source/json/Json.cpp
+	source/json/Json.h
+	source/json/JsonException.h
 )
 
 if(WIN32)
