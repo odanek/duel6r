@@ -138,7 +138,6 @@ namespace Duel6
 		void loadBlockMeta(const std::string& path);
 
 		void mirrorLevelData();
-		void loadElevators(File& f, bool mirror);
 
 		void addWallFaces();
 		void addSpriteFaces();

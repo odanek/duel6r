@@ -263,7 +263,7 @@ namespace Duel6
 		listbox[3]->addItem(D6_L("Random"));
 		for (Size i = 0; i < levelList.getLength(); i++)
 		{
-			listbox[3]->addItem(levelList.getFileName(i));
+			listbox[3]->addItem(levelList.getFileName(i).substr(0, levelList.getFileName(i).rfind(".")));
 		}
 
 		listbox[4]->addItem(D6_L("Random"));

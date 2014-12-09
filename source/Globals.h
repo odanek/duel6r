@@ -71,7 +71,7 @@
 
 //#define D6_RENDER_BACKS
 
-#define D6_LEVEL_EXTENSION		".lev"
+#define D6_LEVEL_EXTENSION		".json"
 
 #define D6_SPRITE_SPEED_COEF	61
 

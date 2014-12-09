@@ -32,6 +32,7 @@
 #include "Format.h"
 #include "Lang.h"
 #include "Globals.h"
+#include "json/Json.h"
 
 namespace Duel6
 {
@@ -59,49 +60,38 @@ namespace Duel6
 		backgroundTexture = d6TextureManager.get(D6_TEXTURE_BCG_KEY)[background];
 		levelData.clear();
 
-		File file(path, "rb");
-		file.read(&width, 4, 1);
-		file.read(&height, 4, 1);
-		file.seek(12, File::Seek::Set);
-		levelData.resize(width * height);
-		file.read(&levelData[0], 2, levelData.size());
+		Json::Parser parser;
+		const Json::Value& root = parser.parse(path);
+
+		width = root.get("width").asInt();
+		height = root.get("height").asInt();
+		
+		Int32 blockCount = width * height;
+		const Json::Value& blocks = root.get("blocks");
+		levelData.resize(blockCount);
+		for (Size i = 0; i < blocks.getLength(); i++)
+		{
+			levelData[i] = blocks.get(i).asInt();
+		}
+
+		ELEV_Clear();
+		Size elevators = root.get("elevators").getLength();
+		for (Size i = 0; i < elevators; i++)
+		{
+			Elevator elevator;
+			const Json::Value& points = root.get("elevators").get(i).get("controlPoints");
+			for (Size j = 0; j < points.getLength(); j++)
+			{
+				Int32 x = points.get(j).get("x").asInt();
+				Int32 y = points.get(j).get("y").asInt();
+				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y));
+			}
+			ELEV_Add(elevator);
+		}
 
 		if (mirror)
 		{
 			mirrorLevelData();
-		}
-
-		loadElevators(file, mirror);
-		file.close();                
-	}
-
-	void World::loadElevators(File& file, bool mirror)
-	{
-		// The rest of file is elevator data
-		d6Console.print(D6_L("...Loading elevators - "));
-		
-		Int32 elevators;
-		file.read(&elevators, 4, 1);
-
-		d6Console.print(Format(D6_L("{0} elevators\n")) << elevators);
-
-		ELEV_Clear();
-		
-		while (elevators-- > 0)
-		{
-			Elevator elevator;
-
-			Int32 controlPoints;
-			file.read(&controlPoints, 4, 1);
-
-			for (Int32 i = 0; i < controlPoints + 1; ++i)
-			{
-				Int32 pos[2];
-				file.read(pos, 4, 2);
-				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - pos[0] : pos[0], height - pos[1]));
-			}
-
-			ELEV_Add(elevator);
 		}
 	}
 
