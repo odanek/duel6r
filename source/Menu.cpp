@@ -148,68 +148,82 @@ namespace Duel6
 
 		listbox[0] = new Gui::Listbox(gui, true);
 		listbox[0]->setPosition(10, 199, 94, 12, 16);
-		listbox[0]->setNG(12, 1);
 
 		listbox[1] = new Gui::Listbox(gui, true);
 		listbox[1]->setPosition(10, 470, 20, 13, 18);
-		listbox[1]->setNG(0, 1);
 
 		listbox[2] = new Gui::Listbox(gui, false);
 		listbox[2]->setPosition(200, 470, 20, D6_MAX_PLAYERS, 18);
-		listbox[2]->setNG(1, 1);
 
 		listbox[3] = new Gui::Listbox(gui, true);
 		listbox[3]->setPosition(644, 410, 13, 6, 16);
-		listbox[3]->setNG(2, 1);
 
 		listbox[4] = new Gui::Listbox(gui, true);
 		listbox[4]->setPosition(500, 363, 13, 3, 16);
-		listbox[4]->setNG(3, 1);
 
 		listbox[5] = new Gui::Listbox(gui, false);
 		listbox[5]->setPosition(644, 470, 15, 2, 16);
-		listbox[5]->setNG(4, 1);
 		listbox[5]->addItem(D6_L("Fullscreen"));
 		listbox[5]->addItem(D6_L("Split screen"));
 
 		listbox[6] = new Gui::Listbox(gui, true);
 		listbox[6]->setPosition(500, 470, 13, 5, 16);
-		listbox[6]->setNG(5, 1);
 
 		button[0] = new Gui::Button(gui);
 		button[0]->setPosition(200, 318, 80, 31);
 		button[0]->setCaption(">>");
-		button[0]->setNG(6, 1);
+		button[0]->onClick([this](const Gui::Event&) {
+			addPlayer();
+		});
 
 		button[1] = new Gui::Button(gui);
 		button[1]->setPosition(200, 283, 80, 31);
 		button[1]->setCaption("<<");
-		button[1]->setNG(7, 1);
+		button[1]->onClick([this](const Gui::Event&) {
+			removePlayer(listbox[2]->curItem());
+		});
 
 		button[2] = new Gui::Button(gui);
 		button[2]->setPosition(284, 318, 80, 31);
 		button[2]->setCaption(D6_L("Remove"));
-		button[2]->setNG(8, 1);
+		button[2]->onClick([this](const Gui::Event&) {
+			deletePerson();
+			rebuildTable();
+		});
 
 		button[3] = new Gui::Button(gui);
 		button[3]->setPosition(284, 283, 80, 31);
 		button[3]->setCaption(D6_L("Add"));
-		button[3]->setNG(9, 1);
+		button[3]->onClick([this](const Gui::Event&) {
+			addPerson();
+		});
 
 		button[6] = new Gui::Button(gui);
 		button[6]->setPosition(370, 318, 120, 31);
 		button[6]->setCaption(D6_L("Clear (F3)"));
-		button[6]->setNG(30, 1);
+		button[6]->onClick([this](const Gui::Event&) {
+			if (deleteQuestion())
+			{
+				cleanPersonData();
+			}
+		});
 
 		button[4] = new Gui::Button(gui);
 		button[4]->setPosition(500, 299, 125, 73);
 		button[4]->setCaption(D6_L("Play (F1)"));
-		button[4]->setNG(10, 1);
+		button[4]->onClick([this](const Gui::Event&) {
+			if (playingPersons.size() > 1)
+			{
+				play();
+			}
+		});
 
 		button[5] = new Gui::Button(gui);
 		button[5]->setPosition(644, 299, 125, 73);
 		button[5]->setCaption(D6_L("Quit (ESC)"));
-		button[5]->setNG(11, 1);
+		button[5]->onClick([this](const Gui::Event&) {
+			sendQuitEvent();
+		});
 
 		label[0] = new Gui::Label(gui);
 		label[0]->setPosition(10, 219, 772, 18);
@@ -245,14 +259,12 @@ namespace Duel6
 
 		textbox = new Gui::Textbox(gui);
 		textbox->setPosition(200, 248, 19, 10, D6_ALL_CHR);
-		textbox->setNG(13, 1);
 
 		// Switchbox - volba ovladani
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			controlSwitch[i] = new Gui::Combobox(gui);
 			controlSwitch[i]->setPosition(370, 468 - i * 18, 120, 0);
-			controlSwitch[i]->setNG(14 + i, 1);
 		}
 
 		joyRescan();
@@ -560,52 +572,13 @@ namespace Duel6
 
 	void Menu::update(Float32 elapsedTime)
 	{
-		static  float sync = 0, wait = 0.0163f;
-		Gui::EventType event;
-		Gui::Control* from;
+		static Float32 sync = 0, wait = 0.0163f;
 
 		sync += elapsedTime;
-
 		while (sync > wait)
 		{
 			sync -= wait;
-
-			gui.check(event, from);
-			if (event == Gui::EventType::Released && from->getGroup() == 1)
-			{
-				// TODO: Eliminate nubmer and group and change to callbacks
-				switch (from->getNumber())
-				{
-				case 6:
-					addPlayer();
-					break;
-				case 7:
-					removePlayer(listbox[2]->curItem());
-					break;
-				case 8:
-					deletePerson();
-					rebuildTable();
-					break;
-				case 9:
-					addPerson();
-					break;
-				case 10:
-					if (playingPersons.size() > 1)
-					{
-						play();
-					}
-					break;
-				case 11:
-					sendQuitEvent();
-					return;
-				case 30:
-					if (deleteQuestion())
-					{
-						cleanPersonData();
-					}
-					break;
-				}
-			}
+			gui.update();
 		}
 	}
 

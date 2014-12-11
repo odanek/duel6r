@@ -31,8 +31,6 @@
 #include <string>
 #include <vector>
 
-#define GLIB_SC_GROUP       0
-
 namespace Duel6
 {
 	namespace Gui
@@ -97,13 +95,40 @@ namespace Duel6
 			Slider
 		};
 
-		enum class EventType
+		class Event
 		{
-			None,
-			Pressed,
-			Change,
-			Released,
-			Active
+		public:
+			typedef std::function<void(const Event&)> Callback;
+
+		public:
+			enum class Type
+			{
+				None,
+				Pressed,
+				Change,
+				Released,
+				Active,
+				Click
+			};
+
+		private:
+			Control& sender;
+			Type type;
+
+		public:
+			Event(Control& sender, Type type)
+				: sender(sender), type(type)
+			{}
+
+			Control& getSender() const
+			{
+				return sender;
+			}
+
+			Type getType() const
+			{
+				return type;
+			}
 		};
 
 		class Desktop
@@ -113,14 +138,14 @@ namespace Duel6
 			Int32 screenHeight;
 			Int32 trX; // x translation
 			Int32 trY; // y translation
-			std::vector<Control*> controls;
+			std::vector<std::unique_ptr<Control>> controls;
 
 		public:
 			Desktop();
 			~Desktop();
 
 			void screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY);
-			void check(EventType &event, Control*& from);
+			void update();
 			void draw(const Font& font) const;
 
 			void keyEvent(SDL_Keycode keyCode);
@@ -133,7 +158,7 @@ namespace Duel6
 		class Control
 		{
 		protected:
-			int x, y, number, group;
+			int x, y;
 
 		public:
 			Control(Desktop& desk)
@@ -145,7 +170,7 @@ namespace Duel6
 			{
 			}
 
-			virtual EventType check(const GuiContext& context) = 0;
+			virtual void check(const GuiContext& context) = 0;
 			virtual void draw(const Font& font) const = 0;
 			virtual ControlType getType() const = 0;
 
@@ -154,22 +179,6 @@ namespace Duel6
 
 			virtual void textInputEvent(const char* text)
 			{}
-
-			void setNG(int n, int g)
-			{
-				number = n;
-				group = g;
-			}
-
-			int getNumber() const
-			{
-				return number;
-			}
-
-			int getGroup() const
-			{
-				return group;
-			}
 
 			int getX() const
 			{
@@ -201,17 +210,18 @@ namespace Duel6
 			: public Control
 		{
 		private:
-			int     width, height;
-			bool    pressed;
+			std::vector<Event::Callback> clickListeners;
+			Int32 width, height;
+			bool pressed;
 			std::string caption;
 
 		public:
 			Button(Desktop& desk);
 			~Button();
-			void    setCaption(const std::string& caption);
-			void    setPosition(int X, int Y, int W, int H);
-			EventType check(const GuiContext& context) override;
-			void    draw(const Font& font) const override;
+			void setCaption(const std::string& caption);
+			void setPosition(int X, int Y, int W, int H);
+			void check(const GuiContext& context) override;
+			void draw(const Font& font) const override;
 
 			bool isPressed() const
 			{
@@ -221,6 +231,11 @@ namespace Duel6
 			ControlType getType() const override
 			{
 				return ControlType::Button;
+			}
+
+			void onClick(Event::Callback listener)
+			{
+				clickListeners.push_back(listener);
 			}
 		};
 
@@ -244,14 +259,14 @@ namespace Duel6
 		public:
 			Listbox(Desktop& desk, bool sb);
 			~Listbox();
-			EventType check(const GuiContext& context) override;
-			void    draw(const Font& font) const override;
-			void    setPosition(int X, int Y, int W, int H, int fH);
-			void    addItem(const std::string& item);
-			void    delItem(int n);
-			int     curItem();
-			void    setCur(int n);
-			void    clear();
+			void check(const GuiContext& context) override;
+			void draw(const Font& font) const override;
+			void setPosition(int X, int Y, int W, int H, int fH);
+			void addItem(const std::string& item);
+			void delItem(int n);
+			int curItem();
+			void setCur(int n);
+			void clear();
 
 			ControlType getType() const override
 			{
@@ -268,21 +283,21 @@ namespace Duel6
 			: public Control
 		{
 		private:
-			Button    *left, *right;
-			int         width, now;
+			Button *left, *right;
+			Int32 width, now;
 			std::vector<std::string> items;
 
 		public:
 			Combobox(Desktop& desk);
 			~Combobox();
-			EventType check(const GuiContext& context) override;
-			void    draw(const Font& font) const override;
-			void    setPosition(int X, int Y, int W, int H);
-			void    addItem(const std::string& item);
-			void    delItem(int n);
-			void    setCur(int n);
-			int     curItem();
-			void    clear();
+			void check(const GuiContext& context) override;
+			void draw(const Font& font) const override;
+			void setPosition(int X, int Y, int W, int H);
+			void addItem(const std::string& item);
+			void delItem(int n);
+			void setCur(int n);
+			int curItem();
+			void clear();
 
 			ControlType getType() const override
 			{
@@ -299,16 +314,16 @@ namespace Duel6
 			: public Control
 		{
 		private:
-			int width, height;
+			Int32 width, height;
 			std::string text;
 
 		public:
 			Label(Desktop& desk);
 			~Label();
-			void    setCaption(const std::string& caption);
-			void    setPosition(int X, int Y, int W, int H);
-			EventType check(const GuiContext& context) override;
-			void    draw(const Font& font) const override;
+			void setCaption(const std::string& caption);
+			void setPosition(int X, int Y, int W, int H);
+			void check(const GuiContext& context) override;
+			void draw(const Font& font) const override;
 
 			ControlType getType() const override
 			{
@@ -326,15 +341,15 @@ namespace Duel6
 		{
 		private:
 			SliderPosition *pos;
-			Button    *up, *down;
-			int         height, dWait, pWait;
+			Button *up, *down;
+			Int32 height, dWait, pWait;
 
 		public:
 			Slider(Desktop& desk);
-			void    setPosition(int X, int Y, int H);
-			void    connect(SliderPosition *to);
-			void    draw(const Font& font) const override;
-			EventType check(const GuiContext& context) override;
+			void setPosition(int X, int Y, int H);
+			void connect(SliderPosition *to);
+			void draw(const Font& font) const override;
+			void check(const GuiContext& context) override;
 
 			ControlType getType() const override
 			{
@@ -351,7 +366,7 @@ namespace Duel6
 			: public Control
 		{
 		private:
-			int max, width;
+			Int32 max, width;
 			std::string text;
 			std::string allowedCharacters;
 
@@ -363,10 +378,9 @@ namespace Duel6
 			void flush();
 
 			void draw(const Font& font) const override;
-			EventType check(const GuiContext& context) override;
+			void check(const GuiContext& context) override;
 			void textInputEvent(const char* text) override;
 			void keyEvent(SDL_Keycode keyCode) override;
-
 
 			ControlType getType() const override
 			{

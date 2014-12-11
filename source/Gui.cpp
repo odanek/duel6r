@@ -35,10 +35,7 @@ namespace Duel6
 {
 	namespace Gui
 	{
-		static int     glibSCN;
-		static Color   glibCBack(192, 192, 192),
-			glibCFL(235, 235, 235),
-			glibCFD(0, 0, 0);
+		static Color glibCBack(192, 192, 192), glibCFL(235, 235, 235), glibCFD(0, 0, 0);
 
 		void Control::drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p) const
 		{
@@ -105,7 +102,7 @@ namespace Duel6
 			height = H;
 		}
 
-		EventType Button::check(const GuiContext& context)
+		void Button::check(const GuiContext& context)
 		{
 			const MouseState& ms = context.getMouseState();
 
@@ -114,7 +111,6 @@ namespace Duel6
 				if (!pressed)
 				{
 					pressed = true;
-					return EventType::Pressed;
 				}
 			}
 			else
@@ -122,16 +118,17 @@ namespace Duel6
 				if (pressed)
 				{
 					pressed = false;
-					return EventType::Released;
+					for (auto& callback : clickListeners)
+					{
+						callback(Event(*this, Event::Type::Click));
+					}
 				}				
 			}
-
-			return EventType::None;
 		}
 
 		void Button::draw(const Font& font) const
 		{
-			int     px, py;
+			Int32 px, py;
 
 			drawFrame(x, y, width, height, pressed);
 			px = x + (width >> 1) - (caption.length() << 2) + pressed;
@@ -154,7 +151,6 @@ namespace Duel6
 			if (sb)
 			{
 				slider = new Slider(desk);
-				slider->setNG(glibSCN++, GLIB_SC_GROUP);
 				slider->connect(&listPos);
 			}
 		}
@@ -214,7 +210,7 @@ namespace Duel6
 				slider->setPosition(X + (W << 3) + 4, Y, H * fH + 4);
 		}
 
-		EventType Listbox::check(const GuiContext& context)
+		void Listbox::check(const GuiContext& context)
 		{
 			const MouseState& ms = context.getMouseState();
 
@@ -223,10 +219,8 @@ namespace Duel6
 				now = listPos.start + ((y - ms.getY()) / field_height);
 				if (now >= listPos.items)
 					now = listPos.items - 1;
-				return EventType::Change;
+				// Event: Change
 			}
-
-			return EventType::None;
 		}
 
 		void Listbox::draw(const Font& font) const
@@ -279,10 +273,8 @@ namespace Duel6
 
 			left = new Button(desk);
 			left->setCaption(" ");
-			left->setNG(glibSCN++, GLIB_SC_GROUP);
 			right = new Button(desk);
 			right->setCaption(" ");
-			right->setNG(glibSCN++, GLIB_SC_GROUP);
 		}
 
 		Combobox::~Combobox()
@@ -334,10 +326,10 @@ namespace Duel6
 			y = Y;
 		}
 
-		EventType Combobox::check(const GuiContext& context)
+		void Combobox::check(const GuiContext& context)
 		{
-			static int  pWait = 0;
-			bool        change = false;
+			static Int32 pWait = 0;
+			bool change = false;
 
 			if (pWait)
 				pWait--;
@@ -364,10 +356,8 @@ namespace Duel6
 
 			if (change)
 			{
-				return EventType::Change;
+				// EventType::Change;
 			}
-
-			return EventType::None;
 		}
 
 		void Combobox::draw(const Font& font) const
@@ -444,10 +434,8 @@ namespace Duel6
 			font.print(x, y - 15, Color(0), text);
 		}
 
-		EventType Label::check(const GuiContext& context)
-		{
-			return EventType::None;
-		}
+		void Label::check(const GuiContext& context)
+		{}
 
 		/*
 		================
@@ -459,10 +447,8 @@ namespace Duel6
 		{
 			up = new Button(desk);
 			up->setCaption(" ");
-			up->setNG(glibSCN++, GLIB_SC_GROUP);
 			down = new Button(desk);
 			down->setCaption(" ");
-			down->setNG(glibSCN++, GLIB_SC_GROUP);
 			pos = nullptr;
 		}
 
@@ -480,9 +466,9 @@ namespace Duel6
 			pos = to;
 		}
 
-		EventType Slider::check(const GuiContext& context)
+		void Slider::check(const GuiContext& context)
 		{
-			int     h = height, o = pos->start;
+			Int32 h = height, o = pos->start;
 
 			if (!up->isPressed() && !down->isPressed())
 				pWait = 0;
@@ -525,10 +511,8 @@ namespace Duel6
 
 			if (pos->start != o)
 			{
-				return EventType::Change;
+				// EventType::Change;
 			}
-
-			return EventType::None;
 		}
 
 		void Slider::draw(const Font& font) const
@@ -641,16 +625,14 @@ namespace Duel6
 			text.clear();
 		}
 
-		EventType Textbox::check(const GuiContext& context)
+		void Textbox::check(const GuiContext& context)
 		{
 			const MouseState& ms = context.getMouseState();
 
 			if (ms.isPressed() && ms.isInside(x, y, (width + 1) << 3, 18))
 			{
-				return EventType::Active;
+				// EventType::Active;
 			}
-
-			return EventType::None;
 		}
 
 		void Textbox::draw(const Font& font) const
@@ -676,20 +658,15 @@ namespace Duel6
 		*/
 		Desktop::Desktop()
 		{
-			glibSCN = 0;
 		}
 
 		Desktop::~Desktop()
 		{
-			for (Control* control : controls)
-			{
-				delete control;
-			}
 		}
 
 		void Desktop::addControl(Control* control)
 		{
-			controls.push_back(control);
+			controls.push_back(std::unique_ptr<Control>(control));
 		}
 
 		void Desktop::screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY)
@@ -700,7 +677,7 @@ namespace Duel6
 			this->trY = trY;
 		}
 
-		void Desktop::check(EventType &event, Control*& from)
+		void Desktop::update()
 		{
 			Int32 mx, my, mb;
 			mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
@@ -708,15 +685,9 @@ namespace Duel6
 			my = screenHeight - my - trY;
 			GuiContext context(MouseState(mx, my, mb != 0));
 
-			event = EventType::None;
-			for (Control* control : controls)
+			for (auto& control : controls)
 			{
-				EventType controlEvent = control->check(context);
-				if (controlEvent != EventType::None)
-				{
-					event = controlEvent;
-					from = control;
-				}
+				control->check(context);
 			}
 		}
 
@@ -733,7 +704,7 @@ namespace Duel6
 			glPushMatrix();
 			glTranslatef((GLfloat)trX, (GLfloat)trY, 0);
 
-			for (Control* control : controls)
+			for (auto& control : controls)
 			{
 				control->draw(font);
 			}
@@ -743,7 +714,7 @@ namespace Duel6
 
 		void Desktop::keyEvent(SDL_Keycode keyCode)
 		{
-			for (Control* control : controls)
+			for (auto& control : controls)
 			{
 				control->keyEvent(keyCode);
 			}
@@ -751,7 +722,7 @@ namespace Duel6
 
 		void Desktop::textInputEvent(const char* text)
 		{
-			for (Control* control : controls)
+			for (auto& control : controls)
 			{
 				control->textInputEvent(text);
 			}
