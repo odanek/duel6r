@@ -136,6 +136,7 @@ namespace Duel6
 
 	private:
 		void loadBlockMeta(const std::string& path);
+		Block::Type determineBlockType(const std::string& kind) const;
 
 		void mirrorLevelData();
 

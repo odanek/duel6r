@@ -49,18 +49,22 @@ namespace Duel6
 		};
 
 	private:
-		Uint32 texture;
+		Size index;
 		Type type;
-		Int32 animationFrames;
+		std::vector<Int32> textures;
 
 	public:
-		Block(Uint32 texture, Type type, Int32 animationFrames)
-			: texture(texture), type(type), animationFrames(animationFrames)
+		Block(Size index, Type type, const std::vector<Int32>& textures)
+			: index(index), type(type), textures(textures)
 		{}
 
-		Uint32 getTexture() const
+		Block(Size index, Type type, std::vector<Int32>&& textures)
+			: index(index), type(type), textures(textures)
+		{}
+
+		Size getIndex() const
 		{
-			return texture;
+			return index;
 		}
 
 		Type getType() const
@@ -68,9 +72,14 @@ namespace Duel6
 			return type;
 		}
 
-		Int32 getAnimationFrames() const
+		const std::vector<Int32>& getTextures() const
 		{
-			return animationFrames;
+			return textures;
+		}
+
+		Size getAnimationFrames() const
+		{
+			return textures.size();
 		}
 
 		bool is(Type type) const

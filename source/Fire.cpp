@@ -33,6 +33,7 @@
 #include "Sprite.h"
 #include "TextureManager.h"
 #include "SpriteList.h"
+#include "World.h"
 
 #define D6_FIRES        2
 
@@ -56,11 +57,11 @@ namespace Duel6
 
 	FireType d6FireTypes[D6_FIRES] = 
 	{
-		{ 0, 11 },
-		{ 1, 12 }
+		{ 0, 7 },
+		{ 1, 8 }
 	};
-	std::vector<Fire> d6Fires;
-	Int16 d6FireAnm[20] = { 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0 };
+	static std::vector<Fire> d6Fires;
+	static Int16 d6FireAnm[20] = { 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0 };
 
 	void FIRE_Init()
 	{
@@ -84,7 +85,7 @@ namespace Duel6
 		{
 			for (FireType& ft : d6FireTypes)
 			{
-				if (face.getBaseTexture() == ft.block)
+				if (face.getBlock().getIndex() == ft.block)
 				{
 					Fire fire;
 					fire.x = sprites.getVertexes()[i << 2].x;

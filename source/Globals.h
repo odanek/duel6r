@@ -32,13 +32,13 @@
 #include "console/console.h"
 #include "PlayerSkinColors.h"
 
-#define APP_VERSION         "3.13.0"
+#define APP_VERSION         "3.14.0"
 #define APP_NAME            "Duel 6 Reloaded"
 #define APP_FILE_ICON       "data/duel6_icon.bmp"
 #define APP_FILE_FONT       "data/duel6.fon"
 
 #define D6_FILE_CONFIG      "data/config.txt"
-#define D6_FILE_ANM         "data/duel6.anm"
+#define D6_FILE_BLOCK_META  "data/blocks.json"
 #define D6_FILE_COS         "data/sin.tab"
 #define D6_FILE_FONT        "data/duel6.fon"
 #define D6_FILE_LEVEL       "levels/"

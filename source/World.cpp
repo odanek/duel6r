@@ -32,27 +32,53 @@
 #include "Format.h"
 #include "Lang.h"
 #include "Globals.h"
+#include "DataException.h"
 #include "json/Json.h"
 
 namespace Duel6
 {
+	Block::Type World::determineBlockType(const std::string& kind) const
+	{
+		static std::vector<std::string> typeNames = {
+			"EMPTY_SPACE",
+			"WALL",
+			"WATER",
+			"FRONT_SPRITE",
+			"BACK_SPRITE",
+			"FRONT_AND_BACK_SPRITE",
+			"FRONT4_SPRITE",
+			"BACK4_SPRITE",
+			"WATERFALL"
+		};
+
+		auto typeIter = std::find(typeNames.begin(), typeNames.end(), kind);
+		if (typeIter == typeNames.end())
+		{
+			D6_THROW(DataException, std::string("Unknown block type: ") + kind);
+		}
+
+		return (Block::Type)(typeIter - typeNames.begin());
+	}
+
 	void World::loadBlockMeta(const std::string& path)
 	{
-		blockMeta.clear();		
-		File file(path, "rb");
+		blockMeta.clear();
 
-		Size blocks = File::getSize(path) / 8;
-		for (Size i = 0; i < blocks; ++i)
+		Json::Parser parser;
+		const Json::Value& root = parser.parse(path);
+
+		for (Size i = 0; i < root.getLength(); i++)
 		{
-			Int32 blockAnimations;			
-			file.read(&blockAnimations, 4, 1);
-
-			Int32 blockType;
-			file.read(&blockType, 4, 1);
-
-			blockMeta.push_back(Block(i, (Block::Type)blockType, blockAnimations));
+			const Json::Value& block = root.get(i);
+			Block::Type type = determineBlockType(block.get("kind").asString());
+			const Json::Value& animations = block.get("animations");
+			std::vector<Int32> textures;
+			for (Size j = 0; j < animations.getLength(); j++)
+			{
+				textures.push_back(animations.get(j).asInt());
+			}
+			blockMeta.push_back(Block(blockMeta.size(), type, std::move(textures)));
 		}
-		file.close();
 	}
 
 	void World::loadLevel(const std::string& path, Size background, bool mirror)

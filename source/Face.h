@@ -36,34 +36,32 @@ namespace Duel6
 	class Face
 	{
 	private:
-		Uint32 nowTex;
-		Uint32 minTex;
-		Uint32 maxTex;
+		const Block* block;
+		Size currentAnimationFrame;
+		bool hidden;
 
 	public:
 		Face(const Block& block)
+			: block(&block), currentAnimationFrame(0), hidden(false)
 		{
-			minTex = block.getTexture();
-			maxTex = block.getTexture() + block.getAnimationFrames();
-			nowTex = block.getTexture();
 		}
 
-		Uint32 getBaseTexture() const
+		const Block& getBlock() const
 		{
-			return minTex;
+			return *block;
 		}
 
 		Uint32 getCurrentTexture() const
 		{
-			return nowTex;
+			return hidden ? 0 : block->getTextures()[currentAnimationFrame];
 		}
 
 		/** Next animation frame. */
 		Face& nextFrame()
 		{
-			if (++nowTex > maxTex)
+			if (++currentAnimationFrame >= block->getAnimationFrames())
 			{
-				nowTex = minTex;
+				currentAnimationFrame = 0;
 			}
 
 			return *this;
@@ -72,7 +70,7 @@ namespace Duel6
 		/** Makes the face disappear. */
 		Face& hide()
 		{
-			nowTex = minTex = maxTex = 0;
+			hidden = true;
 			return *this;
 		}
 	};

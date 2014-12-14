@@ -43,7 +43,7 @@
 namespace Duel6
 {
 	Game::Game(Video& video, const Font& font)		
-		: video(video), renderer(*this, font, video), ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_ANM, D6_ANM_SPEED, D6_WAVE_HEIGHT)
+		: video(video), renderer(*this, font, video), ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_BLOCK_META, D6_ANM_SPEED, D6_WAVE_HEIGHT)
 	{
 	}
 
