@@ -198,9 +198,14 @@ namespace Duel6
 		}
 	}
 
-	void Game::beforeStart(Context *prevContext)
+	void Game::beforeStart(Context* prevContext)
 	{
 		SDL_ShowCursor(SDL_DISABLE);
+	}
+
+	void Game::beforeClose(Context* nextContext)
+	{
+		menu->savePersonData();
 	}
 
 	void Game::update(Float32 elapsedTime)
@@ -261,9 +266,8 @@ namespace Duel6
 	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
 		if (keyCode == SDLK_ESCAPE)
-		{
-			menu->savePersonData();
-			Context::pop();
+		{			
+			close();
 		}
 
 		// Restart game

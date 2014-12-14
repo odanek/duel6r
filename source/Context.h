@@ -38,6 +38,7 @@ namespace Duel6
 	{
 	private:
 		static std::stack<Context*> contextStack;
+		bool closed;
 
 	public:
 		virtual ~Context()
@@ -68,6 +69,11 @@ namespace Duel6
 		virtual void update(Float32 elapsedTime) = 0;
 		virtual void render() const = 0;
 
+		virtual bool isClosed() const final
+		{
+			return closed;
+		}
+
 		static void push(Context& context)
 		{
 			Context* lastContext = getTopContext();
@@ -77,6 +83,7 @@ namespace Duel6
 			}
 
 			contextStack.push(&context);
+			context.closed = false;
 			context.beforeStart(lastContext);
 		}
 
@@ -97,17 +104,17 @@ namespace Duel6
 		}
 
 	protected:
+		virtual void close() final
+		{
+			closed = true;
+		}
+
 		virtual void beforeStart(Context* prevContext) = 0;
 		virtual void beforeClose(Context* nextContext) = 0;
 
 		static Context* getTopContext()
 		{
-			if (contextStack.size() > 0)
-			{
-				return contextStack.top();
-			}
-
-			return nullptr;
+			return (contextStack.size() > 0) ? contextStack.top() : nullptr;
 		}
 	};
 }

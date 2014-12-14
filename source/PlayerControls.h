@@ -107,6 +107,7 @@ namespace Duel6
 	class PlayerControls
 	{
 	private:
+		std::string description;
 		std::unique_ptr<Control> left;
 		std::unique_ptr<Control> right;
 		std::unique_ptr<Control> up;
@@ -115,9 +116,14 @@ namespace Duel6
 		std::unique_ptr<Control> pick;
 
 	public:
-		PlayerControls(Control* left, Control* right, Control* up, Control* down, Control* shoot, Control* pick)
-			: left(left), right(right), up(up), down(down), shoot(shoot), pick(pick)
+		PlayerControls(const std::string& description, Control* left, Control* right, Control* up, Control* down, Control* shoot, Control* pick)
+			: description(description), left(left), right(right), up(up), down(down), shoot(shoot), pick(pick)
 		{}
+
+		const std::string& getDescription() const
+		{
+			return description;
+		}
 
 		const Control& getLeft() const
 		{
@@ -154,6 +160,7 @@ namespace Duel6
 	{
 	private:
 		static std::vector<std::unique_ptr<PlayerControls>> controls;
+		const Input& input;
 
 	public:
 		PlayerControlsManager(const Input& input);
@@ -162,6 +169,8 @@ namespace Duel6
 		{
 			return controls.size();
 		}
+
+		Size getNumAvailable() const;
 
 		const PlayerControls& get(Size index) const
 		{

@@ -190,14 +190,22 @@ namespace Duel6
 	{
 		Context::push(menu);
 
-		while (!requestClose)
+		while (Context::exists() && !requestClose)
 		{
 			Context& context = Context::getCurrent();
 			processEvents(context);
 			syncUpdateAndRender(context);
+
+			if (context.isClosed())
+			{
+				Context::pop();
+			}
 		}
 
-		Context::pop();
+		while (Context::exists()) // Pop all contexts (if any) to execut all beforeClose logic
+		{
+			Context::pop();
+		}
 	}
 
 	void Application::tearDown()

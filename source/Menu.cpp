@@ -107,33 +107,17 @@ namespace Duel6
 	{
 		d6Console.print(D6_L("\n===Initialization of input devices===\n"));
 		input.joyScan(d6Console);
+		Size controls = controlsManager.getNumAvailable();
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			controlSwitch[i]->clear();
-		}
-
-		for (Int32 i = 0; i < 4; i++)
-		{			
-			std::string keyboardDevice = Format("{0} {1}") << D6_L("Keys") << (i + 1);
-			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
+			Gui::Combobox* control = controlSwitch[i];
+			control->clear();
+			for (Size j = 0; j < controls; j++)
 			{
-				controlSwitch[j]->addItem(keyboardDevice);
+				control->addItem(controlsManager.get(j).getDescription());
 			}
-		}
-
-		for (Uint32 i = 0; i < input.getNumJoypads(); i++)
-		{
-			std::string joypadDevice = Format("{0} {1}") << D6_L("Joypad") << (i + 1);
-			for (Size j = 0; j < D6_MAX_PLAYERS; j++)
-			{
-				controlSwitch[j]->addItem(joypadDevice);
-			}
-		}
-
-		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
-		{
-			controlSwitch[i]->setCur(i % (4 + input.getNumJoypads()));
+			control->setCur(i % controls);
 		}
 	}
 
@@ -156,18 +140,18 @@ namespace Duel6
 		listbox[2]->setPosition(200, 470, 20, D6_MAX_PLAYERS, 18);
 
 		listbox[3] = new Gui::Listbox(gui, true);
-		listbox[3]->setPosition(644, 410, 13, 6, 16);
+		listbox[3]->setPosition(654, 410, 13, 6, 16);
 
 		listbox[4] = new Gui::Listbox(gui, true);
-		listbox[4]->setPosition(500, 363, 13, 3, 16);
+		listbox[4]->setPosition(520, 363, 13, 3, 16);
 
 		listbox[5] = new Gui::Listbox(gui, false);
-		listbox[5]->setPosition(644, 470, 15, 2, 16);
+		listbox[5]->setPosition(654, 470, 15, 2, 16);
 		listbox[5]->addItem(D6_L("Fullscreen"));
 		listbox[5]->addItem(D6_L("Split screen"));
 
 		listbox[6] = new Gui::Listbox(gui, true);
-		listbox[6]->setPosition(500, 470, 13, 5, 16);
+		listbox[6]->setPosition(520, 470, 13, 5, 16);
 
 		button[0] = new Gui::Button(gui);
 		button[0]->setPosition(200, 318, 80, 31);
@@ -209,7 +193,7 @@ namespace Duel6
 		});
 
 		button[4] = new Gui::Button(gui);
-		button[4]->setPosition(500, 299, 125, 73);
+		button[4]->setPosition(520, 299, 125, 73);
 		button[4]->setCaption(D6_L("Play (F1)"));
 		button[4]->onClick([this](const Gui::Event&) {
 			if (playingPersons.size() > 1)
@@ -219,10 +203,10 @@ namespace Duel6
 		});
 
 		button[5] = new Gui::Button(gui);
-		button[5]->setPosition(644, 299, 125, 73);
+		button[5]->setPosition(654, 299, 125, 73);
 		button[5]->setCaption(D6_L("Quit (ESC)"));
 		button[5]->onClick([this](const Gui::Event&) {
-			sendQuitEvent();
+			close();
 		});
 
 		label[0] = new Gui::Label(gui);
@@ -230,19 +214,19 @@ namespace Duel6
 		label[0]->setCaption(D6_L("      Name       |  Games  |   Wins  |  Shots  | Accuracy |  Kills  | Penalties |  Points"));
 
 		label[1] = new Gui::Label(gui);
-		label[1]->setPosition(500, 383, 125, 18);
+		label[1]->setPosition(520, 383, 125, 18);
 		label[1]->setCaption(D6_L("Background"));
 
 		label[2] = new Gui::Label(gui);
-		label[2]->setPosition(644, 429, 125, 18);
+		label[2]->setPosition(654, 429, 125, 18);
 		label[2]->setCaption(D6_L("Level"));
 
 		label[3] = new Gui::Label(gui);
-		label[3]->setPosition(644, 489, 125, 18);
+		label[3]->setPosition(654, 489, 125, 18);
 		label[3]->setCaption(D6_L("Screen mode"));
 
 		label[4] = new Gui::Label(gui);
-		label[4]->setPosition(500, 489, 125, 18);
+		label[4]->setPosition(520, 489, 125, 18);
 		label[4]->setCaption(D6_L("Zoom"));
 
 		label[5] = new Gui::Label(gui);
@@ -265,6 +249,13 @@ namespace Duel6
 		{
 			controlSwitch[i] = new Gui::Combobox(gui);
 			controlSwitch[i]->setPosition(370, 468 - i * 18, 120, 0);
+
+			Gui::Button* button = new Gui::Button(gui);
+			button->setCaption("D");
+			button->setPosition(494, 466 - i * 18, 17, 17);
+			button->onClick([this,i](const Gui::Event&) {
+				detectControls(i);
+			});
 		}
 
 		joyRescan();
@@ -391,10 +382,10 @@ namespace Duel6
 		}
 	}
 
-	bool Menu::question(const std::string& question)
+	void Menu::showMessage(const std::string& message)
 	{
-		Int32 width = question.size() * 8 + 60;
-		Int32 x = video.getScreen().getClientWidth() / 2 - width / 2, 
+		Int32 width = message.size() * 8 + 60;
+		Int32 x = video.getScreen().getClientWidth() / 2 - width / 2,
 			  y = video.getScreen().getClientHeight() / 2 - 10;
 
 		glColor3f(1.0f, 0.8f, 0.8f);
@@ -413,9 +404,13 @@ namespace Duel6
 			glVertex2i(x + width, y);
 		glEnd();
 		glLineWidth(1);
-		font.print(x + 30, y + 2, Color(255, 0, 0), question);		
+		font.print(x + 30, y + 2, Color(255, 0, 0), message);
 		video.screenUpdate(d6Console, font);
+	}
 
+	bool Menu::question(const std::string& question)
+	{
+		showMessage(question);
 		SDL_Event event;
 		bool answer;
 		while (true)
@@ -459,6 +454,54 @@ namespace Duel6
 		}
 		rebuildTable();
 		savePersonData();
+	}
+
+	void Menu::detectControls(Size playerIndex)
+	{
+		showMessage("Press any control");
+
+		SDL_Event event;
+		SDL_Keysym key;
+		bool detected = false;
+
+		while (!detected)
+		{
+			if (SDL_PollEvent(&event))
+			{
+				switch (event.type)
+				{
+				case SDL_KEYDOWN:
+					key = event.key.keysym;
+					input.setPressed(key.sym, true);
+					break;
+				case SDL_KEYUP:
+					key = event.key.keysym;
+					input.setPressed(key.sym, false);
+					break;
+				}
+
+				for (Size i = 0; i < controlsManager.getNumAvailable(); i++)
+				{
+					const PlayerControls& pc = controlsManager.get(i);
+
+					if (pc.getLeft().isPressed() ||
+						pc.getRight().isPressed() ||
+						pc.getDown().isPressed() ||
+						pc.getUp().isPressed() ||
+						pc.getShoot().isPressed() ||
+						pc.getPick().isPressed())
+					{
+						controlSwitch[playerIndex]->setCur(i);
+						detected = true;
+					}
+				}
+			}
+		}
+
+		while (SDL_PollEvent(&event))
+		{
+			// Eat all remaining keyboard events;
+		}
 	}
 
 	void Menu::play()
@@ -631,7 +674,7 @@ namespace Duel6
 
 		if (keyCode == SDLK_ESCAPE)
 		{
-			sendQuitEvent();
+			close();
 		}
 	}
 
@@ -662,12 +705,5 @@ namespace Duel6
 				Sound::stopMusic();
 			}
 		}
-	}
-
-	void Menu::sendQuitEvent()
-	{
-		SDL_Event quitEvent;
-		quitEvent.type = SDL_QUIT;
-		SDL_PushEvent(&quitEvent);
 	}
 }

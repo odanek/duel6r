@@ -102,6 +102,8 @@ namespace Duel6
 		void beforeStart(Context* prevContext) override;
 		void beforeClose(Context* nextContext) override;
 
+		void showMessage(const std::string& message);
+		void detectControls(Size playerIndex);
 		void free();
 		void play();
 		void loadPersonData();
@@ -114,7 +116,6 @@ namespace Duel6
 		Size getBackgroundCount();
 		bool question(const std::string& question);
 		bool deleteQuestion();
-		void sendQuitEvent();
 	};
 }
 

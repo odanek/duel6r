@@ -187,8 +187,7 @@ namespace Duel6
 
 	private:
 		void beforeStart(Context* prevContext) override;
-		void beforeClose(Context* nextContext) override
-		{}
+		void beforeClose(Context* nextContext) override;
 
 		void preparePlayers();
 		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
