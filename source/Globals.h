@@ -39,7 +39,6 @@
 
 #define D6_FILE_CONFIG      "data/config.txt"
 #define D6_FILE_BLOCK_META  "data/blocks.json"
-#define D6_FILE_COS         "data/sin.tab"
 #define D6_FILE_FONT        "data/duel6.fon"
 #define D6_FILE_LEVEL       "levels/"
 #define D6_FILE_PHIST       "data/duel6.dat"

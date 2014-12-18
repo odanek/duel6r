@@ -151,7 +151,7 @@ namespace Duel6
 		Console::registerBasicCommands(d6Console);
 		ConsoleCommands::registerCommands(d6Console, menu, game);
 
-		Math::initialize(D6_FILE_COS);
+		Math::initialize();
 		Sound::initialize(20);
 
 		// Read config file

@@ -331,8 +331,8 @@ namespace Duel6
 			for (Int32 u = 0; u < 36; u++)
 			{				
 				Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
-				Float32 X = player.getX() + 0.5f + spike * radius * Math::fastCos(90 + u * 10);
-				Float32 Y = player.getY() + 0.5f + spike * radius * Math::fastCos(u * 10);
+				Float32 X = player.getX() + 0.5f + spike * radius * Math::fastSin(90 + u * 10);
+				Float32 Y = player.getY() + 0.5f + spike * radius * Math::fastSin(u * 10);
 				glVertex3f(X, Y, 0.5f);
 			}
 			glEnd();
@@ -388,8 +388,8 @@ namespace Duel6
 		for (uh = p; uh < 360 + p; uh += 15)
 		{
 			u = uh % 360;
-			X = x + 0.7f * Math::fastCos(90 + u);
-			Y = y + 0.7f * Math::fastCos(u);
+			X = x + 0.7f * Math::fastSin(90 + u);
+			Y = y + 0.7f * Math::fastSin(u);
 			glVertex3f(X, Y, 0.5f);
 		}
 

@@ -26,15 +26,20 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <math.h>
 #include "File.h"
 #include "Math.h"
 
 namespace Duel6
-{
-	Float32 Math::cosineLookupTable[450];
+{	
+	const Float64 Math::Pi = 3.14159265358979323846;
+	Float32 Math::sineLookupTable[450];
 
-	void Math::initialize(const std::string& cosTablePath)
+	void Math::initialize()
 	{
-		File::load(cosTablePath, 0, cosineLookupTable);
+		for (Size angle = 0; angle < 450; angle++) 
+		{
+			sineLookupTable[angle] = (Float32)sin(angle * Pi / 180.0);
+		}
 	}
 }

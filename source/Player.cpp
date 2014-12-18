@@ -160,7 +160,7 @@ namespace Duel6
 				state.jumpPhase = 270.0f;
 			}
 
-			state.y += Math::fastCos(Int32(state.jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
+			state.y += Math::fastSin(Int32(state.jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
 
 			if (isRising())
 			{

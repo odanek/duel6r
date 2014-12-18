@@ -37,15 +37,18 @@ namespace Duel6
 {
 	class Math
 	{
+	public:
+		static const Float64 Pi;
+
 	private:
-		static Float32 cosineLookupTable[450];
+		static Float32 sineLookupTable[450];
 
 	public:
-		static void initialize(const std::string& cosTablePath);
+		static void initialize();
 
-		static Float32 fastCos(Int32 angle)
+		static Float32 fastSin(Int32 angle)
 		{
-			return cosineLookupTable[std::abs(angle) % 360];
+			return sineLookupTable[std::abs(angle) % 360];
 		}
 
 		template <class T>

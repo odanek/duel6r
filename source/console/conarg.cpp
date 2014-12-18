@@ -237,7 +237,7 @@ namespace Duel6
 				quotes = !quotes;
 			}
 
-			if (*lineEnd == '\n' || (!quotes && *lineEnd == ';'))
+			if (*lineEnd == '\n' || *lineEnd == '\r' || (!quotes && *lineEnd == ';'))
 			{
 				if (lineBegin == lineEnd)
 				{
