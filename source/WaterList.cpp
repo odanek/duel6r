@@ -25,15 +25,15 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Globals.h"
 #include "Math.h"
 #include "WaterList.h"
 
 namespace Duel6
 {
-	void WaterList::build(FaceList& waterFaces, Float32 waveHeight)
+	void WaterList::build(FaceList& waterFaces, Float32 waveHeight, Console& console)
 	{
-		d6Console.print(D6_L("...Building water-list\n"));
+		console.printLine(D6_L("...Building water-list"));
+
 		this->waveHeight = waveHeight;
 		vertexes.clear();
 		for (Vertex& vertex : waterFaces.getVertexes())

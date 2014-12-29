@@ -30,22 +30,24 @@
 #include "Weapon.h"
 #include "Util.h"
 #include "ElevatorList.h"
-#include "Menu.h"
 #include "World.h"
 #include "InfoMessageQueue.h"
 #include "Explosion.h"
 #include "Render.h"
 #include "Fire.h"
 #include "Video.h"
-#include "Globals.h"
 #include "Game.h"
+#include "GameException.h"
 
 namespace Duel6
 {
-	Game::Game(Video& video, const Font& font)		
-		: video(video), renderer(*this, font, video), ammoRange(15, 15), playedRounds(0), maxRounds(0), world(D6_FILE_BLOCK_META, D6_ANM_SPEED, D6_WAVE_HEIGHT)
-	{
-	}
+	Game::Game(AppService& appService)
+		: appService(appService), video(appService.getVideo()), messageQueue(D6_INFO_DURATION), 
+		renderer(*this, appService.getFont(), video, appService.getTextureManager(), spriteList, messageQueue),
+		world(D6_FILE_BLOCK_META, D6_ANM_SPEED, D6_WAVE_HEIGHT, appService.getTextureManager(), appService.getConsole()), 		
+		ammoRange(15, 15), playedRounds(0), maxRounds(0),
+		gameService(appService, spriteList, messageQueue, world, players)
+	{}
 
 	void Game::splitScreenView(Player& player, Int32 x, Int32 y)
 	{
@@ -137,7 +139,10 @@ namespace Duel6
 			}
 		}
 
-		// TODO: If possibleStartingPositions.empty() -> error
+		if (possibleStartingPositions.empty())
+		{
+			D6_THROW(GameException, "No acceptable starting positions found in this level");
+		}
 
 		for (Size i = 0; i < players.size(); ++i)
 		{
@@ -185,14 +190,14 @@ namespace Duel6
 
 			if (numAlive == 1)
 			{
-				d6MessageQueue.add(*lastAlive, D6_L("You have won - press ESC to quit or F1 for another round"));
+				messageQueue.add(*lastAlive, D6_L("You have won - press ESC to quit or F1 for another round"));
 				lastAlive->getPerson().addWins(1);
 			}
 			else
 			{
 				for (const Player& player : players)
 				{
-					d6MessageQueue.add(player, D6_L("End of round - no winner"));
+					messageQueue.add(player, D6_L("End of round - no winner"));
 				}
 			}
 		}
@@ -205,7 +210,6 @@ namespace Duel6
 
 	void Game::beforeClose(Context* nextContext)
 	{
-		menu->savePersonData();
 	}
 
 	void Game::update(Float32 elapsedTime)
@@ -216,16 +220,16 @@ namespace Duel6
 		}
 
 		world.update(elapsedTime);
-		d6SpriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
-		WPN_MoveShots(*this, elapsedTime);
+		spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
+		WPN_MoveShots(gameService, elapsedTime);
 		EXPL_MoveAll(elapsedTime);
 		ELEV_MoveAll(elapsedTime);
-		d6MessageQueue.update(elapsedTime);
+		messageQueue.update(elapsedTime);
 
 		// Add new bonuses
 		if (rand() % int(3.0f / elapsedTime) == 0)
 		{
-			BONUS_AddNew(world);
+			BONUS_AddNew(world, appService.getTextureManager());
 		}
 
 		// Check if there's a winner
@@ -240,7 +244,7 @@ namespace Duel6
 			{
 				gameOverWait = 0;
 				winner = 2;
-				Sound::playSample(D6_SND_GAME_OVER);
+				appService.getSound().playSample(D6_SND_GAME_OVER);
 			}
 		}
 		updateNotifications(elapsedTime);
@@ -274,7 +278,6 @@ namespace Duel6
 		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
 		if (keyCode == SDLK_F1 && !roundLimit)
 		{
-			menu->savePersonData();
 			nextRound((keyModifiers & KMOD_SHIFT) != 0);
 			return;
 		}
@@ -294,7 +297,8 @@ namespace Duel6
 		// Save screenshot
 		if (keyCode == SDLK_F10)
 		{
-			Util::saveScreenTga(video);
+			std::string name = Util::saveScreenTga(video);
+			appService.getConsole().printLine(Format(D6_L("Screenshot saved to {0}")) << name);
 		}
 	}
 
@@ -311,11 +315,13 @@ namespace Duel6
 
 	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom)
 	{
+		TextureManager& textureManager = appService.getTextureManager();
 		players.clear();
-		PlayerSkin::freeAll();
+		PlayerSkin::freeAll(textureManager);
 		for (const PlayerDefinition& playerDef : playerDefinitions)
 		{			
-			players.push_back(Player(playerDef.getPerson(), PlayerSkin::create(D6_TEXTURE_MAN_PATH, playerDef.getColors()), playerDef.getControls()));
+			players.push_back(Player(playerDef.getPerson(), PlayerSkin::create(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager, appService.getConsole()), playerDef.getControls(),
+				textureManager, spriteList, messageQueue, appService.getSound()));
 		}
 		this->levels = levels;
 		this->backgrounds = backgrounds;
@@ -334,22 +340,23 @@ namespace Duel6
 		}
 
 		const std::string levelPath = levels[lastLevel];
-		d6Console.print(Format(D6_L("\n===Loading level {0}===\n")) << levelPath);
+		Console& console = appService.getConsole();
+		console.printLine(Format(D6_L("\n===Loading level {0}===")) << levelPath);
 		bool mirror = rand() % 2 == 0;
 		world.loadLevel(levelPath, backgrounds[rand() % backgrounds.size()], mirror);
 		world.prepareFaces();
-		d6Console.print(Format(D6_L("...Width   : {0}\n")) << world.getSizeX());
-		d6Console.print(Format(D6_L("...Height  : {0}\n")) << world.getSizeY());
-		d6Console.print(Format(D6_L("...Walls   : {0}\n")) << world.getWalls().getFaces().size());
-		d6Console.print(Format(D6_L("...Sprites : {0}\n")) << world.getSprites().getFaces().size());
-		d6Console.print(Format(D6_L("...Water   : {0}\n")) << world.getWater().getFaces().size());
+		console.printLine(Format(D6_L("...Width   : {0}")) << world.getSizeX());
+		console.printLine(Format(D6_L("...Height  : {0}")) << world.getSizeY());
+		console.printLine(Format(D6_L("...Walls   : {0}")) << world.getWalls().getFaces().size());
+		console.printLine(Format(D6_L("...Sprites : {0}")) << world.getSprites().getFaces().size());
+		console.printLine(Format(D6_L("...Water   : {0}")) << world.getWater().getFaces().size());
 
-		d6SpriteList.clear();
+		spriteList.clear();
 
-		d6Console.print(D6_L("...Preparing players\n"));
+		console.printLine(D6_L("...Preparing players"));
 		preparePlayers();
 
-		d6Console.print(D6_L("...Level initialization\n"));
+		console.printLine(D6_L("...Level initialization"));
 		WPN_LevelInit();
 		EXPL_Init();
 		BONUS_Init();
@@ -359,7 +366,7 @@ namespace Duel6
 		playedRounds++;
 		showYouAreHere = D6_YOU_ARE_HERE_DURATION;
 
-		Sound::playSample(D6_SND_LETS_ROCK);
+		appService.getSound().playSample(D6_SND_LETS_ROCK);
 	}
 		
 	std::vector<const Player*> Game::getLadder() const

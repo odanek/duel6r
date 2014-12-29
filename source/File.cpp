@@ -186,7 +186,8 @@ namespace Duel6
 
 		while (ff != nullptr)
 		{
-			if (nameEndsWith(ff->d_name, extension))
+			bool pseudoDir = (!strcmp(ff->d_name, ".") || !strcmp(ff->d_name, ".."));
+			if (!pseudoDir && nameEndsWith(ff->d_name, extension))
 			{
 				fileNames.push_back(ff->d_name);
 			}

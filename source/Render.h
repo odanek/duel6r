@@ -34,6 +34,9 @@
 #include "Font.h"
 #include "Video.h"
 #include "FaceList.h"
+#include "SpriteList.h"
+#include "TextureManager.h"
+#include "InfoMessageQueue.h"
 
 namespace Duel6
 {
@@ -45,14 +48,19 @@ namespace Duel6
 		const Game& game;
 		const Font& font;
 		const Video& video;
+		const TextureManager& textureManager;
+		const SpriteList& spriteList;
+		const InfoMessageQueue& messageQueue;
 
 		bool wireframe;
 		bool showFps;	
 		bool showRanking;
 
 	public:
-		Renderer(const Game& game, const Font& font, const Video& video)
-			: game(game), font(font), video(video), wireframe(false), showFps(false), showRanking(true)
+		Renderer(const Game& game, const Font& font, const Video& video, const TextureManager& textureManager, 
+			const SpriteList& spriteList, const InfoMessageQueue& messageQueue)
+			: game(game), font(font), video(video), textureManager(textureManager), spriteList(spriteList), 
+			messageQueue(messageQueue), wireframe(false), showFps(false), showRanking(true)
 		{}
 
 		void initScreen();

@@ -45,6 +45,7 @@ namespace Duel6
 		const TextureManager::TextureList* textures;
 
 	public:
+		// TODO: Remove
 		PlayerSkin()
 			: textures(nullptr)
 		{}
@@ -54,12 +55,12 @@ namespace Duel6
 			return *textures;
 		}
 
-		static PlayerSkin create(const std::string& texturePath, const PlayerSkinColors& colors);
+		static PlayerSkin create(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager, Console& console);
 
-		static void freeAll();
+		static void freeAll(TextureManager& textureManager);
 
 	private:
-		PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors);
+		PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager, Console& console);
 		static std::string getNewKey();
 		static std::string getKey(Size id);
 	};

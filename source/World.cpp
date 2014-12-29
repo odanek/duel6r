@@ -28,10 +28,8 @@
 #include "World.h"
 #include "Util.h"
 #include "ElevatorList.h"
-#include "TextureManager.h"
 #include "Format.h"
 #include "Lang.h"
-#include "Globals.h"
 #include "DataException.h"
 #include "json/Json.h"
 
@@ -62,6 +60,7 @@ namespace Duel6
 
 	void World::loadBlockMeta(const std::string& path)
 	{
+		console.printLine(Format("Loading block meta data from: {0}") << path);
 		blockMeta.clear();
 
 		Json::Parser parser;
@@ -83,7 +82,8 @@ namespace Duel6
 
 	void World::loadLevel(const std::string& path, Size background, bool mirror)
 	{
-		backgroundTexture = d6TextureManager.get(D6_TEXTURE_BCG_KEY)[background];
+		console.printLine(Format("Loading level: {0}, mirror: {1}") << path << mirror);
+		backgroundTexture = textureManager.get(D6_TEXTURE_BCG_KEY)[background];
 		levelData.clear();
 
 		Json::Parser parser;
@@ -100,6 +100,7 @@ namespace Duel6
 			levelData[i] = blocks.get(i).asInt();
 		}
 
+		console.printLine("Loading elevators");
 		ELEV_Clear();
 		Size elevators = root.get("elevators").getLength();
 		for (Size i = 0; i < elevators; i++)
@@ -134,12 +135,13 @@ namespace Duel6
 
 	void World::prepareFaces()
 	{
+		console.printLine("Preparing faces");
 		animWait = 0;
 		addWallFaces();
 		addSpriteFaces();
 		addWaterFaces();
 
-		floatingVertexes.build(water, waveHeight);
+		floatingVertexes.build(water, waveHeight, console);
 	}
 
 	void World::update(Float32 elapsedTime)

@@ -26,19 +26,30 @@
 */
 
 #include <stdlib.h>
-#include "Globals.h"
 #include "Bonus.h"
 #include "Weapon.h"
 #include "World.h"
 
 namespace Duel6
 {
+	Bonus::Bonus(Int32 x, Int32 y, Size type, const TextureManager& textureManager)
+		: x(x), y(y), type(type), weapon(false), weaponType(nullptr), bullets(0)
+	{
+		texture = textureManager.get(D6_TEXTURE_BONUS_KEY)[type];
+	}
+
+	Bonus::Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets, const TextureManager& textureManager)
+		: x(x), y(y), type(0), weapon(true), weaponType(&weaponType), bullets(bullets)
+	{
+		texture = textureManager.get(weaponType.texture.gun)[weaponType.animation[12]];
+	}
+
 	void Bonus::render() const
 	{
 		Float32 rx = Float32(x);
 		Float32 ry = Float32(y);
 
-		glBindTexture(GL_TEXTURE_2D, getTexture());
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.1f, 0.1f); glVertex3f(rx, ry + 1, 0.5f);
 			glTexCoord2f(0.9f, 0.1f); glVertex3f(rx + 1.0f, ry + 1, 0.5f);
@@ -47,13 +58,4 @@ namespace Duel6
 		glEnd();
 	}
 
-	GLuint Bonus::getTexture() const
-	{
-		if (weapon)
-		{
-			return d6TextureManager.get(weaponType->texture.gun)[weaponType->animation[12]];
-		}
-
-		return d6TextureManager.get(D6_TEXTURE_BONUS_KEY)[type];
-	}
 }

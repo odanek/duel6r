@@ -29,9 +29,9 @@
 #define DUEL6_FACELIST_H
 
 #include <vector>
-#include <SDL2/SDL_opengl.h>
 #include "Vertex.h"
 #include "Face.h"
+#include "TextureManager.h"
 
 namespace Duel6
 {
@@ -75,7 +75,7 @@ namespace Duel6
 		}
 
 		void optimize();
-		void render() const;
+		void render(const TextureManager::TextureList& textureList) const;
 		void nextFrame();
 	};
 }

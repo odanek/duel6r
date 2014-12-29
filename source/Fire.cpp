@@ -27,7 +27,6 @@
 
 #include <vector>
 #include <SDL2/SDL_opengl.h>
-#include "Globals.h"
 #include "Math.h"
 #include "FaceList.h"
 #include "Sprite.h"
@@ -43,7 +42,7 @@ namespace Duel6
 	{
 		Int32 index;
 		Int32 block;
-		std::string textureKey;
+		const TextureManager::TextureList* texture;
 	};
 
 	struct Fire
@@ -63,14 +62,14 @@ namespace Duel6
 	static std::vector<Fire> d6Fires;
 	static Int16 d6FireAnm[20] = { 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0 };
 
-	void FIRE_Init()
+	void FIRE_Init(TextureManager& textureManager)
 	{
 		for (FireType& ft : d6FireTypes)
 		{
-			ft.textureKey = "fire_" + std::to_string(ft.index);
-			d6TextureManager.load(ft.textureKey, Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << ft.index, GL_LINEAR, true);
+			std::string textureKey = "fire_" + std::to_string(ft.index);
+			ft.texture = &textureManager.load(textureKey, Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << ft.index, GL_LINEAR, true);
 
-			glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(ft.textureKey)[2]);
+			glBindTexture(GL_TEXTURE_2D, (*ft.texture)[2]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
@@ -101,12 +100,11 @@ namespace Duel6
 		}
 	}
 
-	void FIRE_Check(Float32 X, Float32 Y, Float32 d)  // TODO: Coord - explosionCenter
+	void FIRE_Check(Float32 X, Float32 Y, Float32 d, SpriteList& spriteList)  // TODO: Coord - explosionCenter
 	{
 		X -= 0.5f;
 		Y += 0.5f;
 
-		const TextureManager::TextureList& textures = d6TextureManager.get(D6_TEXTURE_BLOCK_KEY);
 		for (Fire& fire : d6Fires)
 		{
 			if (!fire.burned)
@@ -118,10 +116,10 @@ namespace Duel6
 					fire.burned = true;
 					fire.face->hide();
 
-					Sprite fireSprite(d6FireAnm, d6TextureManager.get(fire.type->textureKey));
+					Sprite fireSprite(d6FireAnm, *fire.type->texture);
 					fireSprite.setPosition(fire.x, fire.y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
-					d6SpriteList.addSprite(fireSprite);
+					spriteList.addSprite(fireSprite);
 				}
 			}
 		}

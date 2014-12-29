@@ -25,48 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GLOBALS_H
-#define DUEL6_GLOBALS_H
+#ifndef DUEL6_DEFINES_H
+#define DUEL6_DEFINES_H
 
-#include <vector>
-#include "console/console.h"
-#include "PlayerSkinColors.h"
-
-#define APP_VERSION         "3.14.0"
+#define APP_VERSION         "4.0.0"
 #define APP_NAME            "Duel 6 Reloaded"
 #define APP_FILE_ICON       "data/duel6_icon.bmp"
 #define APP_FILE_FONT       "data/duel6.fon"
 
-#define D6_FILE_CONFIG      "data/config.txt"
+#define D6_FILE_CONFIG      "data/config.script"
 #define D6_FILE_BLOCK_META  "data/blocks.json"
 #define D6_FILE_FONT        "data/duel6.fon"
 #define D6_FILE_LEVEL       "levels/"
 #define D6_FILE_PHIST       "data/duel6.dat"
-#define D6_FILE_SKIN        "data/skin.txt"
+#define D6_FILE_PROFILES	"profiles"
 
-#define D6_TEXTURE_EXTENSION	".tga"
-
-#define D6_TEXTURE_MAN_PATH     "textures/man/"
-#define D6_TEXTURE_MAN_KEY		"man"
-#define D6_TEXTURE_BCG_PATH		"textures/backgrounds/"
-#define D6_TEXTURE_BCG_KEY		"bcg"
-#define D6_TEXTURE_EXPL_PATH	"textures/explosion/"
-#define D6_TEXTURE_EXPL_KEY		"expl"
-#define D6_TEXTURE_MENU_PATH	"textures/menu/"
-#define D6_TEXTURE_MENU_KEY		"menu"
-#define D6_TEXTURE_BLOCK_PATH	"textures/blocks/"
-#define D6_TEXTURE_BLOCK_KEY	"block"
-#define D6_TEXTURE_WATER_PATH	"textures/water/"
-#define D6_TEXTURE_WATER_B_KEY	"water_blue"
-#define D6_TEXTURE_WATER_R_KEY	"water_red"
-#define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
-#define D6_TEXTURE_ELEVATOR_KEY	"elev"
-#define D6_TEXTURE_BONUS_PATH	"textures/bonus/"
-#define D6_TEXTURE_BONUS_KEY	"bonus"
-#define D6_TEXTURE_FIRE_PATH	"textures/fire/"
-
-#define D6_TEXTURE_WPN_PATH		"textures/weapon/"
-
+#define D6_FILE_PROFILE_SKIN   "skin.json"
+#define D6_FILE_PROFILE_SOUNDS "sounds.json"
 
 //#define D6_RENDER_BACKS
 
@@ -93,20 +68,5 @@
 #define D6_SOUNDS				25
 #define D6_BONUS_COUNT			10
 #define D6_WEAPONS				17
-
-namespace Duel6
-{
-	class InfoMessageQueue;
-	class SpriteList;
-	class PlayerSkinColors;
-	class TextureManager;
-	struct Weapon;
-
-	extern Console d6Console;
-	extern TextureManager d6TextureManager;	
-	extern InfoMessageQueue d6MessageQueue;
-	extern SpriteList d6SpriteList;
-	extern Weapon d6WpnDef[D6_WEAPONS];
-}
 
 #endif

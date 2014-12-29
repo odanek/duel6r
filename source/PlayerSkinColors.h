@@ -63,24 +63,6 @@ namespace Duel6
 			}
 		}
 
-		PlayerSkinColors(const PlayerSkinColors& skin)
-		{
-			*this = skin;
-		}
-
-		PlayerSkinColors& operator=(const PlayerSkinColors& skin)
-		{
-			if (this != &skin)
-			{
-				for (Size i = 0; i < 9; i++)
-				{
-					color[i] = skin.color[i];
-				}
-			}
-
-			return *this;
-		}
-
 		PlayerSkinColors& set(BodyPart bodyPart, const Color& color)
 		{
 			this->color[(int)bodyPart] = color;
@@ -91,6 +73,8 @@ namespace Duel6
 		{
 			return color[(int)bodyPart];
 		}
+
+		static PlayerSkinColors load(const std::string& file);
 	};
 }
 

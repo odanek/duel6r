@@ -31,6 +31,7 @@
 #include <vector>
 #include "Type.h"
 #include "Elevator.h"
+#include "TextureManager.h"
 
 namespace Duel6
 {
@@ -39,7 +40,7 @@ namespace Duel6
 	void ELEV_Clear();
 	void ELEV_Add(Elevator& elevator);
 	void ELEV_MoveAll(Float32 elapsedTime);
-	void ELEV_DrawAll();
+	void ELEV_DrawAll(const TextureManager& textureManager);
 	const Elevator* ELEV_CheckMan(Player& player);
 }
 

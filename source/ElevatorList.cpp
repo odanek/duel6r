@@ -29,10 +29,6 @@
 #include "Player.h"
 #include "ElevatorList.h"
 #include "Weapon.h"
-#include "TextureManager.h"
-#include "Globals.h"
-
-#define D6_ELEV_TEXTURE         68
 
 namespace Duel6
 {
@@ -57,9 +53,9 @@ namespace Duel6
 		}
 	}
 
-	void ELEV_DrawAll()
+	void ELEV_DrawAll(const TextureManager& textureManager)
 	{
-		glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_ELEVATOR_KEY)[0]);
+		glBindTexture(GL_TEXTURE_2D, textureManager.get(D6_TEXTURE_ELEVATOR_KEY)[0]);
 		glBegin(GL_QUADS);
 
 		for (const Elevator& elevator : d6Elevators)

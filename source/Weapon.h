@@ -30,8 +30,8 @@
 
 #include "Type.h"
 #include "Shot.h"
-#include "Player.h"
-#include "Game.h"
+#include "Color.h"
+#include "GameService.h"
 
 // TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
@@ -67,10 +67,10 @@ namespace Duel6
 		WeaponTextureKey texture;
 	};	
 
-	void WPN_Init();
+	void WPN_Init(TextureManager& textureManager, Console& console);
 	void WPN_LevelInit();
-	void WPN_AddShot(Player& player);
-	void WPN_MoveShots(Game& game, float elapsedTime);
+	void WPN_AddShot(Player& player, SpriteList& spriteList, const TextureManager& textureManager, Sound& sound);
+	void WPN_MoveShots(GameService& gameService, float elapsedTime);
 
 	const Weapon& WPN_GetRandomWeapon();
 }

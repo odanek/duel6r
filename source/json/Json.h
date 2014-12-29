@@ -81,8 +81,7 @@ namespace Duel6
 			std::string readUntil(File& file, const std::unordered_set<Uint8>& sentinels) const;
 			std::string readWhile(File& file, const std::unordered_set<Uint8>& allowed) const;
 			Value::Type determineValueType(Uint8 firstByte) const;
-			
-			
+						
 			std::unique_ptr<Value> parseValue(File& file) const;
 			std::unique_ptr<Value> parseNull(File& file) const;
 			std::unique_ptr<Value> parseObject(File& file) const;

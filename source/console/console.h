@@ -301,7 +301,9 @@ namespace Duel6
 
 		void render(Int32 csX, Int32 csY, const Font& font);
 
-		void print(const std::string& str);
+		Console& print(const std::string& str);
+		Console& printLine(const std::string& str);
+
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
 		void textInputEvent(const char* text);
 

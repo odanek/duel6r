@@ -31,6 +31,7 @@
 #include "console/console.h"
 #include "Menu.h"
 #include "Game.h"
+#include "Sound.h"
 
 namespace Duel6
 {
@@ -39,7 +40,7 @@ namespace Duel6
 	private:
 		static void language(Console& console, const Console::Arguments& args);
 		static void maxRounds(Console& console, const Console::Arguments& args, Game& game);
-		static void volume(Console& console, const Console::Arguments& args);
+		static void volume(Console& console, const Console::Arguments& args, Sound& sound);
 		static void toggleRenderMode(Console& console, const Console::Arguments& args, Game& game);
 		static void toggleShowFps(Console& console, const Console::Arguments& args, Game& game);
 		static void musicOnOff(Console& console, const Console::Arguments& args, Menu& menu);
@@ -50,7 +51,7 @@ namespace Duel6
 		static void openGLInfo(Console& console, const Console::Arguments& args);
 
 	public:
-		static void registerCommands(Console& console, Menu& menu, Game& game);
+		static void registerCommands(Console& console, AppService& appService, Menu& menu, Game& game);
 	};
 }
 

@@ -29,7 +29,11 @@
 #define DUEL6_SOUND_H
 
 #include <string>
+#include <vector>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include "Type.h"
+#include "console/console.h"
 
 namespace Duel6
 {
@@ -62,17 +66,30 @@ namespace Duel6
 		D6_SND_GAME_OVER
 	};
 
-	namespace Sound
+	class Sound
 	{
-		void initialize(Size channels);
-		Size loadModule(const std::string& nm);
-		Size loadSample(const std::string& nm);
+	public:
+		typedef Size Sample;
+		typedef Size Track;
+
+	private:
+		Console& console;
+		bool playing;
+		Size channels;
+		std::vector<Mix_Music*> modules;
+		std::vector<Mix_Chunk*> samples;
+
+	public:
+		Sound(Size channels, Console& console);
+		~Sound();
+
+		Track loadModule(const std::string& fileName);
+		Sample loadSample(const std::string& fileName);
 		void stopMusic();
-		void startMusic(Size i, bool loop);
-		void playSample(Size i);
+		void startMusic(Track track, bool loop);
+		void playSample(Sample sample);
 		void volume(Int32 volume);
-		void deInit();
-	}
+	};
 }
 
 #endif

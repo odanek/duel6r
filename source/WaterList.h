@@ -31,6 +31,7 @@
 #include <vector>
 #include "Type.h"
 #include "FaceList.h"
+#include "console/console.h"
 
 namespace Duel6
 {
@@ -67,7 +68,7 @@ namespace Duel6
 		Float32 phase;
 			
 	public:
-		void build(FaceList& waterFaces, Float32 waveHeight);
+		void build(FaceList& waterFaces, Float32 waveHeight, Console& console);
 		void update(Float32 elapsedTime);
 	};
 }

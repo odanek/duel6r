@@ -29,7 +29,6 @@
 #include "mylib/mymath.h"
 #include "VideoException.h"
 #include "Video.h"
-#include "Globals.h"
 
 namespace Duel6
 {
@@ -74,13 +73,13 @@ namespace Duel6
 	*/
 	void Video::initialize(const std::string& name, const std::string& icon, Console& console)
 	{
-		console.print(D6_L("\n===Video initialization===\n"));
+		console.printLine(D6_L("\n===Video initialization==="));
 
 		// Get current video mode
 		SDL_DisplayMode currentVideoMode;		
 		if (SDL_GetCurrentDisplayMode(0, &currentVideoMode))
 		{
-			// TODO: exception
+			D6_THROW(VideoException, std::string("Unable to determine current video mode: ") + SDL_GetError());
 		}
 
 		// Set graphics mode
@@ -109,7 +108,7 @@ namespace Duel6
 			flags |= SDL_WINDOW_FULLSCREEN;
 		}
 
-		console.print(Format(D6_L("...Creating SDL window: {0}x{1}\n")) << params.getClientWidth() << params.getClientHeight());
+		console.printLine(Format(D6_L("...Creating SDL window: {0}x{1}")) << params.getClientWidth() << params.getClientHeight());
 		SDL_Window* sdlWin = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, params.getClientWidth(), params.getClientHeight(), flags);
 		if (sdlWin == nullptr)
 		{
@@ -133,13 +132,13 @@ namespace Duel6
 
 		if (params.getAntiAlias() > 0)
 		{
-			console.print(Format(D6_L("...Anti-aliasing: {0}x\n")) << params.getAntiAlias());
+			console.printLine(Format(D6_L("...Anti-aliasing: {0}x")) << params.getAntiAlias());
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, params.getAntiAlias());
 		}
 
-		console.print(D6_L("...Creating OpenGL context\n"));
-		console.print(Format(D6_L("...Bits per-pixel: {0}\n")) << params.getBitsPerPixel());
+		console.printLine(D6_L("...Creating OpenGL context"));
+		console.printLine(Format(D6_L("...Bits per-pixel: {0}")) << params.getBitsPerPixel());
 		SDL_GLContext glc = SDL_GL_CreateContext(window);
 		if (glc == nullptr)
 		{
@@ -156,8 +155,8 @@ namespace Duel6
 		SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &val[5]);
 		SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &val[6]);
 
-		console.print(Format(D6_L("...RGB ({0}, {1}, {2})\n")) << val[0] << val[1] << val[2]);
-		console.print(Format(D6_L("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})\n")) << val[3] << val[4] << val[5] << val[6]);
+		console.printLine(Format(D6_L("...RGB ({0}, {1}, {2})")) << val[0] << val[1] << val[2]);
+		console.printLine(Format(D6_L("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})")) << val[3] << val[4] << val[5] << val[6]);
 
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		glCullFace(GL_FRONT);

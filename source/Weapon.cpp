@@ -38,7 +38,6 @@
 #include "TextureManager.h"
 #include "World.h"
 #include "Fire.h"
-#include "Globals.h"
 
 namespace Duel6
 {
@@ -70,7 +69,13 @@ namespace Duel6
 		typedef std::list<Shot>::iterator ShotIterator;
 	}
 
-	void WPN_Init()
+	struct Hit
+	{
+		bool hit; // Was there any hit
+		Player* player; // Was any player hit directly?
+	};
+
+	void WPN_Init(TextureManager& textureManager, Console& console)
 	{
 		std::set<Int32> nearestFilterBoom = { 5, 6, 9, 13, 14, 15, 16 };
 
@@ -81,14 +86,14 @@ namespace Duel6
 			weap.texture.boom = "wpn_boom_" + wi;
 			weap.texture.gun = "wpn_gun_" + wi;
 			weap.texture.shot = "wpn_shot_" + wi;
-			d6TextureManager.load(weap.texture.boom, Format("{0}/boom/") << wpnPath, nearestFilterBoom.find(weap.index) != nearestFilterBoom.end() ? GL_NEAREST : GL_LINEAR, true);
-			d6TextureManager.load(weap.texture.gun, Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
-			d6TextureManager.load(weap.texture.shot, Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
+			textureManager.load(weap.texture.boom, Format("{0}/boom/") << wpnPath, nearestFilterBoom.find(weap.index) != nearestFilterBoom.end() ? GL_NEAREST : GL_LINEAR, true);
+			textureManager.load(weap.texture.gun, Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
+			textureManager.load(weap.texture.shot, Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
 		}
 
 		Color brownColor(83, 44, 0);
 		PlayerSkinColors skinColors(brownColor);
-		brownSkin = PlayerSkin::create("textures/man/", skinColors);
+		brownSkin = PlayerSkin::create("textures/man/", skinColors, textureManager, console);
 	}
 
 	void WPN_LevelInit()
@@ -96,18 +101,18 @@ namespace Duel6
 		d6Shots.clear();
 	}
 
-	void WPN_AddShot(Player& player)
+	void WPN_AddShot(Player& player, SpriteList& spriteList, const TextureManager& textureManager, Sound& sound)
 	{
 		Float32 ad = player.isKneeling() ? 0.52f : 0.32f;
 		Float32 x = (player.getOrientation() == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
 		Float32 y = player.getY() - ad;
 
-		Sprite shotSprite(player.getWeapon().shotAnimation, d6TextureManager.get(player.getWeapon().texture.shot));		
-		d6Shots.push_back(Shot(player, x, y, d6SpriteList.addSprite(shotSprite)));
-		Sound::playSample(player.getWeapon().shotSound);
+		Sprite shotSprite(player.getWeapon().shotAnimation, textureManager.get(player.getWeapon().texture.shot));		
+		d6Shots.push_back(Shot(player, x, y, spriteList.addSprite(shotSprite)));
+		sound.playSample(player.getWeapon().shotSound);
 	}
 
-	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit)
+	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit, SpriteList& spriteList)
 	{
 		int killedPlayers = 0;
 		bool killedSelf = false;
@@ -121,7 +126,7 @@ namespace Duel6
 
 		if (!shit)
 		{
-			FIRE_Check(X, Y, range);
+			FIRE_Check(X, Y, range, spriteList);
 		}
 
 		for (Player& player : players)
@@ -177,7 +182,7 @@ namespace Duel6
 		}
 	}
 
-	static bool WPN_ShotPlayerCollision(Shot& shot, std::vector<Player>& players)
+	static Hit WPN_ShotPlayerCollision(Shot& shot, std::vector<Player>& players)
 	{
 		Float32 X = (shot.getOrientation() == Orientation::Left) ? shot.getX() : shot.getX() + 0.35f; // TODO: Coord
 
@@ -198,53 +203,45 @@ namespace Duel6
 				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad) // TODO: Coord
 				continue;
 
-			WPN_Boom(shot, players, &player);
-			return true;
+			return { true, &player };
 		}
 
-		return false;
+		return { false, nullptr };
 	}
 
-	static bool WPN_ShotCollision(Game& game, Shot& s)
+	static Hit WPN_ShotWallCollision(Shot& shot, const World& world)
 	{
-		if (WPN_ShotPlayerCollision(s, game.getPlayers()))
-		{
-			return true;
-		}
-
-		Int32 up = (int)(s.getY() + 1.0f); // TODO: Coord
-		Int32 down = (int)(s.getY() + 0.65f); // TODO: Coord
+		Int32 up = (int)(shot.getY() + 1.0f); // TODO: Coord
+		Int32 down = (int)(shot.getY() + 0.65f); // TODO: Coord
 		
 		Int32 left, right;
-		if (s.getOrientation() == Orientation::Left)
+		if (shot.getOrientation() == Orientation::Left)
 		{
-			left = (int)(s.getX());
-			right = (int)(s.getX() + 0.65f); // TODO: Coord
+			left = (int)(shot.getX());
+			right = (int)(shot.getX() + 0.65f); // TODO: Coord
 		}
 		else
 		{
-			left = (int)(s.getX() + 0.35f); // TODO: Coord
-			right = (int)(s.getX() + 1.0f); // TODO: Coord
+			left = (int)(shot.getX() + 0.35f); // TODO: Coord
+			right = (int)(shot.getX() + 1.0f); // TODO: Coord
 		}
 
-		const World& world = game.getWorld();
 		if (world.isWall(left, up, true) || world.isWall(left, down, true) ||
 			world.isWall(right, up, true) || world.isWall(right, down, true))
 		{
-			WPN_Boom(s, game.getPlayers(), nullptr);
-			return true;
+			return { true, nullptr };
 		}
 
-		return false;
+		return { false, nullptr };
 	}
 
-	static ShotIterator WPN_RemoveShot(ShotIterator shot)
+	static ShotIterator WPN_RemoveShot(ShotIterator shot, SpriteList& spriteList)
 	{
-		d6SpriteList.removeSprite(shot->getSprite());
+		spriteList.removeSprite(shot->getSprite());
 		return d6Shots.erase(shot);
 	}
 
-	void WPN_MoveShots(Game& game, float elapsedTime)
+	void WPN_MoveShots(GameService& gameService, float elapsedTime)
 	{
 		auto shot = d6Shots.begin();
 
@@ -253,31 +250,38 @@ namespace Duel6
 			const Weapon& weapon = shot->getWeapon();
 			shot->move(elapsedTime);
 
-			if (WPN_ShotCollision(game, *shot))
-			{				
+			Hit hit = WPN_ShotPlayerCollision(*shot, gameService.getPlayers());
+			if (!hit.hit)
+			{
+				hit = WPN_ShotWallCollision(*shot, gameService.getWorld());
+			}
+
+			if (hit.hit)
+			{
+				WPN_Boom(*shot, gameService.getPlayers(), hit.player, gameService.getSpriteList());
 				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
 				
-				Sprite boom(weapon.boomAnimation, d6TextureManager.get(weapon.texture.boom));
+				Sprite boom(weapon.boomAnimation, gameService.getTextureManager().get(weapon.texture.boom));
 				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)
 					.setOrientation(shot->getOrientation())
 					.setAlpha(0.6f);
 
-				SpriteIterator boomSprite = d6SpriteList.addSprite(boom);
+				SpriteIterator boomSprite = gameService.getSpriteList().addSprite(boom);
 
 				if (shot->getPlayer().hasPowerfulShots())
 					boomSprite->setGrow(weapon.expGrow * 1.2f);
 				else
 					boomSprite->setGrow(weapon.expGrow);
 				if (weapon.boomSound != -1)
-					Sound::playSample(weapon.boomSound);
+					gameService.getSound().playSample(weapon.boomSound);
 				if (weapon.boom > 0)
 				{
 					boomSprite->setNoDepth(true);
 				}
 				
-				shot = WPN_RemoveShot(shot);
+				shot = WPN_RemoveShot(shot, gameService.getSpriteList());
 			}
 			else
 			{

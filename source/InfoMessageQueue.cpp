@@ -25,11 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include "Font.h"
-#include "Globals.h"
 #include "InfoMessageQueue.h"
-
 
 namespace Duel6
 {
@@ -97,5 +94,4 @@ namespace Duel6
 
 		font.print(x, y, Color(255, 255, 0), msg);
 	}
-
 }

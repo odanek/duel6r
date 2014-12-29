@@ -97,7 +97,7 @@ namespace Duel6
 	V infoproc by se nemelo s konzolou nic delat
 	==================================================
 	*/
-	void Console::print(const std::string& str)
+	Console& Console::print(const std::string& str)
 	{
 		for (size_t pos = 0; pos < str.length(); ++pos)
 		{
@@ -130,6 +130,14 @@ namespace Duel6
 		}
 
 		scroll = 0;
+		return *this;
+	}
+
+	Console& Console::printLine(const std::string& str)
+	{
+		print(str);
+		print("\n");
+		return *this;
 	}
 
 	///////////////////////////////////////////////////////

@@ -30,6 +30,7 @@
 
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
+#include "TextureManager.h"
 
 namespace Duel6
 {
@@ -69,15 +70,12 @@ namespace Duel6
 		bool weapon;
 		const Weapon* weaponType;
 		Int32 bullets; // Number of bullets for weapon bonuses
+		GLuint texture;
 
 	public:
-		Bonus(Int32 x, Int32 y, Size type)
-			: x(x), y(y), type(type), weapon(false), weaponType(nullptr), bullets(0)
-		{}
+		Bonus(Int32 x, Int32 y, Size type, const TextureManager& textureManager);
 
-		Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets)
-			: x(x), y(y), type(0), weapon(true), weaponType(&weaponType), bullets(bullets)
-		{}
+		Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets, const TextureManager& textureManager);
 
 		Size getType() const
 		{
@@ -110,9 +108,6 @@ namespace Duel6
 		}
 
 		void render() const;
-
-	private:
-		GLuint getTexture() const;
 	};
 }
 

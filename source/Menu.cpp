@@ -36,7 +36,6 @@
 #include "Util.h"
 #include "File.h"
 #include "Font.h"
-#include "Globals.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
 
@@ -71,18 +70,19 @@ namespace Duel6
 		"sound/gameover.wav"
 	};
 
-	Menu::Menu(Video& video, Input& input, const Font& font)		
-		: video(video), input(input), font(font), controlsManager(input), playMusic(false)
+	Menu::Menu(AppService& appService)		
+		: appService(appService), font(appService.getFont()), video(appService.getVideo()), 
+		sound(appService.getSound()), controlsManager(appService.getInput()), playMusic(false)
 	{}
 
-	void Menu::loadPersonData()
+	void Menu::loadPersonData(const std::string& filePath)
 	{
-		if (File::getSize(D6_FILE_PHIST) < 20)
+		if (File::getSize(filePath) < 20)
 		{
 			return;
 		}
 
-		File file(D6_FILE_PHIST, "rb");
+		File file(filePath, "rb");
 		persons.load(file);
 
 		Int32 playing;
@@ -97,16 +97,10 @@ namespace Duel6
 		file.close();;
 	}
 
-	/*
-	==================================================
-	Umoznuje hot plug joypadu za behu hry. Vyhleda
-	nove pripojena zarizeni.
-	==================================================
-	*/
 	void Menu::joyRescan()
 	{
-		d6Console.print(D6_L("\n===Initialization of input devices===\n"));
-		input.joyScan(d6Console);
+		appService.getConsole().printLine(D6_L("\n===Initialization of input devices==="));
+		appService.getInput().joyScan(appService.getConsole());
 		Size controls = controlsManager.getNumAvailable();
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
@@ -123,10 +117,11 @@ namespace Duel6
 
 	void Menu::initialize()
 	{		
-		d6Console.print(D6_L("\n===Menu initialization===\n"));
-		menuBannerTexture = d6TextureManager.get(D6_TEXTURE_MENU_KEY)[0];
-		loadPersonData();
-		d6Console.print(D6_L("...Starting GUI library\n"));
+		appService.getConsole().printLine(D6_L("\n===Menu initialization==="));
+		menuBannerTexture = appService.getTextureManager().get(D6_TEXTURE_MENU_KEY)[0];
+		loadPersonData(D6_FILE_PHIST);
+		loadPersonProfiles(D6_FILE_PROFILES);
+		appService.getConsole().printLine(D6_L("...Starting GUI library"));
 		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
 
@@ -260,7 +255,7 @@ namespace Duel6
 
 		joyRescan();
 
-		backgroundCount = d6TextureManager.get(D6_TEXTURE_BCG_KEY).size();
+		backgroundCount = appService.getTextureManager().get(D6_TEXTURE_BCG_KEY).size();
 		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
 		listbox[3]->addItem(D6_L("Random"));
@@ -291,11 +286,11 @@ namespace Duel6
 			listbox[2]->addItem(persons.get(personIndex).getName());
 		}
 
-		d6Console.print(D6_L("\n===Loading sound data===\n"));
-		Sound::loadModule("sound/undead.xm");
+		appService.getConsole().print(D6_L("\n===Loading sound data===\n"));
+		menuTrack = sound.loadModule("sound/undead.xm");
 		for (Size i = 0; i < D6_SOUNDS; i++)
 		{
-			Sound::loadSample(d6SndFl[i]);
+			sound.loadSample(d6SndFl[i]);
 		}
 	}
 
@@ -405,7 +400,7 @@ namespace Duel6
 		glEnd();
 		glLineWidth(1);
 		font.print(x + 30, y + 2, Color(255, 0, 0), message);
-		video.screenUpdate(d6Console, font);
+		video.screenUpdate(appService.getConsole(), font);
 	}
 
 	bool Menu::question(const std::string& question)
@@ -472,11 +467,11 @@ namespace Duel6
 				{
 				case SDL_KEYDOWN:
 					key = event.key.keysym;
-					input.setPressed(key.sym, true);
+					appService.getInput().setPressed(key.sym, true);
 					break;
 				case SDL_KEYUP:
 					key = event.key.keysym;
-					input.setPressed(key.sym, false);
+					appService.getInput().setPressed(key.sym, false);
 					break;
 				}
 
@@ -523,10 +518,9 @@ namespace Duel6
 		for (Size i = 0; i < playingPersons.size(); i++)
 		{
 			Person& person = persons.get(playingPersons[i]);
-			auto skinForName = playerColors.find(person.getName());
-			const PlayerSkinColors& colors = skinForName != playerColors.end() ? skinForName->second : playerColors.at(Format("default_{0}") << i);
+			auto& profile = getPersonProfile(person.getName(), i);			
 			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->curItem());
-			playerDefinitions.push_back(Game::PlayerDefinition(person, colors, controls));
+			playerDefinitions.push_back(Game::PlayerDefinition(person, profile.getSkinColors(), controls));
 		}
 
 		// Levels
@@ -609,7 +603,7 @@ namespace Duel6
 		rebuildTable();
 		if (playMusic)
 		{
-			Sound::startMusic(0, false);
+			sound.startMusic(menuTrack, false);
 		}
 	}
 
@@ -686,7 +680,7 @@ namespace Duel6
 	void Menu::beforeClose(Context* newContext)
 	{
 		SDL_StopTextInput();
-		Sound::stopMusic();
+		sound.stopMusic();
 		savePersonData();
 	}
 
@@ -698,12 +692,35 @@ namespace Duel6
 		{
 			if (enable)
 			{
-				Sound::startMusic(0, false);
+				sound.startMusic(menuTrack, false);
 			}
 			else
 			{
-				Sound::stopMusic();
+				sound.stopMusic();
 			}
 		}
+	}
+
+	void Menu::loadPersonProfiles(const std::string& path)
+	{
+		std::vector<std::string> profileDirs;
+		File::listDirectory(path, "", profileDirs);
+		for (auto& profileName : profileDirs)
+		{
+			std::string profilePath = Format("{0}/{1}/") << path << profileName;
+			personProfiles.insert(std::make_pair(profileName, PersonProfile(profilePath)));
+		}
+	}
+
+	PersonProfile& Menu::getPersonProfile(const std::string& name, Size index)
+	{
+		auto& profile = personProfiles.find(name);
+		if (profile != personProfiles.end())
+		{
+			return profile->second;
+		}
+
+		std::string defaultProfileName = Format("default_{0}") << index;
+		return personProfiles.at(defaultProfileName);
 	}
 }

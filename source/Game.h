@@ -39,11 +39,10 @@
 #include "World.h"
 #include "Player.h"
 #include "Render.h"
+#include "GameService.h"
 
 namespace Duel6
 {
-	class Menu; // Forward, TODO: Remove
-
 	class Game
 		: public Context
 	{
@@ -77,9 +76,14 @@ namespace Duel6
 		};
 
 	private:
+		AppService& appService;
 		Video& video;
-		Menu* menu;
+
+		InfoMessageQueue messageQueue;
+		SpriteList spriteList;
+		World world;		
 		Renderer renderer;
+
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
 		Size lastLevel;
@@ -94,16 +98,12 @@ namespace Duel6
 		Float32 showYouAreHere;
 		Float32 gameOverWait;
 
-		World world;
 		std::vector<Player> players;
 
-	public:
-		Game(Video& video, const Font& font);
+		GameService gameService;
 
-		void setMenuReference(Menu* menu)
-		{
-			this->menu = menu;
-		}
+	public:
+		Game(AppService& appService);
 
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;

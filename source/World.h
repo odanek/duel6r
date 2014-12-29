@@ -30,6 +30,7 @@
 
 #include <string>
 #include <vector>
+#include "TextureManager.h"
 #include "FaceList.h"
 #include "Bonus.h"
 #include "WaterType.h"
@@ -41,6 +42,9 @@ namespace Duel6
 	class World
 	{
 	private:
+		const TextureManager& textureManager;
+		Console& console;
+
 		std::vector<Block> blockMeta;
 		GLuint backgroundTexture;
 
@@ -58,8 +62,8 @@ namespace Duel6
 		WaterList floatingVertexes;
 
 	public:
-		World(const std::string& blockMetaFile, Float32 animationSpeed, Float32 waveHeight)
-			: animationSpeed(animationSpeed), waveHeight(waveHeight)
+		World(const std::string& blockMetaFile, Float32 animationSpeed, Float32 waveHeight, const TextureManager& textureManager, Console& console)
+			: textureManager(textureManager), console(console), animationSpeed(animationSpeed), waveHeight(waveHeight)
 		{
 			loadBlockMeta(blockMetaFile);
 		}

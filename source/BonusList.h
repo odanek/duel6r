@@ -32,15 +32,18 @@
 #include "Type.h"
 #include "Bonus.h"
 #include "Player.h"
+#include "InfoMessageQueue.h"
+#include "Sound.h"
+#include "TextureManager.h"
 
 namespace Duel6
 {
 	void BONUS_Init();
 	void BONUS_DrawAll();
-	void BONUS_AddNew(const World& world);
-	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player);
-	void BONUS_Check(Player& player);
-	void BONUS_CheckPick(Player& player);
+	void BONUS_AddNew(const World& world, const TextureManager& textureManager);
+	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player, const TextureManager& textureManager);
+	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue, Sound& sound);
+	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue, const TextureManager& textureManager);
 }
 
 #endif

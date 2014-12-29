@@ -25,73 +25,65 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
-#include "FaceList.h"
+#ifndef DUEL6_GAMESERVICE_H
+#define DUEL6_GAMESERVICE_H
+
+#include <vector>
+#include "AppService.h"
+#include "SpriteList.h"
+#include "InfoMessageQueue.h"
+#include "World.h"
+#include "Player.h"
+#include "Defines.h"
 
 namespace Duel6
 {
-	void FaceList::optimize()
+	extern Weapon d6WpnDef[D6_WEAPONS];
+
+	class GameService
 	{
-		for (Size i = 0; i < faces.size(); i++)
+	private:
+		AppService& appService;
+		SpriteList& spriteList;
+		InfoMessageQueue& messageQueue;
+		World& world;
+		std::vector<Player>& players;
+
+	public:
+		GameService(AppService& appService, SpriteList& spriteList, InfoMessageQueue& messageQueue, World& world, std::vector<Player>& players)
+			: appService(appService), spriteList(spriteList), messageQueue(messageQueue), world(world), players(players)
+		{}
+
+		TextureManager& getTextureManager()
 		{
-			Uint32 curTexture = faces[i].getCurrentTexture();
-			Size curFace = i + 1;
-
-			for (Size j = i + 1; j < faces.size(); j++)
-			{
-				if (faces[j].getCurrentTexture() == curTexture && j != curFace)
-				{
-					std::swap(faces[curFace], faces[j]);
-
-					for (Size k = 0; k < 4; k++)
-					{
-						std::swap(vertexes[curFace * 4 + k], vertexes[j * 4 + k]);
-					}
-
-					curFace++;
-				}
-			}
-		}
-	}
-
-	void FaceList::render(const TextureManager::TextureList& textureList) const
-	{
-		if (faces.empty())
-		{
-			return;
+			return appService.getTextureManager();
 		}
 
-		GLuint curTexture = textureList[faces[0].getCurrentTexture()];
-		Size first = 0, count = 0;
-
-		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
-
-		for (const Face& face : faces)
+		Sound& getSound()
 		{
-			if (textureList[face.getCurrentTexture()] != curTexture)
-			{
-				glBindTexture(GL_TEXTURE_2D, curTexture);
-				glDrawArrays(GL_QUADS, first, count);
-				curTexture = textureList[face.getCurrentTexture()];
-				first += count;
-				count = 4;
-			}
-			else
-			{
-				count += 4;
-			}
+			return appService.getSound();
 		}
 
-		glBindTexture(GL_TEXTURE_2D, curTexture);
-		glDrawArrays(GL_QUADS, first, count);
-	}
-
-	void FaceList::nextFrame()
-	{
-		for (Face& face : faces)
+		SpriteList& getSpriteList()
 		{
-			face.nextFrame();
+			return spriteList;
 		}
-	}
+
+		InfoMessageQueue& getMessageQueue()
+		{
+			return messageQueue;
+		}
+
+		World& getWorld()
+		{
+			return world;
+		}
+
+		std::vector<Player>& getPlayers()
+		{
+			return players;
+		}
+	};
 }
+
+#endif

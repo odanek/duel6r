@@ -240,7 +240,12 @@ namespace Duel6
 
 			const Value& get(const std::string& propertyName) const override
 			{
-				return *properties.at(propertyName);
+				auto val = properties.find(propertyName);
+				if (val == properties.end())
+				{
+					D6_THROW(JsonException, std::string("Property ") + propertyName + " not found");
+				}
+				return *val->second;
 			}
 
 			Type getType() const override
@@ -306,7 +311,7 @@ namespace Duel6
 
 					if (next != ',' && next != '}')
 					{
-						D6_THROW(JsonException, std::string("Expect next property or end of object, got: ") + (char)next);
+						D6_THROW(JsonException, std::string("Expected next property or end of object, got: ") + (char)next);
 					}
 
 					readExpected(file, (char)next);

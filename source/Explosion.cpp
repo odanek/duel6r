@@ -28,8 +28,7 @@
 #include <list>
 #include "Color.h"
 #include "Util.h"
-#include "TextureManager.h"
-#include "Globals.h"
+#include "Explosion.h"
 
 #define D6_EXPL_SPEED       0.61f
 
@@ -82,11 +81,11 @@ namespace Duel6
 		}
 	}
 
-	void EXPL_DrawAll()
+	void EXPL_DrawAll(const TextureManager& textureManager)
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_EXPL_KEY)[0]);
+		glBindTexture(GL_TEXTURE_2D, textureManager.get(D6_TEXTURE_EXPL_KEY)[0]);
 		glBegin(GL_QUADS);
 
 		for (const Explosion& explosion : d6Explosions)

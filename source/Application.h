@@ -29,7 +29,7 @@
 #define DUEL6_APPLICATION_H
 
 #include "Context.h"
-#include "Input.h"
+#include "AppService.h"
 #include "Menu.h"
 #include "Game.h"
 #include "Video.h"
@@ -39,17 +39,20 @@ namespace Duel6
 	class Application
 	{
 	private:
+		Font font;
+		Console console;
+		TextureManager textureManager;
 		Video video;
 		Input input;
-		Font font;
+		Sound sound;
+		AppService service;
 		Menu menu;
 		Game game;
 		bool requestClose;
 
 	public:
-		Application()
-			: menu(video, input, font), game(video, font), requestClose(false)
-		{}
+		Application();
+		~Application();
 
 		void setup(Int32 argc, char** argv);
 		void run();

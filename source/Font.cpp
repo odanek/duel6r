@@ -34,7 +34,6 @@ Popis: Prace s fonty, psani na obrazovku
 #include "DataException.h"
 #include "File.h"
 #include "Video.h"
-#include "Globals.h"
 #include "Font.h"
 
 namespace Duel6

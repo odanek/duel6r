@@ -37,6 +37,7 @@
 #include "Orientation.h"
 #include "ScreenMode.h"
 #include "Bonus.h"
+#include "Sound.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -48,6 +49,7 @@ namespace Duel6
 	class Shot;
 	struct Weapon;
 	class World;
+	class InfoMessageQueue;
 
 	struct PlayerView
 	{
@@ -136,6 +138,11 @@ namespace Duel6
 		};
 
 	private:
+		Sound& sound;
+		const TextureManager& textureManager;
+		SpriteList& spriteList;
+		InfoMessageQueue& messageQueue;
+
 		Person& person;
 		PlayerSkin skin;
 		mycam_c camera;
@@ -148,7 +155,8 @@ namespace Duel6
 		Int32 infoBarPosition[2];
 
 	public:
-		Player(Person& person, PlayerSkin skin, const PlayerControls& controls);
+		Player(Person& person, PlayerSkin skin, const PlayerControls& controls, const TextureManager& textureManager, 
+			SpriteList& spriteList, InfoMessageQueue& messageQueue, Sound& sound);
 		~Player();
 
 		bool is(const Player& player) const

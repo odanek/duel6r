@@ -26,220 +26,129 @@
 */
 
 #include <vector>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
 #include "SoundException.h"
 #include "Type.h"
-#include "Globals.h"
-
-#define SND_TEST(x) if (x == -1) { SOUND_Error(); return; }
+#include "Sound.h"
 
 namespace Duel6
 {
-	namespace Sound
+	Sound::Sound(Size channels, Console& console)
+		: channels(channels), console(console), playing(false)
 	{
-		namespace
-		{
-			struct sndSound_s
-			{
-				bool inited;
-				bool playing;
-				Size channels;
-				std::vector<Mix_Music*> modules;
-				std::vector<Mix_Chunk*> samples;
-			};
+		console.printLine(D6_L("\n===Initialization of sound sub-system==="));
+		console.printLine(D6_L("...Starting SDL_mixer library"));
 
-			// Inicializace struktury
-			sndSound_s snd = { false };
+		// Init SDL audio sub sytem
+		if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
+		{
+			D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << SDL_GetError());
 		}
 
-		/*
-		==================================================
-		Chyba zvukoveho systemu
-		==================================================
-		*/
-		static void SOUND_Error()
+		// Init SDL_mixer library
+		if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
 		{
-			snd.inited = false;
-			snd.playing = false;
-			Mix_CloseAudio();
 			D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << Mix_GetError());
 		}
 
-		/*
-		==================================================
-		Inicializace zvukoveho systemu
-		==================================================
-		*/
-		void initialize(Size channels)
+		// Allocate channels
+		channels = Mix_AllocateChannels(channels);
+		console.print(Format(D6_L("...Frequency: {0}\n...Channels: {0}\n")) << MIX_DEFAULT_FREQUENCY << channels);
+	}
+
+	Sound::~Sound()
+	{
+		// Stop and free modules
+		stopMusic();
+
+		for (Mix_Music* module : modules)
 		{
-			if (snd.inited)
-			{
-				return;
-			}
-
-			d6Console.print(D6_L("\n===Initialization of sound sub-system===\n"));
-			d6Console.print(D6_L("...Starting SDL_mixer library\n"));
-
-			// Init SDL audio sub sytem
-			SND_TEST(SDL_InitSubSystem(SDL_INIT_AUDIO))
-
-			// Init SDL_mixer library
-			SND_TEST(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024))
-
-			// Allocate channels
-			channels = Mix_AllocateChannels(channels);
-
-			d6Console.print(Format(D6_L("...Frequency: {0}\n...Channels: {0}\n")) << MIX_DEFAULT_FREQUENCY << channels);
-
-			// Set up variables
-			snd.channels = channels;
-			snd.playing = false;
-			snd.inited = true;
+			Mix_FreeMusic(module);
 		}
 
-		/*
-		==================================================
-		Nahrani modulu
-		==================================================
-		*/
-		Size loadModule(const std::string& nm)
+		// Free all mixing channels and samples
+		Mix_AllocateChannels(0);
+
+		for (Mix_Chunk* sample : samples)
 		{
-			if (snd.inited)
+			Mix_FreeChunk(sample);
+		}
+
+		modules.clear();
+		samples.clear();
+
+		Mix_CloseAudio();
+	}
+
+	Sound::Track Sound::loadModule(const std::string& fileName)
+	{
+		Mix_Music *module = Mix_LoadMUS(fileName.c_str());
+		if (module == nullptr)
+		{
+			console.printLine(Format(D6_L("SDL_mixer error: unable to load module {0}")) << fileName);
+			return -1;
+		}
+		modules.push_back(module);
+		console.printLine(Format(D6_L("...Module loaded: {0}")) << fileName);
+		return modules.size() - 1;
+	}
+
+	Sound::Sample Sound::loadSample(const std::string& fileName)
+	{
+		Mix_Chunk* sample = Mix_LoadWAV(fileName.c_str());
+		if (sample == nullptr)
+		{
+			console.printLine(Format(D6_L("SDL_mixer error: unable to load sample {0}")) << fileName);
+			return -1;
+		}
+		samples.push_back(sample);
+		console.printLine(Format(D6_L("...Sample loaded: {0}")) << fileName);
+		return samples.size() - 1;
+	}
+
+	void Sound::stopMusic()
+	{
+		if (playing)
+		{
+			Mix_HaltMusic();
+			playing = false;
+		}
+	}
+
+	void Sound::startMusic(Track track, bool loop)
+	{
+		if (track >= 0 && track < modules.size())
+		{
+			stopMusic();
+			if (Mix_PlayMusic(modules[track], loop ? -1 : 0) == -1)
 			{
-				Mix_Music *module = Mix_LoadMUS(nm.c_str());
-				if (module == nullptr)
+				D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << Mix_GetError());
+			}
+			playing = true;
+		}
+	}
+
+	void Sound::playSample(Sample sample)
+	{
+		if (sample >= 0 && sample < samples.size())
+		{
+			for (Size j = 0; j < channels; j++)
+			{
+				if (!Mix_Playing(j) && !Mix_Paused(j))
 				{
-					d6Console.print(Format(D6_L("SDL_mixer error: unable to load module {0}\n")) << nm);
-					return -1;
-				}
-				snd.modules.push_back(module);
-				d6Console.print(Format(D6_L("...Module loaded: {0}\n")) << nm);
-				return snd.modules.size() - 1;
-			}
-
-			return Size(-1);
-		}
-
-		/*
-		==================================================
-		Nahrani zvukoveho samplu
-		==================================================
-		*/
-		Size loadSample(const std::string& nm)
-		{
-			if (snd.inited)
-			{
-				Mix_Chunk* sample = Mix_LoadWAV(nm.c_str());					
-				if (sample == nullptr)
-				{
-					d6Console.print(Format(D6_L("SDL_mixer error: unable to load sample {0}\n")) << nm);
-					return -1;
-				}
-				snd.samples.push_back(sample);
-				d6Console.print(Format(D6_L("...Sample loaded: {0}\n")) << nm);
-				return snd.samples.size() - 1;
-			}
-
-			return Size(-1);
-		}
-
-		/*
-		==================================================
-		Zastaveni hudby
-		==================================================
-		*/
-		void stopMusic()
-		{
-			if (snd.playing && snd.inited)
-			{
-				Mix_HaltMusic();
-				snd.playing = false;
-			}
-		}
-
-		/*
-		==================================================
-		Spusteni vybraneho modulu (hudby)
-		==================================================
-		*/
-		void startMusic(Size i, bool loop)
-		{
-			if (i < snd.modules.size() && snd.inited)
-			{
-				stopMusic();
-				SND_TEST(Mix_PlayMusic(snd.modules[i], loop ? -1 : 0))
-				snd.playing = true;
-			}
-		}
-
-		/*
-		==================================================
-		Zahrani samplu
-		==================================================
-		*/
-		void playSample(Size i)
-		{
-			if (i < snd.samples.size() && snd.inited)
-			{
-				for (Size j = 0; j < snd.channels; j++)
-				{
-					if (!Mix_Playing(j) && !Mix_Paused(j))
+					if (Mix_PlayChannel(j, samples[sample], 0) == -1)
 					{
-						SND_TEST(Mix_PlayChannel(j, snd.samples[i], 0))
-						return;
+						D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << Mix_GetError());
 					}
+					return;
 				}
 			}
 		}
+	}
 
-		/*
-		==================================================
-		Nastaveni hlasitosti hudby a samplu
-		==================================================
-		*/
-		void volume(int volume)
-		{
-			if (snd.inited)
-			{
-				d6Console.print(Format(D6_L("...Volume set to {0}\n")) << volume);
-				Mix_VolumeMusic(volume);
-				Mix_Volume(-1, volume);
-			}
-		}
-
-		/*
-		==================================================
-		Deinicializace zvukoveho systemu
-		==================================================
-		*/
-		void deInit()
-		{
-			if (snd.inited)
-			{
-				// Stop and free modules
-				stopMusic();
-
-				for (Mix_Music* module : snd.modules)
-				{
-					Mix_FreeMusic(module);
-				}
-
-				// Free all mixing channels and samples
-				Mix_AllocateChannels(0);
-
-				for (Mix_Chunk* sample : snd.samples)
-				{
-					Mix_FreeChunk(sample);
-				}
-
-				snd.modules.clear();
-				snd.samples.clear();
-
-				Mix_CloseAudio();
-
-				snd.inited = false;
-			}
-		}
+	void Sound::volume(Int32 volume)
+	{
+		console.printLine(Format(D6_L("...Volume set to {0}")) << volume);
+		Mix_VolumeMusic(volume);
+		Mix_Volume(-1, volume);
 	}
 }

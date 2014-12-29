@@ -30,12 +30,14 @@
 
 #include "Type.h"
 #include "FaceList.h"
+#include "TextureManager.h"
+#include "SpriteList.h"
 
 namespace Duel6
 {
-	void FIRE_Init();
+	void FIRE_Init(TextureManager& textureManager);
 	void FIRE_Find(FaceList& sprites);
-	void FIRE_Check(Float32 X, Float32 Y, Float32 d);
+	void FIRE_Check(Float32 X, Float32 Y, Float32 d, SpriteList& spriteList);
 }
 
 #endif

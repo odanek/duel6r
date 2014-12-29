@@ -41,13 +41,13 @@ namespace Duel6
 		textureMap.clear();
 	}
 
-	void TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp)
+	const TextureManager::TextureList& TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp)
 	{
 		SubstitutionTable emptySubstitutionTable;
-		load(key, path, filtering, clamp, emptySubstitutionTable);
+		return load(key, path, filtering, clamp, emptySubstitutionTable);
 	}
 
-	void TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable)
+	const TextureManager::TextureList& TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable)
 	{
 		std::vector<std::string> textureFiles;
 		File::listDirectory(path, textureFileExtension, textureFiles);
@@ -73,6 +73,8 @@ namespace Duel6
 		{
 			textureMap.emplace(key, list);
 		}
+
+		return textureMap.at(key);
 	}
 
 	void TextureManager::freeTextureList(const TextureList& list)

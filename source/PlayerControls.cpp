@@ -26,7 +26,6 @@
 */
 
 #include <SDL2/SDL.h>
-#include "Globals.h"
 #include "PlayerControls.h"
 
 namespace Duel6

@@ -45,6 +45,7 @@ set(D6R_SOURCES
     source/AnimationLooping.h
     source/Application.h
     source/Application.cpp
+	source/AppService.h
     source/Block.h
     source/Bonus.h
     source/Bonus.cpp
@@ -55,6 +56,7 @@ set(D6R_SOURCES
     source/ConsoleCommands.cpp
     source/Context.h
     source/Context.cpp
+	source/Defines.h
     source/Elevator.h
     source/Elevator.cpp
     source/ElevatorList.h
@@ -75,9 +77,10 @@ set(D6R_SOURCES
     source/Formatter.h
     source/Game.cpp
     source/Game.h
+	source/GameException.h
     source/Gui.h
     source/Gui.cpp
-    source/Globals.h
+	source/GameService.h
     source/Image.h    
     source/InfoMessage.h
     source/InfoMessageQueue.h
@@ -100,6 +103,8 @@ set(D6R_SOURCES
     source/Person.cpp
     source/PersonList.h
     source/PersonList.cpp
+	source/PersonProfile.h
+	source/PersonProfile.cpp
     source/Player.h
     source/Player.cpp
     source/PlayerControls.h
@@ -107,6 +112,9 @@ set(D6R_SOURCES
     source/PlayerSkin.h
     source/PlayerSkin.cpp
     source/PlayerSkinColors.h
+	source/PlayerSkinColors.cpp
+	source/PlayerSounds.h
+	source/PlayerSounds.cpp
     source/Render.h
     source/Render.cpp
     source/ScreenMode.h
@@ -170,7 +178,7 @@ endif(WIN32)
 set(D6R_APP_NAME "duel6r" CACHE STRING "Filename of the application.")
 set(D6R_APP_DEBUG_NAME "duel6rd" CACHE STRING "Filename of the debug version of the application.")
 add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
-set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 3.14.0 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
+set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 4.0.0 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
 
 #########################################################################
 # External dependencies

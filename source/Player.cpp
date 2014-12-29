@@ -27,7 +27,6 @@
 
 #include <algorithm>
 #include "Sound.h"
-#include "Globals.h"
 #include "TextureManager.h"
 #include "InfoMessageQueue.h"
 #include "World.h"
@@ -51,8 +50,9 @@ namespace Duel6
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 	static Int16 wtAnim[24] = { 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0 };
 
-	Player::Player(Person& person, PlayerSkin skin, const PlayerControls& controls)
-		: person(person), skin(skin), controls(controls)
+	Player::Player(Person& person, PlayerSkin skin, const PlayerControls& controls, const TextureManager& textureManager, 
+		SpriteList& spriteList, InfoMessageQueue& messageQueue, Sound& sound)
+		: person(person), skin(skin), controls(controls), sound(sound), textureManager(textureManager), spriteList(spriteList), messageQueue(messageQueue)
 	{
 		camera.rotate(180.0, 0.0, 0.0);
 	}
@@ -68,14 +68,14 @@ namespace Duel6
 
 		Sprite manSprite(noAnim, skin.getTextures());
 		manSprite.setPosition(getX(), getY(), 0.5f);
-		sprite = d6SpriteList.addSprite(manSprite);		
+		sprite = spriteList.addSprite(manSprite);		
 
 		state.weapon = &WPN_GetRandomWeapon();
-		Sprite gunSprite(state.weapon->animation, d6TextureManager.get(state.weapon->texture.gun));
+		Sprite gunSprite(state.weapon->animation, textureManager.get(state.weapon->texture.gun));
 		gunSprite.setPosition(getX(), getY(), 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
-		this->gunSprite = d6SpriteList.addSprite(gunSprite);
+		this->gunSprite = spriteList.addSprite(gunSprite);
 
 		state.flags = FlagHasGun;
 		state.velocity = 0.0f;
@@ -196,7 +196,7 @@ namespace Duel6
 	{
 		if (isOnGround() && !isMoving() && !isOnElevator())
 		{
-			BONUS_CheckPick(*this);
+			BONUS_CheckPick(*this, messageQueue, textureManager);
 		}
 	}
 
@@ -210,7 +210,7 @@ namespace Duel6
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
 
-		WPN_AddShot(*this);
+		WPN_AddShot(*this, spriteList, textureManager, sound);
 	}
 
 	Player& Player::pickWeapon(const Weapon& weapon, Int32 bullets)
@@ -220,7 +220,7 @@ namespace Duel6
 		state.ammo = bullets;
 		state.timeToReload = 0;
 					
-		gunSprite->setAnimation(weapon.animation).setTextures(d6TextureManager.get(weapon.texture.gun)).setFrame(6);
+		gunSprite->setAnimation(weapon.animation).setTextures(textureManager.get(weapon.texture.gun)).setFrame(6);
 
 		return *this;
 	}
@@ -320,7 +320,7 @@ namespace Duel6
 		checkWater(world, elapsedTime);
 		if (!isDead())
 		{
-			BONUS_Check(*this);
+			BONUS_Check(*this, messageQueue, sound);
 		}
 
 		checkKeys();
@@ -558,12 +558,12 @@ namespace Duel6
 
 			if (!is(shot.getPlayer()))
 			{
-				d6MessageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
-				d6MessageQueue.add(shot.getPlayer(), Format(D6_L("You killed player {0}")) << getPerson().getName());
+				messageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
+				messageQueue.add(shot.getPlayer(), Format(D6_L("You killed player {0}")) << getPerson().getName());
 			}
 			else
 			{
-				d6MessageQueue.add(*this, D6_L("You are dead"));
+				messageQueue.add(*this, D6_L("You are dead"));
 			}
 
 			if (weapon.explodes && directHit)
@@ -572,13 +572,13 @@ namespace Duel6
 				EXPL_Add(getX() + 0.5f, getY() + 0.5f, 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
 			}
 
-			Sound::playSample(D6_SND_DEAD);
+			sound.playSample(D6_SND_DEAD);
 			return true;
 		}
 		
 		if (directHit)
 		{
-			Sound::playSample(D6_SND_HIT);
+			sound.playSample(D6_SND_HIT);
 		}
 
 		return false;
@@ -599,9 +599,9 @@ namespace Duel6
 			
 			sprite->setPosition(getX(), getY()).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
-			d6MessageQueue.add(*this, D6_L("You are dead"));
+			messageQueue.add(*this, D6_L("You are dead"));
 
-			Sound::playSample(D6_SND_DEAD);
+			sound.playSample(D6_SND_DEAD);
 			return true;
 		}
 
@@ -615,13 +615,13 @@ namespace Duel6
 
 		if (world.isWall(x1, y - 1, true) && !world.isWall(x1, y, true))
 		{
-			BONUS_AddDeadManGun(x1, y, *this);
+			BONUS_AddDeadManGun(x1, y, *this, textureManager);
 		}
 		else
 		{
 			if (world.isWall(x2, y - 1, true) && !world.isWall(x2, y, true))
 			{
-				BONUS_AddDeadManGun(x2, y, *this);
+				BONUS_AddDeadManGun(x2, y, *this, textureManager);
 			}
 		}
 	}
@@ -659,12 +659,12 @@ namespace Duel6
 		water = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
 		if (water != WaterType::None && !hasFlag(FlagFeetInWater))
 		{
-			Sprite waterSplash(wtAnim, d6TextureManager.get((water == WaterType::Blue) ? D6_TEXTURE_WATER_B_KEY : D6_TEXTURE_WATER_R_KEY));
+			Sprite waterSplash(wtAnim, textureManager.get((water == WaterType::Blue) ? D6_TEXTURE_WATER_B_KEY : D6_TEXTURE_WATER_R_KEY));
 			waterSplash.setPosition(getX(), getY(), 0.5f)
 				.setLooping(AnimationLooping::OnceAndRemove);
-			d6SpriteList.addSprite(waterSplash);
+			spriteList.addSprite(waterSplash);
 			
-			Sound::playSample(D6_SND_WATER);
+			sound.playSample(D6_SND_WATER);
 			setFlag(FlagFeetInWater);
 		}
 		else if (water == WaterType::None)

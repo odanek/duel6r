@@ -30,7 +30,7 @@
 #include "File.h"
 #include "Video.h"
 #include "File.h"
-#include "Globals.h"
+#include "IoException.h"
 
 namespace Duel6
 {
@@ -161,7 +161,7 @@ namespace Duel6
 			}
 		}
 
-		void saveScreenTga(const Video& video)
+		std::string saveScreenTga(const Video& video)
 		{
 			Int32 num = 0;
 			std::string name;
@@ -179,13 +179,14 @@ namespace Duel6
 
 			// Maximalne 1000 screenshotu
 			if (num >= 1000)
-				return;
+			{
+				D6_THROW(IoException, "Maximum number of 1000 screenshots reached");
+			}
 
 			Image image(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
 			glReadPixels(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
 			saveTarga(name, image);
-
-			d6Console.print(Format(D6_L("Screenshot saved to {0}\n")) << name);
+			return name;
 		}
 	}
 }

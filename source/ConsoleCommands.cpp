@@ -72,15 +72,15 @@ namespace Duel6
 		}
 		else
 		{
-			console.print(Format(D6_L("Played rounds: {0} | Max rounds: {1}\n")) << game.getPlayedRounds() << game.getMaxRounds());
+			console.printLine(Format(D6_L("Played rounds: {0} | Max rounds: {1}")) << game.getPlayedRounds() << game.getMaxRounds());
 		}
 	}
 	
-	void ConsoleCommands::volume(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::volume(Console& console, const Console::Arguments& args, Sound& sound)
 	{
 		if (args.length() == 2)
 		{
-			Sound::volume(std::stoi(args.get(1)));
+			sound.volume(std::stoi(args.get(1)));
 		}
 	}
 
@@ -91,11 +91,11 @@ namespace Duel6
 
 		if (renderer.getWireframe())
 		{
-			console.print(D6_L("Rendering mode switched to wireframe\n"));
+			console.printLine(D6_L("Rendering mode switched to wireframe"));
 		}
 		else
 		{
-			console.print(D6_L("Rendering mode switched to solid\n"));
+			console.printLine(D6_L("Rendering mode switched to solid"));
 		}
 	}
 
@@ -106,11 +106,11 @@ namespace Duel6
 		
 		if (renderer.getShowFps())
 		{
-			console.print(D6_L("Fps counter shown\n"));
+			console.printLine(D6_L("Fps counter shown"));
 		}
 		else
 		{
-			console.print(D6_L("Fps counter hidden\n"));
+			console.printLine(D6_L("Fps counter hidden"));
 		}
 	}
 
@@ -135,58 +135,53 @@ namespace Duel6
 
 	void ConsoleCommands::loadSkin(Console& console, const Console::Arguments& args, Menu& menu)
 	{
-		std::unordered_map<std::string, PlayerSkinColors>& colorMap = menu.getPlayerColors();
+		auto& profileMap = menu.getPersonProfiles();
 		std::string bodyParts[] = {"Hair top", "Hair bottom", "Body outer", "Body inner", "Arm outer", "Arm inner", "Trousers", "Shoes", "Skin"};
 		std::string name;
-		Int32 i, pos, num, exp16, c;
 
 		if (args.length() == 11)
 		{
 			name = args.get(1);
-			PlayerSkinColors& colors = colorMap[name];
-
-			for (i = 0; i < 9; i++)
+			auto profile = profileMap.find(name);
+			if (profile == profileMap.end())
 			{
-				pos = args.get(i + 2).length() - 1;
-				num = 0;
-				exp16 = 1;
-				while (pos >= 0)
-				{
-					c = args.get(i + 2)[pos];
-					if (c >= '0' && c <= '9')
-						num += (c - '0') * exp16;
-					if (c >= 'a' && c <= 'f')
-						num += (c - 'a' + 10) * exp16;
-					pos--;
-					exp16 *= 16;
-				}
+				console.printLine(Format("No profile found for name: {0}") << name);
+				return;
+			}
+			PlayerSkinColors& colors = profile->second.getSkinColors();
 
-				Color color((num & 0xff0000) >> 16, (num & 0xff00) >> 8, num & 0xff);
-				colors.set((PlayerSkinColors::BodyPart)i, color);
+			for (Size i = 0; i < 9; i++)
+			{
+				colors.set((PlayerSkinColors::BodyPart)i, Color::fromString(args.get(i + 2)));
 			}
 
-			console.print(Format(D6_L("Skin \"{0}\": OK\n")) << name);
+			console.printLine(Format(D6_L("Skin \"{0}\": OK")) << name);
 		}
 		else if (args.length() == 2)
 		{
 			name = args.get(1);
-			auto colors = colorMap.find(name);
-			if (colors != colorMap.end())
+			auto profile = profileMap.find(name);
+			if (profile != profileMap.end())
 			{
+				PlayerSkinColors& colors = profile->second.getSkinColors();
 				console.print(Format(D6_L("Skin \"{0}\":\n")) << name);
-				for (i = 0; i < 9; i++)
+				for (Size i = 0; i < 9; i++)
 				{
-					const Color& color = colors->second.get((PlayerSkinColors::BodyPart)i);
-					console.print(Format("   {0}: ({1}, {2}, {3})\n") << bodyParts[i] << color.getRed() << color.getGreen() << color.getBlue());
+					const Color& color = colors.get((PlayerSkinColors::BodyPart)i);
+					console.printLine(Format("   {0}: ({1}, {2}, {3})") << bodyParts[i] << color.getRed() << color.getGreen() << color.getBlue());
 				}
+			}
+			else
+			{
+				console.printLine(Format("No profile found for name: {0}") << name);
 			}
 		}
 		else if (args.length() == 1)
 		{
-			console.print(Format("Available skins ({0}):\n") << colorMap.size());
-			for (auto& colors : colorMap)
+			console.printLine(Format("Available skins ({0}):") << profileMap.size());
+			for (auto& profile : profileMap)
 			{
-				console.print(Format("   \"{0}\"\n") << colors.first);
+				console.printLine(Format("   \"{0}\"") << profile.first);
 			}
 		}
 	}
@@ -200,7 +195,7 @@ namespace Duel6
 			{
 				d6WpnDef[gn].enabled = (args.get(2) == "true");
 				std::string enabled = d6WpnDef[gn].enabled ? D6_L("enabled") : D6_L("disabled");
-				console.print(Format("\t{0}. {1} {2}\n") << gn << D6_L(d6WpnDef[gn].name) << enabled);
+				console.printLine(Format("\t{0}. {1} {2}") << gn << D6_L(d6WpnDef[gn].name) << enabled);
 			}
 		}
 		else
@@ -208,7 +203,7 @@ namespace Duel6
 			for (Int32 gn = 0; gn < D6_WEAPONS; gn++)
 			{
 				std::string enabled = d6WpnDef[gn].enabled ? D6_L("enabled") : D6_L("disabled");
-				console.print(Format("\t{0,2}. {1,-13} {2}\n") << gn << D6_L(d6WpnDef[gn].name) << enabled);
+				console.printLine(Format("\t{0,2}. {1,-13} {2}") << gn << D6_L(d6WpnDef[gn].name) << enabled);
 			}
 		}
 	}
@@ -227,27 +222,27 @@ namespace Duel6
 		else if (args.length() == 1)
 		{
 			const std::pair<Int32, Int32>& range = game.getAmmoRange();
-			console.print(Format(D6_L("\tmin = {0}\n\tmax = {1}\n")) << range.first << range.second);
+			console.printLine(Format(D6_L("\tmin = {0}\n\tmax = {1}")) << range.first << range.second);
 		}
 		else
 		{
-			console.print(Format(D6_L("{0}: {0} [min max]\n")) << args.get(0));
+			console.printLine(Format(D6_L("{0}: {0} [min max]")) << args.get(0));
 		}
 	}
 
 	void ConsoleCommands::openGLInfo(Console& console, const Console::Arguments& args)
 	{
-		console.print(D6_L("\n===OpenGL info===\n"));
-		console.print(Format(D6_L("Vendor     : {0}\n")) << (const char *)glGetString(GL_VENDOR));
-		console.print(Format(D6_L("Renderer   : {0}\n")) << (const char *)glGetString(GL_RENDERER));
-		console.print(Format(D6_L("Version    : {0}\n")) << (const char *)glGetString(GL_VERSION));
-		console.print(D6_L("Extensions :\n"));
+		console.printLine(D6_L("\n===OpenGL info==="));
+		console.printLine(Format(D6_L("Vendor     : {0}")) << (const char *)glGetString(GL_VENDOR));
+		console.printLine(Format(D6_L("Renderer   : {0}")) << (const char *)glGetString(GL_RENDERER));
+		console.printLine(Format(D6_L("Version    : {0}")) << (const char *)glGetString(GL_VERSION));
+		console.printLine(D6_L("Extensions :"));
 
 		const char* estr = (const char *)glGetString(GL_EXTENSIONS);
 
 		if (estr == nullptr || strlen(estr) < 2)
 		{
-			console.print(D6_L("...No supported extensions\n"));
+			console.printLine(D6_L("...No supported extensions"));
 		}
 		else
 		{
@@ -270,26 +265,26 @@ namespace Duel6
 					++estr;
 				}
 
-				console.print(Format("...{0}\n") << extensionName);
+				console.printLine(Format("...{0}") << extensionName);
 			}
 		}
 
-		console.print("\n");
+		console.printLine("");
 	}
 
-	void ConsoleCommands::registerCommands(Console& console, Menu& menu, Game& game)
+	void ConsoleCommands::registerCommands(Console& console, AppService& appService, Menu& menu, Game& game)
 	{
 		SDL_version sdlVersion;
 		std::string verStr = D6_L("version");
 
 		// Print application info
-		console.print(D6_L("\n===Application information===\n"));
-		console.print(Format("{0} {1}: {2}\n") << APP_NAME << verStr << APP_VERSION);
+		console.printLine(D6_L("\n===Application information==="));
+		console.printLine(Format("{0} {1}: {2}") << APP_NAME << verStr << APP_VERSION);
 		SDL_GetVersion(&sdlVersion);
-		console.print(Format("SDL {0}: {1}.{2}.{3}\n") << verStr << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
+		console.printLine(Format("SDL {0}: {1}.{2}.{3}") << verStr << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
 		const SDL_version* mixVersion = Mix_Linked_Version();
-		console.print(Format("SDL_mixer {0}: {1}.{2}.{3}\n") << verStr << mixVersion->major << mixVersion->minor << mixVersion->patch);
-		console.print(D6_L("Language: english\n"));
+		console.printLine(Format("SDL_mixer {0}: {1}.{2}.{3}") << verStr << mixVersion->major << mixVersion->minor << mixVersion->patch);
+		console.printLine(D6_L("Language: english"));
 
 		// Set some console functions
 		console.setLast(15);
@@ -297,7 +292,7 @@ namespace Duel6
 		console.registerCommand("show_fps", std::bind(toggleShowFps, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
 		console.registerCommand("gl_info", openGLInfo);
 		console.registerCommand("lang", language);
-		console.registerCommand("volume", volume);
+		console.registerCommand("volume", std::bind(volume, std::placeholders::_1, std::placeholders::_2, std::ref(appService.getSound())));
 		console.registerCommand("rounds", std::bind(maxRounds, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
 		console.registerCommand("music", std::bind(musicOnOff, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));
 		console.registerCommand("joy_scan", std::bind(joyScan, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));

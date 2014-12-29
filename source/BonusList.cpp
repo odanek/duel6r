@@ -31,7 +31,6 @@
 #include "Weapon.h"
 #include "World.h"
 #include "InfoMessageQueue.h"
-#include "Globals.h"
 
 namespace Duel6
 {
@@ -54,7 +53,7 @@ namespace Duel6
 		glDisable(GL_ALPHA_TEST);
 	}
 
-	void BONUS_AddNew(const World& world)
+	void BONUS_AddNew(const World& world, const TextureManager& textureManager)
 	{
 		bool weapon = ((rand() % 2) == 1);
 		Int32 x = rand() % world.getSizeX();
@@ -69,18 +68,18 @@ namespace Duel6
 		{
 			if (weapon)
 			{
-				d6Bonuses.push_back(Bonus(x, y, WPN_GetRandomWeapon(), rand() % 10 + 10));
+				d6Bonuses.push_back(Bonus(x, y, WPN_GetRandomWeapon(), rand() % 10 + 10, textureManager));
 			}
 			else
 			{
-				d6Bonuses.push_back(Bonus(x, y, rand() % D6_BONUS_COUNT));				
+				d6Bonuses.push_back(Bonus(x, y, rand() % D6_BONUS_COUNT, textureManager));				
 			}
 		}
 	}
 
-	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player)
+	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player, const TextureManager& textureManager)
 	{
-		d6Bonuses.push_back(Bonus(x, y, player.getWeapon(), player.getAmmo()));
+		d6Bonuses.push_back(Bonus(x, y, player.getWeapon(), player.getAmmo(), textureManager));
 	}
 
 	static bool BONUS_IsApplicable(const Bonus& bonus, const Player& player, bool weapon)
@@ -100,7 +99,7 @@ namespace Duel6
 			    fabs(Float32(bonus.getY()) - player.getY()) < 0.5f);
 	}
 
-	static void BONUS_Apply(const Bonus& bonus, Player& player)
+	static void BONUS_Apply(const Bonus& bonus, Player& player, InfoMessageQueue& messageQueue)
 	{
 		Int32 duration = 13 + rand() % 17;
 		Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
@@ -110,61 +109,61 @@ namespace Duel6
 		{
 		case D6_BONUS_INVIS:
 			player.setBonus(type, duration).setAlpha(0.2f);
-			d6MessageQueue.add(player, Format(D6_L("Invisibility for {0} seconds")) << duration);
+			messageQueue.add(player, Format(D6_L("Invisibility for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_SPEED:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, Format(D6_L("Fast movement for {0} seconds")) << duration);
+			messageQueue.add(player, Format(D6_L("Fast movement for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_LIFEP:
 			player.adjustLife(Float32(hit));
-			d6MessageQueue.add(player, Format(D6_L("Life +{0}")) << hit);
+			messageQueue.add(player, Format(D6_L("Life +{0}")) << hit);
 			break;
 
 		case D6_BONUS_LIFEM:
 			player.hit(Float32(hit));
-			d6MessageQueue.add(player, Format(D6_L("Life -{0}")) << hit);
+			messageQueue.add(player, Format(D6_L("Life -{0}")) << hit);
 			break;
 
 		case D6_BONUS_LIFEF:
 			player.setFullLife();
-			d6MessageQueue.add(player, D6_L("Full life"));
+			messageQueue.add(player, D6_L("Full life"));
 			break;
 
 		case D6_BONUS_SHOTS:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, Format(D6_L("Fast reload for {0} seconds")) << duration);
+			messageQueue.add(player, Format(D6_L("Fast reload for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_SHOTP:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, Format(D6_L("Powerful shots for {0} seconds")) << duration);
+			messageQueue.add(player, Format(D6_L("Powerful shots for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_INVUL:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			d6MessageQueue.add(player, Format(D6_L("Invulnerability for {0} seconds")) << duration);
+			messageQueue.add(player, Format(D6_L("Invulnerability for {0} seconds")) << duration);
 			break;
 
 		case D6_BONUS_BULLT:
 			hit = 5 + rand() % 12;
 			player.pickAmmo(hit);
-			d6MessageQueue.add(player, Format(D6_L("Bullets +{0}")) << hit);
+			messageQueue.add(player, Format(D6_L("Bullets +{0}")) << hit);
 			break;
 		}
 	}
 
-	void BONUS_Check(Player& player)
+	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue, Sound& sound)
 	{
 		auto bonusIter = d6Bonuses.begin();
 		while (bonusIter != d6Bonuses.end())
 		{
 			if (BONUS_IsApplicable(*bonusIter, player, false))
 			{
-				BONUS_Apply(*bonusIter, player);
-				Sound::playSample(D6_SND_BNPICK);
+				BONUS_Apply(*bonusIter, player, messageQueue);
+				sound.playSample(D6_SND_BNPICK);
 				bonusIter = d6Bonuses.erase(bonusIter);
 			}
 			else
@@ -174,26 +173,26 @@ namespace Duel6
 		}
 	}
 
-	static void BONUS_PickWeapon(const Bonus& bonus, Player& player)
+	static void BONUS_PickWeapon(const Bonus& bonus, Player& player, InfoMessageQueue& messageQueue, const TextureManager& textureManager)
 	{
 		if (player.getAmmo() > 0)
 		{
 			// Leave the current weapon at the same place
-			d6Bonuses.push_back(Bonus(bonus.getX(), bonus.getY(), player.getWeapon(), player.getAmmo()));
+			d6Bonuses.push_back(Bonus(bonus.getX(), bonus.getY(), player.getWeapon(), player.getAmmo(), textureManager));
 		}
 
 		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());
-		d6MessageQueue.add(player, Format(D6_L("You picked up gun {0}")) << D6_L(bonus.getWeaponType().name));
+		messageQueue.add(player, Format(D6_L("You picked up gun {0}")) << D6_L(bonus.getWeaponType().name));
 	}
 
-	void BONUS_CheckPick(Player& player)
+	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue, const TextureManager& textureManager)
 	{
 		auto bonusIter = d6Bonuses.begin();
 		while (bonusIter != d6Bonuses.end())
 		{
 			if (BONUS_IsApplicable(*bonusIter, player, true))
 			{
-				BONUS_PickWeapon(*bonusIter, player);
+				BONUS_PickWeapon(*bonusIter, player, messageQueue, textureManager);
 				d6Bonuses.erase(bonusIter);
 				return;
 			}

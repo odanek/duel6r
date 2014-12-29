@@ -25,73 +25,62 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
-#include "FaceList.h"
+#ifndef DUEL6_APPSERVICE_H
+#define DUEL6_APPSERVICE_H
+
+#include "console/console.h"
+#include "Sound.h"
+#include "Input.h"
+#include "TextureManager.h"
+#include "Video.h"
 
 namespace Duel6
 {
-	void FaceList::optimize()
+	class AppService
 	{
-		for (Size i = 0; i < faces.size(); i++)
+	private:
+		Font& font;
+		Console& console;
+		TextureManager& textureManager;
+		Video& video;
+		Input& input;
+		Sound& sound;
+
+	public:
+		AppService(Font& font, Console& console, TextureManager& textureManager, Video& video, Input& input, Sound& sound)
+			: font(font), console(console), textureManager(textureManager), video(video), input(input), sound(sound)
+		{}
+
+		Font& getFont()
 		{
-			Uint32 curTexture = faces[i].getCurrentTexture();
-			Size curFace = i + 1;
-
-			for (Size j = i + 1; j < faces.size(); j++)
-			{
-				if (faces[j].getCurrentTexture() == curTexture && j != curFace)
-				{
-					std::swap(faces[curFace], faces[j]);
-
-					for (Size k = 0; k < 4; k++)
-					{
-						std::swap(vertexes[curFace * 4 + k], vertexes[j * 4 + k]);
-					}
-
-					curFace++;
-				}
-			}
-		}
-	}
-
-	void FaceList::render(const TextureManager::TextureList& textureList) const
-	{
-		if (faces.empty())
-		{
-			return;
+			return font;
 		}
 
-		GLuint curTexture = textureList[faces[0].getCurrentTexture()];
-		Size first = 0, count = 0;
-
-		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
-
-		for (const Face& face : faces)
+		Console& getConsole()
 		{
-			if (textureList[face.getCurrentTexture()] != curTexture)
-			{
-				glBindTexture(GL_TEXTURE_2D, curTexture);
-				glDrawArrays(GL_QUADS, first, count);
-				curTexture = textureList[face.getCurrentTexture()];
-				first += count;
-				count = 4;
-			}
-			else
-			{
-				count += 4;
-			}
+			return console;
 		}
 
-		glBindTexture(GL_TEXTURE_2D, curTexture);
-		glDrawArrays(GL_QUADS, first, count);
-	}
-
-	void FaceList::nextFrame()
-	{
-		for (Face& face : faces)
+		TextureManager& getTextureManager()
 		{
-			face.nextFrame();
+			return textureManager;
 		}
-	}
+
+		Video& getVideo()
+		{
+			return video;
+		}
+
+		Input& getInput()
+		{
+			return input;
+		}
+
+		Sound& getSound()
+		{
+			return sound;
+		}
+	};
 }
+
+#endif

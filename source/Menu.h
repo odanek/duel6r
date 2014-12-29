@@ -35,11 +35,13 @@
 #include "Context.h"
 #include "LevelList.h"
 #include "PersonList.h"
+#include "PersonProfile.h"
 #include "Gui.h"
 #include "PlayerControls.h"
 #include "PlayerSkinColors.h"
 #include "Video.h"
-#include "Globals.h"
+#include "AppService.h"
+#include "Defines.h"
 
 namespace Duel6
 {
@@ -49,13 +51,14 @@ namespace Duel6
 		: public Context
 	{
 	private:
+		AppService& appService;
+		Font& font;
 		Video& video;
-		Input& input;
+		Sound& sound;
 		Game* game;
-		const Font& font;
 		Gui::Desktop gui;
 		PlayerControlsManager controlsManager;
-		std::unordered_map<std::string, PlayerSkinColors> playerColors;
+		std::unordered_map<std::string, PersonProfile> personProfiles;
 		LevelList levelList;
 		PersonList persons;
 		Gui::Button* button[7];
@@ -66,10 +69,11 @@ namespace Duel6
 		std::vector<Int32> playingPersons;
 		Size backgroundCount;
 		GLuint menuBannerTexture;
+		Sound::Track menuTrack;
 		bool playMusic;
 
 	public:
-		Menu(Video& video, Input& input, const Font& font);
+		Menu(AppService& appService);
 
 		~Menu()
 		{
@@ -93,9 +97,9 @@ namespace Duel6
 
 		void enableMusic(bool enable);
 
-		std::unordered_map<std::string, PlayerSkinColors>& getPlayerColors()
+		std::unordered_map<std::string, PersonProfile>& getPersonProfiles()
 		{
-			return playerColors;
+			return personProfiles;
 		}
 
 	private:
@@ -106,7 +110,9 @@ namespace Duel6
 		void detectControls(Size playerIndex);
 		void free();
 		void play();
-		void loadPersonData();
+		void loadPersonData(const std::string& filePath);
+		void loadPersonProfiles(const std::string& path);
+		PersonProfile& getPersonProfile(const std::string& name, Size index);
 		void cleanPersonData();
 		void addPerson();
 		void deletePerson();

@@ -36,7 +36,6 @@
 #include "Explosion.h"
 #include "Video.h"
 #include "Font.h"
-#include "Globals.h"
 #include "Render.h"
 
 namespace Duel6
@@ -58,7 +57,7 @@ namespace Duel6
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 
-		water.render();
+		water.render(textureManager.get(D6_TEXTURE_BLOCK_KEY));
 
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
@@ -70,7 +69,7 @@ namespace Duel6
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
 
-		sprites.render();
+		sprites.render(textureManager.get(D6_TEXTURE_BLOCK_KEY));
 
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
@@ -272,7 +271,7 @@ namespace Duel6
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, d6TextureManager.get(D6_TEXTURE_BONUS_KEY)[player.getBonus()]);
+			glBindTexture(GL_TEXTURE_2D, textureManager.get(D6_TEXTURE_BONUS_KEY)[player.getBonus()]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);
@@ -427,13 +426,13 @@ namespace Duel6
 	{
 		if (game.getScreenMode() == ScreenMode::FullScreen)
 		{
-			d6MessageQueue.renderAllMessages(game.getPlayers().front().getView(), 20, font);
+			messageQueue.renderAllMessages(game.getPlayers().front().getView(), 20, font);
 		}
 		else
 		{
 			for (const Player& player : game.getPlayers())
 			{
-				d6MessageQueue.renderPlayerMessages(player, font);
+				messageQueue.renderPlayerMessages(player, font);
 			}
 		}
 	}
@@ -448,17 +447,17 @@ namespace Duel6
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 
-		game.getWorld().getWalls().render();
+		game.getWorld().getWalls().render(textureManager.get(D6_TEXTURE_BLOCK_KEY));
 		sprites(game.getWorld().getSprites());
-		ELEV_DrawAll();
-		d6SpriteList.render();
+		ELEV_DrawAll(textureManager);
+		spriteList.render();
 		BONUS_DrawAll();
 		invulRings(game.getPlayers());
 		water(game.getWorld().getWater());
 		notifications();
 		roundKills();
 
-		EXPL_DrawAll();
+		EXPL_DrawAll(textureManager);
 
 		if (wireframe)
 		{
@@ -508,7 +507,6 @@ namespace Duel6
 		glDrawBuffer(GL_FRONT_AND_BACK);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDrawBuffer(GL_BACK);
-		d6Console.print("Initialize\n");
 	}
 
 	void Renderer::render() const

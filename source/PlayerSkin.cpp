@@ -27,23 +27,22 @@
 
 #include "PlayerSkin.h"
 #include "TextureManager.h"
-#include "Globals.h"
 
 namespace Duel6
 {
 	std::unordered_set<Size> PlayerSkin::skinIds;
 
-	PlayerSkin PlayerSkin::create(const std::string& texturePath, const PlayerSkinColors& colors)
+	PlayerSkin PlayerSkin::create(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager, Console& console)
 	{
-		PlayerSkin skin(getNewKey(), texturePath, colors);
+		PlayerSkin skin(getNewKey(), texturePath, colors, textureManager, console);
 		return skin;
 	}
 
-	void PlayerSkin::freeAll()
+	void PlayerSkin::freeAll(TextureManager& textureManager)
 	{
 		for (Size id : skinIds)
 		{
-			d6TextureManager.remove(getKey(id));
+			textureManager.remove(getKey(id));
 		}
 		skinIds.clear();
 	}
@@ -65,10 +64,10 @@ namespace Duel6
 		return std::string(D6_TEXTURE_MAN_KEY) + std::to_string(id);
 	}
 
-	PlayerSkin::PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors)
+	PlayerSkin::PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager, Console& console)
 		: key(key)
 	{
-		d6Console.print(D6_L("Loading player textures\n"));
+		console.print(D6_L("Loading player textures\n"));
 
 		TextureManager::SubstitutionTable substTable;
 		substTable[Color(255, 255, 0)] = colors.get(PlayerSkinColors::HairTop);
@@ -81,7 +80,6 @@ namespace Duel6
 		substTable[Color(180, 182, 0)] = colors.get(PlayerSkinColors::Shoes);
 		substTable[Color(255, 145, 172)] = colors.get(PlayerSkinColors::Face);
 
-		d6TextureManager.load(key, texturePath, GL_NEAREST, true, substTable);
-		textures = &d6TextureManager.get(key);
+		textures = &textureManager.load(key, texturePath, GL_NEAREST, true, substTable);
 	}
 }

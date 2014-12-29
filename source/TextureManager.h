@@ -35,6 +35,29 @@
 #include "Color.h"
 #include "Util.h"
 
+#define D6_TEXTURE_EXTENSION	".tga"
+
+#define D6_TEXTURE_MAN_PATH     "textures/man/"
+#define D6_TEXTURE_MAN_KEY		"man"
+#define D6_TEXTURE_BCG_PATH		"textures/backgrounds/"
+#define D6_TEXTURE_BCG_KEY		"bcg"
+#define D6_TEXTURE_EXPL_PATH	"textures/explosion/"
+#define D6_TEXTURE_EXPL_KEY		"expl"
+#define D6_TEXTURE_MENU_PATH	"textures/menu/"
+#define D6_TEXTURE_MENU_KEY		"menu"
+#define D6_TEXTURE_BLOCK_PATH	"textures/blocks/"
+#define D6_TEXTURE_BLOCK_KEY	"block"
+#define D6_TEXTURE_WATER_PATH	"textures/water/"
+#define D6_TEXTURE_WATER_B_KEY	"water_blue"
+#define D6_TEXTURE_WATER_R_KEY	"water_red"
+#define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
+#define D6_TEXTURE_ELEVATOR_KEY	"elev"
+#define D6_TEXTURE_BONUS_PATH	"textures/bonus/"
+#define D6_TEXTURE_BONUS_KEY	"bonus"
+#define D6_TEXTURE_FIRE_PATH	"textures/fire/"
+
+#define D6_TEXTURE_WPN_PATH		"textures/weapon/"
+
 namespace Duel6
 {
 	class TextureManager
@@ -59,8 +82,8 @@ namespace Duel6
 
 		void freeAll();
 
-		void load(const std::string& key, const std::string& path, GLint filtering, bool clamp);
-		void load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable);
+		const TextureList& load(const std::string& key, const std::string& path, GLint filtering, bool clamp);
+		const TextureList& load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable);
 
 		const TextureList& get(const std::string& key) const
 		{

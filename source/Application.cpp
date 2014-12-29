@@ -27,7 +27,6 @@
 
 #include <time.h>
 #include "VideoException.h"
-#include "Globals.h"
 #include "InfoMessageQueue.h"
 #include "Game.h"
 #include "Menu.h"
@@ -44,17 +43,22 @@
 
 namespace Duel6
 {
-	Console d6Console(Console::ExpandFlag);
-	TextureManager d6TextureManager(D6_TEXTURE_EXTENSION);
-	Float32 d6Cos[450];
-	InfoMessageQueue d6MessageQueue(D6_INFO_DURATION);
-	SpriteList d6SpriteList;
+	Application::Application()
+		: console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
+		service(font, console, textureManager, video, input, sound),
+		menu(service), game(service), requestClose(false)
+	{}
+
+	Application::~Application()
+	{
+		tearDown();
+	}
 
 	void Application::textInputEvent(Context& context, const char* text)
 	{
-		if (d6Console.isActive())
+		if (console.isActive())
 		{
-			d6Console.textInputEvent(text);
+			console.textInputEvent(text);
 		}
 		else
 		{
@@ -66,8 +70,8 @@ namespace Duel6
 	{
 		if (keyCode == SDLK_BACKQUOTE)
 		{
-			d6Console.toggle();
-			if (d6Console.isActive())
+			console.toggle();
+			if (console.isActive())
 			{
 				SDL_StartTextInput();
 			}
@@ -77,9 +81,9 @@ namespace Duel6
 			}
 		}
 
-		if (d6Console.isActive())
+		if (console.isActive())
 		{
-			d6Console.keyEvent(keyCode, keyModifiers);
+			console.keyEvent(keyCode, keyModifiers);
 		}
 		else
 		{
@@ -125,7 +129,7 @@ namespace Duel6
 
 		// Draw
 		context.render();
-		video.screenUpdate(d6Console, font);
+		video.screenUpdate(console, font);
 
 		// Update
 		if (curTime - lastTime < 70)
@@ -146,44 +150,39 @@ namespace Duel6
 
 		font.load(APP_FILE_FONT);		
 		menu.setGameReference(&game);
-		game.setMenuReference(&menu);
 
-		Console::registerBasicCommands(d6Console);
-		ConsoleCommands::registerCommands(d6Console, menu, game);
+		Console::registerBasicCommands(console);
+		ConsoleCommands::registerCommands(console, service, menu, game);
 
 		Math::initialize();
-		Sound::initialize(20);
 
-		// Read config file
-		d6Console.print("\n===Config===\n");
-		d6Console.exec("exec data/config.txt");
-		// Init player skins
-		d6Console.print("\n====Skin====\n");
-		d6Console.exec(std::string("exec ") + D6_FILE_SKIN);
+		video.initialize(APP_NAME, APP_FILE_ICON, console);
+
+		textureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
+		textureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
+		textureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
+		textureManager.load(D6_TEXTURE_ELEVATOR_KEY, D6_TEXTURE_ELEVATOR_PATH, GL_LINEAR, true);
+		textureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
+		textureManager.load(D6_TEXTURE_BONUS_KEY, D6_TEXTURE_BONUS_PATH, GL_LINEAR, true);
+
+		textureManager.load(D6_TEXTURE_WATER_B_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true);
+		TextureManager::SubstitutionTable redWater;
+		redWater[Color(0, 182, 255)] = Color(197, 0, 0);
+		textureManager.load(D6_TEXTURE_WATER_R_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, redWater);
+
+		WPN_Init(textureManager, console);
+		FIRE_Init(textureManager);
+
+		menu.initialize();
+
+		// Execute config script and command line arguments
+		console.printLine("\n===Config===");
+		console.exec(std::string("exec ") + D6_FILE_CONFIG);
 
 		for (int i = 1; i < argc; i++)
 		{
-			d6Console.exec(argv[i]);
+			console.exec(argv[i]);
 		}
-
-		video.initialize(APP_NAME, APP_FILE_ICON, d6Console);
-
-		d6TextureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
-		d6TextureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_ELEVATOR_KEY, D6_TEXTURE_ELEVATOR_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
-		d6TextureManager.load(D6_TEXTURE_BONUS_KEY, D6_TEXTURE_BONUS_PATH, GL_LINEAR, true);
-
-		d6TextureManager.load(D6_TEXTURE_WATER_B_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true);
-		TextureManager::SubstitutionTable redWater;
-		redWater[Color(0, 182, 255)] = Color(197, 0, 0);
-		d6TextureManager.load(D6_TEXTURE_WATER_R_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, redWater);
-
-		WPN_Init();
-		FIRE_Init();
-
-		menu.initialize();
 	}
 
 	void Application::run()
@@ -202,7 +201,7 @@ namespace Duel6
 			}
 		}
 
-		while (Context::exists()) // Pop all contexts (if any) to execut all beforeClose logic
+		while (Context::exists()) // Pop all contexts (if any) to execute all beforeClose logic
 		{
 			Context::pop();
 		}
@@ -210,8 +209,6 @@ namespace Duel6
 
 	void Application::tearDown()
 	{
-		Sound::deInit();
-		d6TextureManager.freeAll();
 		SDL_Quit();
 	}
 }

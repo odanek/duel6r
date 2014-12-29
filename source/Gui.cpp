@@ -28,7 +28,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include "Font.h"
-#include "Globals.h"
 #include "Gui.h"
 
 namespace Duel6
