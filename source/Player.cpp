@@ -53,8 +53,8 @@ namespace Duel6
 	Player::Player(Person& person, PlayerSkin skin, const PlayerSounds& sounds, const PlayerControls& controls, 
 		const TextureManager& textureManager, SpriteList& spriteList, InfoMessageQueue& messageQueue,
 		const Sound::Sample& waterSplashSample)
-		: person(person), skin(skin), sounds(sounds), controls(controls), textureManager(textureManager), 
-		spriteList(spriteList), messageQueue(messageQueue), waterSplashSample(waterSplashSample)
+		: textureManager(textureManager), spriteList(spriteList), messageQueue(messageQueue), person(person), skin(skin), 
+		sounds(sounds), controls(controls), waterSplashSample(waterSplashSample)
 	{
 		camera.rotate(180.0, 0.0, 0.0);
 	}

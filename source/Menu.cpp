@@ -684,7 +684,7 @@ namespace Duel6
 
 	PersonProfile& Menu::getPersonProfile(const std::string& name, Size index)
 	{
-		auto& profile = personProfiles.find(name);
+		auto profile = personProfiles.find(name);
 		if (profile != personProfiles.end())
 		{
 			return profile->second;

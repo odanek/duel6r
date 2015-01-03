@@ -34,7 +34,16 @@ namespace Duel6
 {
 	namespace
 	{
-		std::unordered_map<PlayerSounds::Type, std::string> defaultSounds = {
+		template <class T>
+		struct EnumClassHash
+		{			
+			std::size_t operator()(const T& val) const
+			{
+				return (std::size_t)(val);
+			}
+		};
+
+		std::unordered_map<PlayerSounds::Type, std::string, EnumClassHash<PlayerSounds::Type>> defaultSounds = {
 			{ PlayerSounds::Type::GotHit, "hit.wav" },
 			{ PlayerSounds::Type::WasKilled, "death.wav" },
 			{ PlayerSounds::Type::Suicide, "death.wav" },

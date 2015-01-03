@@ -42,9 +42,9 @@
 namespace Duel6
 {
 	Game::Game(AppService& appService)
-		: appService(appService), video(appService.getVideo()), messageQueue(D6_INFO_DURATION), 
+		: appService(appService), video(appService.getVideo()), messageQueue(D6_INFO_DURATION),
+		world(D6_FILE_BLOCK_META, D6_ANM_SPEED, D6_WAVE_HEIGHT, appService.getTextureManager(), appService.getConsole()),
 		renderer(*this, appService.getFont(), video, appService.getTextureManager(), spriteList, messageQueue),
-		world(D6_FILE_BLOCK_META, D6_ANM_SPEED, D6_WAVE_HEIGHT, appService.getTextureManager(), appService.getConsole()), 		
 		ammoRange(15, 15), playedRounds(0), maxRounds(0),
 		gameService(appService, spriteList, messageQueue, world, players)
 	{	

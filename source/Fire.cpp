@@ -40,8 +40,8 @@ namespace Duel6
 {
 	struct FireType
 	{
-		Int32 index;
-		Int32 block;
+		Size index;
+		Size block;
 		const TextureManager::TextureList* texture;
 	};
 
