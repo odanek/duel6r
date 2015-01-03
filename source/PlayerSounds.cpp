@@ -52,7 +52,7 @@ namespace Duel6
 		};
 
 		Sound::Sample emptySample;
-		std::unordered_map<PlayerSounds::Type, Sound::Sample> defaultSamples;
+		std::unordered_map<PlayerSounds::Type, Sound::Sample, EnumClassHash<PlayerSounds::Type>> defaultSamples;
 
 		Sound::Sample loadSound(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, const Json::Value& value)
 		{
