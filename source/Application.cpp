@@ -170,7 +170,7 @@ namespace Duel6
 		redWater[Color(0, 182, 255)] = Color(197, 0, 0);
 		textureManager.load(D6_TEXTURE_WATER_R_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, redWater);
 
-		WPN_Init(textureManager, console);
+		WPN_Init(textureManager, sound, console);
 		FIRE_Init(textureManager);
 
 		menu.initialize();

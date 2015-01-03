@@ -155,7 +155,7 @@ namespace Duel6
 		}
 	}
 
-	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue, Sound& sound)
+	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue, const PlayerSounds& sounds)
 	{
 		auto bonusIter = d6Bonuses.begin();
 		while (bonusIter != d6Bonuses.end())
@@ -163,7 +163,7 @@ namespace Duel6
 			if (BONUS_IsApplicable(*bonusIter, player, false))
 			{
 				BONUS_Apply(*bonusIter, player, messageQueue);
-				sound.playSample(D6_SND_BNPICK);
+				sounds.getSample(PlayerSounds::Type::PickedBonus).play();
 				bonusIter = d6Bonuses.erase(bonusIter);
 			}
 			else

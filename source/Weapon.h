@@ -32,6 +32,7 @@
 #include "Shot.h"
 #include "Color.h"
 #include "GameService.h"
+#include "Sound.h"
 
 // TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
@@ -57,19 +58,21 @@ namespace Duel6
 		Int32 power;
 		Float32 reloadSpeed;
 		char name[30];
-		Int32 shotSound;
-		Int32 boomSound;
+		const char* shotSound;
+		const char* boomSound;
 		Float32 expGrow;
 		bool shit; // TODO: Remove
 		Int16 animation[16];
 		Int16 shotAnimation[18];
 		Int16 boomAnimation[14];
 		WeaponTextureKey texture;
+		Sound::Sample shotSample;
+		Sound::Sample boomSample;
 	};	
 
-	void WPN_Init(TextureManager& textureManager, Console& console);
+	void WPN_Init(TextureManager& textureManager, Sound& sound, Console& console);
 	void WPN_LevelInit();
-	void WPN_AddShot(Player& player, SpriteList& spriteList, const TextureManager& textureManager, Sound& sound);
+	void WPN_AddShot(Player& player, SpriteList& spriteList, const TextureManager& textureManager);
 	void WPN_MoveShots(GameService& gameService, float elapsedTime);
 
 	const Weapon& WPN_GetRandomWeapon();

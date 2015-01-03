@@ -37,40 +37,38 @@
 
 namespace Duel6
 {
-	enum
-	{
-		D6_SND_DEAD,
-		D6_SND_BNPICK,
-		D6_SND_SHOT_BL,
-		D6_SND_BOOM_BL,
-		D6_SND_SHOT_LS,
-		D6_SND_SHOT_PI,
-		D6_SND_SHOT_PL,
-		D6_SND_SHOT_SG,
-		D6_SND_SHOT_BZ,
-		D6_SND_BOOM_BZ,
-		D6_SND_WATER,
-		D6_SND_SHOT_TZ,
-		D6_SND_SHOT_KM,
-		D6_SND_HIT,
-		D6_SND_SHOT_LK,
-		D6_SND_SHOT_SM,
-		D6_SND_SHOT_KD1,
-		D6_SND_SHOT_KD2,
-		D6_SND_SHOT_SPRAY,
-		D6_SND_SHOT_SLING,
-		D6_SND_SHOT_SPUNT,
-		D6_SND_SHOT_SHIT,
-		D6_SND_SHOT_SHIT_HIT,
-		D6_SND_LETS_ROCK,
-		D6_SND_GAME_OVER
-	};
-
 	class Sound
 	{
 	public:
-		typedef Size Sample;
-		typedef Size Track;
+		class Sample
+		{
+		private:
+			friend class Sound;
+			Sound* sound;
+			Mix_Chunk* chunk;
+
+		private:
+			Sample(Sound* sound, Mix_Chunk* chunk);
+
+		public:
+			Sample();
+			void play() const;
+		};
+
+		class Track
+		{			
+		private:
+			friend class Sound;
+			Sound* sound;
+			Mix_Music* module;
+
+		private:			
+			Track(Sound* sound, Mix_Music* module);
+
+		public:
+			Track();
+			void play(bool loop) const;
+		};
 
 	private:
 		Console& console;
@@ -85,10 +83,12 @@ namespace Duel6
 
 		Track loadModule(const std::string& fileName);
 		Sample loadSample(const std::string& fileName);
-		void stopMusic();
-		void startMusic(Track track, bool loop);
-		void playSample(Sample sample);
 		void volume(Int32 volume);
+		void stopMusic();
+
+	private:
+		void startMusic(Mix_Music* music, bool loop);
+		void playSample(Mix_Chunk* chunk);
 	};
 }
 

@@ -47,18 +47,20 @@ namespace Duel6
 			PickedBonus
 		};
 
-	private:
-		static std::unordered_map<Type,Sound::Sample> defaultSounds;
+	private:		
 		Sound::Sample sounds[7];
 
 	private:
-		static std::string getDefaultSound(Type type);
-		static Sound::Sample loadDefaultSound(Type type);
+		PlayerSounds()
+		{}
 
 	public:
-		Sound::Sample getSample(Type type);
+		const Sound::Sample& getSample(Type type) const
+		{
+			return sounds[(Int32)type];
+		}
 
-		static PlayerSounds load(const std::string& file);
+		static PlayerSounds load(Sound& sound, const std::string& profilePath, const std::string& file);
 	};
 }
 

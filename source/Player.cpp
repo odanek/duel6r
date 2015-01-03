@@ -50,9 +50,11 @@ namespace Duel6
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 	static Int16 wtAnim[24] = { 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0 };
 
-	Player::Player(Person& person, PlayerSkin skin, const PlayerControls& controls, const TextureManager& textureManager, 
-		SpriteList& spriteList, InfoMessageQueue& messageQueue, Sound& sound)
-		: person(person), skin(skin), controls(controls), sound(sound), textureManager(textureManager), spriteList(spriteList), messageQueue(messageQueue)
+	Player::Player(Person& person, PlayerSkin skin, const PlayerSounds& sounds, const PlayerControls& controls, 
+		const TextureManager& textureManager, SpriteList& spriteList, InfoMessageQueue& messageQueue,
+		const Sound::Sample& waterSplashSample)
+		: person(person), skin(skin), sounds(sounds), controls(controls), textureManager(textureManager), 
+		spriteList(spriteList), messageQueue(messageQueue), waterSplashSample(waterSplashSample)
 	{
 		camera.rotate(180.0, 0.0, 0.0);
 	}
@@ -210,7 +212,7 @@ namespace Duel6
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
 
-		WPN_AddShot(*this, spriteList, textureManager, sound);
+		WPN_AddShot(*this, spriteList, textureManager);
 	}
 
 	Player& Player::pickWeapon(const Weapon& weapon, Int32 bullets)
@@ -320,7 +322,7 @@ namespace Duel6
 		checkWater(world, elapsedTime);
 		if (!isDead())
 		{
-			BONUS_Check(*this, messageQueue, sound);
+			BONUS_Check(*this, messageQueue, sounds);
 		}
 
 		checkKeys();
@@ -572,13 +574,13 @@ namespace Duel6
 				EXPL_Add(getX() + 0.5f, getY() + 0.5f, 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
 			}
 
-			sound.playSample(D6_SND_DEAD);
+			sounds.getSample(PlayerSounds::Type::WasKilled).play();
 			return true;
 		}
 		
 		if (directHit)
 		{
-			sound.playSample(D6_SND_HIT);
+			sounds.getSample(PlayerSounds::Type::GotHit).play();
 		}
 
 		return false;
@@ -601,7 +603,7 @@ namespace Duel6
 			gunSprite->setDraw(false);
 			messageQueue.add(*this, D6_L("You are dead"));
 
-			sound.playSample(D6_SND_DEAD);
+			sounds.getSample(PlayerSounds::Type::WasKilled).play();
 			return true;
 		}
 
@@ -664,7 +666,7 @@ namespace Duel6
 				.setLooping(AnimationLooping::OnceAndRemove);
 			spriteList.addSprite(waterSplash);
 			
-			sound.playSample(D6_SND_WATER);
+			waterSplashSample.play();
 			setFlag(FlagFeetInWater);
 		}
 		else if (water == WaterType::None)

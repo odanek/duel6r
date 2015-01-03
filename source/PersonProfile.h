@@ -40,7 +40,7 @@ namespace Duel6
 		PlayerSounds sounds;
 
 	public:
-		PersonProfile(const std::string& path);
+		PersonProfile(Sound& sound, const std::string& profileRoot);
 
 		PlayerSkinColors& getSkinColors()
 		{
@@ -50,11 +50,6 @@ namespace Duel6
 		const PlayerSkinColors& getSkinColors() const
 		{
 			return skinColors;
-		}
-
-		PlayerSounds& getSounds()
-		{
-			return sounds;
 		}
 
 		const PlayerSounds& getSounds() const

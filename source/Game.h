@@ -52,11 +52,12 @@ namespace Duel6
 		private:
 			Person& person;
 			const PlayerSkinColors& colors;
+			const PlayerSounds& sounds;
 			const PlayerControls& controls;
 
 		public:
-			PlayerDefinition(Person& person, const PlayerSkinColors& colors, const PlayerControls& controls)
-				: person(person), colors(colors), controls(controls)
+			PlayerDefinition(Person& person, const PlayerSkinColors& colors, const PlayerSounds& sounds, const PlayerControls& controls)
+				: person(person), colors(colors), sounds(sounds), controls(controls)
 			{}
 
 			Person& getPerson() const
@@ -67,6 +68,11 @@ namespace Duel6
 			const PlayerSkinColors& getColors() const
 			{
 				return colors;
+			}
+
+			const PlayerSounds& getSounds() const
+			{
+				return sounds;
 			}
 
 			const PlayerControls& getControls() const
@@ -83,6 +89,10 @@ namespace Duel6
 		SpriteList spriteList;
 		World world;		
 		Renderer renderer;
+
+		Sound::Sample gameOverSound;
+		Sound::Sample roundStartSound;
+		Sound::Sample waterSplashSound;
 
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;

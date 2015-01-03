@@ -47,7 +47,12 @@ namespace Duel6
 		world(D6_FILE_BLOCK_META, D6_ANM_SPEED, D6_WAVE_HEIGHT, appService.getTextureManager(), appService.getConsole()), 		
 		ammoRange(15, 15), playedRounds(0), maxRounds(0),
 		gameService(appService, spriteList, messageQueue, world, players)
-	{}
+	{	
+		Sound& sound = appService.getSound();
+		roundStartSound = sound.loadSample("sound/game/round-start.wav");
+		gameOverSound = sound.loadSample("sound/game/game-over.wav");
+		waterSplashSound = sound.loadSample("sound/game/water.wav");
+	}
 
 	void Game::splitScreenView(Player& player, Int32 x, Int32 y)
 	{
@@ -244,7 +249,7 @@ namespace Duel6
 			{
 				gameOverWait = 0;
 				winner = 2;
-				appService.getSound().playSample(D6_SND_GAME_OVER);
+				gameOverSound.play();
 			}
 		}
 		updateNotifications(elapsedTime);
@@ -320,8 +325,8 @@ namespace Duel6
 		PlayerSkin::freeAll(textureManager);
 		for (const PlayerDefinition& playerDef : playerDefinitions)
 		{			
-			players.push_back(Player(playerDef.getPerson(), PlayerSkin::create(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager, appService.getConsole()), playerDef.getControls(),
-				textureManager, spriteList, messageQueue, appService.getSound()));
+			players.push_back(Player(playerDef.getPerson(), PlayerSkin::create(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager, appService.getConsole()), 
+				playerDef.getSounds(), playerDef.getControls(), textureManager, spriteList, messageQueue, waterSplashSound));
 		}
 		this->levels = levels;
 		this->backgrounds = backgrounds;
@@ -366,7 +371,7 @@ namespace Duel6
 		playedRounds++;
 		showYouAreHere = D6_YOU_ARE_HERE_DURATION;
 
-		appService.getSound().playSample(D6_SND_LETS_ROCK);
+		roundStartSound.play();
 	}
 		
 	std::vector<const Player*> Game::getLadder() const

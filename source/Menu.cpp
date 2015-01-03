@@ -41,35 +41,6 @@
 
 namespace Duel6
 {
-	static const char   *d6SndFl[D6_SOUNDS] =
-	{
-		"sound/smrt.wav",
-		"sound/bnpick.wav",
-		"sound/blesk.wav",
-		"sound/bmblesk.wav",
-		"sound/laser.wav",
-		"sound/pistol.wav",
-		"sound/plasma.wav",
-		"sound/shotgun.wav",
-		"sound/bazooka.wav",
-		"sound/bmbazook.wav",
-		"sound/voda.wav",
-		"sound/triton.wav",
-		"sound/kulomet.wav",
-		"sound/hit.wav",
-		"sound/luk.wav",
-		"sound/sliz.wav",
-		"sound/kiss2.wav",
-		"sound/kiss.wav",
-		"sound/spray.wav",
-		"sound/prak.wav",
-		"sound/spunt.wav",
-		"sound/shit.wav",
-		"sound/shit-hit.wav",
-		"sound/letsrock.wav",
-		"sound/gameover.wav"
-	};
-
 	Menu::Menu(AppService& appService)		
 		: appService(appService), font(appService.getFont()), video(appService.getVideo()), 
 		sound(appService.getSound()), controlsManager(appService.getInput()), playMusic(false)
@@ -117,10 +88,11 @@ namespace Duel6
 
 	void Menu::initialize()
 	{		
+		loadPersonProfiles(D6_FILE_PROFILES);
+		loadPersonData(D6_FILE_PHIST);
+
 		appService.getConsole().printLine(D6_L("\n===Menu initialization==="));
 		menuBannerTexture = appService.getTextureManager().get(D6_TEXTURE_MENU_KEY)[0];
-		loadPersonData(D6_FILE_PHIST);
-		loadPersonProfiles(D6_FILE_PROFILES);
 		appService.getConsole().printLine(D6_L("...Starting GUI library"));
 		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
@@ -286,12 +258,8 @@ namespace Duel6
 			listbox[2]->addItem(persons.get(personIndex).getName());
 		}
 
-		appService.getConsole().print(D6_L("\n===Loading sound data===\n"));
+		appService.getConsole().print(D6_L("\n===Loading background music===\n"));
 		menuTrack = sound.loadModule("sound/undead.xm");
-		for (Size i = 0; i < D6_SOUNDS; i++)
-		{
-			sound.loadSample(d6SndFl[i]);
-		}
 	}
 
 	void Menu::savePersonData()
@@ -520,7 +488,7 @@ namespace Duel6
 			Person& person = persons.get(playingPersons[i]);
 			auto& profile = getPersonProfile(person.getName(), i);			
 			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->curItem());
-			playerDefinitions.push_back(Game::PlayerDefinition(person, profile.getSkinColors(), controls));
+			playerDefinitions.push_back(Game::PlayerDefinition(person, profile.getSkinColors(), profile.getSounds(), controls));
 		}
 
 		// Levels
@@ -603,7 +571,7 @@ namespace Duel6
 		rebuildTable();
 		if (playMusic)
 		{
-			sound.startMusic(menuTrack, false);
+			menuTrack.play(false);
 		}
 	}
 
@@ -692,7 +660,7 @@ namespace Duel6
 		{
 			if (enable)
 			{
-				sound.startMusic(menuTrack, false);
+				menuTrack.play(false);
 			}
 			else
 			{
@@ -703,12 +671,14 @@ namespace Duel6
 
 	void Menu::loadPersonProfiles(const std::string& path)
 	{
+		appService.getConsole().printLine("\n===Person profile initialization===");
+
 		std::vector<std::string> profileDirs;
 		File::listDirectory(path, "", profileDirs);
 		for (auto& profileName : profileDirs)
 		{
 			std::string profilePath = Format("{0}/{1}/") << path << profileName;
-			personProfiles.insert(std::make_pair(profileName, PersonProfile(profilePath)));
+			personProfiles.insert(std::make_pair(profileName, PersonProfile(sound, profilePath)));
 		}
 	}
 

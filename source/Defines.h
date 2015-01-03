@@ -39,6 +39,8 @@
 #define D6_FILE_LEVEL       "levels/"
 #define D6_FILE_PHIST       "data/duel6.dat"
 #define D6_FILE_PROFILES	"profiles"
+#define D6_FILE_WEAPON_SOUNDS "sound/weapon/"
+#define D6_FILE_PLAYER_SOUNDS "sound/player/"
 
 #define D6_FILE_PROFILE_SKIN   "skin.json"
 #define D6_FILE_PROFILE_SOUNDS "sounds.json"

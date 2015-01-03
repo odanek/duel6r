@@ -30,9 +30,7 @@
 
 namespace Duel6
 {
-	PersonProfile::PersonProfile(const std::string& path)
-	{
-		skinColors = PlayerSkinColors::load(path + D6_FILE_PROFILE_SKIN);
-		//sounds = PlayerSounds::load(path + );
-	}
+	PersonProfile::PersonProfile(Sound& sound, const std::string& profileRoot)
+		: skinColors(PlayerSkinColors::load(profileRoot, D6_FILE_PROFILE_SKIN)), sounds(PlayerSounds::load(sound, profileRoot, D6_FILE_PROFILE_SOUNDS))
+	{}
 }

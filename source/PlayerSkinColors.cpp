@@ -30,10 +30,10 @@
 
 namespace Duel6
 {
-	PlayerSkinColors PlayerSkinColors::load(const std::string& file)
+	PlayerSkinColors PlayerSkinColors::load(const std::string& profileRoot, const std::string& file)
 	{
 		Json::Parser parser;
-		const Json::Value& root = parser.parse(file);
+		const Json::Value& root = parser.parse(profileRoot + file);
 
 		PlayerSkinColors colors;
 		colors.set(PlayerSkinColors::HairTop, Color::fromString(root.get("hairTop").asString()));

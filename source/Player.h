@@ -34,6 +34,7 @@
 #include "Person.h"
 #include "PlayerSkin.h"
 #include "PlayerControls.h"
+#include "PlayerSounds.h"
 #include "Orientation.h"
 #include "ScreenMode.h"
 #include "Bonus.h"
@@ -138,15 +139,15 @@ namespace Duel6
 		};
 
 	private:
-		Sound& sound;
 		const TextureManager& textureManager;
 		SpriteList& spriteList;
-		InfoMessageQueue& messageQueue;
+		InfoMessageQueue& messageQueue;		
 
 		Person& person;
 		PlayerSkin skin;
 		mycam_c camera;
 		CameraPosition cameraPos;
+		const PlayerSounds& sounds;
 		const PlayerControls& controls;
 		PlayerView view;
 		SpriteIterator sprite;
@@ -154,9 +155,12 @@ namespace Duel6
 		PlayerState state;
 		Int32 infoBarPosition[2];
 
+		const Sound::Sample& waterSplashSample; // TODO: Remove
+
 	public:
-		Player(Person& person, PlayerSkin skin, const PlayerControls& controls, const TextureManager& textureManager, 
-			SpriteList& spriteList, InfoMessageQueue& messageQueue, Sound& sound);
+		Player(Person& person, PlayerSkin skin, const PlayerSounds& sounds, const PlayerControls& controls, 
+			const TextureManager& textureManager, SpriteList& spriteList, InfoMessageQueue& messageQueue,
+			const Sound::Sample& waterSplashSample);
 		~Player();
 
 		bool is(const Player& player) const

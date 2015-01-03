@@ -74,7 +74,7 @@ namespace Duel6
 			return color[(int)bodyPart];
 		}
 
-		static PlayerSkinColors load(const std::string& file);
+		static PlayerSkinColors load(const std::string& profileRoot, const std::string& file);
 	};
 }
 
