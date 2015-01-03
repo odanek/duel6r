@@ -72,8 +72,8 @@ namespace Duel6
 
 	private:
 		Console& console;
-		bool playing;
 		Size channels;
+		bool playing;
 		std::vector<Mix_Music*> modules;
 		std::vector<Mix_Chunk*> samples;
 

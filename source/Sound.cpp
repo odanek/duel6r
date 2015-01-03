@@ -65,7 +65,7 @@ namespace Duel6
 	}
 
 	Sound::Sound(Size channels, Console& console)
-		: channels(channels), console(console), playing(false)
+		: console(console), channels(channels), playing(false)
 	{
 		console.printLine(D6_L("\n===Initialization of sound sub-system==="));
 		console.printLine(D6_L("...Starting SDL_mixer library"));
