@@ -110,6 +110,22 @@ namespace Duel6
 
 				remainingData -= chunkLength;
 			}
+
+			if (!(header[8] & 0x2000)) // Flip image vertically
+			{
+				for (Size y = 0; y < image.getHeight() / 2; y++)
+				{
+					Color* row1 = &image.at(y * image.getWidth());
+					Color* row2 = &image.at((image.getHeight() - 1 - y) * image.getWidth());
+
+					for (Size x = 0; x < image.getWidth(); x++, row1++, row2++)
+					{
+						Color tmp = *row1;
+						*row1 = *row2;
+						*row2 = tmp;
+					}
+				}
+			}
 		}
 
 		void saveTarga(const std::string& path, const Image& image)
