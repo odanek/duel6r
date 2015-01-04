@@ -166,9 +166,11 @@ namespace Duel6
 		textureManager.load(D6_TEXTURE_BONUS_KEY, D6_TEXTURE_BONUS_PATH, GL_LINEAR, true);
 
 		textureManager.load(D6_TEXTURE_WATER_B_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true);
-		TextureManager::SubstitutionTable redWater;
-		redWater[Color(0, 182, 255)] = Color(197, 0, 0);
-		textureManager.load(D6_TEXTURE_WATER_R_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, redWater);
+		TextureManager::SubstitutionTable waterColor;
+		waterColor[Color(0, 182, 255)] = Color(197, 0, 0);
+		textureManager.load(D6_TEXTURE_WATER_R_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, waterColor);
+		waterColor[Color(0, 182, 255)] = Color(0, 197, 0);
+		textureManager.load(D6_TEXTURE_WATER_G_KEY, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, waterColor);
 
 		WPN_Init(textureManager, sound, console);
 		FIRE_Init(textureManager);

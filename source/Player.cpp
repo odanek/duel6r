@@ -661,7 +661,7 @@ namespace Duel6
 		water = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
 		if (water != WaterType::None && !hasFlag(FlagFeetInWater))
 		{
-			Sprite waterSplash(wtAnim, textureManager.get((water == WaterType::Blue) ? D6_TEXTURE_WATER_B_KEY : D6_TEXTURE_WATER_R_KEY));
+			Sprite waterSplash(wtAnim, textureManager.get((water == WaterType::Blue) ? D6_TEXTURE_WATER_B_KEY : (water == WaterType::Red ? D6_TEXTURE_WATER_R_KEY : D6_TEXTURE_WATER_G_KEY)));
 			waterSplash.setPosition(getX(), getY(), 0.5f)
 				.setLooping(AnimationLooping::OnceAndRemove);
 			spriteList.addSprite(waterSplash);

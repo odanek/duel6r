@@ -36,7 +36,8 @@ namespace Duel6
 	{
 		None,
 		Blue,
-		Red
+		Red,
+		Green
 	};
 }
 

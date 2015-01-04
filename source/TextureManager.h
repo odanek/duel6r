@@ -50,6 +50,7 @@
 #define D6_TEXTURE_WATER_PATH	"textures/water/"
 #define D6_TEXTURE_WATER_B_KEY	"water_blue"
 #define D6_TEXTURE_WATER_R_KEY	"water_red"
+#define D6_TEXTURE_WATER_G_KEY	"water_green"
 #define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
 #define D6_TEXTURE_ELEVATOR_KEY	"elev"
 #define D6_TEXTURE_BONUS_PATH	"textures/bonus/"

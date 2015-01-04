@@ -128,15 +128,7 @@ namespace Duel6
 			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
 		}
 
-		WaterType getWaterType(Int32 x, Int32 y) const
-		{
-			if (isWater(x, y))
-			{
-				return (getBlock(x, y) == 4) ? WaterType::Blue : WaterType::Red;
-			}
-
-			return WaterType::None;
-		}
+		WaterType getWaterType(Int32 x, Int32 y) const;
 
 	private:
 		void loadBlockMeta(const std::string& path);
