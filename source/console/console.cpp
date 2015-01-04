@@ -31,23 +31,12 @@ Popis: Hlavni funkce
 */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 #include "ConsoleException.h"
 #include "console.h"
 
-///////////////////////////////////////////////////////
-//                Zakladni funkce                    //
-///////////////////////////////////////////////////////
-
 namespace Duel6
 {
-	/*
-	==================================================
-	Inicializace/deinicializace konzole
-	==================================================
-	*/
 	Console::Console(Uint32 flags)
 	{
 		visible = false;
@@ -78,11 +67,6 @@ namespace Duel6
 		aliases.clear();
 	}
 
-	/*
-	==================================================
-	Vyprazdneni textoveho bufferu
-	==================================================
-	*/
 	void Console::clear()
 	{
 		bufpos = 0;
@@ -91,12 +75,6 @@ namespace Duel6
 		memset(&text[0], '\n', CON_TEXT_SIZE);
 	}
 
-	/*
-	==================================================
-	Formatovany tisk do konzoly
-	V infoproc by se nemelo s konzolou nic delat
-	==================================================
-	*/
 	Console& Console::print(const std::string& str)
 	{
 		for (size_t pos = 0; pos < str.length(); ++pos)
@@ -140,15 +118,7 @@ namespace Duel6
 		return *this;
 	}
 
-	///////////////////////////////////////////////////////
-	//                  Registrace                       //
-	///////////////////////////////////////////////////////
 
-	/*
-	==================================================
-	Kontrola pripustnosti jmena
-	==================================================
-	*/
 	void Console::verifyRegistration(const std::string& proc, const std::string& name, bool isNull)
 	{
 		if (name.empty())
@@ -167,11 +137,6 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Registrovani prikazu
-	==================================================
-	*/
 	void Console::registerCommand(const std::string& name, Command command)
 	{
 		verifyRegistration(CON_Lang("Command registration"), name, !command);
@@ -197,11 +162,6 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Registrace aliasu
-	==================================================
-	*/
 	void Console::registerAlias(const std::string& name, const std::string& cmd)
 	{
 		AliasRecord* a = findAlias(name);
@@ -236,11 +196,6 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Vraceni ukazatele na prikaz
-	==================================================
-	*/
 	Console::CommandRecord* Console::findCommand(const std::string& name)
 	{
 		for (CommandRecord& command : cmds)
@@ -254,11 +209,6 @@ namespace Duel6
 		return nullptr;
 	}
 
-	/*
-	==================================================
-	Vraci ukazatel na alias s danym jmenem
-	==================================================
-	*/
 	Console::AliasRecord* Console::findAlias(const std::string& name)
 	{
 		for (AliasRecord& alias : aliases)
@@ -272,21 +222,11 @@ namespace Duel6
 		return nullptr;
 	}
 
-	/*
-	==================================================
-	Nastaveni kolik predchozich radku bude zobrazeno
-	==================================================
-	*/
 	void Console::setLast(int sl)
 	{
 		show = sl > 1 ? sl : 2;
 	}
 
-	/*
-	==================================================
-	Vraci ukazatel na textovy buffer konzole
-	==================================================
-	*/
 	const Uint8* Console::getText(Size& bufPos, bool& bufFull) const
 	{
 		bufPos = bufpos;

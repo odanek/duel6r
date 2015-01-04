@@ -31,7 +31,6 @@ Popis: Vykresleni konzoly
 */
 
 #include <time.h>
-#include <string.h>
 #include <SDL2/SDL_opengl.h>
 #include "../Color.h"
 #include "console.h"

@@ -33,8 +33,6 @@
 
 namespace Duel6
 {
-	class Player; // Forward declaration
-
 	class Elevator
 	{
 	private:

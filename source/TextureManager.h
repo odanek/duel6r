@@ -33,7 +33,7 @@
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Color.h"
-#include "Util.h"
+#include "Image.h"
 
 #define D6_TEXTURE_EXTENSION	".tga"
 

@@ -39,6 +39,7 @@
 #include "ScreenMode.h"
 #include "Bonus.h"
 #include "Sound.h"
+#include "Video.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f

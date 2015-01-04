@@ -343,7 +343,7 @@ namespace Duel6
 		private:
 			SliderPosition *pos;
 			Button *up, *down;
-			Int32 height, dWait, pWait;
+			Int32 height, pWait;
 
 		public:
 			Slider(Desktop& desk);

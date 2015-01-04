@@ -31,7 +31,6 @@ Popis: Zakladni prikazy pro beznou praci s konzolou
 */
 
 #include <stdio.h>
-#include <string.h>
 #include "console.h"
 
 namespace Duel6

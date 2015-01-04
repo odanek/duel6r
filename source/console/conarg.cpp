@@ -31,16 +31,10 @@ Popis: Zpracovani argumentu a prikazoveho bufferu
 */
 
 #include <stdio.h>
-#include <string.h>
 #include "console.h"
 
 namespace Duel6
 {
-	/*
-	==================================================
-	Expanduje promene v retezci
-	==================================================
-	*/
 	std::string Console::expandLine(const std::string& line)
 	{
 		std::string output;
@@ -89,11 +83,6 @@ namespace Duel6
 		return output;
 	}
 
-	/*
-	==================================================
-	Nalezne dalsi token v retezci
-	==================================================
-	*/
 	std::string::const_iterator Console::nextToken(const std::string& line, std::string::const_iterator& begin, std::string::const_iterator& end)
 	{
 		auto lineEnd = line.end();
@@ -150,11 +139,6 @@ namespace Duel6
 		return end;
 	}
 
-	/*
-	==================================================
-	Prevod retezce na tokeny
-	==================================================
-	*/
 	void Console::tokenizeLine(const std::string& line, Arguments& args)
 	{
 		args.clear();
@@ -172,11 +156,6 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Provedeni jedne radky command bufferu
-	==================================================
-	*/
 	void Console::executeSingleLine(const std::string& line)
 	{
 		if (line.empty())
@@ -278,11 +257,6 @@ namespace Duel6
 		return *this;
 	}
 
-	/*
-	==================================================
-	Provede obsah command bufferu
-	==================================================
-	*/
 	void Console::execute()
 	{
 		while (!cbuf.empty())
@@ -294,11 +268,6 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Prida prika do command bufferu a zavola Execute
-	==================================================
-	*/
 	void Console::exec(const std::string& commands)
 	{
 		appendCommands(commands);

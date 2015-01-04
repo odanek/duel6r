@@ -59,10 +59,10 @@ namespace Duel6
 		}
 		else
 		{
-			size_t joysticks = SDL_NumJoysticks();
+			int joysticks = SDL_NumJoysticks();
 			console.print(Format(D6_L("...Found {0} joypads\n")) << joysticks);
 
-			for (size_t i = 0; i < joysticks; i++)
+			for (int i = 0; i < joysticks; i++)
 			{
 				joypads.push_back(SDL_JoystickOpen(i));
 				console.print(Format("... * {0}\n") << SDL_JoystickName(joypads[i]));

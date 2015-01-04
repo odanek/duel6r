@@ -108,7 +108,6 @@ namespace Duel6
 
 		void showMessage(const std::string& message);
 		void detectControls(Size playerIndex);
-		void free();
 		void play();
 		void loadPersonData(const std::string& filePath);
 		void loadPersonProfiles(const std::string& path);
@@ -119,7 +118,6 @@ namespace Duel6
 		void addPlayer();
 		void removePlayer(Int32 c);
 		void rebuildTable();
-		Size getBackgroundCount();
 		bool question(const std::string& question);
 		bool deleteQuestion();
 	};
