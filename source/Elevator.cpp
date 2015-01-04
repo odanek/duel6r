@@ -28,7 +28,6 @@
 #include <SDL2/SDL_opengl.h>
 #include "Elevator.h"
 #include "Math.h"
-#include "Player.h"
 
 #define D6_ELEV_SPEED           1.83f
 

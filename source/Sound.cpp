@@ -27,7 +27,6 @@
 
 #include <vector>
 #include "SoundException.h"
-#include "Type.h"
 #include "Sound.h"
 
 namespace Duel6

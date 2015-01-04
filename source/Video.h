@@ -133,7 +133,6 @@ namespace Duel6
 		void initialize(const std::string& name, const std::string& icon, Console& console);
 		void screenUpdate(Console& console, const Font& font);
 		void setMode(Mode mode) const;
-		void closeWindow();
 
 		const ScreenParameters& getScreen() const
 		{

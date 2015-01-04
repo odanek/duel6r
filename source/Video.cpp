@@ -66,11 +66,6 @@ namespace Duel6
 		frameCounter++;
 	}
 
-	/*
-	==================================================
-	Video init
-	==================================================
-	*/
 	void Video::initialize(const std::string& name, const std::string& icon, Console& console)
 	{
 		console.printLine(D6_L("\n===Video initialization==="));

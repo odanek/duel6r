@@ -38,7 +38,6 @@ namespace Duel6
 {
 	namespace Util
 	{
-		void loadKH3Image(const std::string& path, Int32 num, Image& image);
 		void loadTargaImage(const std::string& path, Image& image);
 		GLuint createTexture(const Image& image, GLint filtering, bool clamp);
 		std::string saveScreenTga(const Video& video);

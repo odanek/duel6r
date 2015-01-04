@@ -31,24 +31,17 @@ Popis: Zpracovani promenych
 */
 
 #include <sstream>
-#include <stdlib.h>
-#include <string.h>
 #include "console.h"
 
 namespace Duel6
 {
-	/*
-	==================================================
-	Zaregistrovani promene
-	==================================================
-	*/
 	void Console::registerVariable(const std::string& name, Variable* ptr, Uint32 flags)
 	{
 		verifyRegistration(name, CON_Lang("Variable registration"), ptr == nullptr);
 
 		VarRecord newVar(name, ptr, flags);
 
-		// Zaradi novou promenou tak, aby byly setridene podle abecedy
+		// Sort lexicographically
 		Size position = 0;
 		for (const VarRecord& var : vars)
 		{
@@ -107,11 +100,6 @@ namespace Duel6
 		}
 	}
 
-	/*
-	==================================================
-	Vytiskne na konzolu info o promene
-	==================================================
-	*/
 	void Console::VarRecord::printInfo(Console& console) const
 	{
 		const char *flagstr = "ra";

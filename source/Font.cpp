@@ -53,11 +53,6 @@ namespace Duel6
 		charHeight = (Int32)data[1];
 	}
 
-	/*
-	==================================================
-	Vykresleni jednoho znaku
-	==================================================
-	*/
 	void Font::drawChar(Int32 x, Int32 y, Int32 c) const
 	{
 		const Uint8* frm = &data[2 + c * charHeight];

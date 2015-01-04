@@ -183,7 +183,7 @@ namespace Duel6
 			D6_THROW(IoException, "Invalid directory specified: " + path);
 		}
 
-		struct dirent* ff = (handle == nullptr) ? nullptr : readdir(handle);
+		struct dirent* ff = readdir(handle);
 
 		while (ff != nullptr)
 		{
