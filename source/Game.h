@@ -39,6 +39,7 @@
 #include "World.h"
 #include "Player.h"
 #include "Render.h"
+#include "Water.h"
 #include "GameService.h"
 
 namespace Duel6
@@ -89,10 +90,10 @@ namespace Duel6
 		SpriteList spriteList;
 		World world;		
 		Renderer renderer;
+		Water::WaterSet waterSet;
 
 		Sound::Sample gameOverSound;
 		Sound::Sample roundStartSound;
-		Sound::Sample waterSplashSound;
 
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
@@ -115,6 +116,7 @@ namespace Duel6
 	public:
 		Game(AppService& appService);
 
+		void initialize();
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
 		void textInputEvent(const char* text) override;

@@ -48,13 +48,12 @@ namespace Duel6
 	static Int16 d6LAnim[16] = { 13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0 };
 	static Int16 d6NAnim[4] = { 25, 100, -1, 0 };
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
-	static Int16 wtAnim[24] = { 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0 };
 
 	Player::Player(Person& person, PlayerSkin skin, const PlayerSounds& sounds, const PlayerControls& controls, 
 		const TextureManager& textureManager, SpriteList& spriteList, InfoMessageQueue& messageQueue,
-		const Sound::Sample& waterSplashSample)
+		const Water::WaterSet& waterSet)
 		: textureManager(textureManager), spriteList(spriteList), messageQueue(messageQueue), person(person), skin(skin), 
-		sounds(sounds), controls(controls), waterSplashSample(waterSplashSample)
+		sounds(sounds), controls(controls), waterSet(waterSet)
 	{
 		camera.rotate(180.0, 0.0, 0.0);
 	}
@@ -636,14 +635,13 @@ namespace Duel6
 
 	void Player::checkWater(const World& world, Float32 elapsedTime)
 	{
-		Float32 airHitAmount = D6_WATER_HIT * elapsedTime;
-		unsetFlag(FlagHeadUnderWater);
-
 		// Check if head is in water
-		WaterType water = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.8f));   // TODO: Coord
-		if (water != WaterType::None)
+		water.headUnderWater = false;
+		Water::Type waterType = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.8f));   // TODO: Coord
+		if (waterType != Water::Type::None)
 		{
-			setFlag(FlagHeadUnderWater);
+			Float32 airHitAmount = waterSet.at(waterType)->getAirHit() * elapsedTime;
+			water.headUnderWater = true;
 			if ((state.air -= airHitAmount) < 0)
 			{
 				state.air = 0;
@@ -655,23 +653,21 @@ namespace Duel6
 			return;
 		}
 
-		state.air = std::min(state.air + 2 * airHitAmount, D6_MAX_AIR);
+		state.air = std::min(state.air + 2 * D6_AIR_RECHARGE_SPEED * elapsedTime, D6_MAX_AIR);
 
 		// Check if foot is in water
-		water = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
-		if (water != WaterType::None && !hasFlag(FlagFeetInWater))
+		waterType = world.getWaterType(Int32(getX() + 0.5f), Int32(getY() + 0.1f));  // TODO: Coord
+		if (waterType != Water::Type::None && !water.feetInWater)
 		{
-			Sprite waterSplash(wtAnim, textureManager.get((water == WaterType::Blue) ? D6_TEXTURE_WATER_B_KEY : (water == WaterType::Red ? D6_TEXTURE_WATER_R_KEY : D6_TEXTURE_WATER_G_KEY)));
-			waterSplash.setPosition(getX(), getY(), 0.5f)
-				.setLooping(AnimationLooping::OnceAndRemove);
-			spriteList.addSprite(waterSplash);
-			
-			waterSplashSample.play();
-			setFlag(FlagFeetInWater);
+			const Water& water = *waterSet.at(waterType);
+			water.addSplash(spriteList, textureManager, getX(), getY()); // TODO: Coord
+			water.getSplashSound().play();
+			this->water.feetInWater = true;
 		}
-		else if (water == WaterType::None)
+		else if (waterType == Water::Type::None)
 		{
-			unsetFlag(FlagFeetInWater);
+			water.type = Water::Type::None;
+			water.feetInWater = false;
 		}
 	}
 

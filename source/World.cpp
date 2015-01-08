@@ -331,25 +331,25 @@ namespace Duel6
 			.addVertex(Vertex(3, fx, fy, z, flowFlag));
 	}
 
-	WaterType World::getWaterType(Int32 x, Int32 y) const
+	Water::Type World::getWaterType(Int32 x, Int32 y) const
 	{
 		if (isWater(x, y))
 		{
 			Uint16 block = getBlock(x, y);
 			if (block == 4)
 			{
-				return WaterType::Blue;
+				return Water::Type::Blue;
 			}
 			else if (block == 16)
 			{
-				return WaterType::Red;
+				return Water::Type::Red;
 			}
 			else if (block == 33)
 			{
-				return WaterType::Green;
+				return Water::Type::Green;
 			}
 		}
 
-		return WaterType::None;
+		return Water::Type::None;
 	}
 }

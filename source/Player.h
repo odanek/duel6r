@@ -40,6 +40,7 @@
 #include "Bonus.h"
 #include "Sound.h"
 #include "Video.h"
+#include "Water.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -110,12 +111,17 @@ namespace Duel6
 			FlagPick = 0x02,
 			FlagKnee = 0x04,
 			FlagLying = 0x08,
-			FlagHeadUnderWater = 0x10,
-			FlagFeetInWater = 0x20,
 			FlagMoveLeft = 0x40,
 			FlagMoveRight = 0x80,
 			FlagMoveUp = 0x100,
 			FlagHasGun = 0x200
+		};
+
+		struct WaterState
+		{
+			bool headUnderWater;
+			bool feetInWater;
+			Water::Type type;
 		};
 
 		struct PlayerState
@@ -151,17 +157,18 @@ namespace Duel6
 		const PlayerSounds& sounds;
 		const PlayerControls& controls;
 		PlayerView view;
+		WaterState water;
 		SpriteIterator sprite;
 		SpriteIterator gunSprite;
 		PlayerState state;
 		Int32 infoBarPosition[2];
 
-		const Sound::Sample& waterSplashSample; // TODO: Remove
+		const Water::WaterSet& waterSet; // TODO: Remove
 
 	public:
 		Player(Person& person, PlayerSkin skin, const PlayerSounds& sounds, const PlayerControls& controls, 
 			const TextureManager& textureManager, SpriteList& spriteList, InfoMessageQueue& messageQueue,
-			const Sound::Sample& waterSplashSample);
+			const Water::WaterSet& waterSet);
 		~Player();
 
 		bool is(const Player& player) const
@@ -339,7 +346,7 @@ namespace Duel6
 
 		bool isUnderWater() const
 		{
-			return hasFlag(FlagHeadUnderWater);
+			return water.headUnderWater;
 		}
 
 		bool isPickingGun() const
@@ -400,7 +407,12 @@ namespace Duel6
 		const PlayerSkin& getSkin() const
 		{
 			return skin;
-		}		
+		}
+
+		const WaterState& getWaterState() const
+		{
+			return water;
+		}
 
 	private:
 		void makeMove(const World& world, Float32 elapsedTime);

@@ -134,9 +134,10 @@ set(D6R_SOURCES
     source/Vertex.h
     source/Video.h
     source/Video.cpp    
+	source/Water.cpp
+	source/Water.h
     source/WaterList.h
     source/WaterList.cpp
-    source/WaterType.h
     source/Weapon.h
     source/Weapon.cpp
     source/World.h

@@ -33,7 +33,7 @@
 #include "TextureManager.h"
 #include "FaceList.h"
 #include "Bonus.h"
-#include "WaterType.h"
+#include "Water.h"
 #include "WaterList.h"
 #include "File.h"
 
@@ -128,7 +128,7 @@ namespace Duel6
 			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
 		}
 
-		WaterType getWaterType(Int32 x, Int32 y) const;
+		Water::Type getWaterType(Int32 x, Int32 y) const;
 
 	private:
 		void loadBlockMeta(const std::string& path);

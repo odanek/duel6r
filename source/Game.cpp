@@ -47,11 +47,14 @@ namespace Duel6
 		renderer(*this, appService.getFont(), video, appService.getTextureManager(), spriteList, messageQueue),
 		ammoRange(15, 15), playedRounds(0), maxRounds(0),
 		gameService(appService, spriteList, messageQueue, world, players)
+	{}
+
+	void Game::initialize()
 	{	
 		Sound& sound = appService.getSound();
+		waterSet = Water::createWaterSet(sound, appService.getTextureManager());
 		roundStartSound = sound.loadSample("sound/game/round-start.wav");
-		gameOverSound = sound.loadSample("sound/game/game-over.wav");
-		waterSplashSound = sound.loadSample("sound/game/water.wav");
+		gameOverSound = sound.loadSample("sound/game/game-over.wav");		
 	}
 
 	void Game::splitScreenView(Player& player, Int32 x, Int32 y)
@@ -326,7 +329,7 @@ namespace Duel6
 		for (const PlayerDefinition& playerDef : playerDefinitions)
 		{			
 			players.push_back(Player(playerDef.getPerson(), PlayerSkin::create(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager, appService.getConsole()), 
-				playerDef.getSounds(), playerDef.getControls(), textureManager, spriteList, messageQueue, waterSplashSound));
+				playerDef.getSounds(), playerDef.getControls(), textureManager, spriteList, messageQueue, waterSet));
 		}
 		this->levels = levels;
 		this->backgrounds = backgrounds;

@@ -42,6 +42,10 @@
 #define D6_FILE_WEAPON_SOUNDS "sound/weapon/"
 #define D6_FILE_PLAYER_SOUNDS "sound/player/"
 
+#define D6_FILE_WATER_BLUE	"sound/game/water-blue.wav"
+#define D6_FILE_WATER_RED	"sound/game/water-blue.wav"
+#define D6_FILE_WATER_GREEN "sound/game/water-green.wav"
+
 #define D6_FILE_PROFILE_SKIN   "skin.json"
 #define D6_FILE_PROFILE_SOUNDS "sounds.json"
 
@@ -55,7 +59,7 @@
 #define D6_WAVE_HEIGHT			0.1f
 
 #define D6_MAX_PLAYERS			8
-#define D6_WATER_HIT			60
+#define D6_AIR_RECHARGE_SPEED	60
 #define D6_GAME_OVER_WAIT		3.0f
 #define D6_INFO_DURATION		5.0f
 #define D6_PLAYER_MAX_SPEED     0.52f
