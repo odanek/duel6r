@@ -49,10 +49,9 @@ namespace Duel6
 	static Int16 d6NAnim[4] = { 25, 100, -1, 0 };
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 
-	Player::Player(Person& person, PlayerSkin skin, const PlayerSounds& sounds, const PlayerControls& controls, 
-		const TextureManager& textureManager, SpriteList& spriteList, InfoMessageQueue& messageQueue,
-		const Water::WaterSet& waterSet)
-		: textureManager(textureManager), spriteList(spriteList), messageQueue(messageQueue), person(person), skin(skin), 
+	Player::Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls, 
+		SpriteList& spriteList, InfoMessageQueue& messageQueue, const Water::WaterSet& waterSet)
+		: spriteList(spriteList), messageQueue(messageQueue), person(person), skin(skin), 
 		sounds(sounds), controls(controls), waterSet(waterSet)
 	{
 		camera.rotate(180.0, 0.0, 0.0);
@@ -72,7 +71,7 @@ namespace Duel6
 		sprite = spriteList.addSprite(manSprite);		
 
 		state.weapon = &WPN_GetRandomWeapon();
-		Sprite gunSprite(state.weapon->animation, textureManager.get(state.weapon->texture.gun));
+		Sprite gunSprite(state.weapon->animation, state.weapon->textures.gun);
 		gunSprite.setPosition(getX(), getY(), 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
@@ -197,7 +196,7 @@ namespace Duel6
 	{
 		if (isOnGround() && !isMoving() && !isOnElevator())
 		{
-			BONUS_CheckPick(*this, messageQueue, textureManager);
+			BONUS_CheckPick(*this, messageQueue);
 		}
 	}
 
@@ -211,7 +210,7 @@ namespace Duel6
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
 
-		WPN_AddShot(*this, spriteList, textureManager);
+		WPN_AddShot(*this, spriteList);
 	}
 
 	Player& Player::pickWeapon(const Weapon& weapon, Int32 bullets)
@@ -221,7 +220,7 @@ namespace Duel6
 		state.ammo = bullets;
 		state.timeToReload = 0;
 					
-		gunSprite->setAnimation(weapon.animation).setTextures(textureManager.get(weapon.texture.gun)).setFrame(6);
+		gunSprite->setAnimation(weapon.animation).setTextures(weapon.textures.gun).setFrame(6);
 
 		return *this;
 	}
@@ -616,13 +615,13 @@ namespace Duel6
 
 		if (world.isWall(x1, y - 1, true) && !world.isWall(x1, y, true))
 		{
-			BONUS_AddDeadManGun(x1, y, *this, textureManager);
+			BONUS_AddDeadManGun(x1, y, *this);
 		}
 		else
 		{
 			if (world.isWall(x2, y - 1, true) && !world.isWall(x2, y, true))
 			{
-				BONUS_AddDeadManGun(x2, y, *this, textureManager);
+				BONUS_AddDeadManGun(x2, y, *this);
 			}
 		}
 	}
@@ -660,7 +659,7 @@ namespace Duel6
 		if (waterType != Water::Type::None && !water.feetInWater)
 		{
 			const Water& water = *waterSet.at(waterType);
-			water.addSplash(spriteList, textureManager, getX(), getY()); // TODO: Coord
+			water.addSplash(spriteList, getX(), getY()); // TODO: Coord
 			water.getSplashSound().play();
 			this->water.feetInWater = true;
 		}

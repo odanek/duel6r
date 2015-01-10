@@ -38,12 +38,14 @@
 
 namespace Duel6
 {
-	void BONUS_Init();
+	void BONUS_Init(TextureManager& textureManager);
+	GLuint BONUS_GetTexture(Size type);
+	void BONUS_Clear();
 	void BONUS_DrawAll();
-	void BONUS_AddNew(const World& world, const TextureManager& textureManager);
-	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player, const TextureManager& textureManager);
+	void BONUS_AddNew(const World& world);
+	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player);
 	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue, const PlayerSounds& sounds);
-	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue, const TextureManager& textureManager);
+	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue);
 }
 
 #endif

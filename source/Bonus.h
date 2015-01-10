@@ -73,9 +73,9 @@ namespace Duel6
 		GLuint texture;
 
 	public:
-		Bonus(Int32 x, Int32 y, Size type, const TextureManager& textureManager);
+		Bonus(Int32 x, Int32 y, Size type, GLuint texture);
 
-		Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets, const TextureManager& textureManager);
+		Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets);
 
 		Size getType() const
 		{

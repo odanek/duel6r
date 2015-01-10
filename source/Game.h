@@ -110,6 +110,7 @@ namespace Duel6
 		Float32 gameOverWait;
 
 		std::vector<Player> players;
+		std::vector<std::unique_ptr<PlayerSkin>> skins;
 
 		GameService gameService;
 

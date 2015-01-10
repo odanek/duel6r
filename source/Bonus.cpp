@@ -32,16 +32,14 @@
 
 namespace Duel6
 {
-	Bonus::Bonus(Int32 x, Int32 y, Size type, const TextureManager& textureManager)
-		: x(x), y(y), type(type), weapon(false), weaponType(nullptr), bullets(0)
-	{
-		texture = textureManager.get(D6_TEXTURE_BONUS_KEY)[type];
-	}
+	Bonus::Bonus(Int32 x, Int32 y, Size type, GLuint texture)
+		: x(x), y(y), type(type), weapon(false), weaponType(nullptr), bullets(0), texture(texture)
+	{}
 
-	Bonus::Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets, const TextureManager& textureManager)
+	Bonus::Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets)
 		: x(x), y(y), type(0), weapon(true), weaponType(&weaponType), bullets(bullets)
 	{
-		texture = textureManager.get(weaponType.texture.gun)[weaponType.animation[12]];
+		texture = weaponType.textures.gun.getGlTextures()[weaponType.animation[12]];
 	}
 
 	void Bonus::render() const

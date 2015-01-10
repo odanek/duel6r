@@ -33,17 +33,18 @@
 #include "Color.h"
 #include "GameService.h"
 #include "Sound.h"
+#include "TextureManager.h"
 
 // TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
 {
 	class Player; // Forward declaration, TODO: Remove
 	
-	struct WeaponTextureKey
+	struct WeaponTextures
 	{
-		std::string boom;
-		std::string gun;
-		std::string shot;
+		TextureManager::Texture boom;
+		TextureManager::Texture gun;
+		TextureManager::Texture shot;
 	};
 
 	struct Weapon
@@ -65,14 +66,15 @@ namespace Duel6
 		Int16 animation[16];
 		Int16 shotAnimation[18];
 		Int16 boomAnimation[14];
-		WeaponTextureKey texture;
+		WeaponTextures textures;
 		Sound::Sample shotSample;
 		Sound::Sample boomSample;
 	};	
 
 	void WPN_Init(TextureManager& textureManager, Sound& sound, Console& console);
+	void WPN_DeInit();
 	void WPN_LevelInit();
-	void WPN_AddShot(Player& player, SpriteList& spriteList, const TextureManager& textureManager);
+	void WPN_AddShot(Player& player, SpriteList& spriteList);
 	void WPN_MoveShots(GameService& gameService, float elapsedTime);
 
 	const Weapon& WPN_GetRandomWeapon();

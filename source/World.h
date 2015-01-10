@@ -42,11 +42,10 @@ namespace Duel6
 	class World
 	{
 	private:
-		const TextureManager& textureManager;
 		Console& console;
 
 		std::vector<Block> blockMeta;
-		GLuint backgroundTexture;
+		Size background;
 
 		Int32 width;
 		Int32 height;
@@ -62,12 +61,9 @@ namespace Duel6
 		WaterList floatingVertexes;
 
 	public:
-		World(const std::string& blockMetaFile, Float32 animationSpeed, Float32 waveHeight, const TextureManager& textureManager, Console& console)
-			: textureManager(textureManager), console(console), animationSpeed(animationSpeed), waveHeight(waveHeight)
-		{
-			loadBlockMeta(blockMetaFile);
-		}
+		World(Float32 animationSpeed, Float32 waveHeight, Console& console);
 
+		void initialize(const std::string& blockMetaFile);
 		void loadLevel(const std::string& path, Size background, bool mirror);
 		void prepareFaces();
 
@@ -103,9 +99,9 @@ namespace Duel6
 			return water;
 		}
 
-		GLuint getBackgroundTexture() const
+		GLuint getBackground() const
 		{
-			return backgroundTexture;
+			return background;
 		}
 
 		Int32 getSizeX() const

@@ -198,4 +198,30 @@ namespace Duel6
 
 		closedir(handle);
 	}
+
+	Size File::countFiles(const std::string& path, const std::string& extension)
+	{
+		DIR* handle = opendir(path.c_str());
+		if (handle == nullptr)
+		{
+			D6_THROW(IoException, "Invalid directory specified: " + path);
+		}
+
+		Size count = 0;
+		struct dirent* ff = readdir(handle);
+
+		while (ff != nullptr)
+		{
+			bool pseudoDir = (!strcmp(ff->d_name, ".") || !strcmp(ff->d_name, ".."));
+			if (!pseudoDir && nameEndsWith(ff->d_name, extension))
+			{
+				++count;
+			}
+
+			ff = readdir(handle);
+		}
+
+		closedir(handle);
+		return count;
+	}
 }

@@ -46,9 +46,15 @@ namespace Duel6
 		};
 
 		std::list<Explosion> d6Explosions;
+		TextureManager::Texture textures;
 	}
 
-	void EXPL_Init()
+	void EXPL_Init(TextureManager& textureManager)
+	{
+		textures = textureManager.load(D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
+	}
+
+	void EXPL_Clear()
 	{
 		d6Explosions.clear();
 	}
@@ -81,11 +87,11 @@ namespace Duel6
 		}
 	}
 
-	void EXPL_DrawAll(const TextureManager& textureManager)
+	void EXPL_DrawAll()
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, textureManager.get(D6_TEXTURE_EXPL_KEY)[0]);
+		glBindTexture(GL_TEXTURE_2D, textures.getGlTextures()[0]);
 		glBegin(GL_QUADS);
 
 		for (const Explosion& explosion : d6Explosions)

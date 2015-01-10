@@ -32,28 +32,22 @@
 
 namespace Duel6
 {
-	void TextureManager::freeAll()
-	{
-		for (auto& entry : textureMap)
-		{
-			freeTextureList(entry.second);
-		}
-		textureMap.clear();
-	}
-
-	const TextureManager::TextureList& TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp)
+	const TextureManager::Texture TextureManager::load(const std::string& path, GLint filtering, bool clamp)
 	{
 		SubstitutionTable emptySubstitutionTable;
-		return load(key, path, filtering, clamp, emptySubstitutionTable);
+		return load(path, filtering, clamp, emptySubstitutionTable);
 	}
 
-	const TextureManager::TextureList& TextureManager::load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable)
+	const TextureManager::Texture TextureManager::load(const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable)
 	{
 		std::vector<std::string> textureFiles;
 		File::listDirectory(path, textureFileExtension, textureFiles);
 		std::sort(textureFiles.begin(), textureFiles.end());
 
-		TextureList list;
+		textureMap.insert(std::make_pair(nextId, std::make_unique<TextureList>()));
+		TextureList& list = *textureMap.at(nextId);
+		nextId++;
+
 		for (std::string& file : textureFiles)
 		{
 			Image image;
@@ -63,21 +57,29 @@ namespace Duel6
 			list.push_back(texture);
 		}
 
-		auto existingEntry = textureMap.find(key);
-		if (existingEntry != textureMap.end())
-		{
-			freeTextureList(existingEntry->second);
-			existingEntry->second = list;
-		}
-		else
-		{
-			textureMap.emplace(key, list);
-		}
-
-		return textureMap.at(key);
+		return Texture(this, &list, nextId++);
 	}
 
-	void TextureManager::freeTextureList(const TextureList& list)
+	void TextureManager::dispose(const Int32 key)
+	{
+		auto entry = textureMap.find(key);
+		if (entry != textureMap.end())
+		{
+			disposeTextureList(*entry->second);
+			textureMap.erase(key);
+		}
+	}
+
+	void TextureManager::disposeAll()
+	{
+		for (auto& entry : textureMap)
+		{
+			disposeTextureList(*entry.second);
+		}
+		textureMap.clear();
+	}
+
+	void TextureManager::disposeTextureList(const TextureList& list)
 	{
 		if (!list.empty())
 		{

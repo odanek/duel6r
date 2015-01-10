@@ -36,8 +36,6 @@
 
 namespace Duel6
 {
-	class Player; // Forward
-
 	class Water
 	{
 	public:
@@ -57,7 +55,7 @@ namespace Duel6
 		{}
 
 		virtual Sound::Sample getSplashSound() const = 0;
-		virtual void addSplash(SpriteList& spriteList, const TextureManager& textureManager, Float32 cx, Float32 cy) const = 0;
+		virtual void addSplash(SpriteList& spriteList, Float32 cx, Float32 cy) const = 0;
 		virtual Float32 getAirHit() const = 0;
 
 		static WaterSet createWaterSet(Sound& sound, TextureManager& textureManager);

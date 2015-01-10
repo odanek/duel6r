@@ -32,7 +32,16 @@
 
 namespace Duel6
 {
-	static std::vector<Elevator> d6Elevators;
+	namespace
+	{
+		std::vector<Elevator> d6Elevators;
+		TextureManager::Texture textures;
+	}	
+
+	void ELEV_Init(TextureManager& textureManager)
+	{
+		textures = textureManager.load(D6_TEXTURE_ELEVATOR_PATH, GL_LINEAR, true);
+	}
 
 	void ELEV_Clear()
 	{
@@ -53,9 +62,9 @@ namespace Duel6
 		}
 	}
 
-	void ELEV_DrawAll(const TextureManager& textureManager)
+	void ELEV_DrawAll()
 	{
-		glBindTexture(GL_TEXTURE_2D, textureManager.get(D6_TEXTURE_ELEVATOR_KEY)[0]);
+		glBindTexture(GL_TEXTURE_2D, textures.getGlTextures()[0]);
 		glBegin(GL_QUADS);
 
 		for (const Elevator& elevator : d6Elevators)

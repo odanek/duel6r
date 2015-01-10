@@ -100,6 +100,16 @@ namespace Duel6
 		}
 	};
 
+	template <>
+	class Formatter<bool>
+	{
+	public:
+		std::string format(const bool& val)
+		{
+			return val ? "true" : "false";
+		}
+	};
+
 	template <class T>
 	class Formatter<T*>
 	{

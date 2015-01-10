@@ -29,10 +29,10 @@
 
 namespace Duel6
 {
-	Sprite::Sprite(const Int16* animation, const std::vector<GLuint>& textures)
+	Sprite::Sprite(const Int16* animation, const TextureManager::Texture& textures)
 	{
 		this->animation = animation;
-		this->textures = &textures[0];
+		this->textures = &textures.getGlTextures()[0];
 		frame = 0;
 		delay = 0;
 		speed = 1;

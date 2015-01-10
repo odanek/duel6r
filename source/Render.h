@@ -48,21 +48,24 @@ namespace Duel6
 		const Game& game;
 		const Font& font;
 		const Video& video;
-		const TextureManager& textureManager;
 		const SpriteList& spriteList;
 		const InfoMessageQueue& messageQueue;
+
+		TextureManager::Texture blockTextures;
+		TextureManager::Texture bcgTextures;
 
 		bool wireframe;
 		bool showFps;	
 		bool showRanking;
 
 	public:
-		Renderer(const Game& game, const Font& font, const Video& video, const TextureManager& textureManager, 
+		Renderer(const Game& game, const Font& font, const Video& video, 
 			const SpriteList& spriteList, const InfoMessageQueue& messageQueue)
-			: game(game), font(font), video(video), textureManager(textureManager), spriteList(spriteList), 
+			: game(game), font(font), video(video), spriteList(spriteList), 
 			messageQueue(messageQueue), wireframe(false), showFps(false), showRanking(true)
 		{}
 
+		void initialize(TextureManager& textureManager);
 		void initScreen();
 		void render() const;
 

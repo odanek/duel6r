@@ -40,6 +40,12 @@
 
 namespace Duel6
 {
+	void Renderer::initialize(TextureManager& textureManager)
+	{
+		blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
+		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
+	}
+
 	void Renderer::setView(const PlayerView& view) const
 	{
 		glViewport(view.getX(), view.getY(), view.getWidth(), view.getHeight());
@@ -57,7 +63,7 @@ namespace Duel6
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 
-		water.render(textureManager.get(D6_TEXTURE_BLOCK_KEY));
+		water.render(blockTextures);
 
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
@@ -69,7 +75,7 @@ namespace Duel6
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
 
-		sprites.render(textureManager.get(D6_TEXTURE_BLOCK_KEY));
+		sprites.render(blockTextures);
 
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
@@ -248,7 +254,7 @@ namespace Duel6
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextures()[3]);
+			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextures().getGlTextures()[3]);
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f); glVertex2i(ibp[0] + 3, ibp[1] + 1);
@@ -271,7 +277,7 @@ namespace Duel6
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, textureManager.get(D6_TEXTURE_BONUS_KEY)[player.getBonus()]);
+			glBindTexture(GL_TEXTURE_2D, BONUS_GetTexture(player.getBonus()));
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);
@@ -447,9 +453,9 @@ namespace Duel6
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 
-		game.getWorld().getWalls().render(textureManager.get(D6_TEXTURE_BLOCK_KEY));
+		game.getWorld().getWalls().render(blockTextures);
 		sprites(game.getWorld().getSprites());
-		ELEV_DrawAll(textureManager);
+		ELEV_DrawAll();
 		spriteList.render();
 		BONUS_DrawAll();
 		invulRings(game.getPlayers());
@@ -457,7 +463,7 @@ namespace Duel6
 		notifications();
 		roundKills();
 
-		EXPL_DrawAll(textureManager);
+		EXPL_DrawAll();
 
 		if (wireframe)
 		{
@@ -475,7 +481,7 @@ namespace Duel6
 
 		const Player& player = game.getPlayers().front();
 		setView(player.getView());
-		background(game.getWorld().getBackgroundTexture());
+		background(bcgTextures.getGlTextures()[game.getWorld().getBackground()]);
 		video.setMode(Video::Mode::Perspective);
 		view(player);		
 	}
@@ -493,7 +499,7 @@ namespace Duel6
 			}
 
 			setView(player.getView());
-			background(game.getWorld().getBackgroundTexture());
+			background(bcgTextures.getGlTextures()[game.getWorld().getBackground()]);
 
 			video.setMode(Video::Mode::Perspective);
 			view(player);

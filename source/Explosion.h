@@ -34,9 +34,10 @@
 
 namespace Duel6
 {
-	void EXPL_Init();
+	void EXPL_Init(TextureManager& textureManager);
+	void EXPL_Clear();
 	void EXPL_MoveAll(Float32 elapsedTime);
-	void EXPL_DrawAll(const TextureManager& textureManager);
+	void EXPL_DrawAll();
 	void EXPL_Add(Float32 x, Float32 y, Float32 s, Float32 m, const Color& color);
 }
 

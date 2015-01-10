@@ -70,7 +70,6 @@ namespace Duel6
 
 	void Menu::joyRescan()
 	{
-		appService.getConsole().printLine(D6_L("\n===Initialization of input devices==="));
 		appService.getInput().joyScan(appService.getConsole());
 		Size controls = controlsManager.getNumAvailable();
 
@@ -92,7 +91,7 @@ namespace Duel6
 		loadPersonData(D6_FILE_PHIST);
 
 		appService.getConsole().printLine(D6_L("\n===Menu initialization==="));
-		menuBannerTexture = appService.getTextureManager().get(D6_TEXTURE_MENU_KEY)[0];
+		menuBannerTexture = appService.getTextureManager().load(D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
 		appService.getConsole().printLine(D6_L("...Starting GUI library"));
 		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
@@ -227,7 +226,7 @@ namespace Duel6
 
 		joyRescan();
 
-		backgroundCount = appService.getTextureManager().get(D6_TEXTURE_BCG_KEY).size();
+		backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
 		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
 		listbox[3]->addItem(D6_L("Random"));
@@ -258,7 +257,6 @@ namespace Duel6
 			listbox[2]->addItem(persons.get(personIndex).getName());
 		}
 
-		appService.getConsole().print(D6_L("\n===Loading background music===\n"));
 		menuTrack = sound.loadModule("sound/undead.xm");
 	}
 
@@ -599,7 +597,7 @@ namespace Duel6
 		font.print(687, video.getScreen().getClientHeight() - 20, Color(255, 255, 255), Format("{0} {1}") << D6_L("version") << APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, menuBannerTexture);
+		glBindTexture(GL_TEXTURE_2D, menuBannerTexture.getGlTextures()[0]);
 		glColor3ub(255, 255, 255);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, video.getScreen().getClientHeight() - 5);

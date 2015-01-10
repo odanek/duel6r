@@ -29,7 +29,6 @@
 #define DUEL6_PLAYERSKIN_H
 
 #include <string>
-#include <unordered_set>
 #include "PlayerSkinColors.h"
 #include "TextureManager.h"
 #include "console/console.h"
@@ -39,31 +38,19 @@ namespace Duel6
 	class PlayerSkin
 	{
 	private:
-		static std::unordered_set<Size> skinIds;
-
-	private:
-		std::string key;
-		const TextureManager::TextureList* textures;
+		TextureManager::Texture textures;
 
 	public:
-		// TODO: Remove
-		PlayerSkin()
-			: textures(nullptr)
-		{}
+		PlayerSkin(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager);
+		PlayerSkin(const PlayerSkin& skin) = delete;
+		PlayerSkin& operator=(const PlayerSkin& skin) = delete;
 
-		const TextureManager::TextureList& getTextures() const
+		~PlayerSkin();
+
+		const TextureManager::Texture& getTextures() const
 		{
-			return *textures;
+			return textures;
 		}
-
-		static PlayerSkin create(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager, Console& console);
-
-		static void freeAll(TextureManager& textureManager);
-
-	private:
-		PlayerSkin(const std::string& key, const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager, Console& console);
-		static std::string getNewKey();
-		static std::string getKey(Size id);
 	};
 }
 

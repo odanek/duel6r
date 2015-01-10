@@ -36,6 +36,15 @@
 
 namespace Duel6
 {
+	World::World(Float32 animationSpeed, Float32 waveHeight, Console& console)
+		: console(console), animationSpeed(animationSpeed), waveHeight(waveHeight)
+	{}
+
+	void World::initialize(const std::string& blockMetaFile)
+	{
+		loadBlockMeta(blockMetaFile);
+	}
+
 	Block::Type World::determineBlockType(const std::string& kind) const
 	{
 		static std::vector<std::string> typeNames = {
@@ -84,7 +93,7 @@ namespace Duel6
 	void World::loadLevel(const std::string& path, Size background, bool mirror)
 	{
 		console.printLine(Format("Loading level: {0}, mirror: {1}") << path << mirror);
-		backgroundTexture = textureManager.get(D6_TEXTURE_BCG_KEY)[background];
+		this->background = background;
 		levelData.clear();
 
 		Json::Parser parser;

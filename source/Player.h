@@ -146,12 +146,11 @@ namespace Duel6
 		};
 
 	private:
-		const TextureManager& textureManager;
 		SpriteList& spriteList;
 		InfoMessageQueue& messageQueue;		
 
 		Person& person;
-		PlayerSkin skin;
+		const PlayerSkin& skin;
 		mycam_c camera;
 		CameraPosition cameraPos;
 		const PlayerSounds& sounds;
@@ -166,9 +165,8 @@ namespace Duel6
 		const Water::WaterSet& waterSet; // TODO: Remove
 
 	public:
-		Player(Person& person, PlayerSkin skin, const PlayerSounds& sounds, const PlayerControls& controls, 
-			const TextureManager& textureManager, SpriteList& spriteList, InfoMessageQueue& messageQueue,
-			const Water::WaterSet& waterSet);
+		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls, 
+			SpriteList& spriteList, InfoMessageQueue& messageQueue, const Water::WaterSet& waterSet);
 		~Player();
 
 		bool is(const Player& player) const

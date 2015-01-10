@@ -33,6 +33,7 @@
 #include "Type.h"
 #include "AnimationLooping.h"
 #include "Orientation.h"
+#include "TextureManager.h"
 
 namespace Duel6
 {
@@ -64,7 +65,7 @@ namespace Duel6
 		Float32 alpha;  // Transparency ratio
 
 	public:
-		Sprite(const Int16* animation, const std::vector<GLuint>& textures);
+		Sprite(const Int16* animation, const TextureManager::Texture& textures);
 
 		Sprite& setPosition(Float32 x, Float32 y, Float32 z)
 		{
@@ -83,9 +84,9 @@ namespace Duel6
 
 		Sprite& setAnimation(const Int16* animation);
 
-		Sprite& setTextures(const std::vector<GLuint>& textures)
+		Sprite& setTextures(const TextureManager::Texture& textures)
 		{
-			this->textures = &textures[0];
+			this->textures = &textures.getGlTextures()[0];
 			return *this;
 		}
 

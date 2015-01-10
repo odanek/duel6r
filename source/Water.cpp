@@ -39,17 +39,16 @@ namespace Duel6
 	{
 	private:
 		Sound::Sample splashSample;
-		std::string textureKey;
+		TextureManager::Texture textures;
 
 	public:
-		WaterBase(Sound& sound, TextureManager& textureManager, const std::string& textureKey, const std::string& sample, const Color& color)
-			: textureKey(textureKey)
+		WaterBase(Sound& sound, TextureManager& textureManager, const std::string& sample, const Color& color)
 		{
 			splashSample = sound.loadSample(sample);
 
 			TextureManager::SubstitutionTable subst;
 			subst[Color(0, 182, 255)] = color;
-			textureManager.load(textureKey, D6_TEXTURE_WATER_PATH, GL_NEAREST, true, subst);
+			textures = textureManager.load(D6_TEXTURE_WATER_PATH, GL_NEAREST, true, subst);
 		}
 
 		Sound::Sample getSplashSound() const override
@@ -57,9 +56,9 @@ namespace Duel6
 			return splashSample;
 		}
 
-		void addSplash(SpriteList& spriteList, const TextureManager& textureManager, Float32 x, Float32 y) const override
+		void addSplash(SpriteList& spriteList, Float32 x, Float32 y) const override
 		{
-			Sprite waterSplash(wtAnim, textureManager.get(textureKey));
+			Sprite waterSplash(wtAnim, textures);
 			waterSplash.setPosition(x, y, 0.5f).setLooping(AnimationLooping::OnceAndRemove);
 			spriteList.addSprite(waterSplash);
 		}
@@ -69,7 +68,7 @@ namespace Duel6
 	{
 	public:
 		BlueWater(Sound& sound, TextureManager& textureManager)
-			: WaterBase(sound, textureManager, D6_TEXTURE_WATER_B_KEY, D6_FILE_WATER_BLUE, Color(0, 182, 255))
+			: WaterBase(sound, textureManager, D6_FILE_WATER_BLUE, Color(0, 182, 255))
 		{}
 
 		Float32 getAirHit() const override
@@ -82,7 +81,7 @@ namespace Duel6
 	{
 	public:
 		RedWater(Sound& sound, TextureManager& textureManager)
-			: WaterBase(sound, textureManager, D6_TEXTURE_WATER_R_KEY, D6_FILE_WATER_RED, Color(197, 0, 0))
+			: WaterBase(sound, textureManager, D6_FILE_WATER_RED, Color(197, 0, 0))
 		{}
 
 		Float32 getAirHit() const override
@@ -95,7 +94,7 @@ namespace Duel6
 	{
 	public:
 		GreenWater(Sound& sound, TextureManager& textureManager)
-			: WaterBase(sound, textureManager, D6_TEXTURE_WATER_G_KEY, D6_FILE_WATER_GREEN, Color(0, 197, 0))
+			: WaterBase(sound, textureManager, D6_FILE_WATER_GREEN, Color(0, 197, 0))
 		{}
 
 		Float32 getAirHit() const override

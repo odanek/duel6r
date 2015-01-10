@@ -68,7 +68,7 @@ namespace Duel6
 		Gui::Textbox* textbox;
 		std::vector<Int32> playingPersons;
 		Size backgroundCount;
-		GLuint menuBannerTexture;
+		TextureManager::Texture menuBannerTexture;
 		Sound::Track menuTrack;
 		bool playMusic;
 

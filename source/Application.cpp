@@ -34,6 +34,8 @@
 #include "ConsoleCommands.h"
 #include "Sound.h"
 #include "Video.h"
+#include "BonusList.h"
+#include "Explosion.h"
 #include "Font.h"
 #include "Weapon.h"
 #include "ElevatorList.h"
@@ -148,28 +150,22 @@ namespace Duel6
 			D6_THROW(VideoException, std::string("Unable to set graphics mode: ") + SDL_GetError());
 		}
 
-		font.load(APP_FILE_FONT);		
-		menu.setGameReference(&game);
-
 		Console::registerBasicCommands(console);
 		ConsoleCommands::registerCommands(console, service, menu, game);
 
 		Math::initialize();
 
+		font.load(APP_FILE_FONT);
 		video.initialize(APP_NAME, APP_FILE_ICON, console);
-		game.initialize();
-
-		textureManager.load(D6_TEXTURE_BCG_KEY, D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
-		textureManager.load(D6_TEXTURE_EXPL_KEY, D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
-		textureManager.load(D6_TEXTURE_MENU_KEY, D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
-		textureManager.load(D6_TEXTURE_ELEVATOR_KEY, D6_TEXTURE_ELEVATOR_PATH, GL_LINEAR, true);
-		textureManager.load(D6_TEXTURE_BLOCK_KEY, D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
-		textureManager.load(D6_TEXTURE_BONUS_KEY, D6_TEXTURE_BONUS_PATH, GL_LINEAR, true);
+		menu.initialize();
+		menu.setGameReference(&game);
+		game.initialize();		
 
 		WPN_Init(textureManager, sound, console);
+		BONUS_Init(textureManager);
+		EXPL_Init(textureManager);
+		ELEV_Init(textureManager);
 		FIRE_Init(textureManager);
-
-		menu.initialize();
 
 		// Execute config script and command line arguments
 		console.printLine("\n===Config===");
@@ -205,6 +201,7 @@ namespace Duel6
 
 	void Application::tearDown()
 	{
+		WPN_DeInit();
 		SDL_Quit();
 	}
 }

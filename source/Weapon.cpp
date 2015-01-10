@@ -64,7 +64,7 @@ namespace Duel6
 	
 	namespace
 	{
-		PlayerSkin brownSkin;
+		std::unique_ptr<PlayerSkin> brownSkin;
 		std::list<Shot> d6Shots;
 		typedef std::list<Shot>::iterator ShotIterator;
 	}
@@ -84,12 +84,9 @@ namespace Duel6
 		{
 			const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << weap.index;
 			const std::string wi = std::to_string(weap.index);
-			weap.texture.boom = "wpn_boom_" + wi;
-			weap.texture.gun = "wpn_gun_" + wi;
-			weap.texture.shot = "wpn_shot_" + wi;
-			textureManager.load(weap.texture.boom, Format("{0}/boom/") << wpnPath, nearestFilterBoom.find(weap.index) != nearestFilterBoom.end() ? GL_NEAREST : GL_LINEAR, true);
-			textureManager.load(weap.texture.gun, Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
-			textureManager.load(weap.texture.shot, Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
+			weap.textures.boom = textureManager.load(Format("{0}/boom/") << wpnPath, nearestFilterBoom.find(weap.index) != nearestFilterBoom.end() ? GL_NEAREST : GL_LINEAR, true);
+			weap.textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
+			weap.textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
 
 			if (weap.shotSound)
 			{
@@ -103,7 +100,12 @@ namespace Duel6
 
 		Color brownColor(83, 44, 0);
 		PlayerSkinColors skinColors(brownColor);
-		brownSkin = PlayerSkin::create("textures/man/", skinColors, textureManager, console);
+		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
+	}
+
+	void WPN_DeInit()
+	{
+		brownSkin.reset();
 	}
 
 	void WPN_LevelInit()
@@ -111,13 +113,13 @@ namespace Duel6
 		d6Shots.clear();
 	}
 
-	void WPN_AddShot(Player& player, SpriteList& spriteList, const TextureManager& textureManager)
+	void WPN_AddShot(Player& player, SpriteList& spriteList)
 	{
 		Float32 ad = player.isKneeling() ? 0.52f : 0.32f;
 		Float32 x = (player.getOrientation() == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
 		Float32 y = player.getY() - ad;
 
-		Sprite shotSprite(player.getWeapon().shotAnimation, textureManager.get(player.getWeapon().texture.shot));		
+		Sprite shotSprite(player.getWeapon().shotAnimation, player.getWeapon().textures.shot);		
 		d6Shots.push_back(Shot(player, x, y, spriteList.addSprite(shotSprite)));
 		player.getWeapon().shotSample.play();
 	}
@@ -145,7 +147,7 @@ namespace Duel6
 			{
 				if (shit)
 				{
-					player.useTemporarySkin(brownSkin);
+					player.useTemporarySkin(*brownSkin);
 				}
 				else
 				{
@@ -163,7 +165,7 @@ namespace Duel6
 				{
 					if (shit)
 					{
-						player.useTemporarySkin(brownSkin);
+						player.useTemporarySkin(*brownSkin);
 					}
 					else
 					{
@@ -271,7 +273,7 @@ namespace Duel6
 				WPN_Boom(*shot, gameService.getPlayers(), hit.player, gameService.getSpriteList());
 				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
 				
-				Sprite boom(weapon.boomAnimation, gameService.getTextureManager().get(weapon.texture.boom));
+				Sprite boom(weapon.boomAnimation, weapon.textures.boom);
 				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)

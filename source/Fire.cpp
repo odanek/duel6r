@@ -42,7 +42,7 @@ namespace Duel6
 	{
 		Size index;
 		Size block;
-		const TextureManager::TextureList* texture;
+		TextureManager::Texture texture;
 	};
 
 	struct Fire
@@ -66,10 +66,9 @@ namespace Duel6
 	{
 		for (FireType& ft : d6FireTypes)
 		{
-			std::string textureKey = "fire_" + std::to_string(ft.index);
-			ft.texture = &textureManager.load(textureKey, Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << ft.index, GL_LINEAR, true);
+			ft.texture = textureManager.load(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << ft.index, GL_LINEAR, true);
 
-			glBindTexture(GL_TEXTURE_2D, (*ft.texture)[2]);
+			glBindTexture(GL_TEXTURE_2D, ft.texture.getGlTextures()[2]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
@@ -116,7 +115,7 @@ namespace Duel6
 					fire.burned = true;
 					fire.face->hide();
 
-					Sprite fireSprite(d6FireAnm, *fire.type->texture);
+					Sprite fireSprite(d6FireAnm, fire.type->texture);
 					fireSprite.setPosition(fire.x, fire.y, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					spriteList.addSprite(fireSprite);

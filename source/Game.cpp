@@ -43,18 +43,21 @@ namespace Duel6
 {
 	Game::Game(AppService& appService)
 		: appService(appService), video(appService.getVideo()), messageQueue(D6_INFO_DURATION),
-		world(D6_FILE_BLOCK_META, D6_ANM_SPEED, D6_WAVE_HEIGHT, appService.getTextureManager(), appService.getConsole()),
-		renderer(*this, appService.getFont(), video, appService.getTextureManager(), spriteList, messageQueue),
+		world(D6_ANM_SPEED, D6_WAVE_HEIGHT, appService.getConsole()),
+		renderer(*this, appService.getFont(), video, spriteList, messageQueue),
 		ammoRange(15, 15), playedRounds(0), maxRounds(0),
 		gameService(appService, spriteList, messageQueue, world, players)
 	{}
 
 	void Game::initialize()
-	{	
+	{
+		appService.getConsole().printLine(D6_L("\n===Game initialization==="));
 		Sound& sound = appService.getSound();
 		waterSet = Water::createWaterSet(sound, appService.getTextureManager());
 		roundStartSound = sound.loadSample("sound/game/round-start.wav");
 		gameOverSound = sound.loadSample("sound/game/game-over.wav");		
+		renderer.initialize(appService.getTextureManager());
+		world.initialize(D6_FILE_BLOCK_META);
 	}
 
 	void Game::splitScreenView(Player& player, Int32 x, Int32 y)
@@ -237,7 +240,7 @@ namespace Duel6
 		// Add new bonuses
 		if (rand() % int(3.0f / elapsedTime) == 0)
 		{
-			BONUS_AddNew(world, appService.getTextureManager());
+			BONUS_AddNew(world);
 		}
 
 		// Check if there's a winner
@@ -323,14 +326,19 @@ namespace Duel6
 
 	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom)
 	{
+		appService.getConsole().printLine("\n=== Starting new game ===");
+		appService.getConsole().printLine(Format("...Rounds: {0}") << maxRounds);
 		TextureManager& textureManager = appService.getTextureManager();
 		players.clear();
-		PlayerSkin::freeAll(textureManager);
+		skins.clear();
+		
 		for (const PlayerDefinition& playerDef : playerDefinitions)
-		{			
-			players.push_back(Player(playerDef.getPerson(), PlayerSkin::create(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager, appService.getConsole()), 
-				playerDef.getSounds(), playerDef.getControls(), textureManager, spriteList, messageQueue, waterSet));
+		{
+			appService.getConsole().printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
+			skins.push_back(std::make_unique<PlayerSkin>(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
+			players.push_back(Player(playerDef.getPerson(), *skins.back(), playerDef.getSounds(), playerDef.getControls(), spriteList, messageQueue, waterSet));
 		}
+
 		this->levels = levels;
 		this->backgrounds = backgrounds;
 		this->screenMode = screenMode;
@@ -366,8 +374,8 @@ namespace Duel6
 
 		console.printLine(D6_L("...Level initialization"));
 		WPN_LevelInit();
-		EXPL_Init();
-		BONUS_Init();
+		EXPL_Clear();
+		BONUS_Clear();
 		FIRE_Find(world.getSprites());
 		renderer.initScreen();
 		winner = -1;

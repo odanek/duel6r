@@ -28,6 +28,7 @@
 #ifndef DUEL6_TEXTUREMANAGER_H
 #define DUEL6_TEXTUREMANAGER_H
 
+#include <memory>
 #include <unordered_map>
 #include <string>
 #include <SDL2/SDL_opengl.h>
@@ -38,25 +39,14 @@
 #define D6_TEXTURE_EXTENSION	".tga"
 
 #define D6_TEXTURE_MAN_PATH     "textures/man/"
-#define D6_TEXTURE_MAN_KEY		"man"
 #define D6_TEXTURE_BCG_PATH		"textures/backgrounds/"
-#define D6_TEXTURE_BCG_KEY		"bcg"
 #define D6_TEXTURE_EXPL_PATH	"textures/explosion/"
-#define D6_TEXTURE_EXPL_KEY		"expl"
 #define D6_TEXTURE_MENU_PATH	"textures/menu/"
-#define D6_TEXTURE_MENU_KEY		"menu"
 #define D6_TEXTURE_BLOCK_PATH	"textures/blocks/"
-#define D6_TEXTURE_BLOCK_KEY	"block"
 #define D6_TEXTURE_WATER_PATH	"textures/water/"
-#define D6_TEXTURE_WATER_B_KEY	"water_blue"
-#define D6_TEXTURE_WATER_R_KEY	"water_red"
-#define D6_TEXTURE_WATER_G_KEY	"water_green"
 #define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
-#define D6_TEXTURE_ELEVATOR_KEY	"elev"
 #define D6_TEXTURE_BONUS_PATH	"textures/bonus/"
-#define D6_TEXTURE_BONUS_KEY	"bonus"
 #define D6_TEXTURE_FIRE_PATH	"textures/fire/"
-
 #define D6_TEXTURE_WPN_PATH		"textures/weapon/"
 
 namespace Duel6
@@ -67,38 +57,64 @@ namespace Duel6
 		typedef std::vector<GLuint> TextureList;
 		typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
+	public:
+		class Texture
+		{
+		private:
+			const TextureList* textures;
+			TextureManager* manager;
+			Int32 key;
+
+		private:
+			friend class TextureManager;
+			Texture(TextureManager* manager, const TextureList* textures, Int32 key)
+				: manager(manager), textures(textures), key(key)
+			{}
+
+		public:
+			Texture()
+			{}
+
+			const TextureList& getGlTextures() const
+			{
+				return *textures;
+			}
+
+			void dispose()
+			{
+				if (textures != nullptr)
+				{
+					textures = nullptr;
+					manager->dispose(key);
+				}
+			}
+		};
+
 	private:
+		Int32 nextId;
 		std::string textureFileExtension;
-		std::unordered_map<std::string, TextureList> textureMap;
+		std::unordered_map<Int32, std::unique_ptr<TextureList>> textureMap;
 
 	public:
 		TextureManager(const std::string& fileExtension)
-			: textureFileExtension(fileExtension)
+			: nextId(0), textureFileExtension(fileExtension)
 		{}
 
 		~TextureManager()
 		{
-			freeAll();
+			disposeAll();
 		}
 
-		void freeAll();
+		void disposeAll();
 
-		const TextureList& load(const std::string& key, const std::string& path, GLint filtering, bool clamp);
-		const TextureList& load(const std::string& key, const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable);
-
-		const TextureList& get(const std::string& key) const
-		{
-			return textureMap.at(key);
-		}
-
-		TextureManager& remove(const std::string& key)
-		{
-			textureMap.erase(key);
-			return *this;
-		}
+		const Texture load(const std::string& path, GLint filtering, bool clamp);
+		const Texture load(const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable);
 
 	private:
-		void freeTextureList(const TextureList& list);
+		void dispose(const Int32 key);
+
+	private:
+		void disposeTextureList(const TextureList& list);
 		void substituteColors(Image& image, const SubstitutionTable& substitutionTable);
 	};
 }
