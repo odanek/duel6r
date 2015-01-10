@@ -35,11 +35,9 @@ Popis: Zpracovani promenych
 
 namespace Duel6
 {
-	void Console::registerVariable(const std::string& name, Variable* ptr, Uint32 flags)
+	void Console::registerVariable(const std::string& name, Uint32 flags, Variable::Pointer&& ptr)
 	{
 		verifyRegistration(name, CON_Lang("Variable registration"), ptr == nullptr);
-
-		VarRecord newVar(name, ptr, flags);
 
 		// Sort lexicographically
 		Size position = 0;
@@ -52,7 +50,7 @@ namespace Duel6
 			++position;
 		}
 
-		vars.insert(vars.begin() + position, newVar);
+		vars.emplace(vars.begin() + position, name, flags, std::forward<Variable::Pointer>(ptr));
 
 		if (hasFlag(RegInfoFlag))
 		{
@@ -60,7 +58,7 @@ namespace Duel6
 		}
 	}
 
-	Console::VarRecord *Console::findVar(const std::string& name)
+	Console::VarRecord* Console::findVar(const std::string& name)
 	{
 		for (VarRecord& var : vars)
 		{
@@ -166,20 +164,20 @@ namespace Duel6
 	}
 
 	template <>
-	Console::Variable* Console::Variable::from(Int32& val)
+	std::unique_ptr<Console::Variable> Console::Variable::from(Int32& val)
 	{
-		return new Console::IntVariable(val);
+		return std::make_unique<Console::IntVariable>(val);
 	}
 
 	template <>
-	Console::Variable* Console::Variable::from(Float32& val)
+	std::unique_ptr<Console::Variable> Console::Variable::from(Float32& val)
 	{
-		return new Console::FloatVariable(val);
+		return std::make_unique<Console::FloatVariable>(val);
 	}
 
 	template <>
-	Console::Variable* Console::Variable::from(bool& val)
+	std::unique_ptr<Console::Variable> Console::Variable::from(bool& val)
 	{
-		return new Console::BoolVariable(val);
+		return std::make_unique<Console::BoolVariable>(val);
 	}
 }

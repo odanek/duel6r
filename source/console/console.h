@@ -119,6 +119,9 @@ namespace Duel6
 		class Variable
 		{
 		public:
+			typedef std::unique_ptr<Variable> Pointer;
+
+		public:
 			enum Flags
 			{
 				NoneFlag = 0x00,
@@ -132,7 +135,7 @@ namespace Duel6
 			virtual std::string getTypeName() const = 0;
 
 			template <class T>
-			static Variable* from(T& val);
+			static Pointer from(T& val);
 		};
 
 		class IntVariable
@@ -238,12 +241,28 @@ namespace Duel6
 		private:
 			std::string name;
 			Uint32 flags;
-			std::shared_ptr<Variable> var;
+			Variable::Pointer var;
+
+		private:
+			VarRecord(const VarRecord& record) = delete;
+			VarRecord& operator=(const VarRecord& record) = delete;
 
 		public:
-			VarRecord(const std::string& name, Variable* variable, Uint32 flags)
-				: name(name), flags(flags), var(variable)
+			VarRecord(const std::string& name, Uint32 flags, Variable::Pointer&& var)
+				: name(name), flags(flags), var(std::forward<Variable::Pointer>(var))
 			{}
+
+			VarRecord(VarRecord&& record)
+				: name(record.name), flags(record.flags), var(std::move(record.var))
+			{}
+
+			VarRecord& operator=(VarRecord&& record)
+			{
+				name = record.name;
+				flags = record.flags;
+				var = std::move(record.var);
+				return *this;
+			}
 
 			const std::string& getName() const
 			{
@@ -320,7 +339,7 @@ namespace Duel6
 		void setLast(int sl);
 
 		void registerCommand(const std::string& name, Command command);
-		void registerVariable(const std::string& name, Variable* var, Uint32 flags);
+		void registerVariable(const std::string& name, Uint32 flags, Variable::Pointer&& var);
 		void registerAlias(const std::string& name, const std::string& cmd);
 
 		const std::vector<CommandRecord>& listCommands() const
