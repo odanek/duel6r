@@ -412,6 +412,11 @@ namespace Duel6
 			return water;
 		}
 
+		void playSound(PlayerSounds::Type type) const
+		{
+			sounds.getSample(type).play();
+		}
+
 	private:
 		void makeMove(const World& world, Float32 elapsedTime);
 		void moveHorizontal(const World& world, Float32 elapsedTime, Float32 speed);

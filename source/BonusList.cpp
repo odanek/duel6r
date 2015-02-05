@@ -138,7 +138,10 @@ namespace Duel6
 			break;
 
 		case D6_BONUS_LIFEM:
-			player.hit(Float32(hit));
+			if (player.hit(Float32(hit)))
+			{
+				player.playSound(PlayerSounds::Type::WasKilled);
+			}
 			messageQueue.add(player, Format(D6_L("Life -{0}")) << hit);
 			break;
 
@@ -170,7 +173,7 @@ namespace Duel6
 		}
 	}
 
-	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue, const PlayerSounds& sounds)
+	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue)
 	{
 		auto bonusIter = d6Bonuses.begin();
 		while (bonusIter != d6Bonuses.end())
@@ -178,7 +181,7 @@ namespace Duel6
 			if (BONUS_IsApplicable(*bonusIter, player, false))
 			{
 				BONUS_Apply(*bonusIter, player, messageQueue);
-				sounds.getSample(PlayerSounds::Type::PickedBonus).play();
+				player.playSound(PlayerSounds::Type::PickedBonus);
 				bonusIter = d6Bonuses.erase(bonusIter);
 			}
 			else

@@ -320,7 +320,7 @@ namespace Duel6
 		checkWater(world, elapsedTime);
 		if (!isDead())
 		{
-			BONUS_Check(*this, messageQueue, sounds);
+			BONUS_Check(*this, messageQueue);
 		}
 
 		checkKeys();
@@ -572,13 +572,12 @@ namespace Duel6
 				EXPL_Add(getX() + 0.5f, getY() + 0.5f, 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
 			}
 
-			sounds.getSample(PlayerSounds::Type::WasKilled).play();
 			return true;
 		}
 		
 		if (directHit)
 		{
-			sounds.getSample(PlayerSounds::Type::GotHit).play();
+			playSound(PlayerSounds::Type::GotHit);
 		}
 
 		return false;
@@ -600,8 +599,6 @@ namespace Duel6
 			sprite->setPosition(getX(), getY()).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
 			messageQueue.add(*this, D6_L("You are dead"));
-
-			sounds.getSample(PlayerSounds::Type::WasKilled).play();
 			return true;
 		}
 
@@ -646,6 +643,7 @@ namespace Duel6
 				state.air = 0;
 				if (hit(airHitAmount))
 				{
+					playSound(PlayerSounds::Type::Drowned);
 					getPerson().addPenalties(1);  // Player drowned
 				}
 			}

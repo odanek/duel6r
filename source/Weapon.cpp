@@ -126,8 +126,8 @@ namespace Duel6
 
 	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit, SpriteList& spriteList)
 	{
-		int killedPlayers = 0;
-		bool killedSelf = false;
+		std::vector<const Player*> killedPlayers;
+		Player& author = shot.getPlayer();
 
 		Float32 range = shot.getExplosionRange();
 		Float32 power = shot.getExplosionPower();
@@ -143,7 +143,10 @@ namespace Duel6
 
 		for (Player& player : players)
 		{
-			if (player.is(*playerThatWasHit))
+			bool directHit = (playerThatWasHit != nullptr && player.is(*playerThatWasHit));
+			Float32 dist = directHit ? 0 : Math::distance(player.getX() + 0.5f, player.getY() + 0.5f, X, Y); // TODO: Coord
+
+			if (directHit || dist < range)
 			{
 				if (shit)
 				{
@@ -151,46 +154,40 @@ namespace Duel6
 				}
 				else
 				{
-					if (player.hitByShot(power, shot, true))
+					if (player.hitByShot(directHit ? power : ((range - dist) * power) / range, shot, directHit))
 					{
-						killedPlayers++;
-					}
-				}
-			}
-			else
-			{
-				Float32 dist = Math::distance(player.getX() + 0.5f, player.getY() + 0.5f, X, Y); // TODO: Coord
-
-				if (dist < range)
-				{
-					if (shit)
-					{
-						player.useTemporarySkin(*brownSkin);
-					}
-					else
-					{
-						if (player.hitByShot(((range - dist) * power) / range, shot, false))
-						{
-							killedPlayers++;
-
-							if (player.is(shot.getPlayer()))
-							{
-								killedSelf = true;
-							}
-						}
+						killedPlayers.push_back(&player);
 					}
 				}
 			}
 		}
 
-		if (killedSelf)
+		if (std::find(killedPlayers.begin(), killedPlayers.end(), &author) != killedPlayers.end()) // Killed self
 		{
-			shot.getPlayer().getPerson().addPenalties(killedPlayers);
+			author.playSound(PlayerSounds::Type::Suicide);
+			author.getPerson().addPenalties(killedPlayers.size());
 		}
 		else
 		{
-			shot.getPlayer().getPerson().addKills(killedPlayers);
-			shot.getPlayer().addRoundKills(killedPlayers);
+			if (killedPlayers.size() > 0)
+			{
+				author.playSound(PlayerSounds::Type::KilledOther);
+			}
+			else if (playerThatWasHit != nullptr)
+			{
+				author.playSound(PlayerSounds::Type::HitOther);
+			}
+
+			author.getPerson().addKills(killedPlayers.size());
+			author.addRoundKills(killedPlayers.size());
+		}
+
+		for (auto player : killedPlayers)
+		{
+			if (!player->is(author))
+			{
+				player->playSound(PlayerSounds::Type::WasKilled);
+			}
 		}
 	}
 
