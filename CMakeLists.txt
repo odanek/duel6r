@@ -61,6 +61,7 @@ set(D6R_SOURCES
     source/Elevator.cpp
     source/ElevatorList.h
     source/ElevatorList.cpp
+    source/EnumClassHash.h
     source/Explosion.h
     source/Explosion.cpp
     source/Face.h

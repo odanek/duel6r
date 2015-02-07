@@ -61,8 +61,8 @@ namespace Duel6
 		class Texture
 		{
 		private:
+            TextureManager* manager;
 			const TextureList* textures;
-			TextureManager* manager;
 			Int32 key;
 
 		private:

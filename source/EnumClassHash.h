@@ -25,42 +25,19 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_WATER_H
-#define DUEL6_WATER_H
-
-#include <unordered_map>
-#include <memory>
-#include "SpriteList.h"
-#include "Sound.h"
-#include "TextureManager.h"
-#include "EnumClassHash.h"
+#ifndef DUEL6_ENUMCLASSHASH_H
+#define DUEL6_ENUMCLASSHASH_H
 
 namespace Duel6
 {
-	class Water
-	{
-	public:
-		enum class Type
-		{
-			Blue,
-			Red,
-			Green,
-			None
-		};
-
-	public:
-		typedef std::unordered_map<Type, std::unique_ptr<Water>, EnumClassHash<Type>> WaterSet;
-
-	public:
-		virtual ~Water()
-		{}
-
-		virtual Sound::Sample getSplashSound() const = 0;
-		virtual void addSplash(SpriteList& spriteList, Float32 cx, Float32 cy) const = 0;
-		virtual Float32 getAirHit() const = 0;
-
-		static WaterSet createWaterSet(Sound& sound, TextureManager& textureManager);
-	};
+    template <class T>
+    struct EnumClassHash
+    {
+        std::size_t operator()(const T& val) const
+        {
+            return (std::size_t)(val);
+        }
+    };
 }
 
 #endif

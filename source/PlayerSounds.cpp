@@ -28,21 +28,13 @@
 #include <unordered_map>
 #include "json/Json.h"
 #include "Defines.h"
+#include "EnumClassHash.h"
 #include "PlayerSounds.h"
 
 namespace Duel6
 {
 	namespace
 	{
-		template <class T>
-		struct EnumClassHash
-		{			
-			std::size_t operator()(const T& val) const
-			{
-				return (std::size_t)(val);
-			}
-		};
-
 		std::unordered_map<PlayerSounds::Type, std::string, EnumClassHash<PlayerSounds::Type>> defaultSounds = {
 			{ PlayerSounds::Type::GotHit, "hit.wav" },
 			{ PlayerSounds::Type::WasKilled, "death.wav" },
