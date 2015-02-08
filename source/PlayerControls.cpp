@@ -80,38 +80,17 @@ namespace Duel6
 			new KeyboardButton(input, SDLK_KP_5), new KeyboardButton(input, SDLK_KP_2),
 			new KeyboardButton(input, SDLK_KP_0), new KeyboardButton(input, SDLK_KP_PERIOD)
 			)));
-		controls.push_back(
-			std::unique_ptr<PlayerControls>(new PlayerControls("Joypad 1",
-			new JoypadAxis(input, 0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(input, 0, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 0, 0),
-			new JoypadAxis(input, 0, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 0, 1), new JoypadButton(input, 0, 2)
-			)));
-		controls.push_back(
-			std::unique_ptr<PlayerControls>(new PlayerControls("Joypad 2",
-			new JoypadAxis(input, 1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(input, 1, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 1, 0),
-			new JoypadAxis(input, 1, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 1, 1), new JoypadButton(input, 1, 2)
-			)));
-		controls.push_back(
-			std::unique_ptr<PlayerControls>(new PlayerControls("Joypad 3",
-			new JoypadAxis(input, 2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(input, 2, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 2, 0),
-			new JoypadAxis(input, 2, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 2, 1), new JoypadButton(input, 2, 2)
-			)));
-		controls.push_back(
-			std::unique_ptr<PlayerControls>(new PlayerControls("Joypad 4",
-			new JoypadAxis(input, 3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
-			new JoypadAxis(input, 3, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 3, 0),
-			new JoypadAxis(input, 3, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-			new JoypadButton(input, 3, 1), new JoypadButton(input, 3, 2)
-			)));
+
+		for (Int32 i = 0; i < 10; i++) {
+			controls.push_back(
+				std::unique_ptr<PlayerControls>(new PlayerControls(Format("Joypad {0}") << i + 1,
+				new JoypadAxis(input, i, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left),
+				new JoypadAxis(input, i, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
+				new JoypadButton(input, i, 0),
+				new JoypadAxis(input, i, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
+				new JoypadButton(input, i, 1), new JoypadButton(input, i, 2)
+				)));
+		}
 	}
 
 	Size PlayerControlsManager::getNumAvailable() const

@@ -58,7 +58,7 @@
 #define D6_ANM_SPEED			0.328f
 #define D6_WAVE_HEIGHT			0.1f
 
-#define D6_MAX_PLAYERS			8
+#define D6_MAX_PLAYERS			10
 #define D6_AIR_RECHARGE_SPEED	60
 #define D6_GAME_OVER_WAIT		3.0f
 #define D6_INFO_DURATION		5.0f

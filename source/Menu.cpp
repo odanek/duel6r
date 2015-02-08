@@ -120,21 +120,21 @@ namespace Duel6
 		listbox[6]->setPosition(520, 470, 13, 5, 16);
 
 		button[0] = new Gui::Button(gui);
-		button[0]->setPosition(200, 318, 80, 31);
+		button[0]->setPosition(200, 282, 80, 25);
 		button[0]->setCaption(">>");
 		button[0]->onClick([this](const Gui::Event&) {
 			addPlayer();
 		});
 
 		button[1] = new Gui::Button(gui);
-		button[1]->setPosition(200, 283, 80, 31);
+		button[1]->setPosition(200, 253, 80, 25);
 		button[1]->setCaption("<<");
 		button[1]->onClick([this](const Gui::Event&) {
 			removePlayer(listbox[2]->curItem());
 		});
 
 		button[2] = new Gui::Button(gui);
-		button[2]->setPosition(284, 318, 80, 31);
+		button[2]->setPosition(284, 282, 80, 25);
 		button[2]->setCaption(D6_L("Remove"));
 		button[2]->onClick([this](const Gui::Event&) {
 			deletePerson();
@@ -142,14 +142,14 @@ namespace Duel6
 		});
 
 		button[3] = new Gui::Button(gui);
-		button[3]->setPosition(284, 283, 80, 31);
+		button[3]->setPosition(284, 253, 80, 25);
 		button[3]->setCaption(D6_L("Add"));
 		button[3]->onClick([this](const Gui::Event&) {
 			addPerson();
 		});
 
 		button[6] = new Gui::Button(gui);
-		button[6]->setPosition(370, 318, 120, 31);
+		button[6]->setPosition(370, 282, 125, 25);
 		button[6]->setCaption(D6_L("Clear (F3)"));
 		button[6]->onClick([this](const Gui::Event&) {
 			if (deleteQuestion())
@@ -208,7 +208,7 @@ namespace Duel6
 		label[7]->setCaption(D6_L("Controller"));
 
 		textbox = new Gui::Textbox(gui);
-		textbox->setPosition(200, 248, 19, 10, D6_ALL_CHR);
+		textbox->setPosition(370, 252, 14, 10, D6_ALL_CHR);
 
 		// Switchbox - volba ovladani
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
