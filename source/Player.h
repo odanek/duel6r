@@ -414,7 +414,7 @@ namespace Duel6
 
 		void playSound(PlayerSounds::Type type) const
 		{
-			sounds.getSample(type).play();
+			sounds.getRandomSample(type).play();
 		}
 
 	private:

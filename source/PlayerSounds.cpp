@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdlib.h>
 #include <unordered_map>
 #include "json/Json.h"
 #include "Defines.h"
@@ -46,29 +47,60 @@ namespace Duel6
 		Sound::Sample emptySample;
 		std::unordered_map<PlayerSounds::Type, Sound::Sample, EnumClassHash<PlayerSounds::Type>> defaultSamples;
 
+		Sound::Sample loadDefaultSound(Sound& sound, PlayerSounds::Type type)
+		{
+			auto soundFile = defaultSounds.find(type);
+			if (soundFile == defaultSounds.end())
+			{
+				return emptySample;
+			}
+
+			auto sample = defaultSamples.find(type);
+			if (sample == defaultSamples.end())
+			{
+				Sound::Sample defaultSample = sound.loadSample(D6_FILE_PLAYER_SOUNDS + soundFile->second);
+				defaultSamples.insert(std::make_pair(type, defaultSample));
+				return defaultSample;
+			}
+
+			return sample->second;
+		}
+
 		Sound::Sample loadSound(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, const Json::Value& value)
 		{
 			if (value.getType() == Json::Value::Type::Null)
 			{
-				auto soundFile = defaultSounds.find(type);
-				if (soundFile == defaultSounds.end())
-				{
-					return emptySample;
-				}
-
-				auto sample = defaultSamples.find(type);
-				if (sample == defaultSamples.end())
-				{
-					Sound::Sample defaultSample = sound.loadSample(D6_FILE_PLAYER_SOUNDS + soundFile->second);
-					defaultSamples.insert(std::make_pair(type, defaultSample));
-					return defaultSample;
-				}
-
-				return sample->second;
+				return loadDefaultSound(sound, type);
 			}
 
 			return sound.loadSample(profileRoot + value.asString());
 		}
+
+		std::vector<Sound::Sample> loadSounds(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, const Json::Value& value)
+		{
+			std::vector<Sound::Sample> samples;
+
+			if (value.getType() == Json::Value::Type::Array)
+			{
+				for (Size i = 0; i < value.getLength(); i++)
+				{
+					samples.push_back(loadSound(sound, profileRoot, type, value.get(i)));
+				}
+			}
+			else
+			{
+				samples.push_back(loadSound(sound, profileRoot, type, value));
+			}
+
+			return samples;
+		}
+	}
+
+	const Sound::Sample& PlayerSounds::getRandomSample(Type type) const
+	{
+		const std::vector<Sound::Sample>& samples = sounds[(Int32)type];
+		Size which = rand() % samples.size();
+		return samples[which];
 	}
 
 	PlayerSounds PlayerSounds::load(Sound& sound, const std::string& profilePath, const std::string& file)
@@ -77,13 +109,13 @@ namespace Duel6
 		const Json::Value& root = parser.parse(profilePath + file);
 
 		PlayerSounds sounds;
-		sounds.sounds[(Int32)Type::GotHit] = loadSound(sound, profilePath, Type::GotHit, root.get("gotHit"));
-		sounds.sounds[(Int32)Type::WasKilled] = loadSound(sound, profilePath, Type::WasKilled, root.get("wasKilled"));
-		sounds.sounds[(Int32)Type::HitOther] = loadSound(sound, profilePath, Type::HitOther, root.get("hitOther"));
-		sounds.sounds[(Int32)Type::KilledOther] = loadSound(sound, profilePath, Type::KilledOther, root.get("killedOther"));
-		sounds.sounds[(Int32)Type::Suicide] = loadSound(sound, profilePath, Type::Suicide, root.get("suicide"));
-		sounds.sounds[(Int32)Type::Drowned] = loadSound(sound, profilePath, Type::Drowned, root.get("drowned"));
-		sounds.sounds[(Int32)Type::PickedBonus] = loadSound(sound, profilePath, Type::PickedBonus, root.get("pickedBonus"));
+		sounds.sounds[(Int32)Type::GotHit] = loadSounds(sound, profilePath, Type::GotHit, root.get("gotHit"));
+		sounds.sounds[(Int32)Type::WasKilled] = loadSounds(sound, profilePath, Type::WasKilled, root.get("wasKilled"));
+		sounds.sounds[(Int32)Type::HitOther] = loadSounds(sound, profilePath, Type::HitOther, root.get("hitOther"));
+		sounds.sounds[(Int32)Type::KilledOther] = loadSounds(sound, profilePath, Type::KilledOther, root.get("killedOther"));
+		sounds.sounds[(Int32)Type::Suicide] = loadSounds(sound, profilePath, Type::Suicide, root.get("suicide"));
+		sounds.sounds[(Int32)Type::Drowned] = loadSounds(sound, profilePath, Type::Drowned, root.get("drowned"));
+		sounds.sounds[(Int32)Type::PickedBonus] = loadSounds(sound, profilePath, Type::PickedBonus, root.get("pickedBonus"));
 		return sounds;
 	}
 }

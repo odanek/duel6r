@@ -28,7 +28,7 @@
 #ifndef DUEL6_PLAYERSOUNDS_H
 #define DUEL6_PLAYERSOUNDS_H
 
-#include <unordered_map>
+#include <vector>
 #include "Sound.h"
 
 namespace Duel6
@@ -48,16 +48,18 @@ namespace Duel6
 		};
 
 	private:		
-		Sound::Sample sounds[7];
+		std::vector<Sound::Sample> sounds[7];
 
 	private:
 		PlayerSounds()
 		{}
 
 	public:
-		const Sound::Sample& getSample(Type type) const
+		const Sound::Sample& getRandomSample(Type type) const;
+
+		const std::vector<Sound::Sample>& getSamples(Type type) const
 		{
-			return sounds[(Int32)type];
+			return sounds[Int32(type)];
 		}
 
 		static PlayerSounds load(Sound& sound, const std::string& profilePath, const std::string& file);
