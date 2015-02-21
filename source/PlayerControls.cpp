@@ -70,9 +70,9 @@ namespace Duel6
 			)));
 		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls("Keys 3",
-			new KeyboardButton(input, SDLK_h), new KeyboardButton(input, SDLK_k), 
-			new KeyboardButton(input, SDLK_u), new KeyboardButton(input, SDLK_j),
-			new KeyboardButton(input, SDLK_o), new KeyboardButton(input, SDLK_l)
+			new KeyboardButton(input, SDLK_j), new KeyboardButton(input, SDLK_l), 
+			new KeyboardButton(input, SDLK_i), new KeyboardButton(input, SDLK_k),
+			new KeyboardButton(input, SDLK_y), new KeyboardButton(input, SDLK_h)
 			)));
 		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls("Keys 4",
