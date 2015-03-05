@@ -211,6 +211,7 @@ namespace Duel6
 					messageQueue.add(player, D6_L("End of round - no winner"));
 				}
 			}
+			gameOverSound.play();
 		}
 	}
 
@@ -236,9 +237,8 @@ namespace Duel6
             gameOverWait -= elapsedTime;
             if (gameOverWait <= 0)
             {
-                gameOverWait = 0;
-                winner = 2;
-                gameOverSound.play();
+                gameOverWait = 0.0f;
+				nextRound();
             }
             return;
         }
@@ -283,17 +283,23 @@ namespace Duel6
 
 	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
-		if (keyCode == SDLK_ESCAPE)
+		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
+
+		if (keyCode == SDLK_ESCAPE && (roundLimit || (keyModifiers & KMOD_SHIFT) != 0))
 		{
 			close();
 		}
 
 		// Restart game
-		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
 		if (keyCode == SDLK_F1 && !roundLimit && (hasWinner() || (keyModifiers & KMOD_SHIFT) != 0))
 		{
 			nextRound();
 			return;
+		}
+
+		if (hasWinner() && ((D6_GAME_OVER_WAIT - gameOverWait) > 3.0f))
+		{
+			gameOverWait = 0.0f;
 		}
 
 		// Switch between fullscreen and split screen mode

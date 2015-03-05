@@ -60,7 +60,7 @@
 
 #define D6_MAX_PLAYERS			10
 #define D6_AIR_RECHARGE_SPEED	60
-#define D6_GAME_OVER_WAIT		3.0f
+#define D6_GAME_OVER_WAIT		6.0f
 #define D6_INFO_DURATION		5.0f
 #define D6_PLAYER_MAX_SPEED     0.52f
 #define D6_PLAYER_ACCEL         3.721f
