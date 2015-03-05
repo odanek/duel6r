@@ -209,7 +209,7 @@ namespace Duel6
 		void setPlayerViews();
 		void splitScreenView(Player& player, Int32 x, Int32 y);
 		void switchScreenMode();
-		void nextRound(bool sameLevel);
+		void nextRound();
 	};	
 }
 

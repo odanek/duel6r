@@ -284,15 +284,15 @@ namespace Duel6
 	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
 		if (keyCode == SDLK_ESCAPE)
-		{			
+		{
 			close();
 		}
 
 		// Restart game
 		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
-		if (keyCode == SDLK_F1 && !roundLimit)
+		if (keyCode == SDLK_F1 && !roundLimit && (hasWinner() || (keyModifiers & KMOD_SHIFT) != 0))
 		{
-			nextRound((keyModifiers & KMOD_SHIFT) != 0);
+			nextRound();
 			return;
 		}
 
@@ -348,12 +348,12 @@ namespace Duel6
 		this->screenZoom = screenZoom;
 
 		playedRounds = 0;
-		nextRound(false);
+		nextRound();
 	}
 
-	void Game::nextRound(bool sameLevel)
+	void Game::nextRound()
 	{
-		if (!sameLevel)
+		//if (!sameLevel)
 		{
 			lastLevel = rand() % levels.size();
 		}
