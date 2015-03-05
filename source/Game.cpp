@@ -225,6 +225,24 @@ namespace Duel6
 
 	void Game::update(Float32 elapsedTime)
 	{
+        // Check if there's a winner
+        if (winner == -1)
+        {
+            checkWinner();
+        }
+
+        if (hasWinner())
+        {
+            gameOverWait -= elapsedTime;
+            if (gameOverWait <= 0)
+            {
+                gameOverWait = 0;
+                winner = 2;
+                gameOverSound.play();
+            }
+            return;
+        }
+
 		for (Player& player : players)
 		{
 			player.update(world, getScreenMode(), elapsedTime);
@@ -243,21 +261,6 @@ namespace Duel6
 			BONUS_AddNew(world);
 		}
 
-		// Check if there's a winner
-		if (winner == -1)
-		{
-			checkWinner();
-		}
-		else if (winner == 1)
-		{
-			gameOverWait -= elapsedTime;
-			if (gameOverWait <= 0)
-			{
-				gameOverWait = 0;
-				winner = 2;
-				gameOverSound.play();
-			}
-		}
 		updateNotifications(elapsedTime);
 	}
         
