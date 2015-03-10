@@ -109,7 +109,7 @@ namespace Duel6
 		Float32 showYouAreHere;
 		Float32 gameOverWait;
 
-		std::vector<Player> players;
+        std::vector<Player> players;
 		std::vector<std::unique_ptr<PlayerSkin>> skins;
 
 		GameService gameService;
@@ -155,7 +155,7 @@ namespace Duel6
 			return winner > 0;
 		}
 
-		const std::pair<Int32, Int32>& getAmmoRange() const
+        const std::pair<Int32, Int32>& getAmmoRange() const
 		{
 			return ammoRange;
 		}
@@ -185,7 +185,12 @@ namespace Duel6
 			return showYouAreHere;
 		}
 
-		bool isOver() const
+        Float32 getRemainingGameOverWait() const
+        {
+            return gameOverWait;
+        }
+
+        bool isOver() const
 		{
 			return (maxRounds > 0) && (playedRounds >= maxRounds);
 		}
@@ -209,7 +214,7 @@ namespace Duel6
 		void setPlayerViews();
 		void splitScreenView(Player& player, Int32 x, Int32 y);
 		void switchScreenMode();
-		void nextRound(bool sameLevel);
+		void nextRound();
 	};	
 }
 

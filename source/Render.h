@@ -112,6 +112,7 @@ namespace Duel6
 		void sprites(const FaceList& sprites) const;
 		void background(GLuint texture) const;
 		void playerRankings() const;
+        void roundOverSummary() const;
 		void gameOverSummary() const;
 		void roundsPlayed() const;
 		void playerStatuses() const;

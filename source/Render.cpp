@@ -131,6 +131,48 @@ namespace Duel6
 		}
 	}
 
+    void Renderer::roundOverSummary() const
+    {
+        int width = 200;
+        int height = 120;
+        int x = video.getScreen().getClientWidth() / 2 - width / 2;
+        int y = video.getScreen().getClientHeight() / 2 - height / 2;
+
+        glColor4f(1, 1, 1, 0.7f);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBegin(GL_QUADS);
+        glVertex2i(x - 2, y + height + 2);
+        glVertex2i(x + width + 2, y + height + 2);
+        glVertex2i(x + width + 2, y - 2);
+        glVertex2i(x - 2, y - 2);
+        glEnd();
+
+        glColor4f(0, 0, 1, 0.7f);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBegin(GL_QUADS);
+        glVertex2i(x, y + height);
+        glVertex2i(x + width, y + height);
+        glVertex2i(x + width, y );
+        glVertex2i(x, y);
+        glEnd();
+
+        Color fontColor(255, 255, 255);
+        font.print(x + width / 2 - 35, y + height - 30, fontColor, D6_L("Round Over"));
+
+        for (const Player& player : game.getPlayers())
+        {
+            if (!player.isDead())
+            {
+                font.print(x + 15, y + height - 70, fontColor, Format(D6_L("Winner is: {0}")) << player.getPerson().getName());
+                break;
+            }
+        }
+
+        font.print(x + width / 2 - 2, y + height - 95, fontColor, Format("{0}") << (Int32) game.getRemainingGameOverWait());
+    }
+
 	void Renderer::gameOverSummary() const
 	{
 		int width = 200;
@@ -168,7 +210,7 @@ namespace Duel6
 			font.print(x + 10, ladderY - 16*count, fontColor, player->getPerson().getName());
 			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << player->getPerson().getTotalPoints());
 			count++;
-		}		
+		}
 	}
 
 	void Renderer::roundsPlayed() const
@@ -558,9 +600,16 @@ namespace Duel6
 			roundsPlayed();
 		}
 
-		if(game.hasWinner() && game.isOver())
+		if(game.hasWinner())
 		{
-			gameOverSummary();
-		}
-	}
+            if(game.isOver())
+            {
+                gameOverSummary();
+            }
+            else
+            {
+                roundOverSummary();
+            }
+        }
+    }
 }

@@ -211,6 +211,7 @@ namespace Duel6
 					messageQueue.add(player, D6_L("End of round - no winner"));
 				}
 			}
+			gameOverSound.play();
 		}
 	}
 
@@ -225,6 +226,23 @@ namespace Duel6
 
 	void Game::update(Float32 elapsedTime)
 	{
+        // Check if there's a winner
+        if (winner == -1)
+        {
+            checkWinner();
+        }
+
+        if (hasWinner())
+        {
+            gameOverWait -= elapsedTime;
+            if (gameOverWait <= 0)
+            {
+                gameOverWait = 0.0f;
+				nextRound();
+            }
+            return;
+        }
+
 		for (Player& player : players)
 		{
 			player.update(world, getScreenMode(), elapsedTime);
@@ -243,21 +261,6 @@ namespace Duel6
 			BONUS_AddNew(world);
 		}
 
-		// Check if there's a winner
-		if (winner == -1)
-		{
-			checkWinner();
-		}
-		else if (winner == 1)
-		{
-			gameOverWait -= elapsedTime;
-			if (gameOverWait <= 0)
-			{
-				gameOverWait = 0;
-				winner = 2;
-				gameOverSound.play();
-			}
-		}
 		updateNotifications(elapsedTime);
 	}
         
@@ -280,17 +283,23 @@ namespace Duel6
 
 	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
 	{
-		if (keyCode == SDLK_ESCAPE)
-		{			
+		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
+
+		if (keyCode == SDLK_ESCAPE && (roundLimit || (keyModifiers & KMOD_SHIFT) != 0))
+		{
 			close();
 		}
 
 		// Restart game
-		bool roundLimit = (maxRounds > 0) && (playedRounds >= maxRounds);
-		if (keyCode == SDLK_F1 && !roundLimit)
+		if (keyCode == SDLK_F1 && !roundLimit && (hasWinner() || (keyModifiers & KMOD_SHIFT) != 0))
 		{
-			nextRound((keyModifiers & KMOD_SHIFT) != 0);
+			nextRound();
 			return;
+		}
+
+		if (hasWinner() && ((D6_GAME_OVER_WAIT - gameOverWait) > 3.0f))
+		{
+			gameOverWait = 0.0f;
 		}
 
 		// Switch between fullscreen and split screen mode
@@ -345,12 +354,12 @@ namespace Duel6
 		this->screenZoom = screenZoom;
 
 		playedRounds = 0;
-		nextRound(false);
+		nextRound();
 	}
 
-	void Game::nextRound(bool sameLevel)
+	void Game::nextRound()
 	{
-		if (!sameLevel)
+		//if (!sameLevel)
 		{
 			lastLevel = rand() % levels.size();
 		}
