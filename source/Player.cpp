@@ -209,8 +209,17 @@ namespace Duel6
 		state.ammo--;
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
+		Orientation originalOrientation = getOrientation();
 
-		WPN_AddShot(*this, spriteList);
+		WPN_AddShot(*this, spriteList, originalOrientation);
+
+		if (getBonus() == D6_BONUS_SPLITFIRE && getAmmo() > 0)
+		{
+			state.ammo--;
+			getPerson().addShots(1);
+			Orientation secondaryOrientation = originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
+			WPN_AddShot(*this, spriteList, secondaryOrientation);
+		}
 	}
 
 	Player& Player::pickWeapon(const Weapon& weapon, Int32 bullets)

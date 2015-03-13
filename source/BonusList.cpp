@@ -170,6 +170,11 @@ namespace Duel6
 			player.pickAmmo(hit);
 			messageQueue.add(player, Format(D6_L("Bullets +{0}")) << hit);
 			break;
+
+		case D6_BONUS_SPLITFIRE:
+			player.setBonus(type, duration).setAlpha(1.0f);
+			messageQueue.add(player, Format(D6_L("Splitfire for {0} seconds")) << duration);
+			break;
 		}
 	}
 

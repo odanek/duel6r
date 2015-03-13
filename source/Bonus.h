@@ -57,6 +57,7 @@ namespace Duel6
 		D6_BONUS_BULLT,
 		D6_BONUS_SPEED,
 		D6_BONUS_INVIS,
+		D6_BONUS_SPLITFIRE,
 		D6_BONUS_GUESS // GUESS must be the last type
 	};
 
