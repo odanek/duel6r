@@ -133,7 +133,7 @@ namespace Duel6
 			break;
 
 		case D6_BONUS_LIFEP:
-			player.adjustLife(Float32(hit));
+			player.addLife(Float32(hit));
 			messageQueue.add(player, Format(D6_L("Life +{0}")) << hit);
 			break;
 
@@ -174,6 +174,11 @@ namespace Duel6
 		case D6_BONUS_SPLITFIRE:
 			player.setBonus(type, duration).setAlpha(1.0f);
 			messageQueue.add(player, Format(D6_L("Splitfire for {0} seconds")) << duration);
+			break;
+
+		case D6_BONUS_VAMPIRESHOTS:
+			player.setBonus(type, duration).setAlpha(1.0f);
+			messageQueue.add(player, Format(D6_L("Vampire shots for {0} seconds")) << duration);
 			break;
 		}
 	}
