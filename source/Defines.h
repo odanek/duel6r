@@ -71,7 +71,7 @@
 #define D6_CAM_TOLPER_X         30
 #define D6_CAM_TOLPER_Y         30
 
-#define D6_BONUS_COUNT			10
+#define D6_BONUS_COUNT			12
 #define D6_WEAPONS				17
 
 #endif
