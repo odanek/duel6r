@@ -1,0 +1,136 @@
+3.9.0
+=======
+- Negative points for drowning
+- Ability to change skin (face) color
+- Lots of internal refactoring
+
+3.8.14
+=======
+- Negative points for comitting suicide
+
+3.8.13
+=======
+- Fix game of more than 4 players
+- Fix shit thrower
+
+3.8.12
+=======
+- Odstraneni zavislosti na GLU
+- Vylepsene nacitani seznamu urovni
+- Opravena chyba s odregistraci pameti konzole 
+
+3.8.11
+=======
+- Autodetekce rozliseni a bitove hloubky
+- Hrac nemuze zastrelit sam sebe
+- Velke vybuchy nemaji DEPTH_TEST
+- SDL 1.2.14 a SDL_mixer 1.2.11
+
+3.8.10
+=======
+- Pridana podpora pro start_ammo_range
+
+3.8.9
+=======
+- Opraveny bug se spadnutim pokud se hrac utopi
+
+3.8.8
+=======
+- Opravene ruzne veci pro zajisteni kompatibility s GCC 4.2.1
+
+3.8.7
+=======
+- Nova matematicka knihovna
+- Nove SDL 1.2.12
+
+3.8.6
+=======
+- Nova konzole
+- Po mrtvolach zustane na zemi zbran
+
+3.8.5
+=======
+- Drobna uprava vyznamneho casoveho intervalu v novem syncu
+- Uprava kontrol pri pohybu pro lepsi trefovani se mezi ctverecky
+
+3.8.4
+=======
+- Novy jeste lepsi sync
+
+3.8.3
+=======
+- Pridan novy bonus - neviditelnost
+- Pridany nove zbrane - polibek smrti, sprej, prak, spuntovka
+- Bilinearni filtrovani textur vybuchu - uz nejsou tak zubate
+- Pomalejsi reakce switchboxu v menu
+- Novy zvuk pro kulomet
+- Novy fps sync
+- Dodelano prelozeni nazvu zbrani pri prepnuti jazyka
+- Opraven bug s vypisovanim cisla urovne do konzole (prechod z cisel na jmena)
+- Moznost menit rozliseni bez naslednych chyb a posunu ve vykreslovani
+- Moznost povolit/zakzat vybrane zbrane
+
+3.8.2
+=======
+- Opraven bug s dlouhymi jmeny pri zobrazovani prubezneho stavu ve hre
+- Opraven bug se zapornym skore pri zobrazovani prubezneho stavu ve hre
+- Optimalizace vykreslovani bloku na vyssi rychlost
+
+3.8.1
+=======
+- Pred smazanim statistik se hra zepta
+- Doplneny popisky klavesovych zkratek ke tlacitkum
+
+3.8.0
+=======
+- Hracske statistiky se ukladaji po kazde hre
+- V menu: Stisk ENTER = Pridej, po pridani hrace se vyprazdni textbox
+- V menu: F1 = Hrat
+- V menu: pridano tlacitko pro vymaz statistik, to se rovnez provede po stisku klavesove zkratky F3
+- Vyraznejsi kruh pri nesmrtelnosti
+- Pridana skinovatelnost, opraveny nektere animace (tenke nohy ve vyskoku)
+- Pruhledne statusbary
+- Nejde skakat pod kostkou
+- Opravena uroven 11
+- Upraveny pozice prvku v menu
+- Umoznen libovolny pocet hracu (tedy i vice nez 4), napevno nastaven na 8
+- Upravena (velmi mirne) doba nabijeni kulometu a pistole
+- Mohutne exploze pro trojzubec, bazooku a dvojity laser
+- Pridan bonus pro zvyseni rychlosti postavy
+- SHIFT+F1 restartuje uroven
+- F4 zapina/vypina zobrazeni prubezneho stavu bodu ve hre
+- Urovne mohou mit libovolny nazev (+ nova verze editoru - ctete readme.txt)
+- Dve nova prostredi a pet novych urovni  
+
+3.7.16
+=======
+- Upravene doby trvani bonusu a pocet naboju v bonusech a novych zbranich
+- Kdyz ma hrac nesmrtelnost nemuze vzit cerny kriz
+- Kdyz je hrac mrtvy nemuze sebrat bonusy
+
+3.7.15
+=======
+- Drobne opravy pri prepinani obnovovaci frekvence
+
+3.7.14
+=======
+- Zakrvaveni obrazovky pri split screen pri smrti hrace
+- Jmena hracu ve stavovych pruzich
+- Knihovna predelana na PCK2
+- Unixove konce radku v config.txt.def
+
+3.7.13
+=======
+- Opraven bug v nacitani lokalizacnich retezcu - pridani funkce MY_FEof
+- Opravena chyba kdy se pri vypnute hudbe po Alt-Tab hudba znovu sama zapla
+- Drobne upravy v anglickych retezcich
+- Automaticke vytvareni souboru config.txt a duel6.dat
+
+3.7.12
+=======
+- Pri ruseni hrace z databaze se hra pta zda to opravdu chcete
+- Opraveno ukladani screenshotu (pres F10). Nyni mnohem rychlejsi a pokracuje od naposledy ulozeneho cisla.
+- Pridana moznost behem hry prepinat full screen a split screen pres F2
+- Defaultni zoom zmenen na uroven 13
+- Upraveno readme.txt, nove obsahuje vsechny klavesy a konzolove prikazy
+- Opraveno chybne prepinani na obnovovaci frekvenci 60 Hz pod windows
