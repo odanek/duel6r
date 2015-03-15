@@ -113,14 +113,14 @@ namespace Duel6
 		d6Shots.clear();
 	}
 
-	void WPN_AddShot(Player& player, SpriteList& spriteList)
+	void WPN_AddShot(Player& player, SpriteList& spriteList, Orientation orientation)
 	{
 		Float32 ad = player.isKneeling() ? 0.52f : 0.32f;
-		Float32 x = (player.getOrientation() == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
+		Float32 x = (orientation == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
 		Float32 y = player.getY() - ad;
 
 		Sprite shotSprite(player.getWeapon().shotAnimation, player.getWeapon().textures.shot);		
-		d6Shots.push_back(Shot(player, x, y, spriteList.addSprite(shotSprite)));
+		d6Shots.push_back(Shot(player, x, y, spriteList.addSprite(shotSprite), orientation));
 		player.getWeapon().shotSample.play();
 	}
 

@@ -74,7 +74,7 @@ namespace Duel6
 	void WPN_Init(TextureManager& textureManager, Sound& sound, Console& console);
 	void WPN_DeInit();
 	void WPN_LevelInit();
-	void WPN_AddShot(Player& player, SpriteList& spriteList);
+	void WPN_AddShot(Player& player, SpriteList& spriteList, Orientation orientation);
 	void WPN_MoveShots(GameService& gameService, float elapsedTime);
 
 	const Weapon& WPN_GetRandomWeapon();

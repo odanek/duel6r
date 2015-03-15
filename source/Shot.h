@@ -47,7 +47,7 @@ namespace Duel6
 		SpriteIterator sprite;
 
 	public:
-		Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite);
+		Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite, Orientation shotOrientation);
 
 		Player& getPlayer()
 		{

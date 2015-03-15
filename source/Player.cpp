@@ -209,11 +209,20 @@ namespace Duel6
 		state.ammo--;
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
+		Orientation originalOrientation = getOrientation();
 
-		WPN_AddShot(*this, spriteList);
+		WPN_AddShot(*this, spriteList, originalOrientation);
+
+		if (getBonus() == D6_BONUS_SPLITFIRE && getAmmo() > 0)
+		{
+			state.ammo--;
+			getPerson().addShots(1);
+			Orientation secondaryOrientation = originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
+			WPN_AddShot(*this, spriteList, secondaryOrientation);
+		}
 	}
 
-	Player& Player::pickWeapon(const Weapon& weapon, Int32 bullets)
+	Player& Player::pickWeapon(const Weapon &weapon, Int32 bullets)
 	{
 		setFlag(FlagPick);
 		state.weapon = &weapon;
@@ -520,7 +529,8 @@ namespace Duel6
 		if (isInvulnerable() || !isInGame())
 			return false;
 
-		Person& shootingPerson = shot.getPlayer().getPerson();
+		Player& shootingPlayer = shot.getPlayer();
+		Person& shootingPerson = shootingPlayer.getPerson();
 		const Weapon& weapon = shot.getWeapon();
 
 		if (directHit && weapon.blood)
@@ -543,6 +553,11 @@ namespace Duel6
 		if (directHit)
 		{			
 			shootingPerson.addHits(1);
+
+			if (shootingPlayer.getBonus() == D6_BONUS_VAMPIRESHOTS)
+			{
+				shootingPlayer.addLife(amount);
+			}
 		}
 
 		if (state.life < 1)
@@ -556,10 +571,10 @@ namespace Duel6
 
 			state.orientation = (shot.getX() < getX()) ? Orientation::Left : Orientation::Right;
 
-			if (!is(shot.getPlayer()))
+			if (!is(shootingPlayer))
 			{
 				messageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
-				messageQueue.add(shot.getPlayer(), Format(D6_L("You killed player {0}")) << getPerson().getName());
+				messageQueue.add(shootingPlayer, Format(D6_L("You killed player {0}")) << getPerson().getName());
 			}
 			else
 			{
@@ -623,7 +638,7 @@ namespace Duel6
 		}
 	}
 
-	Player& Player::adjustLife(Float32 life)
+	Player& Player::addLife(Float32 life)
 	{
 		state.life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), state.life + life));
 		return *this;

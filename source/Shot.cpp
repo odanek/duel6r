@@ -32,8 +32,8 @@
 
 namespace Duel6
 {
-	Shot::Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite)
-		: player(player), weapon(player.getWeapon()), orientation(player.getOrientation()), x(x), y(y), sprite(sprite)
+	Shot::Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite, Orientation shotOrientation)
+		: player(player), weapon(player.getWeapon()), orientation(shotOrientation), x(x), y(y), sprite(sprite)
 	{
 		this->sprite->setPosition(x, y, 0.6f).setOrientation(this->orientation);
 	}

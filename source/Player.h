@@ -305,7 +305,7 @@ namespace Duel6
 			return infoBarPosition;
 		}
 
-		Player& adjustLife(Float32 life);
+		Player& addLife(Float32 life);
 
 		Player& setFullLife()
 		{
@@ -320,7 +320,7 @@ namespace Duel6
 		}
 
 		void useTemporarySkin(PlayerSkin& tempSkin);
-		Player& pickWeapon(const Weapon& weapon, Int32 bulelts);		
+		Player& pickWeapon(const Weapon &weapon, Int32 bullets);
 
 		bool isReloading()
 		{
