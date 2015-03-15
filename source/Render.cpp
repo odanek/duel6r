@@ -157,6 +157,7 @@ namespace Duel6
         glVertex2i(x + width, y );
         glVertex2i(x, y);
         glEnd();
+		glDisable(GL_BLEND);
 
         Color fontColor(255, 255, 255);
         font.print(x + width / 2 - 35, y + height - 30, fontColor, D6_L("Round Over"));
@@ -199,6 +200,7 @@ namespace Duel6
 			glVertex2i(x + width, y );
 			glVertex2i(x, y);
 		glEnd();
+		glDisable(GL_BLEND);
 
 		Color fontColor(255, 255, 255);
 		font.print(x + width / 2 - 35, y + height - 20, fontColor, D6_L("Game Over"));
