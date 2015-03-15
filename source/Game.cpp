@@ -234,13 +234,19 @@ namespace Duel6
 
         if (hasWinner())
         {
-            gameOverWait -= elapsedTime;
-            if (gameOverWait <= 0)
+            if(gameOverWait > 0)
             {
-                gameOverWait = 0.0f;
+                gameOverWait -= elapsedTime;
+            }
+            else if (!isOver())
+            {
 				nextRound();
             }
-            return;
+
+            if(gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT))
+            {
+                return;
+            }
         }
 
 		for (Player& player : players)
@@ -297,7 +303,7 @@ namespace Duel6
 			return;
 		}
 
-		if (hasWinner() && ((D6_GAME_OVER_WAIT - gameOverWait) > 3.0f))
+		if (!isOver() && hasWinner() && ((D6_GAME_OVER_WAIT - gameOverWait) > 3.0f))
 		{
 			gameOverWait = 0.0f;
 		}
@@ -359,10 +365,7 @@ namespace Duel6
 
 	void Game::nextRound()
 	{
-		//if (!sameLevel)
-		{
-			lastLevel = rand() % levels.size();
-		}
+        lastLevel = rand() % levels.size();
 
 		const std::string levelPath = levels[lastLevel];
 		Console& console = appService.getConsole();
