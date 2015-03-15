@@ -16,18 +16,18 @@ project(Duel6r)
 #########################################################################
 
 # turn off some warnings under msc
-if(WIN32)
+if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")    
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
-endif(WIN32)
+endif(MSVC)
 
-# show all warnings under gcc
-if(UNIX)
-	# gnu compiler
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-result -mfpmath=sse -msse2 -std=c++1y")
-	endif(CMAKE_COMPILER_IS_GNUCXX)
-endif(UNIX)       
+# gnu compiler
+if(CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-result -mfpmath=sse -msse2 -std=c++1y")
+	if(MINGW)
+		set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
+	endif(MINGW)
+endif(CMAKE_COMPILER_IS_GNUCXX)
 
 #########################################################################
 #
@@ -198,27 +198,32 @@ else(WIN32) # Linux GCC
 endif(WIN32)
 
 # SDL
-find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
-include_directories(${HEADERS_SDL2})
-if(WIN32)
+if(NOT MINGW)
+	find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
+	include_directories(${HEADERS_SDL2})
+endif(NOT MINGW)
+
+if(MSVC)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library (release version)")
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library (release version)")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library (release version)")
     find_library(LIB_SDL2_D SDL2d DOC "Path to SDL2 import library (debug version)")
     find_library(LIB_SDL2_MAIN_D SDL2maind DOC "Path to SDL2main import library (debug version)")
     find_library(LIB_SDL2_MIXER_D SDL2_mixerd DOC "Path to SDL2_mixer import library (debug version)")
-    target_link_libraries(${D6R_APP_NAME} optimized ${LIB_SDL2} optimized ${LIB_SDL2_MAIN} optimized ${LIB_SDL2_MIXER} 
-        debug ${LIB_SDL2_D} debug ${LIB_SDL2_MAIN_D} debug ${LIB_SDL2_MIXER_D})
+    target_link_libraries(${D6R_APP_NAME} optimized ${LIB_SDL2_MAIN} optimized ${LIB_SDL2} optimized ${LIB_SDL2_MIXER}
+        debug ${LIB_SDL2_MAIN_D} debug ${LIB_SDL2_D} debug ${LIB_SDL2_MIXER_D})
 elseif(APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})    
-else(WIN32) # Linux GCC
+elseif(MINGW)
+    target_link_libraries(${D6R_APP_NAME} mingw32 SDL2main SDL2 SDL2_mixer)
+else(MSVC) # Linux GCC
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MAIN} ${LIB_SDL2_MIXER})
-endif(WIN32)
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER})
+endif(MSVC)
 
 ########################
 #  Install application
