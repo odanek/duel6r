@@ -29,6 +29,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	endif(MINGW)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
+# platform-independent debug macro
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
+
 #########################################################################
 #
 # Duel 6 Reloaded
