@@ -25,7 +25,7 @@ endif(MSVC)
 if(CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-result -mfpmath=sse -msse2 -std=c++1y")
 	if(MINGW)
-		set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
 	endif(MINGW)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
