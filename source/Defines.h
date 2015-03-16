@@ -28,10 +28,9 @@
 #ifndef DUEL6_DEFINES_H
 #define DUEL6_DEFINES_H
 
-#define APP_VERSION         "4.0.0"
+#define APP_VERSION         "4.0.1"
 #define APP_NAME            "Duel 6 Reloaded"
 #define APP_FILE_ICON       "data/duel6_icon.bmp"
-#define APP_FILE_FONT       "data/duel6.fon"
 
 #define D6_FILE_CONFIG      "data/config.script"
 #define D6_FILE_BLOCK_META  "data/blocks.json"

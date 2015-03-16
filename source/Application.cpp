@@ -155,7 +155,7 @@ namespace Duel6
 
 		Math::initialize();
 
-		font.load(APP_FILE_FONT);
+		font.load(D6_FILE_FONT);
 		video.initialize(APP_NAME, APP_FILE_ICON, console);
 		menu.initialize();
 		menu.setGameReference(&game);
