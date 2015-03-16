@@ -69,7 +69,17 @@ namespace Duel6
 			return vertexes;
 		}
 
+		const std::vector<Vertex>& getVertexes() const
+		{
+			return vertexes;
+		}
+
 		std::vector<Face>& getFaces()
+		{
+			return faces;
+		}
+
+		const std::vector<Face>& getFaces() const
 		{
 			return faces;
 		}
