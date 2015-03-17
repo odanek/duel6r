@@ -60,6 +60,8 @@ namespace Duel6
 		Float32 waveHeight;
 		WaterList floatingVertexes;
 
+		Int32 waterLevel;
+
 	public:
 		World(Float32 animationSpeed, Float32 waveHeight, Console& console);
 
@@ -68,6 +70,7 @@ namespace Duel6
 		void prepareFaces();
 
 		void update(Float32 elapsedTime);
+		void raiseWater();
 
 		FaceList& getWalls()
 		{
@@ -135,8 +138,8 @@ namespace Duel6
 		void addWallFaces();
 		void addSpriteFaces();
 		void addWaterFaces();
-		void addWall(FaceList& faceList, const Block& block, Int32 x, Int32 y);
-		void addWater(FaceList& faceList, const Block& block, Int32 x, Int32 y);
+		void addWall(const Block& block, Int32 x, Int32 y);
+		void addWater(const Block& block, Int32 x, Int32 y);
 		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);		
 
 		bool isInside(Int32 x, Int32 y) const
@@ -147,6 +150,11 @@ namespace Duel6
 		Uint16 getBlock(Int32 x, Int32 y) const
 		{
 			return levelData[(height - y - 1) * width + x];
+		}
+
+		void setBlock(Uint16 block, Int32 x, Int32 y)
+		{
+			levelData[(height - y - 1) * width + x] = block;
 		}
 
 		const Block& getBlockMeta(Int32 x, Int32 y) const

@@ -109,7 +109,10 @@ namespace Duel6
 		Float32 showYouAreHere;
 		Float32 gameOverWait;
 
-        std::vector<Player> players;
+		bool deathMode = false;
+		Float32 waterFillWait;
+
+		std::vector<Player> players;
 		std::vector<std::unique_ptr<PlayerSkin>> skins;
 
 		GameService gameService;

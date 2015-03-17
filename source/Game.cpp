@@ -213,6 +213,10 @@ namespace Duel6
 			}
 			gameOverSound.play();
 		}
+		else if (numAlive == 2 && players.size() > 2)
+		{
+			deathMode = true;
+		}
 	}
 
 	void Game::beforeStart(Context* prevContext)
@@ -265,6 +269,16 @@ namespace Duel6
 		if (rand() % int(3.0f / elapsedTime) == 0)
 		{
 			BONUS_AddNew(world);
+		}
+
+		if(deathMode)
+		{
+			waterFillWait += elapsedTime;
+			if(waterFillWait > D6_RAISE_WATER_WAIT)
+			{
+				waterFillWait = 0;
+				world.raiseWater();
+			}
 		}
 
 		updateNotifications(elapsedTime);
@@ -366,6 +380,8 @@ namespace Duel6
 	void Game::nextRound()
 	{
         lastLevel = rand() % levels.size();
+		deathMode = false;
+		waterFillWait = 0;
 
 		const std::string levelPath = levels[lastLevel];
 		Console& console = appService.getConsole();
