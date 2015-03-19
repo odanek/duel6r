@@ -68,6 +68,7 @@ namespace Duel6
 		Float32 phase;
 			
 	public:
+		WaterList();
 		void build(FaceList& waterFaces, Float32 waveHeight, Console& console);
 		void update(Float32 elapsedTime);
 	};

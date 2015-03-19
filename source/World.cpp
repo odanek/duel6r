@@ -151,8 +151,6 @@ namespace Duel6
 		addWallFaces();
 		addSpriteFaces();
 		addWaterFaces();
-
-		floatingVertexes.build(water, waveHeight, console);
 	}
 
 	void World::update(Float32 elapsedTime)
@@ -181,7 +179,7 @@ namespace Duel6
 					setBlock(4, x, waterLevel);
 				}
 			}
-			prepareFaces();
+			addWaterFaces();
         }
 	}
 
@@ -264,6 +262,7 @@ namespace Duel6
 		}
 
 		water.optimize();
+		floatingVertexes.build(water, waveHeight, console);
 	}
 
 	void World::addWall(const Block& block, Int32 x, Int32 y)

@@ -30,6 +30,10 @@
 
 namespace Duel6
 {
+	WaterList::WaterList()
+		: phase(0.0f)
+	{}
+
 	void WaterList::build(FaceList& waterFaces, Float32 waveHeight, Console& console)
 	{
 		console.printLine(D6_L("...Building water-list"));
@@ -43,8 +47,6 @@ namespace Duel6
 				vertexes.push_back(WaterVertex(vertex, waveHeight));
 			}
 		}
-
-		phase = 0;
 	}
 
 	void WaterList::update(Float32 elapsedTime)
