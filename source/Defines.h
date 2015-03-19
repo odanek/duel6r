@@ -68,6 +68,8 @@
 #define D6_PLAYER_JUMP_SPEED    4.88f
 #define D6_YOU_ARE_HERE_DURATION 3.0f
 
+#define D6_RAISE_WATER_WAIT		4.0f
+
 #define D6_CAM_TOLPER_X         30
 #define D6_CAM_TOLPER_Y         30
 

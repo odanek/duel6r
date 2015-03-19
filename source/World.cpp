@@ -33,6 +33,7 @@
 #include "Lang.h"
 #include "DataException.h"
 #include "json/Json.h"
+#include "Defines.h"
 
 namespace Duel6
 {
@@ -95,7 +96,7 @@ namespace Duel6
 		console.printLine(Format("Loading level: {0}, mirror: {1}") << path << mirror);
 		this->background = background;
 		levelData.clear();
-
+		waterLevel = 0;
 		Json::Parser parser;
 		const Json::Value& root = parser.parse(path);
 
@@ -168,6 +169,22 @@ namespace Duel6
 		floatingVertexes.update(elapsedTime);
 	}
 
+	void World::raiseWater()
+	{
+        if(waterLevel < getSizeY() - 2)
+        {
+			waterLevel++;
+			for(Int32 x = 1; x < getSizeX() - 1; x++)
+			{
+				if(!isWall(x, waterLevel, false))
+				{
+					setBlock(4, x, waterLevel);
+				}
+			}
+			prepareFaces();
+        }
+	}
+
 	void World::addWallFaces()
 	{
 		walls.clear();
@@ -180,7 +197,7 @@ namespace Duel6
 
 				if (block.is(Block::Wall))
 				{
-					addWall(walls, block, x, y);
+					addWall(block, x, y);
 				}
 			}
 		}
@@ -241,7 +258,7 @@ namespace Duel6
 				}
 				else if (block.is(Block::Water))
 				{
-					addWater(water, block, x, y);
+					addWater(block, x, y);
 				}
 			}
 		}
@@ -249,9 +266,9 @@ namespace Duel6
 		water.optimize();
 	}
 
-	void World::addWall(FaceList& faceList, const Block& block, Int32 x, Int32 y)
+	void World::addWall(const Block& block, Int32 x, Int32 y)
 	{
-		faceList.addFace(Face(block))
+		walls.addFace(Face(block))
 			.addVertex(Vertex(0, x, y + 1, 1))
 			.addVertex(Vertex(1, x + 1, y + 1, 1))
 			.addVertex(Vertex(2, x + 1, y, 1))
@@ -268,7 +285,7 @@ namespace Duel6
 
 		if (!isWall(x - 1, y, false))
 		{
-			faceList.addFace(Face(block))
+			walls.addFace(Face(block))
 				.addVertex(Vertex(0, x, y + 1, 0))
 				.addVertex(Vertex(1, x, y + 1, 1))
 				.addVertex(Vertex(2, x, y, 1))
@@ -276,7 +293,7 @@ namespace Duel6
 		}
 		if (!isWall(x + 1, y, false))
 		{
-			faceList.addFace(Face(block))
+			walls.addFace(Face(block))
 				.addVertex(Vertex(0, x + 1, y + 1, 1))
 				.addVertex(Vertex(1, x + 1, y + 1, 0))
 				.addVertex(Vertex(2, x + 1, y, 0))
@@ -284,7 +301,7 @@ namespace Duel6
 		}
 		if (!isWall(x, y + 1, false))
 		{
-			faceList.addFace(Face(block))
+			walls.addFace(Face(block))
 				.addVertex(Vertex(0, x, y + 1, 1))
 				.addVertex(Vertex(1, x, y + 1, 0))
 				.addVertex(Vertex(2, x + 1, y + 1, 0))
@@ -292,7 +309,7 @@ namespace Duel6
 		}
 		if (!isWall(x, y - 1, false))
 		{
-			faceList.addFace(Face(block))
+			walls.addFace(Face(block))
 				.addVertex(Vertex(0, x, y, 1))
 				.addVertex(Vertex(1, x + 1, y, 1))
 				.addVertex(Vertex(2, x + 1, y, 0))
@@ -300,18 +317,18 @@ namespace Duel6
 		}
 	}
 
-	void World::addWater(FaceList& faceList, const Block& block, Int32 x, Int32 y)
+	void World::addWater(const Block& block, Int32 x, Int32 y)
 	{
 		bool topWater = !isWater(x, y + 1);
 		Vertex::Flag flowFlag = topWater ? Vertex::Flag::Flow : Vertex::Flag::None;
 
-		faceList.addFace(Face(block))
+		water.addFace(Face(block))
 			.addVertex(Vertex(0, x, y + 1, 1, flowFlag))
 			.addVertex(Vertex(1, x + 1, y + 1, 1, flowFlag))
 			.addVertex(Vertex(2, x + 1, y, 1))
 			.addVertex(Vertex(3, x, y, 1));
 
-		faceList.addFace(Face(block))
+		water.addFace(Face(block))
 			.addVertex(Vertex(0, x + 1, y + 1, 0, flowFlag))
 			.addVertex(Vertex(1, x, y + 1, 0, flowFlag))
 			.addVertex(Vertex(2, x, y, 0))
@@ -319,7 +336,7 @@ namespace Duel6
 
 		if (topWater)
 		{
-			faceList.addFace(Face(block))
+			water.addFace(Face(block))
 				.addVertex(Vertex(0, x, y + 1, 1, Vertex::Flag::Flow))
 				.addVertex(Vertex(1, x, y + 1, 0, Vertex::Flag::Flow))
 				.addVertex(Vertex(2, x + 1, y + 1, 0, Vertex::Flag::Flow))
