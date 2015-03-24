@@ -89,6 +89,7 @@ namespace Duel6
 		state.bonus = -1;
 		state.bonusDuration = 0;
 		state.bonusRemainingTime = 0;
+		state.hpBarDuration = 0;
 		state.tempSkinDuration = 0;
         state.roundKills = 0;
 		this->view = view;
@@ -366,6 +367,11 @@ namespace Duel6
 			}
 		}
 
+		if(getHPBarDuration() > 0)
+		{
+			state.hpBarDuration -= elapsedTime;
+		}
+
 		if (state.tempSkinDuration > 0)
 		{
 			if ((state.tempSkinDuration -= elapsedTime) <= 0)
@@ -549,6 +555,7 @@ namespace Duel6
 		}
 
 		state.life -= amount;
+		state.hpBarDuration = D6_PLAYER_HPBAR;
 		
 		if (directHit)
 		{			
@@ -605,6 +612,7 @@ namespace Duel6
 			return false;
 
 		state.life -= amount;
+		state.hpBarDuration = D6_PLAYER_HPBAR;
 		if (state.life < 1)
 		{
 			state.life = 0;

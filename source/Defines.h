@@ -76,4 +76,6 @@
 #define D6_BONUS_COUNT			12
 #define D6_WEAPONS				17
 
+#define D6_PLAYER_HPBAR         2.0f
+
 #endif

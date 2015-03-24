@@ -393,11 +393,37 @@ namespace Duel6
 		glEnable(GL_DEPTH_TEST);
 	}
 
+	void Renderer::hpBars() const
+	{
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+		glColor4f(1, 0, 0, 0.7f);
+
+		for (const Player& player : game.getPlayers())
+		{
+			if (!player.isDead() && player.getHPBarDuration() > 0)
+			{
+				Float32 width = player.getLife() / D6_MAX_LIFE;
+				Float32 X = player.getX() + 0.5f - width / 2;
+				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f) + 0.1f;
+
+				glVertex3f(X, Y, 0.5f);
+				glVertex3f(X + width, Y, 0.5f);
+				glVertex3f(X + width, Y - 0.1f, 0.5f);
+				glVertex3f(X, Y - 0.1f, 0.5f);
+			}
+		}
+		glEnd();
+
+		glEnable(GL_TEXTURE_2D);
+		glColor3ub(255, 255, 255);
+	}
+
 	void Renderer::roundKills() const
 	{
-		glColor3ub(255, 0, 0);
+		glColor3ub(0, 0, 255);
 		glDisable(GL_TEXTURE_2D);
-		glPointSize(4.0f);
+		glPointSize(5.0f);
 
 		glBegin(GL_POINTS);
 		for (const Player& player : game.getPlayers())
@@ -406,7 +432,7 @@ namespace Duel6
 			{
 				Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
 				Float32 X = player.getX() + 0.55f - width / 2;
-				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f);
+				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f) + 0.3f;
 				for (int i = 0; i < player.getRoundKills(); i++, X += 0.2f)
 				{
 					glVertex3f(X, Y, 0.5f);
@@ -506,6 +532,7 @@ namespace Duel6
 		water(game.getWorld().getWater());
 		notifications();
 		roundKills();
+		hpBars();
 
 		EXPL_DrawAll();
 

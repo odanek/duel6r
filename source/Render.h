@@ -120,6 +120,7 @@ namespace Duel6
 		void fpsCounter() const;
 		void notifications() const;
 		void roundKills() const;
+		void hpBars() const;
 		void invulRings(const std::vector<Player>& players) const;
 		void invulRing(const Player& player) const;
 		void splitBox(const PlayerView& view) const;

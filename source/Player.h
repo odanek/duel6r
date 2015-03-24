@@ -140,6 +140,7 @@ namespace Duel6
 			Float32 timeToReload;
 			Float32 bonusRemainingTime;
 			Float32 bonusDuration;
+			Float32 hpBarDuration;
 			Float32 tempSkinDuration;
 			const Weapon *weapon;
 			const Elevator* elevator;
@@ -291,6 +292,11 @@ namespace Duel6
 		Float32 getBonusDuration() const
 		{
 			return state.bonusDuration;
+		}
+
+		Float32 getHPBarDuration() const
+		{
+			return state.hpBarDuration;
 		}
 
 		Player& setInfoBarPosition(Int32 x, Int32 y)
