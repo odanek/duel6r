@@ -258,7 +258,7 @@ namespace Duel6
 
 	Float32 Player::getSpeed() const
 	{
-		Float32 spd = 1.0f;
+		Float32 spd = 1.0f + (8 / getLife());
 
 		if (isUnderWater())
 		{
