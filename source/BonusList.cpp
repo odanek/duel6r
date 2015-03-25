@@ -134,6 +134,7 @@ namespace Duel6
 
 		case D6_BONUS_LIFEP:
 			player.addLife(Float32(hit));
+			player.showHPBar();
 			messageQueue.add(player, Format(D6_L("Life +{0}")) << hit);
 			break;
 

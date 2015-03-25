@@ -372,6 +372,11 @@ namespace Duel6
 			state.hpBarDuration -= elapsedTime;
 		}
 
+		if(getLife() < D6_MAX_LIFE)
+		{
+			addLife(elapsedTime * getRoundKills());
+		}
+
 		if (state.tempSkinDuration > 0)
 		{
 			if ((state.tempSkinDuration -= elapsedTime) <= 0)
@@ -555,7 +560,7 @@ namespace Duel6
 		}
 
 		state.life -= amount;
-		state.hpBarDuration = D6_PLAYER_HPBAR;
+		showHPBar();
 		
 		if (directHit)
 		{			
@@ -564,6 +569,7 @@ namespace Duel6
 			if (shootingPlayer.getBonus() == D6_BONUS_VAMPIRESHOTS)
 			{
 				shootingPlayer.addLife(amount);
+				shootingPlayer.showHPBar();
 			}
 		}
 
@@ -612,7 +618,7 @@ namespace Duel6
 			return false;
 
 		state.life -= amount;
-		state.hpBarDuration = D6_PLAYER_HPBAR;
+		showHPBar();
 		if (state.life < 1)
 		{
 			state.life = 0;
@@ -649,7 +655,6 @@ namespace Duel6
 	Player& Player::addLife(Float32 life)
 	{
 		state.life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), state.life + life));
-		state.hpBarDuration = D6_PLAYER_HPBAR;
 		return *this;
 	}
 

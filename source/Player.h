@@ -300,6 +300,11 @@ namespace Duel6
 			return state.hpBarDuration;
 		}
 
+		void showHPBar()
+		{
+			state.hpBarDuration = D6_PLAYER_HPBAR;
+		}
+
 		Player& setInfoBarPosition(Int32 x, Int32 y)
 		{
 			infoBarPosition[0] = x;
@@ -317,7 +322,7 @@ namespace Duel6
 		Player& setFullLife()
 		{
 			state.life = D6_MAX_LIFE;
-			state.hpBarDuration = D6_PLAYER_HPBAR;
+			showHPBar();
 			return *this;
 		}
 
