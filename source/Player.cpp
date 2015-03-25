@@ -649,6 +649,7 @@ namespace Duel6
 	Player& Player::addLife(Float32 life)
 	{
 		state.life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), state.life + life));
+		state.hpBarDuration = D6_PLAYER_HPBAR;
 		return *this;
 	}
 

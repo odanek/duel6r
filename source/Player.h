@@ -41,6 +41,7 @@
 #include "Sound.h"
 #include "Video.h"
 #include "Water.h"
+#include "Defines.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -316,6 +317,7 @@ namespace Duel6
 		Player& setFullLife()
 		{
 			state.life = D6_MAX_LIFE;
+			state.hpBarDuration = D6_PLAYER_HPBAR;
 			return *this;
 		}
 
