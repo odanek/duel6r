@@ -396,25 +396,44 @@ namespace Duel6
 	void Renderer::hpBars() const
 	{
 		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_QUADS);
-		glColor4f(1, 0, 0, 0.7f);
 
 		for (const Player& player : game.getPlayers())
 		{
 			if (!player.isDead() && player.getHPBarDuration() > 0)
 			{
 				Float32 width = player.getLife() / D6_MAX_LIFE;
-				Float32 X = player.getX() + 0.5f - width / 2;
-				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f) + 0.1f;
+				Float32 X = player.getX();
+				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f) + 0.05f;
 
+				Float32 alpha = 1.0f;
+				if(player.getHPBarDuration() > 2.0f)
+				{
+					alpha = (D6_PLAYER_HPBAR - player.getHPBarDuration());
+				}
+				else if(player.getHPBarDuration() < 1.0f)
+				{
+					alpha = player.getHPBarDuration();
+				}
+
+				glColor4f(1, 0, 0, alpha);
 				glVertex3f(X, Y, 0.5f);
 				glVertex3f(X + width, Y, 0.5f);
 				glVertex3f(X + width, Y - 0.1f, 0.5f);
 				glVertex3f(X, Y - 0.1f, 0.5f);
+
+				glColor4f(0, 0, 0, alpha);
+				glVertex3f(X - 0.03f, Y + 0.03f, 0.5f);
+				glVertex3f(X + 1.03f, Y + 0.03f, 0.5f);
+				glVertex3f(X + 1.03f, Y - 0.13f, 0.5f);
+				glVertex3f(X - 0.03f, Y - 0.13f, 0.5f);
 			}
 		}
-		glEnd();
 
+		glEnd();
+		glDisable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
 		glColor3ub(255, 255, 255);
 	}
