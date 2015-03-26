@@ -376,7 +376,7 @@ namespace Duel6
 			state.hpBarDuration -= elapsedTime;
 		}
 
-		if(getLife() < D6_MAX_LIFE)
+		if(getLife() < D6_MAX_LIFE && getLife() > 0)
 		{
 			addLife(elapsedTime * getRoundKills());
 		}
