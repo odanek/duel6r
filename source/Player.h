@@ -142,6 +142,7 @@ namespace Duel6
 			Float32 bonusRemainingTime;
 			Float32 bonusDuration;
 			Float32 hpBarDuration;
+			Float32 timeSinceHit;
 			Float32 tempSkinDuration;
 			const Weapon *weapon;
 			const Elevator* elevator;

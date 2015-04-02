@@ -376,9 +376,9 @@ namespace Duel6
 			state.hpBarDuration -= elapsedTime;
 		}
 
-		if(getLife() < D6_MAX_LIFE && getLife() > 0)
+		if(getLife() < D6_MAX_LIFE && getLife() > 1 && state.timeSinceHit > D6_PLAYER_HPREGEN_DELAY)
 		{
-			addLife(elapsedTime * getRoundKills());
+			addLife(elapsedTime * getRoundKills() * 0.8f);
 		}
 
 		if (state.tempSkinDuration > 0)
@@ -392,7 +392,9 @@ namespace Duel6
 		if (screenMode == ScreenMode::SplitScreen)
 		{
 			updateCam(world.getSizeX(), world.getSizeY());
-		}		
+		}
+
+		state.timeSinceHit += elapsedTime;
 	}
 
 	void Player::setAnm()
@@ -564,6 +566,7 @@ namespace Duel6
 		}
 
 		state.life -= amount;
+		state.timeSinceHit = 0;
 		showHPBar();
 		
 		if (directHit)
@@ -622,8 +625,9 @@ namespace Duel6
 			return false;
 
 		state.life -= amount;
+		state.timeSinceHit = 0;
 		showHPBar();
-		if (state.life < 1)
+		if (getLife() < 1)
 		{
 			state.life = 0;
 			setFlag(FlagDead | FlagLying);
