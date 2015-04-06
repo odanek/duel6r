@@ -59,11 +59,13 @@ set(D6R_SOURCES
     source/ConsoleCommands.cpp
     source/Context.h
     source/Context.cpp
+    source/DataException.h
 	source/Defines.h
     source/Elevator.h
     source/Elevator.cpp
     source/ElevatorList.h
     source/ElevatorList.cpp
+    source/Exception.h
     source/EnumClassHash.h
     source/Explosion.h
     source/Explosion.cpp
@@ -91,6 +93,7 @@ set(D6R_SOURCES
     source/InfoMessageQueue.cpp
     source/Input.h
     source/Input.cpp
+    source/IoException.h
     source/Lang.h
     source/Lang.cpp
     source/LevelList.h
@@ -119,6 +122,7 @@ set(D6R_SOURCES
 	source/PlayerSkinColors.cpp
 	source/PlayerSounds.h
 	source/PlayerSounds.cpp
+	source/Rectangle.h
     source/Render.h
     source/Render.cpp
     source/ScreenMode.h
@@ -126,6 +130,7 @@ set(D6R_SOURCES
     source/Shot.cpp
     source/Sound.cpp
     source/Sound.h
+    source/SoundException.h
     source/Sprite.h
     source/Sprite.cpp
     source/SpriteList.h
@@ -135,9 +140,11 @@ set(D6R_SOURCES
     source/Type.h
     source/Util.h
     source/Util.cpp
+    source/Vector.h
     source/Vertex.h
     source/Video.h
-    source/Video.cpp    
+    source/Video.cpp
+    source/VideoException.h
 	source/Water.cpp
 	source/Water.h
     source/WaterList.h
@@ -146,12 +153,6 @@ set(D6R_SOURCES
     source/Weapon.cpp
     source/World.h
     source/World.cpp
-    
-    source/DataException.h
-    source/Exception.h
-    source/IoException.h
-    source/SoundException.h
-    source/VideoException.h
     
     source/mylib/mycam.cpp
     source/mylib/mycam.h
