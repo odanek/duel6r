@@ -145,9 +145,9 @@ namespace Duel6
 
 		// Zaradi novy prikaz tak, aby byly setridene podle abecedy
 		size_t position = 0;
-		for (const CommandRecord& command : cmds)
+		for (const CommandRecord& cmd : cmds)
 		{
-			if (command.getName().compare(name) > 0)
+			if (cmd.getName().compare(name) > 0)
 			{
 				break;
 			}

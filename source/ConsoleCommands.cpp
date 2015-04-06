@@ -288,16 +288,32 @@ namespace Duel6
 
 		// Set some console functions
 		console.setLast(15);
-		console.registerCommand("switch_render_mode", std::bind(toggleRenderMode, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
-		console.registerCommand("show_fps", std::bind(toggleShowFps, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
+		console.registerCommand("switch_render_mode", [&game](Console& con, const Console::Arguments& args) {
+			toggleRenderMode(con, args, game);
+		});
+		console.registerCommand("show_fps", [&game](Console& con, const Console::Arguments& args) {
+			toggleShowFps(con, args, game);
+		});
 		console.registerCommand("gl_info", openGLInfo);
 		console.registerCommand("lang", language);
-		console.registerCommand("volume", std::bind(volume, std::placeholders::_1, std::placeholders::_2, std::ref(appService.getSound())));
-		console.registerCommand("rounds", std::bind(maxRounds, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
-		console.registerCommand("music", std::bind(musicOnOff, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));
-		console.registerCommand("joy_scan", std::bind(joyScan, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));
-		console.registerCommand("skin", std::bind(loadSkin, std::placeholders::_1, std::placeholders::_2, std::ref(menu)));
+		console.registerCommand("volume", [&appService](Console& con, const Console::Arguments& args) {
+			volume(con, args, appService.getSound());
+		});
+		console.registerCommand("rounds", [&game](Console& con, const Console::Arguments& args) {
+			maxRounds(con, args, game);
+		});
+		console.registerCommand("music", [&menu](Console& con, const Console::Arguments& args) {
+			musicOnOff(con, args, menu);
+		});
+		console.registerCommand("joy_scan", [&menu](Console& con, const Console::Arguments& args) {
+			joyScan(con, args, menu);
+		});
+		console.registerCommand("skin", [&menu](Console& con, const Console::Arguments& args) {
+			loadSkin(con, args, menu);
+		});
 		console.registerCommand("gun", enableWeapon);
-		console.registerCommand("start_ammo_range", std::bind(ammoRange, std::placeholders::_1, std::placeholders::_2, std::ref(game)));
+		console.registerCommand("start_ammo_range", [&game](Console& con, const Console::Arguments& args) {
+			ammoRange(con, args, game);
+		});
 	}
 }
