@@ -35,14 +35,14 @@ namespace Duel6
 	Shot::Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite, Orientation shotOrientation)
 		: player(player), weapon(player.getWeapon()), orientation(shotOrientation), x(x), y(y), sprite(sprite)
 	{
-		this->sprite->setPosition(x, y, 0.6f).setOrientation(this->orientation);
+		this->sprite->setPosition(Vector(x, y), 0.6f).setOrientation(this->orientation);
 	}
 
 	Shot& Shot::move(Float32 elapsedTime)
 	{
 		Float32 direction = (getOrientation() == Orientation::Right) ? 1.0f : -1.0f;
 		x += direction * getWeapon().bulletSpeed * elapsedTime;
-		sprite->setPosition(x, y);
+		sprite->setPosition(Vector(x, y));
 		return *this;
 	}
 

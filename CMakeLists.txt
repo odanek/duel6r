@@ -80,6 +80,7 @@ set(D6R_SOURCES
     source/Font.cpp
     source/Format.h
     source/Format.cpp
+    source/FormatException.h
     source/Formatter.h
     source/Game.cpp
     source/Game.h

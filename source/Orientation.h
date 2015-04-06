@@ -33,7 +33,9 @@ namespace Duel6
 	enum class Orientation
 	{
 		Left,
-		Right
+		Right,
+		Up,
+		Down
 	};
 }
 

@@ -82,8 +82,8 @@ namespace Duel6
 
 		for (const Elevator& elevator : d6Elevators)
 		{
-			if (x >= elevator.getX() && x <= elevator.getX() + 1.0f &&
-				y >= elevator.getY() - 0.05f && y <= elevator.getY() + 0.05f)  // TODO: Coord
+			const Vector& pos = elevator.getPosition();
+			if (x >= pos.x && x <= pos.x + 1.0f && y >= pos.y - 0.05f && y <= pos.y + 0.05f)  // TODO: Coord
 			{
 				return &elevator;
 			}

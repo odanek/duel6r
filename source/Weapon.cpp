@@ -83,7 +83,6 @@ namespace Duel6
 		for (Weapon& weap : d6WpnDef)
 		{
 			const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << weap.index;
-			const std::string wi = std::to_string(weap.index);
 			weap.textures.boom = textureManager.load(Format("{0}/boom/") << wpnPath, nearestFilterBoom.find(weap.index) != nearestFilterBoom.end() ? GL_NEAREST : GL_LINEAR, true);
 			weap.textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
 			weap.textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
@@ -271,7 +270,7 @@ namespace Duel6
 				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
 				
 				Sprite boom(weapon.boomAnimation, weapon.textures.boom);
-				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
+				boom.setPosition(Vector(x, shot->getY() + 0.3f), 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)
 					.setOrientation(shot->getOrientation())

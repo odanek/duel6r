@@ -56,10 +56,10 @@ namespace Duel6
 			return splashSample;
 		}
 
-		void addSplash(SpriteList& spriteList, Float32 x, Float32 y) const override
+		void addSplash(SpriteList& spriteList, const Vector& position) const override
 		{
 			Sprite waterSplash(wtAnim, textures);
-			waterSplash.setPosition(x, y, 0.5f).setLooping(AnimationLooping::OnceAndRemove);
+			waterSplash.setPosition(position, 0.5f).setLooping(AnimationLooping::OnceAndRemove);
 			spriteList.addSprite(waterSplash);
 		}
 	};

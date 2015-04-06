@@ -67,12 +67,12 @@ namespace Duel6
 		state.y = (Float32)startBlockY + 0.0001f;
 
 		Sprite manSprite(noAnim, skin.getTextures());
-		manSprite.setPosition(getX(), getY(), 0.5f);
+		manSprite.setPosition(Vector(getX(), getY()), 0.5f);
 		sprite = spriteList.addSprite(manSprite);		
 
 		state.weapon = &WPN_GetRandomWeapon();
 		Sprite gunSprite(state.weapon->animation, state.weapon->textures.gun);
-		gunSprite.setPosition(getX(), getY(), 0.5f)
+		gunSprite.setPosition(Vector(getX(), getY()), 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
 		this->gunSprite = spriteList.addSprite(gunSprite);
@@ -244,8 +244,8 @@ namespace Duel6
 
 		if (isOnElevator())
 		{
-			state.x += state.elevator->getMoveX() * elapsedTime;
-			state.y += state.elevator->getMoveY() * elapsedTime;
+			state.x += state.elevator->getVelocity().x * elapsedTime;
+			state.y += state.elevator->getVelocity().y * elapsedTime;
 		}
 
 		if (isPickingGun() && sprite->isFinished())
@@ -418,11 +418,11 @@ namespace Duel6
 			animation = d6WAnim;
 		}
 
-		sprite->setPosition(getX(), getY())
+		sprite->setPosition(Vector(getX(), getY()))
 			.setOrientation(getOrientation())
 			.setAnimation(animation);
 
-		gunSprite->setPosition(getX(), getY() - ad)
+		gunSprite->setPosition(Vector(getX(), getY() - ad))
 			.setOrientation(getOrientation())
 			.setDraw(!isDead() && !isPickingGun());
 	}
@@ -566,7 +566,7 @@ namespace Duel6
 			setFlag(FlagDead | FlagLying);
 			unsetFlag(FlagKnee | FlagPick);
 			
-			sprite->setPosition(getX(), getY()).setLooping(AnimationLooping::OnceAndStop);
+			sprite->setPosition(Vector(getX(), getY())).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
 
 			state.orientation = (shot.getX() < getX()) ? Orientation::Left : Orientation::Right;
@@ -611,7 +611,7 @@ namespace Duel6
 			setFlag(FlagDead | FlagLying);
 			unsetFlag(FlagKnee | FlagPick);
 			
-			sprite->setPosition(getX(), getY()).setLooping(AnimationLooping::OnceAndStop);
+			sprite->setPosition(Vector(getX(), getY())).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
 			messageQueue.add(*this, D6_L("You are dead"));
 			return true;
@@ -672,7 +672,7 @@ namespace Duel6
 		if (waterType != Water::Type::None && !water.feetInWater)
 		{
 			const Water& water = *waterSet.at(waterType);
-			water.addSplash(spriteList, getX(), getY()); // TODO: Coord
+			water.addSplash(spriteList, Vector(getX(), getY())); // TODO: Coord
 			water.getSplashSound().play();
 			this->water.feetInWater = true;
 		}
@@ -758,7 +758,7 @@ namespace Duel6
 		if (elevator != nullptr)
 		{
 			state.elevator = elevator;
-			state.y = elevator->getY();
+			state.y = elevator->getPosition().y;
 			state.jumpPhase = 0.0f;
 		}
 	}

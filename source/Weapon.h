@@ -58,7 +58,7 @@ namespace Duel6
 		Int32 boom;
 		Int32 power;
 		Float32 reloadSpeed;
-		char name[30];
+		const char* name;
 		const char* shotSound;
 		const char* boomSound;
 		Float32 expGrow;

@@ -30,43 +30,31 @@
 
 #include <vector>
 #include "Type.h"
+#include "Vector.h"
 
 namespace Duel6
 {
 	class Elevator
 	{
-	private:
-		struct Vector
-		{
-			Float32 x;
-			Float32 y;
-		};
-
 	public:
 		class ControlPoint
 		{
 		private:
-			Float32 x;
-			Float32 y;
+			Vector location;
 
 		public:
 			ControlPoint(Float32 x, Float32 y)
-				: x(x), y(y)
+				: location(x, y)
 			{}
 
 			ControlPoint(Int32 x, Int32 y)
-				: ControlPoint(Float32(x), Float32(y))
+				: location(Float32(x), Float32(y))
 			{}
 
-			Float32 getX() const
+			const Vector& getLocation() const
 			{
-				return x;
-			}
-
-			Float32 getY() const
-			{
-				return y;
-			}
+				return location;
+			};
 		};
 
 	private:
@@ -75,8 +63,8 @@ namespace Duel6
 		bool forward;
 		Float32 distance;
 		Float32 travelled;
-		Vector add;
 		Vector position;
+		Vector velocity;
 
 	public:
 		Elevator& addControlPoint(const ControlPoint& point)
@@ -89,24 +77,14 @@ namespace Duel6
 		void update(Float32 elapsedTime);
 		void render() const;
 
-		Float32 getX() const
+		const Vector& getPosition() const
 		{
-			return position.x;
+			return position;
 		}
 
-		Float32 getY() const
+		const Vector& getVelocity() const
 		{
-			return position.y;
-		}
-
-		Float32 getMoveX() const
-		{
-			return add.x;
-		}
-
-		Float32 getMoveY() const
-		{
-			return add.y;
+			return velocity;
 		}
 
 	private:
