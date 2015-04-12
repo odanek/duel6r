@@ -41,6 +41,7 @@
 #include "Sound.h"
 #include "Video.h"
 #include "Water.h"
+#include "Defines.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -140,6 +141,8 @@ namespace Duel6
 			Float32 timeToReload;
 			Float32 bonusRemainingTime;
 			Float32 bonusDuration;
+			Float32 hpBarDuration;
+			Float32 timeSinceHit;
 			Float32 tempSkinDuration;
 			const Weapon *weapon;
 			const Elevator* elevator;
@@ -293,6 +296,16 @@ namespace Duel6
 			return state.bonusDuration;
 		}
 
+		Float32 getHPBarDuration() const
+		{
+			return state.hpBarDuration;
+		}
+
+		void showHPBar()
+		{
+			state.hpBarDuration = D6_PLAYER_HPBAR;
+		}
+
 		Player& setInfoBarPosition(Int32 x, Int32 y)
 		{
 			infoBarPosition[0] = x;
@@ -310,6 +323,7 @@ namespace Duel6
 		Player& setFullLife()
 		{
 			state.life = D6_MAX_LIFE;
+			showHPBar();
 			return *this;
 		}
 

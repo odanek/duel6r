@@ -393,11 +393,56 @@ namespace Duel6
 		glEnable(GL_DEPTH_TEST);
 	}
 
+	void Renderer::hpBars() const
+	{
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+
+		for (const Player& player : game.getPlayers())
+		{
+			if (!player.isDead() && player.getHPBarDuration() > 0)
+			{
+				Float32 width = player.getLife() / D6_MAX_LIFE;
+				Float32 X = player.getX();
+				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f) + 0.05f;
+
+				Float32 alpha = 1.0f;
+				if(player.getHPBarDuration() > 2.0f)
+				{
+					alpha = (D6_PLAYER_HPBAR - player.getHPBarDuration());
+				}
+				else if(player.getHPBarDuration() < 1.0f)
+				{
+					alpha = player.getHPBarDuration();
+				}
+
+				glColor4f(1, 0, 0, alpha);
+				glVertex3f(X, Y, 0.5f);
+				glVertex3f(X + width, Y, 0.5f);
+				glVertex3f(X + width, Y - 0.1f, 0.5f);
+				glVertex3f(X, Y - 0.1f, 0.5f);
+
+				glColor4f(0, 0, 0, alpha);
+				glVertex3f(X - 0.03f, Y + 0.03f, 0.5f);
+				glVertex3f(X + 1.03f, Y + 0.03f, 0.5f);
+				glVertex3f(X + 1.03f, Y - 0.13f, 0.5f);
+				glVertex3f(X - 0.03f, Y - 0.13f, 0.5f);
+			}
+		}
+
+		glEnd();
+		glDisable(GL_BLEND);
+		glEnable(GL_TEXTURE_2D);
+		glColor3ub(255, 255, 255);
+	}
+
 	void Renderer::roundKills() const
 	{
-		glColor3ub(255, 0, 0);
+		glColor3ub(0, 0, 255);
 		glDisable(GL_TEXTURE_2D);
-		glPointSize(4.0f);
+		glPointSize(5.0f);
 
 		glBegin(GL_POINTS);
 		for (const Player& player : game.getPlayers())
@@ -406,7 +451,7 @@ namespace Duel6
 			{
 				Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
 				Float32 X = player.getX() + 0.55f - width / 2;
-				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f);
+				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f) + 0.3f;
 				for (int i = 0; i < player.getRoundKills(); i++, X += 0.2f)
 				{
 					glVertex3f(X, Y, 0.5f);
@@ -506,6 +551,7 @@ namespace Duel6
 		water(game.getWorld().getWater());
 		notifications();
 		roundKills();
+		hpBars();
 
 		EXPL_DrawAll();
 

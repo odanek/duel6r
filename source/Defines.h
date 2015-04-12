@@ -76,4 +76,7 @@
 #define D6_BONUS_COUNT			12
 #define D6_WEAPONS				17
 
+#define D6_PLAYER_HPBAR         3.0f
+#define D6_PLAYER_HPREGEN_DELAY 6.0f
+
 #endif

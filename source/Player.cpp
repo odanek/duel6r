@@ -89,6 +89,7 @@ namespace Duel6
 		state.bonus = -1;
 		state.bonusDuration = 0;
 		state.bonusRemainingTime = 0;
+		state.hpBarDuration = 0;
 		state.tempSkinDuration = 0;
         state.roundKills = 0;
 		this->view = view;
@@ -273,6 +274,10 @@ namespace Duel6
 		{
 			spd *= 1.43f;
 		}
+		else
+		{
+			spd *= (1.4f - (getLife() / 250));
+		}
 
 		return spd;
 	}
@@ -366,6 +371,16 @@ namespace Duel6
 			}
 		}
 
+		if(getHPBarDuration() > 0)
+		{
+			state.hpBarDuration -= elapsedTime;
+		}
+
+		if(getLife() < D6_MAX_LIFE && getLife() > 1 && state.timeSinceHit > D6_PLAYER_HPREGEN_DELAY)
+		{
+			addLife(elapsedTime * getRoundKills() * 0.8f);
+		}
+
 		if (state.tempSkinDuration > 0)
 		{
 			if ((state.tempSkinDuration -= elapsedTime) <= 0)
@@ -377,7 +392,9 @@ namespace Duel6
 		if (screenMode == ScreenMode::SplitScreen)
 		{
 			updateCam(world.getSizeX(), world.getSizeY());
-		}		
+		}
+
+		state.timeSinceHit += elapsedTime;
 	}
 
 	void Player::setAnm()
@@ -549,6 +566,8 @@ namespace Duel6
 		}
 
 		state.life -= amount;
+		state.timeSinceHit = 0;
+		showHPBar();
 		
 		if (directHit)
 		{			
@@ -557,6 +576,7 @@ namespace Duel6
 			if (shootingPlayer.getBonus() == D6_BONUS_VAMPIRESHOTS)
 			{
 				shootingPlayer.addLife(amount);
+				shootingPlayer.showHPBar();
 			}
 		}
 
@@ -605,7 +625,9 @@ namespace Duel6
 			return false;
 
 		state.life -= amount;
-		if (state.life < 1)
+		state.timeSinceHit = 0;
+		showHPBar();
+		if (getLife() < 1)
 		{
 			state.life = 0;
 			setFlag(FlagDead | FlagLying);
