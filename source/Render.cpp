@@ -467,12 +467,12 @@ namespace Duel6
         
 	void Renderer::invulRing(const Player& player) const
 	{
-		Float32 x, y, X, Y;
-		Int32 p, uh, u;
+		Float32 X, Y;
+		Int32 uh, u;
 
-		x = player.getX() + 0.5f;  // TODO: Coord
-		y = player.getY() + 0.5f;  // TODO: Coord
-		p = Int32(player.getBonusRemainingTime() * 30) % 360;
+		Float32 x = player.getX() + 0.5f;  // TODO: Coord
+		Float32 y = player.getY() + 0.5f;  // TODO: Coord
+		Int32 p = Int32(player.getBonusRemainingTime() * 30) % 360;
 
 		glColor3ub(255, 0, 0);
 		glDisable(GL_TEXTURE_2D);
