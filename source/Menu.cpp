@@ -123,7 +123,7 @@ namespace Duel6
 		button[0]->setPosition(200, 282, 80, 25);
 		button[0]->setCaption(">>");
 		button[0]->onClick([this](const Gui::Event&) {
-			addPlayer();
+			addPlayer(listbox[1]->curItem());
 		});
 
 		button[1] = new Gui::Button(gui);
@@ -313,20 +313,6 @@ namespace Duel6
 				<< person.getPenalties() 
 				<< person.getTotalPoints();
 			listbox[0]->addItem(personStat);
-		}
-	}
-
-	void Menu::addPlayer()
-	{
-		Int32 c = listbox[1]->curItem();
-		if (c != -1 && playingPersons.size() < D6_MAX_PLAYERS)
-		{
-			if (std::find(playingPersons.begin(), playingPersons.end(), c) != playingPersons.end())
-			{
-				return;
-			}
-			playingPersons.push_back(c);
-			listbox[2]->addItem(persons.get(c).getName());
 		}
 	}
 
@@ -524,6 +510,19 @@ namespace Duel6
 		// Start
 		Context::push(*game);
 		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom);
+	}
+
+	void Menu::addPlayer(Int32 c)
+	{
+		if (c != -1 && playingPersons.size() < D6_MAX_PLAYERS)
+		{
+			if (std::find(playingPersons.begin(), playingPersons.end(), c) != playingPersons.end())
+			{
+				return;
+			}
+			playingPersons.push_back(c);
+			listbox[2]->addItem(persons.get(c).getName());
+		}
 	}
 
 	void Menu::removePlayer(Int32 c)
