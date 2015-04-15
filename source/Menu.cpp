@@ -316,19 +316,6 @@ namespace Duel6
 		}
 	}
 
-	void Menu::addPerson()
-	{
-		const std::string& personName = textbox->getText();
-
-		if (!personName.empty())
-		{
-			persons.add(Person(personName));
-			listbox[1]->addItem(personName);
-			rebuildTable();
-			textbox->flush();
-		}
-	}
-
 	void Menu::showMessage(const std::string& message)
 	{
 		Int32 width = message.size() * 8 + 60;
@@ -531,6 +518,19 @@ namespace Duel6
 		{
 			listbox[2]->delItem(c);
 			playingPersons.erase(playingPersons.begin() + c);
+		}
+	}
+
+	void Menu::addPerson()
+	{
+		const std::string& personName = textbox->getText();
+
+		if (!personName.empty())
+		{
+			persons.add(Person(personName));
+			listbox[1]->addItem(personName);
+			rebuildTable();
+			textbox->flush();
 		}
 	}
 
