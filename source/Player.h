@@ -341,12 +341,11 @@ namespace Duel6
 			return infoBarPosition;
 		}
 
-		Player& addLife(Float32 life);
+		Player &addLife(Float32 life, bool showHpBar = true);
 
 		Player& setFullLife()
 		{
-			state.life = D6_MAX_LIFE;
-			showHPBar();
+			addLife(D6_MAX_LIFE);
 			return *this;
 		}
 

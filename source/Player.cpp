@@ -376,7 +376,7 @@ namespace Duel6
 
 		if(getLife() < D6_MAX_LIFE && getLife() > 1 && state.timeSinceHit > D6_PLAYER_HPREGEN_DELAY)
 		{
-			addLife(elapsedTime * getRoundKills() * 0.8f);
+			addLife(elapsedTime * getRoundKills() * 0.8f, false);
 		}
 
 		if (state.tempSkinDuration > 0)
@@ -561,9 +561,8 @@ namespace Duel6
 			return false;
 		}
 
-		state.life -= amount;
+		addLife(-amount);
 		state.timeSinceHit = 0;
-		showHPBar();
 		
 		if (directHit)
 		{			
@@ -572,13 +571,11 @@ namespace Duel6
 			if (shootingPlayer.getBonus() == D6_BONUS_VAMPIRESHOTS)
 			{
 				shootingPlayer.addLife(amount);
-				shootingPlayer.showHPBar();
 			}
 		}
 
 		if (state.life <= 0.0f)
 		{
-			state.life = 0;
 			setFlag(FlagDead | FlagLying);
 			unsetFlag(FlagKnee | FlagPick);
 			
@@ -620,13 +617,11 @@ namespace Duel6
 		if (isInvulnerable() || isDead())
 			return false;
 
-		state.life -= amount;
+		addLife(-amount);
 		state.timeSinceHit = 0;
-		showHPBar();
 
 		if (state.life <= 0.0f)
 		{
-			state.life = 0;
 			setFlag(FlagDead | FlagLying);
 			unsetFlag(FlagKnee | FlagPick);
 			
@@ -658,9 +653,13 @@ namespace Duel6
 		}
 	}
 
-	Player& Player::addLife(Float32 life)
+	Player& Player::addLife(Float32 change, bool showHpBar)
 	{
-		state.life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), state.life + life));
+		Float32 oldLife = state.life;
+		state.life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), state.life + change));
+		if (showHpBar && oldLife != state.life) {
+			showHPBar();
+		}
 		return *this;
 	}
 
