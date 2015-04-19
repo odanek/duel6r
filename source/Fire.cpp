@@ -98,15 +98,14 @@ namespace Duel6
 		}
 	}
 
-	void FIRE_Check(Float32 X, Float32 Y, Float32 d, SpriteList& spriteList)  // TODO: Coord - explosionCenter
+	void FIRE_Check(const Vector& explCentre, Float32 d, SpriteList& spriteList)
 	{
-		const Vector explosionCentre = Vector(X - 0.5f, Y + 0.5f);
-
 		for (Fire& fire : d6Fires)
 		{
 			if (!fire.burned)
 			{
-				Float32 distance = (explosionCentre - fire.position).length();
+				Vector fireCentre = fire.position + Vector(0.5f, 0.5f);
+				Float32 distance = (explCentre - fireCentre).length();
 
 				if (distance < d)
 				{

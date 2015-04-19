@@ -77,13 +77,13 @@ namespace Duel6
 
 	const Elevator* ELEV_CheckMan(Player& player)
 	{
-		Float32 x = player.getX() + 0.5f;
-		Float32 y = player.getY();
+		Rectangle playerRect = player.getCollisionRect();
+		Float32 cX = playerRect.getCentre().x;
 
 		for (const Elevator& elevator : d6Elevators)
 		{
 			const Vector& pos = elevator.getPosition();
-			if (x >= pos.x && x <= pos.x + 1.0f && y >= pos.y - 0.05f && y <= pos.y + 0.05f)  // TODO: Coord
+			if (cX >= pos.x && cX <= pos.x + 1.0f && playerRect.left.y >= pos.y - 0.05f && playerRect.left.y <= pos.y + 0.05f)  // TODO: Coord
 			{
 				return &elevator;
 			}

@@ -38,12 +38,13 @@ namespace Duel6
         Vector left;
         Vector right;
 
-    public:
+    private:
         Rectangle(const Vector& left, const Vector& right)
-            : left(left), right(right)
+                : left(left), right(right)
         {}
 
-        Vector getCenter() const
+    public:
+        Vector getCentre() const
         {
             return (left + right) / 2.0f;
         }
@@ -53,9 +54,14 @@ namespace Duel6
             return right - left;
         }
 
-        static Rectangle fromLeftAndSize(const Vector& left, const Vector& size)
+        static Rectangle fromCornerAndSize(const Vector &leftCorner, const Vector &size)
         {
-            return Rectangle(left, left + size);
+            return Rectangle(leftCorner, leftCorner + size);
+        }
+
+        static Rectangle fromCorners(const Vector &leftCorner, const Vector &rightCorner)
+        {
+            return Rectangle(leftCorner, rightCorner);
         }
     };
 }

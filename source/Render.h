@@ -118,7 +118,7 @@ namespace Duel6
 		void playerStatuses() const;
 		void playerStatus(const Player& player) const;
 		void fpsCounter() const;
-		void notifications() const;
+		void youAreHere() const;
 		void roundKills() const;
 		void invulRings(const std::vector<Player>& players) const;
 		void invulRing(const Player& player) const;

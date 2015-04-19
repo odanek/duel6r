@@ -38,8 +38,7 @@ namespace Duel6
 	{
 		struct Explosion
 		{
-			Float32 x;
-			Float32 y;
+			Vector centre;
 			Float32 now;
 			Float32 max;
 			Color color;
@@ -59,13 +58,12 @@ namespace Duel6
 		d6Explosions.clear();
 	}
 
-	void EXPL_Add(Float32 x, Float32 y, Float32 s, Float32 m, const Color& color)
+	void EXPL_Add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color)
 	{
 		Explosion explosion;
-		explosion.x = x;
-		explosion.y = y;
-		explosion.now = s;
-		explosion.max = m;
+		explosion.centre = centre;
+		explosion.now = startSize;
+		explosion.max = maxSize;
 		explosion.color = color;
 		d6Explosions.push_back(explosion);
 	}
@@ -98,13 +96,13 @@ namespace Duel6
 		{
 			glColor3ub(explosion.color.getRed(), explosion.color.getGreen(), explosion.color.getBlue());
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(explosion.x - explosion.now, explosion.y + explosion.now, 0.6f);
+			glVertex3f(explosion.centre.x - explosion.now, explosion.centre.y + explosion.now, 0.6f);
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(explosion.x + explosion.now, explosion.y + explosion.now, 0.6f);
+			glVertex3f(explosion.centre.x + explosion.now, explosion.centre.y + explosion.now, 0.6f);
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(explosion.x + explosion.now, explosion.y - explosion.now, 0.6f);
+			glVertex3f(explosion.centre.x + explosion.now, explosion.centre.y - explosion.now, 0.6f);
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(explosion.x - explosion.now, explosion.y - explosion.now, 0.6f);
+			glVertex3f(explosion.centre.x - explosion.now, explosion.centre.y - explosion.now, 0.6f);
 		}
 
 		glEnd();

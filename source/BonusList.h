@@ -43,7 +43,7 @@ namespace Duel6
 	void BONUS_Clear();
 	void BONUS_DrawAll();
 	void BONUS_AddNew(const World& world);
-	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player);
+	void BONUS_AddDeadManGun(const Vector& position, Player& player);
 	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue);
 	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue);
 }

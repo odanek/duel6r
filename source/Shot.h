@@ -30,6 +30,7 @@
 
 #include "Type.h"
 #include "SpriteList.h"
+#include "Rectangle.h"
 
 namespace Duel6
 {
@@ -42,12 +43,12 @@ namespace Duel6
 		Player& player;
 		const Weapon& weapon;
 		Orientation orientation;
-		Float32 x;
-		Float32 y;
+		Vector position;
+		Vector velocity;
 		SpriteIterator sprite;
 
 	public:
-		Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite, Orientation shotOrientation);
+		Shot(Player& player, SpriteIterator sprite, Orientation shotOrientation);
 
 		Player& getPlayer()
 		{
@@ -69,14 +70,29 @@ namespace Duel6
 			return sprite;
 		}
 
-		Float32 getX() const
+		const Vector& getPosition() const
 		{
-			return x;
+			return position;
 		}
 
-		Float32 getY() const
+		Vector getDimensions() const
 		{
-			return y;
+			return Vector(0.65f, 0.35f);
+		}
+
+		Vector getCentre() const
+		{
+			return getCollisionRect().getCentre();
+		}
+
+		Rectangle getCollisionRect() const
+		{
+			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+		}
+
+		Vector getSpritePosition() const
+		{
+			return orientation == Orientation::Left ? Vector(position.x, position.y - 0.65f) : Vector(position.x - 0.35f, position.y - 0.65f);
 		}
 
 		Orientation getOrientation() const

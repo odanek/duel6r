@@ -37,7 +37,7 @@ namespace Duel6
 {
 	void FIRE_Init(TextureManager& textureManager);
 	void FIRE_Find(FaceList& sprites);
-	void FIRE_Check(Float32 X, Float32 Y, Float32 d, SpriteList& spriteList);
+	void FIRE_Check(const Vector& explCentre, Float32 d, SpriteList& spriteList);
 }
 
 #endif

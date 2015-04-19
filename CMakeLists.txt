@@ -172,6 +172,11 @@ set(D6R_SOURCES
 	source/json/Json.cpp
 	source/json/Json.h
 	source/json/JsonException.h
+
+    source/collision/Collision.h
+    source/collision/Collision.cpp
+	source/collision/WorldCollision.cpp
+	source/collision/WorldCollision.h
 )
 
 if(WIN32)

@@ -59,7 +59,7 @@ namespace Duel6
 		void addSplash(SpriteList& spriteList, const Vector& position) const override
 		{
 			Sprite waterSplash(wtAnim, textures);
-			waterSplash.setPosition(position, 0.5f).setLooping(AnimationLooping::OnceAndRemove);
+			waterSplash.setPosition(position - Vector(0.5f, 0.0f), 0.5f).setLooping(AnimationLooping::OnceAndRemove);
 			spriteList.addSprite(waterSplash);
 		}
 	};

@@ -51,6 +51,10 @@ namespace Duel6
 			: x(x), y(y)
 		{}
 
+		Vector(Int32 x, Int32 y)
+			: x(Float32(x)), y(Float32(y))
+		{}
+
 		Vector(const Vector& v)
 			: x(v.x), y(v.y)
 		{}

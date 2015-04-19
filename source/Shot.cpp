@@ -32,17 +32,28 @@
 
 namespace Duel6
 {
-	Shot::Shot(Player& player, Float32 x, Float32 y, SpriteIterator sprite, Orientation shotOrientation)
-		: player(player), weapon(player.getWeapon()), orientation(shotOrientation), x(x), y(y), sprite(sprite)
+	Shot::Shot(Player& player, SpriteIterator sprite, Orientation shotOrientation)
+		: player(player), weapon(player.getWeapon()), orientation(shotOrientation), sprite(sprite)
 	{
-		this->sprite->setPosition(Vector(x, y), 0.6f).setOrientation(this->orientation);
+		const Vector dim = getDimensions();
+		const Rectangle playerRect = player.getCollisionRect();
+		if (orientation == Orientation::Left)
+		{
+			position = Vector(playerRect.left.x - dim.x, player.getGunVerticalPosition() - dim.y / 2.0f);
+			velocity = Vector(-1.0f, 0.0f);
+		}
+		else
+		{
+			position = Vector(playerRect.right.x, player.getGunVerticalPosition() - dim.y / 2.0f);
+			velocity = Vector(1.0f, 0.0f);
+		}
+		this->sprite->setPosition(getSpritePosition(), 0.6f).setOrientation(this->orientation);
 	}
 
 	Shot& Shot::move(Float32 elapsedTime)
 	{
-		Float32 direction = (getOrientation() == Orientation::Right) ? 1.0f : -1.0f;
-		x += direction * getWeapon().bulletSpeed * elapsedTime;
-		sprite->setPosition(Vector(x, y));
+		position += velocity * getWeapon().bulletSpeed * elapsedTime;
+		sprite->setPosition(getSpritePosition());
 		return *this;
 	}
 

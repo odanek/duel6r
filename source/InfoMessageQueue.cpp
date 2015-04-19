@@ -94,4 +94,9 @@ namespace Duel6
 
 		font.print(x, y, Color(255, 255, 0), msg);
 	}
+
+	void InfoMessageQueue::clear()
+	{
+		messages.clear();
+	}
 }

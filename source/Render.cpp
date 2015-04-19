@@ -363,7 +363,7 @@ namespace Duel6
 		font.print(x, y, Color(255, 255, 255), fpsCount);
 	}
 
-	void Renderer::notifications() const
+	void Renderer::youAreHere() const
 	{
 		Float32 remainingTime = game.getRemainingYouAreHere();
 		if(remainingTime <= 0) return;
@@ -373,16 +373,16 @@ namespace Duel6
 		glDisable(GL_DEPTH_TEST);
 		glLineWidth(3.0f);
 		
-		Float32 radius = 0.5f + 0.5f * fabs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
+		Float32 radius = 0.5f + 0.5f * std::abs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
 		for (const Player& player : game.getPlayers())
 		{
+			Vector playerCentre = player.getCentre();
 			glBegin(GL_LINE_LOOP);
 			for (Int32 u = 0; u < 36; u++)
 			{				
 				Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
-				Float32 X = player.getX() + 0.5f + spike * radius * Math::fastSin(90 + u * 10);
-				Float32 Y = player.getY() + 0.5f + spike * radius * Math::fastSin(u * 10);
-				glVertex3f(X, Y, 0.5f);
+				Vector pos = playerCentre + spike * radius * Vector::direction(u * 10);
+				glVertex3f(pos.x, pos.y, 0.5f);
 			}
 			glEnd();
 		}		
@@ -405,9 +405,11 @@ namespace Duel6
 			if (!player.isDead())
 			{
 				Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
-				Float32 X = player.getX() + 0.55f - width / 2;
-				Float32 Y = player.getY() + (player.isKneeling() ? 1.0f : 1.2f);
-				for (int i = 0; i < player.getRoundKills(); i++, X += 0.2f)
+				Rectangle rect = player.getCollisionRect();
+
+				Float32 X = rect.getCentre().x + 0.05f - width / 2;
+				Float32 Y = rect.right.y + 0.2f;
+				for (Int32 i = 0; i < player.getRoundKills(); i++, X += 0.2f)
 				{
 					glVertex3f(X, Y, 0.5f);
 				}
@@ -422,24 +424,20 @@ namespace Duel6
         
 	void Renderer::invulRing(const Player& player) const
 	{
-		Float32 x, y, X, Y;
-		Int32 p, uh, u;
-
-		x = player.getX() + 0.5f;  // TODO: Coord
-		y = player.getY() + 0.5f;  // TODO: Coord
-		p = Int32(player.getBonusRemainingTime() * 30) % 360;
+		Vector playerCentre = player.getCentre();
+		Float32 radius = player.getDimensions().length() / 2.0f;
+		Int32 p = Int32(player.getBonusRemainingTime() * 30) % 360;
 
 		glColor3ub(255, 0, 0);
 		glDisable(GL_TEXTURE_2D);
 		glPointSize(2.0f);
 		glBegin(GL_POINTS);
 
-		for (uh = p; uh < 360 + p; uh += 15)
+		for (Int32 uh = p; uh < 360 + p; uh += 15)
 		{
-			u = uh % 360;
-			X = x + 0.7f * Math::fastSin(90 + u);
-			Y = y + 0.7f * Math::fastSin(u);
-			glVertex3f(X, Y, 0.5f);
+			Int32 u = uh % 360;
+			Vector pos = playerCentre + radius * Vector::direction(u);
+			glVertex3f(pos.x, pos.y, 0.5f);
 		}
 
 		glEnd();
@@ -504,7 +502,7 @@ namespace Duel6
 		BONUS_DrawAll();
 		invulRings(game.getPlayers());
 		water(game.getWorld().getWater());
-		notifications();
+		youAreHere();
 		roundKills();
 
 		EXPL_DrawAll();

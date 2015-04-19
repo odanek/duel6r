@@ -395,6 +395,7 @@ namespace Duel6
 		console.printLine(Format(D6_L("...Sprites : {0}")) << world.getSprites().getFaces().size());
 		console.printLine(Format(D6_L("...Water   : {0}")) << world.getWater().getFaces().size());
 
+		messageQueue.clear();
 		spriteList.clear();
 
 		console.printLine(D6_L("...Preparing players"));

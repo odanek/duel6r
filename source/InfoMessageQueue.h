@@ -51,6 +51,7 @@ namespace Duel6
 
 		void renderPlayerMessages(const Player& player, const Font& font) const;
 		void renderAllMessages(const PlayerView& view, Int32 offsetY, const Font& font) const;
+		void clear();
 
 	private:
 		static void renderMessage(Int32 x, Int32 y, const std::string& msg, const Font& font);
