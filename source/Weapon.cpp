@@ -30,14 +30,10 @@
 #include <set>
 #include "Sound.h"
 #include "Player.h"
-#include "PlayerSkin.h"
 #include "Weapon.h"
-#include "Math.h"
 #include "Game.h"
-#include "Util.h"
-#include "TextureManager.h"
-#include "World.h"
 #include "Fire.h"
+#include "collision/Collision.h"
 
 namespace Duel6
 {
@@ -83,7 +79,6 @@ namespace Duel6
 		for (Weapon& weap : d6WpnDef)
 		{
 			const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << weap.index;
-			const std::string wi = std::to_string(weap.index);
 			weap.textures.boom = textureManager.load(Format("{0}/boom/") << wpnPath, nearestFilterBoom.find(weap.index) != nearestFilterBoom.end() ? GL_NEAREST : GL_LINEAR, true);
 			weap.textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
 			weap.textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
@@ -115,12 +110,8 @@ namespace Duel6
 
 	void WPN_AddShot(Player& player, SpriteList& spriteList, Orientation orientation)
 	{
-		Float32 ad = player.isKneeling() ? 0.52f : 0.32f;
-		Float32 x = (orientation == Orientation::Left) ? (player.getX() - 0.65f) : (player.getX() + 0.65f);  // TODO: Coord
-		Float32 y = player.getY() - ad;
-
-		Sprite shotSprite(player.getWeapon().shotAnimation, player.getWeapon().textures.shot);		
-		d6Shots.push_back(Shot(player, x, y, spriteList.addSprite(shotSprite), orientation));
+		Sprite shotSprite(player.getWeapon().shotAnimation, player.getWeapon().textures.shot);
+		d6Shots.push_back(Shot(player, spriteList.addSprite(shotSprite), orientation));
 		player.getWeapon().shotSample.play();
 	}
 
@@ -132,19 +123,19 @@ namespace Duel6
 		Float32 range = shot.getExplosionRange();
 		Float32 power = shot.getExplosionPower();
 
-		float X = (shot.getOrientation() == Orientation::Left) ? (shot.getX() + 0.32f) : (shot.getX() + 0.67f);
-		float Y = shot.getY() + 0.83f;  // TODO: Coord
+		const Vector shotCentre = shot.getCentre();
 		bool shit = shot.getWeapon().shit;
 
 		if (!shit)
 		{
-			FIRE_Check(X, Y, range, spriteList);
+			FIRE_Check(shotCentre, range, spriteList);
 		}
 
 		for (Player& player : players)
 		{
 			bool directHit = (playerThatWasHit != nullptr && player.is(*playerThatWasHit));
-			Float32 dist = directHit ? 0 : Math::distance(player.getX() + 0.5f, player.getY() + 0.5f, X, Y); // TODO: Coord
+			Vector playerCentre = player.getCentre();
+			Float32 dist = directHit ? 0 : (playerCentre - shotCentre).length();
 
 			if (directHit || dist < range)
 			{
@@ -193,26 +184,19 @@ namespace Duel6
 
 	static Hit WPN_ShotPlayerCollision(Shot& shot, std::vector<Player>& players)
 	{
-		Float32 X = (shot.getOrientation() == Orientation::Left) ? shot.getX() : shot.getX() + 0.35f; // TODO: Coord
+		const Rectangle shotBox = shot.getCollisionRect();
 
 		for (Player& player : players)
 		{
-			if (player.getBonus() == D6_BONUS_INVIS || player.is(shot.getPlayer()))
-			{
-				continue;
-			}
-			if (!player.isInGame())
+			if (!player.isInGame() || player.getBonus() == D6_BONUS_INVIS || player.is(shot.getPlayer()))
 			{
 				continue;
 			}
 
-			Float32 ad = player.isKneeling() ? 0.2f : (player.isLying() ? 0.6f : 0.0f); // TODO: Coord
-
-			if (X > player.getX() + 1.0f || X + 0.65f < player.getX() ||
-				shot.getY() < player.getY() - 1.0f || shot.getY() - 0.35f > player.getY() - ad) // TODO: Coord
-				continue;
-
-			return { true, &player };
+			if (Collision::rectangles(player.getCollisionRect(), shotBox))
+			{
+				return {true, &player};
+			}
 		}
 
 		return { false, nullptr };
@@ -220,28 +204,18 @@ namespace Duel6
 
 	static Hit WPN_ShotWallCollision(Shot& shot, const World& world)
 	{
-		Int32 up = (int)(shot.getY() + 1.0f); // TODO: Coord
-		Int32 down = (int)(shot.getY() + 0.65f); // TODO: Coord
-		
-		Int32 left, right;
-		if (shot.getOrientation() == Orientation::Left)
-		{
-			left = (int)(shot.getX());
-			right = (int)(shot.getX() + 0.65f); // TODO: Coord
-		}
-		else
-		{
-			left = (int)(shot.getX() + 0.35f); // TODO: Coord
-			right = (int)(shot.getX() + 1.0f); // TODO: Coord
-		}
+		const Rectangle box = shot.getCollisionRect();
+		Int32 up = Int32(box.right.y);
+		Int32 down = Int32(box.left.y);
+		Int32 left = Int32(box.left.x);
+		Int32 right = Int32(box.right.x);
 
-		if (world.isWall(left, up, true) || world.isWall(left, down, true) ||
-			world.isWall(right, up, true) || world.isWall(right, down, true))
-		{
-			return { true, nullptr };
-		}
+		bool hitsWall = world.isWall(left, up, true) ||
+				world.isWall(left, down, true) ||
+				world.isWall(right, up, true) ||
+				world.isWall(right, down, true);
 
-		return { false, nullptr };
+		return { hitsWall, nullptr };
 	}
 
 	static ShotIterator WPN_RemoveShot(ShotIterator shot, SpriteList& spriteList)
@@ -268,10 +242,10 @@ namespace Duel6
 			if (hit.hit)
 			{
 				WPN_Boom(*shot, gameService.getPlayers(), hit.player, gameService.getSpriteList());
-				float x = (shot->getOrientation() == Orientation::Left) ? shot->getX() - 0.3f : shot->getX() + 0.3f;
+				const Vector shotCentre = shot->getCentre();
 				
 				Sprite boom(weapon.boomAnimation, weapon.textures.boom);
-				boom.setPosition(x, shot->getY() + 0.3f, 0.6f)
+				boom.setPosition(shotCentre - Vector(0.5f, 0.5f), 0.6f)
 					.setSpeed(2.0f)
 					.setLooping(AnimationLooping::OnceAndRemove)
 					.setOrientation(shot->getOrientation())

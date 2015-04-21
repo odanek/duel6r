@@ -25,33 +25,45 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
-#include "Bonus.h"
-#include "Weapon.h"
+#ifndef DUEL6_RECTANGLE_H
+#define DUEL6_RECTANGLE_H
+
+#include "Vector.h"
 
 namespace Duel6
 {
-	Bonus::Bonus(const Vector& position, Size type, GLuint texture)
-		: position(position), type(type), weapon(false), weaponType(nullptr), bullets(0), texture(texture)
-	{}
+    class Rectangle
+    {
+    public:
+        Vector left;
+        Vector right;
 
-	Bonus::Bonus(const Vector& position, const Weapon& weaponType, Int32 bullets)
-		: position(position), type(0), weapon(true), weaponType(&weaponType), bullets(bullets)
-	{
-		texture = weaponType.textures.gun.getGlTextures()[weaponType.animation[12]];
-	}
+    private:
+        Rectangle(const Vector& left, const Vector& right)
+                : left(left), right(right)
+        {}
 
-	void Bonus::render() const
-	{
-		Vector pos = getSpritePosition();
+    public:
+        Vector getCentre() const
+        {
+            return (left + right) / 2.0f;
+        }
 
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.1f, 0.1f); glVertex3f(pos.x, pos.y + 1, 0.5f);
-			glTexCoord2f(0.9f, 0.1f); glVertex3f(pos.x + 1.0f, pos.y + 1, 0.5f);
-			glTexCoord2f(0.9f, 0.9f); glVertex3f(pos.x + 1.0f, pos.y, 0.5f);
-			glTexCoord2f(0.1f, 0.9f); glVertex3f(pos.x, pos.y, 0.5f);
-		glEnd();
-	}
+        Vector getSize() const
+        {
+            return right - left;
+        }
 
+        static Rectangle fromCornerAndSize(const Vector &leftCorner, const Vector &size)
+        {
+            return Rectangle(leftCorner, leftCorner + size);
+        }
+
+        static Rectangle fromCorners(const Vector &leftCorner, const Vector &rightCorner)
+        {
+            return Rectangle(leftCorner, rightCorner);
+        }
+    };
 }
+
+#endif

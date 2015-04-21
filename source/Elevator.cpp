@@ -35,8 +35,7 @@ namespace Duel6
 {
 	void Elevator::start()
 	{
-		position.x = controlPoints[0].getX();
-		position.y = controlPoints[0].getY();
+		position = controlPoints[0].getLocation();
 		section = 0;
 		forward = true;
 		startSection();
@@ -49,8 +48,7 @@ namespace Duel6
 			nextSection();
 		}
 
-		position.x += add.x * elapsedTime;
-		position.y += add.y * elapsedTime;
+		position += velocity * elapsedTime;
 		travelled += elapsedTime;
 	}
 
@@ -129,11 +127,9 @@ namespace Duel6
 		ControlPoint& left = controlPoints[forward ? section : section + 1];
 		ControlPoint& right = controlPoints[forward ? section + 1 : section];
 
-		Float32 dx = right.getX() - left.getX();
-		Float32 dy = right.getY() - left.getY();
-		distance = Math::norm(dx, dy) / D6_ELEV_SPEED;
+		Vector dir = right.getLocation() - left.getLocation();
+		distance = dir.length() / D6_ELEV_SPEED;
 		travelled = 0;
-		add.x = dx / distance;
-		add.y = dy / distance;
+		velocity = dir / distance;
 	}
 }

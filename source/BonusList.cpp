@@ -31,6 +31,7 @@
 #include "Weapon.h"
 #include "World.h"
 #include "InfoMessageQueue.h"
+#include "collision/Collision.h"
 
 namespace Duel6
 {
@@ -73,28 +74,27 @@ namespace Duel6
 		Int32 x = rand() % world.getSizeX();
 		Int32 y = rand() % world.getSizeY();
 
-		if (weapon && !world.isWall(x, y - 1, true)) // Weapons must be on the ground
-		{
-			return;
-		}
-
 		if (!world.isWall(x, y, true))
 		{
 			if (weapon)
 			{
-				d6Bonuses.push_back(Bonus(x, y, WPN_GetRandomWeapon(), rand() % 10 + 10));
+				if (!world.isWall(x, y - 1, true)) // Weapons must be on the ground
+				{
+					return;
+				}
+				d6Bonuses.push_back(Bonus(Vector(x, y), WPN_GetRandomWeapon(), rand() % 10 + 10));
 			}
 			else
 			{
 				Size type = rand() % D6_BONUS_COUNT;
-				d6Bonuses.push_back(Bonus(x, y, type, textures.getGlTextures()[type]));				
+				d6Bonuses.push_back(Bonus(Vector(x + 0.2f, y + 0.2f), type, textures.getGlTextures()[type]));
 			}
 		}
 	}
 
-	void BONUS_AddDeadManGun(Int32 x, Int32 y, Player& player)
+	void BONUS_AddDeadManGun(const Vector& position, Player& player)
 	{
-		d6Bonuses.push_back(Bonus(x, y, player.getWeapon(), player.getAmmo()));
+		d6Bonuses.push_back(Bonus(position, player.getWeapon(), player.getAmmo()));
 	}
 
 	static bool BONUS_IsApplicable(const Bonus& bonus, const Player& player, bool weapon)
@@ -109,9 +109,7 @@ namespace Duel6
 			return false;
 		}
 
-		// TODO: Coord
-		return (fabs(Float32(bonus.getX()) - player.getX()) < 0.5f && 
-			    fabs(Float32(bonus.getY()) - player.getY()) < 0.5f);
+		return Collision::rectangles(bonus.getCollisionRect(), player.getCollisionRect());
 	}
 
 	static void BONUS_Apply(const Bonus& bonus, Player& player, InfoMessageQueue& messageQueue)
@@ -134,7 +132,6 @@ namespace Duel6
 
 		case D6_BONUS_LIFEP:
 			player.addLife(Float32(hit));
-			player.showHPBar();
 			messageQueue.add(player, Format(D6_L("Life +{0}")) << hit);
 			break;
 
@@ -207,7 +204,7 @@ namespace Duel6
 		if (player.getAmmo() > 0)
 		{
 			// Leave the current weapon at the same place
-			d6Bonuses.push_back(Bonus(bonus.getX(), bonus.getY(), player.getWeapon(), player.getAmmo()));
+			d6Bonuses.push_back(Bonus(bonus.getPosition(), player.getWeapon(), player.getAmmo()));
 		}
 
 		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());

@@ -34,6 +34,7 @@
 #include "AnimationLooping.h"
 #include "Orientation.h"
 #include "TextureManager.h"
+#include "Vector.h"
 
 namespace Duel6
 {
@@ -56,29 +57,25 @@ namespace Duel6
 		AnimationLooping looping;   // Type of looping
 		Orientation orientation;   // Current orientation
 		Uint32 flags;  // Flags
-		Float32 x;      // Sprite location
-		Float32 y;
+		Vector position;
 		Float32 z;
-		Float32 width; // Sprite dimensions
-		Float32 height;
+		Vector size;
 		Float32 grow;   // Grow factor for explosions
 		Float32 alpha;  // Transparency ratio
 
 	public:
 		Sprite(const Int16* animation, const TextureManager::Texture& textures);
 
-		Sprite& setPosition(Float32 x, Float32 y, Float32 z)
+		Sprite& setPosition(const Vector& position, Float32 z)
 		{
-			this->x = x;
-			this->y = y;
+			this->position = position;
 			this->z = z;
 			return *this;
 		}
 
-		Sprite& setPosition(Float32 x, Float32 y)
+		Sprite& setPosition(const Vector& position)
 		{
-			this->x = x;
-			this->y = y;
+			this->position = position;
 			return *this;
 		}
 

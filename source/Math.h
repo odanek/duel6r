@@ -68,6 +68,12 @@ namespace Duel6
 		{
 			return norm(x1 - x2, y1 - y2);
 		}
+
+		template <class T>
+		static Int32 sign(T val)
+		{
+			return val < 0 ? -1 : (val > 0 ? 1 : 0);
+		}
 	};
 }
 

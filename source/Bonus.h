@@ -31,6 +31,8 @@
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "TextureManager.h"
+#include "Vector.h"
+#include "Rectangle.h"
 
 namespace Duel6
 {
@@ -66,8 +68,7 @@ namespace Duel6
 	class Bonus
 	{
 	private:
-		Int32 x;
-		Int32 y;
+		Vector position;
 		Size type;
 		bool weapon;
 		const Weapon* weaponType;
@@ -75,9 +76,9 @@ namespace Duel6
 		GLuint texture;
 
 	public:
-		Bonus(Int32 x, Int32 y, Size type, GLuint texture);
+		Bonus(const Vector& position, Size type, GLuint texture);
 
-		Bonus(Int32 x, Int32 y, const Weapon& weaponType, Size bullets);
+		Bonus(const Vector& position, const Weapon& weaponType, Int32 bullets);
 
 		Size getType() const
 		{
@@ -99,14 +100,24 @@ namespace Duel6
 			return bullets;
 		}
 
-		Int32 getX() const
+		const Vector& getPosition() const
 		{
-			return x;
+			return position;
 		}
 
-		Int32 getY() const
+		Vector getDimensions() const
 		{
-			return y;
+			return isWeapon() ? Vector(1.0f, 1.0f) : Vector(0.6f, 0.6f);
+		}
+
+		Rectangle getCollisionRect() const
+		{
+			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+		}
+
+		Vector getSpritePosition() const
+		{
+			return isWeapon() ? position : position - Vector(0.2f, 0.2f);
 		}
 
 		void render() const;

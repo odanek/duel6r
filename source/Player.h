@@ -41,6 +41,7 @@
 #include "Sound.h"
 #include "Video.h"
 #include "Water.h"
+#include "Rectangle.h"
 #include "Defines.h"
 
 #define D6_MAX_LIFE				100.0f
@@ -128,11 +129,10 @@ namespace Duel6
 		struct PlayerState
 		{
 			Uint32 flags;
-			Float32 velocity;         // Move velocity
+			Float32 velocity;
 			Orientation orientation;
 			Float32 jumpPhase;
-			Float32 x;
-			Float32 y;
+			Vector position;
 			Float32 life;
 			Float32 air; 
 			Int32 ammo;
@@ -184,24 +184,47 @@ namespace Duel6
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
 		bool hitByShot(Float32 pw, Shot& s, bool directHit);
 
-		Float32 getX() const
+		const Vector& getPosition() const
 		{
-			return state.x;
+			return state.position;
 		}
 
-		Float32 getY() const
+		Vector getDimensions() const
 		{
-			return state.y;
+			if (isKneeling())
+			{
+				return Vector(1.0f, 0.8f);
+			}
+			else if (isLying())
+			{
+				return Vector(1.0f, 0.4f);
+			}
+			return Vector(1.0f, 1.0f);
 		}
 
-		Float32 getWidth() const
+		Vector getCentre() const
 		{
-			return 1.0f;
+			return getCollisionRect().getCentre();
 		}
 
-		Float32 getHeight() const
+		Rectangle getCollisionRect() const
 		{
-			return 1.0f;
+			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+		}
+
+		Vector getSpritePosition() const
+		{
+			return getPosition();
+		}
+
+		Float32 getGunVerticalPosition() const
+		{
+			return getPosition().y + getDimensions().y - 0.5f;
+		}
+
+		Vector getGunSpritePosition() const
+		{
+			return isKneeling() ? getSpritePosition() - Vector(0.0f, 0.15f) : getSpritePosition();
 		}
 
 		const PlayerView& getView() const
@@ -318,12 +341,11 @@ namespace Duel6
 			return infoBarPosition;
 		}
 
-		Player& addLife(Float32 life);
+		Player &addLife(Float32 life, bool showHpBar = true);
 
 		Player& setFullLife()
 		{
-			state.life = D6_MAX_LIFE;
-			showHPBar();
+			addLife(D6_MAX_LIFE);
 			return *this;
 		}
 

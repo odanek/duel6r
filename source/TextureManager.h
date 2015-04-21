@@ -73,6 +73,7 @@ namespace Duel6
 
 		public:
 			Texture()
+				: manager(nullptr), textures(nullptr)
 			{}
 
 			const TextureList& getGlTextures() const

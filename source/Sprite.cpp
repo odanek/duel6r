@@ -39,8 +39,7 @@ namespace Duel6
 		looping = AnimationLooping::RepeatForever;
 		orientation = Orientation::Left;
 		flags = Draw;
-		width = 1.0f;
-		height = 1.0f;
+		size = Vector(1.0f, 1.0f);
 		grow = 0;
 		alpha = 1.0f;
 	}
@@ -108,10 +107,9 @@ namespace Duel6
 
 		if (grow > 0)
 		{
-			x -= grow * elapsedTime;
-			y -= grow * elapsedTime;
-			width += 2 * grow * elapsedTime;
-			height += 2 * grow * elapsedTime;
+			Vector growStep = Vector(grow, grow) * elapsedTime;
+			position -= growStep;
+			size += 2 * growStep;
 		}
 	}
 
@@ -136,13 +134,13 @@ namespace Duel6
 
 		glBegin(GL_QUADS);
 			glTexCoord2f(leftSide, 0.0f);
-			glVertex3f(x, y + height, z);;
+			glVertex3f(position.x, position.y + size.y, z);;
 			glTexCoord2f(1.0f - leftSide, 0.0f);
-			glVertex3f(x + width, y + height, z);;
+			glVertex3f(position.x + size.x, position.y + size.y, z);;
 			glTexCoord2f(1.0f - leftSide, 1.0f);
-			glVertex3f(x + width, y, z);
+			glVertex3f(position.x + size.x, position.y, z);
 			glTexCoord2f(leftSide, 1.0f);
-			glVertex3f(x, y, z);
+			glVertex3f(position.x, position.y, z);
 		glEnd();
 
 		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);

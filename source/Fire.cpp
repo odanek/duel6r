@@ -47,8 +47,7 @@ namespace Duel6
 
 	struct Fire
 	{
-		Float32 x;
-		Float32 y;
+		Vector position;
 		Face* face;
 		FireType* type;
 		bool burned;
@@ -86,8 +85,8 @@ namespace Duel6
 				if (face.getBlock().getIndex() == ft.block)
 				{
 					Fire fire;
-					fire.x = sprites.getVertexes()[i << 2].x;
-					fire.y = sprites.getVertexes()[i << 2].y - 1.0f;
+					fire.position.x = sprites.getVertexes()[i << 2].x;
+					fire.position.y = sprites.getVertexes()[i << 2].y - 1.0f;
 					fire.burned = false;
 					fire.face = &face;
 					fire.type = &ft;
@@ -99,16 +98,14 @@ namespace Duel6
 		}
 	}
 
-	void FIRE_Check(Float32 X, Float32 Y, Float32 d, SpriteList& spriteList)  // TODO: Coord - explosionCenter
+	void FIRE_Check(const Vector& explCentre, Float32 d, SpriteList& spriteList)
 	{
-		X -= 0.5f;
-		Y += 0.5f;
-
 		for (Fire& fire : d6Fires)
 		{
 			if (!fire.burned)
 			{
-				Float32 distance = Math::distance(X, Y, fire.x, fire.y);
+				Vector fireCentre = fire.position + Vector(0.5f, 0.5f);
+				Float32 distance = (explCentre - fireCentre).length();
 
 				if (distance < d)
 				{
@@ -116,7 +113,7 @@ namespace Duel6
 					fire.face->hide();
 
 					Sprite fireSprite(d6FireAnm, fire.type->texture);
-					fireSprite.setPosition(fire.x, fire.y, 0.75f)
+					fireSprite.setPosition(fire.position, 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					spriteList.addSprite(fireSprite);
 				}
