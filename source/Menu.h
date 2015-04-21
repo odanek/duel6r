@@ -66,7 +66,6 @@ namespace Duel6
 		Gui::Label* label[8];
 		Gui::Combobox* controlSwitch[D6_MAX_PLAYERS];
 		Gui::Textbox* textbox;
-		std::vector<Int32> playingPersons;
 		Size backgroundCount;
 		TextureManager::Texture menuBannerTexture;
 		Sound::Track menuTrack;
@@ -102,6 +101,10 @@ namespace Duel6
 			return personProfiles;
 		}
 
+		void loadPersonProfiles(const std::string& path);
+
+		void loadPersonData(const std::string& filePath);
+
 	private:
 		void beforeStart(Context* prevContext) override;
 		void beforeClose(Context* nextContext) override;
@@ -109,8 +112,7 @@ namespace Duel6
 		void showMessage(const std::string& message);
 		void detectControls(Size playerIndex);
 		void play();
-		void loadPersonData(const std::string& filePath);
-		void loadPersonProfiles(const std::string& path);
+
 		PersonProfile& getPersonProfile(const std::string& name, Size index);
 		void cleanPersonData();
 		void addPerson();

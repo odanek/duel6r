@@ -56,16 +56,23 @@ namespace Duel6
 		File file(filePath, "rb");
 		persons.load(file);
 
+		for (const Person& person : persons.list())
+		{
+			listbox[1]->addItem(person.getName());
+		}
+
 		Int32 playing;
 		file.read(&playing, 4, 1);
 		for (Int32 i = 0; i < playing; i++)
 		{
 			Int32 personIndex;
 			file.read(&personIndex, 4, 1);
-			playingPersons.push_back(personIndex);
+			const std::string& name = persons.get(personIndex).getName();
+			listbox[2]->addItem(name);
+			listbox[1]->delItem(name);
 		}
 		
-		file.close();;
+		file.close();
 	}
 
 	void Menu::joyRescan()
@@ -86,10 +93,7 @@ namespace Duel6
 	}
 
 	void Menu::initialize()
-	{		
-		loadPersonProfiles(D6_FILE_PROFILES);
-		loadPersonData(D6_FILE_PHIST);
-
+	{
 		appService.getConsole().printLine(D6_L("\n===Menu initialization==="));
 		menuBannerTexture = appService.getTextureManager().load(D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
 		appService.getConsole().printLine(D6_L("...Starting GUI library"));
@@ -118,6 +122,9 @@ namespace Duel6
 
 		listbox[6] = new Gui::Listbox(gui, true);
 		listbox[6]->setPosition(520, 470, 13, 5, 16);
+
+		loadPersonProfiles(D6_FILE_PROFILES);
+		loadPersonData(D6_FILE_PHIST);
 
 		button[0] = new Gui::Button(gui);
 		button[0]->setPosition(200, 282, 80, 25);
@@ -162,10 +169,7 @@ namespace Duel6
 		button[4]->setPosition(520, 299, 125, 73);
 		button[4]->setCaption(D6_L("Play (F1)"));
 		button[4]->onClick([this](const Gui::Event&) {
-			if (playingPersons.size() > 1)
-			{
-				play();
-			}
+			play();
 		});
 
 		button[5] = new Gui::Button(gui);
@@ -247,16 +251,6 @@ namespace Duel6
 		}
 		listbox[6]->setCur(8);
 
-		for (const Person& person : persons.list())
-		{
-			listbox[1]->addItem(person.getName());
-		}
-
-		for (Int32 personIndex : playingPersons)
-		{
-			listbox[2]->addItem(persons.get(personIndex).getName());
-		}
-
 		menuTrack = sound.loadModule("sound/undead.xm");
 	}
 
@@ -265,13 +259,14 @@ namespace Duel6
 		File file(D6_FILE_PHIST, "wb");
 		persons.save(file);
 
-		Int32 playing = playingPersons.size();
+		Int32 playing = listbox[2]->size();
 		file.write(&playing, 4, 1);
-		for (Int32 personIndex : playingPersons)
+		for (Int32 i = 0; i < listbox[2]->size(); i++)
 		{
-			file.write(&personIndex, 4, 1);
+			Int32 index = persons.getIdByName(listbox[2]->getItem(i));
+			file.write(&index, 4, 1);
 		}
-		
+
 		file.close();
 	}
 
@@ -440,7 +435,13 @@ namespace Duel6
 
 	void Menu::play()
 	{
-		bool roundLimit = (game->getMaxRounds() > 0);
+		if (listbox[2]->size() < 2)
+		{
+			// TODO: message
+			return;
+		}
+
+			bool roundLimit = (game->getMaxRounds() > 0);
 
 		if (roundLimit)
 		{
@@ -454,9 +455,9 @@ namespace Duel6
 				
 		// Persons, colors, controls
 		std::vector<Game::PlayerDefinition> playerDefinitions;
-		for (Size i = 0; i < playingPersons.size(); i++)
+		for (int i = 0; i < listbox[2]->size(); i++)
 		{
-			Person& person = persons.get(playingPersons[i]);
+			Person& person = persons.getByName(listbox[2]->getItem(i));
 			auto& profile = getPersonProfile(person.getName(), i);			
 			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->curItem());
 			playerDefinitions.push_back(Game::PlayerDefinition(person, profile.getSkinColors(), profile.getSounds(), controls));
@@ -491,7 +492,7 @@ namespace Duel6
 		}
 
 		// Screen
-		ScreenMode screenMode = (playingPersons.size() > 4 || listbox[5]->curItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
+		ScreenMode screenMode = (listbox[2]->size() > 4 || listbox[5]->curItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
 		Int32 screenZoom = listbox[6]->curItem() + 5; 
 
 		// Start
@@ -501,14 +502,18 @@ namespace Duel6
 
 	void Menu::addPlayer(Int32 c)
 	{
-		if (c != -1 && playingPersons.size() < D6_MAX_PLAYERS)
+		if (c != -1 && listbox[2]->size() < D6_MAX_PLAYERS)
 		{
-			if (std::find(playingPersons.begin(), playingPersons.end(), c) != playingPersons.end())
+			std::string& name = listbox[1]->getItem(c);
+			for (int i = 0; i < listbox[2]->size(); i++)
 			{
-				return;
+				if(name.compare(listbox[2]->getItem(i)) == 0)
+				{
+					return;
+				}
 			}
-			playingPersons.push_back(c);
-			listbox[2]->addItem(persons.get(c).getName());
+			listbox[2]->addItem(name);
+			listbox[1]->delItem(c);
 		}
 	}
 
@@ -516,8 +521,8 @@ namespace Duel6
 	{
 		if (c != -1)
 		{
+			listbox[1]->addItem(listbox[2]->getItem(c));
 			listbox[2]->delItem(c);
-			playingPersons.erase(playingPersons.begin() + c);
 		}
 	}
 
@@ -543,20 +548,6 @@ namespace Duel6
 		if (c != -1)
 		{
 			listbox[1]->delItem(c);
-			auto iter = std::find(playingPersons.begin(), playingPersons.end(), c);
-			if (iter != playingPersons.end())
-			{
-				removePlayer(iter - playingPersons.begin());
-			}
-
-			for (Int32& personIndex : playingPersons)
-			{
-				if (personIndex >= c)
-				{
-					--personIndex;
-				}
-			}
-
 			persons.remove(c);
 		}
 	}
@@ -618,7 +609,7 @@ namespace Duel6
 			addPerson();
 		}
 
-		if (keyCode == SDLK_F1 && playingPersons.size() > 1)
+		if (keyCode == SDLK_F1)
 		{
 			play();
 		}
