@@ -101,10 +101,6 @@ namespace Duel6
 			return personProfiles;
 		}
 
-		void loadPersonProfiles(const std::string& path);
-
-		void loadPersonData(const std::string& filePath);
-
 	private:
 		void beforeStart(Context* prevContext) override;
 		void beforeClose(Context* nextContext) override;
@@ -112,7 +108,8 @@ namespace Duel6
 		void showMessage(const std::string& message);
 		void detectControls(Size playerIndex);
 		void play();
-
+		void loadPersonProfiles(const std::string& path);
+		void loadPersonData(const std::string& filePath);
 		PersonProfile& getPersonProfile(const std::string& name, Size index);
 		void cleanPersonData();
 		void addPerson();
