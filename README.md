@@ -44,6 +44,7 @@ Levels are saved in JSON format and there is an [HTML5 level editor](https://git
 - Collision detection and physics
 - Font rendering using TTF fonts
 - Team play
+- Computer opponents - AI
 
 ## Contact
 
