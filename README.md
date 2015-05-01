@@ -22,7 +22,7 @@ There is a **builtin quake-style console** that can be used to modify game aspec
 The game has been tested on the following platforms:
 - **MS Windows** with Visual Studio 2013 and MinGW 64 compilers
 - **Linux** with GCC 4.9 compiler
-- **Mac OS X** with LLVM compiler
+- **Mac OS X** with LLVM/Clang compiler
 
 ## Customization
 
