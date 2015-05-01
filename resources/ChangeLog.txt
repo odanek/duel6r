@@ -1,5 +1,70 @@
-3.9.0
-=======
+4.0.1 (march 2015)
+===================
+- Customizable player sounds
+- Green water support
+- More robust TGA loader
+- Better texture management
+- Game now supports up to 10 players and 10 joypads
+- GCC related fixes
+- Keyboard 3 controller is now better suited for right handed persons
+- Game is automatically stopped after the last kill
+- Round over summary
+- Two new bonuses: Split-fire and Vampire shots
+- MINGW and CLion support
+- Revamped bonus icons
+
+4.0.0 (december 2014)
+======================
+- Large refactoring including significant elimination of global variables
+- Large Sound sub-system refactoring
+- Player profiles
+- Fixed problem with loading console scripts (EOL)
+
+3.14.0 (december 2014)
+=======================
+- Separation of bonus and fire textures from wall textures
+- JSON parser, store levels and block meta data in JSON format
+- Controller auto-detection
+- 
+
+3.13.0 (november 2014)
+=======================
+- Fix data corruption when deleting persons
+- Fix negative points for comitting suicide
+- Gui refactoring
+- Separation of elevator, wall and water textures
+
+3.12.0 (november 2014)
+=======================
+- Player initial position highlighting
+- Fixed compilation in GCC
+- Large Console refactoring
+- Invulnerability on round start
+- Kills per round indication
+
+3.11.0 (june 2014)
+===================
+- Large refactoring of Menu and Game classes, added Context interface, eliminated global variables
+- Smarter player position initialization
+- New texture manager, textures covnerted to TGA
+- Sound engine refactoring
+- Console cleanup and refactoring
+- Played rounds are displayed during the game
+- End-game summary
+- Type-safe string formatting
+
+3.10.0 (may 2014)
+===================
+- Fix compilation in GCC
+- Refactoring of sprites, animations, world, bonuses, water and elevators
+- Fixed 64-bit support
+- Water refactoring
+- Maximum number of rounds setting
+- Upgrade to SDL2, including keyboard input overhaul
+- Mac OS X support
+
+3.9.0 (april 2014)
+==================
 - Negative points for drowning
 - Ability to change skin (face) color
 - Lots of internal refactoring
@@ -15,122 +80,122 @@
 
 3.8.12
 =======
-- Odstraneni zavislosti na GLU
-- Vylepsene nacitani seznamu urovni
-- Opravena chyba s odregistraci pameti konzole 
+- Removed GLU dependancy
+- Improved loading of level list
+- Fixed bug in console memory de-registration
 
 3.8.11
 =======
-- Autodetekce rozliseni a bitove hloubky
-- Hrac nemuze zastrelit sam sebe
-- Velke vybuchy nemaji DEPTH_TEST
-- SDL 1.2.14 a SDL_mixer 1.2.11
+- Auto-detection of resolution and bit-depth
+- The player cannot shoot himself
+- Big explosions don't have DEPTH_TEST
+- SDL 1.2.14 and SDL_mixer 1.2.11
 
 3.8.10
 =======
-- Pridana podpora pro start_ammo_range
+- Added support for start_ammo_range
 
 3.8.9
 =======
-- Opraveny bug se spadnutim pokud se hrac utopi
+- Fixed crash when player drowns
 
 3.8.8
 =======
-- Opravene ruzne veci pro zajisteni kompatibility s GCC 4.2.1
+- Fixed source compatibility with GCC 4.2.1
 
 3.8.7
 =======
-- Nova matematicka knihovna
-- Nove SDL 1.2.12
+- New mathematical library
+- New SDL 1.2.12
 
 3.8.6
 =======
-- Nova konzole
-- Po mrtvolach zustane na zemi zbran
+- Improved console
+- When player is killed his weapon stays on the ground
 
 3.8.5
 =======
-- Drobna uprava vyznamneho casoveho intervalu v novem syncu
-- Uprava kontrol pri pohybu pro lepsi trefovani se mezi ctverecky
+- Fixed refresh and update sync
+- Improved movement collisions to facilitate easire moving through blocks
 
 3.8.4
 =======
-- Novy jeste lepsi sync
+- Improved refresh sync
 
 3.8.3
 =======
-- Pridan novy bonus - neviditelnost
-- Pridany nove zbrane - polibek smrti, sprej, prak, spuntovka
-- Bilinearni filtrovani textur vybuchu - uz nejsou tak zubate
-- Pomalejsi reakce switchboxu v menu
-- Novy zvuk pro kulomet
-- Novy fps sync
-- Dodelano prelozeni nazvu zbrani pri prepnuti jazyka
-- Opraven bug s vypisovanim cisla urovne do konzole (prechod z cisel na jmena)
-- Moznost menit rozliseni bez naslednych chyb a posunu ve vykreslovani
-- Moznost povolit/zakzat vybrane zbrane
+- Added new bonus - invulnerability
+- New weapons - kiss of death, spray, sling, stopper gun
+- Bilinear filtering of explosions
+- Slower switch box reactions
+- New machine gun sound
+- New fps sync
+- Improved translations and language switching
+- Fixed bug in printing level number to console (switched from numbers to names)
+- Ability to change resolution without errors and graphical glitches
+- Ability to enable/disable weapons
 
 3.8.2
 =======
-- Opraven bug s dlouhymi jmeny pri zobrazovani prubezneho stavu ve hre
-- Opraven bug se zapornym skore pri zobrazovani prubezneho stavu ve hre
-- Optimalizace vykreslovani bloku na vyssi rychlost
+- Fixd bug with long names when displaying in-game game stats
+- Fixed bug with negative points when displaying in-game stats
+- Block rendering optimizations
 
 3.8.1
 =======
-- Pred smazanim statistik se hra zepta
-- Doplneny popisky klavesovych zkratek ke tlacitkum
+- The game asks before clearing statistics
+- Added keyboard shortcuts to menu elements
 
 3.8.0
 =======
-- Hracske statistiky se ukladaji po kazde hre
-- V menu: Stisk ENTER = Pridej, po pridani hrace se vyprazdni textbox
-- V menu: F1 = Hrat
-- V menu: pridano tlacitko pro vymaz statistik, to se rovnez provede po stisku klavesove zkratky F3
-- Vyraznejsi kruh pri nesmrtelnosti
-- Pridana skinovatelnost, opraveny nektere animace (tenke nohy ve vyskoku)
-- Pruhledne statusbary
-- Nejde skakat pod kostkou
-- Opravena uroven 11
-- Upraveny pozice prvku v menu
-- Umoznen libovolny pocet hracu (tedy i vice nez 4), napevno nastaven na 8
-- Upravena (velmi mirne) doba nabijeni kulometu a pistole
-- Mohutne exploze pro trojzubec, bazooku a dvojity laser
-- Pridan bonus pro zvyseni rychlosti postavy
-- SHIFT+F1 restartuje uroven
-- F4 zapina/vypina zobrazeni prubezneho stavu bodu ve hre
-- Urovne mohou mit libovolny nazev (+ nova verze editoru - ctete readme.txt)
-- Dve nova prostredi a pet novych urovni  
+- Player stats are saved after each game
+- After adding a player in menu the textbox is cleared
+- Press F1 in menu to start a new game
+- Added button for clearing player statistics with F3 keyboard shortcut
+- Bolder invulnerability ring
+- Implemented player skins, fixed several animations (thin legs in jump)
+- See-through in game stats
+- It's not possible to jump under a solid block
+- Fixed level 11
+- Fixed menu element positions
+- Enabled arbitrary number of players (currently hard coded to max 8)
+- Adjusted realod speed of machine gun and pistol
+- Large sexplosions for triton, bazooka and double laser
+- New bonus for increasing player speed
+- SHIFT+F1 restarts current level
+- F4 turns in-game stats on/off
+- Levels can have arbitrary names + new editor version
+- Two new environments and 5 new levels
 
 3.7.16
 =======
-- Upravene doby trvani bonusu a pocet naboju v bonusech a novych zbranich
-- Kdyz ma hrac nesmrtelnost nemuze vzit cerny kriz
-- Kdyz je hrac mrtvy nemuze sebrat bonusy
+- Adjjusted bonus duration and number of bullets in guns
+- When player is invulnerabile he cannot pick up the negative healtch bonus
+- When player is dead he cannot pick up bonuses
 
 3.7.15
 =======
-- Drobne opravy pri prepinani obnovovaci frekvence
+- Small adjustments when switching refresh rate
 
 3.7.14
 =======
-- Zakrvaveni obrazovky pri split screen pri smrti hrace
-- Jmena hracu ve stavovych pruzich
-- Knihovna predelana na PCK2
-- Unixove konce radku v config.txt.def
+- Screen turns red in split screen mode after player death
+- Player names in status bars
+- Library converted to PCK2
+- Unixove line endings in config.txt.def
 
 3.7.13
 =======
-- Opraven bug v nacitani lokalizacnich retezcu - pridani funkce MY_FEof
-- Opravena chyba kdy se pri vypnute hudbe po Alt-Tab hudba znovu sama zapla
-- Drobne upravy v anglickych retezcich
-- Automaticke vytvareni souboru config.txt a duel6.dat
+- Fixed bug in loading translations, added MY_Feof function
+- Fixed bug where disabled music turned on again after Alt-Tab
+- Small fixes in english translations
+- Automatic creation of config.txt and duel6.dat
 
 3.7.12
 =======
-- Pri ruseni hrace z databaze se hra pta zda to opravdu chcete
-- Opraveno ukladani screenshotu (pres F10). Nyni mnohem rychlejsi a pokracuje od naposledy ulozeneho cisla.
-- Pridana moznost behem hry prepinat full screen a split screen pres F2
-- Defaultni zoom zmenen na uroven 13
-- Upraveno readme.txt, nove obsahuje vsechny klavesy a konzolove prikazy
-- Opraveno chybne prepinani na obnovovaci frekvenci 60 Hz pod windows
+- When deleting player database the game asks
+- Fixed saving of screenshots (via F10). Now much faster and continues from the last saved number.
+- Option to switch between split-screen and full screen in-game using F2
+- Default zoom changed to 13
+- Fixed readme.txt to include all keyboard shortcuts and console commands
+- Fixed refresh rate switching to 60 Hz under windows
