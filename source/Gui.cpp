@@ -189,12 +189,34 @@ namespace Duel6
 				now = listPos.items - 1;
 		}
 
+		void Listbox::delItem(const std::string& item)
+		{
+			for(Int32 i = 0; i < size(); i++)
+			{
+				if(item.compare(getItem(i)) == 0)
+				{
+					delItem(i);
+					return;
+				}
+			}
+		}
+
 		void Listbox::addItem(const std::string& item)
 		{
 			listPos.items++;
 			items.push_back(item);
 			if (listPos.items == 1)
 				now = 0;
+		}
+
+		std::string& Listbox::getItem(int n)
+		{
+			return items.at(n);
+		}
+
+		long Listbox::size()
+		{
+			return items.size();
 		}
 
 		void Listbox::setPosition(int X, int Y, int W, int H, int fH)
