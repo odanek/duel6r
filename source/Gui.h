@@ -265,8 +265,11 @@ namespace Duel6
 			void setPosition(int X, int Y, int W, int H, int fH);
 			void addItem(const std::string& item);
 			void delItem(int n);
+			void delItem(const std::string& item);
+			std::string& getItem(int n);
 			int curItem();
 			void setCur(int n);
+			long size();
 			void clear();
 
 			ControlType getType() const override

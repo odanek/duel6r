@@ -59,6 +59,24 @@ namespace Duel6
 			return persons[index];
 		}
 
+		Person& getByName(std::string& name)
+		{
+			return get(getIdByName(name));
+		}
+
+		Int32 getIdByName(std::string& name)
+		{
+			for (Size i = 0; i < persons.size(); i++)
+			{
+				Person& person = get(i);
+				if(name.compare(person.getName()) == 0)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+
 		std::vector<Person>& list()
 		{
 			return persons;

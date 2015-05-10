@@ -45,6 +45,7 @@ Levels are saved in JSON format and there is an [HTML5 level editor](https://git
 - Font rendering using TTF fonts
 - Team play
 - Computer opponents - AI
+- Network play
 
 ## Contact
 

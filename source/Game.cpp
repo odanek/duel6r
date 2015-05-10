@@ -313,6 +313,8 @@ namespace Duel6
 		// Restart game
 		if (keyCode == SDLK_F1 && !roundLimit && (hasWinner() || (keyModifiers & KMOD_SHIFT) != 0))
 		{
+			SDL_Event event;
+			while (SDL_PollEvent(&event)) {} // Eat all remaining keyboard events
 			nextRound();
 			return;
 		}
