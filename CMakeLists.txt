@@ -169,8 +169,10 @@ set(D6R_SOURCES
     source/console/convar.cpp    
     source/console/ConsoleException.h
 
-	source/json/Json.cpp
-	source/json/Json.h
+	source/json/JsonValue.cpp
+	source/json/JsonValue.h
+	source/json/JsonParser.cpp
+	source/json/JsonParser.h
 	source/json/JsonException.h
 
     source/collision/Collision.h

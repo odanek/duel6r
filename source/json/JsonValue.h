@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_JSON_JSON_H
-#define DUEL6_JSON_JSON_H
+#ifndef DUEL6_JSON_JSONVALUE_H
+#define DUEL6_JSON_JSONVALUE_H
 
 #include <string>
 #include <unordered_set>
@@ -39,6 +39,8 @@ namespace Duel6
 {
 	namespace Json
 	{
+		class ValueImpl;
+
 		class Value
 		{
 		public:
@@ -52,46 +54,42 @@ namespace Duel6
 				Boolean
 			};
 
-		public:
-			virtual ~Value()
-			{}
-
-			virtual Type getType() const = 0;
-			virtual const Value& get(const std::string& propertyName) const = 0;
-			virtual const Value& get(const Size index) const = 0;
-			virtual Size getLength() const = 0;
-			virtual std::string asString() const = 0;
-			virtual Int32 asInt() const = 0;
-			virtual Float64 asDouble() const = 0;
-			virtual bool asBoolean() const = 0;
-		};
-
-		class Parser
-		{
 		private:
-			static std::unordered_set<Uint8> stringSentinel;
-			static std::unordered_set<Uint8> numberChars;
-			std::unique_ptr<Value> root;
+			std::shared_ptr<ValueImpl> value;
 
 		private:
-			Uint8 peekNextCharacter(File& file) const;
-			void readExpected(File& file, const std::string& expected) const;
-			void readExpected(File& file, char expected) const;
-			void readWhitespaceAndExpected(File& file, char expected) const;
-			std::string readUntil(File& file, const std::unordered_set<Uint8>& sentinels) const;
-			std::string readWhile(File& file, const std::unordered_set<Uint8>& allowed) const;
-			Value::Type determineValueType(Uint8 firstByte) const;
-						
-			std::unique_ptr<Value> parseValue(File& file) const;
-			std::unique_ptr<Value> parseNull(File& file) const;
-			std::unique_ptr<Value> parseObject(File& file) const;
-			std::unique_ptr<Value> parseArray(File& file) const;
-			std::unique_ptr<Value> parseNumber(File& file) const;
-			std::unique_ptr<Value> parseString(File& file) const;
-			std::unique_ptr<Value> parseBoolean(File& file) const;
+			Value(std::shared_ptr<ValueImpl> value);
 
 		public:
-			const Value& parse(const std::string& fileName);
+			Value();
+			Value(const Value& value);
+			Value& operator=(const Value& value);
+
+			Type getType() const;
+
+			Value get(const std::string& propertyName);
+			const Value get(const std::string& propertyName) const;
+			Value& set(const std::string& propertyName, Value value);
+
+			Value get(const Size index);
+			const Value get(const Size index) const;
+			Value& set(const Size index, Value value);
+			Value& add(Value value);
+
+			Size getLength() const;
+			std::string asString() const;
+			Int32 asInt() const;
+			Float64 asDouble() const;
+			bool asBoolean() const;
+
+		public:
+			static Value makeString(const std::string& val);
+			static Value makeNumber(Int32 val);
+			static Value makeNumber(Float64 val);
+			static Value makeBoolean(bool val);
+			static Value makeArray();
+			static Value makeObject();
+			static Value makeNull();
 		};
 	}
 }

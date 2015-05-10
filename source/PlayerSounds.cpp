@@ -27,7 +27,7 @@
 
 #include <stdlib.h>
 #include <unordered_map>
-#include "json/Json.h"
+#include "Json/JsonParser.h"
 #include "Defines.h"
 #include "EnumClassHash.h"
 #include "PlayerSounds.h"
@@ -66,7 +66,7 @@ namespace Duel6
 			return sample->second;
 		}
 
-		Sound::Sample loadSound(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, const Json::Value& value)
+		Sound::Sample loadSound(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, Json::Value value)
 		{
 			if (value.getType() == Json::Value::Type::Null)
 			{
@@ -76,7 +76,7 @@ namespace Duel6
 			return sound.loadSample(profileRoot + value.asString());
 		}
 
-		std::vector<Sound::Sample> loadSounds(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, const Json::Value& value)
+		std::vector<Sound::Sample> loadSounds(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, Json::Value value)
 		{
 			std::vector<Sound::Sample> samples;
 
@@ -106,7 +106,7 @@ namespace Duel6
 	PlayerSounds PlayerSounds::load(Sound& sound, const std::string& profilePath, const std::string& file)
 	{
 		Json::Parser parser;
-		const Json::Value& root = parser.parse(profilePath + file);
+		Json::Value root = parser.parse(profilePath + file);
 
 		PlayerSounds sounds;
 		sounds.sounds[(Int32)Type::GotHit] = loadSounds(sound, profilePath, Type::GotHit, root.get("gotHit"));

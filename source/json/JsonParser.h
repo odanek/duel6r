@@ -25,26 +25,40 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Json/JsonParser.h"
-#include "PlayerSkinColors.h"
+#ifndef DUEL6R_JSON_JSONPARSER_H
+#define DUEL6R_JSON_JSONPARSER_H
+
+#include "../Type.h"
+#include "JsonValue.h"
 
 namespace Duel6
 {
-	PlayerSkinColors PlayerSkinColors::load(const std::string& profileRoot, const std::string& file)
+	namespace Json
 	{
-		Json::Parser parser;
-		Json::Value root = parser.parse(profileRoot + file);
+		class Parser
+		{
+		private:
+			Uint8 peekNextCharacter(File& file) const;
+			void readExpected(File& file, const std::string& expected) const;
+			void readExpected(File& file, char expected) const;
+			void readWhitespaceAndExpected(File& file, char expected) const;
+			std::string readUntil(File& file, const std::unordered_set<Uint8>& sentinels) const;
+			std::string readWhile(File& file, const std::unordered_set<Uint8>& allowed) const;
+			Value::Type determineValueType(Uint8 firstByte) const;
 
-		PlayerSkinColors colors;
-		colors.set(PlayerSkinColors::HairTop, Color::fromString(root.get("hairTop").asString()));
-		colors.set(PlayerSkinColors::HairBottom, Color::fromString(root.get("hairBottom").asString()));
-		colors.set(PlayerSkinColors::BodyInner, Color::fromString(root.get("bodyInner").asString()));
-		colors.set(PlayerSkinColors::BodyOuter, Color::fromString(root.get("bodyOuter").asString()));
-		colors.set(PlayerSkinColors::HandInner, Color::fromString(root.get("handInner").asString()));
-		colors.set(PlayerSkinColors::HandOuter, Color::fromString(root.get("handOuter").asString()));
-		colors.set(PlayerSkinColors::Trousers, Color::fromString(root.get("trousers").asString()));
-		colors.set(PlayerSkinColors::Shoes, Color::fromString(root.get("shoes").asString()));
-		colors.set(PlayerSkinColors::Face, Color::fromString(root.get("face").asString()));
-		return colors;
+			Value parseValue(File& file) const;
+			Value parseNull(File& file) const;
+			Value parseObject(File& file) const;
+			Value parseArray(File& file) const;
+			Value parseNumber(File& file) const;
+			Value parseString(File& file) const;
+			Value parseBoolean(File& file) const;
+
+		public:
+			Value parse(const std::string& fileName) const;
+		};
 	}
 }
+
+
+#endif //DUEL6R_PARSER_H

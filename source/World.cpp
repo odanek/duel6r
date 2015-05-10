@@ -32,7 +32,7 @@
 #include "Format.h"
 #include "Lang.h"
 #include "DataException.h"
-#include "json/Json.h"
+#include "Json/JsonParser.h"
 #include "Defines.h"
 
 namespace Duel6
@@ -75,13 +75,13 @@ namespace Duel6
 		blockMeta.clear();
 
 		Json::Parser parser;
-		const Json::Value& root = parser.parse(path);
+		Json::Value root = parser.parse(path);
 
 		for (Size i = 0; i < root.getLength(); i++)
 		{
-			const Json::Value& block = root.get(i);
+			Json::Value block = root.get(i);
 			Block::Type type = determineBlockType(block.get("kind").asString());
-			const Json::Value& animations = block.get("animations");
+			Json::Value animations = block.get("animations");
 			std::vector<Int32> textures;
 			for (Size j = 0; j < animations.getLength(); j++)
 			{
@@ -98,13 +98,13 @@ namespace Duel6
 		levelData.clear();
 		waterLevel = 0;
 		Json::Parser parser;
-		const Json::Value& root = parser.parse(path);
+		Json::Value root = parser.parse(path);
 
 		width = root.get("width").asInt();
 		height = root.get("height").asInt();
 		
 		Int32 blockCount = width * height;
-		const Json::Value& blocks = root.get("blocks");
+		Json::Value blocks = root.get("blocks");
 		levelData.resize(blockCount);
 		for (Size i = 0; i < blocks.getLength(); i++)
 		{
@@ -117,7 +117,7 @@ namespace Duel6
 		for (Size i = 0; i < elevators; i++)
 		{
 			Elevator elevator;
-			const Json::Value& points = root.get("elevators").get(i).get("controlPoints");
+			Json::Value points = root.get("elevators").get(i).get("controlPoints");
 			for (Size j = 0; j < points.getLength(); j++)
 			{
 				Int32 x = points.get(j).get("x").asInt();

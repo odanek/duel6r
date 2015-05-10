@@ -25,7 +25,6 @@
 - Separation of bonus and fire textures from wall textures
 - JSON parser, store levels and block meta data in JSON format
 - Controller auto-detection
-- 
 
 3.13.0 (november 2014)
 =======================
