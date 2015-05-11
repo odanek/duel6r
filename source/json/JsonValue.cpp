@@ -45,6 +45,7 @@ namespace Duel6
 			virtual std::shared_ptr<ValueImpl>& get(const std::string& propertyName) = 0;
 			virtual const std::shared_ptr<ValueImpl>& get(const std::string& propertyName) const = 0;
 			virtual void set(const std::string& propertyName, std::shared_ptr<ValueImpl>& value) = 0;
+			virtual std::vector<std::string> getPropertyNames() const = 0;
 
 			virtual std::shared_ptr<ValueImpl>& get(Size index) = 0;
 			virtual const std::shared_ptr<ValueImpl>& get(const Size index) const = 0;
@@ -76,6 +77,11 @@ namespace Duel6
 			}
 
 			void set(const std::string& propertyName, std::shared_ptr<ValueImpl>& value) override
+			{
+				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Object, got: ") + getTypeName());
+			}
+
+			std::vector<std::string> getPropertyNames() const override
 			{
 				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Object, got: ") + getTypeName());
 			}
@@ -322,6 +328,16 @@ namespace Duel6
 				properties[propertyName] = value;
 			}
 
+			std::vector<std::string> getPropertyNames() const
+			{
+				std::vector<std::string> propNames;
+				for (const auto& iter : properties)
+				{
+					propNames.push_back(iter.first);
+				}
+				return propNames;
+			}
+
 			Value::Type getType() const override
 			{
 				return Value::Type::Object;
@@ -362,6 +378,11 @@ namespace Duel6
 		const Value Value::get(const std::string& propertyName) const
 		{
 			return Value(value->get(propertyName));
+		}
+
+		std::vector<std::string> Value::getPropertyNames() const
+		{
+			return value->getPropertyNames();
 		}
 
 		Value& Value::set(const std::string& propertyName, Value value)

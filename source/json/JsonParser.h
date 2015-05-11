@@ -37,6 +37,9 @@ namespace Duel6
 	{
 		class Parser
 		{
+		public:
+			Value parse(const std::string& fileName) const;
+
 		private:
 			Uint8 peekNextCharacter(File& file) const;
 			void readExpected(File& file, const std::string& expected) const;
@@ -53,9 +56,6 @@ namespace Duel6
 			Value parseNumber(File& file) const;
 			Value parseString(File& file) const;
 			Value parseBoolean(File& file) const;
-
-		public:
-			Value parse(const std::string& fileName) const;
 		};
 	}
 }

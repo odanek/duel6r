@@ -25,72 +25,37 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_JSON_JSONVALUE_H
-#define DUEL6_JSON_JSONVALUE_H
+#ifndef DUEL6R_JSON_JSONWRITER_H
+#define DUEL6R_JSON_JSONWRITER_H
 
-#include <string>
-#include <unordered_set>
-#include <memory>
-#include "../Type.h"
 #include "../File.h"
-#include "JsonException.h"
+#include "JsonValue.h"
 
 namespace Duel6
 {
 	namespace Json
 	{
-		class ValueImpl;
+		class TextWriter;
 
-		class Value
+		class Writer
 		{
+		private:
+			bool pretty;
+
 		public:
-			enum class Type
-			{
-				Null,
-				Object,
-				Array,
-				Number,
-				String,
-				Boolean
-			};
+			Writer(bool pretty);
+
+			std::string writeToString(const Value& value);
+			void writeToFile(const std::string& path, const Value& value);
 
 		private:
-			std::shared_ptr<ValueImpl> value;
-
-		private:
-			Value(std::shared_ptr<ValueImpl> value);
-
-		public:
-			Value();
-			Value(const Value& value);
-			Value& operator=(const Value& value);
-
-			Type getType() const;
-
-			Value get(const std::string& propertyName);
-			const Value get(const std::string& propertyName) const;
-			Value& set(const std::string& propertyName, Value value);
-			std::vector<std::string> getPropertyNames() const;
-
-			Value get(const Size index);
-			const Value get(const Size index) const;
-			Value& set(const Size index, Value value);
-			Value& add(Value value);
-
-			Size getLength() const;
-			std::string asString() const;
-			Int32 asInt() const;
-			Float64 asDouble() const;
-			bool asBoolean() const;
-
-		public:
-			static Value makeString(const std::string& val);
-			static Value makeNumber(Int32 val);
-			static Value makeNumber(Float64 val);
-			static Value makeBoolean(bool val);
-			static Value makeArray();
-			static Value makeObject();
-			static Value makeNull();
+			void write(TextWriter& writer, const Value& value, Size indent);
+			void writeNull(TextWriter& writer, Size indent);
+			void writeBoolean(TextWriter& writer, bool value, Size indent);
+			void writeNumber(TextWriter& writer, Float64 value, Size indent);
+			void writeString(TextWriter& writer, const std::string& value, Size indent);
+			void writeArray(TextWriter& writer, const Value& value, Size indent);
+			void writeObject(TextWriter& writer, const Value& value, Size indent);
 		};
 	}
 }
