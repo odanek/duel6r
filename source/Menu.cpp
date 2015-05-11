@@ -36,6 +36,8 @@
 #include "Util.h"
 #include "File.h"
 #include "Font.h"
+#include "json/JsonParser.h"
+#include "json/JsonWriter.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
 
@@ -48,31 +50,27 @@ namespace Duel6
 
 	void Menu::loadPersonData(const std::string& filePath)
 	{
-		if (File::getSize(filePath) < 20)
+		if (!File::exists(filePath))
 		{
 			return;
 		}
 
-		File file(filePath, "rb");
-		persons.load(file);
+		Json::Parser parser;
+		Json::Value json = parser.parse(filePath);
+		persons.fromJson(json.get("persons"));
 
 		for (const Person& person : persons.list())
 		{
 			listbox[1]->addItem(person.getName());
 		}
 
-		Int32 playing;
-		file.read(&playing, 4, 1);
-		for (Int32 i = 0; i < playing; i++)
+		Json::Value playing = json.get("playing");
+		for (Size i = 0; i < playing.getLength(); i++)
 		{
-			Int32 personIndex;
-			file.read(&personIndex, 4, 1);
-			const std::string& name = persons.get(personIndex).getName();
+			std::string name = playing.get(i).asString();
 			listbox[2]->addItem(name);
 			listbox[1]->delItem(name);
 		}
-		
-		file.close();
 	}
 
 	void Menu::joyRescan()
@@ -256,18 +254,18 @@ namespace Duel6
 
 	void Menu::savePersonData()
 	{
-		File file(D6_FILE_PHIST, "wb");
-		persons.save(file);
+		Json::Value json = Json::Value::makeObject();
+		json.set("persons", persons.toJson());
 
-		Int32 playing = listbox[2]->size();
-		file.write(&playing, 4, 1);
+		Json::Value playing = Json::Value::makeArray();
 		for (Int32 i = 0; i < listbox[2]->size(); i++)
 		{
-			Int32 index = persons.getIdByName(listbox[2]->getItem(i));
-			file.write(&index, 4, 1);
+			playing.add(Json::Value::makeString(listbox[2]->getItem(i)));
 		}
+		json.set("playing", playing);
 
-		file.close();
+		Json::Writer writer(true);
+		writer.writeToFile(D6_FILE_PHIST, json);
 	}
 
 	void Menu::rebuildTable()

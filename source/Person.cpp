@@ -40,38 +40,29 @@ namespace Duel6
 		return *this;
 	}
 
-	void Person::serialize(File& file) const
+	Json::Value Person::toJson() const
 	{
-		Uint32 nameLength = getName().length();
-		file.write(&nameLength, 4, 1);
-		file.write(getName().c_str(), 1, nameLength);
-		file.write(&shots, 4, 1);
-		file.write(&hits, 4, 1);
-		file.write(&kills, 4, 1);
-		file.write(&wins, 4, 1);
-		file.write(&penalties, 4, 1);
-		file.write(&games, 4, 1);
+		Json::Value json = Json::Value::makeObject();
+		json.set("name", Json::Value::makeString(getName()));
+		json.set("shots", Json::Value::makeNumber(shots));
+		json.set("hits", Json::Value::makeNumber(hits));
+		json.set("kills", Json::Value::makeNumber(kills));
+		json.set("wins", Json::Value::makeNumber(wins));
+		json.set("penalties", Json::Value::makeNumber(penalties));
+		json.set("games", Json::Value::makeNumber(games));
+		return json;
 	}
 
-	void Person::deSerialize(File& file)
+	Person Person::fromJson(const Json::Value& json)
 	{
-		Uint32 nameLength;
-		file.read(&nameLength, 4, 1);
-
-		name.clear();
-		name.reserve(nameLength);
-		while (nameLength-- > 0)
-		{
-			char letter;
-			file.read(&letter, 1, 1);
-			name.push_back(letter);
-		}
-
-		file.read(&shots, 4, 1);
-		file.read(&hits, 4, 1);
-		file.read(&kills, 4, 1);
-		file.read(&wins, 4, 1);
-		file.read(&penalties, 4, 1);
-		file.read(&games, 4, 1);
+		Person person;
+		person.name = json.get("name").asString();
+		person.shots = json.get("shots").asInt();
+		person.hits = json.get("hits").asInt();
+		person.kills = json.get("kills").asInt();
+		person.wins = json.get("wins").asInt();
+		person.penalties = json.get("penalties").asInt();
+		person.games = json.get("games").asInt();
+		return person;
 	}
 }

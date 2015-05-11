@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <vector>
+#include <algorithm>
 #include "Person.h"
 #include "File.h"
 
@@ -61,20 +62,10 @@ namespace Duel6
 
 		Person& getByName(std::string& name)
 		{
-			return get(getIdByName(name));
-		}
-
-		Int32 getIdByName(std::string& name)
-		{
-			for (Size i = 0; i < persons.size(); i++)
-			{
-				Person& person = get(i);
-				if(name.compare(person.getName()) == 0)
-				{
-					return i;
-				}
-			}
-			return -1;
+			auto iter = std::find_if(persons.begin(), persons.end(), [&name](const Person& person) {
+				return person.getName() == name;
+			});
+			return *iter;
 		}
 
 		std::vector<Person>& list()
@@ -99,8 +90,8 @@ namespace Duel6
 			return *this;
 		}
 
-		void save(File& file) const;
-		void load(File& file);
+		Json::Value toJson() const;
+		void fromJson(const Json::Value& json);
 	};
 }
 

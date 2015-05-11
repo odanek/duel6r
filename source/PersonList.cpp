@@ -29,27 +29,23 @@
 
 namespace Duel6
 {
-	void PersonList::save(File& file) const
+	Json::Value PersonList::toJson() const
 	{
-		Uint32 length = getLength();
-		file.write(&length, 4, 1);
-
+		Json::Value json = Json::Value::makeArray();
 		for (const Person& person : persons)
 		{
-			person.serialize(file);
+			json.add(person.toJson());
 		}
+
+		return json;
 	}
 
-	void PersonList::load(File& file)
+	void PersonList::fromJson(const Json::Value& json)
 	{
-		Uint32 length;
-		file.read(&length, 4, 1);
-
-		while (length-- > 0)
+		persons.clear();
+		for (Size i = 0; i < json.getLength(); i++)
 		{
-			Person person;
-			person.deSerialize(file);
-			persons.push_back(person);
+			persons.push_back(Person::fromJson(json.get(i)));
 		}
 	}
 }

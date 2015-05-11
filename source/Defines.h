@@ -36,7 +36,7 @@
 #define D6_FILE_BLOCK_META  "data/blocks.json"
 #define D6_FILE_FONT        "data/duel6.fon"
 #define D6_FILE_LEVEL       "levels/"
-#define D6_FILE_PHIST       "data/duel6.dat"
+#define D6_FILE_PHIST       "data/persons.json"
 #define D6_FILE_PROFILES	"profiles"
 #define D6_FILE_WEAPON_SOUNDS "sound/weapon/"
 #define D6_FILE_PLAYER_SOUNDS "sound/player/"

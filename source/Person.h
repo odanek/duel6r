@@ -32,6 +32,7 @@
 #include <string>
 #include "Type.h"
 #include "File.h"
+#include "json/JsonValue.h"
 
 namespace Duel6
 {
@@ -135,8 +136,8 @@ namespace Duel6
 
 		Person& reset();
 
-		void serialize(File& file) const;
-		void deSerialize(File& file);
+		Json::Value toJson() const;
+		static Person fromJson(const Json::Value& json);
 	};
 }
 
