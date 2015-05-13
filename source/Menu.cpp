@@ -528,7 +528,7 @@ namespace Duel6
 	{
 		const std::string& personName = textbox->getText();
 
-		if (!personName.empty())
+		if (!personName.empty() && !persons.contains(personName))
 		{
 			persons.add(Person(personName));
 			listbox[1]->addItem(personName);

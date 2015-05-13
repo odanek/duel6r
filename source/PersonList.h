@@ -60,13 +60,8 @@ namespace Duel6
 			return persons[index];
 		}
 
-		Person& getByName(std::string& name)
-		{
-			auto iter = std::find_if(persons.begin(), persons.end(), [&name](const Person& person) {
-				return person.getName() == name;
-			});
-			return *iter;
-		}
+		Person& getByName(const std::string& name);
+		bool contains(const std::string& name) const;
 
 		std::vector<Person>& list()
 		{

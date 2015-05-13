@@ -29,6 +29,22 @@
 
 namespace Duel6
 {
+	Person& PersonList::getByName(const std::string& name)
+	{
+		auto iter = std::find_if(persons.begin(), persons.end(), [&name](const Person& person) {
+			return person.getName() == name;
+		});
+		return *iter;
+	}
+
+	bool PersonList::contains(const std::string& name) const
+	{
+		auto iter = std::find_if(persons.cbegin(), persons.cend(), [&name](const Person& person) {
+			return person.getName() == name;
+		});
+		return iter != persons.end();
+	}
+
 	Json::Value PersonList::toJson() const
 	{
 		Json::Value json = Json::Value::makeArray();
