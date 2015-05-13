@@ -25,26 +25,26 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <c++/cmath>
+#include <cmath>
 #include "JsonWriter.h"
 
 namespace Duel6
 {
 	namespace Json
 	{
-		class TextWriter
+		class Appender
 		{
 		public:
-			virtual void write(const std::string& str) = 0;
+			virtual void append(const std::string& str) = 0;
 		};
 
-		class StringWriter : public TextWriter
+		class StringAppender : public Appender
 		{
 		private:
 			std::string value;
 
 		public:
-			virtual void write(const std::string& str) override
+			virtual void append(const std::string& str) override
 			{
 				value += str;
 			}
@@ -55,17 +55,17 @@ namespace Duel6
 			}
 		};
 
-		class FileWriter : public TextWriter
+		class FileAppender : public Appender
 		{
 		private:
 			File& file;
 
 		public:
-			FileWriter(File& file)
+			FileAppender(File& file)
 				: file(file)
 			{}
 
-			virtual void write(const std::string& str) override
+			virtual void append(const std::string& str) override
 			{
 				file.write(&str[0], 1, str.length());
 			}
@@ -77,95 +77,95 @@ namespace Duel6
 
 		std::string Writer::writeToString(const Value& value)
 		{
-			StringWriter writer;
-			write(writer, value, 0);
-			return writer.getValue();
+			StringAppender appender;
+			write(appender, value, 0);
+			return appender.getValue();
 		}
 
 		void Writer::writeToFile(const std::string& path, const Value& value)
 		{
 			File file(path, "wt");
-			FileWriter writer(file);
-			write(writer, value, 0);
+			FileAppender appender(file);
+			write(appender, value, 0);
 		}
 
-		void Writer::write(TextWriter& writer, const Value& value, Size indent)
+		void Writer::write(Appender& appender, const Value& value, Size indent)
 		{
 			switch (value.getType())
 			{
 				case Value::Type::Null:
-					writeNull(writer, indent);
+					writeNull(appender, indent);
 					break;
 				case Value::Type::Boolean:
-					writeBoolean(writer, value.asBoolean(), indent);
+					writeBoolean(appender, value.asBoolean(), indent);
 					break;
 				case Value::Type::Number:
-					writeNumber(writer, value.asDouble(), indent);
+					writeNumber(appender, value.asDouble(), indent);
 					break;
 				case Value::Type::String:
-					writeString(writer, value.asString(), indent);
+					writeString(appender, value.asString(), indent);
 					break;
 				case Value::Type::Array:
-					writeArray(writer, value, indent);
+					writeArray(appender, value, indent);
 					break;
 				case Value::Type::Object:
-					writeObject(writer, value, indent);
+					writeObject(appender, value, indent);
 					break;
 			}
 		}
 
-		void Writer::writeNull(TextWriter& writer, Size indent)
+		void Writer::writeNull(Appender& appender, Size indent)
 		{
-			writer.write("null");
+			appender.append("null");
 		}
 
-		void Writer::writeBoolean(TextWriter& writer, bool value, Size indent)
+		void Writer::writeBoolean(Appender& appender, bool value, Size indent)
 		{
-			writer.write(value ? "true" : "false");
+			appender.append(value ? "true" : "false");
 		}
 
-		void Writer::writeNumber(TextWriter& writer, Float64 value, Size indent)
+		void Writer::writeNumber(Appender& appender, Float64 value, Size indent)
 		{
-			writer.write(std::floor(value) == value ? std::to_string((Int32)value) : std::to_string(value));
+			appender.append(std::floor(value) == value ? std::to_string((Int32) value) : std::to_string(value));
 		}
 
-		void Writer::writeString(TextWriter& writer, const std::string& value, Size indent)
+		void Writer::writeString(Appender& appender, const std::string& value, Size indent)
 		{
-			writer.write('"' + value + '"');
+			appender.append('"' + value + '"');
 		}
 
-		void Writer::writeArray(TextWriter& writer, const Value& value, Size indent)
+		void Writer::writeArray(Appender& appender, const Value& value, Size indent)
 		{
-			writer.write("[" + lineBreak());
+			appender.append("[" + lineBreak());
 			for (Size i = 0; i < value.getLength(); i++)
 			{
-				writer.write(space(indent + 1));
-				write(writer, value.get(i), indent + 1);
+				appender.append(space(indent + 1));
+				write(appender, value.get(i), indent + 1);
 				if (i + 1 != value.getLength())
 				{
-					writer.write(",");
+					appender.append(",");
 				}
-				writer.write(lineBreak());
+				appender.append(lineBreak());
 			}
-			writer.write(space(indent) + "]");
+			appender.append(space(indent) + "]");
 		}
 
-		void Writer::writeObject(TextWriter& writer, const Value& value, Size indent)
+		void Writer::writeObject(Appender& appender, const Value& value, Size indent)
 		{
-			writer.write("{" + lineBreak());
+			appender.append("{" + lineBreak());
 			auto propNames = value.getPropertyNames();
 			for (Size i = 0; i < propNames.size(); i++)
 			{
 				const std::string& name = propNames[i];
-				writer.write(space(indent + 1) + '"' + name + "\": ");
-				write(writer, value.get(name), indent + 1);
+				appender.append(space(indent + 1) + '"' + name + "\": ");
+				write(appender, value.get(name), indent + 1);
 				if (i + 1 != propNames.size())
 				{
-					writer.write(",");
+					appender.append(",");
 				}
-				writer.write(lineBreak());
+				appender.append(lineBreak());
 			}
-			writer.write(space(indent) + "}");
+			appender.append(space(indent) + "}");
 		}
 
 		std::string Writer::space(Size indent)

@@ -35,7 +35,7 @@ namespace Duel6
 {
 	namespace Json
 	{
-		class TextWriter;
+		class Appender;
 
 		class Writer
 		{
@@ -49,13 +49,13 @@ namespace Duel6
 			void writeToFile(const std::string& path, const Value& value);
 
 		private:
-			void write(TextWriter& writer, const Value& value, Size indent);
-			void writeNull(TextWriter& writer, Size indent);
-			void writeBoolean(TextWriter& writer, bool value, Size indent);
-			void writeNumber(TextWriter& writer, Float64 value, Size indent);
-			void writeString(TextWriter& writer, const std::string& value, Size indent);
-			void writeArray(TextWriter& writer, const Value& value, Size indent);
-			void writeObject(TextWriter& writer, const Value& value, Size indent);
+			void write(Appender& appender, const Value& value, Size indent);
+			void writeNull(Appender& appender, Size indent);
+			void writeBoolean(Appender& appender, bool value, Size indent);
+			void writeNumber(Appender& appender, Float64 value, Size indent);
+			void writeString(Appender& appender, const std::string& value, Size indent);
+			void writeArray(Appender& appender, const Value& value, Size indent);
+			void writeObject(Appender& appender, const Value& value, Size indent);
 
 			std::string space(Size indent);
 			std::string lineBreak();
