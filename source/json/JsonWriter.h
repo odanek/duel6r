@@ -56,6 +56,9 @@ namespace Duel6
 			void writeString(TextWriter& writer, const std::string& value, Size indent);
 			void writeArray(TextWriter& writer, const Value& value, Size indent);
 			void writeObject(TextWriter& writer, const Value& value, Size indent);
+
+			std::string space(Size indent);
+			std::string lineBreak();
 		};
 	}
 }

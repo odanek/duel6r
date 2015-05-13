@@ -136,33 +136,46 @@ namespace Duel6
 
 		void Writer::writeArray(TextWriter& writer, const Value& value, Size indent)
 		{
-			writer.write("[ ");
+			writer.write("[" + lineBreak());
 			for (Size i = 0; i < value.getLength(); i++)
 			{
-				write(writer, value.get(i), indent);
+				writer.write(space(indent + 1));
+				write(writer, value.get(i), indent + 1);
 				if (i + 1 != value.getLength())
 				{
-					writer.write(", ");
+					writer.write(",");
 				}
+				writer.write(lineBreak());
 			}
-			writer.write(" ]");
+			writer.write(space(indent) + "]");
 		}
 
 		void Writer::writeObject(TextWriter& writer, const Value& value, Size indent)
 		{
-			writer.write("{ ");
+			writer.write("{" + lineBreak());
 			auto propNames = value.getPropertyNames();
 			for (Size i = 0; i < propNames.size(); i++)
 			{
 				const std::string& name = propNames[i];
-				writer.write('"' + name + "\": ");
-				write(writer, value.get(name), indent);
+				writer.write(space(indent + 1) + '"' + name + "\": ");
+				write(writer, value.get(name), indent + 1);
 				if (i + 1 != propNames.size())
 				{
-					writer.write(", ");
+					writer.write(",");
 				}
+				writer.write(lineBreak());
 			}
-			writer.write(" }");
+			writer.write(space(indent) + "}");
+		}
+
+		std::string Writer::space(Size indent)
+		{
+			return pretty ? std::string(2 * indent, ' ') : std::string();
+		}
+
+		std::string Writer::lineBreak()
+		{
+			return pretty ? std::string("\n") : std::string();
 		}
 	}
 }
