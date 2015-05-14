@@ -26,7 +26,6 @@
 */
 
 #include <stdlib.h>
-#include <stdarg.h>
 #include "Sound.h"
 #include "Video.h"
 #include "PlayerControls.h"
@@ -80,7 +79,7 @@ namespace Duel6
 
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			Gui::Combobox* control = controlSwitch[i];
+			Gui::Spinner* control = controlSwitch[i];
 			control->clear();
 			for (Size j = 0; j < controls; j++)
 			{
@@ -215,7 +214,7 @@ namespace Duel6
 		// Switchbox - volba ovladani
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
-			controlSwitch[i] = new Gui::Combobox(gui);
+			controlSwitch[i] = new Gui::Spinner(gui);
 			controlSwitch[i]->setPosition(370, 468 - i * 18, 120, 0);
 
 			Gui::Button* button = new Gui::Button(gui);

@@ -85,8 +85,6 @@ set(D6R_SOURCES
     source/Game.cpp
     source/Game.h
 	source/GameException.h
-    source/Gui.h
-    source/Gui.cpp
 	source/GameService.h
     source/Image.h    
     source/InfoMessage.h
@@ -176,6 +174,26 @@ set(D6R_SOURCES
 	source/json/JsonValue.h
 	source/json/JsonWriter.cpp
 	source/json/JsonWriter.h
+
+	source/gui/Button.h
+	source/gui/Button.cpp
+	source/gui/Control.h
+	source/gui/Control.cpp
+	source/gui/Desktop.h
+	source/gui/Desktop.cpp
+	source/gui/Event.h
+	source/gui/GuiContext.h
+	source/gui/Label.h
+	source/gui/Label.cpp
+	source/gui/ListBox.h
+	source/gui/ListBox.cpp
+	source/gui/MouseState.h
+	source/gui/Slider.h
+	source/gui/Slider.cpp
+	source/gui/Spinner.h
+	source/gui/Spinner.cpp
+	source/gui/TextBox.h
+	source/gui/TextBox.cpp
 
     source/collision/Collision.h
     source/collision/Collision.cpp

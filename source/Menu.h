@@ -36,12 +36,17 @@
 #include "LevelList.h"
 #include "PersonList.h"
 #include "PersonProfile.h"
-#include "Gui.h"
 #include "PlayerControls.h"
 #include "PlayerSkinColors.h"
 #include "Video.h"
 #include "AppService.h"
 #include "Defines.h"
+#include "gui/Desktop.h"
+#include "gui/Button.h"
+#include "gui/ListBox.h"
+#include "gui/Label.h"
+#include "gui/TextBox.h"
+#include "gui/Spinner.h"
 
 namespace Duel6
 {
@@ -64,7 +69,7 @@ namespace Duel6
 		Gui::Button* button[7];
 		Gui::Listbox* listbox[7];
 		Gui::Label* label[8];
-		Gui::Combobox* controlSwitch[D6_MAX_PLAYERS];
+		Gui::Spinner* controlSwitch[D6_MAX_PLAYERS];
 		Gui::Textbox* textbox;
 		Size backgroundCount;
 		TextureManager::Texture menuBannerTexture;
