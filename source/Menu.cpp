@@ -273,37 +273,28 @@ namespace Duel6
 		if (persons.isEmpty())
 			return;
 
-		std::vector<Size> pi(persons.getLength());
-		for (Size i = 0; i < persons.getLength(); i++)
+		std::vector<const Person*> ranking;
+
+		for (const Person& person : persons.list())
 		{
-			pi[i] = i;
+			ranking.push_back(&person);
 		}
 
-		// Bubble sort persons according to total points
-		for (Size k = 0; k < persons.getLength() - 1; k++)
-		{
-			for (Size i = 0; i < persons.getLength() - 1 - k; i++)
-			{
-				if (persons.get(pi[i + 1]).getTotalPoints() > persons.get(pi[i]).getTotalPoints())
-				{
-					std::swap(pi[i], pi[i + 1]);
-				}
-			}
-		}
+		std::sort(ranking.begin(), ranking.end(), [](const Person* left, const Person* right) {
+			return left->hasHigherScoreThan(*right);
+		});
 
-		for (Size i = 0; i < persons.getLength(); i++)
+		for (auto person : ranking)
 		{
-			const Person& person = persons.get(pi[i]);
-			Int32 accuracy = (person.getShots() > 0) ? person.getHits() * 100 / person.getShots() : 0;
 			std::string personStat = Format("{0,-17}|{1,8} |{2,8} |{3,8} |{4,8}% |{5,8} |{6,10} |{7,10}") 
-				<< person.getName()
-				<< person.getGames() 
-				<< person.getWins() 
-				<< person.getShots() 
-				<< accuracy 
-				<< person.getKills() 
-				<< person.getPenalties() 
-				<< person.getTotalPoints();
+				<< person->getName()
+				<< person->getGames()
+				<< person->getWins()
+				<< person->getShots()
+				<< person->getAccuracy()
+				<< person->getKills()
+				<< person->getPenalties()
+				<< person->getTotalPoints();
 			listbox[0]->addItem(personStat);
 		}
 	}

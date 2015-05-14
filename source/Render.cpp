@@ -98,7 +98,7 @@ namespace Duel6
 	
 	void Renderer::playerRankings() const
 	{
-		std::vector<const Player*> ladder = game.getLadder();
+		std::vector<const Player*> ladder = game.getRanking();
 		Size maxNameLength = 0;;
 
 		for (const Player* player : ladder)
@@ -207,7 +207,7 @@ namespace Duel6
 		
 		int count = 0;
 		int ladderY = y + height - 50;
-		for (const Player* player: game.getLadder())
+		for (const Player* player: game.getRanking())
 		{
 			font.print(x + 10, ladderY - 16*count, fontColor, player->getPerson().getName());
 			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << player->getPerson().getTotalPoints());

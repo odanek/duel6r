@@ -93,6 +93,11 @@ namespace Duel6
 			return games;
 		}
 
+		Int32 getAccuracy() const
+		{
+			return getShots() > 0 ? (getHits() * 100 / getShots()) : 0;
+		}
+
 		Int32 getTotalPoints() const
 		{
 			return getKills() + getWins() - getPenalties();
@@ -132,6 +137,11 @@ namespace Duel6
 		{
 			this->games += games;
 			return *this;
+		}
+
+		bool hasHigherScoreThan(const Person& person) const
+		{
+			return getTotalPoints() > person.getTotalPoints() || (getTotalPoints() == person.getTotalPoints() && getWins() > person.getWins());
 		}
 
 		Person& reset();

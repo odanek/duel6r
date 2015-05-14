@@ -204,7 +204,7 @@ namespace Duel6
 		}
 
 		Color getGameOverOverlay() const;
-		std::vector<const Player *> getLadder() const;	
+		std::vector<const Player *> getRanking() const;
 
 	private:
 		void beforeStart(Context* prevContext) override;

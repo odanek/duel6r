@@ -415,8 +415,8 @@ namespace Duel6
 
 		roundStartSound.play();
 	}
-		
-	std::vector<const Player*> Game::getLadder() const
+
+	std::vector<const Player*> Game::getRanking() const
 	{
 		std::vector<const Player*> ladder;
 
@@ -424,14 +424,14 @@ namespace Duel6
 		{
 			ladder.push_back(&player);
 		}
-		
+
 		std::sort(ladder.begin(), ladder.end(), [](const Player* pl1, const Player* pl2) {
-			return pl2->getPerson().getTotalPoints() < pl1->getPerson().getTotalPoints();
+			return pl1->getPerson().hasHigherScoreThan(pl2->getPerson());
 		});
 		return ladder;
 	}
 
-	
+
 	Color Game::getGameOverOverlay() const
 	{
 		Uint8 overlay = Uint8(255.0f * gameOverWait / D6_GAME_OVER_WAIT);
