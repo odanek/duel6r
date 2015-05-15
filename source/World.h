@@ -49,6 +49,7 @@ namespace Duel6
 
 		Int32 width;
 		Int32 height;
+		Uint16 waterBlock;
 		std::vector<Uint16> levelData;
 
 		FaceList walls;
@@ -161,6 +162,8 @@ namespace Duel6
 		{
 			return blockMeta[getBlock(x, y)];
 		}
+
+		Uint16 findWaterType() const;
 	};
 }
 

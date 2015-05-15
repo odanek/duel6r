@@ -131,6 +131,7 @@ namespace Duel6
 		{
 			mirrorLevelData();
 		}
+		waterBlock = findWaterType();
 	}
 
 	void World::mirrorLevelData()
@@ -176,11 +177,28 @@ namespace Duel6
 			{
 				if(!isWall(x, waterLevel, false))
 				{
-					setBlock(4, x, waterLevel);
+					setBlock(waterBlock, x, waterLevel);
 				}
 			}
 			addWaterFaces();
         }
+	}
+
+	Uint16 World::findWaterType() const
+	{
+		for (Int32 y = 0; y < getSizeY(); y++)
+		{
+			for (Int32 x = 0; x < getSizeX(); x++)
+			{
+				if (isWater(x, y))
+				{
+					return getBlock(x, y);
+				}
+			}
+		}
+
+		Uint16 waterBlocks[] = { 4, 16, 33 };
+		return waterBlocks[rand() % 3];
 	}
 
 	void World::addWallFaces()
