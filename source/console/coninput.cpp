@@ -67,11 +67,6 @@ namespace Duel6
 			inputscroll = 1 + curpos - w;
 	}
 
-	/*
-	==================================================
-	Dohledani prikazu
-	==================================================
-	*/
 	static bool startsWith(const std::string& text, const std::string& prefix)
 	{
 		return prefix.length() <= text.length() && text.compare(0, prefix.length(), prefix) == 0;

@@ -54,10 +54,10 @@ namespace Duel6
 		text.resize(CON_TEXT_SIZE);
 		clear();
 
-		print("==========================\n");
-		print(CON_Lang("Console -- author O.Danek\n"));
-		print(CON_Format(CON_Lang("Version {0}\n")) << CON_VERSION);
-		print("==========================\n");
+		printLine("==========================");
+		printLine(CON_Lang("Console -- author O.Danek"));
+		printLine(CON_Format(CON_Lang("Version {0}")) << CON_VERSION);
+		printLine("==========================");
 	}
 
 	Console::~Console()
@@ -117,7 +117,6 @@ namespace Duel6
 		print("\n");
 		return *this;
 	}
-
 
 	void Console::verifyRegistration(const std::string& proc, const std::string& name, bool isNull)
 	{

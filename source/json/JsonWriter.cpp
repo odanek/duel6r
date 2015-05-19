@@ -94,16 +94,16 @@ namespace Duel6
 			switch (value.getType())
 			{
 				case Value::Type::Null:
-					writeNull(appender, indent);
+					writeNull(appender);
 					break;
 				case Value::Type::Boolean:
-					writeBoolean(appender, value.asBoolean(), indent);
+					writeBoolean(appender, value.asBoolean());
 					break;
 				case Value::Type::Number:
-					writeNumber(appender, value.asDouble(), indent);
+					writeNumber(appender, value.asDouble());
 					break;
 				case Value::Type::String:
-					writeString(appender, value.asString(), indent);
+					writeString(appender, value.asString());
 					break;
 				case Value::Type::Array:
 					writeArray(appender, value, indent);
@@ -114,22 +114,22 @@ namespace Duel6
 			}
 		}
 
-		void Writer::writeNull(Appender& appender, Size indent)
+		void Writer::writeNull(Appender& appender)
 		{
 			appender.append("null");
 		}
 
-		void Writer::writeBoolean(Appender& appender, bool value, Size indent)
+		void Writer::writeBoolean(Appender& appender, bool value)
 		{
 			appender.append(value ? "true" : "false");
 		}
 
-		void Writer::writeNumber(Appender& appender, Float64 value, Size indent)
+		void Writer::writeNumber(Appender& appender, Float64 value)
 		{
 			appender.append(std::floor(value) == value ? std::to_string((Int32) value) : std::to_string(value));
 		}
 
-		void Writer::writeString(Appender& appender, const std::string& value, Size indent)
+		void Writer::writeString(Appender& appender, const std::string& value)
 		{
 			appender.append('"' + value + '"');
 		}

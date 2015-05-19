@@ -50,10 +50,10 @@ namespace Duel6
 
 		private:
 			void write(Appender& appender, const Value& value, Size indent);
-			void writeNull(Appender& appender, Size indent);
-			void writeBoolean(Appender& appender, bool value, Size indent);
-			void writeNumber(Appender& appender, Float64 value, Size indent);
-			void writeString(Appender& appender, const std::string& value, Size indent);
+			void writeNull(Appender& appender);
+			void writeBoolean(Appender& appender, bool value);
+			void writeNumber(Appender& appender, Float64 value);
+			void writeString(Appender& appender, const std::string& value);
 			void writeArray(Appender& appender, const Value& value, Size indent);
 			void writeObject(Appender& appender, const Value& value, Size indent);
 
