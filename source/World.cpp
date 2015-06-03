@@ -25,374 +25,81 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <algorithm>
 #include "World.h"
-#include "Util.h"
+#include "Game.h"
+#include "Weapon.h"
+#include "Explosion.h"
 #include "ElevatorList.h"
-#include "Format.h"
-#include "Lang.h"
-#include "DataException.h"
-#include "Json/JsonParser.h"
-#include "Defines.h"
+#include "BonusList.h"
+#include "Fire.h"
+#include "json/JsonParser.h"
 
 namespace Duel6
 {
-	World::World(Float32 animationSpeed, Float32 waveHeight, Console& console)
-		: console(console), animationSpeed(animationSpeed), waveHeight(waveHeight)
-	{}
-
-	void World::initialize(const std::string& blockMetaFile)
+	World::World(Game& game, const std::string& levelPath, bool mirror, Size background)
+		: players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
+		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
+		  waterSet(game.getResources().getWaterSet()), background(background)
 	{
-		loadBlockMeta(blockMetaFile);
+		Console& console = game.getAppService().getConsole();
+		console.printLine(Format(D6_L("...Width   : {0}")) << level.getWidth());
+		console.printLine(Format(D6_L("...Height  : {0}")) << level.getHeight());
+		console.printLine("...Preparing faces");
+		levelRenderData.generateFaces();
+		console.printLine(Format(D6_L("...Walls   : {0}")) << levelRenderData.getWalls().getFaces().size());
+		console.printLine(Format(D6_L("...Sprites : {0}")) << levelRenderData.getSprites().getFaces().size());
+		console.printLine(Format(D6_L("...Water   : {0}")) << levelRenderData.getWater().getFaces().size());
+
+		console.printLine(D6_L("...Level initialization"));
+		console.printLine("...Loading elevators: ");
+		loadElevators(levelPath, mirror);
+		WPN_LevelInit();
+		EXPL_Clear();
+		BONUS_Clear();
+		FIRE_Find(levelRenderData.getSprites());
 	}
 
-	Block::Type World::determineBlockType(const std::string& kind) const
+	void World::update(Float32 elapsedTime)
 	{
-		static std::vector<std::string> typeNames = {
-			"EMPTY_SPACE",
-			"WALL",
-			"WATER",
-			"FRONT_SPRITE",
-			"BACK_SPRITE",
-			"FRONT_AND_BACK_SPRITE",
-			"FRONT4_SPRITE",
-			"BACK4_SPRITE",
-			"WATERFALL"
-		};
+		spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
+		levelRenderData.update(elapsedTime);
+		WPN_MoveShots(*this, elapsedTime);
+		EXPL_MoveAll(elapsedTime);
+		ELEV_MoveAll(elapsedTime);
+		messageQueue.update(elapsedTime);
 
-		auto typeIter = std::find(typeNames.begin(), typeNames.end(), kind);
-		if (typeIter == typeNames.end())
+		// Add new bonuses
+		if (rand() % int(3.0f / elapsedTime) == 0)
 		{
-			D6_THROW(DataException, std::string("Unknown block type: ") + kind);
+			BONUS_AddNew(level);
 		}
-
-		return (Block::Type)(typeIter - typeNames.begin());
 	}
 
-	void World::loadBlockMeta(const std::string& path)
+	void World::loadElevators(const std::string& path, bool mirror)
 	{
-		console.printLine(Format("Loading block meta data from: {0}") << path);
-		blockMeta.clear();
-
 		Json::Parser parser;
 		Json::Value root = parser.parse(path);
 
-		for (Size i = 0; i < root.getLength(); i++)
-		{
-			Json::Value block = root.get(i);
-			Block::Type type = determineBlockType(block.get("kind").asString());
-			Json::Value animations = block.get("animations");
-			std::vector<Int32> textures;
-			for (Size j = 0; j < animations.getLength(); j++)
-			{
-				textures.push_back(animations.get(j).asInt());
-			}
-			blockMeta.push_back(Block(blockMeta.size(), type, std::move(textures)));
-		}
-	}
+		Int32 width = root.get("width").asInt();
+		Int32 height = root.get("height").asInt();
 
-	void World::loadLevel(const std::string& path, Size background, bool mirror)
-	{
-		console.printLine(Format("Loading level: {0}, mirror: {1}") << path << mirror);
-		this->background = background;
-		levelData.clear();
-		waterLevel = 0;
-		Json::Parser parser;
-		Json::Value root = parser.parse(path);
-
-		width = root.get("width").asInt();
-		height = root.get("height").asInt();
-		
-		Int32 blockCount = width * height;
-		Json::Value blocks = root.get("blocks");
-		levelData.resize(blockCount);
-		for (Size i = 0; i < blocks.getLength(); i++)
-		{
-			levelData[i] = blocks.get(i).asInt();
-		}
-
-		console.printLine("Loading elevators");
 		ELEV_Clear();
 		Size elevators = root.get("elevators").getLength();
-		for (Size i = 0; i < elevators; i++)
-		{
+		for (Size i = 0; i < elevators; i++) {
 			Elevator elevator;
 			Json::Value points = root.get("elevators").get(i).get("controlPoints");
-			for (Size j = 0; j < points.getLength(); j++)
-			{
+			for (Size j = 0; j < points.getLength(); j++) {
 				Int32 x = points.get(j).get("x").asInt();
 				Int32 y = points.get(j).get("y").asInt();
 				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y));
 			}
 			ELEV_Add(elevator);
 		}
-
-		if (mirror)
-		{
-			mirrorLevelData();
-		}
-		waterBlock = findWaterType();
-	}
-
-	void World::mirrorLevelData()
-	{
-		for (Int32 y = 0; y < height; y++)
-		{
-			for (Int32 x = 0; x < width / 2; x++)
-			{
-				std::swap(levelData[y * width + x], levelData[y * width + width - 1 - x]);
-			}
-		}
-	}
-
-	void World::prepareFaces()
-	{
-		console.printLine("Preparing faces");
-		animWait = 0;
-		addWallFaces();
-		addSpriteFaces();
-		addWaterFaces();
-	}
-
-	void World::update(Float32 elapsedTime)
-	{
-		animWait += elapsedTime;
-		if (animWait > animationSpeed)
-		{
-			animWait = 0;
-			walls.nextFrame();
-			sprites.nextFrame();
-			water.nextFrame();
-		}
-
-		floatingVertexes.update(elapsedTime);
 	}
 
 	void World::raiseWater()
 	{
-        if(waterLevel < getSizeY() - 2)
-        {
-			waterLevel++;
-			for(Int32 x = 1; x < getSizeX() - 1; x++)
-			{
-				if(!isWall(x, waterLevel, false))
-				{
-					setBlock(waterBlock, x, waterLevel);
-				}
-			}
-			addWaterFaces();
-        }
-	}
-
-	Uint16 World::findWaterType() const
-	{
-		for (Int32 y = 0; y < getSizeY(); y++)
-		{
-			for (Int32 x = 0; x < getSizeX(); x++)
-			{
-				if (isWater(x, y))
-				{
-					return getBlock(x, y);
-				}
-			}
-		}
-
-		Uint16 waterBlocks[] = { 4, 16, 33 };
-		return waterBlocks[rand() % 3];
-	}
-
-	void World::addWallFaces()
-	{
-		walls.clear();
-
-		for (Int32 y = 0; y < getSizeY(); y++)
-		{
-			for (Int32 x = 0; x < getSizeX(); x++)
-			{
-				const Block& block = getBlockMeta(x, y);
-
-				if (block.is(Block::Wall))
-				{
-					addWall(block, x, y);
-				}
-			}
-		}
-
-		walls.optimize();
-	}
-
-	void World::addSpriteFaces()
-	{
-		sprites.clear();
-
-		for (Int32 y = 0; y < getSizeY(); y++)
-		{
-			for (Int32 x = 0; x < getSizeX(); x++)
-			{
-				const Block& block = getBlockMeta(x, y);
-
-				if (block.is(Block::FrontAndBackSprite))
-				{
-					addSprite(sprites, block, x, y, 1.0f);
-					addSprite(sprites, block, x, y, 0.0f);
-				}
-				else if (block.is(Block::FrontSprite))
-				{
-					addSprite(sprites, block, x, y, 1.0f);
-				}
-				else if (block.is(Block::BackSprite))
-				{
-					addSprite(sprites, block, x, y, 0.0f);
-				}
-				else if (block.is(Block::Front4Sprite))
-				{
-					addSprite(sprites, block, x, y, 0.75f);
-				}
-				else if (block.is(Block::Back4Sprite))
-				{
-					addSprite(sprites, block, x, y, 0.25f);
-				}
-			}
-		}
-
-		sprites.optimize();
-	}
-
-	void World::addWaterFaces()
-	{
-		water.clear();
-
-		for (Int32 y = 0; y < getSizeY(); y++)
-		{
-			for (Int32 x = 0; x < getSizeX(); x++)
-			{
-				const Block& block = getBlockMeta(x, y);
-
-				if (block.is(Block::Waterfall))
-				{
-					addSprite(water, block, x, y, 0.75);
-				}
-				else if (block.is(Block::Water))
-				{
-					addWater(block, x, y);
-				}
-			}
-		}
-
-		water.optimize();
-		floatingVertexes.build(water, waveHeight, console);
-	}
-
-	void World::addWall(const Block& block, Int32 x, Int32 y)
-	{
-		walls.addFace(Face(block))
-			.addVertex(Vertex(0, x, y + 1, 1))
-			.addVertex(Vertex(1, x + 1, y + 1, 1))
-			.addVertex(Vertex(2, x + 1, y, 1))
-			.addVertex(Vertex(3, x, y, 1));
-
-
-#ifdef D6_RENDER_BACKS
-		faceList.addFace(Face(block))
-			.addVertex(Vertex(0, x + 1, y + 1, 0))
-			.addVertex(Vertex(1, x, y + 1, 0))
-			.addVertex(Vertex(2, x, y, 0))
-			.addVertex(Vertex(3, x + 1, y, 0));
-#endif
-
-		if (!isWall(x - 1, y, false))
-		{
-			walls.addFace(Face(block))
-				.addVertex(Vertex(0, x, y + 1, 0))
-				.addVertex(Vertex(1, x, y + 1, 1))
-				.addVertex(Vertex(2, x, y, 1))
-				.addVertex(Vertex(3, x, y, 0));
-		}
-		if (!isWall(x + 1, y, false))
-		{
-			walls.addFace(Face(block))
-				.addVertex(Vertex(0, x + 1, y + 1, 1))
-				.addVertex(Vertex(1, x + 1, y + 1, 0))
-				.addVertex(Vertex(2, x + 1, y, 0))
-				.addVertex(Vertex(3, x + 1, y, 1));
-		}
-		if (!isWall(x, y + 1, false))
-		{
-			walls.addFace(Face(block))
-				.addVertex(Vertex(0, x, y + 1, 1))
-				.addVertex(Vertex(1, x, y + 1, 0))
-				.addVertex(Vertex(2, x + 1, y + 1, 0))
-				.addVertex(Vertex(3, x + 1, y + 1, 1));
-		}
-		if (!isWall(x, y - 1, false))
-		{
-			walls.addFace(Face(block))
-				.addVertex(Vertex(0, x, y, 1))
-				.addVertex(Vertex(1, x + 1, y, 1))
-				.addVertex(Vertex(2, x + 1, y, 0))
-				.addVertex(Vertex(3, x, y, 0));
-		}
-	}
-
-	void World::addWater(const Block& block, Int32 x, Int32 y)
-	{
-		bool topWater = !isWater(x, y + 1);
-		Vertex::Flag flowFlag = topWater ? Vertex::Flag::Flow : Vertex::Flag::None;
-
-		water.addFace(Face(block))
-			.addVertex(Vertex(0, x, y + 1, 1, flowFlag))
-			.addVertex(Vertex(1, x + 1, y + 1, 1, flowFlag))
-			.addVertex(Vertex(2, x + 1, y, 1))
-			.addVertex(Vertex(3, x, y, 1));
-
-		water.addFace(Face(block))
-			.addVertex(Vertex(0, x + 1, y + 1, 0, flowFlag))
-			.addVertex(Vertex(1, x, y + 1, 0, flowFlag))
-			.addVertex(Vertex(2, x, y, 0))
-			.addVertex(Vertex(3, x + 1, y, 0));
-
-		if (topWater)
-		{
-			water.addFace(Face(block))
-				.addVertex(Vertex(0, x, y + 1, 1, Vertex::Flag::Flow))
-				.addVertex(Vertex(1, x, y + 1, 0, Vertex::Flag::Flow))
-				.addVertex(Vertex(2, x + 1, y + 1, 0, Vertex::Flag::Flow))
-				.addVertex(Vertex(3, x + 1, y + 1, 1, Vertex::Flag::Flow));
-		}
-	}
-
-	void World::addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z)
-	{
-		Float32 fx = Float32(x), fy = Float32(y);
-		bool bottomWaterfall = (block.is(Block::Waterfall) && isWater(x, y - 1));
-		Vertex::Flag flowFlag = bottomWaterfall ? Vertex::Flag::Flow : Vertex::Flag::None;
-
-		faceList.addFace(Face(block))
-			.addVertex(Vertex(0, fx, fy + 1, z))
-			.addVertex(Vertex(1, fx + 1, fy + 1, z))
-			.addVertex(Vertex(2, fx + 1, fy, z, flowFlag))
-			.addVertex(Vertex(3, fx, fy, z, flowFlag));
-	}
-
-	Water::Type World::getWaterType(Int32 x, Int32 y) const
-	{
-		if (isWater(x, y))
-		{
-			Uint16 block = getBlock(x, y);
-			if (block == 4)
-			{
-				return Water::Type::Blue;
-			}
-			else if (block == 16)
-			{
-				return Water::Type::Red;
-			}
-			else if (block == 33)
-			{
-				return Water::Type::Green;
-			}
-		}
-
-		return Water::Type::None;
+		level.raiseWater();
+		levelRenderData.generateWater();
 	}
 }

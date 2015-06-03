@@ -37,7 +37,7 @@ namespace Duel6
 		{
 			listPos.items = 0;
 			listPos.start = 0;
-			now = -1;
+			selected = -1;
 			scrollBar = sb;
 			if (sb)
 			{
@@ -56,34 +56,39 @@ namespace Duel6
 			items.clear();
 			listPos.items = 0;
 			listPos.start = 0;
-			now = -1;
+			selected = -1;
 		}
 
-		int Listbox::curItem()
+		Int32 Listbox::selectedIndex() const
 		{
-			return now;
+			return selected;
 		}
 
-		void Listbox::setCur(int n)
+		const std::string& Listbox::selectedItem() const
 		{
-			now = n;
-			listPos.start = now - listPos.showCount / 2;
+			return items[selected];
 		}
 
-		void Listbox::delItem(int n)
+		void Listbox::setCur(Int32 n)
+		{
+			selected = n;
+			listPos.start = selected - listPos.showCount / 2;
+		}
+
+		void Listbox::delItem(Int32 n)
 		{
 			if (!listPos.items || n < 0 || n >= listPos.items)
 				return;
 
 			items.erase(items.begin() + n);
 			listPos.items--;
-			if (now >= listPos.items)
-				now = listPos.items - 1;
+			if (selected >= listPos.items)
+				selected = listPos.items - 1;
 		}
 
 		void Listbox::delItem(const std::string& item)
 		{
-			for(Int32 i = 0; i < size(); i++)
+			for(Size i = 0; i < size(); i++)
 			{
 				if(item.compare(getItem(i)) == 0)
 				{
@@ -98,29 +103,31 @@ namespace Duel6
 			listPos.items++;
 			items.push_back(item);
 			if (listPos.items == 1)
-				now = 0;
+				selected = 0;
 		}
 
-		std::string& Listbox::getItem(int n)
+		const std::string& Listbox::getItem(Size n) const
 		{
 			return items.at(n);
 		}
 
-		long Listbox::size()
+		Size Listbox::size() const
 		{
 			return items.size();
 		}
 
-		void Listbox::setPosition(int X, int Y, int W, int H, int fH)
+		void Listbox::setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight)
 		{
-			x = X + 2;
-			y = Y - 2;
-			width = W << 3;
-			field_height = fH;
-			height = H * fH;
-			listPos.showCount = H;
+			this->x = x + 2;
+			this->y = y - 2;
+			this->width = width << 3;
+			this->itemHeight = itemHeight;
+			this->height = height * itemHeight;
+			listPos.showCount = height;
 			if (scrollBar)
-				slider->setPosition(X + (W << 3) + 4, Y, H * fH + 4);
+			{
+				slider->setPosition(x + (width << 3) + 4, y, height * itemHeight + 4);
+			}
 		}
 
 		void Listbox::check(const GuiContext& context)
@@ -129,16 +136,16 @@ namespace Duel6
 
 			if (ms.isPressed() && ms.isInside(x, y, width, height))
 			{
-				now = listPos.start + ((y - ms.getY()) / field_height);
-				if (now >= listPos.items)
-					now = listPos.items - 1;
+				selected = listPos.start + ((y - ms.getY()) / itemHeight);
+				if (selected >= listPos.items)
+					selected = listPos.items - 1;
 				// Event: Change
 			}
 		}
 
 		void Listbox::draw(const Font& font) const
 		{
-			int     Y, i, shift;
+			Int32 Y, i, shift;
 
 			drawFrame(x - 2, y + 2, width + 4, height + 4, true);
 			glBegin(GL_QUADS);
@@ -153,24 +160,24 @@ namespace Duel6
 				return;
 
 			Y = y;
-			shift = 15 + (field_height - 16) / 2;
+			shift = 15 + (itemHeight - 16) / 2;
 
-			for (i = listPos.start; i < listPos.start + listPos.showCount; i++, Y -= field_height)
+			for (i = listPos.start; i < listPos.start + listPos.showCount; i++, Y -= itemHeight)
 			{
 				if (i >= listPos.items)
 					break;
-				if (i == now)
+				if (i == selected)
 				{
 					glBegin(GL_QUADS);
 					glColor3ub(0, 0, 200);
 					glVertex2i(x, Y);
 					glVertex2i(x + width - 1, Y);
-					glVertex2i(x + width - 1, Y - (field_height - 1));
-					glVertex2i(x, Y - (field_height - 1));
+					glVertex2i(x + width - 1, Y - (itemHeight - 1));
+					glVertex2i(x, Y - (itemHeight - 1));
 					glEnd();
 				}
 
-				font.print(x, Y - shift, (i == now) ? Color(255) : Color(0), items[i]);
+				font.print(x, Y - shift, (i == selected) ? Color(255) : Color(0), items[i]);
 			}
 		}
 	}

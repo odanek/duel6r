@@ -31,16 +31,15 @@
 #include "Util.h"
 #include "Math.h"
 #include "Menu.h"
-#include "Context.h"
-#include "TextureManager.h"
 #include "Render.h"
-#include "Video.h"
 #include "Game.h"
-#include "Weapon.h"
 #include "ConsoleCommands.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
+	extern Weapon* d6WpnDef;
+
 	/*
 	==================================================
 	Set language - console command
@@ -64,15 +63,15 @@ namespace Duel6
 		*/
 	}
 
-	void ConsoleCommands::maxRounds(Console& console, const Console::Arguments& args, Game& game)
+	void ConsoleCommands::maxRounds(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
 		if (args.length() == 2)
 		{
-			game.setMaxRounds(std::stoi(args.get(1)));
+			gameSettings.setMaxRounds(std::stoi(args.get(1)));
 		}
 		else
 		{
-			console.printLine(Format(D6_L("Played rounds: {0} | Max rounds: {1}")) << game.getPlayedRounds() << game.getMaxRounds());
+			console.printLine(Format(D6_L("Max rounds: {1}")) << gameSettings.getMaxRounds());
 		}
 	}
 	
@@ -84,12 +83,11 @@ namespace Duel6
 		}
 	}
 
-	void ConsoleCommands::toggleRenderMode(Console& console, const Console::Arguments& args, Game& game)
+	void ConsoleCommands::toggleRenderMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
-		Renderer& renderer = game.getRenderer();
-		renderer.setWireframe(!renderer.getWireframe());
+		gameSettings.setWireframe(!gameSettings.isWireframe());
 
-		if (renderer.getWireframe())
+		if (gameSettings.isWireframe())
 		{
 			console.printLine(D6_L("Rendering mode switched to wireframe"));
 		}
@@ -99,12 +97,11 @@ namespace Duel6
 		}
 	}
 
-	void ConsoleCommands::toggleShowFps(Console& console, const Console::Arguments& args, Game& game)
+	void ConsoleCommands::toggleShowFps(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
-		Renderer& renderer = game.getRenderer();
-		renderer.setShowFps(!renderer.getShowFps());
+		gameSettings.setShowFps(!gameSettings.isShowFps());
 		
-		if (renderer.getShowFps())
+		if (gameSettings.isShowFps())
 		{
 			console.printLine(D6_L("Fps counter shown"));
 		}
@@ -208,7 +205,7 @@ namespace Duel6
 		}
 	}
 
-	void ConsoleCommands::ammoRange(Console& console, const Console::Arguments& args, Game& game)
+	void ConsoleCommands::ammoRange(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
 		if (args.length() == 3)
 		{
@@ -216,12 +213,12 @@ namespace Duel6
 
 			if (min <= max && min >= 0)
 			{
-				game.setAmmoRange(std::make_pair(min, max));
+				gameSettings.setAmmoRange(std::make_pair(min, max));
 			}
 		}
 		else if (args.length() == 1)
 		{
-			const std::pair<Int32, Int32>& range = game.getAmmoRange();
+			const std::pair<Int32, Int32>& range = gameSettings.getAmmoRange();
 			console.printLine(Format(D6_L("\tmin = {0}\n\tmax = {1}")) << range.first << range.second);
 		}
 		else
@@ -272,7 +269,7 @@ namespace Duel6
 		console.printLine("");
 	}
 
-	void ConsoleCommands::registerCommands(Console& console, AppService& appService, Menu& menu, Game& game)
+	void ConsoleCommands::registerCommands(Console& console, AppService& appService, Menu& menu, GameSettings& gameSettings)
 	{
 		SDL_version sdlVersion;
 		std::string verStr = D6_L("version");
@@ -288,19 +285,19 @@ namespace Duel6
 
 		// Set some console functions
 		console.setLast(15);
-		console.registerCommand("switch_render_mode", [&game](Console& con, const Console::Arguments& args) {
-			toggleRenderMode(con, args, game);
+		console.registerCommand("switch_render_mode", [&gameSettings](Console& con, const Console::Arguments& args) {
+			toggleRenderMode(con, args, gameSettings);
 		});
-		console.registerCommand("show_fps", [&game](Console& con, const Console::Arguments& args) {
-			toggleShowFps(con, args, game);
+		console.registerCommand("show_fps", [&gameSettings](Console& con, const Console::Arguments& args) {
+			toggleShowFps(con, args, gameSettings);
 		});
 		console.registerCommand("gl_info", openGLInfo);
 		console.registerCommand("lang", language);
 		console.registerCommand("volume", [&appService](Console& con, const Console::Arguments& args) {
 			volume(con, args, appService.getSound());
 		});
-		console.registerCommand("rounds", [&game](Console& con, const Console::Arguments& args) {
-			maxRounds(con, args, game);
+		console.registerCommand("rounds", [&gameSettings](Console& con, const Console::Arguments& args) {
+			maxRounds(con, args, gameSettings);
 		});
 		console.registerCommand("music", [&menu](Console& con, const Console::Arguments& args) {
 			musicOnOff(con, args, menu);
@@ -312,8 +309,8 @@ namespace Duel6
 			loadSkin(con, args, menu);
 		});
 		console.registerCommand("gun", enableWeapon);
-		console.registerCommand("start_ammo_range", [&game](Console& con, const Console::Arguments& args) {
-			ammoRange(con, args, game);
+		console.registerCommand("start_ammo_range", [&gameSettings](Console& con, const Console::Arguments& args) {
+			ammoRange(con, args, gameSettings);
 		});
 	}
 }

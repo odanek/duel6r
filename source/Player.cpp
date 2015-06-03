@@ -49,10 +49,8 @@ namespace Duel6
 	static Int16 d6NAnim[4] = { 25, 100, -1, 0 };
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 
-	Player::Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls, 
-		SpriteList& spriteList, InfoMessageQueue& messageQueue, const Water::WaterSet& waterSet)
-		: spriteList(spriteList), messageQueue(messageQueue), person(person), skin(skin), 
-		sounds(sounds), controls(controls), waterSet(waterSet)
+	Player::Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls)
+		: person(person), skin(skin), sounds(sounds), controls(controls)
 	{
 		camera.rotate(180.0, 0.0, 0.0);
 	}
@@ -61,20 +59,21 @@ namespace Duel6
 	{
 	}
 	
-	void Player::startGame(Int32 startBlockX, Int32 startBlockY, Int32 ammo)
+	void Player::startGame(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo)
 	{
+		this->world = &world;
 		state.position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
 
 		Sprite manSprite(noAnim, skin.getTextures());
 		manSprite.setPosition(getSpritePosition(), 0.5f);
-		sprite = spriteList.addSprite(manSprite);		
+		sprite = world.getSpriteList().addSprite(manSprite);
 
 		state.weapon = &WPN_GetRandomWeapon();
 		Sprite gunSprite(state.weapon->animation, state.weapon->textures.gun);
 		gunSprite.setPosition(getGunSpritePosition(), 0.5f)
 			.setLooping(AnimationLooping::OnceAndStop)
 			.setFrame(6);
-		this->gunSprite = spriteList.addSprite(gunSprite);
+		this->gunSprite = world.getSpriteList().addSprite(gunSprite);
 
 		state.flags = FlagHasGun;
 		state.velocity = 0.0f;
@@ -101,7 +100,7 @@ namespace Duel6
 		this->view = view;
 	}
 
-	void Player::moveHorizontal(const World& world, Float32 elapsedTime, Float32 speed)
+	void Player::moveHorizontal(const Level& level, Float32 elapsedTime, Float32 speed)
 	{
 		if (hasFlag(FlagMoveLeft))
 		{
@@ -134,11 +133,11 @@ namespace Duel6
 		if (isMoving())
 		{
 			state.position.x += state.velocity * D6_PLAYER_ACCEL * speed;
-			checkHorizontalMove(world);
+			checkHorizontalMove(level);
 		}
 	}
 
-	void Player::moveVertical(const World& world, Float32 elapsedTime, Float32 speed)
+	void Player::moveVertical(const Level& level, Float32 elapsedTime, Float32 speed)
 	{
 		if (isOnGround() && hasFlag(FlagMoveUp))
 		{
@@ -146,7 +145,7 @@ namespace Duel6
 			Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
 			Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
 
-			if (!world.isWall(left, up, true) && !world.isWall(right, up, true))
+			if (!level.isWall(left, up, true) && !level.isWall(right, up, true))
 			{
 				state.jumpPhase = 90.0f;
 			}
@@ -164,16 +163,16 @@ namespace Duel6
 
 			if (isRising())
 			{
-				checkMoveUp(world);
+				checkMoveUp(level);
 			}
 			else
 			{
-				checkMoveDown(world);
+				checkMoveDown(level);
 			}
 		}
 		else
 		{
-			checkFall(world);
+			checkFall(level);
 		}
 	}
 
@@ -196,7 +195,7 @@ namespace Duel6
 	{
 		if (isOnGround() && !isMoving() && !isOnElevator())
 		{
-			BONUS_CheckPick(*this, messageQueue);
+			BONUS_CheckPick(*this, world->getMessageQueue());
 		}
 	}
 
@@ -211,14 +210,14 @@ namespace Duel6
 		getPerson().addShots(1);
 		Orientation originalOrientation = getOrientation();
 
-		WPN_AddShot(*this, spriteList, originalOrientation);
+		WPN_AddShot(*this, world->getSpriteList(), originalOrientation);
 
 		if (getBonus() == D6_BONUS_SPLITFIRE && getAmmo() > 0)
 		{
 			state.ammo--;
 			getPerson().addShots(1);
 			Orientation secondaryOrientation = originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
-			WPN_AddShot(*this, spriteList, secondaryOrientation);
+			WPN_AddShot(*this, world->getSpriteList(), secondaryOrientation);
 		}
 	}
 
@@ -234,13 +233,13 @@ namespace Duel6
 		return *this;
 	}
 
-	void Player::makeMove(const World& world, Float32 elapsedTime)
+	void Player::makeMove(const Level& level, Float32 elapsedTime)
 	{
 		Float32 speed = getSpeed() * elapsedTime;
 		state.elevator = nullptr;
 
-		moveVertical(world, elapsedTime, speed);
-		moveHorizontal(world, elapsedTime, speed);
+		moveVertical(level, elapsedTime, speed);
+		moveHorizontal(level, elapsedTime, speed);
 
 		if (isOnElevator())
 		{
@@ -327,22 +326,22 @@ namespace Duel6
 		}
 	}
 
-	void Player::update(const World& world, ScreenMode screenMode, Float32 elapsedTime)
+	void Player::update(World& world, ScreenMode screenMode, Float32 elapsedTime)
 	{
 		checkWater(world, elapsedTime);
 		if (!isDead())
 		{
-			BONUS_Check(*this, messageQueue);
+			BONUS_Check(*this, world.getMessageQueue());
 		}
 
 		checkKeys();
-		makeMove(world, elapsedTime);
+		makeMove(world.getLevel(), elapsedTime);
 		setAnm();
 
 		// Drop gun if still has it and died
 		if (isLying() && hasGun() && isOnGround())
 		{
-			dropWeapon(world);
+			dropWeapon(world.getLevel());
 			unsetFlag(FlagHasGun);
 		}
 
@@ -389,7 +388,7 @@ namespace Duel6
 
 		if (screenMode == ScreenMode::SplitScreen)
 		{
-			updateCam(world.getSizeX(), world.getSizeY());
+			updateCam(world.getLevel().getWidth(), world.getLevel().getHeight());
 		}
 
 		state.timeSinceHit += elapsedTime;
@@ -586,12 +585,12 @@ namespace Duel6
 
 			if (!is(shootingPlayer))
 			{
-				messageQueue.add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
-				messageQueue.add(shootingPlayer, Format(D6_L("You killed player {0}")) << getPerson().getName());
+				world->getMessageQueue().add(*this, Format(D6_L("You are dead - you were killed by {0}")) << shootingPerson.getName());
+				world->getMessageQueue().add(shootingPlayer, Format(D6_L("You killed player {0}")) << getPerson().getName());
 			}
 			else
 			{
-				messageQueue.add(*this, D6_L("You are dead"));
+				world->getMessageQueue().add(*this, D6_L("You are dead"));
 			}
 
 			if (weapon.explodes && directHit)
@@ -627,26 +626,26 @@ namespace Duel6
 			
 			sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
-			messageQueue.add(*this, D6_L("You are dead"));
+			world->getMessageQueue().add(*this, D6_L("You are dead"));
 			return true;
 		}
 
 		return false;
 	}
 
-	void Player::dropWeapon(const World& world)
+	void Player::dropWeapon(const Level& level)
 	{
 		Rectangle bbox = getCollisionRect();
 		Int32 x1 = Int32(bbox.left.x), x2 = Int32(bbox.right.x);
 		Int32 y = Int32(bbox.left.y + 0.5f);
 
-		if (world.isWall(x1, y - 1, true) && !world.isWall(x1, y, true))
+		if (level.isWall(x1, y - 1, true) && !level.isWall(x1, y, true))
 		{
 			BONUS_AddDeadManGun(Vector(x1, y), *this);
 		}
 		else
 		{
-			if (world.isWall(x2, y - 1, true) && !world.isWall(x2, y, true))
+			if (level.isWall(x2, y - 1, true) && !level.isWall(x2, y, true))
 			{
 				BONUS_AddDeadManGun(Vector(x2, y), *this);
 			}
@@ -663,7 +662,7 @@ namespace Duel6
 		return *this;
 	}
 
-	void Player::checkWater(const World& world, Float32 elapsedTime)
+	void Player::checkWater(World& world, Float32 elapsedTime)
 	{
 		const Rectangle rect = getCollisionRect();
 		Float32 centerX = rect.getCentre().x;
@@ -673,10 +672,10 @@ namespace Duel6
 
 		// Check if head is in water
 		water.headUnderWater = false;
-		Water::Type waterType = world.getWaterType(Int32(centerX), Int32(headY));
+		Water::Type waterType = world.getLevel().getWaterType(Int32(centerX), Int32(headY));
 		if (waterType != Water::Type::None)
 		{
-			Float32 airHitAmount = waterSet.at(waterType)->getAirHit() * elapsedTime;
+			Float32 airHitAmount = world.getWaterSet().at(waterType)->getAirHit() * elapsedTime;
 			water.headUnderWater = true;
 			if ((state.air -= airHitAmount) < 0)
 			{
@@ -693,10 +692,10 @@ namespace Duel6
 		state.air = std::min(state.air + 2 * D6_AIR_RECHARGE_SPEED * elapsedTime, D6_MAX_AIR);
 
 		// Check if foot is in water
-		waterType = world.getWaterType(Int32(centerX), Int32(feetY));
+		waterType = world.getLevel().getWaterType(Int32(centerX), Int32(feetY));
 		if (waterType != Water::Type::None && !water.feetInWater) {
-			const Water &water = *waterSet.at(waterType);
-			water.addSplash(spriteList, Vector(centerX, bottomY));
+			const Water &water = *world.getWaterSet().at(waterType);
+			water.addSplash(world.getSpriteList(), Vector(centerX, bottomY));
 			water.getSplashSound().play();
 			this->water.feetInWater = true;
 		}
@@ -706,26 +705,26 @@ namespace Duel6
 		}
 	}
 
-	void Player::checkMoveUp(const World& world)
+	void Player::checkMoveUp(const Level& level)
 	{
 		Int32 up = (Int32)(getPosition().y + 0.94); // TODO: Coord
 		Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
 		Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
 
-		if (world.isWall(left, up, true) || world.isWall(right, up, true))
+		if (level.isWall(left, up, true) || level.isWall(right, up, true))
 		{
 			state.position.y = (Float32)(up) - 1.0f; // TODO: Coord
 			state.jumpPhase = 180.0f;
 		}
 	}
 
-	void Player::checkMoveDown(const World& world)
+	void Player::checkMoveDown(const Level& level)
 	{
 		Int32 down = (Int32)getPosition().y; // TODO: Coord
 		Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
 		Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
 
-		if (world.isWall(left, down, true) || world.isWall(right, down, true))
+		if (level.isWall(left, down, true) || level.isWall(right, down, true))
 		{
 			state.position.y = (Float32)(down) + 1.0001f; // TODO: Coord
 			state.jumpPhase = 0.0f;
@@ -734,7 +733,7 @@ namespace Duel6
 		checkElevator();
 	}
 
-	void Player::checkFall(const World& world)
+	void Player::checkFall(const Level& level)
 	{
 		checkElevator();
 
@@ -745,13 +744,13 @@ namespace Duel6
 		Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
 		Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
 
-		if (!world.isWall(left, down, true) && !world.isWall(right, down, true))
+		if (!level.isWall(left, down, true) && !level.isWall(right, down, true))
 		{
 			state.jumpPhase = 180.0f;
 		}
 	}
 
-	void Player::checkHorizontalMove(const World& world)
+	void Player::checkHorizontalMove(const Level& level)
 	{
 		Int32 up = (Int32)(getPosition().y + 0.94); // TODO: Coord
 		Int32 down = (Int32)getPosition().y; // TODO: Coord
@@ -759,7 +758,7 @@ namespace Duel6
 		if (state.velocity < 0)
 		{
 			Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
-			if (world.isWall(left, up, true) || world.isWall(left, down, true))
+			if (level.isWall(left, up, true) || level.isWall(left, down, true))
 			{
 				state.position.x = (Float32)left + 0.9001f; // TODO: Coord
 			}
@@ -767,7 +766,7 @@ namespace Duel6
 		else
 		{
 			Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
-			if (world.isWall(right, up, true) || world.isWall(right, down, true))
+			if (level.isWall(right, up, true) || level.isWall(right, down, true))
 			{
 				state.position.x = (Float32)right - 0.9001f; // TODO: Coord
 			}

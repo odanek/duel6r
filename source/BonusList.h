@@ -35,6 +35,7 @@
 #include "InfoMessageQueue.h"
 #include "PlayerSounds.h"
 #include "TextureManager.h"
+#include "Level.h"
 
 namespace Duel6
 {
@@ -42,7 +43,7 @@ namespace Duel6
 	GLuint BONUS_GetTexture(Size type);
 	void BONUS_Clear();
 	void BONUS_DrawAll();
-	void BONUS_AddNew(const World& world);
+	void BONUS_AddNew(const Level& level);
 	void BONUS_AddDeadManGun(const Vector& position, Player& player);
 	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue);
 	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue);

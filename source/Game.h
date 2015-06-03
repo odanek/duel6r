@@ -40,7 +40,10 @@
 #include "Player.h"
 #include "Render.h"
 #include "Water.h"
-#include "GameService.h"
+#include "AppService.h"
+#include "GameSettings.h"
+#include "GameResources.h"
+#include "Round.h"
 
 namespace Duel6
 {
@@ -84,54 +87,31 @@ namespace Duel6
 
 	private:
 		AppService& appService;
-		Video& video;
-
-		InfoMessageQueue messageQueue;
-		SpriteList spriteList;
-		World world;		
+		GameResources resources;
+		GameSettings& settings;
+		std::unique_ptr<Round> round;
 		Renderer renderer;
-		Water::WaterSet waterSet;
-
-		Sound::Sample gameOverSound;
-		Sound::Sample roundStartSound;
 
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
-		Size lastLevel;
-		ScreenMode screenMode;
-		Int32 screenZoom;
-
-		Int32 winner;
-		std::pair<Int32, Int32> ammoRange;
 		Int32 playedRounds;
-		Int32 maxRounds;
-		
-		Float32 showYouAreHere;
-		Float32 gameOverWait;
-
-		bool deathMode = false;
-		Float32 waterFillWait;
 
 		std::vector<Player> players;
 		std::vector<std::unique_ptr<PlayerSkin>> skins;
 
-		GameService gameService;
-
 	public:
-		Game(AppService& appService);
+		Game(AppService& appService, GameSettings& settings);
 
-		void initialize();
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
-        void updateNotifications(Float32 elapsedTime);
-
 		void render() const override;
 
-		World& getWorld();
-
-		const World& getWorld() const;
+		AppService& getAppService() const
+		{
+			return appService;
+		}
 
 		std::vector<Player>& getPlayers()
 		{
@@ -143,29 +123,34 @@ namespace Duel6
 			return players;
 		}
 
-		ScreenMode getScreenMode() const
+		GameResources& getResources()
 		{
-			return screenMode;
+			return resources;
 		}
 
-		Int32 getScreenZoom() const
+		const GameResources& getResources() const
 		{
-			return screenZoom;
+			return resources;
 		}
 
-		bool hasWinner() const
+		GameSettings& getSettings()
 		{
-			return winner > 0;
+			return settings;
 		}
 
-        const std::pair<Int32, Int32>& getAmmoRange() const
+		const GameSettings& getSettings() const
 		{
-			return ammoRange;
+			return settings;
 		}
 
-		void setAmmoRange(const std::pair<Int32, Int32>& range)
+		Round& getRound()
 		{
-			ammoRange = range;
+			return *round;
+		}
+
+		const Round& getRound() const
+		{
+			return *round;
 		}
 
 		Int32 getPlayedRounds() const
@@ -173,29 +158,9 @@ namespace Duel6
 			return playedRounds;
 		}
 
-		Int32 getMaxRounds() const
-		{
-			return maxRounds;
-		}
-
-		void setMaxRounds(Int32 maxRounds)
-		{
-			this->maxRounds = maxRounds;
-		}
-
-		Float32 getRemainingYouAreHere() const
-		{
-			return showYouAreHere;
-		}
-
-        Float32 getRemainingGameOverWait() const
-        {
-            return gameOverWait;
-        }
-
         bool isOver() const
 		{
-			return (maxRounds > 0) && (playedRounds >= maxRounds);
+			return getRound().isLast() && getRound().isOver();
 		}
 
 		Renderer& getRenderer()
@@ -203,20 +168,14 @@ namespace Duel6
 			return renderer;
 		}
 
-		Color getGameOverOverlay() const;
-		std::vector<const Player *> getRanking() const;
+		const Renderer& getRenderer() const
+		{
+			return renderer;
+		}
 
 	private:
 		void beforeStart(Context* prevContext) override;
 		void beforeClose(Context* nextContext) override;
-
-		void preparePlayers();
-		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
-		bool isPossibleStartingPosition(int x, int y);
-		void checkWinner();
-		void setPlayerViews();
-		void splitScreenView(Player& player, Int32 x, Int32 y);
-		void switchScreenMode();
 		void nextRound();
 	};	
 }

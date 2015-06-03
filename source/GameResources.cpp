@@ -25,51 +25,28 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_LISTBOX_H
-#define DUEL6_GUI_LISTBOX_H
-
-#include "Control.h"
-#include "Slider.h"
+#include "GameResources.h"
+#include "Defines.h"
 
 namespace Duel6
 {
-	namespace Gui
+	GameResources::GameResources(AppService& appService)
 	{
-		class Listbox
-			: public Control
-		{
-		private:
-			bool scrollBar;
-			Slider *slider;
-			Int32 width;
-			Int32 height;
-			Int32 selected;
-			Int32 itemHeight;
-			std::vector<std::string> items;
-			Slider::Position listPos;
+		Sound& sound = appService.getSound();
+		Console& console = appService.getConsole();
+		TextureManager& textureManager = appService.getTextureManager();
 
-		public:
-			Listbox(Desktop& desk, bool sb);
-			~Listbox();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
-			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			void addItem(const std::string& item);
-			void delItem(Int32 n);
-			void delItem(const std::string& item);
-			const std::string& getItem(Size n) const;
-			Int32 selectedIndex() const;
-			const std::string& selectedItem() const;
-			void setCur(Int32 n);
-			Size size() const;
-			void clear();
-
-			Control::Type getType() const override
-			{
-				return Control::Type::Listbox;
-			}
-		};
+		console.printLine("\n===Initializing game resources===");
+		console.printLine("...Building water-list");
+		waterSet = Water::createWaterSet(sound, appService.getTextureManager());
+		console.printLine("...Loading game sounds");
+		roundStartSound = sound.loadSample("sound/game/round-start.wav");
+		gameOverSound = sound.loadSample("sound/game/game-over.wav");
+		console.printLine(Format("...Loading block meta data: {0}") << D6_FILE_BLOCK_META);
+		blockMeta = Block::loadMeta(D6_FILE_BLOCK_META);
+		console.printLine(Format("...Loading block textures: {0}") << D6_TEXTURE_BLOCK_PATH);
+		blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
+		console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
+		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
 	}
 }
-
-#endif

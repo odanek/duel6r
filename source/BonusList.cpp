@@ -68,17 +68,17 @@ namespace Duel6
 		glDisable(GL_ALPHA_TEST);
 	}
 
-	void BONUS_AddNew(const World& world)
+	void BONUS_AddNew(const Level& level)
 	{
 		bool weapon = ((rand() % 2) == 1);
-		Int32 x = rand() % world.getSizeX();
-		Int32 y = rand() % world.getSizeY();
+		Int32 x = rand() % level.getWidth();
+		Int32 y = rand() % level.getHeight();
 
-		if (!world.isWall(x, y, true))
+		if (!level.isWall(x, y, true))
 		{
 			if (weapon)
 			{
-				if (!world.isWall(x, y - 1, true)) // Weapons must be on the ground
+				if (!level.isWall(x, y - 1, true)) // Weapons must be on the ground
 				{
 					return;
 				}

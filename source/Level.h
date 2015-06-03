@@ -25,51 +25,78 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_LISTBOX_H
-#define DUEL6_GUI_LISTBOX_H
+#ifndef DUEL6_LEVEL_H
+#define DUEL6_LEVEL_H
 
-#include "Control.h"
-#include "Slider.h"
+#include <string>
+#include <vector>
+#include "Block.h"
+#include "Water.h"
 
 namespace Duel6
 {
-	namespace Gui
+	class Level
 	{
-		class Listbox
-			: public Control
+	private:
+		const Block::Meta& blockMeta;
+		Int32 width;
+		Int32 height;
+		std::vector<Uint16> levelData;
+		Uint16 waterBlock;
+		Int32 waterLevel;
+
+	public:
+		Level(const std::string& path, bool mirror, const Block::Meta& blockMeta);
+
+		Int32 getWidth() const
 		{
-		private:
-			bool scrollBar;
-			Slider *slider;
-			Int32 width;
-			Int32 height;
-			Int32 selected;
-			Int32 itemHeight;
-			std::vector<std::string> items;
-			Slider::Position listPos;
+			return width;
+		}
 
-		public:
-			Listbox(Desktop& desk, bool sb);
-			~Listbox();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
-			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			void addItem(const std::string& item);
-			void delItem(Int32 n);
-			void delItem(const std::string& item);
-			const std::string& getItem(Size n) const;
-			Int32 selectedIndex() const;
-			const std::string& selectedItem() const;
-			void setCur(Int32 n);
-			Size size() const;
-			void clear();
+		Int32 getHeight() const
+		{
+			return height;
+		}
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Listbox;
-			}
-		};
-	}
+		bool isWater(Int32 x, Int32 y) const
+		{
+			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Water) : false;
+		}
+
+		bool isWall(Int32 x, Int32 y, bool outside) const
+		{
+			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
+		}
+
+		const Block& getBlockMeta(Int32 x, Int32 y) const
+		{
+			return blockMeta[getBlock(x, y)];
+		}
+
+		Water::Type getWaterType(Int32 x, Int32 y) const;
+		void raiseWater();
+
+	private:
+		void load(const std::string& path, bool mirror);
+		void mirrorLevelData();
+
+		bool isInside(Int32 x, Int32 y) const
+		{
+			return (x >= 0 && x < width && y >= 0 && y < height);
+		}
+
+		Uint16 getBlock(Int32 x, Int32 y) const
+		{
+			return levelData[(height - y - 1) * width + x];
+		}
+
+		void setBlock(Uint16 block, Int32 x, Int32 y)
+		{
+			levelData[(height - y - 1) * width + x] = block;
+		}
+
+		Uint16 findWaterType() const;
+	};
 }
 
 #endif

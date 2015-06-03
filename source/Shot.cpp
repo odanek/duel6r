@@ -32,7 +32,7 @@
 
 namespace Duel6
 {
-	Shot::Shot(Player& player, SpriteIterator sprite, Orientation shotOrientation)
+	Shot::Shot(Player& player, SpriteList::Iterator sprite, Orientation shotOrientation)
 		: player(player), weapon(player.getWeapon()), orientation(shotOrientation), sprite(sprite)
 	{
 		const Vector dim = getDimensions();

@@ -28,6 +28,8 @@
 #ifndef DUEL6_BLOCK_H
 #define DUEL6_BLOCK_H
 
+#include <vector>
+#include <string>
 #include "Type.h"
 
 namespace Duel6
@@ -35,6 +37,8 @@ namespace Duel6
 	class Block
 	{
 	public:
+		typedef std::vector<Block> Meta;
+
 		enum Type
 		{
 			EmptySpace = 0,
@@ -86,6 +90,11 @@ namespace Duel6
 		{
 			return (this->type == type);
 		}
+
+		static Meta loadMeta(const std::string& path);
+
+	private:
+		static Type determineType(const std::string& kind);
 	};
 }
 

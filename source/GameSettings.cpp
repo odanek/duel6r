@@ -25,51 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_LISTBOX_H
-#define DUEL6_GUI_LISTBOX_H
-
-#include "Control.h"
-#include "Slider.h"
+#include "GameSettings.h"
 
 namespace Duel6
 {
-	namespace Gui
-	{
-		class Listbox
-			: public Control
-		{
-		private:
-			bool scrollBar;
-			Slider *slider;
-			Int32 width;
-			Int32 height;
-			Int32 selected;
-			Int32 itemHeight;
-			std::vector<std::string> items;
-			Slider::Position listPos;
-
-		public:
-			Listbox(Desktop& desk, bool sb);
-			~Listbox();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
-			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			void addItem(const std::string& item);
-			void delItem(Int32 n);
-			void delItem(const std::string& item);
-			const std::string& getItem(Size n) const;
-			Int32 selectedIndex() const;
-			const std::string& selectedItem() const;
-			void setCur(Int32 n);
-			Size size() const;
-			void clear();
-
-			Control::Type getType() const override
-			{
-				return Control::Type::Listbox;
-			}
-		};
-	}
 }
-
-#endif

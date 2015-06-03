@@ -25,51 +25,56 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_LISTBOX_H
-#define DUEL6_GUI_LISTBOX_H
-
-#include "Control.h"
-#include "Slider.h"
+#include <algorithm>
+#include <array>
+#include "Block.h"
+#include "DataException.h"
+#include "json/JsonParser.h"
 
 namespace Duel6
 {
-	namespace Gui
+	Block::Type Block::determineType(const std::string& kind)
 	{
-		class Listbox
-			: public Control
-		{
-		private:
-			bool scrollBar;
-			Slider *slider;
-			Int32 width;
-			Int32 height;
-			Int32 selected;
-			Int32 itemHeight;
-			std::vector<std::string> items;
-			Slider::Position listPos;
-
-		public:
-			Listbox(Desktop& desk, bool sb);
-			~Listbox();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
-			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			void addItem(const std::string& item);
-			void delItem(Int32 n);
-			void delItem(const std::string& item);
-			const std::string& getItem(Size n) const;
-			Int32 selectedIndex() const;
-			const std::string& selectedItem() const;
-			void setCur(Int32 n);
-			Size size() const;
-			void clear();
-
-			Control::Type getType() const override
-			{
-				return Control::Type::Listbox;
-			}
+		static std::array<std::string, 9> typeNames = {
+			"EMPTY_SPACE",
+			"WALL",
+			"WATER",
+			"FRONT_SPRITE",
+			"BACK_SPRITE",
+			"FRONT_AND_BACK_SPRITE",
+			"FRONT4_SPRITE",
+			"BACK4_SPRITE",
+			"WATERFALL"
 		};
+
+		auto typeIter = std::find(typeNames.begin(), typeNames.end(), kind);
+		if (typeIter == typeNames.end())
+		{
+			D6_THROW(DataException, std::string("Unknown block type: ") + kind);
+		}
+
+		return (Block::Type)(typeIter - typeNames.begin());
+	}
+
+	Block::Meta Block::loadMeta(const std::string& path)
+	{
+		Block::Meta meta;
+		Json::Parser parser;
+		Json::Value root = parser.parse(path);
+
+		for (Size i = 0; i < root.getLength(); i++)
+		{
+			Json::Value block = root.get(i);
+			Block::Type type = determineType(block.get("kind").asString());
+			Json::Value animations = block.get("animations");
+			std::vector<Int32> textures;
+			for (Size j = 0; j < animations.getLength(); j++)
+			{
+				textures.push_back(animations.get(j).asInt());
+			}
+			meta.push_back(Block(meta.size(), type, std::move(textures)));
+		}
+
+		return meta;
 	}
 }
-
-#endif

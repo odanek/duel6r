@@ -33,10 +33,9 @@
 #include "Player.h"
 #include "Font.h"
 #include "Video.h"
+#include "GameSettings.h"
+#include "GameResources.h"
 #include "FaceList.h"
-#include "SpriteList.h"
-#include "TextureManager.h"
-#include "InfoMessageQueue.h"
 
 namespace Duel6
 {
@@ -45,62 +44,17 @@ namespace Duel6
 	class Renderer
 	{
 	private:
-		const Game& game;
 		const Font& font;
 		const Video& video;
-		const SpriteList& spriteList;
-		const InfoMessageQueue& messageQueue;
-
-		TextureManager::Texture blockTextures;
-		TextureManager::Texture bcgTextures;
-
-		bool wireframe;
-		bool showFps;	
-		bool showRanking;
+		const Game& game;
 
 	public:
-		Renderer(const Game& game, const Font& font, const Video& video, 
-			const SpriteList& spriteList, const InfoMessageQueue& messageQueue)
-			: game(game), font(font), video(video), spriteList(spriteList), 
-			messageQueue(messageQueue), wireframe(false), showFps(false), showRanking(true)
+		Renderer(AppService& appService, const Game& game)
+			: font(appService.getFont()), video(appService.getVideo()), game(game)
 		{}
 
-		void initialize(TextureManager& textureManager);
 		void initScreen();
 		void render() const;
-
-		bool getWireframe() const
-		{
-			return wireframe;
-		}
-
-		Renderer& setWireframe(bool wireframe)
-		{
-			this->wireframe = wireframe;
-			return *this;
-		}
-
-		bool getShowFps() const
-		{
-			return showFps;
-		}
-
-		Renderer& setShowFps(bool showFps)
-		{
-			this->showFps = showFps;
-			return *this;
-		}
-
-		bool getShowRanking() const
-		{
-			return showRanking;
-		}
-
-		Renderer& setShowRanking(bool showRanking)
-		{
-			this->showRanking = showRanking;
-			return *this;
-		}
 
 	private:
 		void setView(const PlayerView& view) const;
@@ -125,6 +79,8 @@ namespace Duel6
 		void invulRing(const Player& player) const;
 		void splitBox(const PlayerView& view) const;
 		void infoMessages() const;
+		std::vector<const Player *> getRanking() const;
+		Color getGameOverOverlay() const;
 	};
 }
 

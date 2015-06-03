@@ -50,6 +50,7 @@ set(D6R_SOURCES
     source/Application.cpp
 	source/AppService.h
     source/Block.h
+    source/Block.cpp
     source/Bonus.h
     source/Bonus.cpp
     source/BonusList.h
@@ -85,8 +86,11 @@ set(D6R_SOURCES
     source/Game.cpp
     source/Game.h
 	source/GameException.h
-	source/GameService.h
-    source/Image.h    
+	source/GameResources.h
+	source/GameResources.cpp
+	source/GameSettings.h
+	source/GameSettings.cpp
+    source/Image.h
     source/InfoMessage.h
     source/InfoMessageQueue.h
     source/InfoMessageQueue.cpp
@@ -95,8 +99,12 @@ set(D6R_SOURCES
     source/IoException.h
     source/Lang.h
     source/Lang.cpp
+    source/Level.h
+    source/Level.cpp
     source/LevelList.h
     source/LevelList.cpp
+    source/LevelRenderData.h
+    source/LevelRenderData.cpp
     source/Main.cpp
     source/Math.h
     source/Math.cpp
@@ -124,6 +132,8 @@ set(D6R_SOURCES
 	source/Rectangle.h
     source/Render.h
     source/Render.cpp
+    source/Round.h
+    source/Round.cpp
     source/ScreenMode.h
     source/Shot.h
     source/Shot.cpp

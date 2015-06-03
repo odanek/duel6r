@@ -34,10 +34,8 @@ namespace Duel6
 		: phase(0.0f)
 	{}
 
-	void WaterList::build(FaceList& waterFaces, Float32 waveHeight, Console& console)
+	void WaterList::build(FaceList& waterFaces, Float32 waveHeight)
 	{
-		console.printLine(D6_L("...Building water-list"));
-
 		this->waveHeight = waveHeight;
 		vertexes.clear();
 		for (Vertex& vertex : waterFaces.getVertexes())

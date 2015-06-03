@@ -25,51 +25,74 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_LISTBOX_H
-#define DUEL6_GUI_LISTBOX_H
+#ifndef DUEL6_LEVELRENDERDATA_H
+#define DUEL6_LEVELRENDERDATA_H
 
-#include "Control.h"
-#include "Slider.h"
+#include "Type.h"
+#include "FaceList.h"
+#include "WaterList.h"
+#include "Level.h"
 
 namespace Duel6
 {
-	namespace Gui
+	class LevelRenderData
 	{
-		class Listbox
-			: public Control
+	private:
+		const Level& level;
+		FaceList walls;
+		FaceList sprites;
+		FaceList water;
+		Float32 animationSpeed;
+		Float32 animWait;
+		Float32 waveHeight;
+		WaterList floatingVertexes;
+
+	public:
+		LevelRenderData(const Level& level, Float32 animationSpeed, Float32 waveHeight);
+
+		void generateFaces();
+		void generateWater();
+		void update(Float32 elapsedTime);
+
+		FaceList& getWalls()
 		{
-		private:
-			bool scrollBar;
-			Slider *slider;
-			Int32 width;
-			Int32 height;
-			Int32 selected;
-			Int32 itemHeight;
-			std::vector<std::string> items;
-			Slider::Position listPos;
+			return walls;
+		}
 
-		public:
-			Listbox(Desktop& desk, bool sb);
-			~Listbox();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
-			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			void addItem(const std::string& item);
-			void delItem(Int32 n);
-			void delItem(const std::string& item);
-			const std::string& getItem(Size n) const;
-			Int32 selectedIndex() const;
-			const std::string& selectedItem() const;
-			void setCur(Int32 n);
-			Size size() const;
-			void clear();
+		const FaceList& getWalls() const
+		{
+			return walls;
+		}
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Listbox;
-			}
-		};
-	}
+		FaceList& getSprites()
+		{
+			return sprites;
+		}
+
+		const FaceList& getSprites() const
+		{
+			return sprites;
+		}
+
+		FaceList& getWater()
+		{
+			return water;
+		}
+
+		const FaceList& getWater() const
+		{
+			return water;
+		}
+
+	private:
+		void addWallFaces();
+		void addSpriteFaces();
+		void addWaterFaces();
+		void addWall(const Block& block, Int32 x, Int32 y);
+		void addWater(const Block& block, Int32 x, Int32 y);
+		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);
+	};
 }
+
 
 #endif

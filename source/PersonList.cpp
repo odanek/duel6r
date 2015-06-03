@@ -64,4 +64,13 @@ namespace Duel6
 			persons.push_back(Person::fromJson(json.get(i)));
 		}
 	}
+
+	PersonList& PersonList::remove(const std::string& name)
+	{
+		auto iter = std::find_if(persons.cbegin(), persons.cend(), [&name](const Person& person) {
+			return person.getName() == name;
+		});
+		persons.erase(iter);
+		return *this;
+	}
 }

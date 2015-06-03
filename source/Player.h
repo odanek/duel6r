@@ -43,6 +43,7 @@
 #include "Water.h"
 #include "Rectangle.h"
 #include "Defines.h"
+#include "Level.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -149,9 +150,6 @@ namespace Duel6
 		};
 
 	private:
-		SpriteList& spriteList;
-		InfoMessageQueue& messageQueue;		
-
 		Person& person;
 		const PlayerSkin& skin;
 		mycam_c camera;
@@ -160,16 +158,15 @@ namespace Duel6
 		const PlayerControls& controls;
 		PlayerView view;
 		WaterState water;
-		SpriteIterator sprite;
-		SpriteIterator gunSprite;
+		SpriteList::Iterator sprite;
+		SpriteList::Iterator gunSprite;
 		PlayerState state;
 		Int32 infoBarPosition[2];
 
-		const Water::WaterSet& waterSet; // TODO: Remove
+		World* world; // TODO: Remove
 
 	public:
-		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls, 
-			SpriteList& spriteList, InfoMessageQueue& messageQueue, const Water::WaterSet& waterSet);
+		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls);
 		~Player();
 
 		bool is(const Player& player) const
@@ -177,9 +174,9 @@ namespace Duel6
 			return (this == &player);
 		}
 
-		void startGame(Int32 startBlockX, Int32 startBlockY, Int32 ammo);
+		void startGame(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo);
 		void setView(const PlayerView& view);
-		void update(const World& world, ScreenMode screenMode, Float32 elapsedTime);
+		void update(World& world, ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
 		bool hitByShot(Float32 pw, Shot& s, bool directHit);
@@ -454,11 +451,11 @@ namespace Duel6
 		}
 
 	private:
-		void makeMove(const World& world, Float32 elapsedTime);
-		void moveHorizontal(const World& world, Float32 elapsedTime, Float32 speed);
-		void moveVertical(const World& world, Float32 elapsedTime, Float32 speed);
+		void makeMove(const Level& level, Float32 elapsedTime);
+		void moveHorizontal(const Level& level, Float32 elapsedTime, Float32 speed);
+		void moveVertical(const Level& level, Float32 elapsedTime, Float32 speed);
 		void checkKeys();
-		void checkWater(const World& world, Float32 elapsedTime);
+		void checkWater(World& world, Float32 elapsedTime);
 		void fall();
 		void pick();
 		void shoot();
@@ -466,13 +463,13 @@ namespace Duel6
 		void updateCam(Int32 levelSizeX, Int32 levelSizeY);
 		void switchToOriginalSkin();
 		void findStartingPosition();
-		void dropWeapon(const World& world);
+		void dropWeapon(const Level& level);
 		Float32 getSpeed() const;
 
-		void checkMoveUp(const World& world);
-		void checkMoveDown(const World& world);
-		void checkFall(const World& world);
-		void checkHorizontalMove(const World& world);
+		void checkMoveUp(const Level& level);
+		void checkMoveDown(const Level& level);
+		void checkFall(const Level& level);
+		void checkHorizontalMove(const Level& level);
 		void checkElevator();
 
 		bool hasFlag(Uint32 flag) const

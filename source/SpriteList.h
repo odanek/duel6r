@@ -33,17 +33,18 @@
 
 namespace Duel6
 {
-	typedef std::list<Sprite>::iterator SpriteIterator;
-
 	class SpriteList
 	{
+	public:
+		typedef std::list<Sprite>::iterator Iterator;
+
 	private:
 		std::list<Sprite> sprites;
 
 	public:
-		SpriteIterator addSprite(const Sprite& sprite);
+		Iterator addSprite(const Sprite& sprite);
 
-		void removeSprite(SpriteIterator iterator)
+		void removeSprite(Iterator iterator)
 		{
 			sprites.erase(iterator);
 		}

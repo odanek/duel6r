@@ -25,86 +25,115 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SHOT_H
-#define DUEL6_SHOT_H
+#ifndef DUEL6R_GAMESETTINGS_H
+#define DUEL6R_GAMESETTINGS_H
 
+#include <utility>
 #include "Type.h"
-#include "SpriteList.h"
-#include "Rectangle.h"
+#include "ScreenMode.h"
 
 namespace Duel6
 {
-	class Player; // Forward declaration, TODO: Remove
-	struct Weapon; // Forward declaration, TODO: Refactor Weapon.h and remove
-
-	class Shot
+	class GameSettings
 	{
 	private:
-		Player& player;
-		const Weapon& weapon;
-		Orientation orientation;
-		Vector position;
-		Vector velocity;
-		SpriteList::Iterator sprite;
+		std::pair<Int32, Int32> ammoRange;
+		Int32 maxRounds;
+		ScreenMode screenMode;
+		Int32 screenZoom;
+		bool wireframe;
+		bool showFps;
+		bool showRanking;
 
 	public:
-		Shot(Player& player, SpriteList::Iterator sprite, Orientation shotOrientation);
+		GameSettings()
+			: ammoRange(15, 15), maxRounds(0), screenMode(ScreenMode::FullScreen),
+			  screenZoom(13), wireframe(false), showFps(false), showRanking(true)
+		{}
 
-		Player& getPlayer()
+		ScreenMode getScreenMode() const
 		{
-			return player;
+			return screenMode;
 		}
 
-		const Player& getPlayer() const
+		GameSettings& setScreenMode(const ScreenMode& screenMode)
 		{
-			return player;
+			this->screenMode = screenMode;
+			return *this;
 		}
 
-		const Weapon& getWeapon() const
+		Int32 getScreenZoom() const
 		{
-			return weapon;
+			return screenZoom;
 		}
 
-		SpriteList::Iterator getSprite()
+		GameSettings& setScreenZoom(Int32 screenZoom)
 		{
-			return sprite;
+			this->screenZoom = screenZoom;
+			return *this;
 		}
 
-		const Vector& getPosition() const
+		const std::pair<Int32, Int32>& getAmmoRange() const
 		{
-			return position;
+			return ammoRange;
 		}
 
-		Vector getDimensions() const
+		GameSettings& setAmmoRange(const std::pair<Int32, Int32>& range)
 		{
-			return Vector(0.65f, 0.35f);
+			ammoRange = range;
+			return *this;
 		}
 
-		Vector getCentre() const
+		Int32 getMaxRounds() const
 		{
-			return getCollisionRect().getCentre();
+			return maxRounds;
 		}
 
-		Rectangle getCollisionRect() const
+		bool isRoundLimit() const
 		{
-			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+			return maxRounds > 0;
 		}
 
-		Vector getSpritePosition() const
+		GameSettings& setMaxRounds(Int32 maxRounds)
 		{
-			return orientation == Orientation::Left ? Vector(position.x, position.y - 0.65f) : Vector(position.x - 0.35f, position.y - 0.65f);
+			this->maxRounds = maxRounds;
+			return *this;
 		}
 
-		Orientation getOrientation() const
+		bool isWireframe() const
 		{
-			return orientation;
+			return wireframe;
 		}
 
-		Shot& move(Float32 elapsedTime);
+		GameSettings& setWireframe(bool wireframe)
+		{
+			this->wireframe = wireframe;
+			return *this;
+		}
 
-		Float32 getExplosionRange() const;
-		Float32 getExplosionPower() const;
+		bool isShowFps() const
+		{
+			return showFps;
+		}
+
+		GameSettings& setShowFps(bool showFps)
+		{
+			this->showFps = showFps;
+			return *this;
+		}
+
+		bool isShowRanking() const
+		{
+			return showRanking;
+		}
+
+		GameSettings& setShowRanking(bool showRanking)
+		{
+			this->showRanking = showRanking;
+			return *this;
+		}
 	};
 }
+
 
 #endif

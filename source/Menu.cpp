@@ -127,14 +127,14 @@ namespace Duel6
 		button[0]->setPosition(200, 282, 80, 25);
 		button[0]->setCaption(">>");
 		button[0]->onClick([this](const Gui::Event&) {
-			addPlayer(listbox[1]->curItem());
+			addPlayer(listbox[1]->selectedIndex());
 		});
 
 		button[1] = new Gui::Button(gui);
 		button[1]->setPosition(200, 253, 80, 25);
 		button[1]->setCaption("<<");
 		button[1]->onClick([this](const Gui::Event&) {
-			removePlayer(listbox[2]->curItem());
+			removePlayer(listbox[2]->selectedIndex());
 		});
 
 		button[2] = new Gui::Button(gui);
@@ -257,7 +257,7 @@ namespace Duel6
 		json.set("persons", persons.toJson());
 
 		Json::Value playing = Json::Value::makeArray();
-		for (Int32 i = 0; i < listbox[2]->size(); i++)
+		for (Size i = 0; i < listbox[2]->size(); i++)
 		{
 			playing.add(Json::Value::makeString(listbox[2]->getItem(i)));
 		}
@@ -429,9 +429,7 @@ namespace Duel6
 			return;
 		}
 
-			bool roundLimit = (game->getMaxRounds() > 0);
-
-		if (roundLimit)
+		if (game->getSettings().isRoundLimit())
 		{
 			if(!question(D6_L("Clear statistics and start a new game? (Y/N)")))
 			{
@@ -443,7 +441,7 @@ namespace Duel6
 				
 		// Persons, colors, controls
 		std::vector<Game::PlayerDefinition> playerDefinitions;
-		for (int i = 0; i < listbox[2]->size(); i++)
+		for (Size i = 0; i < listbox[2]->size(); i++)
 		{
 			Person& person = persons.getByName(listbox[2]->getItem(i));
 			auto& profile = getPersonProfile(person.getName(), i);			
@@ -453,7 +451,7 @@ namespace Duel6
 
 		// Levels
 		std::vector<std::string> levels;
-		if (!listbox[3]->curItem())
+		if (!listbox[3]->selectedIndex())
 		{
 			for (Size i = 0; i < levelList.getLength(); ++i)
 			{
@@ -462,12 +460,12 @@ namespace Duel6
 		}
 		else
 		{
-			levels.push_back(levelList.getPath(listbox[3]->curItem() - 1));
+			levels.push_back(levelList.getPath(listbox[3]->selectedIndex() - 1));
 		}
 
 		// Game backgrounds
 		std::vector<Size> backgrounds;
-		if (!listbox[4]->curItem())
+		if (!listbox[4]->selectedIndex())
 		{
 			for (Size i = 0; i < backgroundCount; i++)
 			{
@@ -476,12 +474,12 @@ namespace Duel6
 		}
 		else
 		{
-			backgrounds.push_back(listbox[4]->curItem() - 1);
+			backgrounds.push_back(listbox[4]->selectedIndex() - 1);
 		}
 
 		// Screen
-		ScreenMode screenMode = (listbox[2]->size() > 4 || listbox[5]->curItem() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
-		Int32 screenZoom = listbox[6]->curItem() + 5; 
+		ScreenMode screenMode = (listbox[2]->size() > 4 || listbox[5]->selectedIndex() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
+		Int32 screenZoom = listbox[6]->selectedIndex() + 5;
 
 		// Start
 		Context::push(*game);
@@ -492,8 +490,8 @@ namespace Duel6
 	{
 		if (c != -1 && listbox[2]->size() < D6_MAX_PLAYERS)
 		{
-			std::string& name = listbox[1]->getItem(c);
-			for (int i = 0; i < listbox[2]->size(); i++)
+			const std::string& name = listbox[1]->getItem(c);
+			for (Size i = 0; i < listbox[2]->size(); i++)
 			{
 				if(name.compare(listbox[2]->getItem(i)) == 0)
 				{
@@ -532,11 +530,12 @@ namespace Duel6
 		if (!deleteQuestion())
 			return;
 
-		int c = listbox[1]->curItem();
+		Int32 c = listbox[1]->selectedIndex();
 		if (c != -1)
 		{
-			listbox[1]->delItem(c);
-			persons.remove(c);
+			const std::string& playerName = listbox[1]->selectedItem();
+			listbox[1]->delItem(playerName);
+			persons.remove(playerName);
 		}
 	}
 

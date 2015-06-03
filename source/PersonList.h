@@ -79,11 +79,7 @@ namespace Duel6
 			return *this;
 		}
 
-		PersonList& remove(Size index)
-		{
-			persons.erase(persons.begin() + index);
-			return *this;
-		}
+		PersonList& remove(const std::string& name);
 
 		Json::Value toJson() const;
 		void fromJson(const Json::Value& json);

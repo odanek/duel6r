@@ -202,7 +202,7 @@ namespace Duel6
 		return { false, nullptr };
 	}
 
-	static Hit WPN_ShotWallCollision(Shot& shot, const World& world)
+	static Hit WPN_ShotWallCollision(Shot& shot, const Level& level)
 	{
 		const Rectangle box = shot.getCollisionRect();
 		Int32 up = Int32(box.right.y);
@@ -210,10 +210,10 @@ namespace Duel6
 		Int32 left = Int32(box.left.x);
 		Int32 right = Int32(box.right.x);
 
-		bool hitsWall = world.isWall(left, up, true) ||
-				world.isWall(left, down, true) ||
-				world.isWall(right, up, true) ||
-				world.isWall(right, down, true);
+		bool hitsWall = level.isWall(left, up, true) ||
+			level.isWall(left, down, true) ||
+			level.isWall(right, up, true) ||
+			level.isWall(right, down, true);
 
 		return { hitsWall, nullptr };
 	}
@@ -224,7 +224,7 @@ namespace Duel6
 		return d6Shots.erase(shot);
 	}
 
-	void WPN_MoveShots(GameService& gameService, float elapsedTime)
+	void WPN_MoveShots(World& world, float elapsedTime)
 	{
 		auto shot = d6Shots.begin();
 
@@ -233,15 +233,15 @@ namespace Duel6
 			const Weapon& weapon = shot->getWeapon();
 			shot->move(elapsedTime);
 
-			Hit hit = WPN_ShotPlayerCollision(*shot, gameService.getPlayers());
+			Hit hit = WPN_ShotPlayerCollision(*shot, world.getPlayers());
 			if (!hit.hit)
 			{
-				hit = WPN_ShotWallCollision(*shot, gameService.getWorld());
+				hit = WPN_ShotWallCollision(*shot, world.getLevel());
 			}
 
 			if (hit.hit)
 			{
-				WPN_Boom(*shot, gameService.getPlayers(), hit.player, gameService.getSpriteList());
+				WPN_Boom(*shot, world.getPlayers(), hit.player, world.getSpriteList());
 				const Vector shotCentre = shot->getCentre();
 				
 				Sprite boom(weapon.boomAnimation, weapon.textures.boom);
@@ -251,7 +251,7 @@ namespace Duel6
 					.setOrientation(shot->getOrientation())
 					.setAlpha(0.6f);
 
-				SpriteIterator boomSprite = gameService.getSpriteList().addSprite(boom);
+				SpriteList::Iterator boomSprite = world.getSpriteList().addSprite(boom);
 
 				if (shot->getPlayer().hasPowerfulShots())
 					boomSprite->setGrow(weapon.expGrow * 1.2f);
@@ -263,7 +263,7 @@ namespace Duel6
 					boomSprite->setNoDepth(true);
 				}
 				
-				shot = WPN_RemoveShot(shot, gameService.getSpriteList());
+				shot = WPN_RemoveShot(shot, world.getSpriteList());
 			}
 			else
 			{

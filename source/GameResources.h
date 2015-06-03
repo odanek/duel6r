@@ -25,63 +25,56 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMESERVICE_H
-#define DUEL6_GAMESERVICE_H
+#ifndef DUEL6_GAMERESOURCES_H
+#define DUEL6_GAMERESOURCES_H
 
-#include <vector>
+#include "Water.h"
+#include "Block.h"
 #include "AppService.h"
-#include "SpriteList.h"
-#include "InfoMessageQueue.h"
-#include "World.h"
-#include "Player.h"
-#include "Defines.h"
 
 namespace Duel6
 {
-	extern Weapon d6WpnDef[D6_WEAPONS];
-
-	class GameService
+	class GameResources
 	{
 	private:
-		AppService& appService;
-		SpriteList& spriteList;
-		InfoMessageQueue& messageQueue;
-		World& world;
-		std::vector<Player>& players;
+		Water::WaterSet waterSet;
+		Block::Meta blockMeta;
+		Sound::Sample gameOverSound;
+		Sound::Sample roundStartSound;
+		TextureManager::Texture blockTextures;
+		TextureManager::Texture bcgTextures;
 
 	public:
-		GameService(AppService& appService, SpriteList& spriteList, InfoMessageQueue& messageQueue, World& world, std::vector<Player>& players)
-			: appService(appService), spriteList(spriteList), messageQueue(messageQueue), world(world), players(players)
-		{}
+		GameResources(AppService& appService);
 
-		TextureManager& getTextureManager()
+		const Water::WaterSet& getWaterSet() const
 		{
-			return appService.getTextureManager();
+			return waterSet;
 		}
 
-		Sound& getSound()
+		const Block::Meta& getBlockMeta() const
 		{
-			return appService.getSound();
+			return blockMeta;
 		}
 
-		SpriteList& getSpriteList()
+		const Sound::Sample& getGameOverSound() const
 		{
-			return spriteList;
+			return gameOverSound;
 		}
 
-		InfoMessageQueue& getMessageQueue()
+		const Sound::Sample& getRoundStartSound() const
 		{
-			return messageQueue;
+			return roundStartSound;
 		}
 
-		World& getWorld()
+		const TextureManager::Texture& getBlockTextures() const
 		{
-			return world;
+			return blockTextures;
 		}
 
-		std::vector<Player>& getPlayers()
+		const TextureManager::Texture& getBcgTextures() const
 		{
-			return players;
+			return bcgTextures;
 		}
 	};
 }

@@ -27,25 +27,11 @@
 
 #include "BonusList.h"
 #include "ElevatorList.h"
-#include "Math.h"
 #include "Game.h"
-#include "FaceList.h"
-#include "TextureManager.h"
-#include "Game.h"
-#include "InfoMessageQueue.h"
 #include "Explosion.h"
-#include "Video.h"
-#include "Font.h"
-#include "Render.h"
 
 namespace Duel6
 {
-	void Renderer::initialize(TextureManager& textureManager)
-	{
-		blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
-		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
-	}
-
 	void Renderer::setView(const PlayerView& view) const
 	{
 		glViewport(view.getX(), view.getY(), view.getWidth(), view.getHeight());
@@ -63,7 +49,7 @@ namespace Duel6
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 
-		water.render(blockTextures);
+		water.render(game.getResources().getBlockTextures());
 
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
@@ -75,7 +61,7 @@ namespace Duel6
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
 
-		sprites.render(blockTextures);
+		sprites.render(game.getResources().getBlockTextures());
 
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
@@ -95,10 +81,25 @@ namespace Duel6
 
 		glDisable(GL_TEXTURE_2D);
 	}
-	
+
+	std::vector<const Player *> Renderer::getRanking() const
+	{
+		std::vector<const Player*> ranking;
+
+		for (const Player& player : game.getPlayers())
+		{
+			ranking.push_back(&player);
+		}
+
+		std::sort(ranking.begin(), ranking.end(), [](const Player* pl1, const Player* pl2) {
+			return pl1->getPerson().hasHigherScoreThan(pl2->getPerson());
+		});
+		return ranking;
+	}
+
 	void Renderer::playerRankings() const
 	{
-		std::vector<const Player*> ladder = game.getRanking();
+		std::vector<const Player*> ladder = getRanking();
 		Size maxNameLength = 0;;
 
 		for (const Player* player : ladder)
@@ -171,7 +172,7 @@ namespace Duel6
             }
         }
 
-        font.print(x + width / 2 - 2, y + height - 95, fontColor, Format("{0}") << (Int32) game.getRemainingGameOverWait());
+        font.print(x + width / 2 - 2, y + height - 95, fontColor, Format("{0}") << (Int32) game.getRound().getRemainingGameOverWait());
     }
 
 	void Renderer::gameOverSummary() const
@@ -207,7 +208,7 @@ namespace Duel6
 		
 		int count = 0;
 		int ladderY = y + height - 50;
-		for (const Player* player: game.getRanking())
+		for (const Player* player : getRanking())
 		{
 			font.print(x + 10, ladderY - 16*count, fontColor, player->getPerson().getName());
 			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << player->getPerson().getTotalPoints());
@@ -229,12 +230,12 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		font.print(x + 8, y, Color(255, 255, 255), Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getMaxRounds());
+		font.print(x + 8, y, Color(255, 255, 255), Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getSettings().getMaxRounds());
 	}
 
 	void Renderer::playerStatuses() const
 	{
-		if (game.getScreenMode() == ScreenMode::FullScreen)
+		if (game.getSettings().getScreenMode() == ScreenMode::FullScreen)
 		{
 			glBegin(GL_QUADS);
 			glColor3ub(0, 0, 0);
@@ -294,7 +295,7 @@ namespace Duel6
 		glVertex2i(ibp[0] + 35, ibp[1] - 30);
 		glEnd();
 
-		if (game.getScreenMode() == ScreenMode::FullScreen)
+		if (game.getSettings().getScreenMode() == ScreenMode::FullScreen)
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
@@ -365,7 +366,7 @@ namespace Duel6
 
 	void Renderer::youAreHere() const
 	{
-		Float32 remainingTime = game.getRemainingYouAreHere();
+		Float32 remainingTime = game.getRound().getRemainingYouAreHere();
 		if(remainingTime <= 0) return;
                 
 		glColor3ub(255, 255, 0);
@@ -518,7 +519,9 @@ namespace Duel6
 
 	void Renderer::infoMessages() const
 	{
-		if (game.getScreenMode() == ScreenMode::FullScreen)
+		const InfoMessageQueue& messageQueue = game.getRound().getWorld().getMessageQueue();
+
+		if (game.getSettings().getScreenMode() == ScreenMode::FullScreen)
 		{
 			messageQueue.renderAllMessages(game.getPlayers().front().getView(), 20, font);
 		}
@@ -536,41 +539,54 @@ namespace Duel6
 		glLoadIdentity();
 		player.getCamera().look();
 
-		if (wireframe)
+		if (game.getSettings().isWireframe())
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 
-		game.getWorld().getWalls().render(blockTextures);
-		sprites(game.getWorld().getSprites());
+		const World& world = game.getRound().getWorld();
+		world.getLevelRenderData().getWalls().render(game.getResources().getBlockTextures());
+		sprites(world.getLevelRenderData().getSprites());
 		ELEV_DrawAll();
-		spriteList.render();
+		world.getSpriteList().render();
 		BONUS_DrawAll();
 		invulRings(game.getPlayers());
-		water(game.getWorld().getWater());
+		water(world.getLevelRenderData().getWater());
 		youAreHere();
 		roundKills();
 		hpBars();
 
 		EXPL_DrawAll();
 
-		if (wireframe)
+		if (game.getSettings().isWireframe())
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
 
+	Color Renderer::getGameOverOverlay() const
+	{
+		Uint8 overlay = Uint8(255.0f * game.getRound().getRemainingGameOverWait() / D6_GAME_OVER_WAIT);
+		if (game.isOver())
+		{
+			overlay = (Uint8)std::min(overlay + 51, 255);
+			return Color(overlay);
+		}
+
+		return Color(255, overlay, overlay);
+	}
+
 	void Renderer::fullScreen() const
 	{
-		if (game.hasWinner())
+		if (game.getRound().hasWinner())
 		{
-			Color overlayColor = game.getGameOverOverlay();			
+			Color overlayColor = getGameOverOverlay();
 			glColor3ub(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue());			
 		}
 
 		const Player& player = game.getPlayers().front();
 		setView(player.getView());
-		background(bcgTextures.getGlTextures()[game.getWorld().getBackground()]);
+		background(game.getResources().getBcgTextures().getGlTextures()[game.getRound().getWorld().getBackground()]);
 		video.setMode(Video::Mode::Perspective);
 		view(player);		
 	}
@@ -588,7 +604,7 @@ namespace Duel6
 			}
 
 			setView(player.getView());
-			background(bcgTextures.getGlTextures()[game.getWorld().getBackground()]);
+			background(game.getResources().getBcgTextures().getGlTextures()[game.getRound().getWorld().getBackground()]);
 
 			video.setMode(Video::Mode::Perspective);
 			view(player);
@@ -606,7 +622,9 @@ namespace Duel6
 
 	void Renderer::render() const
 	{
-		if (wireframe || game.getScreenMode() == ScreenMode::SplitScreen)
+		const GameSettings& settings = game.getSettings();
+
+		if (settings.isWireframe() || settings.getScreenMode() == ScreenMode::SplitScreen)
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
@@ -616,7 +634,7 @@ namespace Duel6
 		}
 
 		glColor3f(1.0f, 1.0f, 1.0f);
-		if (game.getScreenMode() == ScreenMode::FullScreen)
+		if (settings.getScreenMode() == ScreenMode::FullScreen)
 		{
 			fullScreen();
 		}
@@ -632,30 +650,30 @@ namespace Duel6
 		playerStatuses();
 		infoMessages();
 
-		if (showFps)
+		if (settings.isShowFps())
 		{
 			fpsCounter();
 		}
 
-		if (showRanking && game.getScreenMode() == ScreenMode::FullScreen)
+		if (settings.isShowRanking() && settings.getScreenMode() == ScreenMode::FullScreen)
 		{
 			playerRankings();
 		}
 		
-		if (game.getMaxRounds() > 0)
+		if (settings.isRoundLimit())
 		{
 			roundsPlayed();
 		}
 
-		if(game.hasWinner())
+		if (game.getRound().hasWinner())
 		{
-            if(game.isOver())
+            if (game.isOver())
             {
-                gameOverSummary();
+				gameOverSummary();
             }
             else
             {
-                roundOverSummary();
+				roundOverSummary();
             }
         }
     }

@@ -48,7 +48,7 @@ namespace Duel6
 	Application::Application()
 		: console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
 		service(font, console, textureManager, video, input, sound),
-		menu(service), game(service), requestClose(false)
+		menu(service), requestClose(false)
 	{}
 
 	Application::~Application()
@@ -77,7 +77,7 @@ namespace Duel6
 			{
 				SDL_StartTextInput();
 			}
-			else if (context.is(game))
+			else if (context.is(*game))
 			{
 				SDL_StopTextInput();
 			}
@@ -151,15 +151,16 @@ namespace Duel6
 		}
 
 		Console::registerBasicCommands(console);
-		ConsoleCommands::registerCommands(console, service, menu, game);
+		ConsoleCommands::registerCommands(console, service, menu, gameSettings);
 
 		Math::initialize();
 
 		font.load(D6_FILE_FONT);
 		video.initialize(APP_NAME, APP_FILE_ICON, console);
 		menu.initialize();
-		menu.setGameReference(&game);
-		game.initialize();		
+
+		game = std::make_unique<Game>(service, gameSettings);
+		menu.setGameReference(game.get());
 
 		WPN_Init(textureManager, sound, console);
 		BONUS_Init(textureManager);

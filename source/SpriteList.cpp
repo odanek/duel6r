@@ -29,7 +29,7 @@
 
 namespace Duel6
 {
-	SpriteIterator SpriteList::addSprite(const Sprite& sprite)
+	SpriteList::Iterator SpriteList::addSprite(const Sprite& sprite)
 	{
 		sprites.push_back(sprite);
 		return std::prev(sprites.end());

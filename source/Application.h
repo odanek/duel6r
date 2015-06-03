@@ -28,6 +28,7 @@
 #ifndef DUEL6_APPLICATION_H
 #define DUEL6_APPLICATION_H
 
+#include <memory>
 #include "Context.h"
 #include "AppService.h"
 #include "Menu.h"
@@ -47,7 +48,8 @@ namespace Duel6
 		Sound sound;
 		AppService service;
 		Menu menu;
-		Game game;
+		GameSettings gameSettings;
+		std::unique_ptr<Game> game;
 		bool requestClose;
 
 	public:

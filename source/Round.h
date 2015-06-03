@@ -25,51 +25,83 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_LISTBOX_H
-#define DUEL6_GUI_LISTBOX_H
+#ifndef DUEL6R_ROUND_H
+#define DUEL6R_ROUND_H
 
-#include "Control.h"
-#include "Slider.h"
+#include <vector>
+#include <queue>
+#include "Player.h"
+#include "World.h"
 
 namespace Duel6
 {
-	namespace Gui
+	class Game;
+
+	class Round
 	{
-		class Listbox
-			: public Control
+	private:
+		Game& game;
+		Int32 roundNumber;
+		World world;
+		bool deathMode;
+		Float32 waterFillWait;
+		Float32 showYouAreHere;
+		Float32 gameOverWait;
+		Int32 winner;
+
+	public:
+		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background);
+
+		void update(Float32 elapsedTime);
+		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
+
+		World& getWorld()
 		{
-		private:
-			bool scrollBar;
-			Slider *slider;
-			Int32 width;
-			Int32 height;
-			Int32 selected;
-			Int32 itemHeight;
-			std::vector<std::string> items;
-			Slider::Position listPos;
+			return world;
+		}
 
-		public:
-			Listbox(Desktop& desk, bool sb);
-			~Listbox();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
-			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			void addItem(const std::string& item);
-			void delItem(Int32 n);
-			void delItem(const std::string& item);
-			const std::string& getItem(Size n) const;
-			Int32 selectedIndex() const;
-			const std::string& selectedItem() const;
-			void setCur(Int32 n);
-			Size size() const;
-			void clear();
+		const World& getWorld() const
+		{
+			return world;
+		}
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Listbox;
-			}
-		};
-	}
+		bool hasWinner() const
+		{
+			return winner > 0;
+		}
+
+		Int32 getWinner() const
+		{
+			return winner;
+		}
+
+		Float32 getRemainingYouAreHere() const
+		{
+			return showYouAreHere;
+		}
+
+		Float32 getRemainingGameOverWait() const
+		{
+			return gameOverWait;
+		}
+
+		Int32 getRoundNumber() const
+		{
+			return roundNumber;
+		}
+
+		bool isOver() const;
+		bool isLast() const;
+
+	private:
+		void preparePlayers();
+		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
+		bool isPossibleStartingPosition(const Level& level, Int32 x, Int32 y);
+		void checkWinner();
+		void setPlayerViews();
+		void splitScreenView(Player& player, Int32 x, Int32 y);
+		void switchScreenMode();
+	};
 }
 
 #endif

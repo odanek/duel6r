@@ -25,145 +25,99 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LOADER_H
-#define DUEL6_LOADER_H
+#ifndef DUEL6_WORLD_H
+#define DUEL6_WORLD_H
 
-#include <string>
-#include <vector>
-#include "TextureManager.h"
-#include "FaceList.h"
-#include "Bonus.h"
-#include "Water.h"
-#include "WaterList.h"
-#include "File.h"
+#include "Level.h"
+#include "InfoMessageQueue.h"
+#include "LevelRenderData.h"
 
 namespace Duel6
 {
+	class Game;
+
 	class World
 	{
 	private:
-		Console& console;
-
-		std::vector<Block> blockMeta;
+		std::vector<Player>& players;
+		Level level;
+		LevelRenderData levelRenderData;
+		InfoMessageQueue messageQueue;
+		SpriteList spriteList;
+		const Water::WaterSet& waterSet;
 		Size background;
-
-		Int32 width;
-		Int32 height;
-		Uint16 waterBlock;
-		std::vector<Uint16> levelData;
-
-		FaceList walls;
-		FaceList sprites;
-		FaceList water;
-		
-		Float32 animationSpeed;
-		Float32 animWait;
-		Float32 waveHeight;
-		WaterList floatingVertexes;
-
-		Int32 waterLevel;
+		// Explosion list
+		// Bonus list
+		// Fire list
 
 	public:
-		World(Float32 animationSpeed, Float32 waveHeight, Console& console);
-
-		void initialize(const std::string& blockMetaFile);
-		void loadLevel(const std::string& path, Size background, bool mirror);
-		void prepareFaces();
+		World(Game& game, const std::string& levelPath, bool mirror, Size background);
 
 		void update(Float32 elapsedTime);
 		void raiseWater();
 
-		FaceList& getWalls()
+		std::vector<Player>& getPlayers()
 		{
-			return walls;
+			return players;
 		}
 
-		const FaceList& getWalls() const
+		const std::vector<Player>& getPlayers() const
 		{
-			return walls;
+			return players;
 		}
 
-		FaceList& getSprites()
+		Level& getLevel()
 		{
-			return sprites;
+			return level;
 		}
 
-		const FaceList& getSprites() const
+		const Level& getLevel() const
 		{
-			return sprites;
+			return level;
 		}
 
-		FaceList& getWater()
+		LevelRenderData& getLevelRenderData()
 		{
-			return water;
+			return levelRenderData;
 		}
 
-		const FaceList& getWater() const
+		const LevelRenderData& getLevelRenderData() const
 		{
-			return water;
+			return levelRenderData;
+		}
+
+		InfoMessageQueue& getMessageQueue()
+		{
+			return messageQueue;
+		}
+
+		const InfoMessageQueue& getMessageQueue() const
+		{
+			return messageQueue;
+		}
+
+		SpriteList& getSpriteList()
+		{
+			return spriteList;
+		}
+
+		const SpriteList& getSpriteList() const
+		{
+			return spriteList;
+		}
+
+		const Water::WaterSet& getWaterSet() const
+		{
+			return waterSet;
 		}
 
 		GLuint getBackground() const
 		{
-			return background;
+			return (GLuint)background;
 		}
-
-		Int32 getSizeX() const
-		{
-			return width;
-		}
-
-		Int32 getSizeY() const
-		{
-			return height;
-		}
-                
-		bool isWater(Int32 x, Int32 y) const
-		{
-			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Water) : false;
-		}
-
-		bool isWall(Int32 x, Int32 y, bool outside) const
-		{
-			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
-		}
-
-		Water::Type getWaterType(Int32 x, Int32 y) const;
 
 	private:
-		void loadBlockMeta(const std::string& path);
-		Block::Type determineBlockType(const std::string& kind) const;
-
-		void mirrorLevelData();
-
-		void addWallFaces();
-		void addSpriteFaces();
-		void addWaterFaces();
-		void addWall(const Block& block, Int32 x, Int32 y);
-		void addWater(const Block& block, Int32 x, Int32 y);
-		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);		
-
-		bool isInside(Int32 x, Int32 y) const
-		{
-			return (x >= 0 && x < width && y >= 0 && y < height);
-		}
-
-		Uint16 getBlock(Int32 x, Int32 y) const
-		{
-			return levelData[(height - y - 1) * width + x];
-		}
-
-		void setBlock(Uint16 block, Int32 x, Int32 y)
-		{
-			levelData[(height - y - 1) * width + x] = block;
-		}
-
-		const Block& getBlockMeta(Int32 x, Int32 y) const
-		{
-			return blockMeta[getBlock(x, y)];
-		}
-
-		Uint16 findWaterType() const;
+		void loadElevators(const std::string& path, bool mirror);
 	};
 }
 
