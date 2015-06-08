@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Json/JsonParser.h"
+#include "json/JsonParser.h"
 #include "PlayerSkinColors.h"
 
 namespace Duel6
