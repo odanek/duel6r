@@ -1,5 +1,8 @@
 language: cpp
 
+compiler:
+  - gcc
+
 before_install:
   - yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
   - yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
