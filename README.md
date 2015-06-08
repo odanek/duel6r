@@ -1,4 +1,7 @@
-# Duel 6 Reloaded
+# Duel 6 Reloaded [![Build Status](https://travis-ci.org/DaleRunner/duel6r.svg?branch=master)](https://travis-ci.org/DaleRunner/duel6r)
+
+
+
 
 ## Description
 Duel 6 Reloaded is a **cross-platform open-source last-man-standing 2D multi-player game**. The game currently supports up to **10 players** that can compete in **26 arenas**. The arenas consist of solid blocks, moving platforms and water sections. Players are able to move through the environment using walking, jumping and crouching and use weapons to eliminate their opponents. There is a diverse set of **12 available weapons** that differ in shot and reload speed, shot power and splash damage. In addition players can pick up various bonuses to boost their stamina and other characteristics. The number of rounds can be specified and the game collects player **statistics** during the gameplay such as number of wins, kills or accuracy. There are negative points for comitting suicide and drowning that discourage players from performing kamikaze attacks. The game features **customizable player profiles** and **level editor**.
