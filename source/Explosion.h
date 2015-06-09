@@ -28,18 +28,36 @@
 #ifndef DUEL6_EXPLOSION_H
 #define DUEL6_EXPLOSION_H
 
+#include <list>
 #include "Type.h"
 #include "Color.h"
 #include "TextureManager.h"
 #include "Vector.h"
+#include "GameResources.h"
 
 namespace Duel6
 {
-	void EXPL_Init(TextureManager& textureManager);
-	void EXPL_Clear();
-	void EXPL_MoveAll(Float32 elapsedTime);
-	void EXPL_DrawAll();
-	void EXPL_Add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color);
+	struct Explosion
+	{
+		Vector centre;
+		Float32 now;
+		Float32 max;
+		Color color;
+	};
+
+	class ExplosionList
+	{
+	private:
+		TextureManager::Texture textures;
+		std::list<Explosion> explosions;
+		Float32 speed;
+
+	public:
+		ExplosionList(const GameResources& resources, Float32 speed);
+		void update(Float32 elapsedTime);
+		void render() const;
+		void add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color);
+	};
 }
 
 #endif

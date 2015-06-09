@@ -25,58 +25,25 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <list>
-#include "Color.h"
 #include "Util.h"
 #include "Explosion.h"
 
-#define D6_EXPL_SPEED       0.61f
-
 namespace Duel6
 {
-	namespace
+	ExplosionList::ExplosionList(const GameResources& resources, Float32 speed)
+		: textures(resources.getExplosionTextures()), speed(speed)
 	{
-		struct Explosion
+	}
+
+	void ExplosionList::update(Float32 elapsedTime)
+	{
+		auto explIter = explosions.begin();
+		while (explIter != explosions.end())
 		{
-			Vector centre;
-			Float32 now;
-			Float32 max;
-			Color color;
-		};
-
-		std::list<Explosion> d6Explosions;
-		TextureManager::Texture textures;
-	}
-
-	void EXPL_Init(TextureManager& textureManager)
-	{
-		textures = textureManager.load(D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
-	}
-
-	void EXPL_Clear()
-	{
-		d6Explosions.clear();
-	}
-
-	void EXPL_Add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color)
-	{
-		Explosion explosion;
-		explosion.centre = centre;
-		explosion.now = startSize;
-		explosion.max = maxSize;
-		explosion.color = color;
-		d6Explosions.push_back(explosion);
-	}
-
-	void EXPL_MoveAll(Float32 elapsedTime)
-	{
-		auto explIter = d6Explosions.begin();
-		while (explIter != d6Explosions.end())
-		{
-			explIter->now += D6_EXPL_SPEED * elapsedTime;
+			explIter->now += speed * elapsedTime;
 			if (explIter->now > explIter->max)
 			{
-				explIter = d6Explosions.erase(explIter);
+				explIter = explosions.erase(explIter);
 			}
 			else
 			{
@@ -85,14 +52,14 @@ namespace Duel6
 		}
 	}
 
-	void EXPL_DrawAll()
+	void ExplosionList::render() const
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_DEPTH_TEST);
 		glBindTexture(GL_TEXTURE_2D, textures.getGlTextures()[0]);
 		glBegin(GL_QUADS);
 
-		for (const Explosion& explosion : d6Explosions)
+		for (const Explosion& explosion : explosions)
 		{
 			glColor3ub(explosion.color.getRed(), explosion.color.getGreen(), explosion.color.getBlue());
 			glTexCoord2f(0.0f, 0.0f);
@@ -109,5 +76,15 @@ namespace Duel6
 		glColor3f(1, 1, 1);
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_DEPTH_TEST);
+	}
+
+	void ExplosionList::add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color)
+	{
+		Explosion explosion;
+		explosion.centre = centre;
+		explosion.now = startSize;
+		explosion.max = maxSize;
+		explosion.color = color;
+		explosions.push_back(explosion);
 	}
 }

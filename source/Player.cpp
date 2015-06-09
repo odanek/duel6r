@@ -547,7 +547,7 @@ namespace Duel6
 		{
 			Rectangle rect = getCollisionRect();
 			Vector shotCentre = shot.getCentre();
-			EXPL_Add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, shotCentre.y), 0.2f, 0.5f, Color(255, 0, 0));
+			world->getExplosionList().add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, shotCentre.y), 0.2f, 0.5f, Color(255, 0, 0));
 		}
 
 		if (isDead())
@@ -555,7 +555,7 @@ namespace Duel6
 			if (weapon.explodes && directHit)
 			{
 				unsetFlag(FlagLying);
-				EXPL_Add(getCentre(), 0.5f, 1.2f, weapon.explosionColor); // TODO: Coord
+				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
 			}
 			return false;
 		}
@@ -596,7 +596,7 @@ namespace Duel6
 			if (weapon.explodes && directHit)
 			{
 				unsetFlag(FlagLying);
-				EXPL_Add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);  // TODO: Coord
+				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
 			}
 
 			return true;

@@ -28,7 +28,6 @@
 #include "World.h"
 #include "Game.h"
 #include "Weapon.h"
-#include "Explosion.h"
 #include "ElevatorList.h"
 #include "BonusList.h"
 #include "Fire.h"
@@ -39,7 +38,8 @@ namespace Duel6
 	World::World(Game& game, const std::string& levelPath, bool mirror, Size background)
 		: players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
 		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
-		  waterSet(game.getResources().getWaterSet()), background(background)
+		  explosionList(game.getResources(), D6_EXPL_SPEED), waterSet(game.getResources().getWaterSet()),
+		  background(background)
 	{
 		Console& console = game.getAppService().getConsole();
 		console.printLine(Format(D6_L("...Width   : {0}")) << level.getWidth());
@@ -54,7 +54,6 @@ namespace Duel6
 		console.printLine("...Loading elevators: ");
 		loadElevators(levelPath, mirror);
 		WPN_LevelInit();
-		EXPL_Clear();
 		BONUS_Clear();
 		FIRE_Find(levelRenderData.getSprites());
 	}
@@ -62,9 +61,9 @@ namespace Duel6
 	void World::update(Float32 elapsedTime)
 	{
 		spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
+		explosionList.update(elapsedTime);
 		levelRenderData.update(elapsedTime);
 		WPN_MoveShots(*this, elapsedTime);
-		EXPL_MoveAll(elapsedTime);
 		ELEV_MoveAll(elapsedTime);
 		messageQueue.update(elapsedTime);
 

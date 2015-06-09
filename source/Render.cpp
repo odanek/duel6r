@@ -556,7 +556,7 @@ namespace Duel6
 		roundKills();
 		hpBars();
 
-		EXPL_DrawAll();
+		world.getExplosionList().render();
 
 		if (game.getSettings().isWireframe())
 		{

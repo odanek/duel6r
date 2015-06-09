@@ -43,6 +43,7 @@ namespace Duel6
 		Sound::Sample roundStartSound;
 		TextureManager::Texture blockTextures;
 		TextureManager::Texture bcgTextures;
+		TextureManager::Texture explosionTextures;
 
 	public:
 		GameResources(AppService& appService);
@@ -75,6 +76,11 @@ namespace Duel6
 		const TextureManager::Texture& getBcgTextures() const
 		{
 			return bcgTextures;
+		}
+
+		const TextureManager::Texture& getExplosionTextures() const
+		{
+			return explosionTextures;
 		}
 	};
 }
