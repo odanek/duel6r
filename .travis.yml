@@ -1,4 +1,5 @@
 language: cpp
+
 compiler:
 - gcc
 
@@ -19,8 +20,10 @@ before_script:
   - cmake ..
 
 script: make
+
 notifications:
   email: false
+
 deploy:
   edge: true
   provider: releases
