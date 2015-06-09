@@ -48,5 +48,7 @@ namespace Duel6
 		blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
 		console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
 		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
+		console.printLine(Format("...Loading explosion textures: {0}") << D6_TEXTURE_EXPL_PATH);
+		explosionTextures = textureManager.load(D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
 	}
 }

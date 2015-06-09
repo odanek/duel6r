@@ -30,17 +30,11 @@
 #include "InfoMessageQueue.h"
 #include "Game.h"
 #include "Menu.h"
-#include "World.h"
 #include "ConsoleCommands.h"
-#include "Sound.h"
-#include "Video.h"
 #include "BonusList.h"
-#include "Explosion.h"
-#include "Font.h"
 #include "Weapon.h"
 #include "ElevatorList.h"
 #include "Fire.h"
-#include "Math.h"
 #include "Application.h"
 
 namespace Duel6
@@ -164,7 +158,6 @@ namespace Duel6
 
 		WPN_Init(textureManager, sound, console);
 		BONUS_Init(textureManager);
-		EXPL_Init(textureManager);
 		ELEV_Init(textureManager);
 		FIRE_Init(textureManager);
 
