@@ -201,7 +201,7 @@ namespace Duel6
 
 	void Player::shoot()
 	{
-		if (!getAmmo() || isReloading())
+		if (!getAmmo() || isReloading() || !hasGun())
 			return;
 
 		state.timeToReload = getReloadInterval();
@@ -287,7 +287,7 @@ namespace Duel6
 
 	void Player::checkKeys()
 	{
-		if (isDead() || isPickingGun())
+		if ((isDead() && !isGhost()) || isPickingGun())
 		{
 			return;
 		}
@@ -339,10 +339,12 @@ namespace Duel6
 		setAnm();
 
 		// Drop gun if still has it and died
-		if (isLying() && hasGun() && isOnGround())
+		if (isLying() && hasGun() && isOnGround() && !isGhost())
 		{
 			dropWeapon(world.getLevel());
-			unsetFlag(FlagHasGun);
+			unsetFlag(FlagHasGun | FlagLying);
+			setFlag(FlagGhost);
+			setAlpha(0.1f);
 		}
 
 		// Move intervals
@@ -398,7 +400,7 @@ namespace Duel6
 	{
 		Int16 *animation;
 
-		if (isDead())
+		if (isDead() && !isGhost())
 		{
 			if (isLying())
 			{
