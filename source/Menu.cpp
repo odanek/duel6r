@@ -39,11 +39,13 @@
 #include "json/JsonWriter.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
+#define ALL_PLAYER_LIST 1
+#define CUR_PLAYERS_LIST 2
 
 namespace Duel6
 {
-	Menu::Menu(AppService& appService)		
-		: appService(appService), font(appService.getFont()), video(appService.getVideo()), 
+	Menu::Menu(AppService& appService)
+		: appService(appService), font(appService.getFont()), video(appService.getVideo()),
 		sound(appService.getSound()), controlsManager(appService.getInput()), playMusic(false)
 	{}
 
@@ -60,15 +62,15 @@ namespace Duel6
 
 		for (const Person& person : persons.list())
 		{
-			listbox[1]->addItem(person.getName());
+			listbox[ALL_PLAYER_LIST]->addItem(person.getName());
 		}
 
 		Json::Value playing = json.get("playing");
 		for (Size i = 0; i < playing.getLength(); i++)
 		{
 			std::string name = playing.get(i).asString();
-			listbox[2]->addItem(name);
-			listbox[1]->delItem(name);
+			listbox[CUR_PLAYERS_LIST]->addItem(name);
+			listbox[ALL_PLAYER_LIST]->delItem(name);
 		}
 	}
 
@@ -100,11 +102,11 @@ namespace Duel6
 		listbox[0] = new Gui::Listbox(gui, true);
 		listbox[0]->setPosition(10, 199, 94, 12, 16);
 
-		listbox[1] = new Gui::Listbox(gui, true);
-		listbox[1]->setPosition(10, 470, 20, 13, 18);
+		listbox[ALL_PLAYER_LIST] = new Gui::Listbox(gui, true);
+		listbox[ALL_PLAYER_LIST]->setPosition(10, 470, 20, 13, 18);
 
-		listbox[2] = new Gui::Listbox(gui, false);
-		listbox[2]->setPosition(200, 470, 20, D6_MAX_PLAYERS, 18);
+		listbox[CUR_PLAYERS_LIST] = new Gui::Listbox(gui, false);
+		listbox[CUR_PLAYERS_LIST]->setPosition(200, 470, 20, D6_MAX_PLAYERS, 18);
 
 		listbox[3] = new Gui::Listbox(gui, true);
 		listbox[3]->setPosition(654, 410, 13, 6, 16);
@@ -127,14 +129,14 @@ namespace Duel6
 		button[0]->setPosition(200, 282, 80, 25);
 		button[0]->setCaption(">>");
 		button[0]->onClick([this](const Gui::Event&) {
-			addPlayer(listbox[1]->selectedIndex());
+			addPlayer(listbox[ALL_PLAYER_LIST]->selectedIndex());
 		});
 
 		button[1] = new Gui::Button(gui);
 		button[1]->setPosition(200, 253, 80, 25);
 		button[1]->setCaption("<<");
 		button[1]->onClick([this](const Gui::Event&) {
-			removePlayer(listbox[2]->selectedIndex());
+			removePlayer(listbox[CUR_PLAYERS_LIST]->selectedIndex());
 		});
 
 		button[2] = new Gui::Button(gui);
@@ -217,6 +219,7 @@ namespace Duel6
 			controlSwitch[i] = new Gui::Spinner(gui);
 			controlSwitch[i]->setPosition(370, 468 - i * 18, 120, 0);
 
+			// TODO: Might be deleted in future if the use case is fully covered with detect-all functionality
 			Gui::Button* button = new Gui::Button(gui);
 			button->setCaption("D");
 			button->setPosition(494, 466 - i * 18, 17, 17);
@@ -224,6 +227,19 @@ namespace Duel6
 				detectControls(i);
 			});
 		}
+
+		// Button to detect all user's controllers in a batch
+		Gui::Button* button = new Gui::Button(gui);
+		button->setCaption("D");
+		button->setPosition(490, 487, 24, 17);
+		button->onClick([this](const Gui::Event& ){
+			Size curPlayersCount = listbox[CUR_PLAYERS_LIST]->size();
+			for (Size j = 0; j < curPlayersCount; j++)
+			{
+				detectControls(j);
+			}
+		});
+
 
 		joyRescan();
 
@@ -241,7 +257,7 @@ namespace Duel6
 		{
 			listbox[4]->addItem(std::to_string(i + 1));
 		}
-		
+
 		for (Int32 i = 5; i < 21; i++)
 		{
 			listbox[6]->addItem(std::to_string(i));
@@ -257,9 +273,9 @@ namespace Duel6
 		json.set("persons", persons.toJson());
 
 		Json::Value playing = Json::Value::makeArray();
-		for (Size i = 0; i < listbox[2]->size(); i++)
+		for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++)
 		{
-			playing.add(Json::Value::makeString(listbox[2]->getItem(i)));
+			playing.add(Json::Value::makeString(listbox[CUR_PLAYERS_LIST]->getItem(i)));
 		}
 		json.set("playing", playing);
 
@@ -286,7 +302,7 @@ namespace Duel6
 
 		for (auto person : ranking)
 		{
-			std::string personStat = Format("{0,-17}|{1,8} |{2,8} |{3,8} |{4,8}% |{5,8} |{6,10} |{7,10}") 
+			std::string personStat = Format("{0,-17}|{1,8} |{2,8} |{3,8} |{4,8}% |{5,8} |{6,10} |{7,10}")
 				<< person->getName()
 				<< person->getGames()
 				<< person->getWins()
@@ -331,7 +347,7 @@ namespace Duel6
 		SDL_Event event;
 		bool answer;
 		while (true)
-		{			
+		{
 			if (SDL_PollEvent(&event))
 			{
 				if (event.type == SDL_KEYDOWN)
@@ -362,7 +378,7 @@ namespace Duel6
 	{
 		return question(D6_L("Really delete? (Y/N)"));
 	}
-	
+
 	void Menu::cleanPersonData()
 	{
 		for (Person& person : persons.list())
@@ -375,7 +391,7 @@ namespace Duel6
 
 	void Menu::detectControls(Size playerIndex)
 	{
-		showMessage("Press any control");
+		showMessage("Player " + listbox[CUR_PLAYERS_LIST]->getItem(playerIndex)  + ": Press any control");
 
 		SDL_Event event;
 		SDL_Keysym key;
@@ -423,7 +439,7 @@ namespace Duel6
 
 	void Menu::play()
 	{
-		if (listbox[2]->size() < 2)
+		if (listbox[CUR_PLAYERS_LIST]->size() < 2)
 		{
 			// TODO: message
 			return;
@@ -434,17 +450,17 @@ namespace Duel6
 			if(!question(D6_L("Clear statistics and start a new game? (Y/N)")))
 			{
 				return;
-				
+
 			}
 			cleanPersonData();
 		}
-				
+
 		// Persons, colors, controls
 		std::vector<Game::PlayerDefinition> playerDefinitions;
-		for (Size i = 0; i < listbox[2]->size(); i++)
+		for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++)
 		{
-			Person& person = persons.getByName(listbox[2]->getItem(i));
-			auto& profile = getPersonProfile(person.getName(), i);			
+			Person& person = persons.getByName(listbox[CUR_PLAYERS_LIST]->getItem(i));
+			auto& profile = getPersonProfile(person.getName(), i);
 			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->curItem());
 			playerDefinitions.push_back(Game::PlayerDefinition(person, profile.getSkinColors(), profile.getSounds(), controls));
 		}
@@ -478,7 +494,7 @@ namespace Duel6
 		}
 
 		// Screen
-		ScreenMode screenMode = (listbox[2]->size() > 4 || listbox[5]->selectedIndex() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
+		ScreenMode screenMode = (listbox[CUR_PLAYERS_LIST]->size() > 4 || listbox[5]->selectedIndex() == 0) ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
 		Int32 screenZoom = listbox[6]->selectedIndex() + 5;
 
 		// Start
@@ -488,18 +504,18 @@ namespace Duel6
 
 	void Menu::addPlayer(Int32 c)
 	{
-		if (c != -1 && listbox[2]->size() < D6_MAX_PLAYERS)
+		if (c != -1 && listbox[CUR_PLAYERS_LIST]->size() < D6_MAX_PLAYERS)
 		{
-			const std::string& name = listbox[1]->getItem(c);
-			for (Size i = 0; i < listbox[2]->size(); i++)
+			const std::string& name = listbox[ALL_PLAYER_LIST]->getItem(c);
+			for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++)
 			{
-				if(name.compare(listbox[2]->getItem(i)) == 0)
+				if(name.compare(listbox[CUR_PLAYERS_LIST]->getItem(i)) == 0)
 				{
 					return;
 				}
 			}
-			listbox[2]->addItem(name);
-			listbox[1]->delItem(c);
+			listbox[CUR_PLAYERS_LIST]->addItem(name);
+			listbox[ALL_PLAYER_LIST]->delItem(c);
 		}
 	}
 
@@ -507,8 +523,8 @@ namespace Duel6
 	{
 		if (c != -1)
 		{
-			listbox[1]->addItem(listbox[2]->getItem(c));
-			listbox[2]->delItem(c);
+			listbox[ALL_PLAYER_LIST]->addItem(listbox[CUR_PLAYERS_LIST]->getItem(c));
+			listbox[CUR_PLAYERS_LIST]->delItem(c);
 		}
 	}
 
@@ -519,7 +535,7 @@ namespace Duel6
 		if (!personName.empty() && !persons.contains(personName))
 		{
 			persons.add(Person(personName));
-			listbox[1]->addItem(personName);
+			listbox[ALL_PLAYER_LIST]->addItem(personName);
 			rebuildTable();
 			textbox->flush();
 		}
@@ -530,11 +546,11 @@ namespace Duel6
 		if (!deleteQuestion())
 			return;
 
-		Int32 c = listbox[1]->selectedIndex();
+		Int32 c = listbox[ALL_PLAYER_LIST]->selectedIndex();
 		if (c != -1)
 		{
-			const std::string& playerName = listbox[1]->selectedItem();
-			listbox[1]->delItem(playerName);
+			const std::string& playerName = listbox[ALL_PLAYER_LIST]->selectedItem();
+			listbox[ALL_PLAYER_LIST]->delItem(playerName);
 			persons.remove(playerName);
 		}
 	}
