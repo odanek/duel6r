@@ -28,6 +28,7 @@
 #ifndef DUEL6_GAMERESOURCES_H
 #define DUEL6_GAMERESOURCES_H
 
+#include <unordered_map>
 #include "Water.h"
 #include "Block.h"
 #include "AppService.h"
@@ -44,6 +45,7 @@ namespace Duel6
 		TextureManager::Texture blockTextures;
 		TextureManager::Texture bcgTextures;
 		TextureManager::Texture explosionTextures;
+		std::unordered_map<Size, TextureManager::Texture> fireTextures;
 
 	public:
 		GameResources(AppService& appService);
@@ -81,6 +83,11 @@ namespace Duel6
 		const TextureManager::Texture& getExplosionTextures() const
 		{
 			return explosionTextures;
+		}
+
+		const std::unordered_map<Size, TextureManager::Texture>& getFireTextures() const
+		{
+			return fireTextures;
 		}
 	};
 }

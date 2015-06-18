@@ -25,95 +25,64 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <vector>
 #include <SDL2/SDL_opengl.h>
 #include "Math.h"
-#include "FaceList.h"
-#include "Sprite.h"
-#include "TextureManager.h"
-#include "SpriteList.h"
-#include "World.h"
-
-#define D6_FIRES        2
+#include "Fire.h"
 
 namespace Duel6
 {
-	struct FireType
-	{
-		Size index;
-		Size block;
-		TextureManager::Texture texture;
-	};
+	std::vector<FireType> FireType::types;
+	const FireType FireType::CONIFEROUS_TREE(0, 7);
+	const FireType FireType::BROAD_LEAVED_TREE(1, 8);
 
-	struct Fire
+	namespace
 	{
-		Vector position;
-		Face* face;
-		FireType* type;
-		bool burned;
-	};
-
-	FireType d6FireTypes[D6_FIRES] = 
-	{
-		{ 0, 7 },
-		{ 1, 8 }
-	};
-	static std::vector<Fire> d6Fires;
-	static Int16 d6FireAnm[20] = { 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0 };
-
-	void FIRE_Init(TextureManager& textureManager)
-	{
-		for (FireType& ft : d6FireTypes)
-		{
-			ft.texture = textureManager.load(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << ft.index, GL_LINEAR, true);
-
-			glBindTexture(GL_TEXTURE_2D, ft.texture.getGlTextures()[2]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		}
+		Int16 fireAnimation[20] = { 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0 };
 	}
 
-	void FIRE_Find(FaceList& sprites)
-	{
-		d6Fires.clear();
+	Fire::Fire(const FireType& type, Face& face, const Vector& position)
+		: type(type), face(face), position(position), burned(false)
+	{}
 
-		Size i = 0;
+	FireList::FireList(const GameResources& resources)
+		: textures(resources.getFireTextures())
+	{}
+
+	void FireList::find(FaceList& sprites)
+	{
+		Size faceIndex = 0;
 		for (Face& face : sprites.getFaces())
 		{
-			for (FireType& ft : d6FireTypes)
+			for (const FireType& type : FireType::values())
 			{
-				if (face.getBlock().getIndex() == ft.block)
+				if (face.getBlock().getIndex() == type.getBlock())
 				{
-					Fire fire;
-					fire.position.x = sprites.getVertexes()[i << 2].x;
-					fire.position.y = sprites.getVertexes()[i << 2].y - 1.0f;
-					fire.burned = false;
-					fire.face = &face;
-					fire.type = &ft;
-					d6Fires.push_back(fire);
+					const Vertex& vertex = sprites.getVertexes()[faceIndex << 2];
+					Vector position(vertex.x, vertex.y - 1.0f);
+					fires.push_back(Fire(type, face, position));
 				}
 			}
 
-			i++;
+			faceIndex++;
 		}
 	}
 
-	void FIRE_Check(const Vector& explCentre, Float32 d, SpriteList& spriteList)
+	void FireList::check(const Vector& explCentre, Float32 d, SpriteList& spriteList)
 	{
-		for (Fire& fire : d6Fires)
+		for (Fire& fire : fires)
 		{
-			if (!fire.burned)
+			if (!fire.isBurned())
 			{
-				Vector fireCentre = fire.position + Vector(0.5f, 0.5f);
+				Vector fireCentre = fire.getPosition() + Vector(0.5f, 0.5f);
 				Float32 distance = (explCentre - fireCentre).length();
 
 				if (distance < d)
 				{
-					fire.burned = true;
-					fire.face->hide();
+					fire.setBurned(true);
+					fire.getFace().hide();
 
-					Sprite fireSprite(d6FireAnm, fire.type->texture);
-					fireSprite.setPosition(fire.position, 0.75f)
+					Sprite fireSprite(fireAnimation, textures.at(fire.getType().getId()));
+					fireSprite.setPosition(fire.getPosition(), 0.75f)
 						.setLooping(AnimationLooping::OnceAndStop);
 					spriteList.addSprite(fireSprite);
 				}
