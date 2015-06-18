@@ -71,6 +71,8 @@ namespace Duel6
 		Sound::Sample boomSample;
 	};
 
+	extern Weapon d6WpnDef[D6_WEAPONS];
+
 	void WPN_Init(TextureManager& textureManager, Sound& sound, Console& console);
 	void WPN_DeInit();
 	void WPN_LevelInit();
