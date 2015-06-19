@@ -233,9 +233,14 @@ namespace Duel6
 		return *this;
 	}
 
-	void Player::makeMove(const Level& level, Float32 elapsedTime)
-	{
+	void Player::makeMove(const Level& level, Float32 elapsedTime) {
 		Float32 speed = getSpeed() * elapsedTime;
+
+		if (isOnElevator() && level.isWall((Int32) getPosition().x, (Int32) getPosition().y, false))
+		{
+			state.velocity = 0;
+		}
+
 		state.elevator = nullptr;
 
 		moveVertical(level, elapsedTime, speed);
