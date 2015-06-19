@@ -160,8 +160,6 @@ namespace Duel6
 			std::pair<Int32, Int32>& position = startingPositions.front();
 			player.startGame(world, position.first, position.second, ammo);
 			startingPositions.pop();
-
-			player.setBonus(D6_BONUS_INVUL, 2);
 		}
 
 		setPlayerViews();
