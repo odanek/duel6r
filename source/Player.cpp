@@ -339,11 +339,15 @@ namespace Duel6
 		setAnm();
 
 		// Drop gun if still has it and died
-		if (isLying() && hasGun() && isOnGround() && !isGhost())
+		if (isLying() && hasGun() && isOnGround())
 		{
 			clearBonus();
 			dropWeapon(world.getLevel());
 			unsetFlag(FlagHasGun | FlagLying);
+		}
+
+		if (isDead() && !hasGun() && !isGhost() && (state.timeToGhost -= elapsedTime) <= 0)
+		{
 			setFlag(FlagGhost);
 			setAlpha(0.1f);
 		}
