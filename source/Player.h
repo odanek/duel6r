@@ -307,6 +307,14 @@ namespace Duel6
 			return state.bonus;
 		}
 
+		void clearBonus()
+		{
+			setAlpha(1.0f);
+			state.bonus = -1;
+			state.bonusRemainingTime = 0;
+			state.bonusDuration = 0;
+		}
+
 		Float32 getBonusRemainingTime() const
 		{
 			return state.bonusRemainingTime;

@@ -341,6 +341,7 @@ namespace Duel6
 		// Drop gun if still has it and died
 		if (isLying() && hasGun() && isOnGround() && !isGhost())
 		{
+			clearBonus();
 			dropWeapon(world.getLevel());
 			unsetFlag(FlagHasGun | FlagLying);
 			setFlag(FlagGhost);
@@ -360,13 +361,7 @@ namespace Duel6
 		{
 			if ((state.bonusRemainingTime -= elapsedTime) <= 0)
 			{
-				if (getBonus() == D6_BONUS_INVIS)
-				{
-					setAlpha(1.0f);
-				}
-				state.bonus = -1;
-				state.bonusRemainingTime = 0;
-				state.bonusDuration = 0;
+				clearBonus();
 			}
 		}
 
