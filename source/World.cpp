@@ -30,7 +30,6 @@
 #include "Weapon.h"
 #include "ElevatorList.h"
 #include "BonusList.h"
-#include "Fire.h"
 #include "json/JsonParser.h"
 
 namespace Duel6
@@ -38,8 +37,8 @@ namespace Duel6
 	World::World(Game& game, const std::string& levelPath, bool mirror, Size background)
 		: players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
 		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
-		  explosionList(game.getResources(), D6_EXPL_SPEED), waterSet(game.getResources().getWaterSet()),
-		  background(background)
+		  explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources()),
+		  waterSet(game.getResources().getWaterSet()), background(background)
 	{
 		Console& console = game.getAppService().getConsole();
 		console.printLine(Format(D6_L("...Width   : {0}")) << level.getWidth());
@@ -55,7 +54,7 @@ namespace Duel6
 		loadElevators(levelPath, mirror);
 		WPN_LevelInit();
 		BONUS_Clear();
-		FIRE_Find(levelRenderData.getSprites());
+		fireList.find(levelRenderData.getSprites());
 	}
 
 	void World::update(Float32 elapsedTime)

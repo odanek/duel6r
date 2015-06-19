@@ -28,16 +28,99 @@
 #ifndef DUEL6_FIRE_H
 #define DUEL6_FIRE_H
 
+#include <vector>
+#include <unordered_map>
 #include "Type.h"
 #include "FaceList.h"
 #include "TextureManager.h"
 #include "SpriteList.h"
+#include "GameResources.h"
 
 namespace Duel6
 {
-	void FIRE_Init(TextureManager& textureManager);
-	void FIRE_Find(FaceList& sprites);
-	void FIRE_Check(const Vector& explCentre, Float32 d, SpriteList& spriteList);
+	class FireType
+	{
+	public:
+		static const FireType CONIFEROUS_TREE;
+		static const FireType BROAD_LEAVED_TREE;
+
+	private:
+		static std::vector<FireType> types;
+		Size id;
+		Size block;
+
+	private:
+		FireType(Size id, Size block)
+			: id(id), block(block)
+		{
+			types.push_back(*this);
+		}
+
+	public:
+		static const std::vector<FireType>& values()
+		{
+			return types;
+		}
+
+		Size getId() const
+		{
+			return id;
+		}
+
+		Size getBlock() const
+		{
+			return block;
+		}
+	};
+
+	class Fire
+	{
+	private:
+		const FireType& type;
+		Face& face;
+		Vector position;
+		bool burned;
+
+	public:
+		Fire(const FireType& type, Face& face, const Vector& position);
+
+		const FireType& getType() const
+		{
+			return type;
+		}
+
+		const Vector& getPosition() const
+		{
+			return position;
+		}
+
+		Face& getFace() const
+		{
+			return face;
+		}
+
+		bool isBurned() const
+		{
+			return burned;
+		}
+
+		void setBurned(bool burned)
+		{
+			this->burned = burned;
+		}
+	};
+
+	class FireList
+	{
+	private:
+		const std::unordered_map<Size, TextureManager::Texture>& textures;
+		std::vector<Fire> fires;
+
+	public:
+		FireList(const GameResources& resources);
+		void find(FaceList& sprites);
+		void check(const Vector& explCentre, Float32 d, SpriteList& spriteList);
+	};
 }
 
 #endif

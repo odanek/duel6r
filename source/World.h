@@ -32,6 +32,7 @@
 #include "InfoMessageQueue.h"
 #include "LevelRenderData.h"
 #include "Explosion.h"
+#include "Fire.h"
 
 namespace Duel6
 {
@@ -46,10 +47,10 @@ namespace Duel6
 		InfoMessageQueue messageQueue;
 		SpriteList spriteList;
 		ExplosionList explosionList;
+		FireList fireList;
 		const Water::WaterSet& waterSet;
 		Size background;
 		// Bonus list
-		// Fire list
 
 	public:
 		World(Game& game, const std::string& levelPath, bool mirror, Size background);
@@ -115,6 +116,16 @@ namespace Duel6
 		const ExplosionList& getExplosionList() const
 		{
 			return explosionList;
+		}
+
+		FireList& getFireList()
+		{
+			return fireList;
+		}
+
+		const FireList& getFireList() const
+		{
+			return fireList;
 		}
 
 		const Water::WaterSet& getWaterSet() const

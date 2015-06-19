@@ -236,7 +236,7 @@ namespace Duel6
 			if(waterFillWait > D6_RAISE_WATER_WAIT)
 			{
 				waterFillWait = 0;
-				//world.raiseWater();
+				world.raiseWater();
 			}
 		}
 
