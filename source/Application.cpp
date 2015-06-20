@@ -159,7 +159,6 @@ namespace Duel6
 		WPN_Init(textureManager, sound, console);
 		BONUS_Init(textureManager);
 		ELEV_Init(textureManager);
-		FIRE_Init(textureManager);
 
 		// Execute config script and command line arguments
 		console.printLine("\n===Config===");

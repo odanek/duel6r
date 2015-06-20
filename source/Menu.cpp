@@ -391,6 +391,7 @@ namespace Duel6
 
 	void Menu::detectControls(Size playerIndex)
 	{
+		render();
 		showMessage("Player " + listbox[CUR_PLAYERS_LIST]->getItem(playerIndex)  + ": Press any control");
 
 		SDL_Event event;

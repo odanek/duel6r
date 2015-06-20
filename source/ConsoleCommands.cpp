@@ -38,8 +38,6 @@
 
 namespace Duel6
 {
-	extern Weapon* d6WpnDef;
-
 	/*
 	==================================================
 	Set language - console command

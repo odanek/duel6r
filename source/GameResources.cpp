@@ -25,8 +25,10 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <SDL2/SDL_opengl.h>
 #include "GameResources.h"
 #include "Defines.h"
+#include "Fire.h"
 
 namespace Duel6
 {
@@ -50,5 +52,16 @@ namespace Duel6
 		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
 		console.printLine(Format("...Loading explosion textures: {0}") << D6_TEXTURE_EXPL_PATH);
 		explosionTextures = textureManager.load(D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
+
+		console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
+		for (const FireType& fireType : FireType::values())
+		{
+			TextureManager::Texture texture = textureManager.load(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(), GL_LINEAR, true);
+			fireTextures[fireType.getId()] = texture;
+
+			glBindTexture(GL_TEXTURE_2D, texture.getGlTextures()[2]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
 	}
 }

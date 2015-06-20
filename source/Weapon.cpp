@@ -115,7 +115,7 @@ namespace Duel6
 		player.getWeapon().shotSample.play();
 	}
 
-	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit, SpriteList& spriteList)
+	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit, SpriteList& spriteList, FireList& fireList)
 	{
 		std::vector<const Player*> killedPlayers;
 		Player& author = shot.getPlayer();
@@ -128,7 +128,7 @@ namespace Duel6
 
 		if (!shit)
 		{
-			FIRE_Check(shotCentre, range, spriteList);
+			fireList.check(shotCentre, range, spriteList);
 		}
 
 		for (Player& player : players)
@@ -241,7 +241,7 @@ namespace Duel6
 
 			if (hit.hit)
 			{
-				WPN_Boom(*shot, world.getPlayers(), hit.player, world.getSpriteList());
+				WPN_Boom(*shot, world.getPlayers(), hit.player, world.getSpriteList(), world.getFireList());
 				const Vector shotCentre = shot->getCentre();
 				
 				Sprite boom(weapon.boomAnimation, weapon.textures.boom);
