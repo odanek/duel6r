@@ -85,6 +85,7 @@ set(D6R_SOURCES
     source/Formatter.h
     source/Game.cpp
     source/Game.h
+    source/GameMode.h
 	source/GameException.h
 	source/GameResources.h
 	source/GameResources.cpp
@@ -209,6 +210,18 @@ set(D6R_SOURCES
     source/collision/Collision.cpp
 	source/collision/WorldCollision.cpp
 	source/collision/WorldCollision.h
+  
+  
+    source/gamemodes/_GameModeList.h
+    source/gamemodes/DeathMatch.h
+    source/gamemodes/DeathMatch.cpp
+    source/gamemodes/TeamDeathMatch.h
+    source/gamemodes/TeamDeathMatch.cpp
+    source/gamemodes/InvisibleMan.cpp 
+    source/gamemodes/InvisibleMan.h
+    
+    source/PlayerEventListener.h 
+    source/PlayerEventListener.cpp    
 )
 
 if(WIN32)

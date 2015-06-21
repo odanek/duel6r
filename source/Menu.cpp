@@ -37,6 +37,8 @@
 #include "Font.h"
 #include "json/JsonParser.h"
 #include "json/JsonWriter.h"
+#include "GameMode.h"
+#include "GameModes/_GameModeList.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
 #define ALL_PLAYER_LIST 1
@@ -240,6 +242,17 @@ namespace Duel6
 			}
 		});
 
+
+		gameModeSwitch = new Gui::Spinner(gui);
+		for(GameMode* gameMode :GAME_MODES)
+		{
+			gameModeSwitch->addItem(gameMode->getName());
+		}
+		gameModeSwitch->setPosition(10,0, 280, 20);
+
+		//TODO: REMOVE AFTER DEBUG!
+		gameModeSwitch->setCur(2);
+		//----------------------
 
 		joyRescan();
 
@@ -500,7 +513,8 @@ namespace Duel6
 
 		// Start
 		Context::push(*game);
-		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom);
+		GameMode* selectedMode = GAME_MODES.at((unsigned long long int) gameModeSwitch->curItem());
+		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
 	}
 
 	void Menu::addPlayer(Int32 c)

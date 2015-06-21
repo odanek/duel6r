@@ -55,11 +55,6 @@ namespace Duel6
 		void update(Float32 elapsedTime);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
 
-		World& getWorld()
-		{
-			return world;
-		}
-
 		const World& getWorld() const
 		{
 			return world;

@@ -37,6 +37,7 @@ namespace Duel6
 		  deathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
 		  winner(-1)
 	{
+        game.getMode()->initialize(&world);
 		preparePlayers();
 	}
 
@@ -153,8 +154,11 @@ namespace Duel6
 		std::queue<std::pair<Int32, Int32>> startingPositions;
 		findStartingPositions(startingPositions);
 
-		for (Player& player : world.getPlayers())
+		std::vector<Player>& players = world.getPlayers();
+	    for (Uint32 i=0; i < players.size(); i++)
 		{
+			Player& player = players.at(i);
+
 			auto& ammoRange = game.getSettings().getAmmoRange();
 			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
 			std::pair<Int32, Int32>& position = startingPositions.front();
@@ -162,6 +166,7 @@ namespace Duel6
 			startingPositions.pop();
 
 			player.setBonus(D6_BONUS_INVUL, 2);
+			game.getMode()->preparePlayer(&player, i, players);
 		}
 
 		setPlayerViews();

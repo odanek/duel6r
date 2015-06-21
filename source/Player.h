@@ -29,6 +29,7 @@
 #define DUEL6_PLAYER_H
 
 #include <memory>
+#include <string>
 #include "mylib/mycam.h"
 #include "SpriteList.h"
 #include "Person.h"
@@ -44,6 +45,7 @@
 #include "Rectangle.h"
 #include "Defines.h"
 #include "Level.h"
+#include "PlayerEventListener.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -56,6 +58,7 @@ namespace Duel6
 	struct Weapon;
 	class World;
 	class InfoMessageQueue;
+    class PlayerEventListener;
 
 	struct PlayerView
 	{
@@ -104,6 +107,8 @@ namespace Duel6
 		Float32 TolX;
 		Float32 TolY;
 	};
+
+
 
 	class Player
 	{
@@ -162,7 +167,8 @@ namespace Duel6
 		SpriteList::Iterator gunSprite;
 		PlayerState state;
 		Int32 infoBarPosition[2];
-
+		std::string teamName;
+        PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
 
 	public:
@@ -180,6 +186,23 @@ namespace Duel6
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
 		bool hitByShot(Float32 pw, Shot& s, bool directHit);
+        void processKills(Shot &shot, std::vector<Player *> killedPlayers);
+        void processHits(Shot &shot, std::vector<Player *> hittedPlayers);
+
+        void setEventListener(PlayerEventListener* listener)
+        {
+            eventListener = listener;
+        }
+
+		bool hasAnyTeam() const;
+		bool hasTeam(std::string team) const;
+		void setTeam(std::string team);
+		void unsetTeam();
+		std::string getTeam() const;
+
+
+		void setOverlay(Color overlay);
+		void unsetOverlay();
 
 		const Vector& getPosition() const
 		{

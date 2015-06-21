@@ -44,6 +44,7 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "Round.h"
+#include "GameMode.h"
 
 namespace Duel6
 {
@@ -89,6 +90,7 @@ namespace Duel6
 		AppService& appService;
 		GameResources resources;
 		GameSettings& settings;
+		GameMode* gameMode;
 		std::unique_ptr<Round> round;
 		Renderer renderer;
 
@@ -102,7 +104,7 @@ namespace Duel6
 	public:
 		Game(AppService& appService, GameSettings& settings);
 
-		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom);
+		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode* gameMode);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
@@ -166,6 +168,11 @@ namespace Duel6
 		Renderer& getRenderer()
 		{
 			return renderer;
+		}
+
+		GameMode* getMode()
+		{
+			return gameMode;
 		}
 
 		const Renderer& getRenderer() const
