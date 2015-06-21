@@ -217,13 +217,15 @@ set(D6R_SOURCES
     source/gamemodes/DeathMatch.cpp
     source/gamemodes/TeamDeathMatch.h
     source/gamemodes/TeamDeathMatch.cpp
-    source/gamemodes/InvisibleMan.cpp 
-    source/gamemodes/InvisibleMan.h
+    source/gamemodes/Predator.cpp
+    source/gamemodes/Predator.h
     
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
-	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
 	source/gamemodes/TeamDeathMatchPlayerEventListener.h
+	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
+	source/gamemodes/PredatorPlayerEventListener.h
+	source/gamemodes/PredatorPlayerEventListener.cpp
 )
 
 if(WIN32)

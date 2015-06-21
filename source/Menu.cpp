@@ -250,9 +250,7 @@ namespace Duel6
 		}
 		gameModeSwitch->setPosition(10,0, 280, 20);
 
-		//TODO: REMOVE AFTER DEBUG!
-		gameModeSwitch->setCur(2);
-		//----------------------
+
 
 		joyRescan();
 
