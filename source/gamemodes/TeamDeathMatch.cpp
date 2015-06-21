@@ -28,6 +28,16 @@ void Duel6::TeamDeathMatch::preparePlayer(Player *player, Int32 playerIndex, std
 
 bool Duel6::TeamDeathMatch::checkRoundOver(Duel6::World *world, std::vector<Duel6::Player*> &alivePlayers)
 {
+    if (alivePlayers.size() == 0)
+    {
+        for (const Player& player : world->getPlayers())
+        {
+            world->getMessageQueue().add(player, D6_L("End of round - no winner"));
+        }
+        return true;
+    }
+
+
     bool oneTeamRemaining = true;
     std::string lastAliveTeam = "";
 
