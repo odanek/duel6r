@@ -9,45 +9,30 @@
 
 namespace Duel6 {
 
-    class TDMPlayerEventListener;
     class PlayerEventListener;
 
-    class TeamDeathMatch : public GameMode {
+    class TeamDeathMatch : public GameMode
+    {
+
     private:
         Int32 teamsCount;
         bool friendlyFire;
-        Int32 nextTeam;
-        PlayerEventListener* eventListener;
+        PlayerEventListener *eventListener;
+
+
     public:
         TeamDeathMatch(Int32 teamsCount, bool friendlyFire)
-                : teamsCount(teamsCount), friendlyFire(friendlyFire)
+                : teamsCount(teamsCount), friendlyFire(friendlyFire), eventListener(nullptr)
         { }
 
         std::string getName()
         {
-            return Format("Team deathmatch ({0} teams{1})") << std::to_string(teamsCount) << (friendlyFire? ", FF" : "");
+            return Format("Team deathmatch ({0} teams{1})") << std::to_string(teamsCount) << (friendlyFire ? ", FF" : "");
         }
 
-        void initialize(World *world);
+        void initialize(World *world, Duel6::Game *game);
         void preparePlayer(Player *player, Int32 playerIndex, std::vector<Player> &allPlayers);
-        bool roundIsOver(Duel6::World world);
-    };
-
-
-    class TDMPlayerEventListener : PlayerEventListener
-    {
-    private:
-        bool friendlyFire;
-    public:
-        TDMPlayerEventListener(InfoMessageQueue *messageQueue, bool friendlyFire)
-                : PlayerEventListener(messageQueue), friendlyFire(friendlyFire)
-        {
-
-        }
-
-        bool onDamageByShot(Duel6::Player &player, Duel6::Player &shootingPlayer, Duel6::Float32 amount, Duel6::Shot &shot, bool directHit);
-
-        void onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicice);
+        bool checkRoundOver(World *world, std::vector<Player*> &alivePlayers);
     };
 
 }

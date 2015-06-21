@@ -16,9 +16,9 @@ namespace Duel6
     {
     public:
         virtual std::string getName() = 0;
-        virtual void initialize(World *world) = 0;
+        virtual void initialize(World *world, Duel6::Game *game) = 0;
         virtual void preparePlayer(Player *player, Int32 playerIndex, std::vector<Player> &allPlayers) = 0;
-        virtual bool roundIsOver(World world) = 0;
+        virtual bool checkRoundOver(World *world, std::vector<Player*> &alivePlayers) = 0;
     };
 }
 #endif //DUEL6R_GAMEMODE_H

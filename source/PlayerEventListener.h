@@ -7,6 +7,7 @@
 
 
 #include "Type.h"
+#include "GameSettings.h"
 
 namespace Duel6
 {
@@ -14,17 +15,21 @@ namespace Duel6
     class Player;
     class InfoMessageQueue;
     class Shot;
+    class GameSettings;
 
     class PlayerEventListener
     {
     protected:
         InfoMessageQueue* messageQueue;
+        GameSettings* gameSettings;
 
     public:
 
-        PlayerEventListener(InfoMessageQueue*messageQueue)
-                : messageQueue(messageQueue)
+        PlayerEventListener(InfoMessageQueue*messageQueue, GameSettings* gameSettings)
+            : messageQueue(messageQueue), gameSettings(gameSettings)
         { }
+
+        virtual ~PlayerEventListener() { }
 
         /**
          * Event which is being triggered when player takes damage from another player.

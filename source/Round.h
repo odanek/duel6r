@@ -47,9 +47,11 @@ namespace Duel6
 		Float32 waterFillWait;
 		Float32 showYouAreHere;
 		Float32 gameOverWait;
-		Int32 winner;
+		bool winner;
+        std::vector<Player*> alivePlayers;
 
-	public:
+
+    public:
 		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background);
 
 		void update(Float32 elapsedTime);
@@ -61,11 +63,6 @@ namespace Duel6
 		}
 
 		bool hasWinner() const
-		{
-			return winner > 0;
-		}
-
-		Int32 getWinner() const
 		{
 			return winner;
 		}

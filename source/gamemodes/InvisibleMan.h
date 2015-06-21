@@ -29,9 +29,9 @@ namespace Duel6
         {
             return "Deathmatch";
         }
-        void initialize(World *world);
+        void initialize(World *world, Duel6::Game *game);
         void preparePlayer(Player *player, Int32 playerIndex, std::vector<Player> &allPlayers);
-        bool roundIsOver(Duel6::World world);
+        bool checkRoundOver(World *world, std::vector<Player*> &alivePlayers);
     };
 }
 #endif //DUEL6R_INVISIBLEMAN_H

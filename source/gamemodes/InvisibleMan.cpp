@@ -4,7 +4,7 @@
 
 #include "InvisibleMan.h"
 
-void Duel6::InvisibleMan::initialize(Duel6::World *world)
+void Duel6::InvisibleMan::initialize(Duel6::World *world, Duel6::Game *game)
 {
 
 }
@@ -14,7 +14,8 @@ void Duel6::InvisibleMan::preparePlayer(Duel6::Player *player, Duel6::Int32 play
 
 }
 
-bool Duel6::InvisibleMan::roundIsOver(Duel6::World world)
+bool Duel6::InvisibleMan::checkRoundOver(Duel6::World *world, std::vector<Duel6::Player*> &vector)
 {
     return false;
 }
+

@@ -35,9 +35,9 @@ namespace Duel6
 	Round::Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background)
 		: game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background),
 		  deathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
-		  winner(-1)
+		  winner(false)
 	{
-        game.getMode()->initialize(&world);
+        game.getMode()->initialize(&world, &game);
 		preparePlayers();
 	}
 
@@ -174,47 +174,36 @@ namespace Duel6
 
 	void Round::checkWinner()
 	{
-		int numAlive = 0;
-		Player* lastAlive = nullptr;
+        std::vector<Player>& allPlayers = world.getPlayers();
 
-		for (Player& player : world.getPlayers())
-		{
-			if (!player.isDead())
-			{
-				numAlive++;
-				lastAlive = &player;
-			}
-		}
+        alivePlayers.clear();
 
-		if (numAlive < 2)
+        // todo: rewrite to copy_if if it is possible to do it that way without billion lines of compile errors:-)
+        for (Player& player : allPlayers)
+        {
+            if (!player.isDead())
+            {
+                alivePlayers.push_back(&player);
+            }
+        }
+        if (alivePlayers.size() == 2 && allPlayers.size() > 2)
+        {
+            deathMode = true;
+        }
+
+		if (game.getMode()->checkRoundOver(&world, alivePlayers))
 		{
-			winner = 1;
+			winner = true;
 			gameOverWait = D6_GAME_OVER_WAIT;
 
-			if (numAlive == 1)
-			{
-				world.getMessageQueue().add(*lastAlive, D6_L("You have won - press ESC to quit or F1 for another round"));
-				lastAlive->getPerson().addWins(1);
-			}
-			else
-			{
-				for (const Player& player : world.getPlayers())
-				{
-					world.getMessageQueue().add(player, D6_L("End of round - no winner"));
-				}
-			}
 			game.getResources().getGameOverSound().play();
-		}
-		else if (numAlive == 2 && world.getPlayers().size() > 2)
-		{
-			deathMode = true;
 		}
 	}
 
 	void Round::update(Float32 elapsedTime)
 	{
 		// Check if there's a winner
-		if (winner == -1)
+		if (!winner)
 		{
 			checkWinner();
 		}

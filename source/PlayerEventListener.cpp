@@ -26,12 +26,20 @@ void Duel6::PlayerEventListener::onKillByPlayer(Player& player, Player& killer, 
 
     if (suicide)
     {
-        this->messageQueue->add(killer, Format(D6_L("killed also [{0}]")) << player.getPerson().getName());
+        messageQueue->add(killer, Format(D6_L("killed also [{0}]")) << player.getPerson().getName());
+        if (gameSettings->getScreenMode() == Duel6::ScreenMode::SplitScreen)
+        {
+            messageQueue->add(player, Format(D6_L("killed by suicide of [{0}]")) << killer.getPerson().getName());
+        }
         killer.getPerson().addPenalties(1);
     }
     else
     {
-        this->messageQueue->add(killer, Format(D6_L("killed [{0}]")) << player.getPerson().getName());
+        messageQueue->add(killer, Format(D6_L("killed [{0}]")) << player.getPerson().getName());
+        if (gameSettings->getScreenMode() == Duel6::ScreenMode::SplitScreen)
+        {
+            messageQueue->add(player, Format(D6_L("killed by [{0}]")) << killer.getPerson().getName());
+        }
         killer.getPerson().addKills(1);
         killer.addRoundKills(1);
     }

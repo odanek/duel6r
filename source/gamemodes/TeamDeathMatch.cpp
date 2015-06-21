@@ -3,6 +3,8 @@
 //
 
 #include "TeamDeathMatch.h"
+#include "../Game.h"
+#include "TeamDeathMatchPlayerEventListener.h"
 
 // Predefined teams as a temporary solution
 std::vector<std::string> TEAMS = {"Alpha", "Bravo", "Charlie", "Delta", "Echo"};
@@ -23,41 +25,47 @@ void Duel6::TeamDeathMatch::preparePlayer(Player *player, Int32 playerIndex, std
     player->setEventListener(eventListener);
 }
 
-bool Duel6::TeamDeathMatch::roundIsOver(Duel6::World world)
+
+bool Duel6::TeamDeathMatch::checkRoundOver(Duel6::World *world, std::vector<Duel6::Player*> &alivePlayers)
 {
-    return false;
+    bool oneTeamRemaining = true;
+    std::string lastAliveTeam = "";
+
+    for (Player *player : alivePlayers)
+    {
+        if (lastAliveTeam == "")
+        {
+            lastAliveTeam = player->getTeam();
+        }
+        else if (lastAliveTeam != player->getTeam())
+        {
+            oneTeamRemaining = false;
+            break;
+        }
+    }
+
+    if (oneTeamRemaining)
+    {
+        for(Player& player : world->getPlayers())
+        {
+            if (player.hasTeam(lastAliveTeam))
+            {
+                world->getMessageQueue().add(player, Format("Team {0} won!") << lastAliveTeam);
+                player.getPerson().addWins(1);
+            }
+        }
+    }
+
+    return oneTeamRemaining;
 }
 
-void Duel6::TeamDeathMatch::initialize(Duel6::World *world)
+
+void Duel6::TeamDeathMatch::initialize(Duel6::World *world, Duel6::Game *game)
 {
     if (eventListener)
     {
-        free(eventListener);
+        delete eventListener;
     }
 
-    eventListener = (PlayerEventListener *) new TDMPlayerEventListener(&world->getMessageQueue(), friendlyFire);
-}
-
-bool Duel6::TDMPlayerEventListener::onDamageByShot(Duel6::Player &player, Duel6::Player &shootingPlayer, Duel6::Float32 amount, Duel6::Shot &shot, bool directHit)
-{
-
-    if (!friendlyFire && player.hasTeam(shootingPlayer.getTeam()))
-    {
-        return false;
-    }
-
-    return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
-}
-
-void Duel6::TDMPlayerEventListener::onKillByPlayer(Duel6::Player &player, Duel6::Player &killer, Duel6::Shot &shot, bool suicide)
-{
-    if (!suicide && player.hasTeam(killer.getTeam()))
-    {
-        messageQueue->add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
-        killer.getPerson().addPenalties(1);
-    }
-    else
-    {
-        PlayerEventListener::onKillByPlayer(player, killer, shot, suicide);
-    }
+    eventListener = new TeamDeathMatchPlayerEventListener (&world->getMessageQueue(), &game->getSettings(), friendlyFire);
 }

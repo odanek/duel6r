@@ -221,7 +221,9 @@ set(D6R_SOURCES
     source/gamemodes/InvisibleMan.h
     
     source/PlayerEventListener.h 
-    source/PlayerEventListener.cpp    
+    source/PlayerEventListener.cpp
+	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
+	source/gamemodes/TeamDeathMatchPlayerEventListener.h
 )
 
 if(WIN32)
