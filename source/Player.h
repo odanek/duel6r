@@ -146,7 +146,6 @@ namespace Duel6
 			Float32 hpBarDuration;
 			Float32 timeSinceHit;
 			Float32 tempSkinDuration;
-			Float32 timeToGhost = 10.0f;
 			const Weapon *weapon;
 			const Elevator* elevator;
 		};

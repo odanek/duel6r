@@ -348,13 +348,7 @@ namespace Duel6
 		{
 			clearBonus();
 			dropWeapon(world.getLevel());
-			unsetFlag(FlagHasGun | FlagLying);
-		}
-
-		if (isDead() && !hasGun() && !isGhost() && (state.timeToGhost -= elapsedTime) <= 0)
-		{
-			setFlag(FlagGhost);
-			setAlpha(0.1f);
+			unsetFlag(FlagHasGun);
 		}
 
 		// Move intervals
@@ -562,6 +556,9 @@ namespace Duel6
 			{
 				unsetFlag(FlagLying);
 				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
+
+				setFlag(FlagGhost);
+				setAlpha(0.1f);
 			}
 			return false;
 		}
