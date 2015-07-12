@@ -72,7 +72,19 @@ namespace Duel6
 			console.printLine(Format(D6_L("Max rounds: {1}")) << gameSettings.getMaxRounds());
 		}
 	}
-	
+
+	void ConsoleCommands::ghostMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
+	{
+		if (args.length() == 2 && (args.get(1) == "on" || args.get(1) == "off"))
+		{
+			gameSettings.setGhostEnabled(args.get(1) == "on");
+		}
+		else
+		{
+			console.printLine(Format(D6_L("Ghost Mode [on/off]: {0}")) << (gameSettings.getGhostEnabled() ? "on" : "off"));
+		}
+	}
+
 	void ConsoleCommands::volume(Console& console, const Console::Arguments& args, Sound& sound)
 	{
 		if (args.length() == 2)
@@ -296,6 +308,9 @@ namespace Duel6
 		});
 		console.registerCommand("rounds", [&gameSettings](Console& con, const Console::Arguments& args) {
 			maxRounds(con, args, gameSettings);
+		});
+		console.registerCommand("ghosts", [&gameSettings](Console& con, const Console::Arguments& args) {
+			ghostMode(con, args, gameSettings);
 		});
 		console.registerCommand("music", [&menu](Console& con, const Console::Arguments& args) {
 			musicOnOff(con, args, menu);

@@ -122,7 +122,8 @@ namespace Duel6
 			FlagMoveLeft = 0x40,
 			FlagMoveRight = 0x80,
 			FlagMoveUp = 0x100,
-			FlagHasGun = 0x200
+			FlagHasGun = 0x200,
+			FlagGhost = 0x400
 		};
 
 		struct WaterState
@@ -329,6 +330,14 @@ namespace Duel6
 			return state.bonus;
 		}
 
+		void clearBonus()
+		{
+			setAlpha(1.0f);
+			state.bonus = -1;
+			state.bonusRemainingTime = 0;
+			state.bonusDuration = 0;
+		}
+
 		Float32 getBonusRemainingTime() const
 		{
 			return state.bonusRemainingTime;
@@ -396,6 +405,11 @@ namespace Duel6
 		bool isDead() const
 		{
 			return hasFlag(FlagDead);
+		}
+
+		bool isGhost() const
+		{
+			return hasFlag(FlagGhost);
 		}
 
 		bool isUnderWater() const

@@ -86,9 +86,9 @@ namespace Duel6
 		state.air = D6_MAX_AIR;
 		state.ammo = ammo;
 		state.elevator = nullptr;
-		state.bonus = -1;
-		state.bonusDuration = 0;
-		state.bonusRemainingTime = 0;
+		state.bonus = D6_BONUS_INVUL;
+		state.bonusDuration = 2.0f;
+		state.bonusRemainingTime = 2.0f;
 		state.hpBarDuration = 0;
 		state.tempSkinDuration = 0;
         state.roundKills = 0;
@@ -203,7 +203,7 @@ namespace Duel6
 
 	void Player::shoot()
 	{
-		if (!getAmmo() || isReloading())
+		if (!getAmmo() || isReloading() || !hasGun())
 			return;
 
 		state.timeToReload = getReloadInterval();
@@ -235,9 +235,14 @@ namespace Duel6
 		return *this;
 	}
 
-	void Player::makeMove(const Level& level, Float32 elapsedTime)
-	{
+	void Player::makeMove(const Level& level, Float32 elapsedTime) {
 		Float32 speed = getSpeed() * elapsedTime;
+
+		if (isOnElevator() && level.isWall((Int32) getPosition().x, (Int32) getPosition().y, false))
+		{
+			state.velocity = 0;
+		}
+
 		state.elevator = nullptr;
 
 		moveVertical(level, elapsedTime, speed);
@@ -289,7 +294,7 @@ namespace Duel6
 
 	void Player::checkKeys()
 	{
-		if (isDead() || isPickingGun())
+		if ((isDead() && !isGhost()) || isPickingGun())
 		{
 			return;
 		}
@@ -343,6 +348,7 @@ namespace Duel6
 		// Drop gun if still has it and died
 		if (isLying() && hasGun() && isOnGround())
 		{
+			clearBonus();
 			dropWeapon(world.getLevel());
 			unsetFlag(FlagHasGun);
 		}
@@ -360,13 +366,7 @@ namespace Duel6
 		{
 			if ((state.bonusRemainingTime -= elapsedTime) <= 0)
 			{
-				if (getBonus() == D6_BONUS_INVIS)
-				{
-					setAlpha(1.0f);
-				}
-				state.bonus = -1;
-				state.bonusRemainingTime = 0;
-				state.bonusDuration = 0;
+				clearBonus();
 			}
 		}
 
@@ -400,7 +400,7 @@ namespace Duel6
 	{
 		Int16 *animation;
 
-		if (isDead())
+		if (isDead() && !isGhost())
 		{
 			if (isLying())
 			{
@@ -560,6 +560,9 @@ namespace Duel6
 			{
 				unsetFlag(FlagLying);
 				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
+
+				setFlag(FlagGhost);
+				setAlpha(0.1f);
 			}
 			return false;
 		}

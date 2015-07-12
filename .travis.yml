@@ -1,0 +1,35 @@
+language: cpp
+
+compiler:
+- gcc
+
+before_install:
+- yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
+- yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+- sudo apt-get update -qq
+
+install:
+- sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev gcc-4.9
+  gcc-4.9-base g++-4.9 cpp-4.9
+
+before_script:
+  - mkdir build
+  - cd build
+  - export CC=gcc-4.9
+  - export CXX=g++-4.9
+  - cmake ..
+
+script: make
+
+notifications:
+  email: false
+
+deploy:
+  edge: true
+  provider: releases
+  api_key:
+    secure: COsSLl24EFW0JslRk/LjdeakLyXrMFyawECDXOe5wYa96Jp4Xs49AowR6YS/jvFjwDcoNdHf3LCC8q+xGMB5E03XsVZw3lr0AZmtITwsl84AfJ8oDGfMX+dXaucyL+IPAGQXeJyP6pgYEoR+wAjWVj1xZ63ocXkR96YyCPbd4zKPfU8MGkGGoAfHg7dIIApg//bLdCm8m6jJlgEC9Ie6eYyWLpCDWDiB7he54llOpmVG8NoEiAfPDHZreDdCZhiU1vLlgWbpRcx1KOypAedpnd94ydpW6veZn/n8pi1rvUawWaIoI0zrY1ovMpLUR5QQvFmeQjZ3iOC0ZCRKWjo5iceVRUIbL3g5mMuHs5Pj+Wis1Lu9UngJLE11dg3lNBlCX4xs0zwCANzTgFSz/88CJH9XcGnVRi6WdbYegah59YoVTfddI5s4kGsu4baOVfOsN/T+2FsJHarGb1fVCayfRS8x/tdz9kgMncEFCmdMI5ZT/XRAfm6ogI72EQKy8X3a7aA0+52xnclgjCOOa0zfIB3898ftUXl9p2SNoIszXtn0RDkLptn9lBjsVXqOilvCaxAh61duc4jDNtQRUVxOinvQtx6EpXqktlb3FM4Mv5Hhn95F4+VxismgJEiWYxVAGeAjGk1hAeResaUbLH5XQfMdNIMuBREgbONMBOT4BKA=
+  file: "build/duel6r"
+  on:
+    tags: true
+    all_branches: true
