@@ -117,7 +117,9 @@ namespace Duel6
 
 	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit, SpriteList& spriteList, FireList& fireList)
 	{
-		std::vector<const Player*> killedPlayers;
+        std::vector<Player*> killedPlayers;
+        std::vector<Player*> hittedPlayers;
+
 		Player& author = shot.getPlayer();
 
 		Float32 range = shot.getExplosionRange();
@@ -139,6 +141,7 @@ namespace Duel6
 
 			if (directHit || dist < range)
 			{
+                hittedPlayers.push_back(&player);
 				if (shit)
 				{
 					player.useTemporarySkin(*brownSkin);
@@ -153,33 +156,8 @@ namespace Duel6
 			}
 		}
 
-		if (std::find(killedPlayers.begin(), killedPlayers.end(), &author) != killedPlayers.end()) // Killed self
-		{
-			author.playSound(PlayerSounds::Type::Suicide);
-			author.getPerson().addPenalties(killedPlayers.size());
-		}
-		else
-		{
-			if (killedPlayers.size() > 0)
-			{
-				author.playSound(PlayerSounds::Type::KilledOther);
-			}
-			else if (playerThatWasHit != nullptr)
-			{
-				author.playSound(PlayerSounds::Type::HitOther);
-			}
-
-			author.getPerson().addKills(killedPlayers.size());
-			author.addRoundKills(killedPlayers.size());
-		}
-
-		for (auto player : killedPlayers)
-		{
-			if (!player->is(author))
-			{
-				player->playSound(PlayerSounds::Type::WasKilled);
-			}
-		}
+        author.processHits(shot, hittedPlayers);
+        author.processKills(shot, killedPlayers);
 	}
 
 	static Hit WPN_ShotPlayerCollision(Shot& shot, std::vector<Player>& players)

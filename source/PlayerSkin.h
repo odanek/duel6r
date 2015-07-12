@@ -31,6 +31,7 @@
 #include <string>
 #include "PlayerSkinColors.h"
 #include "TextureManager.h"
+#include "Color.h"
 #include "console/console.h"
 
 namespace Duel6
@@ -39,6 +40,7 @@ namespace Duel6
 	{
 	private:
 		TextureManager::Texture textures;
+		Color overlay;
 
 	public:
 		PlayerSkin(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager);
@@ -47,6 +49,9 @@ namespace Duel6
 
 		~PlayerSkin();
 
+		Color getOverlay();
+		void setOverlay(Color overlay);
+		void unsetOverlay();
 		const TextureManager::Texture& getTextures() const
 		{
 			return textures;

@@ -42,6 +42,7 @@ namespace Duel6
 		size = Vector(1.0f, 1.0f);
 		grow = 0;
 		alpha = 1.0f;
+		unsetOverlay();
 	}
 
 	Sprite& Sprite::setAnimation(const Int16* animation)
@@ -127,7 +128,18 @@ namespace Duel6
 
 		GLfloat cur_col[4];
 		glGetFloatv(GL_CURRENT_COLOR, cur_col);
-		glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
+
+		if (overlay == NO_OVERLAY)
+		{
+			glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
+		}
+		else
+		{
+            //TODO: Somme better way of overlaying the sprite with color?
+            //TODO: Overlay alpha does not work (currently is on or off)
+			glColor4f(overlay.getRed()/255.0f, overlay.getGreen()/255.0f, overlay.getBlue()/255.0f, overlay.getAlpha()/255.0f);
+		}
+
 		glBindTexture(GL_TEXTURE_2D, textures[animation[frame]]);
 
 		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;

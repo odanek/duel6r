@@ -316,6 +316,15 @@ namespace Duel6
 		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
 		font.print(ibp[0] + 92 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
 
+
+		if (player.hasAnyTeam())
+		{
+			// Todo: Create color palette object like Colors.White, Colors.Blue etc.
+			Color whiteColor(255, 255, 255, 100);
+			std::string teamName = player.getTeam();
+			font.print(ibp[0] + 92 - 4 * teamName.length(), ibp[1] - 35, whiteColor, teamName);
+		}
+
 		if (player.getBonus() != -1)
 		{
 			Int32 bonusBarLength = Int32(0.5f + (player.getBonusRemainingTime() * 16) / player.getBonusDuration());

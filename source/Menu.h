@@ -71,6 +71,7 @@ namespace Duel6
 		Gui::Label* label[8];
 		Gui::Spinner* controlSwitch[D6_MAX_PLAYERS];
 		Gui::Textbox* textbox;
+		Gui::Spinner* gameModeSwitch;
 		Size backgroundCount;
 		TextureManager::Texture menuBannerTexture;
 		Sound::Track menuTrack;
