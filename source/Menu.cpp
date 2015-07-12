@@ -521,7 +521,7 @@ namespace Duel6
 
 		// Start
 		Context::push(*game);
-		GameMode& selectedMode = *gameModes[gameModeSwitch->curItem()].get();
+		GameMode& selectedMode = *gameModes[gameModeSwitch->curItem()];
 		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
 	}
 
