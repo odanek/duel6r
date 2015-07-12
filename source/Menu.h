@@ -47,6 +47,7 @@
 #include "gui/Label.h"
 #include "gui/TextBox.h"
 #include "gui/Spinner.h"
+#include "GameMode.h"
 
 namespace Duel6
 {
@@ -61,6 +62,7 @@ namespace Duel6
 		Video& video;
 		Sound& sound;
 		Game* game;
+		std::vector<std::unique_ptr<GameMode>> gameModes;
 		Gui::Desktop gui;
 		PlayerControlsManager controlsManager;
 		std::unordered_map<std::string, PersonProfile> personProfiles;
@@ -111,6 +113,7 @@ namespace Duel6
 		void beforeStart(Context* prevContext) override;
 		void beforeClose(Context* nextContext) override;
 
+		void initializeGameModes();
 		void showMessage(const std::string& message);
 		void detectControls(Size playerIndex);
 		void play();

@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6R_JSON_JSONPARSER_H
-#define DUEL6R_JSON_JSONPARSER_H
+#ifndef DUEL6_JSON_JSONPARSER_H
+#define DUEL6_JSON_JSONPARSER_H
 
 #include "../Type.h"
 #include "JsonValue.h"
@@ -61,4 +61,4 @@ namespace Duel6
 }
 
 
-#endif //DUEL6R_PARSER_H
+#endif

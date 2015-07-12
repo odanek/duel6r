@@ -1,67 +1,91 @@
-//
-// Created by marcellus on 20.6.2015.
-//
+/*
+* Copyright (c) 2006, Ondrej Danek (www.ondrej-danek.net)
+* All rights reserved.
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of Ondrej Danek nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+* GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+* OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include "PlayerEventListener.h"
 #include "Player.h"
 #include "InfoMessageQueue.h"
 #include "Weapon.h"
 
-bool Duel6::PlayerEventListener::onDamageByShot(Duel6::Player &player, Duel6::Player &shootingPlayer,
-                                                Duel6::Float32 amount,
-                                                Duel6::Shot &shot, bool directHit)
+namespace Duel6
 {
-    player.addLife(-amount);
-    return true;
-}
+	bool PlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit)
+	{
+		player.addLife(-amount);
+		return true;
+	}
 
-bool Duel6::PlayerEventListener::onDamageByEnv(Duel6::Player &player, Duel6::Float32 amount)
-{
-    player.addLife(-amount);
-    return true;
-}
+	bool PlayerEventListener::onDamageByEnv(Player &player, Float32 amount)
+	{
+		player.addLife(-amount);
+		return true;
+	}
 
-void Duel6::PlayerEventListener::onKillByPlayer(Player& player, Player& killer, Shot &shot, bool suicide)
-{
+	void PlayerEventListener::onKillByPlayer(Player& player, Player& killer, Shot &shot, bool suicide)
+	{
 
-    if (suicide)
-    {
-        messageQueue->add(killer, Format(D6_L("killed also [{0}]")) << player.getPerson().getName());
-        if (gameSettings->getScreenMode() == Duel6::ScreenMode::SplitScreen)
-        {
-            messageQueue->add(player, Format(D6_L("killed by suicide of [{0}]")) << killer.getPerson().getName());
-        }
-        killer.getPerson().addPenalties(1);
-    }
-    else
-    {
-        messageQueue->add(killer, Format(D6_L("killed [{0}]")) << player.getPerson().getName());
-        if (gameSettings->getScreenMode() == Duel6::ScreenMode::SplitScreen)
-        {
-            messageQueue->add(player, Format(D6_L("killed by [{0}]")) << killer.getPerson().getName());
-        }
-        killer.getPerson().addKills(1);
-        killer.addRoundKills(1);
-    }
-}
+		if (suicide)
+		{
+			messageQueue.add(killer, Format(D6_L("killed also [{0}]")) << player.getPerson().getName());
+			if (gameSettings.getScreenMode() == ScreenMode::SplitScreen)
+			{
+				messageQueue.add(player, Format(D6_L("killed by suicide of [{0}]")) << killer.getPerson().getName());
+			}
+			killer.getPerson().addPenalties(1);
+		}
+		else
+		{
+			messageQueue.add(killer, Format(D6_L("killed [{0}]")) << player.getPerson().getName());
+			if (gameSettings.getScreenMode() == ScreenMode::SplitScreen)
+			{
+				messageQueue.add(player, Format(D6_L("killed by [{0}]")) << killer.getPerson().getName());
+			}
+			killer.getPerson().addKills(1);
+			killer.addRoundKills(1);
+		}
+	}
 
 
-void Duel6::PlayerEventListener::onKillByEnv(Duel6::Player &player)
-{
-    //TODO: Change of behavior - when killed by bonus, player gets a penalty point!
-    //TODO: Fix by providing enviroment type
-    player.getPerson().addPenalties(1);
-    messageQueue->add(player, D6_L("You are dead"));
-}
+	void PlayerEventListener::onKillByEnv(Player &player)
+	{
+		//TODO: Change of behavior - when killed by bonus, player gets a penalty point!
+		//TODO: Fix by providing enviroment type
+		player.getPerson().addPenalties(1);
+		messageQueue.add(player, D6_L("You are dead"));
+	}
 
-void Duel6::PlayerEventListener::onSuicide(Duel6::Player &player, int otherKilledPlayers)
-{
-    player.getPerson().addPenalties(1);
-    messageQueue->add(player, D6_L("Committed suicide"));
-}
+	void PlayerEventListener::onSuicide(Player &player, int otherKilledPlayers)
+	{
+		player.getPerson().addPenalties(1);
+		messageQueue.add(player, D6_L("Committed suicide"));
+	}
 
-void Duel6::PlayerEventListener::onRoundWin(Duel6::Player &player)
-{
-    messageQueue->add(player, D6_L("You won the round"));
-    player.getPerson().addWins(1);
+	void PlayerEventListener::onRoundWin(Player &player)
+	{
+		messageQueue.add(player, D6_L("You won the round"));
+		player.getPerson().addWins(1);
+	}
 }

@@ -38,7 +38,9 @@
 #include "json/JsonParser.h"
 #include "json/JsonWriter.h"
 #include "GameMode.h"
-#include "GameModes/_GameModeList.h"
+#include "gamemodes/DeathMatch.h"
+#include "gamemodes/TeamDeathMatch.h"
+#include "gamemodes/Predator.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
 #define ALL_PLAYER_LIST 1
@@ -242,15 +244,13 @@ namespace Duel6
 			}
 		});
 
-
+		initializeGameModes();
 		gameModeSwitch = new Gui::Spinner(gui);
-		for(GameMode* gameMode :GAME_MODES)
+		for(auto& gameMode : gameModes)
 		{
 			gameModeSwitch->addItem(gameMode->getName());
 		}
 		gameModeSwitch->setPosition(10,0, 280, 20);
-
-
 
 		joyRescan();
 
@@ -276,6 +276,16 @@ namespace Duel6
 		listbox[6]->setCur(8);
 
 		menuTrack = sound.loadModule("sound/undead.xm");
+	}
+
+	void Menu::initializeGameModes()
+	{
+		gameModes.push_back(std::make_unique<DeathMatch>());
+		gameModes.push_back(std::make_unique<TeamDeathMatch>(2, false));
+		gameModes.push_back(std::make_unique<TeamDeathMatch>(2, true));
+		gameModes.push_back(std::make_unique<TeamDeathMatch>(3, false));
+		gameModes.push_back(std::make_unique<TeamDeathMatch>(3, true));
+		gameModes.push_back(std::make_unique<Predator>());
 	}
 
 	void Menu::savePersonData()
@@ -511,7 +521,7 @@ namespace Duel6
 
 		// Start
 		Context::push(*game);
-		GameMode* selectedMode = GAME_MODES.at((unsigned long long int) gameModeSwitch->curItem());
+		GameMode& selectedMode = *gameModes[gameModeSwitch->curItem()].get();
 		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
 	}
 

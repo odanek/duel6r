@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6R_ROUND_H
-#define DUEL6R_ROUND_H
+#ifndef DUEL6_ROUND_H
+#define DUEL6_ROUND_H
 
 #include <vector>
 #include <queue>

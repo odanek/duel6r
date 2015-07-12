@@ -90,7 +90,7 @@ namespace Duel6
 	{
 	}
 
-	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode* gameMode)
+	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode)
 	{
 		appService.getConsole().printLine("\n=== Starting new game ===");
 		appService.getConsole().printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
@@ -107,7 +107,7 @@ namespace Duel6
 
 		this->levels = levels;
 		this->backgrounds = backgrounds;
-		this->gameMode = gameMode;
+		this->gameMode = &gameMode;
 		settings.setScreenMode(screenMode);
 		settings.setScreenZoom(screenZoom);
 

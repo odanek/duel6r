@@ -806,6 +806,7 @@ namespace Duel6
 	{
 		return teamName != NO_TEAM;
 	}
+
 	bool Player::hasTeam(std::string team) const
 	{
 		return team == teamName;
@@ -815,10 +816,12 @@ namespace Duel6
 	{
 		this->teamName = team;
 	}
+
 	void Player::unsetTeam()
 	{
 		this->teamName = NO_TEAM;
 	}
+
 	std::string Player::getTeam() const
 	{
 		return teamName;

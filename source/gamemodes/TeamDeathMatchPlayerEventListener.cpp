@@ -1,31 +1,57 @@
-//
-// Created by marcellus on 21.6.2015.
-//
+/*
+* Copyright (c) 2006, Ondrej Danek (www.ondrej-danek.net)
+* All rights reserved.
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of Ondrej Danek nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+* GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+* OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include "TeamDeathMatchPlayerEventListener.h"
 #include "../Player.h"
 #include "../InfoMessageQueue.h"
 
-bool Duel6::TeamDeathMatchPlayerEventListener::onDamageByShot(Duel6::Player &player, Duel6::Player &shootingPlayer, Duel6::Float32 amount, Duel6::Shot &shot, bool directHit)
+namespace Duel6
 {
+	bool TeamDeathMatchPlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit)
+	{
 
-    if (!friendlyFire && player.hasTeam(shootingPlayer.getTeam()))
-    {
-        return false;
-    }
+		if (!friendlyFire && player.hasTeam(shootingPlayer.getTeam()))
+		{
+			return false;
+		}
 
-    return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
-}
+		return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
+	}
 
-void Duel6::TeamDeathMatchPlayerEventListener::onKillByPlayer(Duel6::Player &player, Duel6::Player &killer, Duel6::Shot &shot, bool suicide)
-{
-    if (!suicide && player.hasTeam(killer.getTeam()))
-    {
-        messageQueue->add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
-        killer.getPerson().addPenalties(1);
-    }
-    else
-    {
-        PlayerEventListener::onKillByPlayer(player, killer, shot, suicide);
-    }
+	void TeamDeathMatchPlayerEventListener::onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide)
+	{
+		if (!suicide && player.hasTeam(killer.getTeam()))
+		{
+			messageQueue.add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
+			killer.getPerson().addPenalties(1);
+		}
+		else
+		{
+			PlayerEventListener::onKillByPlayer(player, killer, shot, suicide);
+		}
+	}
 }

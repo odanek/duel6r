@@ -104,7 +104,7 @@ namespace Duel6
 	public:
 		Game(AppService& appService, GameSettings& settings);
 
-		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode* gameMode);
+		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode);
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
 		void textInputEvent(const char* text) override;
 		void update(Float32 elapsedTime) override;
@@ -170,9 +170,9 @@ namespace Duel6
 			return renderer;
 		}
 
-		GameMode* getMode()
+		GameMode& getMode()
 		{
-			return gameMode;
+			return *gameMode;
 		}
 
 		const Renderer& getRenderer() const

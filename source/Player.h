@@ -190,9 +190,9 @@ namespace Duel6
         void processKills(Shot &shot, std::vector<Player *> killedPlayers);
         void processHits(Shot &shot, std::vector<Player *> hittedPlayers);
 
-        void setEventListener(PlayerEventListener* listener)
+        void setEventListener(PlayerEventListener& listener)
         {
-            eventListener = listener;
+            eventListener = &listener;
         }
 
 		bool hasAnyTeam() const;
