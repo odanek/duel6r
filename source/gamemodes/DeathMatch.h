@@ -29,7 +29,6 @@
 #define DUEL6_DEATHMATCH_H
 
 #include <stdlib.h>
-#include <strings.h>
 #include "../GameMode.h"
 
 namespace Duel6

@@ -33,7 +33,6 @@
 
 namespace Duel6
 {
-
     class Player;
     class InfoMessageQueue;
     class Shot;
@@ -46,7 +45,6 @@ namespace Duel6
         const GameSettings& gameSettings;
 
     public:
-
         PlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings)
             : messageQueue(messageQueue), gameSettings(gameSettings)
         { }

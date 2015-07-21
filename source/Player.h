@@ -108,8 +108,6 @@ namespace Duel6
 		Float32 TolY;
 	};
 
-
-
 	class Player
 	{
 	private:

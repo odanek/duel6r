@@ -28,6 +28,7 @@
 #ifndef DUEL6_VECTOR_H
 #define DUEL6_VECTOR_H
 
+#include <algorithm>
 #include "Math.h"
 #include "Type.h"
 
