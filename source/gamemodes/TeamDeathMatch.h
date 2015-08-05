@@ -38,12 +38,12 @@ namespace Duel6
     {
 
     private:
-        Int32 teamsCount;
+        Size teamsCount;
         bool friendlyFire;
         std::unique_ptr<PlayerEventListener> eventListener;
 
     public:
-        TeamDeathMatch(Int32 teamsCount, bool friendlyFire)
+        TeamDeathMatch(Size teamsCount, bool friendlyFire)
                 : teamsCount(teamsCount), friendlyFire(friendlyFire)
         {}
 
@@ -53,8 +53,12 @@ namespace Duel6
         }
 
         void initialize(World& world, Game& game);
-        void preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers);
-        bool checkRoundOver(World& world, std::vector<Player*>& alivePlayers);
+		PlayerSkinColors prepareSkinColors(const PlayerSkinColors& colors,Size playerIndex, Size playerCount);
+        void preparePlayer(Player& player, Size playerIndex, Size playerCount);
+        bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers);
+
+	private:
+		Size getPlayerTeam(Size playerIndex, Size playerCount);
     };
 
 }

@@ -154,17 +154,17 @@ namespace Duel6
 		std::queue<std::pair<Int32, Int32>> startingPositions;
 		findStartingPositions(startingPositions);
 
-		std::vector<Player>& players = world.getPlayers();
-	    for (Uint32 i=0; i < players.size(); i++)
+		auto& players = world.getPlayers();
+		Size playerIndex = 0;
+	    for (Player& player : players)
 		{
-			Player& player = players.at(i);
-
 			auto& ammoRange = game.getSettings().getAmmoRange();
 			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
 			std::pair<Int32, Int32>& position = startingPositions.front();
-			player.startGame(world, position.first, position.second, ammo);
+			player.startRound(world, position.first, position.second, ammo);
 			startingPositions.pop();
-			game.getMode().preparePlayer(player, i, players);
+			game.getMode().preparePlayer(player, playerIndex, players.size());
+			playerIndex++;
 		}
 
 		setPlayerViews();
@@ -218,6 +218,10 @@ namespace Duel6
 		for (Player& player : world.getPlayers())
 		{
 			player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+			if (game.getSettings().getGhostEnabled() && !player.isInGame() && !player.isGhost())
+			{
+				player.makeGhost();
+			}
 		}
 
 		world.update(elapsedTime);

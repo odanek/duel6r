@@ -97,12 +97,15 @@ namespace Duel6
 		TextureManager& textureManager = appService.getTextureManager();
 		players.clear();
 		skins.clear();
-		
+
+		Size playerIndex = 0;
 		for (const PlayerDefinition& playerDef : playerDefinitions)
 		{
 			appService.getConsole().printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-			skins.push_back(std::make_unique<PlayerSkin>(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
+			PlayerSkinColors colors = gameMode.prepareSkinColors(playerDef.getColors(), playerIndex, playerDefinitions.size());
+			skins.push_back(std::make_unique<PlayerSkin>(D6_TEXTURE_MAN_PATH, colors, textureManager));
 			players.push_back(Player(playerDef.getPerson(), *skins.back(), playerDef.getSounds(), playerDef.getControls()));
+			playerIndex++;
 		}
 
 		this->levels = levels;

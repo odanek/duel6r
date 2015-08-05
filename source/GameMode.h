@@ -40,8 +40,9 @@ namespace Duel6
     public:
         virtual std::string getName() = 0;
         virtual void initialize(World& world, Game& game) = 0;
-        virtual void preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers) = 0;
-        virtual bool checkRoundOver(World& world, std::vector<Player*>& alivePlayers) = 0;
+		virtual PlayerSkinColors prepareSkinColors(const PlayerSkinColors& colors, Size playerIndex, Size playerCount) = 0;
+        virtual void preparePlayer(Player& player, Size playerIndex, Size playerCount) = 0;
+        virtual bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) = 0;
     };
 }
 #endif

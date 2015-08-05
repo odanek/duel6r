@@ -33,28 +33,27 @@ namespace Duel6
 {
 	void Predator::initialize(World& world, Game& game)
 	{
-		predatorIndex = (Int32) (rand() % world.getPlayers().size());
+		predatorIndex = rand() % world.getPlayers().size();
 		eventListener = std::make_unique<PredatorPlayerEventListener>(world.getMessageQueue(), game.getSettings());
 	}
 
-	void Predator::preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers)
+	void Predator::preparePlayer(Player& player, Size playerIndex, Size playerCount)
 	{
 		if (playerIndex == predatorIndex)
 		{
 			player.setTeam(PREDATOR_TEAM());
-			player.setOverlay(Color(10,0,0,0));
+			player.setBodyAlpha(0.1f);
 		}
 		else
 		{
 			player.setTeam(HUNTERS_TEAM());
-			player.unsetOverlay();
 			player.pickAmmo(10);
 		}
 
 		player.setEventListener(*eventListener);
 	}
 
-	bool Predator::checkRoundOver(World& world, std::vector<Player*>& alivePlayers)
+	bool Predator::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
 	{
 		if (alivePlayers.empty())
 		{

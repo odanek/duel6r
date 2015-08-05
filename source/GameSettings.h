@@ -49,7 +49,7 @@ namespace Duel6
 	public:
 		GameSettings()
 			: ammoRange(15, 15), maxRounds(0), screenMode(ScreenMode::FullScreen),
-			  screenZoom(13), wireframe(false), showFps(false), showRanking(true), ghostMode(true)
+			  screenZoom(13), wireframe(false), showFps(false), showRanking(true), ghostMode(false)
 		{}
 
 		ScreenMode getScreenMode() const

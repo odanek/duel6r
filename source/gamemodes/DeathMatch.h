@@ -50,9 +50,15 @@ namespace Duel6
         {
             return "Deathmatch";
         }
-        void initialize(World& world, Game& game);
-        void preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers);
-        bool checkRoundOver(World& world, std::vector<Player*>& alivePlayers);
+
+		PlayerSkinColors prepareSkinColors(const PlayerSkinColors& colors, Size playerIndex, Size playerCount)
+		{
+			return colors;
+		}
+
+		void initialize(World& world, Game& game);
+        void preparePlayer(Player& player, Size playerIndex, Size playerCount);
+		bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers);
     };
 }
 

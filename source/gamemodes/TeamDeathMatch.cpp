@@ -38,22 +38,33 @@ namespace Duel6
 		std::vector<Color> COLORS = { Color(255, 0, 0), Color(0, 255, 0), Color(0, 0, 255), Color(219, 216, 241), Color(115,137,186)};
 	}
 
-	void TeamDeathMatch::preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers)
+	Size TeamDeathMatch::getPlayerTeam(Size playerIndex, Size playerCount)
 	{
-		Int32 teamSize = std::max(0, (int)allPlayers.size() / teamsCount);
-		Int32 playerTeam = std::min(playerIndex / teamSize, teamsCount - 1);
+		Size teamSize = std::max(Size(0), playerCount / teamsCount);
+		Size playerTeam = std::min(playerIndex / teamSize, teamsCount - 1);
+		return playerTeam;
+	}
 
+	PlayerSkinColors TeamDeathMatch::prepareSkinColors(const PlayerSkinColors& colors, Size playerIndex, Size playerCount)
+	{
+		Size playerTeam = getPlayerTeam(playerIndex, playerCount);
+		PlayerSkinColors teamColors = colors;
+		teamColors.set(PlayerSkinColors::Trousers, COLORS[playerTeam]);
+		teamColors.set(PlayerSkinColors::HairTop, COLORS[playerTeam]);
+		return teamColors;
+	}
+
+	void TeamDeathMatch::preparePlayer(Player& player, Size playerIndex, Size playerCount)
+	{
 		// todo: add support for custom teams in future versions
-		std::string& teamName = TEAMS[playerTeam];
-		Color teamColor = COLORS[playerTeam];
+		Size playerTeam = getPlayerTeam(playerIndex, playerCount);
+		const std::string& teamName = TEAMS[playerTeam];
 
 		player.setTeam(teamName);
-		player.setOverlay(teamColor);
 		player.setEventListener(*eventListener);
 	}
 
-
-	bool TeamDeathMatch::checkRoundOver(World& world, std::vector<Player*>& alivePlayers)
+	bool TeamDeathMatch::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
 	{
 		if (alivePlayers.size() == 0)
 		{

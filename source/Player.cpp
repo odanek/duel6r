@@ -52,7 +52,7 @@ namespace Duel6
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 
 	Player::Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls)
-		: person(person), skin(skin), sounds(sounds), controls(controls)
+		: person(person), skin(skin), sounds(sounds), controls(controls), bodyAlpha(1.0f)
 	{
 		camera.rotate(180.0, 0.0, 0.0);
 	}
@@ -61,7 +61,7 @@ namespace Duel6
 	{
 	}
 	
-	void Player::startGame(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo)
+	void Player::startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo)
 	{
 		this->world = &world;
 		state.position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
@@ -321,7 +321,7 @@ namespace Duel6
 			}
 		}
 
-		if (controls.getShoot().isPressed())
+		if (!isGhost() && controls.getShoot().isPressed())
 		{
 			shoot();
 		}
@@ -560,9 +560,6 @@ namespace Duel6
 			{
 				unsetFlag(FlagLying);
 				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
-
-				setFlag(FlagGhost);
-				setAlpha(0.1f);
 			}
 			return false;
 		}
@@ -807,12 +804,12 @@ namespace Duel6
 		return teamName != NO_TEAM;
 	}
 
-	bool Player::hasTeam(std::string team) const
+	bool Player::hasTeam(const std::string& team) const
 	{
 		return team == teamName;
 	}
 
-	void Player::setTeam(std::string team)
+	void Player::setTeam(const std::string& team)
 	{
 		this->teamName = team;
 	}
@@ -822,19 +819,9 @@ namespace Duel6
 		this->teamName = NO_TEAM;
 	}
 
-	std::string Player::getTeam() const
+	const std::string& Player::getTeam() const
 	{
 		return teamName;
-	}
-
-	void Player::setOverlay(Color overlay)
-	{
-		sprite->setOverlay(overlay);
-	}
-
-	void Player::unsetOverlay()
-	{
-		sprite->unsetOverlay();
 	}
 
     void Player::processKills(Shot &shot, std::vector<Player *> killedPlayers)

@@ -46,6 +46,7 @@ namespace Duel6
 		Int32 wins;
 		Int32 penalties;
 		Int32 games;
+		Int32 timeAlive;
 
 	public:
 		Person()

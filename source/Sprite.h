@@ -64,7 +64,6 @@ namespace Duel6
 		Vector size;
 		Float32 grow;   // Grow factor for explosions
 		Float32 alpha;  // Transparency ratio
-		Color overlay;
 
 	public:
 		Sprite(const Int16* animation, const TextureManager::Texture& textures);
@@ -156,15 +155,6 @@ namespace Duel6
 			return hasFlags(NoDepth);
 		}
 
-		void setOverlay(Color overlay)
-		{
-			this->overlay = overlay;
-		}
-
-		void unsetOverlay()
-		{
-			this->overlay = NO_OVERLAY;
-		}
 		void update(Float32 elapsedTime);
 		void render() const;
 

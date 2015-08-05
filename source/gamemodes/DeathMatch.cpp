@@ -30,15 +30,12 @@
 
 namespace Duel6
 {
-	void DeathMatch::preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& players)
+	void DeathMatch::preparePlayer(Player& player, Size playerIndex, Size playerCount)
 	{
-		player.unsetTeam();
-		player.unsetOverlay();
 		player.setEventListener(*eventListener);
 	}
 
-
-	bool DeathMatch::checkRoundOver(World& world, std::vector<Player*>& alivePlayers)
+	bool DeathMatch::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
 	{
 		if (alivePlayers.size() == 1)
 		{
@@ -59,7 +56,6 @@ namespace Duel6
 		}
 		return false;
 	}
-
 
 	void DeathMatch::initialize(World& world, Game& game)
 	{

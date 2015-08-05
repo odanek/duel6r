@@ -169,6 +169,7 @@ namespace Duel6
 		std::string teamName;
         PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
+		Float32 bodyAlpha;
 
 	public:
 		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls);
@@ -179,7 +180,7 @@ namespace Duel6
 			return (this == &player);
 		}
 
-		void startGame(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo);
+		void startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo);
 		void setView(const PlayerView& view);
 		void update(World& world, ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
@@ -194,14 +195,10 @@ namespace Duel6
         }
 
 		bool hasAnyTeam() const;
-		bool hasTeam(std::string team) const;
-		void setTeam(std::string team);
+		bool hasTeam(const std::string& team) const;
+		void setTeam(const std::string& team);
 		void unsetTeam();
-		std::string getTeam() const;
-
-
-		void setOverlay(Color overlay);
-		void unsetOverlay();
+		const std::string& getTeam() const;
 
 		const Vector& getPosition() const
 		{
@@ -293,7 +290,7 @@ namespace Duel6
 
 		Player& setAlpha(Float32 alpha)
 		{
-			sprite->setAlpha(alpha);
+			sprite->setAlpha(bodyAlpha * alpha);
 			gunSprite->setAlpha(alpha);
 			return *this;
 		}
@@ -410,6 +407,12 @@ namespace Duel6
 			return hasFlag(FlagGhost);
 		}
 
+		void makeGhost()
+		{
+			setFlag(FlagGhost);
+			setAlpha(0.1f);
+		}
+
 		bool isUnderWater() const
 		{
 			return water.headUnderWater;
@@ -485,6 +488,12 @@ namespace Duel6
 			sounds.getRandomSample(type).play();
 		}
 
+		void setBodyAlpha(Float32 alpha)
+		{
+			bodyAlpha = alpha;
+			setAlpha(1.0f);
+		}
+
 	private:
 		void makeMove(const Level& level, Float32 elapsedTime);
 		void moveHorizontal(const Level& level, Float32 elapsedTime, Float32 speed);
@@ -497,7 +506,6 @@ namespace Duel6
 		void setAnm();
 		void updateCam(Int32 levelSizeX, Int32 levelSizeY);
 		void switchToOriginalSkin();
-		void findStartingPosition();
 		void dropWeapon(const Level& level);
 		Float32 getSpeed() const;
 
