@@ -94,7 +94,18 @@ namespace Duel6
         state.roundKills = 0;
 		this->view = view;
 
+		roundStartTime = clock();
 		getPerson().addGames(1);
+	}
+
+	void Player::endRound()
+	{
+		Int32 gameTime = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
+		getPerson().addTotalGameTime(gameTime);
+		if (!isDead())
+		{
+			getPerson().addTimeAlive(gameTime);
+		}
 	}
 
 	void Player::setView(const PlayerView& view)
@@ -598,6 +609,9 @@ namespace Duel6
 				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
 			}
 
+			Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
+			getPerson().addTimeAlive(timeAlive);
+
 			return true;
 		}
 		
@@ -630,6 +644,10 @@ namespace Duel6
 			sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
 			eventListener->onKillByEnv(*this);
+
+			Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
+			getPerson().addTimeAlive(timeAlive);
+
 			return true;
 		}
 

@@ -37,6 +37,8 @@ namespace Duel6
 		wins = 0;
 		games = 0;
 		penalties = 0;
+		timeAlive = 0;
+		totalGameTime = 0;
 		return *this;
 	}
 
@@ -50,6 +52,8 @@ namespace Duel6
 		json.set("wins", Json::Value::makeNumber(wins));
 		json.set("penalties", Json::Value::makeNumber(penalties));
 		json.set("games", Json::Value::makeNumber(games));
+		json.set("timeAlive", Json::Value::makeNumber(timeAlive));
+		json.set("totalGameTime", Json::Value::makeNumber(totalGameTime));
 		return json;
 	}
 
@@ -63,6 +67,8 @@ namespace Duel6
 		person.wins = json.get("wins").asInt();
 		person.penalties = json.get("penalties").asInt();
 		person.games = json.get("games").asInt();
+		person.timeAlive = json.get("timeAlive").asInt();
+		person.totalGameTime = json.get("totalGameTime").asInt();
 		return person;
 	}
 }

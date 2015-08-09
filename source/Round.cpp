@@ -201,12 +201,11 @@ namespace Duel6
 	void Round::update(Float32 elapsedTime)
 	{
 		// Check if there's a winner
-		if (!winner)
+		if (!hasWinner())
 		{
 			checkWinner();
 		}
-
-		if (hasWinner())
+		else
 		{
 			gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
 			if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT))

@@ -47,6 +47,7 @@ namespace Duel6
 		Int32 penalties;
 		Int32 games;
 		Int32 timeAlive;
+		Int32 totalGameTime;
 
 	public:
 		Person()
@@ -104,6 +105,21 @@ namespace Duel6
 			return getKills() + getWins() - getPenalties();
 		}
 
+		Int32 getTimeAlive() const
+		{
+			return timeAlive;
+		}
+
+		Int32 getAliveRatio() const
+		{
+			return totalGameTime > 0 ? (timeAlive * 100) / totalGameTime : 0;
+		}
+
+		Int32 getTotalGameTime() const
+		{
+			return totalGameTime;
+		}
+
 		Person& addShots(Int32 shots)
 		{
 			this->shots += shots;
@@ -138,6 +154,16 @@ namespace Duel6
 		{
 			this->games += games;
 			return *this;
+		}
+
+		void addTimeAlive(Int32 timeAlive)
+		{
+			this->timeAlive += timeAlive;
+		}
+
+		void addTotalGameTime(Int32 totalGameTime)
+		{
+			this->totalGameTime += totalGameTime;
 		}
 
 		bool hasHigherScoreThan(const Person& person) const

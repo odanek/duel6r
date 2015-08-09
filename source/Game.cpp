@@ -42,6 +42,7 @@ namespace Duel6
 
 	void Game::beforeClose(Context* nextContext)
 	{
+		endRound();
 	}
 
 	void Game::render() const
@@ -51,13 +52,17 @@ namespace Duel6
 
 	void Game::update(Float32 elapsedTime)
 	{
-		if (getRound().isOver() && !getRound().isLast())
+		if (getRound().isOver())
 		{
-			nextRound();
-			return;
+			if (!getRound().isLast())
+			{
+				nextRound();
+			}
 		}
-
-		getRound().update(elapsedTime);
+		else
+		{
+			getRound().update(elapsedTime);
+		}
 	}
 
 	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
@@ -120,6 +125,11 @@ namespace Duel6
 
 	void Game::nextRound()
 	{
+		if (playedRounds != 0)
+		{
+			endRound();
+		}
+
         Int32 level = rand() % Int32(levels.size());
 		const std::string levelPath = levels[level];
 		bool mirror = rand() % 2 == 0;
@@ -134,5 +144,13 @@ namespace Duel6
 		resources.getRoundStartSound().play();
 
 		renderer.initScreen();
+	}
+
+	void Game::endRound()
+	{
+		for (Player& player : players)
+		{
+			player.endRound();
+		}
 	}
 }

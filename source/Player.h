@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <string>
+#include <time.h>
 #include "mylib/mycam.h"
 #include "SpriteList.h"
 #include "Person.h"
@@ -170,6 +171,7 @@ namespace Duel6
         PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
 		Float32 bodyAlpha;
+		clock_t roundStartTime;
 
 	public:
 		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls);
@@ -181,6 +183,7 @@ namespace Duel6
 		}
 
 		void startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo);
+		void endRound();
 		void setView(const PlayerView& view);
 		void update(World& world, ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
