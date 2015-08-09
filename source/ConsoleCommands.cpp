@@ -69,7 +69,7 @@ namespace Duel6
 		}
 		else
 		{
-			console.printLine(Format(D6_L("Max rounds: {1}")) << gameSettings.getMaxRounds());
+			console.printLine(Format(D6_L("Max rounds: {0}")) << gameSettings.getMaxRounds());
 		}
 	}
 
