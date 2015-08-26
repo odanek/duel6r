@@ -727,26 +727,26 @@ namespace Duel6
 
 	void Player::checkMoveUp(const Level& level)
 	{
-		Int32 up = (Int32)(getPosition().y + 0.94); // TODO: Coord
-		Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
-		Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
+		Float32 up = getPosition().y + 0.94f; // TODO: Coord
+		Float32 left = getPosition().x + 0.1f; // TODO: Coord
+		Float32 right = getPosition().x + 0.9f; // TODO: Coord
 
 		if (level.isWall(left, up, true) || level.isWall(right, up, true))
 		{
-			state.position.y = (Float32)(up) - 1.0f; // TODO: Coord
+			state.position.y = floorf(up) - 1.0f; // TODO: Coord
 			state.jumpPhase = 180.0f;
 		}
 	}
 
 	void Player::checkMoveDown(const Level& level)
 	{
-		Int32 down = (Int32)getPosition().y; // TODO: Coord
-		Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
-		Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
+		Float32 down = getPosition().y; // TODO: Coord
+		Float32 left = getPosition().x + 0.1f; // TODO: Coord
+		Float32 right = getPosition().x + 0.9f; // TODO: Coord
 
 		if (level.isWall(left, down, true) || level.isWall(right, down, true))
 		{
-			state.position.y = (Float32)(down) + 1.0001f; // TODO: Coord
+			state.position.y = floorf(down) + 1.0001f; // TODO: Coord
 			state.jumpPhase = 0.0f;
 		}
 
@@ -760,9 +760,9 @@ namespace Duel6
 		if (isOnElevator())
 			return;
 
-		Int32 down = (Int32)(getPosition().y - 0.001f); // TODO: Coord
-		Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
-		Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
+		Float32 down = getPosition().y - 0.001f; // TODO: Coord
+		Float32 left = getPosition().x + 0.1f; // TODO: Coord
+		Float32 right = getPosition().x + 0.9f; // TODO: Coord
 
 		if (!level.isWall(left, down, true) && !level.isWall(right, down, true))
 		{
@@ -772,23 +772,23 @@ namespace Duel6
 
 	void Player::checkHorizontalMove(const Level& level)
 	{
-		Int32 up = (Int32)(getPosition().y + 0.94); // TODO: Coord
-		Int32 down = (Int32)getPosition().y; // TODO: Coord
+		Float32 up = getPosition().y + 0.94f; // TODO: Coord
+		Float32 down = getPosition().y; // TODO: Coord
 
 		if (state.velocity < 0)
 		{
-			Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
+			Float32 left = getPosition().x + 0.1f; // TODO: Coord
 			if (level.isWall(left, up, true) || level.isWall(left, down, true))
 			{
-				state.position.x = (Float32)left + 0.9001f; // TODO: Coord
+				state.position.x = floorf(left) + 0.9001f; // TODO: Coord
 			}
 		}
 		else
 		{
-			Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
+			Float32 right = getPosition().x + 0.9f; // TODO: Coord
 			if (level.isWall(right, up, true) || level.isWall(right, down, true))
 			{
-				state.position.x = (Float32)right - 0.9001f; // TODO: Coord
+				state.position.x = floorf(right) - 0.9001f; // TODO: Coord
 			}
 		}
 	}

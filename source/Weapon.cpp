@@ -183,10 +183,10 @@ namespace Duel6
 	static Hit WPN_ShotWallCollision(Shot& shot, const Level& level)
 	{
 		const Rectangle box = shot.getCollisionRect();
-		Int32 up = Int32(box.right.y);
-		Int32 down = Int32(box.left.y);
-		Int32 left = Int32(box.left.x);
-		Int32 right = Int32(box.right.x);
+		Float32 up = box.right.y;
+		Float32 down = box.left.y;
+		Float32 left = box.left.x;
+		Float32 right = box.right.x;
 
 		bool hitsWall = level.isWall(left, up, true) ||
 			level.isWall(left, down, true) ||
