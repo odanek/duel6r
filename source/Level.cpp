@@ -100,7 +100,7 @@ namespace Duel6
 			}
 		}
 
-		Uint16 waterBlocks[] = { 4, 16, 33 };
+		static Uint16 waterBlocks[] = { 4, 16, 33 };
 		return waterBlocks[rand() % 3];
 	}
 
