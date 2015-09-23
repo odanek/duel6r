@@ -51,7 +51,7 @@ namespace Duel6
 
 	public:
 		Person()
-			: shots(0), hits(0), kills(0), wins(0), penalties(0), games(0)
+			: shots(0), hits(0), kills(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0)
 		{}
 
 		explicit Person(const std::string& name)
