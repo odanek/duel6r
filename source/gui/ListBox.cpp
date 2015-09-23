@@ -26,6 +26,7 @@
 */
 
 #include <SDL2/SDL_opengl.h>
+#include <algorithm>
 #include "ListBox.h"
 
 namespace Duel6
@@ -75,26 +76,23 @@ namespace Duel6
 			listPos.start = selected - listPos.showCount / 2;
 		}
 
-		void Listbox::delItem(Int32 n)
+		void Listbox::delItem(Int32 index)
 		{
-			if (!listPos.items || n < 0 || n >= listPos.items)
+			if (index < 0 || index >= listPos.items)
 				return;
 
-			items.erase(items.begin() + n);
+			items.erase(items.begin() + index);
 			listPos.items--;
-			if (selected >= listPos.items)
+			if (selected >= listPos.items) {
 				selected = listPos.items - 1;
+			}
 		}
 
 		void Listbox::delItem(const std::string& item)
 		{
-			for(Size i = 0; i < size(); i++)
-			{
-				if(item.compare(getItem(i)) == 0)
-				{
-					delItem(i);
-					return;
-				}
+			auto iter = std::find(items.begin(), items.end(), item);
+			if (iter != items.end()) {
+				delItem(iter - items.begin());
 			}
 		}
 

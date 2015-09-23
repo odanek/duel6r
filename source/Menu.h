@@ -123,7 +123,7 @@ namespace Duel6
 		void cleanPersonData();
 		void addPerson();
 		void deletePerson();
-		void addPlayer(Int32 c);
+		void addPlayer(Int32 index);
 		void removePlayer(Int32 c);
 		void rebuildTable();
 		bool question(const std::string& question);

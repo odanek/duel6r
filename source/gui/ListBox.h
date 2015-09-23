@@ -55,7 +55,7 @@ namespace Duel6
 			void draw(const Font& font) const override;
 			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
 			void addItem(const std::string& item);
-			void delItem(Int32 n);
+			void delItem(Int32 index);
 			void delItem(const std::string& item);
 			const std::string& getItem(Size n) const;
 			Int32 selectedIndex() const;

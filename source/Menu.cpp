@@ -527,29 +527,23 @@ namespace Duel6
 		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
 	}
 
-	void Menu::addPlayer(Int32 c)
+	void Menu::addPlayer(Int32 index)
 	{
-		if (c != -1 && listbox[CUR_PLAYERS_LIST]->size() < D6_MAX_PLAYERS)
+		if (index != -1 && listbox[CUR_PLAYERS_LIST]->size() < D6_MAX_PLAYERS)
 		{
-			const std::string& name = listbox[ALL_PLAYER_LIST]->getItem(c);
-			for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++)
-			{
-				if(name.compare(listbox[CUR_PLAYERS_LIST]->getItem(i)) == 0)
-				{
-					return;
-				}
-			}
+			const std::string& name = listbox[ALL_PLAYER_LIST]->getItem(index);
 			listbox[CUR_PLAYERS_LIST]->addItem(name);
-			listbox[ALL_PLAYER_LIST]->delItem(c);
+			listbox[ALL_PLAYER_LIST]->delItem(index);
 		}
 	}
 
-	void Menu::removePlayer(Int32 c)
+	void Menu::removePlayer(Int32 index)
 	{
-		if (c != -1)
+		if (index != -1)
 		{
-			listbox[ALL_PLAYER_LIST]->addItem(listbox[CUR_PLAYERS_LIST]->getItem(c));
-			listbox[CUR_PLAYERS_LIST]->delItem(c);
+			const std::string& playerName = listbox[CUR_PLAYERS_LIST]->getItem(index);
+			listbox[ALL_PLAYER_LIST]->addItem(playerName);
+			listbox[CUR_PLAYERS_LIST]->delItem(index);
 		}
 	}
 
@@ -571,12 +565,12 @@ namespace Duel6
 		if (!deleteQuestion())
 			return;
 
-		Int32 c = listbox[ALL_PLAYER_LIST]->selectedIndex();
-		if (c != -1)
+		Int32 index = listbox[ALL_PLAYER_LIST]->selectedIndex();
+		if (index != -1)
 		{
 			const std::string& playerName = listbox[ALL_PLAYER_LIST]->selectedItem();
-			listbox[ALL_PLAYER_LIST]->delItem(playerName);
 			persons.remove(playerName);
+			listbox[ALL_PLAYER_LIST]->delItem(playerName);
 		}
 	}
 
