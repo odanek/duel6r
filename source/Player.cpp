@@ -154,9 +154,9 @@ namespace Duel6
 	{
 		if (isOnGround() && hasFlag(FlagMoveUp))
 		{
-			Int32 up = (Int32)(getPosition().y + 1.0f); // TODO: Coord
-			Int32 left = (Int32)(getPosition().x + 0.1f); // TODO: Coord
-			Int32 right = (Int32)(getPosition().x + 0.9f); // TODO: Coord
+			Float32 up = getPosition().y + 1.0f; // TODO: Coord
+			Float32 left = getPosition().x + 0.1f; // TODO: Coord
+			Float32 right = getPosition().x + 0.9f; // TODO: Coord
 
 			if (!level.isWall(left, up, true) && !level.isWall(right, up, true))
 			{
@@ -246,7 +246,8 @@ namespace Duel6
 		return *this;
 	}
 
-	void Player::makeMove(const Level& level, Float32 elapsedTime) {
+	void Player::makeMove(const Level& level, Float32 elapsedTime)
+	{
 		Float32 speed = getSpeed() * elapsedTime;
 
 		if (isOnElevator() && level.isWall((Int32) getPosition().x, (Int32) getPosition().y, false))
@@ -465,7 +466,7 @@ namespace Duel6
 			else
 				dY = (Float32)levelSizeY;
 		}
-		else if (levelSizeX > levelSizeY)
+		else
 		{
 			dX = (Float32)std::min(zoom, std::max(levelSizeX, levelSizeY));
 		}
