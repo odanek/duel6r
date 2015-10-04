@@ -74,10 +74,10 @@ namespace Duel6
 
 	void Level::raiseWater()
 	{
-		if(waterLevel < getHeight() - 2)
+		if(waterLevel < getHeight() - 1)
 		{
 			waterLevel++;
-			for(Int32 x = 1; x < getWidth() - 1; x++)
+			for(Int32 x = 0; x < getWidth(); x++)
 			{
 				if(!isWall(x, waterLevel, false))
 				{
