@@ -43,7 +43,7 @@ namespace Duel6
 		Game& game;
 		Int32 roundNumber;
 		World world;
-		bool deathMode;
+		bool suddenDeathMode;
 		Float32 waterFillWait;
 		Float32 showYouAreHere;
 		Float32 gameOverWait;

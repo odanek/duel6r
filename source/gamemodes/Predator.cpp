@@ -26,31 +26,29 @@
 */
 
 #include "Predator.h"
-#include "../Game.h"
-#include "PredatorPlayerEventListener.h"
 
 namespace Duel6
 {
-	void Predator::initialize(World& world, Game& game)
+	void Predator::initializeRound(Game& game, std::vector<Player>& players, World& world)
 	{
-		predatorIndex = rand() % world.getPlayers().size();
-		eventListener = std::make_unique<PredatorPlayerEventListener>(world.getMessageQueue(), game.getSettings());
-	}
+		Size predatorIndex = rand() % world.getPlayers().size();
+		predator = &players[predatorIndex];
 
-	void Predator::preparePlayer(Player& player, Size playerIndex, Size playerCount)
-	{
-		if (playerIndex == predatorIndex)
-		{
-			player.setTeam(PREDATOR_TEAM());
-			player.setBodyAlpha(0.1f);
-		}
-		else
-		{
-			player.setTeam(HUNTERS_TEAM());
-			player.pickAmmo(10);
-		}
+		eventListener = std::make_unique<PredatorPlayerEventListener>(world.getMessageQueue(), game.getSettings(), predator);
 
-		player.setEventListener(*eventListener);
+		for (auto& player : players)
+		{
+			player.setEventListener(*eventListener);
+			if (&player == predator)
+			{
+				player.setBodyAlpha(0.1f);
+			}
+			else
+			{
+				player.setBodyAlpha(1.0f);
+				player.pickAmmo(10);
+			}
+		}
 	}
 
 	bool Predator::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
@@ -64,46 +62,24 @@ namespace Duel6
 			return true;
 		}
 
-
-		bool oneTeamRemaining = true;
-		std::string lastAliveTeam = "";
-
-		for (Player *player : alivePlayers)
+		if (predator->isDead())
 		{
-			if (lastAliveTeam == "")
+			for(Player* player : alivePlayers)
 			{
-				lastAliveTeam = player->getTeam();
-			}
-			else if (lastAliveTeam != player->getTeam())
-			{
-				oneTeamRemaining = false;
-				break;
-			}
-		}
-
-		if (oneTeamRemaining)
-		{
-			for(Player& player : world.getPlayers())
-			{
-				if (player.hasTeam(lastAliveTeam))
+				if (player != predator)
 				{
-					if (lastAliveTeam == HUNTERS_TEAM())
-					{
-						if (!player.isDead())
-						{
-							world.getMessageQueue().add(player, Format("Marines won!"));
-							player.getPerson().addWins(1);
-						}
-					}
-					else
-					{
-						world.getMessageQueue().add(player, Format("Predator won!"));
-						player.getPerson().addWins(1);
-					}
+					world.getMessageQueue().add(*player, Format("Marines won!"));
+					player->getPerson().addWins(1);
 				}
 			}
 		}
+		else if (alivePlayers.size() == 1)
+		{
+			world.getMessageQueue().add(*predator, Format("Predator won!"));
+			predator->getPerson().addWins(1);
+			return true;
+		}
 
-		return oneTeamRemaining;
+		return false;
 	}
 }

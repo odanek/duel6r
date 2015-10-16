@@ -25,34 +25,31 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_TEAMDEATHMATCHPLAYEREVENTLISTENER_H
-#define DUEL6_TEAMDEATHMATCHPLAYEREVENTLISTENER_H
+#ifndef DUEL6_GAMEMODES_TEAMDEATHMATCHPLAYEREVENTLISTENER_H
+#define DUEL6_GAMEMODES_TEAMDEATHMATCHPLAYEREVENTLISTENER_H
 
+#include "Team.h"
 #include "../Type.h"
 #include "../PlayerEventListener.h"
 
 namespace Duel6
 {
-    class PlayerEventListener;
-    class InfoMessageQueue;
-    class Player;
-    class Shot;
-    class GameSettings;
-
     class TeamDeathMatchPlayerEventListener : public PlayerEventListener
     {
     private:
         bool friendlyFire;
+		const TeamMap& teamMap;
+
     public:
-        TeamDeathMatchPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, bool friendlyFire)
-            : PlayerEventListener(messageQueue, gameSettings), friendlyFire(friendlyFire)
+        TeamDeathMatchPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, bool friendlyFire, const TeamMap& teamMap)
+            : PlayerEventListener(messageQueue, gameSettings), friendlyFire(friendlyFire), teamMap(teamMap)
         { }
 
         ~TeamDeathMatchPlayerEventListener() { }
 
-        bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
+        bool onDamageByShot(Player& player, Player& shootingPlayer, Float32 amount, Shot& shot, bool directHit);
 
-        void onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicice);
+        void onKillByPlayer(Player& player, Player& killer, Shot& shot, bool suicice);
     };
 }
 

@@ -26,8 +26,6 @@
 */
 
 #include "PlayerEventListener.h"
-#include "Player.h"
-#include "InfoMessageQueue.h"
 #include "Weapon.h"
 
 namespace Duel6
@@ -46,7 +44,6 @@ namespace Duel6
 
 	void PlayerEventListener::onKillByPlayer(Player& player, Player& killer, Shot &shot, bool suicide)
 	{
-
 		if (suicide)
 		{
 			messageQueue.add(killer, Format(D6_L("killed also [{0}]")) << player.getPerson().getName());

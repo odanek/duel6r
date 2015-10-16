@@ -28,6 +28,7 @@
 #include "Sound.h"
 #include "Render.h"
 #include "Game.h"
+#include "GameMode.h"
 
 namespace Duel6
 {
@@ -107,8 +108,7 @@ namespace Duel6
 		for (const PlayerDefinition& playerDef : playerDefinitions)
 		{
 			appService.getConsole().printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-			PlayerSkinColors colors = gameMode.prepareSkinColors(playerDef.getColors(), playerIndex, playerDefinitions.size());
-			skins.push_back(std::make_unique<PlayerSkin>(D6_TEXTURE_MAN_PATH, colors, textureManager));
+			skins.push_back(std::make_unique<PlayerSkin>(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
 			players.push_back(Player(playerDef.getPerson(), *skins.back(), playerDef.getSounds(), playerDef.getControls()));
 			playerIndex++;
 		}
@@ -118,8 +118,10 @@ namespace Duel6
 		this->gameMode = &gameMode;
 		settings.setScreenMode(screenMode);
 		settings.setScreenZoom(screenZoom);
-
 		playedRounds = 0;
+
+		gameMode.initializeGame(*this, players);
+
 		nextRound();
 	}
 

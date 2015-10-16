@@ -130,6 +130,7 @@ set(D6R_SOURCES
 	source/PlayerSkinColors.cpp
 	source/PlayerSounds.h
 	source/PlayerSounds.cpp
+    source/Ranking.h
 	source/Rectangle.h
     source/Render.h
     source/Render.cpp
@@ -220,6 +221,8 @@ set(D6R_SOURCES
     
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
+    source/gamemodes/GameModeBase.h
+    source/gamemodes/GameModeBase.cpp
 	source/gamemodes/TeamDeathMatchPlayerEventListener.h
 	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
 	source/gamemodes/PredatorPlayerEventListener.h

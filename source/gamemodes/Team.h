@@ -25,26 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
-#define DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
+#ifndef DUEL6_GAMEMODES_TEAM_H
+#define DUEL6_GAMEMODES_TEAM_H
 
-#include "../Type.h"
-#include "../PlayerEventListener.h"
+#include <string>
+#include <unordered_map>
+#include "../Color.h"
 
 namespace Duel6
 {
-    class PredatorPlayerEventListener : public PlayerEventListener
-    {
-	private:
-		Player* predator;
+	class Player;
 
-    public:
-        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player* predator)
-                : PlayerEventListener(messageQueue, gameSettings), predator(predator)
-        {}
+	struct Team
+	{
+		std::string name;
+		Color color;
+	};
 
-        bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
-    };
+	typedef std::unordered_map<const Player*, const Team*> TeamMap;
 }
-
 #endif

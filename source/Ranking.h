@@ -25,26 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
-#define DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
+#ifndef DUEL6_RANKING_H
+#define DUEL6_RANKING_H
 
-#include "../Type.h"
-#include "../PlayerEventListener.h"
+#include <string>
+#include <vector>
+#include "Color.h"
 
 namespace Duel6
 {
-    class PredatorPlayerEventListener : public PlayerEventListener
-    {
-	private:
-		Player* predator;
+	struct RankingEntry
+	{
+		std::string name;
+		Int32 points;
+		Color color;
+	};
 
-    public:
-        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player* predator)
-                : PlayerEventListener(messageQueue, gameSettings), predator(predator)
-        {}
-
-        bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
-    };
+	typedef std::vector<RankingEntry> Ranking;
 }
 
 #endif

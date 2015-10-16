@@ -25,26 +25,22 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
-#define DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
+#ifndef DUEL6_GAMEMODES_GAMEMODEBASE_H
+#define DUEL6_GAMEMODES_GAMEMODEBASE_H
 
-#include "../Type.h"
-#include "../PlayerEventListener.h"
+#include "../GameMode.h"
 
 namespace Duel6
 {
-    class PredatorPlayerEventListener : public PlayerEventListener
-    {
-	private:
-		Player* predator;
+	class GameModeBase : public GameMode
+	{
+	public:
+		void initializePlayers(std::vector<Game::PlayerDefinition>& definitions) {}
+		void initializeGame(Game& game, std::vector<Player>& players) {}
+		void initializeRound(Game& game, std::vector<Player>& players, World& world) {}
 
-    public:
-        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player* predator)
-                : PlayerEventListener(messageQueue, gameSettings), predator(predator)
-        {}
-
-        bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
-    };
+		Ranking getRanking(const std::vector<Player>& players) const;
+	};
 }
 
 #endif

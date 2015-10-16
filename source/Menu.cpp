@@ -236,7 +236,7 @@ namespace Duel6
 		Gui::Button* button = new Gui::Button(gui);
 		button->setCaption("D");
 		button->setPosition(490, 487, 24, 17);
-		button->onClick([this](const Gui::Event& ){
+		button->onClick([this](const Gui::Event&){
 			Size curPlayersCount = listbox[CUR_PLAYERS_LIST]->size();
 			for (Size j = 0; j < curPlayersCount; j++)
 			{
@@ -250,7 +250,7 @@ namespace Duel6
 		{
 			gameModeSwitch->addItem(gameMode->getName());
 		}
-		gameModeSwitch->setPosition(10,0, 280, 20);
+		gameModeSwitch->setPosition(10, 0, 330, 20);
 
 		joyRescan();
 
@@ -281,11 +281,13 @@ namespace Duel6
 	void Menu::initializeGameModes()
 	{
 		gameModes.push_back(std::make_unique<DeathMatch>());
+		gameModes.push_back(std::make_unique<Predator>());
 		gameModes.push_back(std::make_unique<TeamDeathMatch>(2, false));
 		gameModes.push_back(std::make_unique<TeamDeathMatch>(2, true));
 		gameModes.push_back(std::make_unique<TeamDeathMatch>(3, false));
 		gameModes.push_back(std::make_unique<TeamDeathMatch>(3, true));
-		gameModes.push_back(std::make_unique<Predator>());
+		gameModes.push_back(std::make_unique<TeamDeathMatch>(4, false));
+		gameModes.push_back(std::make_unique<TeamDeathMatch>(4, true));
 	}
 
 	void Menu::savePersonData()
@@ -479,6 +481,8 @@ namespace Duel6
 			cleanPersonData();
 		}
 
+		GameMode& selectedMode = *gameModes[gameModeSwitch->curItem()];
+
 		// Persons, colors, controls
 		std::vector<Game::PlayerDefinition> playerDefinitions;
 		for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++)
@@ -488,6 +492,7 @@ namespace Duel6
 			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->curItem());
 			playerDefinitions.push_back(Game::PlayerDefinition(person, profile.getSkinColors(), profile.getSounds(), controls));
 		}
+		selectedMode.initializePlayers(playerDefinitions);
 
 		// Levels
 		std::vector<std::string> levels;
@@ -523,7 +528,6 @@ namespace Duel6
 
 		// Start
 		Context::push(*game);
-		GameMode& selectedMode = *gameModes[gameModeSwitch->curItem()];
 		game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
 	}
 

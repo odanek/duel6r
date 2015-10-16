@@ -25,26 +25,29 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
-#define DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
-
-#include "../Type.h"
-#include "../PlayerEventListener.h"
+#include "GameModeBase.h"
 
 namespace Duel6
 {
-    class PredatorPlayerEventListener : public PlayerEventListener
-    {
-	private:
-		Player* predator;
+	Ranking GameModeBase::getRanking(const std::vector<Player>& players) const
+	{
+		std::vector<const Player*> ranking;
+		for (const Player& player : players)
+		{
+			ranking.push_back(&player);
+		}
 
-    public:
-        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player* predator)
-                : PlayerEventListener(messageQueue, gameSettings), predator(predator)
-        {}
+		std::sort(ranking.begin(), ranking.end(), [](const Player* pl1, const Player* pl2) {
+			return pl1->getPerson().hasHigherScoreThan(pl2->getPerson());
+		});
 
-        bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
-    };
+		Ranking result;
+		for (auto& player : ranking)
+		{
+			Color color(255, player->isDead() ? 0 : 255, 0);
+			result.push_back(RankingEntry{player->getPerson().getName(), player->getPerson().getTotalPoints(), color});
+		}
+
+		return result;
+	}
 }
-
-#endif

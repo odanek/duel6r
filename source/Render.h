@@ -79,7 +79,6 @@ namespace Duel6
 		void invulRing(const Player& player) const;
 		void splitBox(const PlayerView& view) const;
 		void infoMessages() const;
-		std::vector<const Player *> getRanking() const;
 		Color getGameOverOverlay() const;
 	};
 }

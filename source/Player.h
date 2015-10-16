@@ -46,7 +46,6 @@
 #include "Rectangle.h"
 #include "Defines.h"
 #include "Level.h"
-#include "PlayerEventListener.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -167,7 +166,6 @@ namespace Duel6
 		SpriteList::Iterator gunSprite;
 		PlayerState state;
 		Int32 infoBarPosition[2];
-		std::string teamName;
         PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
 		Float32 bodyAlpha;

@@ -26,14 +26,13 @@
 */
 
 #include "PredatorPlayerEventListener.h"
-#include "Predator.h"
 
 namespace Duel6
 {
 	bool PredatorPlayerEventListener::onDamageByShot(Player& player, Player& shootingPlayer,
 													 Float32 amount, Shot& shot, bool directHit)
 	{
-		if (player.hasTeam(Predator::PREDATOR_TEAM()))
+		if (&player == predator)
 		{
 			amount *= 0.3;
 		}

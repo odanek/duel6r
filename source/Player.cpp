@@ -37,11 +37,10 @@
 #include "Explosion.h"
 #include "Math.h"
 #include "Video.h"
+#include "PlayerEventListener.h"
 
 namespace Duel6
 {
-	static const char *const NO_TEAM = "";
-
 	static Int16 noAnim[4] = { 0, 50, 0, -1 };
 	static Int16 d6SAnim[22] = { 0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0 };
 	static Int16 d6WAnim[10] = { 6, 5, 5, 5, 6, 5, 7, 5, -1, 0 };
@@ -816,31 +815,6 @@ namespace Duel6
 	{
 		state.tempSkinDuration = 0;
 		sprite->setTextures(skin.getTextures());
-	}
-
-	bool Player::hasAnyTeam() const
-	{
-		return teamName != NO_TEAM;
-	}
-
-	bool Player::hasTeam(const std::string& team) const
-	{
-		return team == teamName;
-	}
-
-	void Player::setTeam(const std::string& team)
-	{
-		this->teamName = team;
-	}
-
-	void Player::unsetTeam()
-	{
-		this->teamName = NO_TEAM;
-	}
-
-	const std::string& Player::getTeam() const
-	{
-		return teamName;
 	}
 
     void Player::processKills(Shot &shot, std::vector<Player *> killedPlayers)

@@ -25,39 +25,28 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_DEATHMATCH_H
-#define DUEL6_DEATHMATCH_H
+#ifndef DUEL6_GAMEMODES_DEATHMATCH_H
+#define DUEL6_GAMEMODES_DEATHMATCH_H
 
-#include <stdlib.h>
-#include "../GameMode.h"
+#include "GameModeBase.h"
+#include "../PlayerEventListener.h"
 
 namespace Duel6
 {
     class PlayerEventListener;
 
-    class DeathMatch : public GameMode
+    class DeathMatch : public GameModeBase
     {
-
     private:
         std::unique_ptr<PlayerEventListener> eventListener;
 
-
     public:
-        DeathMatch()
-        {};
-
-        std::string getName()
+        std::string getName() const
         {
             return "Deathmatch";
         }
 
-		PlayerSkinColors prepareSkinColors(const PlayerSkinColors& colors, Size playerIndex, Size playerCount)
-		{
-			return colors;
-		}
-
-		void initialize(World& world, Game& game);
-        void preparePlayer(Player& player, Size playerIndex, Size playerCount);
+		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
 		bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers);
     };
 }

@@ -28,6 +28,7 @@
 #include "BonusList.h"
 #include "ElevatorList.h"
 #include "Game.h"
+#include "GameMode.h"
 #include "Explosion.h"
 
 namespace Duel6
@@ -82,36 +83,21 @@ namespace Duel6
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	std::vector<const Player *> Renderer::getRanking() const
-	{
-		std::vector<const Player*> ranking;
-
-		for (const Player& player : game.getPlayers())
-		{
-			ranking.push_back(&player);
-		}
-
-		std::sort(ranking.begin(), ranking.end(), [](const Player* pl1, const Player* pl2) {
-			return pl1->getPerson().hasHigherScoreThan(pl2->getPerson());
-		});
-		return ranking;
-	}
-
 	void Renderer::playerRankings() const
 	{
-		std::vector<const Player*> ladder = getRanking();
-		Size maxNameLength = 0;;
+		Ranking ranking = game.getMode().getRanking(game.getPlayers());
+		Int32 maxNameLength = 0;
 
-		for (const Player* player : ladder)
+		for (const auto& rankingEntry : ranking)
 		{
-			maxNameLength = std::max(maxNameLength, 5 + player->getPerson().getName().size());
+			maxNameLength = std::max(maxNameLength, Int32(5 + rankingEntry.name.size()));
 		}
 
 		const PlayerView& view = game.getPlayers().front().getView();
 		int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
 		int posY = view.getY() + view.getHeight() - 20;
 
-		for (const Player* player : ladder)
+		for (const auto& rankingEntry : ranking)
 		{			
 			glColor4f(0, 0, 1, 0.7f);
 			glEnable(GL_BLEND);
@@ -124,9 +110,9 @@ namespace Duel6
 			glEnd();
 			glDisable(GL_BLEND);			
 
-			Color fontColor(255, player->isDead() ? 0 : 255, 0);
-			font.print(posX, posY, fontColor, player->getPerson().getName());
-			font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << player->getPerson().getTotalPoints());
+			Color fontColor(rankingEntry.color);
+			font.print(posX, posY, fontColor, rankingEntry.name);
+			font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << rankingEntry.points);
 
 			posY -= 16;
 		}
@@ -208,10 +194,12 @@ namespace Duel6
 		
 		int count = 0;
 		int ladderY = y + height - 50;
-		for (const Player* player : getRanking())
+
+		Ranking ranking = game.getMode().getRanking(game.getPlayers());
+		for (const auto& rankingEntry : ranking)
 		{
-			font.print(x + 10, ladderY - 16*count, fontColor, player->getPerson().getName());
-			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << player->getPerson().getTotalPoints());
+			font.print(x + 10, ladderY - 16*count, fontColor, rankingEntry.name);
+			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << rankingEntry.points);
 			count++;
 		}
 	}
@@ -315,15 +303,6 @@ namespace Duel6
 		Color fontColor(0, 0, 255);
 		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
 		font.print(ibp[0] + 92 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
-
-
-		if (player.hasAnyTeam())
-		{
-			// Todo: Create color palette object like Colors.White, Colors.Blue etc.
-			Color whiteColor(255, 255, 255, 100);
-			std::string teamName = player.getTeam();
-			font.print(ibp[0] + 92 - 4 * teamName.length(), ibp[1] - 35, whiteColor, teamName);
-		}
 
 		if (player.getBonus() != -1)
 		{

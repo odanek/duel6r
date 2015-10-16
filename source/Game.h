@@ -44,10 +44,11 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "Round.h"
-#include "GameMode.h"
 
 namespace Duel6
 {
+	class GameMode;
+
 	class Game
 		: public Context
 	{
@@ -56,7 +57,7 @@ namespace Duel6
 		{
 		private:
 			Person& person;
-			const PlayerSkinColors& colors;
+			PlayerSkinColors colors;
 			const PlayerSounds& sounds;
 			const PlayerControls& controls;
 
@@ -68,6 +69,11 @@ namespace Duel6
 			Person& getPerson() const
 			{
 				return person;
+			}
+
+			PlayerSkinColors& getColors()
+			{
+				return colors;
 			}
 
 			const PlayerSkinColors& getColors() const
@@ -171,6 +177,11 @@ namespace Duel6
 		}
 
 		GameMode& getMode()
+		{
+			return *gameMode;
+		}
+
+		const GameMode& getMode() const
 		{
 			return *gameMode;
 		}

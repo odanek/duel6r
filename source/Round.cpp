@@ -29,16 +29,17 @@
 #include "Game.h"
 #include "GameException.h"
 #include "Util.h"
+#include "GameMode.h"
 
 namespace Duel6
 {
 	Round::Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background)
 		: game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background),
-		  deathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
+		  suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
 		  winner(false)
 	{
-        game.getMode().initialize(world, game);
 		preparePlayers();
+		game.getMode().initializeRound(game, players, world);
 	}
 
 	void Round::splitScreenView(Player& player, Int32 x, Int32 y)
@@ -163,7 +164,6 @@ namespace Duel6
 			std::pair<Int32, Int32>& position = startingPositions.front();
 			player.startRound(world, position.first, position.second, ammo);
 			startingPositions.pop();
-			game.getMode().preparePlayer(player, playerIndex, players.size());
 			playerIndex++;
 		}
 
@@ -186,7 +186,7 @@ namespace Duel6
         }
         if (alivePlayers.size() == 2 && allPlayers.size() > 2)
         {
-            deathMode = true;
+            suddenDeathMode = true;
         }
 
 		if (game.getMode().checkRoundOver(world, alivePlayers))
@@ -225,7 +225,7 @@ namespace Duel6
 
 		world.update(elapsedTime);
 
-		if (deathMode)
+		if (suddenDeathMode)
 		{
 			waterFillWait += elapsedTime;
 			if(waterFillWait > D6_RAISE_WATER_WAIT)

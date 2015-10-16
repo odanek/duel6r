@@ -28,16 +28,13 @@
 #ifndef DUEL6_PLAYEREVENTLISTENER_H
 #define DUEL6_PLAYEREVENTLISTENER_H
 
-#include "Type.h"
+#include "InfoMessageQueue.h"
 #include "GameSettings.h"
+#include "Player.h"
+#include "Shot.h"
 
 namespace Duel6
 {
-    class Player;
-    class InfoMessageQueue;
-    class Shot;
-    class GameSettings;
-
     class PlayerEventListener
     {
     protected:

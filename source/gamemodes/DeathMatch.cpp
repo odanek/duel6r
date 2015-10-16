@@ -26,13 +26,16 @@
 */
 
 #include "DeathMatch.h"
-#include "../Game.h"
 
 namespace Duel6
 {
-	void DeathMatch::preparePlayer(Player& player, Size playerIndex, Size playerCount)
+	void DeathMatch::initializeRound(Game& game, std::vector<Player>& players, World& world)
 	{
-		player.setEventListener(*eventListener);
+		eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
+		for (auto& player : players)
+		{
+			player.setEventListener(*eventListener);
+		}
 	}
 
 	bool DeathMatch::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
@@ -55,10 +58,5 @@ namespace Duel6
 			return true;
 		}
 		return false;
-	}
-
-	void DeathMatch::initialize(World& world, Game& game)
-	{
-		eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
 	}
 }

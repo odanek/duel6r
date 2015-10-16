@@ -26,47 +26,59 @@
 */
 
 #include "TeamDeathMatch.h"
-#include "../Game.h"
-#include "TeamDeathMatchPlayerEventListener.h"
 
 namespace Duel6
 {
 	namespace
 	{
-		// Predefined teams as a temporary solution
-		std::vector<std::string> TEAMS = {"Alpha", "Bravo", "Charlie", "Delta", "Echo"};
-		std::vector<Color> COLORS = { Color(255, 0, 0), Color(0, 255, 0), Color(0, 0, 255), Color(219, 216, 241), Color(115,137,186)};
+		std::vector<Team> TEAMS = {
+			{"Alpha", Color(255, 0, 0)},
+			{"Bravo", Color(0, 255, 0)},
+			{"Charlie", Color(255, 255, 0)},
+			{"Delta", Color(255, 0, 255)}
+		};
 	}
 
-	Size TeamDeathMatch::getPlayerTeam(Size playerIndex, Size playerCount)
+	const Team& TeamDeathMatch::getPlayerTeam(Size playerIndex)
 	{
-		Size teamSize = std::max(Size(0), playerCount / teamsCount);
-		Size playerTeam = std::min(playerIndex / teamSize, teamsCount - 1);
-		return playerTeam;
+		Size playerTeam = playerIndex % teamsCount;
+		return TEAMS[playerTeam];
 	}
 
-	PlayerSkinColors TeamDeathMatch::prepareSkinColors(const PlayerSkinColors& colors, Size playerIndex, Size playerCount)
+	void TeamDeathMatch::initializePlayers(std::vector<Game::PlayerDefinition>& definitions)
 	{
-		Size playerTeam = getPlayerTeam(playerIndex, playerCount);
-		PlayerSkinColors teamColors = colors;
-		teamColors.set(PlayerSkinColors::Trousers, COLORS[playerTeam]);
-		teamColors.set(PlayerSkinColors::HairTop, COLORS[playerTeam]);
-		return teamColors;
+		Size index = 0;
+		for (auto& definition : definitions)
+		{
+			const Team& team = getPlayerTeam(index);
+			PlayerSkinColors& colors = definition.getColors();
+			colors.set(PlayerSkinColors::Trousers, team.color);
+			colors.set(PlayerSkinColors::HairTop, team.color);
+			index++;
+		}
 	}
 
-	void TeamDeathMatch::preparePlayer(Player& player, Size playerIndex, Size playerCount)
+	void TeamDeathMatch::initializeRound(Game& game, std::vector<Player>& players, World& world)
 	{
-		// todo: add support for custom teams in future versions
-		Size playerTeam = getPlayerTeam(playerIndex, playerCount);
-		const std::string& teamName = TEAMS[playerTeam];
+		teamMap.clear();
+		Size index = 0;
+		for (auto& player : players)
+		{
+			const Team& team = getPlayerTeam(index);
+			teamMap.insert(std::make_pair(&player, &team));
+			index++;
+		}
 
-		player.setTeam(teamName);
-		player.setEventListener(*eventListener);
+		eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(), friendlyFire, teamMap);
+		for (auto& player : players)
+		{
+			player.setEventListener(*eventListener);
+		}
 	}
 
 	bool TeamDeathMatch::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
 	{
-		if (alivePlayers.size() == 0)
+		if (alivePlayers.empty())
 		{
 			for (const Player& player : world.getPlayers())
 			{
@@ -75,39 +87,53 @@ namespace Duel6
 			return true;
 		}
 
-		bool oneTeamRemaining = true;
-		std::string lastAliveTeam = "";
-
+		const Team* lastAliveTeam = teamMap.at(alivePlayers[0]);
 		for (Player *player : alivePlayers)
 		{
-			if (lastAliveTeam == "")
+			const Team* playerTeam = teamMap.at(player);
+			if (playerTeam != lastAliveTeam)
 			{
-				lastAliveTeam = player->getTeam();
-			}
-			else if (lastAliveTeam != player->getTeam())
-			{
-				oneTeamRemaining = false;
-				break;
+				return false;
 			}
 		}
 
-		if (oneTeamRemaining)
+		for(Player& player : world.getPlayers())
 		{
-			for(Player& player : world.getPlayers())
+			const Team* playerTeam = teamMap.at(&player);
+			if (playerTeam == lastAliveTeam)
 			{
-				if (player.hasTeam(lastAliveTeam))
-				{
-					world.getMessageQueue().add(player, Format("Team {0} won!") << lastAliveTeam);
-					player.getPerson().addWins(1);
-				}
+				world.getMessageQueue().add(player, Format("Team {0} won!") << lastAliveTeam->name);
+				player.getPerson().addWins(1);
 			}
 		}
 
-		return oneTeamRemaining;
+		return true;
 	}
 
-	void TeamDeathMatch::initialize(World& world, Game& game)
+	Ranking TeamDeathMatch::getRanking(const std::vector<Player>& players) const
 	{
-		eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(), friendlyFire);
+		Ranking ranking;
+
+		Size index = 0;
+		for (const auto& player : players)
+		{
+			Size teamIndex = index % teamsCount;
+			const Team& team = TEAMS[teamIndex];
+			if (teamIndex < ranking.size())
+			{
+				ranking[teamIndex].points += player.getPerson().getTotalPoints();
+			}
+			else
+			{
+				ranking.push_back(RankingEntry{team.name, player.getPerson().getTotalPoints(), team.color});
+			}
+			index++;
+		}
+
+		std::sort(ranking.begin(), ranking.end(), [](const RankingEntry& left, const RankingEntry& right) {
+			return left.points < right.points;
+		});
+
+		return ranking;
 	}
 }

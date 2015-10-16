@@ -25,40 +25,42 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_TEAMDEATHMATCH_H
-#define DUEL6_TEAMDEATHMATCH_H
+#ifndef DUEL6_GAMEMODES_TEAMDEATHMATCH_H
+#define DUEL6_GAMEMODES_TEAMDEATHMATCH_H
 
-#include "../GameMode.h"
+#include "GameModeBase.h"
+#include "TeamDeathMatchPlayerEventListener.h"
+#include "Team.h"
 
 namespace Duel6
 {
-    class PlayerEventListener;
-
-    class TeamDeathMatch : public GameMode
+    class TeamDeathMatch : public GameModeBase
     {
 
     private:
         Size teamsCount;
         bool friendlyFire;
         std::unique_ptr<PlayerEventListener> eventListener;
+		TeamMap teamMap;
 
     public:
         TeamDeathMatch(Size teamsCount, bool friendlyFire)
-                : teamsCount(teamsCount), friendlyFire(friendlyFire)
+			: teamsCount(teamsCount), friendlyFire(friendlyFire)
         {}
 
-        std::string getName()
+        std::string getName() const
         {
-            return Format("Team deathmatch ({0} teams{1})") << teamsCount << (friendlyFire ? ", FF" : "");
+            return Format("Team deathmatch ({0} teams, FF: {1})") << teamsCount << (friendlyFire ? "on" : "off");
         }
 
-        void initialize(World& world, Game& game);
-		PlayerSkinColors prepareSkinColors(const PlayerSkinColors& colors,Size playerIndex, Size playerCount);
-        void preparePlayer(Player& player, Size playerIndex, Size playerCount);
+		void initializePlayers(std::vector<Game::PlayerDefinition>& definitions) override;
+		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
+
         bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers);
+		Ranking getRanking(const std::vector<Player>& players) const override;
 
 	private:
-		Size getPlayerTeam(Size playerIndex, Size playerCount);
+		const Team& getPlayerTeam(Size playerIndex);
     };
 
 }
