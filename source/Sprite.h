@@ -38,8 +38,6 @@
 
 namespace Duel6
 {
-	static const Color NO_OVERLAY = Color(0, 0, 0, 0);
-
 	class Sprite
 	{
 	private:

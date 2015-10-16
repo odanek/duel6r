@@ -362,7 +362,7 @@ namespace Duel6
 			glVertex2i(x + width, y);
 		glEnd();
 		glLineWidth(1);
-		font.print(x + 30, y + 2, Color(255, 0, 0), message);
+		font.print(x + 30, y + 2, Color::RED, message);
 		video.screenUpdate(appService.getConsole(), font);
 	}
 
@@ -610,7 +610,7 @@ namespace Duel6
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
 
-		font.print(687, video.getScreen().getClientHeight() - 20, Color(255, 255, 255), Format("{0} {1}") << D6_L("version") << APP_VERSION);
+		font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE, Format("{0} {1}") << D6_L("version") << APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, menuBannerTexture.getGlTextures()[0]);

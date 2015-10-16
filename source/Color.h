@@ -39,6 +39,16 @@ namespace Duel6
 		Uint8 color[4];
 
 	public:
+		static const Color BLACK;
+		static const Color WHITE;
+		static const Color RED;
+		static const Color GREEN;
+		static const Color BLUE;
+		static const Color CYAN;
+		static const Color MAGENTA;
+		static const Color YELLOW;
+
+	public:
 		Color()
 			: Color(0, 0, 0, 255)
 		{}

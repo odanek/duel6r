@@ -92,7 +92,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 
-		font.print(x, y, Color(255, 255, 0), msg);
+		font.print(x, y, Color::YELLOW, msg);
 	}
 
 	void InfoMessageQueue::clear()

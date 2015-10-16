@@ -56,6 +56,7 @@ set(D6R_SOURCES
     source/BonusList.h
     source/BonusList.cpp
     source/Color.h
+    source/Color.cpp
     source/ConsoleCommands.h
     source/ConsoleCommands.cpp
     source/Context.h

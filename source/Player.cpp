@@ -562,7 +562,7 @@ namespace Duel6
 		{
 			Rectangle rect = getCollisionRect();
 			Vector shotCentre = shot.getCentre();
-			world->getExplosionList().add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, shotCentre.y), 0.2f, 0.5f, Color(255, 0, 0));
+			world->getExplosionList().add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, shotCentre.y), 0.2f, 0.5f, Color::RED);
 		}
 
 		if (isDead())

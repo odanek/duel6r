@@ -25,34 +25,16 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_PLAYERSKIN_H
-#define DUEL6_PLAYERSKIN_H
-
-#include <string>
-#include "PlayerSkinColors.h"
-#include "TextureManager.h"
 #include "Color.h"
-#include "console/console.h"
 
 namespace Duel6
 {
-	class PlayerSkin
-	{
-	private:
-		TextureManager::Texture textures;
-
-	public:
-		PlayerSkin(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager);
-		PlayerSkin(const PlayerSkin& skin) = delete;
-		PlayerSkin& operator=(const PlayerSkin& skin) = delete;
-
-		~PlayerSkin();
-
-		const TextureManager::Texture& getTextures() const
-		{
-			return textures;
-		}
-	};
+	const Color Color::BLACK(0, 0, 0);
+	const Color Color::WHITE(255, 255, 255);
+	const Color Color::RED(255, 0, 0);
+	const Color Color::GREEN(0, 255, 0);
+	const Color Color::BLUE(0, 0, 255);
+	const Color Color::CYAN(0, 255, 255);
+	const Color Color::MAGENTA(255, 0, 255);
+	const Color Color::YELLOW(255, 255, 0);
 }
-
-#endif

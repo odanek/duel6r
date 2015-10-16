@@ -131,7 +131,7 @@ namespace Duel6
 		}
 
 		std::sort(ranking.begin(), ranking.end(), [](const RankingEntry& left, const RankingEntry& right) {
-			return left.points < right.points;
+			return left.points > right.points;
 		});
 
 		return ranking;

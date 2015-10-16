@@ -146,7 +146,7 @@ namespace Duel6
         glEnd();
 		glDisable(GL_BLEND);
 
-        Color fontColor(255, 255, 255);
+        Color fontColor = Color::WHITE;
         font.print(x + width / 2 - 35, y + height - 30, fontColor, D6_L("Round Over"));
 
         for (const Player& player : game.getPlayers())
@@ -189,7 +189,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 
-		Color fontColor(255, 255, 255);
+		Color fontColor = Color::WHITE;
 		font.print(x + width / 2 - 35, y + height - 20, fontColor, D6_L("Game Over"));
 		
 		int count = 0;
@@ -218,7 +218,7 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		font.print(x + 8, y, Color(255, 255, 255), Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getSettings().getMaxRounds());
+		font.print(x + 8, y, Color::WHITE, Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getSettings().getMaxRounds());
 	}
 
 	void Renderer::playerStatuses() const
@@ -300,7 +300,7 @@ namespace Duel6
 		}
 
 		const std::string& playerName = player.getPerson().getName();
-		Color fontColor(0, 0, 255);
+		Color fontColor = Color::BLUE;
 		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
 		font.print(ibp[0] + 92 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
 
@@ -349,7 +349,7 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		font.print(x, y, Color(255, 255, 255), fpsCount);
+		font.print(x, y, Color::WHITE, fpsCount);
 	}
 
 	void Renderer::youAreHere() const
