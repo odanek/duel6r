@@ -53,7 +53,7 @@ namespace Duel6
 			void draw(const Font& font) const;
 
 			void keyEvent(SDL_Keycode keyCode);
-			void textInputEvent(const char* text);
+			void textInputEvent(const std::string& text);
 
 			void addControl(Control* control);
 		};

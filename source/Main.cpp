@@ -56,6 +56,10 @@ int main(int argc, char** argv)
 	{
 		reportError(e.what());
 	}
+	catch (...)
+	{
+		reportError("Unexpected error");
+	}
 
 	return 1;
 }

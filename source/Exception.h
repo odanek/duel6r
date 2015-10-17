@@ -30,7 +30,6 @@
 
 #include <string>
 #include "Type.h"
-#include "Lang.h"
 
 #define D6_THROW(exceptionClass, message) throw exceptionClass(__FILE__, __LINE__, message)
 

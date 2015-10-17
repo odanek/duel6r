@@ -66,24 +66,24 @@ namespace Duel6
 	Sound::Sound(Size channels, Console& console)
 		: console(console), channels(channels), playing(false)
 	{
-		console.printLine(D6_L("\n===Initialization of sound sub-system==="));
-		console.printLine(D6_L("...Starting SDL_mixer library"));
+		console.printLine("\n===Initialization of sound sub-system===");
+		console.printLine("...Starting SDL_mixer library");
 
 		// Init SDL audio sub sytem
 		if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
 		{
-			D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << SDL_GetError());
+			D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << SDL_GetError());
 		}
 
 		// Init SDL_mixer library
 		if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
 		{
-			D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << Mix_GetError());
+			D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << Mix_GetError());
 		}
 
 		// Allocate channels
 		channels = Mix_AllocateChannels(channels);
-		console.print(Format(D6_L("...Frequency: {0}\n...Channels: {0}\n")) << MIX_DEFAULT_FREQUENCY << channels);
+		console.print(Format("...Frequency: {0}\n...Channels: {0}\n") << MIX_DEFAULT_FREQUENCY << channels);
 	}
 
 	Sound::~Sound()
@@ -115,10 +115,10 @@ namespace Duel6
 		Mix_Music *module = Mix_LoadMUS(fileName.c_str());
 		if (module == nullptr)
 		{
-			D6_THROW(SoundException, Format(D6_L("SDL_mixer error: unable to load module {0} ({1})")) << fileName << Mix_GetError());
+			D6_THROW(SoundException, Format("SDL_mixer error: unable to load module {0} ({1})") << fileName << Mix_GetError());
 		}
 		modules.push_back(module);
-		console.printLine(Format(D6_L("...Module loaded: {0}")) << fileName);
+		console.printLine(Format("...Module loaded: {0}") << fileName);
 		return Track(this, module);
 	}
 
@@ -127,10 +127,10 @@ namespace Duel6
 		Mix_Chunk* sample = Mix_LoadWAV(fileName.c_str());
 		if (sample == nullptr)
 		{
-			D6_THROW(SoundException, Format(D6_L("SDL_mixer error: unable to load sample {0} ({1})")) << fileName << Mix_GetError());
+			D6_THROW(SoundException, Format("SDL_mixer error: unable to load sample {0} ({1})") << fileName << Mix_GetError());
 		}
 		samples.push_back(sample);
-		console.printLine(Format(D6_L("...Sample loaded: {0}")) << fileName);
+		console.printLine(Format("...Sample loaded: {0}") << fileName);
 		return Sample(this, sample);
 	}
 
@@ -148,7 +148,7 @@ namespace Duel6
 		stopMusic();
 		if (Mix_PlayMusic(music, loop ? -1 : 0) == -1)
 		{
-			D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << Mix_GetError());
+			D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << Mix_GetError());
 		}
 		playing = true;
 	}
@@ -161,7 +161,7 @@ namespace Duel6
 			{
 				if (Mix_PlayChannel(j, chunk, 0) == -1)
 				{
-					D6_THROW(SoundException, Format(D6_L("SDL_Mixer error: {0}")) << Mix_GetError());
+					D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << Mix_GetError());
 				}
 				return;
 			}
@@ -170,7 +170,7 @@ namespace Duel6
 
 	void Sound::volume(Int32 volume)
 	{
-		console.printLine(Format(D6_L("...Volume set to {0}")) << volume);
+		console.printLine(Format("...Volume set to {0}") << volume);
 		Mix_VolumeMusic(volume);
 		Mix_Volume(-1, volume);
 	}

@@ -29,19 +29,21 @@
 #include "msdir.h"
 #include "IoException.h"
 #include "File.h"
+#include "Format.h"
 
 namespace Duel6
 {
-	File::File(const std::string& path, const char* mode)
+	File::File(const std::string& path, Mode mode, Access access)
 		: handle(nullptr)
 	{
-		open(path, mode);
+		open(path, mode, access);
 	}
 
-	File& File::open(const std::string& path, const char* mode)
+	File& File::open(const std::string& path, Mode mode, Access access)
 	{
 		close();
-		handle = fopen(path.c_str(), mode);
+		std::string fileMode = Format("{0}{1}") << (access == Access::Read ? 'r' : 'w') << (mode == Mode::Text ? 't' : 'b');
+		handle = fopen(path.c_str(), fileMode.c_str());
 		if (handle == nullptr)
 		{
 			D6_THROW(IoException, "Unable to open file: " + path);
@@ -157,7 +159,7 @@ namespace Duel6
 	void File::load(const std::string& path, long offset, void* ptr)
 	{	
 		Size length = getSize(path) - offset;
-		File file(path, "rb");
+		File file(path, File::Mode::Binary, File::Access::Read);
 		file.seek(offset, Seek::Set);
 		file.read(ptr, 1, length);
 		file.close();

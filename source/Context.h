@@ -28,6 +28,7 @@
 #ifndef DUEL6_CONTEXT_H
 #define DUEL6_CONTEXT_H
 
+#include <string>
 #include <stack>
 #include <SDL2/SDL_keycode.h>
 #include "Type.h"
@@ -65,7 +66,7 @@ namespace Duel6
 		}
 
 		virtual void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) = 0;
-		virtual void textInputEvent(const char* text) = 0;
+		virtual void textInputEvent(const std::string& text) = 0;
 		virtual void update(Float32 elapsedTime) = 0;
 		virtual void render() const = 0;
 

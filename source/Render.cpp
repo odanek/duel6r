@@ -147,13 +147,13 @@ namespace Duel6
 		glDisable(GL_BLEND);
 
         Color fontColor = Color::WHITE;
-        font.print(x + width / 2 - 35, y + height - 30, fontColor, D6_L("Round Over"));
+        font.print(x + width / 2 - 35, y + height - 30, fontColor, "Round Over");
 
         for (const Player& player : game.getPlayers())
         {
             if (!player.isDead())
             {
-                font.print(x + 15, y + height - 70, fontColor, Format(D6_L("Winner is: {0}")) << player.getPerson().getName());
+                font.print(x + 15, y + height - 70, fontColor, Format("Winner is: {0}") << player.getPerson().getName());
                 break;
             }
         }
@@ -190,7 +190,7 @@ namespace Duel6
 		glDisable(GL_BLEND);
 
 		Color fontColor = Color::WHITE;
-		font.print(x + width / 2 - 35, y + height - 20, fontColor, D6_L("Game Over"));
+		font.print(x + width / 2 - 35, y + height - 20, fontColor, "Game Over");
 		
 		int count = 0;
 		int ladderY = y + height - 50;
@@ -218,7 +218,7 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		font.print(x + 8, y, Color::WHITE, Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getSettings().getMaxRounds());
+		font.print(x + 8, y, Color::WHITE, Format("Rounds: {0,3}|{1,3}") << game.getPlayedRounds() << game.getSettings().getMaxRounds());
 	}
 
 	void Renderer::playerStatuses() const

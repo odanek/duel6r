@@ -102,7 +102,7 @@ namespace Duel6
 			}
 		}
 
-		void Desktop::textInputEvent(const char* text)
+		void Desktop::textInputEvent(const std::string& text)
 		{
 			for (auto& control : controls)
 			{

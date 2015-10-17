@@ -39,7 +39,7 @@ namespace Duel6
 
 		Value Parser::parse(const std::string& fileName) const
 		{
-			File file(fileName, "rb");
+			File file(fileName, File::Mode::Binary, File::Access::Read);
 			return parseValue(file);
 		}
 

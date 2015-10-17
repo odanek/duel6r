@@ -41,15 +41,15 @@ namespace Duel6
 		  waterSet(game.getResources().getWaterSet()), background(background)
 	{
 		Console& console = game.getAppService().getConsole();
-		console.printLine(Format(D6_L("...Width   : {0}")) << level.getWidth());
-		console.printLine(Format(D6_L("...Height  : {0}")) << level.getHeight());
+		console.printLine(Format("...Width   : {0}") << level.getWidth());
+		console.printLine(Format("...Height  : {0}") << level.getHeight());
 		console.printLine("...Preparing faces");
 		levelRenderData.generateFaces();
-		console.printLine(Format(D6_L("...Walls   : {0}")) << levelRenderData.getWalls().getFaces().size());
-		console.printLine(Format(D6_L("...Sprites : {0}")) << levelRenderData.getSprites().getFaces().size());
-		console.printLine(Format(D6_L("...Water   : {0}")) << levelRenderData.getWater().getFaces().size());
+		console.printLine(Format("...Walls   : {0}") << levelRenderData.getWalls().getFaces().size());
+		console.printLine(Format("...Sprites : {0}") << levelRenderData.getSprites().getFaces().size());
+		console.printLine(Format("...Water   : {0}") << levelRenderData.getWater().getFaces().size());
 
-		console.printLine(D6_L("...Level initialization"));
+		console.printLine("...Level initialization");
 		console.printLine("...Loading elevators: ");
 		loadElevators(levelPath, mirror);
 		WPN_LevelInit();

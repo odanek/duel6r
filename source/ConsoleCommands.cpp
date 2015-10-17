@@ -38,29 +38,6 @@
 
 namespace Duel6
 {
-	/*
-	==================================================
-	Set language - console command
-	==================================================
-	*/
-	void ConsoleCommands::language(Console& console, const Console::Arguments& args)
-	{
-		/*
-		if (args.length() == 2)
-		{
-			if (args.get(1) == "lang/czech.lang")
-			{
-				MY_LangFree();
-			}
-			MY_LangLoad(args.get(1).c_str());
-		}
-		else
-		{
-			console.print(Format("{0}: {1}\n") << D6_L("Language") << D6_L("english"));
-		}
-		*/
-	}
-
 	void ConsoleCommands::maxRounds(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
 		if (args.length() == 2)
@@ -69,7 +46,7 @@ namespace Duel6
 		}
 		else
 		{
-			console.printLine(Format(D6_L("Max rounds: {0}")) << gameSettings.getMaxRounds());
+			console.printLine(Format("Max rounds: {0}") << gameSettings.getMaxRounds());
 		}
 	}
 
@@ -81,7 +58,7 @@ namespace Duel6
 		}
 		else
 		{
-			console.printLine(Format(D6_L("Ghost Mode [on/off]: {0}")) << (gameSettings.getGhostEnabled() ? "on" : "off"));
+			console.printLine(Format("Ghost Mode [on/off]: {0}") << (gameSettings.getGhostEnabled() ? "on" : "off"));
 		}
 	}
 
@@ -99,11 +76,11 @@ namespace Duel6
 
 		if (gameSettings.isWireframe())
 		{
-			console.printLine(D6_L("Rendering mode switched to wireframe"));
+			console.printLine("Rendering mode switched to wireframe");
 		}
 		else
 		{
-			console.printLine(D6_L("Rendering mode switched to solid"));
+			console.printLine("Rendering mode switched to solid");
 		}
 	}
 
@@ -113,11 +90,11 @@ namespace Duel6
 		
 		if (gameSettings.isShowFps())
 		{
-			console.printLine(D6_L("Fps counter shown"));
+			console.printLine("Fps counter shown");
 		}
 		else
 		{
-			console.printLine(D6_L("Fps counter hidden"));
+			console.printLine("Fps counter hidden");
 		}
 	}
 
@@ -162,7 +139,7 @@ namespace Duel6
 				colors.set((PlayerSkinColors::BodyPart)i, Color::fromString(args.get(i + 2)));
 			}
 
-			console.printLine(Format(D6_L("Skin \"{0}\": OK")) << name);
+			console.printLine(Format("Skin \"{0}\": OK") << name);
 		}
 		else if (args.length() == 2)
 		{
@@ -171,7 +148,7 @@ namespace Duel6
 			if (profile != profileMap.end())
 			{
 				PlayerSkinColors& colors = profile->second.getSkinColors();
-				console.print(Format(D6_L("Skin \"{0}\":\n")) << name);
+				console.print(Format("Skin \"{0}\":\n") << name);
 				for (Size i = 0; i < 9; i++)
 				{
 					const Color& color = colors.get((PlayerSkinColors::BodyPart)i);
@@ -201,16 +178,16 @@ namespace Duel6
 			if (gn >= 0 && gn < D6_WEAPONS)
 			{
 				d6WpnDef[gn].enabled = (args.get(2) == "true");
-				std::string enabled = d6WpnDef[gn].enabled ? D6_L("enabled") : D6_L("disabled");
-				console.printLine(Format("\t{0}. {1} {2}") << gn << D6_L(d6WpnDef[gn].name) << enabled);
+				std::string enabled = d6WpnDef[gn].enabled ? "enabled" : "disabled";
+				console.printLine(Format("\t{0}. {1} {2}") << gn << d6WpnDef[gn].name << enabled);
 			}
 		}
 		else
 		{
 			for (Int32 gn = 0; gn < D6_WEAPONS; gn++)
 			{
-				std::string enabled = d6WpnDef[gn].enabled ? D6_L("enabled") : D6_L("disabled");
-				console.printLine(Format("\t{0,2}. {1,-13} {2}") << gn << D6_L(d6WpnDef[gn].name) << enabled);
+				std::string enabled = d6WpnDef[gn].enabled ? "enabled" : "disabled";
+				console.printLine(Format("\t{0,2}. {1,-13} {2}") << gn << d6WpnDef[gn].name << enabled);
 			}
 		}
 	}
@@ -229,27 +206,27 @@ namespace Duel6
 		else if (args.length() == 1)
 		{
 			const std::pair<Int32, Int32>& range = gameSettings.getAmmoRange();
-			console.printLine(Format(D6_L("\tmin = {0}\n\tmax = {1}")) << range.first << range.second);
+			console.printLine(Format("\tmin = {0}\n\tmax = {1}") << range.first << range.second);
 		}
 		else
 		{
-			console.printLine(Format(D6_L("{0}: {0} [min max]")) << args.get(0));
+			console.printLine(Format("{0}: {0} [min max]") << args.get(0));
 		}
 	}
 
 	void ConsoleCommands::openGLInfo(Console& console, const Console::Arguments& args)
 	{
-		console.printLine(D6_L("\n===OpenGL info==="));
-		console.printLine(Format(D6_L("Vendor     : {0}")) << (const char *)glGetString(GL_VENDOR));
-		console.printLine(Format(D6_L("Renderer   : {0}")) << (const char *)glGetString(GL_RENDERER));
-		console.printLine(Format(D6_L("Version    : {0}")) << (const char *)glGetString(GL_VERSION));
-		console.printLine(D6_L("Extensions :"));
+		console.printLine("\n===OpenGL info===");
+		console.printLine(Format("Vendor     : {0}") << (const char *)glGetString(GL_VENDOR));
+		console.printLine(Format("Renderer   : {0}") << (const char *)glGetString(GL_RENDERER));
+		console.printLine(Format("Version    : {0}") << (const char *)glGetString(GL_VERSION));
+		console.printLine("Extensions :");
 
 		const char* estr = (const char *)glGetString(GL_EXTENSIONS);
 
 		if (estr == nullptr || strlen(estr) < 2)
 		{
-			console.printLine(D6_L("...No supported extensions"));
+			console.printLine("...No supported extensions");
 		}
 		else
 		{
@@ -282,16 +259,15 @@ namespace Duel6
 	void ConsoleCommands::registerCommands(Console& console, AppService& appService, Menu& menu, GameSettings& gameSettings)
 	{
 		SDL_version sdlVersion;
-		std::string verStr = D6_L("version");
+		std::string verStr = "version";
 
 		// Print application info
-		console.printLine(D6_L("\n===Application information==="));
+		console.printLine("\n===Application information===");
 		console.printLine(Format("{0} {1}: {2}") << APP_NAME << verStr << APP_VERSION);
 		SDL_GetVersion(&sdlVersion);
 		console.printLine(Format("SDL {0}: {1}.{2}.{3}") << verStr << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
 		const SDL_version* mixVersion = Mix_Linked_Version();
 		console.printLine(Format("SDL_mixer {0}: {1}.{2}.{3}") << verStr << mixVersion->major << mixVersion->minor << mixVersion->patch);
-		console.printLine(D6_L("Language: english"));
 
 		// Set some console functions
 		console.setLast(15);
@@ -302,7 +278,6 @@ namespace Duel6
 			toggleShowFps(con, args, gameSettings);
 		});
 		console.registerCommand("gl_info", openGLInfo);
-		console.registerCommand("lang", language);
 		console.registerCommand("volume", [&appService](Console& con, const Console::Arguments& args) {
 			volume(con, args, appService.getSound());
 		});

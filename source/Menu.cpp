@@ -97,9 +97,9 @@ namespace Duel6
 
 	void Menu::initialize()
 	{
-		appService.getConsole().printLine(D6_L("\n===Menu initialization==="));
+		appService.getConsole().printLine("\n===Menu initialization===");
 		menuBannerTexture = appService.getTextureManager().load(D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
-		appService.getConsole().printLine(D6_L("...Starting GUI library"));
+		appService.getConsole().printLine("...Starting GUI library");
 		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
 
@@ -120,8 +120,8 @@ namespace Duel6
 
 		listbox[5] = new Gui::Listbox(gui, false);
 		listbox[5]->setPosition(654, 470, 15, 2, 16);
-		listbox[5]->addItem(D6_L("Fullscreen"));
-		listbox[5]->addItem(D6_L("Split screen"));
+		listbox[5]->addItem("Fullscreen");
+		listbox[5]->addItem("Split screen");
 
 		listbox[6] = new Gui::Listbox(gui, true);
 		listbox[6]->setPosition(520, 470, 13, 5, 16);
@@ -145,7 +145,7 @@ namespace Duel6
 
 		button[2] = new Gui::Button(gui);
 		button[2]->setPosition(284, 282, 80, 25);
-		button[2]->setCaption(D6_L("Remove"));
+		button[2]->setCaption("Remove");
 		button[2]->onClick([this](const Gui::Event&) {
 			deletePerson();
 			rebuildTable();
@@ -153,14 +153,14 @@ namespace Duel6
 
 		button[3] = new Gui::Button(gui);
 		button[3]->setPosition(284, 253, 80, 25);
-		button[3]->setCaption(D6_L("Add"));
+		button[3]->setCaption("Add");
 		button[3]->onClick([this](const Gui::Event&) {
 			addPerson();
 		});
 
 		button[6] = new Gui::Button(gui);
 		button[6]->setPosition(370, 282, 125, 25);
-		button[6]->setCaption(D6_L("Clear (F3)"));
+		button[6]->setCaption("Clear (F3)");
 		button[6]->onClick([this](const Gui::Event&) {
 			if (deleteQuestion())
 			{
@@ -170,49 +170,49 @@ namespace Duel6
 
 		button[4] = new Gui::Button(gui);
 		button[4]->setPosition(520, 299, 125, 73);
-		button[4]->setCaption(D6_L("Play (F1)"));
+		button[4]->setCaption("Play (F1)");
 		button[4]->onClick([this](const Gui::Event&) {
 			play();
 		});
 
 		button[5] = new Gui::Button(gui);
 		button[5]->setPosition(654, 299, 125, 73);
-		button[5]->setCaption(D6_L("Quit (ESC)"));
+		button[5]->setCaption("Quit (ESC)");
 		button[5]->onClick([this](const Gui::Event&) {
 			close();
 		});
 
 		label[0] = new Gui::Label(gui);
 		label[0]->setPosition(10, 219, 772, 18);
-		label[0]->setCaption(D6_L("    Name   | Games | Wins | Shots | Accuracy | Kills | Penalties | Points | Alive | Time"));
+		label[0]->setCaption("    Name   | Games | Wins | Shots | Accuracy | Kills | Penalties | Points | Alive | Time");
 
 		label[1] = new Gui::Label(gui);
 		label[1]->setPosition(520, 383, 125, 18);
-		label[1]->setCaption(D6_L("Background"));
+		label[1]->setCaption("Background");
 
 		label[2] = new Gui::Label(gui);
 		label[2]->setPosition(654, 429, 125, 18);
-		label[2]->setCaption(D6_L("Level"));
+		label[2]->setCaption("Level");
 
 		label[3] = new Gui::Label(gui);
 		label[3]->setPosition(654, 489, 125, 18);
-		label[3]->setCaption(D6_L("Screen mode"));
+		label[3]->setCaption("Screen mode");
 
 		label[4] = new Gui::Label(gui);
 		label[4]->setPosition(520, 489, 125, 18);
-		label[4]->setCaption(D6_L("Zoom"));
+		label[4]->setCaption("Zoom");
 
 		label[5] = new Gui::Label(gui);
 		label[5]->setPosition(10, 489, 181, 18);
-		label[5]->setCaption(D6_L("Persons"));
+		label[5]->setCaption("Persons");
 
 		label[6] = new Gui::Label(gui);
 		label[6]->setPosition(200, 489, 165, 18);
-		label[6]->setCaption(D6_L("Players"));
+		label[6]->setCaption("Players");
 
 		label[7] = new Gui::Label(gui);
 		label[7]->setPosition(370, 489, 120, 18);
-		label[7]->setCaption(D6_L("Controller"));
+		label[7]->setCaption("Controller");
 
 		textbox = new Gui::Textbox(gui);
 		textbox->setPosition(370, 252, 14, 10, D6_ALL_CHR);
@@ -257,13 +257,13 @@ namespace Duel6
 		backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
 		levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
-		listbox[3]->addItem(D6_L("Random"));
+		listbox[3]->addItem("Random");
 		for (Size i = 0; i < levelList.getLength(); i++)
 		{
 			listbox[3]->addItem(levelList.getFileName(i).substr(0, levelList.getFileName(i).rfind(".")));
 		}
 
-		listbox[4]->addItem(D6_L("Random"));
+		listbox[4]->addItem("Random");
 		for (Size i = 0; i < backgroundCount; i++)
 		{
 			listbox[4]->addItem(std::to_string(i + 1));
@@ -401,7 +401,7 @@ namespace Duel6
 
 	bool Menu::deleteQuestion()
 	{
-		return question(D6_L("Really delete? (Y/N)"));
+		return question("Really delete? (Y/N)");
 	}
 
 	void Menu::cleanPersonData()
@@ -473,7 +473,7 @@ namespace Duel6
 
 		if (game->getSettings().isRoundLimit())
 		{
-			if(!question(D6_L("Clear statistics and start a new game? (Y/N)")))
+			if(!question("Clear statistics and start a new game? (Y/N)"))
 			{
 				return;
 
@@ -610,7 +610,7 @@ namespace Duel6
 		glPushMatrix();
 		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
 
-		font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE, Format("{0} {1}") << D6_L("version") << APP_VERSION);
+		font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE, Format("{0} {1}") << "version" << APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, menuBannerTexture.getGlTextures()[0]);
@@ -654,7 +654,7 @@ namespace Duel6
 		}
 	}
 
-	void Menu::textInputEvent(const char* text)
+	void Menu::textInputEvent(const std::string& text)
 	{
 		gui.textInputEvent(text);
 	}

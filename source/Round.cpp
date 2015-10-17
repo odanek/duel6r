@@ -151,7 +151,7 @@ namespace Duel6
 
 	void Round::preparePlayers()
 	{
-		game.getAppService().getConsole().printLine(D6_L("...Preparing players"));
+		game.getAppService().getConsole().printLine("...Preparing players");
 		std::queue<std::pair<Int32, Int32>> startingPositions;
 		findStartingPositions(startingPositions);
 
@@ -256,7 +256,7 @@ namespace Duel6
 		if (keyCode == SDLK_F10)
 		{
 			std::string name = Util::saveScreenTga(game.getAppService().getVideo());
-			game.getAppService().getConsole().printLine(Format(D6_L("Screenshot saved to {0}")) << name);
+			game.getAppService().getConsole().printLine(Format("Screenshot saved to {0}") << name);
 		}
 	}
 

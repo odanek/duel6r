@@ -45,17 +45,30 @@ namespace Duel6
 			End
 		};
 
+		enum class Mode
+		{
+			Binary,
+			Text
+		};
+
+		enum class Access
+		{
+			Read,
+			Write,
+			ReadWrite
+		};
+
 	private:
 		FILE* handle;
 
 	public:
-		File(const std::string& path, const char* mode);
+		File(const std::string& path, Mode mode, Access access);
 		~File()
 		{
 			close();
 		}
 
-		File& open(const std::string& path, const char* mode);
+		File& open(const std::string& path, Mode mode, Access access);
 		File& close();
 
 		File& read(void* ptr, Size size, Size count);

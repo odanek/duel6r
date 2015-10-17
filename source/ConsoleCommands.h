@@ -38,7 +38,6 @@ namespace Duel6
 	class ConsoleCommands
 	{
 	private:
-		static void language(Console& console, const Console::Arguments& args);
 		static void maxRounds(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
 		static void volume(Console& console, const Console::Arguments& args, Sound& sound);
 		static void toggleRenderMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings);

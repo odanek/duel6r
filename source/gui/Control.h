@@ -67,7 +67,7 @@ namespace Duel6
 			virtual void keyEvent(SDL_Keycode keyCode)
 			{}
 
-			virtual void textInputEvent(const char* text)
+			virtual void textInputEvent(const std::string& text)
 			{}
 
 			Int32 getX() const

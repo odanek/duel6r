@@ -27,7 +27,6 @@
 
 #include <SDL2/SDL.h>
 #include "Format.h"
-#include "Lang.h"
 #include "Input.h"
 
 namespace Duel6
@@ -55,12 +54,12 @@ namespace Duel6
 		
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
 		{
-			console.print(D6_L("...Unable to initialize joypad sub-system"));            
+			console.print("...Unable to initialize joypad sub-system");
 		}
 		else
 		{
 			int joysticks = SDL_NumJoysticks();
-			console.print(Format(D6_L("...Found {0} joypads\n")) << joysticks);
+			console.print(Format("...Found {0} joypads\n") << joysticks);
 
 			for (int i = 0; i < joysticks; i++)
 			{

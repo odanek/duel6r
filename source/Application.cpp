@@ -50,7 +50,7 @@ namespace Duel6
 		tearDown();
 	}
 
-	void Application::textInputEvent(Context& context, const char* text)
+	void Application::textInputEvent(Context& context, const std::string& text)
 	{
 		if (console.isActive())
 		{

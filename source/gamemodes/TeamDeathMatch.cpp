@@ -82,7 +82,7 @@ namespace Duel6
 		{
 			for (const Player& player : world.getPlayers())
 			{
-				world.getMessageQueue().add(player, D6_L("End of round - no winner"));
+				world.getMessageQueue().add(player, "End of round - no winner");
 			}
 			return true;
 		}

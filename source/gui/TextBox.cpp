@@ -61,16 +61,15 @@ namespace Duel6
 			}
 		}
 
-		void Textbox::textInputEvent(const char* newText)
+		void Textbox::textInputEvent(const std::string& newText)
 		{
-			while (*newText != 0)
+			for (auto iter = newText.cbegin(); iter != newText.cend(); ++iter)
 			{
-				if ((int)text.length() < max && allowedCharacters.find(*newText) != std::string::npos)
+				char letter = *iter;
+				if ((int)text.length() < max && allowedCharacters.find(letter) != std::string::npos)
 				{
-					text.push_back(*newText);
+					text.push_back(letter);
 				}
-
-				++newText;
 			}
 		}
 

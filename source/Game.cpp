@@ -92,7 +92,7 @@ namespace Duel6
 		getRound().keyEvent(keyCode, keyModifiers);
 	}
 
-	void Game::textInputEvent(const char* text)
+	void Game::textInputEvent(const std::string& text)
 	{
 	}
 
@@ -138,7 +138,7 @@ namespace Duel6
 		Size background = backgrounds[rand() % backgrounds.size()];
 
 		Console& console = appService.getConsole();
-		console.printLine(Format(D6_L("\n===Loading level {0}===")) << levelPath);
+		console.printLine(Format("\n===Loading level {0}===") << levelPath);
 		console.printLine(Format("...Parameters: mirror: {0}, background: {1}") << mirror << background);
 		round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror, background);
 

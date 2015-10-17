@@ -58,9 +58,9 @@ namespace Duel6
 		Int32 boom;
 		Int32 power;
 		Float32 reloadSpeed;
-		const char* name;
-		const char* shotSound;
-		const char* boomSound;
+		std::string name;
+		std::string shotSound;
+		std::string boomSound;
 		Float32 expGrow;
 		bool shit; // TODO: Remove
 		Int16 animation[16];

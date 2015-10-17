@@ -122,17 +122,17 @@ namespace Duel6
 		{
 		case D6_BONUS_INVIS:
 			player.setBonus(type, duration).setAlpha(0.2f);
-			messageQueue.add(player, Format(D6_L("Invisibility for {0} seconds")) << duration);
+			messageQueue.add(player, Format("Invisibility for {0} seconds") << duration);
 			break;
 
 		case D6_BONUS_SPEED:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format(D6_L("Fast movement for {0} seconds")) << duration);
+			messageQueue.add(player, Format("Fast movement for {0} seconds") << duration);
 			break;
 
 		case D6_BONUS_LIFEP:
 			player.addLife(Float32(hit));
-			messageQueue.add(player, Format(D6_L("Life +{0}")) << hit);
+			messageQueue.add(player, Format("Life +{0}") << hit);
 			break;
 
 		case D6_BONUS_LIFEM:
@@ -140,43 +140,43 @@ namespace Duel6
 			{
 				player.playSound(PlayerSounds::Type::WasKilled);
 			}
-			messageQueue.add(player, Format(D6_L("Life -{0}")) << hit);
+			messageQueue.add(player, Format("Life -{0}") << hit);
 			break;
 
 		case D6_BONUS_LIFEF:
 			player.setFullLife();
-			messageQueue.add(player, D6_L("Full life"));
+			messageQueue.add(player, "Full life");
 			break;
 
 		case D6_BONUS_SHOTS:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format(D6_L("Fast reload for {0} seconds")) << duration);
+			messageQueue.add(player, Format("Fast reload for {0} seconds") << duration);
 			break;
 
 		case D6_BONUS_SHOTP:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format(D6_L("Powerful shots for {0} seconds")) << duration);
+			messageQueue.add(player, Format("Powerful shots for {0} seconds") << duration);
 			break;
 
 		case D6_BONUS_INVUL:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format(D6_L("Invulnerability for {0} seconds")) << duration);
+			messageQueue.add(player, Format("Invulnerability for {0} seconds") << duration);
 			break;
 
 		case D6_BONUS_BULLT:
 			hit = 5 + rand() % 12;
 			player.pickAmmo(hit);
-			messageQueue.add(player, Format(D6_L("Bullets +{0}")) << hit);
+			messageQueue.add(player, Format("Bullets +{0}") << hit);
 			break;
 
 		case D6_BONUS_SPLITFIRE:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format(D6_L("Splitfire for {0} seconds")) << duration);
+			messageQueue.add(player, Format("Splitfire for {0} seconds") << duration);
 			break;
 
 		case D6_BONUS_VAMPIRESHOTS:
 			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format(D6_L("Vampire shots for {0} seconds")) << duration);
+			messageQueue.add(player, Format("Vampire shots for {0} seconds") << duration);
 			break;
 		}
 	}
@@ -208,7 +208,7 @@ namespace Duel6
 		}
 
 		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());
-		messageQueue.add(player, Format(D6_L("You picked up gun {0}")) << D6_L(bonus.getWeaponType().name));
+		messageQueue.add(player, Format("You picked up gun {0}") << bonus.getWeaponType().name);
 	}
 
 	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue)

@@ -69,7 +69,7 @@ namespace Duel6
 
 		void loadTargaImage(const std::string& path, Image& image)
 		{
-			File file(path, "rb");
+			File file(path, File::Mode::Binary, File::Access::Read);
 
 			// Header
 			Uint16 header[9];
@@ -130,7 +130,7 @@ namespace Duel6
 
 		void saveTarga(const std::string& path, const Image& image)
 		{
-			File file(path, "wb");
+			File file(path, File::Mode::Binary, File::Access::Write);
 
 			// Header
 			Uint16 header[9] = { 0, 10, 0, 0, 0, 0, (Uint16)image.getWidth(), (Uint16)image.getHeight(), 0x18 };  // 0x2018
