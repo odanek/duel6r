@@ -33,6 +33,7 @@
 #include "LevelRenderData.h"
 #include "Explosion.h"
 #include "Fire.h"
+#include "ShotList.h"
 
 namespace Duel6
 {
@@ -46,6 +47,7 @@ namespace Duel6
 		LevelRenderData levelRenderData;
 		InfoMessageQueue messageQueue;
 		SpriteList spriteList;
+		ShotList shotList;
 		ExplosionList explosionList;
 		FireList fireList;
 		const Water::WaterSet& waterSet;
@@ -106,6 +108,16 @@ namespace Duel6
 		const SpriteList& getSpriteList() const
 		{
 			return spriteList;
+		}
+
+		ShotList& getShotList()
+		{
+			return shotList;
+		}
+
+		const ShotList& getShotList() const
+		{
+			return shotList;
 		}
 
 		ExplosionList& getExplosionList()

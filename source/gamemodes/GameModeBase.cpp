@@ -44,7 +44,7 @@ namespace Duel6
 		Ranking result;
 		for (auto& player : ranking)
 		{
-			Color color(255, player->isDead() ? 0 : 255, 0);
+			Color color(255, player->isAlive() ? 255 : 0, 0);
 			result.push_back(RankingEntry{player->getPerson().getName(), player->getPerson().getTotalPoints(), color});
 		}
 

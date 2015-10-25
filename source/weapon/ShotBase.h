@@ -25,47 +25,90 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Type.h"
-#include "Shot.h"
-#include "Player.h"
-#include "Weapon.h"
+#ifndef DUEL6_SHOTBASE_H
+#define DUEL6_SHOTBASE_H
+
+#include "../Shot.h"
+#include "../Weapon.h"
+#include "../Vector.h"
+#include "../SpriteList.h"
+#include "../Player.h"
 
 namespace Duel6
 {
-	Shot::Shot(Player& player, SpriteList::Iterator sprite, Orientation shotOrientation)
-		: player(player), weapon(player.getWeapon()), orientation(shotOrientation), sprite(sprite)
+	class ShotBase : public Shot
 	{
-		const Vector dim = getDimensions();
-		const Rectangle playerRect = player.getCollisionRect();
-		if (orientation == Orientation::Left)
+	protected:
+		struct Hit
 		{
-			position = Vector(playerRect.left.x - dim.x, player.getGunVerticalPosition() - dim.y / 2.0f);
-			velocity = Vector(-1.0f, 0.0f);
-		}
-		else
+			bool hit;
+			Player* player;
+		};
+
+	private:
+		Player& player;
+		const Weapon& weapon;
+		Orientation orientation;
+		Vector position;
+		Vector velocity;
+		SpriteList::Iterator sprite;
+		bool powerful;
+
+	public:
+		ShotBase(Player& player, SpriteList::Iterator sprite, Orientation shotOrientation);
+
+		Player& getPlayer() override
 		{
-			position = Vector(playerRect.right.x, player.getGunVerticalPosition() - dim.y / 2.0f);
-			velocity = Vector(1.0f, 0.0f);
+			return player;
 		}
-		this->sprite->setPosition(getSpritePosition(), 0.6f).setOrientation(this->orientation);
-	}
 
-	Shot& Shot::move(Float32 elapsedTime)
-	{
-		position += velocity * getWeapon().bulletSpeed * elapsedTime;
-		sprite->setPosition(getSpritePosition());
-		return *this;
-	}
+		const Player& getPlayer() const override
+		{
+			return player;
+		}
 
-	Float32 Shot::getExplosionPower() const
-	{
-		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * getWeapon().power;
-	}
+		const Weapon& getWeapon() const override
+		{
+			return weapon;
+		}
 
-	Float32 Shot::getExplosionRange() const
-	{
-		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * getWeapon().boom;
-	}
+		bool update(Float32 elapsedTime, World& world) override;
+
+	protected:
+		const Vector& getPosition() const
+		{
+			return position;
+		}
+
+		Vector getDimensions() const
+		{
+			return Vector(0.65f, 0.35f);
+		}
+
+		Vector getCentre() const
+		{
+			return getCollisionRect().getCentre();
+		}
+
+		Rectangle getCollisionRect() const
+		{
+			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+		}
+
+		Vector getSpritePosition() const
+		{
+			return orientation == Orientation::Left ? Vector(position.x, position.y - 0.65f) : Vector(position.x - 0.35f, position.y - 0.65f);
+		}
+
+		void move(Float32 elapsedTime);
+
+		Float32 getExplosionRange() const;
+		Float32 getExplosionPower() const;
+
+		Hit checkPlayerCollision(std::vector<Player>& players);
+		Hit checkWorldCollision(const Level& level);
+		void explode(Hit hit, World& world);
+	};
 }
+
+#endif

@@ -25,59 +25,46 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Predator.h"
+#include "ShotList.h"
+#include "World.h"
+#include "Weapon.h"
+#include "Player.h"
+#include "weapon/ShotBase.h"
 
 namespace Duel6
 {
-	void Predator::initializeRound(Game& game, std::vector<Player>& players, World& world)
+	ShotList::ShotList(World& world)
+		: world(world)
+	{}
+
+	void ShotList::addShot(ShotPointer&& shot)
 	{
-		Size predatorIndex = rand() % world.getPlayers().size();
-		predator = &players[predatorIndex];
+		shots.push_back(std::forward<ShotPointer>(shot));
+	}
 
-		eventListener = std::make_unique<PredatorPlayerEventListener>(world.getMessageQueue(), game.getSettings(), *predator);
+	void ShotList::addShot(Player& player, Orientation orientation)
+	{
+		player.getWeapon().shotSample.play();
+		const Weapon& weapon= player.getWeapon();
+		Sprite shotSprite(weapon.shotAnimation, weapon.textures.shot);
+		addShot(std::make_unique<ShotBase>(player, world.getSpriteList().addSprite(shotSprite), orientation));
+	}
 
-		for (auto& player : players)
+	void ShotList::update(Float32 elapsedTime)
+	{
+		auto iter = shots.begin();
+
+		while (iter != shots.end())
 		{
-			player.setEventListener(*eventListener);
-			if (&player == predator)
+			Shot& shot = *iter->get();
+			if (!shot.update(elapsedTime, world))
 			{
-				player.setBodyAlpha(0.1f);
+				iter = shots.erase(iter);
 			}
 			else
 			{
-				player.setBodyAlpha(1.0f);
-				player.pickAmmo(10);
+				++iter;
 			}
 		}
-	}
-
-	bool Predator::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
-	{
-		if (alivePlayers.empty())
-		{
-			for (const Player& player : world.getPlayers())
-			{
-				world.getMessageQueue().add(player, "End of round - no winner");
-			}
-			return true;
-		}
-
-		if (!predator->isAlive())
-		{
-			for(Player* player : alivePlayers)
-			{
-				world.getMessageQueue().add(*player, Format("Marines won!"));
-				player->getPerson().addWins(1);
-			}
-			return true;
-		}
-		else if (alivePlayers.size() == 1)
-		{
-			world.getMessageQueue().add(*predator, Format("Predator won!"));
-			predator->getPerson().addWins(1);
-			return true;
-		}
-
-		return false;
 	}
 }

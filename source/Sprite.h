@@ -41,14 +41,6 @@ namespace Duel6
 	class Sprite
 	{
 	private:
-		enum Flags
-		{
-			Draw = 0x01,         // Don't render this sprite
-			NoDepth = 0x02,      // Disable depth test
-			Finished = 0x04      // The animation has finished
-		};
-
-	private:
 		const Int16* animation;    // Source array of animations and delays
 		const GLuint* textures;   // Texture array
 		Size frame;    // Current animation frame
@@ -62,6 +54,9 @@ namespace Duel6
 		Vector size;
 		Float32 grow;   // Grow factor for explosions
 		Float32 alpha;  // Transparency ratio
+		bool visible;
+		bool noDepth;
+		bool finished;
 
 	public:
 		Sprite(const Int16* animation, const TextureManager::Texture& textures);
@@ -145,21 +140,16 @@ namespace Duel6
 
 		bool isFinished() const
 		{
-			return hasFlags(Finished);
+			return finished;
 		}
 
 		bool isNoDepth() const
 		{
-			return hasFlags(NoDepth);
+			return noDepth;
 		}
 
 		void update(Float32 elapsedTime);
 		void render() const;
-
-	private:
-		void addFlags(Uint32 flags);
-		void clearFlags(Uint32 flags);
-		bool hasFlags(Uint32 flags) const;
 	};
 }
 

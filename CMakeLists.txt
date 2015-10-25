@@ -137,7 +137,8 @@ set(D6R_SOURCES
     source/Round.cpp
     source/ScreenMode.h
     source/Shot.h
-    source/Shot.cpp
+    source/ShotList.h
+    source/ShotList.cpp
     source/Sound.cpp
     source/Sound.h
     source/SoundException.h
@@ -205,6 +206,9 @@ set(D6R_SOURCES
 	source/gui/Spinner.cpp
 	source/gui/TextBox.h
 	source/gui/TextBox.cpp
+
+    source/weapon/ShotBase.h
+    source/weapon/ShotBase.cpp
 
     source/collision/Collision.h
     source/collision/Collision.cpp

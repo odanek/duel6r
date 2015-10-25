@@ -32,7 +32,7 @@ namespace Duel6
 	bool PredatorPlayerEventListener::onDamageByShot(Player& player, Player& shootingPlayer,
 													 Float32 amount, Shot& shot, bool directHit)
 	{
-		if (&player == predator)
+		if (player.is(predator))
 		{
 			amount *= 0.3;
 		}

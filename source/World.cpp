@@ -37,7 +37,7 @@ namespace Duel6
 	World::World(Game& game, const std::string& levelPath, bool mirror, Size background)
 		: players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
 		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
-		  explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources()),
+		  shotList(*this), explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
 		  waterSet(game.getResources().getWaterSet()), background(background)
 	{
 		Console& console = game.getAppService().getConsole();
@@ -52,7 +52,6 @@ namespace Duel6
 		console.printLine("...Level initialization");
 		console.printLine("...Loading elevators: ");
 		loadElevators(levelPath, mirror);
-		WPN_LevelInit();
 		BONUS_Clear();
 		fireList.find(levelRenderData.getSprites());
 	}
@@ -62,7 +61,7 @@ namespace Duel6
 		spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
 		explosionList.update(elapsedTime);
 		levelRenderData.update(elapsedTime);
-		WPN_MoveShots(*this, elapsedTime);
+		shotList.update(elapsedTime);
 		ELEV_MoveAll(elapsedTime);
 		messageQueue.update(elapsedTime);
 

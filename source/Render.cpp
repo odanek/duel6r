@@ -151,7 +151,7 @@ namespace Duel6
 
         for (const Player& player : game.getPlayers())
         {
-            if (!player.isDead())
+            if (player.isAlive())
             {
                 font.print(x + 15, y + height - 70, fontColor, Format("Winner is: {0}") << player.getPerson().getName());
                 break;
@@ -242,7 +242,7 @@ namespace Duel6
 
 	void Renderer::playerStatus(const Player& player) const
 	{
-		Int32 alpha = 180, green = player.isDead() ? 0 : 1;
+		Int32 alpha = 180, green = player.isAlive() ? 1 : 0;
 		Int32 airBarLength = Int32((player.getAir() * 101) / D6_MAX_AIR);
 		Int32 lifeBarLength = Int32((player.getLife() * 101) / D6_MAX_LIFE);
 		Int32 reloadBarLength = 101 - Int32((player.getReloadTime() * 101) / player.getReloadInterval());
@@ -391,7 +391,7 @@ namespace Duel6
 
 		for (const Player& player : game.getPlayers())
 		{
-			if (!player.isDead() && player.getHPBarDuration() > 0)
+			if (player.isAlive() && player.getHPBarDuration() > 0)
 			{
 				Rectangle rect = player.getCollisionRect();
 				Float32 width = player.getLife() / D6_MAX_LIFE * rect.getSize().x;
@@ -437,7 +437,7 @@ namespace Duel6
 		glBegin(GL_POINTS);
 		for (const Player& player : game.getPlayers())
 		{
-			if (!player.isDead())
+			if (player.isAlive())
 			{
 				Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
 				Rectangle rect = player.getCollisionRect();
@@ -586,7 +586,7 @@ namespace Duel6
 			video.setMode(Video::Mode::Orthogonal);
 			splitBox(player.getView());
 
-			if (player.isDead())
+			if (!player.isAlive())
 			{
 				glColor3f(1.0f, 0.5f, 0.5f);
 			}

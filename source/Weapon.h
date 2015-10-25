@@ -28,18 +28,17 @@
 #ifndef DUEL6_WEAPON_H
 #define DUEL6_WEAPON_H
 
+#include <memory>
+#include <string>
 #include "Type.h"
-#include "Shot.h"
 #include "Color.h"
 #include "Sound.h"
 #include "TextureManager.h"
 #include "World.h"
+#include "PlayerSkin.h"
 
-// TODO: Split into Weapon (WeaponType) and something like ShotList
 namespace Duel6
 {
-	class Player; // Forward declaration, TODO: Remove
-	
 	struct WeaponTextures
 	{
 		TextureManager::Texture boom;
@@ -72,13 +71,10 @@ namespace Duel6
 	};
 
 	extern Weapon d6WpnDef[D6_WEAPONS];
+	extern std::unique_ptr<PlayerSkin> d6BrownSkin;
 
 	void WPN_Init(TextureManager& textureManager, Sound& sound, Console& console);
 	void WPN_DeInit();
-	void WPN_LevelInit();
-	void WPN_AddShot(Player& player, SpriteList& spriteList, Orientation orientation);
-	void WPN_MoveShots(World& world, float elapsedTime);
-
 	const Weapon& WPN_GetRandomWeapon();
 }
 

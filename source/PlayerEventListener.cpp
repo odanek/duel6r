@@ -74,7 +74,7 @@ namespace Duel6
 		messageQueue.add(player, "You are dead");
 	}
 
-	void PlayerEventListener::onSuicide(Player &player, int otherKilledPlayers)
+	void PlayerEventListener::onSuicide(Player &player, Size otherKilledPlayers)
 	{
 		player.getPerson().addPenalties(1);
 		messageQueue.add(player, "Committed suicide");

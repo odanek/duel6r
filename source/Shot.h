@@ -29,81 +29,23 @@
 #define DUEL6_SHOT_H
 
 #include "Type.h"
-#include "SpriteList.h"
-#include "Rectangle.h"
 
 namespace Duel6
 {
-	class Player; // Forward declaration, TODO: Remove
-	struct Weapon; // Forward declaration, TODO: Refactor Weapon.h and remove
+	class Player;
+	class World;
+	struct Weapon;
+
+	class World;
 
 	class Shot
 	{
-	private:
-		Player& player;
-		const Weapon& weapon;
-		Orientation orientation;
-		Vector position;
-		Vector velocity;
-		SpriteList::Iterator sprite;
-
 	public:
-		Shot(Player& player, SpriteList::Iterator sprite, Orientation shotOrientation);
-
-		Player& getPlayer()
-		{
-			return player;
-		}
-
-		const Player& getPlayer() const
-		{
-			return player;
-		}
-
-		const Weapon& getWeapon() const
-		{
-			return weapon;
-		}
-
-		SpriteList::Iterator getSprite()
-		{
-			return sprite;
-		}
-
-		const Vector& getPosition() const
-		{
-			return position;
-		}
-
-		Vector getDimensions() const
-		{
-			return Vector(0.65f, 0.35f);
-		}
-
-		Vector getCentre() const
-		{
-			return getCollisionRect().getCentre();
-		}
-
-		Rectangle getCollisionRect() const
-		{
-			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
-		}
-
-		Vector getSpritePosition() const
-		{
-			return orientation == Orientation::Left ? Vector(position.x, position.y - 0.65f) : Vector(position.x - 0.35f, position.y - 0.65f);
-		}
-
-		Orientation getOrientation() const
-		{
-			return orientation;
-		}
-
-		Shot& move(Float32 elapsedTime);
-
-		Float32 getExplosionRange() const;
-		Float32 getExplosionPower() const;
+		virtual ~Shot() {}
+		virtual const Weapon& getWeapon() const = 0;
+		virtual Player& getPlayer() = 0;
+		virtual const Player& getPlayer() const = 0;
+		virtual bool update(Float32 elapsedTime, World& world) = 0;
 	};
 }
 

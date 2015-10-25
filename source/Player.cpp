@@ -101,7 +101,7 @@ namespace Duel6
 	{
 		Int32 gameTime = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
 		getPerson().addTotalGameTime(gameTime);
-		if (!isDead())
+		if (isAlive())
 		{
 			getPerson().addTimeAlive(gameTime);
 		}
@@ -222,14 +222,14 @@ namespace Duel6
 		getPerson().addShots(1);
 		Orientation originalOrientation = getOrientation();
 
-		WPN_AddShot(*this, world->getSpriteList(), originalOrientation);
+		world->getShotList().addShot(*this, originalOrientation);
 
 		if (getBonus() == D6_BONUS_SPLITFIRE && getAmmo() > 0)
 		{
 			state.ammo--;
 			getPerson().addShots(1);
 			Orientation secondaryOrientation = originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
-			WPN_AddShot(*this, world->getSpriteList(), secondaryOrientation);
+			world->getShotList().addShot(*this, secondaryOrientation);
 		}
 	}
 
@@ -305,7 +305,7 @@ namespace Duel6
 
 	void Player::checkKeys()
 	{
-		if ((isDead() && !isGhost()) || isPickingGun())
+		if ((!isAlive() && !isGhost()) || isPickingGun())
 		{
 			return;
 		}
@@ -347,7 +347,7 @@ namespace Duel6
 	void Player::update(World& world, ScreenMode screenMode, Float32 elapsedTime)
 	{
 		checkWater(world, elapsedTime);
-		if (!isDead())
+		if (isAlive())
 		{
 			BONUS_Check(*this, world.getMessageQueue());
 		}
@@ -411,7 +411,7 @@ namespace Duel6
 	{
 		Int16 *animation;
 
-		if (isDead() && !isGhost())
+		if (!isAlive() && !isGhost())
 		{
 			if (isLying())
 			{
@@ -449,7 +449,7 @@ namespace Duel6
 
 		gunSprite->setPosition(getGunSpritePosition())
 			.setOrientation(getOrientation())
-			.setDraw(!isDead() && !isPickingGun());
+			.setDraw(isAlive() && !isPickingGun());
 	}
 
 	void Player::prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY)
@@ -547,7 +547,7 @@ namespace Duel6
 		}
 	}
 
-	bool Player::hitByShot(Float32 amount, Shot& shot, bool directHit)
+	bool Player::hitByShot(Float32 amount, Shot& shot, bool directHit, const Vector& hitPoint)
 	{
 		if (isInvulnerable() || !isInGame())
 		{
@@ -561,11 +561,10 @@ namespace Duel6
 		if (directHit && weapon.blood)
 		{
 			Rectangle rect = getCollisionRect();
-			Vector shotCentre = shot.getCentre();
-			world->getExplosionList().add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, shotCentre.y), 0.2f, 0.5f, Color::RED);
+			world->getExplosionList().add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, hitPoint.y), 0.2f, 0.5f, Color::RED);
 		}
 
-		if (isDead())
+		if (!isAlive())
 		{
 			if (weapon.explodes && directHit)
 			{
@@ -586,7 +585,6 @@ namespace Duel6
 		if (directHit)
 		{			
 			shootingPerson.addHits(1);
-
 			if (shootingPlayer.getBonus() == D6_BONUS_VAMPIRESHOTS)
 			{
 				shootingPlayer.addLife(amount);
@@ -601,7 +599,7 @@ namespace Duel6
 			sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
 
-			state.orientation = (shot.getCentre().x < getCentre().x) ? Orientation::Left : Orientation::Right;
+			state.orientation = (hitPoint.x < getCentre().x) ? Orientation::Left : Orientation::Right;
 
 			if (weapon.explodes && directHit)
 			{
@@ -626,8 +624,10 @@ namespace Duel6
 
 	bool Player::hit(Float32 amount)
 	{
-		if (isInvulnerable() || isDead())
+		if (isInvulnerable() || !isAlive())
+		{
 			return false;
+		}
 
         if (!eventListener->onDamageByEnv(*this, amount))
         {
@@ -817,36 +817,33 @@ namespace Duel6
 		sprite->setTextures(skin.getTextures());
 	}
 
-    void Player::processKills(Shot &shot, std::vector<Player *> killedPlayers)
+    void Player::processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled)
     {
-        bool suicideKills = (std::find(killedPlayers.begin(), killedPlayers.end(), this) != killedPlayers.end());
+        bool suicide = (std::find(playersKilled.begin(), playersKilled.end(), this) != playersKilled.end());
 
-        if (suicideKills) // Killed self
+        if (suicide)
         {
             playSound(PlayerSounds::Type::Suicide);
-            eventListener->onSuicide(*this, (int) (killedPlayers.size() -1));
+            eventListener->onSuicide(*this, playersKilled.size() - 1);
         }
-        else if (killedPlayers.size() > 0)
+        else if (!playersKilled.empty())
         {
             playSound(PlayerSounds::Type::KilledOther);
         }
 
-        for (Player* player : killedPlayers)
+        for (Player* player : playersKilled)
         {
             if (!player->is(*this))
             {
                 player->playSound(PlayerSounds::Type::WasKilled);
-                player->eventListener->onKillByPlayer(*player, *this, shot, suicideKills);
+                player->eventListener->onKillByPlayer(*player, *this, shot, suicide);
             }
         }
-    }
 
-    void Player::processHits(Shot &shot, std::vector<Player *> hittedPlayers)
-    {
-        bool hittedSelf = (std::find(hittedPlayers.begin(), hittedPlayers.end(), this) != hittedPlayers.end());
-        if (!hittedSelf && hittedPlayers.size() > 0)
-        {
-            playSound(PlayerSounds::Type::HitOther);
-        }
-    }
+		bool hittedSelf = (std::find(playersHit.begin(), playersHit.end(), this) != playersHit.end());
+		if (!hittedSelf && !playersHit.empty())
+		{
+			playSound(PlayerSounds::Type::HitOther);
+		}
+	}
 }

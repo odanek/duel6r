@@ -67,11 +67,6 @@ namespace Duel6
 			return *this;
 		}
 
-		Float32 setY() const
-		{
-			return y;
-		}
-
 		Vector& set(Float32 x, Float32 y)
 		{
 			this->x = x;
@@ -85,7 +80,7 @@ namespace Duel6
 			return *this;
 		}
 
-		Vector setY(Float32 y)
+		Vector& setY(Float32 y)
 		{
 			this->y = y;
 			return *this;

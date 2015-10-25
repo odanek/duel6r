@@ -36,10 +36,10 @@ namespace Duel6
     class PredatorPlayerEventListener : public PlayerEventListener
     {
 	private:
-		Player* predator;
+		Player& predator;
 
     public:
-        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player* predator)
+        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player& predator)
                 : PlayerEventListener(messageQueue, gameSettings), predator(predator)
         {}
 

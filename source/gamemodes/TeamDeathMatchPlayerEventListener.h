@@ -41,11 +41,10 @@ namespace Duel6
 		const TeamMap& teamMap;
 
     public:
-        TeamDeathMatchPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, bool friendlyFire, const TeamMap& teamMap)
+        TeamDeathMatchPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings,
+										  bool friendlyFire, const TeamMap& teamMap)
             : PlayerEventListener(messageQueue, gameSettings), friendlyFire(friendlyFire), teamMap(teamMap)
-        { }
-
-        ~TeamDeathMatchPlayerEventListener() { }
+        {}
 
         bool onDamageByShot(Player& player, Player& shootingPlayer, Float32 amount, Shot& shot, bool directHit);
 

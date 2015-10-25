@@ -186,20 +186,13 @@ namespace Duel6
 		void update(World& world, ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
-		bool hitByShot(Float32 pw, Shot& s, bool directHit);
-        void processKills(Shot &shot, std::vector<Player *> killedPlayers);
-        void processHits(Shot &shot, std::vector<Player *> hittedPlayers);
+		bool hitByShot(Float32 pw, Shot& s, bool directHit, const Vector& hitPoint);
+        void processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled);
 
         void setEventListener(PlayerEventListener& listener)
         {
             eventListener = &listener;
         }
-
-		bool hasAnyTeam() const;
-		bool hasTeam(const std::string& team) const;
-		void setTeam(const std::string& team);
-		void unsetTeam();
-		const std::string& getTeam() const;
 
 		const Vector& getPosition() const
 		{
@@ -398,9 +391,9 @@ namespace Duel6
 			return hasFlag(FlagLying);
 		}
 
-		bool isDead() const
+		bool isAlive() const
 		{
-			return hasFlag(FlagDead);
+			return !hasFlag(FlagDead);
 		}
 
 		bool isGhost() const
@@ -431,7 +424,7 @@ namespace Duel6
 
 		bool isInGame() const
 		{
-			return !isDead() || isLying();
+			return isAlive() || isLying();
 		}
 
 		bool isInvulnerable() const

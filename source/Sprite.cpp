@@ -38,7 +38,9 @@ namespace Duel6
 		speed = 1;
 		looping = AnimationLooping::RepeatForever;
 		orientation = Orientation::Left;
-		flags = Draw;
+		visible = true;
+		noDepth = false;
+		finished = false;
 		size = Vector(1.0f, 1.0f);
 		grow = 0;
 		alpha = 1.0f;
@@ -51,7 +53,7 @@ namespace Duel6
 			this->animation = animation;
 			delay = 0.0f;
 			frame = 0;
-			clearFlags(Finished);
+			finished = false;
 		}
 
 		return *this;
@@ -59,27 +61,13 @@ namespace Duel6
 
 	Sprite& Sprite::setDraw(bool draw)
 	{
-		if (draw)
-		{
-			addFlags(Draw);
-		}
-		else
-		{
-			clearFlags(Draw);
-		}
+		visible = draw;
 		return *this;
 	}
 
 	Sprite& Sprite::setNoDepth(bool depth)
 	{
-		if (depth)
-		{
-			addFlags(NoDepth);
-		}
-		else
-		{
-			clearFlags(NoDepth);
-		}
+		noDepth = depth;
 		return *this;
 	}
 
@@ -92,7 +80,7 @@ namespace Duel6
 			delay = 0;
 			if (animation[frame] == -1)
 			{
-				addFlags(Finished);
+				finished = true;
 
 				if (looping == AnimationLooping::RepeatForever)
 				{
@@ -115,7 +103,7 @@ namespace Duel6
 
 	void Sprite::render() const
 	{
-		if (!hasFlags(Draw))
+		if (!visible)
 		{
 			return;
 		}
@@ -151,20 +139,5 @@ namespace Duel6
 		{
 			glEnable(GL_DEPTH_TEST);
 		}
-	}
-
-	void Sprite::addFlags(Uint32 flags)
-	{
-		this->flags |= flags;
-	}
-
-	void Sprite::clearFlags(Uint32 flags)
-	{
-		this->flags &= ~flags;
-	}
-
-	bool Sprite::hasFlags(Uint32 flags) const
-	{
-		return (this->flags & flags) == flags;
 	}
 }

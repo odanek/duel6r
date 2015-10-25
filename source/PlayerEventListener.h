@@ -65,7 +65,7 @@ namespace Duel6
         //TODO: Environment type (eg. water, lava, bonus)
         virtual void onKillByEnv(Player &player);
 
-        virtual void onSuicide(Player &player, int otherKilledPlayers);
+        virtual void onSuicide(Player &player, Size otherKilledPlayers);
 
         virtual void onRoundWin(Player& player);
     };

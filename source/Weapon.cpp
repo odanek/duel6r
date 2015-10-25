@@ -26,14 +26,9 @@
 */
 
 #include <stdlib.h>
-#include <list>
 #include <set>
 #include "Sound.h"
-#include "Player.h"
 #include "Weapon.h"
-#include "Game.h"
-#include "Fire.h"
-#include "collision/Collision.h"
 
 namespace Duel6
 {
@@ -57,19 +52,8 @@ namespace Duel6
 		{ 15, false, 7.93f, true, false, Color(0, 0, 0), 0, 10, 0.9f, "stopper gun", "spunt.wav", "", 0, false, { 0, 5, 1, 5, 1, 5, 2, 5, 2, 5, 0, 5, 0, 5, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
 		{ 16, false, 5.49f, false, false, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", "shit.wav", "shit-hit.wav", 0.04f, true, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
 	};
-	
-	namespace
-	{
-		std::unique_ptr<PlayerSkin> brownSkin;
-		std::list<Shot> d6Shots;
-		typedef std::list<Shot>::iterator ShotIterator;
-	}
 
-	struct Hit
-	{
-		bool hit; // Was there any hit
-		Player* player; // Was any player hit directly?
-	};
+	std::unique_ptr<PlayerSkin> d6BrownSkin;
 
 	void WPN_Init(TextureManager& textureManager, Sound& sound, Console& console)
 	{
@@ -95,159 +79,12 @@ namespace Duel6
 
 		Color brownColor(83, 44, 0);
 		PlayerSkinColors skinColors(brownColor);
-		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
+		d6BrownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
 	}
 
 	void WPN_DeInit()
 	{
-		brownSkin.reset();
-	}
-
-	void WPN_LevelInit()
-	{
-		d6Shots.clear();
-	}
-
-	void WPN_AddShot(Player& player, SpriteList& spriteList, Orientation orientation)
-	{
-		Sprite shotSprite(player.getWeapon().shotAnimation, player.getWeapon().textures.shot);
-		d6Shots.push_back(Shot(player, spriteList.addSprite(shotSprite), orientation));
-		player.getWeapon().shotSample.play();
-	}
-
-	static void WPN_Boom(Shot& shot, std::vector<Player>& players, Player* playerThatWasHit, SpriteList& spriteList, FireList& fireList)
-	{
-        std::vector<Player*> killedPlayers;
-        std::vector<Player*> hittedPlayers;
-
-		Player& author = shot.getPlayer();
-
-		Float32 range = shot.getExplosionRange();
-		Float32 power = shot.getExplosionPower();
-
-		const Vector shotCentre = shot.getCentre();
-		bool shit = shot.getWeapon().shit;
-
-		if (!shit)
-		{
-			fireList.check(shotCentre, range, spriteList);
-		}
-
-		for (Player& player : players)
-		{
-			bool directHit = (playerThatWasHit != nullptr && player.is(*playerThatWasHit));
-			Vector playerCentre = player.getCentre();
-			Float32 dist = directHit ? 0 : (playerCentre - shotCentre).length();
-
-			if (directHit || dist < range)
-			{
-                hittedPlayers.push_back(&player);
-				if (shit)
-				{
-					player.useTemporarySkin(*brownSkin);
-				}
-				else
-				{
-					if (player.hitByShot(directHit ? power : ((range - dist) * power) / range, shot, directHit))
-					{
-						killedPlayers.push_back(&player);
-					}
-				}
-			}
-		}
-
-        author.processHits(shot, hittedPlayers);
-        author.processKills(shot, killedPlayers);
-	}
-
-	static Hit WPN_ShotPlayerCollision(Shot& shot, std::vector<Player>& players)
-	{
-		const Rectangle shotBox = shot.getCollisionRect();
-
-		for (Player& player : players)
-		{
-			if (!player.isInGame() || player.getBonus() == D6_BONUS_INVIS || player.is(shot.getPlayer()))
-			{
-				continue;
-			}
-
-			if (Collision::rectangles(player.getCollisionRect(), shotBox))
-			{
-				return {true, &player};
-			}
-		}
-
-		return { false, nullptr };
-	}
-
-	static Hit WPN_ShotWallCollision(Shot& shot, const Level& level)
-	{
-		const Rectangle box = shot.getCollisionRect();
-		Float32 up = box.right.y;
-		Float32 down = box.left.y;
-		Float32 left = box.left.x;
-		Float32 right = box.right.x;
-
-		bool hitsWall = level.isWall(left, up, true) ||
-			level.isWall(left, down, true) ||
-			level.isWall(right, up, true) ||
-			level.isWall(right, down, true);
-
-		return { hitsWall, nullptr };
-	}
-
-	static ShotIterator WPN_RemoveShot(ShotIterator shot, SpriteList& spriteList)
-	{
-		spriteList.removeSprite(shot->getSprite());
-		return d6Shots.erase(shot);
-	}
-
-	void WPN_MoveShots(World& world, float elapsedTime)
-	{
-		auto shot = d6Shots.begin();
-
-		while (shot != d6Shots.end())
-		{
-			const Weapon& weapon = shot->getWeapon();
-			shot->move(elapsedTime);
-
-			Hit hit = WPN_ShotPlayerCollision(*shot, world.getPlayers());
-			if (!hit.hit)
-			{
-				hit = WPN_ShotWallCollision(*shot, world.getLevel());
-			}
-
-			if (hit.hit)
-			{
-				WPN_Boom(*shot, world.getPlayers(), hit.player, world.getSpriteList(), world.getFireList());
-				const Vector shotCentre = shot->getCentre();
-				
-				Sprite boom(weapon.boomAnimation, weapon.textures.boom);
-				boom.setPosition(shotCentre - Vector(0.5f, 0.5f), 0.6f)
-					.setSpeed(2.0f)
-					.setLooping(AnimationLooping::OnceAndRemove)
-					.setOrientation(shot->getOrientation())
-					.setAlpha(0.6f);
-
-				SpriteList::Iterator boomSprite = world.getSpriteList().addSprite(boom);
-
-				if (shot->getPlayer().hasPowerfulShots())
-					boomSprite->setGrow(weapon.expGrow * 1.2f);
-				else
-					boomSprite->setGrow(weapon.expGrow);
-				weapon.boomSample.play();
-				if (weapon.boom > 0)
-				{
-					boomSprite->setNoDepth(true);
-				}
-				
-				shot = WPN_RemoveShot(shot, world.getSpriteList());
-			}
-			else
-			{
-				++shot;
-			}
-		}
+		d6BrownSkin.reset();
 	}
 
 	const Weapon& WPN_GetRandomWeapon()

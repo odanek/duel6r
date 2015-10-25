@@ -25,59 +25,32 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Predator.h"
+#ifndef DUEL6_SHOTLIST_H
+#define DUEL6_SHOTLIST_H
+
+#include <memory>
+#include <list>
+#include "Shot.h"
+#include "Orientation.h"
 
 namespace Duel6
 {
-	void Predator::initializeRound(Game& game, std::vector<Player>& players, World& world)
+	class World;
+
+	class ShotList
 	{
-		Size predatorIndex = rand() % world.getPlayers().size();
-		predator = &players[predatorIndex];
+	private:
+		typedef std::unique_ptr<Shot> ShotPointer;
 
-		eventListener = std::make_unique<PredatorPlayerEventListener>(world.getMessageQueue(), game.getSettings(), *predator);
+		World& world;
+		std::list<ShotPointer> shots;
 
-		for (auto& player : players)
-		{
-			player.setEventListener(*eventListener);
-			if (&player == predator)
-			{
-				player.setBodyAlpha(0.1f);
-			}
-			else
-			{
-				player.setBodyAlpha(1.0f);
-				player.pickAmmo(10);
-			}
-		}
-	}
-
-	bool Predator::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
-	{
-		if (alivePlayers.empty())
-		{
-			for (const Player& player : world.getPlayers())
-			{
-				world.getMessageQueue().add(player, "End of round - no winner");
-			}
-			return true;
-		}
-
-		if (!predator->isAlive())
-		{
-			for(Player* player : alivePlayers)
-			{
-				world.getMessageQueue().add(*player, Format("Marines won!"));
-				player->getPerson().addWins(1);
-			}
-			return true;
-		}
-		else if (alivePlayers.size() == 1)
-		{
-			world.getMessageQueue().add(*predator, Format("Predator won!"));
-			predator->getPerson().addWins(1);
-			return true;
-		}
-
-		return false;
-	}
+	public:
+		ShotList(World& world);
+		void addShot(ShotPointer&& shot);
+		void addShot(Player& player, Orientation orientation);
+		void update(Float32 elapsedTime);
+	};
 }
+
+#endif
