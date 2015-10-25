@@ -52,13 +52,13 @@ namespace Duel6
         std::unique_ptr<PlayerEventListener> eventListener;
 
     public:
-        std::string getName() const
+        std::string getName() const override
         {
             return "Predator";
         }
 
 		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
-		bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers);
+		bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) override;
     };
 }
 #endif

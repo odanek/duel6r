@@ -48,7 +48,7 @@ namespace Duel6
 			: teamsCount(teamsCount), friendlyFire(friendlyFire)
         {}
 
-        std::string getName() const
+        std::string getName() const override
         {
             return Format("Team deathmatch ({0} teams, FF: {1})") << teamsCount << (friendlyFire ? "on" : "off");
         }
@@ -56,7 +56,7 @@ namespace Duel6
 		void initializePlayers(std::vector<Game::PlayerDefinition>& definitions) override;
 		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
 
-        bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers);
+        bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) override;
 		Ranking getRanking(const std::vector<Player>& players) const override;
 
 	private:

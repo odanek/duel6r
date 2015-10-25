@@ -328,7 +328,7 @@ namespace Duel6
 				properties[propertyName] = value;
 			}
 
-			std::vector<std::string> getPropertyNames() const
+			std::vector<std::string> getPropertyNames() const override
 			{
 				std::vector<std::string> propNames;
 				for (const auto& iter : properties)

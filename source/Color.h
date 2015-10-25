@@ -28,6 +28,7 @@
 #ifndef DUEL6_COLOR_H
 #define DUEL6_COLOR_H
 
+#include <string>
 #include <functional>
 #include "Type.h"
 

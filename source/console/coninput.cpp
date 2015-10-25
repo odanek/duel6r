@@ -235,7 +235,7 @@ namespace Duel6
 	{
 		for (auto iter = text.cbegin(); iter != text.cend(); ++iter)
 		{
-			char letter = *iter;
+			unsigned char letter = *iter;
 			if (letter >= ' ' && letter < 128 && letter != '`')
 			{
 				if (!insert || curpos == (int)input.length())
