@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.2)
 project(Duel6r)
 
 #########################################################################
-# compilation details
+# Compiler flags
 #########################################################################
 
 # visual studio
@@ -251,6 +251,11 @@ set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 4.0.1 DEBUG_OUTPUT_NAME
 # External dependencies
 #########################################################################
 
+# Platform
+if (MINGW)
+    target_link_libraries(${D6R_APP_NAME} mingw32)
+endif(MINGW)
+
 # OpenGL
 if(WIN32)
     target_link_libraries(${D6R_APP_NAME} opengl32.lib)
@@ -263,10 +268,10 @@ else(WIN32) # Linux GCC
 endif(WIN32)
 
 # SDL
-if(NOT MINGW AND NOT APPLE)
+if(NOT APPLE)
 	find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
 	include_directories(${HEADERS_SDL2})
-endif(NOT MINGW AND NOT APPLE)
+endif(NOT APPLE)
 
 if(MSVC)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library (release version)")
@@ -281,9 +286,7 @@ elseif(APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})    
-elseif(MINGW)
-    target_link_libraries(${D6R_APP_NAME} mingw32 SDL2main SDL2 SDL2_mixer)
-else(MSVC) # Linux GCC
+else(MSVC) # GCC or MINGW
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
