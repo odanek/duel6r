@@ -74,7 +74,7 @@ namespace Duel6
 		{
 			std::string name = playing.get(i).asString();
 			listbox[CUR_PLAYERS_LIST]->addItem(name);
-			listbox[ALL_PLAYER_LIST]->delItem(name);
+			listbox[ALL_PLAYER_LIST]->removeItem(name);
 		}
 	}
 
@@ -103,27 +103,33 @@ namespace Duel6
 		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
 
-		listbox[0] = new Gui::Listbox(gui, true);
+		listbox[0] = new Gui::ListBox(gui, true);
 		listbox[0]->setPosition(10, 199, 94, 12, 16);
 
-		listbox[ALL_PLAYER_LIST] = new Gui::Listbox(gui, true);
+		listbox[ALL_PLAYER_LIST] = new Gui::ListBox(gui, true);
 		listbox[ALL_PLAYER_LIST]->setPosition(10, 470, 20, 13, 18);
+		listbox[ALL_PLAYER_LIST]->onDoubleClick([this](Gui::ListBox& listBox, Int32 index, const std::string& item) {
+			addPlayer(index);
+		});
 
-		listbox[CUR_PLAYERS_LIST] = new Gui::Listbox(gui, false);
+		listbox[CUR_PLAYERS_LIST] = new Gui::ListBox(gui, false);
 		listbox[CUR_PLAYERS_LIST]->setPosition(200, 470, 20, D6_MAX_PLAYERS, 18);
+		listbox[CUR_PLAYERS_LIST]->onDoubleClick([this](Gui::ListBox& listBox, Int32 index, const std::string& item) {
+			removePlayer(index);
+		});
 
-		listbox[3] = new Gui::Listbox(gui, true);
+		listbox[3] = new Gui::ListBox(gui, true);
 		listbox[3]->setPosition(654, 410, 13, 6, 16);
 
-		listbox[4] = new Gui::Listbox(gui, true);
+		listbox[4] = new Gui::ListBox(gui, true);
 		listbox[4]->setPosition(520, 363, 13, 3, 16);
 
-		listbox[5] = new Gui::Listbox(gui, false);
+		listbox[5] = new Gui::ListBox(gui, false);
 		listbox[5]->setPosition(654, 470, 15, 2, 16);
 		listbox[5]->addItem("Fullscreen");
 		listbox[5]->addItem("Split screen");
 
-		listbox[6] = new Gui::Listbox(gui, true);
+		listbox[6] = new Gui::ListBox(gui, true);
 		listbox[6]->setPosition(520, 470, 13, 5, 16);
 
 		loadPersonProfiles(D6_FILE_PROFILES);
@@ -132,21 +138,21 @@ namespace Duel6
 		button[0] = new Gui::Button(gui);
 		button[0]->setPosition(200, 282, 80, 25);
 		button[0]->setCaption(">>");
-		button[0]->onClick([this](const Gui::Button&) {
+		button[0]->onClick([this](Gui::Button&) {
 			addPlayer(listbox[ALL_PLAYER_LIST]->selectedIndex());
 		});
 
 		button[1] = new Gui::Button(gui);
 		button[1]->setPosition(200, 253, 80, 25);
 		button[1]->setCaption("<<");
-		button[1]->onClick([this](const Gui::Button&) {
+		button[1]->onClick([this](Gui::Button&) {
 			removePlayer(listbox[CUR_PLAYERS_LIST]->selectedIndex());
 		});
 
 		button[2] = new Gui::Button(gui);
 		button[2]->setPosition(284, 282, 80, 25);
 		button[2]->setCaption("Remove");
-		button[2]->onClick([this](const Gui::Button&) {
+		button[2]->onClick([this](Gui::Button&) {
 			deletePerson();
 			rebuildTable();
 		});
@@ -154,14 +160,14 @@ namespace Duel6
 		button[3] = new Gui::Button(gui);
 		button[3]->setPosition(284, 253, 80, 25);
 		button[3]->setCaption("Add");
-		button[3]->onClick([this](const Gui::Button&) {
+		button[3]->onClick([this](Gui::Button&) {
 			addPerson();
 		});
 
 		button[6] = new Gui::Button(gui);
 		button[6]->setPosition(370, 282, 125, 25);
 		button[6]->setCaption("Clear (F3)");
-		button[6]->onClick([this](const Gui::Button&) {
+		button[6]->onClick([this](Gui::Button&) {
 			if (deleteQuestion())
 			{
 				cleanPersonData();
@@ -171,14 +177,14 @@ namespace Duel6
 		button[4] = new Gui::Button(gui);
 		button[4]->setPosition(520, 299, 125, 73);
 		button[4]->setCaption("Play (F1)");
-		button[4]->onClick([this](const Gui::Button&) {
+		button[4]->onClick([this](Gui::Button&) {
 			play();
 		});
 
 		button[5] = new Gui::Button(gui);
 		button[5]->setPosition(654, 299, 125, 73);
 		button[5]->setCaption("Quit (ESC)");
-		button[5]->onClick([this](const Gui::Button&) {
+		button[5]->onClick([this](Gui::Button&) {
 			close();
 		});
 
@@ -227,7 +233,7 @@ namespace Duel6
 			Gui::Button* button = new Gui::Button(gui);
 			button->setCaption("D");
 			button->setPosition(494, 466 - i * 18, 17, 17);
-			button->onClick([this,i](const Gui::Button&) {
+			button->onClick([this,i](Gui::Button&) {
 				detectControls(i);
 			});
 		}
@@ -236,7 +242,7 @@ namespace Duel6
 		Gui::Button* button = new Gui::Button(gui);
 		button->setCaption("D");
 		button->setPosition(490, 487, 24, 17);
-		button->onClick([this](const Gui::Button&){
+		button->onClick([this](Gui::Button&){
 			Size curPlayersCount = listbox[CUR_PLAYERS_LIST]->size();
 			for (Size j = 0; j < curPlayersCount; j++)
 			{
@@ -273,7 +279,7 @@ namespace Duel6
 		{
 			listbox[6]->addItem(std::to_string(i));
 		}
-		listbox[6]->setCur(8);
+		listbox[6]->selectItem(8).scrollToView(8);
 
 		menuTrack = sound.loadModule("sound/undead.xm");
 	}
@@ -537,7 +543,7 @@ namespace Duel6
 		{
 			const std::string& name = listbox[ALL_PLAYER_LIST]->getItem(index);
 			listbox[CUR_PLAYERS_LIST]->addItem(name);
-			listbox[ALL_PLAYER_LIST]->delItem(index);
+			listbox[ALL_PLAYER_LIST]->removeItem(index);
 		}
 	}
 
@@ -547,7 +553,7 @@ namespace Duel6
 		{
 			const std::string& playerName = listbox[CUR_PLAYERS_LIST]->getItem(index);
 			listbox[ALL_PLAYER_LIST]->addItem(playerName);
-			listbox[CUR_PLAYERS_LIST]->delItem(index);
+			listbox[CUR_PLAYERS_LIST]->removeItem(index);
 		}
 	}
 
@@ -566,15 +572,15 @@ namespace Duel6
 
 	void Menu::deletePerson()
 	{
-		if (!deleteQuestion())
-			return;
-
 		Int32 index = listbox[ALL_PLAYER_LIST]->selectedIndex();
 		if (index != -1)
 		{
+			if (!deleteQuestion())
+				return;
+
 			const std::string& playerName = listbox[ALL_PLAYER_LIST]->selectedItem();
 			persons.remove(playerName);
-			listbox[ALL_PLAYER_LIST]->delItem(playerName);
+			listbox[ALL_PLAYER_LIST]->removeItem(playerName);
 		}
 	}
 

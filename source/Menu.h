@@ -69,7 +69,7 @@ namespace Duel6
 		LevelList levelList;
 		PersonList persons;
 		Gui::Button* button[7];
-		Gui::Listbox* listbox[7];
+		Gui::ListBox* listbox[7];
 		Gui::Label* label[8];
 		Gui::Spinner* controlSwitch[D6_MAX_PLAYERS];
 		Gui::Textbox* textbox;

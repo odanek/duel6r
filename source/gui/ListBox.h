@@ -28,6 +28,7 @@
 #ifndef DUEL6_GUI_LISTBOX_H
 #define DUEL6_GUI_LISTBOX_H
 
+#include <vector>
 #include "Control.h"
 #include "Slider.h"
 
@@ -35,10 +36,15 @@ namespace Duel6
 {
 	namespace Gui
 	{
-		class Listbox
+		class ListBox
 			: public Control
 		{
+		public:
+			typedef std::function<void (ListBox& listBox, Int32 index, const std::string& item)> ClickCallback;
+
 		private:
+			std::vector<ClickCallback> selectListeners;
+			std::vector<ClickCallback> doubleClickListeners;
 			bool scrollBar;
 			Slider *slider;
 			Int32 width;
@@ -49,22 +55,36 @@ namespace Duel6
 			Slider::Position listPos;
 
 		public:
-			Listbox(Desktop& desk, bool sb);
-			~Listbox();
-			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			void addItem(const std::string& item);
-			void delItem(Int32 index);
-			void delItem(const std::string& item);
-			const std::string& getItem(Size n) const;
+			ListBox(Desktop& desk, bool sb);
+			~ListBox();
+
+			ListBox& setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
+			ListBox& addItem(const std::string& item);
+			ListBox& removeItem(Int32 index);
+			ListBox& removeItem(const std::string& item);
+			ListBox& selectItem(Int32 index);
+			ListBox& scrollToView(Int32 index);
+			const std::string& getItem(Size index) const;
 			Int32 selectedIndex() const;
 			const std::string& selectedItem() const;
-			void setCur(Int32 n);
 			Size size() const;
-			void clear();
+			ListBox& clear();
 
 			Control::Type getType() const override
 			{
 				return Control::Type::Listbox;
+			}
+
+			ListBox& onItemSelected(ClickCallback listener)
+			{
+				selectListeners.push_back(listener);
+				return*this;
+			}
+
+			ListBox& onDoubleClick(ClickCallback listener)
+			{
+				doubleClickListeners.push_back(listener);
+				return*this;
 			}
 
 		protected:

@@ -38,8 +38,8 @@ namespace Duel6
 			: public Control
 		{
 		public:
-			typedef std::function<void(const Button& button, bool pressed)> PressCallback;
-			typedef std::function<void(const Button& button)> ClickCallback;
+			typedef std::function<void(Button& button, bool pressed)> PressCallback;
+			typedef std::function<void(Button& button)> ClickCallback;
 
 		private:
 			std::vector<PressCallback> pressListeners;
@@ -64,14 +64,16 @@ namespace Duel6
 				return Control::Type::Button;
 			}
 
-			void onPress(PressCallback listener)
+			Button& onPress(PressCallback listener)
 			{
 				pressListeners.push_back(listener);
+				return *this;
 			}
 
-			void onClick(ClickCallback listener)
+			Button& onClick(ClickCallback listener)
 			{
 				clickListeners.push_back(listener);
+				return *this;
 			}
 
 		protected:
