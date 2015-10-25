@@ -35,7 +35,7 @@ namespace Duel6
 {
 	Block::Type Block::determineType(const std::string& kind)
 	{
-		static std::array<std::string, 9> typeNames = {
+		static std::array<std::string, 9> typeNames = {{
 			"EMPTY_SPACE",
 			"WALL",
 			"WATER",
@@ -45,7 +45,7 @@ namespace Duel6
 			"FRONT4_SPRITE",
 			"BACK4_SPRITE",
 			"WATERFALL"
-		};
+		}};
 
 		auto typeIter = std::find(typeNames.begin(), typeNames.end(), kind);
 		if (typeIter == typeNames.end())

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2)
 
 ############################################################################
 #
@@ -15,19 +15,21 @@ project(Duel6r)
 # compilation details
 #########################################################################
 
-# turn off some warnings under msc
+# visual studio
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")    
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
 endif(MSVC)
 
-# gnu compiler
-if(CMAKE_COMPILER_IS_GNUCXX)
+# gnu compiler or clang
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -mfpmath=sse -msse2 -std=c++1y")
-	if(MINGW)
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
-	endif(MINGW)
-endif(CMAKE_COMPILER_IS_GNUCXX)
+endif(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+# MinGW
+if(MINGW)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
+endif(MINGW)
 
 # platform-independent debug macro
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
@@ -261,10 +263,10 @@ else(WIN32) # Linux GCC
 endif(WIN32)
 
 # SDL
-if(NOT MINGW)
+if(NOT MINGW AND NOT APPLE)
 	find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
 	include_directories(${HEADERS_SDL2})
-endif(NOT MINGW)
+endif(NOT MINGW AND NOT APPLE)
 
 if(MSVC)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library (release version)")
@@ -277,7 +279,7 @@ if(MSVC)
         debug ${LIB_SDL2_MAIN_D} debug ${LIB_SDL2_D} debug ${LIB_SDL2_MIXER_D})
 elseif(APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
-    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
+    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})    
 elseif(MINGW)
     target_link_libraries(${D6R_APP_NAME} mingw32 SDL2main SDL2 SDL2_mixer)
