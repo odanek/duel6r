@@ -148,6 +148,7 @@ set(D6R_SOURCES
     source/Sprite.cpp
     source/SpriteList.h
     source/SpriteList.cpp
+    source/SysEvent.h
     source/TextureManager.h
     source/TextureManager.cpp
     source/Type.h

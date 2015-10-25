@@ -46,13 +46,14 @@ namespace Duel6
 			~Label();
 			void setCaption(const std::string& caption);
 			void setPosition(int X, int Y, int W, int H);
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
 
 			Control::Type getType() const override
 			{
 				return Control::Type::Label;
 			}
+
+		protected:
+			void draw(const Font& font) const override;
 		};
 	}
 }

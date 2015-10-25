@@ -97,8 +97,10 @@ namespace Duel6
 
 		void savePersonData();
 
-		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
-		void textInputEvent(const std::string& text) override;
+		void keyEvent(const KeyPressEvent& event) override;
+		void textInputEvent(const TextInputEvent& event) override;
+		void mouseButtonEvent(const MouseButtonEvent& event) override;
+		void mouseMotionEvent(const MouseMotionEvent& event) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
 

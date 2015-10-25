@@ -54,27 +54,33 @@ namespace Duel6
 			height = H;
 		}
 
-		void Button::check(const GuiContext& context)
+		void Button::mouseButtonEvent(const MouseButtonEvent& event)
 		{
-			const MouseState& ms = context.getMouseState();
-
-			if (ms.isPressed() && ms.isInside(x, y, width, height))
+			if (Control::mouseIn(event, x, y, width, height))
 			{
-				if (!pressed)
+				if (event.getButton() == SysEvent::MouseButton::LEFT)
 				{
-					pressed = true;
-				}
-			}
-			else
-			{
-				if (pressed)
-				{
-					pressed = false;
-					for (auto& callback : clickListeners)
+					if (!pressed && event.isPressed())
 					{
-						callback(Event(*this, Event::Type::Click));
+						pressed = true;
+						firePressListeners(true);
+					}
+					else if (pressed && !event.isPressed())
+					{
+						pressed = false;
+						fireClickListeners();
+						firePressListeners(false);
 					}
 				}
+			}
+		}
+
+		void Button::mouseMotionEvent(const MouseMotionEvent& event)
+		{
+			if (!Control::mouseIn(event, x, y, width, height) && pressed)
+			{
+				pressed = false;
+				firePressListeners(false);
 			}
 		}
 
@@ -86,6 +92,22 @@ namespace Duel6
 			px = x + (width >> 1) - (caption.length() << 2) + pressed;
 			py = y - (height >> 1) - 7 - pressed;
 			font.print(px, py, Color(0), caption);
+		}
+
+		void Button::firePressListeners(bool pressed)
+		{
+			for (auto& listener : pressListeners)
+			{
+				listener(*this, pressed);
+			}
+		}
+
+		void Button::fireClickListeners()
+		{
+			for (auto& listener : clickListeners)
+			{
+				listener(*this);
+			}
 		}
 	}
 }

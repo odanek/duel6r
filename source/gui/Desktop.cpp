@@ -59,17 +59,11 @@ namespace Duel6
 			this->trY = trY;
 		}
 
-		void Desktop::update()
+		void Desktop::update(Float32 elapsedTime)
 		{
-			Int32 mx, my, mb;
-			mb = SDL_GetMouseState(&mx, &my) & SDL_BUTTON(SDL_BUTTON_LEFT);
-			mx -= trX;
-			my = screenHeight - my - trY;
-			GuiContext context(MouseState(mx, my, mb != 0));
-
 			for (auto& control : controls)
 			{
-				control->check(context);
+				control->update(elapsedTime);
 			}
 		}
 
@@ -94,19 +88,37 @@ namespace Duel6
 			glPopMatrix();
 		}
 
-		void Desktop::keyEvent(SDL_Keycode keyCode)
+		void Desktop::keyEvent(const KeyPressEvent& event)
 		{
 			for (auto& control : controls)
 			{
-				control->keyEvent(keyCode);
+				control->keyEvent(event);
 			}
 		}
 
-		void Desktop::textInputEvent(const std::string& text)
+		void Desktop::textInputEvent(const TextInputEvent& event)
 		{
 			for (auto& control : controls)
 			{
-				control->textInputEvent(text);
+				control->textInputEvent(event);
+			}
+		}
+
+		void Desktop::mouseButtonEvent(const MouseButtonEvent& event)
+		{
+			MouseButtonEvent translatedEvent = event.translate(-trX, -trY);
+			for (auto& control : controls)
+			{
+				control->mouseButtonEvent(translatedEvent);
+			}
+		}
+
+		void Desktop::mouseMotionEvent(const MouseMotionEvent& event)
+		{
+			MouseMotionEvent translatedEvent = event.translate(-trX, -trY);
+			for (auto& control : controls)
+			{
+				control->mouseMotionEvent(translatedEvent);
 			}
 		}
 	}

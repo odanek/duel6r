@@ -62,8 +62,10 @@ namespace Duel6
 
 	private:
 		void processEvents(Context& context);
-		void textInputEvent(Context& context, const std::string& text);
-		void keyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers);
+		void textInputEvent(Context& context, const TextInputEvent& event);
+		void keyEvent(Context& context, const KeyPressEvent& event);
+		void mouseButtonEvent(Context& context, const MouseButtonEvent& event);
+		void mouseMotionEvent(Context& context, const MouseMotionEvent& event);
 		void syncUpdateAndRender(Context& context);
 	};
 }

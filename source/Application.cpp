@@ -39,6 +39,45 @@
 
 namespace Duel6
 {
+	namespace
+	{
+		KeyPressEvent createKeyPressEvent(const SDL_KeyboardEvent& ke)
+		{
+			SDL_Keysym key = ke.keysym;
+			SysEvent::ButtonState buttonState = ke.type == SDL_KEYDOWN ? SysEvent::ButtonState::PRESSED : SysEvent::ButtonState::RELEASED;
+			return KeyPressEvent(key.sym, buttonState, key.mod);
+		}
+
+		SysEvent::MouseButton getMouseButton(Int32 sdlButton)
+		{
+			if (sdlButton == SDL_BUTTON_LEFT)
+			{
+				return SysEvent::MouseButton::LEFT;
+			}
+			else if (sdlButton == SDL_BUTTON_RIGHT)
+			{
+				return SysEvent::MouseButton::RIGHT;
+			}
+			else if (sdlButton == SDL_BUTTON_MIDDLE)
+			{
+				return SysEvent::MouseButton::MIDDLE;
+			}
+			return SysEvent::MouseButton::NONE;
+		}
+
+		MouseButtonEvent createMouseButtonEvent(const SDL_MouseButtonEvent& mbe, Int32 screenHeight)
+		{
+			SysEvent::MouseButton button = getMouseButton(mbe.button);
+			SysEvent::ButtonState state = (mbe.state == SDL_PRESSED) ? SysEvent::ButtonState::PRESSED : SysEvent::ButtonState::RELEASED;
+			return MouseButtonEvent(mbe.x, screenHeight - mbe.y, button, state, mbe.clicks == 2);
+		}
+
+		MouseMotionEvent createMouseMotionEvent(const SDL_MouseMotionEvent& mme, Int32 screenHeight)
+		{
+			return MouseMotionEvent(mme.x, screenHeight - mme.y, mme.xrel, mme.yrel, mme.state);
+		}
+	}
+
 	Application::Application()
 		: console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
 		service(font, console, textureManager, video, input, sound),
@@ -50,66 +89,84 @@ namespace Duel6
 		tearDown();
 	}
 
-	void Application::textInputEvent(Context& context, const std::string& text)
+	void Application::textInputEvent(Context& context, const TextInputEvent& event)
 	{
 		if (console.isActive())
 		{
-			console.textInputEvent(text);
+			console.textInputEvent(event.getText());
 		}
 		else
 		{
-			context.textInputEvent(text);
+			context.textInputEvent(event);
 		}
 	}
 
-	void Application::keyEvent(Context& context, SDL_Keycode keyCode, Uint16 keyModifiers)
+	void Application::keyEvent(Context& context, const KeyPressEvent& event)
 	{
-		if (keyCode == SDLK_BACKQUOTE)
+		input.setPressed(event.getCode(), event.isPressed());
+
+		if (event.isPressed())
 		{
-			console.toggle();
+			if (event.getCode() == SDLK_BACKQUOTE)
+			{
+				console.toggle();
+				if (console.isActive())
+				{
+					SDL_StartTextInput();
+				}
+				else if (context.is(*game))
+				{
+					SDL_StopTextInput();
+				}
+			}
+
 			if (console.isActive())
 			{
-				SDL_StartTextInput();
+				console.keyEvent(event.getCode(), event.getModifiers());
 			}
-			else if (context.is(*game))
+			else
 			{
-				SDL_StopTextInput();
+				context.keyEvent(event);
 			}
 		}
+	}
 
-		if (console.isActive())
-		{
-			console.keyEvent(keyCode, keyModifiers);
-		}
-		else
-		{
-			context.keyEvent(keyCode, keyModifiers);
-		}
+	void Application::mouseButtonEvent(Context& context, const MouseButtonEvent& event)
+	{
+		context.mouseButtonEvent(event);
+	}
+
+	void Application::mouseMotionEvent(Context& context, const MouseMotionEvent& event)
+	{
+		context.mouseMotionEvent(event);
 	}
 
 	void Application::processEvents(Context& context)
 	{
 		SDL_Event event;
-		SDL_Keysym key;
 
 		while (SDL_PollEvent(&event))
 		{
 			switch (event.type)
 			{
 			case SDL_KEYDOWN:
-				key = event.key.keysym;
-				input.setPressed(key.sym, true);
-				keyEvent(context, key.sym, key.mod);
-				break;
 			case SDL_KEYUP:
-				key = event.key.keysym;
-				input.setPressed(key.sym, false);
+				keyEvent(context, createKeyPressEvent(event.key));
 				break;
 			case SDL_TEXTINPUT:
-				textInputEvent(context, event.text.text);
+				textInputEvent(context, TextInputEvent(event.text.text));
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+				mouseButtonEvent(context, createMouseButtonEvent(event.button, video.getScreen().getClientHeight()));
+				break;
+			case SDL_MOUSEMOTION:
+				mouseMotionEvent(context, createMouseMotionEvent(event.motion, video.getScreen().getClientHeight()));
 				break;
 			case SDL_QUIT:
 				requestClose = true;
+				break;
+			default:
 				break;
 			}
 		}

@@ -132,21 +132,21 @@ namespace Duel6
 		button[0] = new Gui::Button(gui);
 		button[0]->setPosition(200, 282, 80, 25);
 		button[0]->setCaption(">>");
-		button[0]->onClick([this](const Gui::Event&) {
+		button[0]->onClick([this](const Gui::Button&) {
 			addPlayer(listbox[ALL_PLAYER_LIST]->selectedIndex());
 		});
 
 		button[1] = new Gui::Button(gui);
 		button[1]->setPosition(200, 253, 80, 25);
 		button[1]->setCaption("<<");
-		button[1]->onClick([this](const Gui::Event&) {
+		button[1]->onClick([this](const Gui::Button&) {
 			removePlayer(listbox[CUR_PLAYERS_LIST]->selectedIndex());
 		});
 
 		button[2] = new Gui::Button(gui);
 		button[2]->setPosition(284, 282, 80, 25);
 		button[2]->setCaption("Remove");
-		button[2]->onClick([this](const Gui::Event&) {
+		button[2]->onClick([this](const Gui::Button&) {
 			deletePerson();
 			rebuildTable();
 		});
@@ -154,14 +154,14 @@ namespace Duel6
 		button[3] = new Gui::Button(gui);
 		button[3]->setPosition(284, 253, 80, 25);
 		button[3]->setCaption("Add");
-		button[3]->onClick([this](const Gui::Event&) {
+		button[3]->onClick([this](const Gui::Button&) {
 			addPerson();
 		});
 
 		button[6] = new Gui::Button(gui);
 		button[6]->setPosition(370, 282, 125, 25);
 		button[6]->setCaption("Clear (F3)");
-		button[6]->onClick([this](const Gui::Event&) {
+		button[6]->onClick([this](const Gui::Button&) {
 			if (deleteQuestion())
 			{
 				cleanPersonData();
@@ -171,14 +171,14 @@ namespace Duel6
 		button[4] = new Gui::Button(gui);
 		button[4]->setPosition(520, 299, 125, 73);
 		button[4]->setCaption("Play (F1)");
-		button[4]->onClick([this](const Gui::Event&) {
+		button[4]->onClick([this](const Gui::Button&) {
 			play();
 		});
 
 		button[5] = new Gui::Button(gui);
 		button[5]->setPosition(654, 299, 125, 73);
 		button[5]->setCaption("Quit (ESC)");
-		button[5]->onClick([this](const Gui::Event&) {
+		button[5]->onClick([this](const Gui::Button&) {
 			close();
 		});
 
@@ -227,7 +227,7 @@ namespace Duel6
 			Gui::Button* button = new Gui::Button(gui);
 			button->setCaption("D");
 			button->setPosition(494, 466 - i * 18, 17, 17);
-			button->onClick([this,i](const Gui::Event&) {
+			button->onClick([this,i](const Gui::Button&) {
 				detectControls(i);
 			});
 		}
@@ -236,7 +236,7 @@ namespace Duel6
 		Gui::Button* button = new Gui::Button(gui);
 		button->setCaption("D");
 		button->setPosition(490, 487, 24, 17);
-		button->onClick([this](const Gui::Event&){
+		button->onClick([this](const Gui::Button&){
 			Size curPlayersCount = listbox[CUR_PLAYERS_LIST]->size();
 			for (Size j = 0; j < curPlayersCount; j++)
 			{
@@ -591,14 +591,7 @@ namespace Duel6
 
 	void Menu::update(Float32 elapsedTime)
 	{
-		static Float32 sync = 0, wait = 0.0163f;
-
-		sync += elapsedTime;
-		while (sync > wait)
-		{
-			sync -= wait;
-			gui.update();
-		}
+		gui.update(elapsedTime);
 	}
 
 	void Menu::render() const
@@ -626,21 +619,21 @@ namespace Duel6
 		glPopMatrix();
 	}
 
-	void Menu::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
+	void Menu::keyEvent(const KeyPressEvent& event)
 	{
-		gui.keyEvent(keyCode);
+		gui.keyEvent(event);
 
-		if (keyCode == SDLK_RETURN)
+		if (event.getCode() == SDLK_RETURN)
 		{
 			addPerson();
 		}
 
-		if (keyCode == SDLK_F1)
+		if (event.getCode() == SDLK_F1)
 		{
 			play();
 		}
 
-		if (keyCode == SDLK_F3)
+		if (event.getCode() == SDLK_F3)
 		{
 			if (deleteQuestion())
 			{
@@ -648,15 +641,25 @@ namespace Duel6
 			}
 		}
 
-		if (keyCode == SDLK_ESCAPE)
+		if (event.getCode() == SDLK_ESCAPE)
 		{
 			close();
 		}
 	}
 
-	void Menu::textInputEvent(const std::string& text)
+	void Menu::textInputEvent(const TextInputEvent& event)
 	{
-		gui.textInputEvent(text);
+		gui.textInputEvent(event);
+	}
+
+	void Menu::mouseButtonEvent(const MouseButtonEvent& event)
+	{
+		gui.mouseButtonEvent(event);
+	}
+
+	void Menu::mouseMotionEvent(const MouseMotionEvent& event)
+	{
+		gui.mouseMotionEvent(event);
 	}
 
 	void Menu::beforeClose(Context* newContext)

@@ -111,8 +111,10 @@ namespace Duel6
 		Game(AppService& appService, GameSettings& settings);
 
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode);
-		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
-		void textInputEvent(const std::string& text) override;
+		void keyEvent(const KeyPressEvent& event) override;
+		void textInputEvent(const TextInputEvent& event) override;
+		void mouseButtonEvent(const MouseButtonEvent& event) override;
+		void mouseMotionEvent(const MouseMotionEvent& event) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
 

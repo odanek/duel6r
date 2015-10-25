@@ -66,9 +66,9 @@ namespace Duel6
 		}
 	}
 
-	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
+	void Game::keyEvent(const KeyPressEvent& event)
 	{
-		if (keyCode == SDLK_ESCAPE && (isOver() || (keyModifiers & KMOD_SHIFT) != 0))
+		if (event.getCode() == SDLK_ESCAPE && (isOver() || event.withShift()))
 		{
 			close();
 			return;
@@ -76,7 +76,7 @@ namespace Duel6
 
 		if (!getRound().isLast())
 		{
-			if (keyCode == SDLK_F1 && (getRound().hasWinner() || (keyModifiers & KMOD_SHIFT) != 0))
+			if (event.getCode() == SDLK_F1 && (getRound().hasWinner() || event.withShift()))
 			{
 				nextRound();
 				return;
@@ -89,12 +89,17 @@ namespace Duel6
 			}
 		}
 
-		getRound().keyEvent(keyCode, keyModifiers);
+		getRound().keyEvent(event);
 	}
 
-	void Game::textInputEvent(const std::string& text)
-	{
-	}
+	void Game::textInputEvent(const TextInputEvent& event)
+	{}
+
+	void Game::mouseButtonEvent(const MouseButtonEvent& event)
+	{}
+
+	void Game::mouseMotionEvent(const MouseMotionEvent& event)
+	{}
 
 	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode)
 	{

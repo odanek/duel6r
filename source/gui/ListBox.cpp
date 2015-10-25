@@ -128,13 +128,11 @@ namespace Duel6
 			}
 		}
 
-		void Listbox::check(const GuiContext& context)
+		void Listbox::mouseButtonEvent(const MouseButtonEvent& event)
 		{
-			const MouseState& ms = context.getMouseState();
-
-			if (ms.isPressed() && ms.isInside(x, y, width, height))
+			if (Control::mouseIn(event, x, y, width, height) && event.getButton() == SysEvent::MouseButton::LEFT && event.isPressed())
 			{
-				selected = listPos.start + ((y - ms.getY()) / itemHeight);
+				selected = listPos.start + ((y - event.getY()) / itemHeight);
 				if (selected >= listPos.items)
 					selected = listPos.items - 1;
 				// Event: Change

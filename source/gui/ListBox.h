@@ -51,8 +51,6 @@ namespace Duel6
 		public:
 			Listbox(Desktop& desk, bool sb);
 			~Listbox();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
 			void setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
 			void addItem(const std::string& item);
 			void delItem(Int32 index);
@@ -68,6 +66,10 @@ namespace Duel6
 			{
 				return Control::Type::Listbox;
 			}
+
+		protected:
+			void mouseButtonEvent(const MouseButtonEvent& event) override;
+			void draw(const Font& font) const override;
 		};
 	}
 }

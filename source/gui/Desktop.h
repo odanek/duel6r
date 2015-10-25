@@ -29,6 +29,7 @@
 #define DUEL6_GUI_DESKTOP_H
 
 #include <memory>
+#include "../SysEvent.h"
 #include "Control.h"
 
 namespace Duel6
@@ -49,11 +50,13 @@ namespace Duel6
 			~Desktop();
 
 			void screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY);
-			void update();
+			void update(Float32 elpasedTime);
 			void draw(const Font& font) const;
 
-			void keyEvent(SDL_Keycode keyCode);
-			void textInputEvent(const std::string& text);
+			void keyEvent(const KeyPressEvent& event);
+			void textInputEvent(const TextInputEvent& event);
+			void mouseButtonEvent(const MouseButtonEvent& event);
+			void mouseMotionEvent(const MouseMotionEvent& event);
 
 			void addControl(Control* control);
 		};

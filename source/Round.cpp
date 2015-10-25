@@ -238,22 +238,22 @@ namespace Duel6
 		showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
 	}
 
-	void Round::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
+	void Round::keyEvent(const KeyPressEvent& event)
 	{
 		// Switch between fullscreen and split screen mode
-		if (keyCode == SDLK_F2 && world.getPlayers().size() < 5)
+		if (event.getCode() == SDLK_F2 && world.getPlayers().size() < 5)
 		{
 			switchScreenMode();
 		}
 
 		// Turn on/off player statistics
-		if (keyCode == SDLK_F4)
+		if (event.getCode() == SDLK_F4)
 		{
 			game.getSettings().setShowRanking(!game.getSettings().isShowRanking());
 		}
 
 		// Save screenshot
-		if (keyCode == SDLK_F10)
+		if (event.getCode() == SDLK_F10)
 		{
 			std::string name = Util::saveScreenTga(game.getAppService().getVideo());
 			game.getAppService().getConsole().printLine(Format("Screenshot saved to {0}") << name);

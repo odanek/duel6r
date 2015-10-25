@@ -53,16 +53,17 @@ namespace Duel6
 			text.clear();
 		}
 
-		void Textbox::keyEvent(SDL_Keycode keyCode)
+		void Textbox::keyEvent(const KeyPressEvent& event)
 		{
-			if (!text.empty() && keyCode == SDLK_BACKSPACE)
+			if (!text.empty() && event.getCode() == SDLK_BACKSPACE)
 			{
 				text.pop_back();
 			}
 		}
 
-		void Textbox::textInputEvent(const std::string& newText)
+		void Textbox::textInputEvent(const TextInputEvent& event)
 		{
+			const std::string& newText = event.getText();
 			for (auto iter = newText.cbegin(); iter != newText.cend(); ++iter)
 			{
 				char letter = *iter;
@@ -81,16 +82,6 @@ namespace Duel6
 		void Textbox::flush()
 		{
 			text.clear();
-		}
-
-		void Textbox::check(const GuiContext& context)
-		{
-			const MouseState& ms = context.getMouseState();
-
-			if (ms.isPressed() && ms.isInside(x, y, (width + 1) << 3, 18))
-			{
-				// EventType::Active;
-			}
 		}
 
 		void Textbox::draw(const Font& font) const

@@ -38,7 +38,7 @@ namespace Duel6
 		}
 
 		Slider::Slider(Desktop& desk)
-				: Control(desk)
+			: Control(desk)
 		{
 			up = new Button(desk);
 			up->setCaption(" ");
@@ -61,50 +61,67 @@ namespace Duel6
 			pos = to;
 		}
 
-		void Slider::check(const GuiContext& context)
+		void Slider::update(Float32 elapsedTime)
 		{
-			Int32 h = height, o = pos->start;
-
 			if (!up->isPressed() && !down->isPressed())
-				pWait = 0;
+			{
+				repeatWait = 0;
+			}
 			else
-			if (pWait)
-				pWait--;
-
-			if (up->isPressed() && !pWait)
 			{
-				pWait = 6;
-				pos->start--;
-			}
-
-			if (down->isPressed() && !pWait)
-			{
-				pWait = 6;
-				pos->start++;
-			}
-
-			const MouseState& ms = context.getMouseState();
-
-			if (ms.isPressed() && ms.isInside(x, y, 16, height))
-			{
-				if (pos->items)
+				if (repeatWait <= 0.0f)
 				{
-					h = pos->showCount * height / pos->items;
-					if (h > height)
-						h = height;
-					if (h < 5)
-						h = 5;
+					if (up->isPressed() && pos->start > 0)
+					{
+						pos->start--;
+						repeatWait = 0.1f;
+					}
+					if (down->isPressed() && pos->start < pos->items - pos->showCount)
+					{
+						pos->start++;
+						repeatWait = 0.1f;
+					}
 				}
-				h = y - (h >> 1) - ms.getY();
-				pos->start = h * pos->items / height;
+				else
+				{
+					repeatWait -= elapsedTime;
+				}
 			}
+		}
+
+		void Slider::mouseButtonEvent(const MouseButtonEvent& event)
+		{
+			if (Control::mouseIn(event, x, y, 16, height) && event.getButton() == SysEvent::MouseButton::LEFT && event.isPressed())
+			{
+				scroll(event.getY());
+			}
+		}
+
+		void Slider::mouseMotionEvent(const MouseMotionEvent& event)
+		{
+			if (Control::mouseIn(event, x, y, 16, height) && event.isPressed(SysEvent::MouseButton::LEFT))
+			{
+				scroll(event.getY());
+			}
+		}
+
+		void Slider::scroll(Int32 mouseY)
+		{
+			Int32 oldStart = pos->start;
+
+			Int32 offset = y - getSliderHeight() / 2 - mouseY;
+			pos->start = offset * pos->items / height;
 
 			if (pos->start > pos->items - pos->showCount)
+			{
 				pos->start = pos->items - pos->showCount;
+			}
 			if (pos->start < 0)
+			{
 				pos->start = 0;
+			}
 
-			if (pos->start != o)
+			if (pos->start != oldStart)
 			{
 				// EventType::Change;
 			}
@@ -112,7 +129,7 @@ namespace Duel6
 
 		void Slider::draw(const Font& font) const
 		{
-			int px, py, h = height, s = 0;
+			int px, py, h = getSliderHeight(), s = 0;
 
 			px = up->getX() + 7 + (up->isPressed() ? 1 : 0);
 			py = up->getY() - 4 - (up->isPressed() ? 1 : 0);
@@ -140,14 +157,8 @@ namespace Duel6
 			glVertex2i(x, y - height + 1);
 			glEnd();
 
-			if (pos->items)
+			if (pos->items > 0)
 			{
-				h = pos->showCount * height / pos->items;
-				if (h > height)
-					h = height;
-				if (h < 5)
-					h = 5;
-
 				s = pos->start * height / pos->items;
 				if (s > height - h)
 					s = height - h;
@@ -162,6 +173,18 @@ namespace Duel6
 			glEnd();
 
 			drawFrame(x, y - s, 16, h, false);
+		}
+
+		Int32 Slider::getSliderHeight() const
+		{
+			if (pos->items > 0)
+			{
+				return std::max(std::min(pos->showCount * height / pos->items, height), 5);
+			}
+			else
+			{
+				return height;
+			}
 		}
 	}
 }

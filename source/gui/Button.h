@@ -29,7 +29,6 @@
 #define DUEL6_GUI_BUTTON_H
 
 #include "Control.h"
-#include "Event.h"
 
 namespace Duel6
 {
@@ -38,8 +37,13 @@ namespace Duel6
 		class Button
 			: public Control
 		{
+		public:
+			typedef std::function<void(const Button& button, bool pressed)> PressCallback;
+			typedef std::function<void(const Button& button)> ClickCallback;
+
 		private:
-			std::vector<Event::Callback> clickListeners;
+			std::vector<PressCallback> pressListeners;
+			std::vector<ClickCallback> clickListeners;
 			Int32 width, height;
 			bool pressed;
 			std::string caption;
@@ -49,8 +53,6 @@ namespace Duel6
 			~Button();
 			void setCaption(const std::string& caption);
 			void setPosition(int X, int Y, int W, int H);
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
 
 			bool isPressed() const
 			{
@@ -62,10 +64,24 @@ namespace Duel6
 				return Control::Type::Button;
 			}
 
-			void onClick(Event::Callback listener)
+			void onPress(PressCallback listener)
+			{
+				pressListeners.push_back(listener);
+			}
+
+			void onClick(ClickCallback listener)
 			{
 				clickListeners.push_back(listener);
 			}
+
+		protected:
+			void draw(const Font& font) const override;
+			void mouseButtonEvent(const MouseButtonEvent& event) override;
+			void mouseMotionEvent(const MouseMotionEvent& event) override;
+
+		private:
+			void firePressListeners(bool pressed);
+			void fireClickListeners();
 		};
 	}
 }
