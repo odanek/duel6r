@@ -40,7 +40,7 @@ namespace Duel6
 
 		console.printLine("\n===Initializing game resources===");
 		console.printLine("...Building water-list");
-		waterSet = Water::createWaterSet(sound, appService.getTextureManager());
+		Water::initialize(sound, appService.getTextureManager());
 		console.printLine("...Loading game sounds");
 		roundStartSound = sound.loadSample("sound/game/round-start.wav");
 		gameOverSound = sound.loadSample("sound/game/game-over.wav");

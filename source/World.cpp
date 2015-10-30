@@ -38,7 +38,7 @@ namespace Duel6
 		: players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
 		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
 		  shotList(*this), explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
-		  waterSet(game.getResources().getWaterSet()), background(background)
+		  background(background)
 	{
 		Console& console = game.getAppService().getConsole();
 		console.printLine(Format("...Width   : {0}") << level.getWidth());

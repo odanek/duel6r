@@ -27,88 +27,158 @@
 
 #include "Defines.h"
 #include "Water.h"
+#include "Player.h"
+#include "World.h"
 
 namespace Duel6
 {
+	class WaterImpl
+	{
+	public:
+		virtual void onEnter(Player& player, const Vector& location, World& world) const = 0;
+		virtual void onUnder(Player& player, Float32 elapsedTime) const = 0;
+	};
+
 	namespace
 	{
 		Int16 wtAnim[24] = { 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0 };
+
+		class WaterBase : public WaterImpl
+		{
+		private:
+			Sound::Sample splashSample;
+			TextureManager::Texture textures;
+
+		public:
+			WaterBase(Sound& sound, TextureManager& textureManager, const std::string& sample, const Color& color)
+			{
+				splashSample = sound.loadSample(sample);
+
+				TextureManager::SubstitutionTable subst;
+				subst[Color(0, 182, 255)] = color;
+				textures = textureManager.load(D6_TEXTURE_WATER_PATH, GL_NEAREST, true, subst);
+			}
+
+			void onEnter(Player& player, const Vector& location, World& world) const override
+			{
+				addSplash(world.getSpriteList(), location);
+				getSplashSound().play();
+			}
+
+			void onUnder(Player& player, Float32 elapsedTime) const override
+			{
+				Float32 hitAmount = getAirHit() * elapsedTime;
+				player.airHit(hitAmount);
+			}
+
+		protected:
+			Sound::Sample getSplashSound() const
+			{
+				return splashSample;
+			}
+
+			void addSplash(SpriteList& spriteList, const Vector& position) const
+			{
+				Sprite waterSplash(wtAnim, textures);
+				waterSplash.setPosition(position - Vector(0.5f, 0.0f), 0.5f).setLooping(AnimationLooping::OnceAndRemove);
+				spriteList.addSprite(waterSplash);
+			}
+
+			virtual Float32 getAirHit() const = 0;
+		};
+
+		class BlueWater : public WaterBase
+		{
+		public:
+			BlueWater(Sound& sound, TextureManager& textureManager)
+				: WaterBase(sound, textureManager, D6_FILE_WATER_BLUE, Color(0, 182, 255))
+			{}
+
+			Float32 getAirHit() const override
+			{
+				return 60.0f;
+			}
+		};
+
+		class RedWater : public WaterBase
+		{
+		public:
+			RedWater(Sound& sound, TextureManager& textureManager)
+				: WaterBase(sound, textureManager, D6_FILE_WATER_RED, Color(197, 0, 0))
+			{}
+
+			Float32 getAirHit() const override
+			{
+				return 120.0f;
+			}
+		};
+
+		class GreenWater : public WaterBase
+		{
+		public:
+			GreenWater(Sound& sound, TextureManager& textureManager)
+				: WaterBase(sound, textureManager, D6_FILE_WATER_GREEN, Color(0, 197, 0))
+			{}
+
+			Float32 getAirHit() const override
+			{
+				return 180.0f;
+			}
+		};
 	}
 
-	class WaterBase : public Water
+	const Water Water::NONE;
+	const Water Water::BLUE;
+	const Water Water::RED;
+	const Water Water::GREEN;
+	const std::vector<Water> Water::types = { NONE, BLUE, RED, GREEN };
+	std::vector<Water::WaterImplPtr> Water::implementations;
+
+	Water::Water()
+		: impl(nullptr)
+	{}
+
+	const std::vector<Water>& Water::values() const
 	{
-	private:
-		Sound::Sample splashSample;
-		TextureManager::Texture textures;
+		return types;
+	}
 
-	public:
-		WaterBase(Sound& sound, TextureManager& textureManager, const std::string& sample, const Color& color)
-		{
-			splashSample = sound.loadSample(sample);
-
-			TextureManager::SubstitutionTable subst;
-			subst[Color(0, 182, 255)] = color;
-			textures = textureManager.load(D6_TEXTURE_WATER_PATH, GL_NEAREST, true, subst);
-		}
-
-		Sound::Sample getSplashSound() const override
-		{
-			return splashSample;
-		}
-
-		void addSplash(SpriteList& spriteList, const Vector& position) const override
-		{
-			Sprite waterSplash(wtAnim, textures);
-			waterSplash.setPosition(position - Vector(0.5f, 0.0f), 0.5f).setLooping(AnimationLooping::OnceAndRemove);
-			spriteList.addSprite(waterSplash);
-		}
-	};
-
-	class BlueWater : public WaterBase
+	void Water::onEnter(Player& player, const Vector& location, World& world)
 	{
-	public:
-		BlueWater(Sound& sound, TextureManager& textureManager)
-			: WaterBase(sound, textureManager, D6_FILE_WATER_BLUE, Color(0, 182, 255))
-		{}
-
-		Float32 getAirHit() const override
+		if (impl)
 		{
-			return 60.0f;
+			impl->onEnter(player, location, world);
 		}
-	};
+	}
 
-	class RedWater : public WaterBase
+	void Water::onUnder(Player& player, Float32 elapsedTime)
 	{
-	public:
-		RedWater(Sound& sound, TextureManager& textureManager)
-			: WaterBase(sound, textureManager, D6_FILE_WATER_RED, Color(197, 0, 0))
-		{}
-
-		Float32 getAirHit() const override
+		if (impl)
 		{
-			return 120.0f;
+			impl->onUnder(player, elapsedTime);
 		}
-	};
+	}
 
-	class GreenWater : public WaterBase
+	void Water::assign(WaterImplPtr&& impl) const
 	{
-	public:
-		GreenWater(Sound& sound, TextureManager& textureManager)
-			: WaterBase(sound, textureManager, D6_FILE_WATER_GREEN, Color(0, 197, 0))
-		{}
+		this->impl = impl.get();
+		implementations.push_back(std::forward<WaterImplPtr>(impl));
+	}
 
-		Float32 getAirHit() const override
-		{
-			return 180.0f;
-		}
-	};
-
-	Water::WaterSet Water::createWaterSet(Sound& sound, TextureManager& textureManager)
+	void Water::initialize(Sound& sound, TextureManager& textureManager)
 	{
-		WaterSet set;
-		set.insert(std::make_pair(Type::Blue, std::make_unique<BlueWater>(sound, textureManager)));
-		set.insert(std::make_pair(Type::Red, std::make_unique<RedWater>(sound, textureManager)));
-		set.insert(std::make_pair(Type::Green, std::make_unique<GreenWater>(sound, textureManager)));
-		return set;
+		BLUE.assign(std::make_unique<BlueWater>(sound, textureManager));
+		RED.assign(std::make_unique<RedWater>(sound, textureManager));
+		GREEN.assign(std::make_unique<GreenWater>(sound, textureManager));
+	}
+
+	bool Water::operator==(const Water& water) const
+	{
+		return impl == water.impl;
+	}
+
+	bool Water::operator!=(const Water& water) const
+	{
+		return impl != water.impl;
 	}
 }

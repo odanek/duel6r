@@ -92,6 +92,8 @@ namespace Duel6
 		state.tempSkinDuration = 0;
         state.roundKills = 0;
 		this->view = view;
+		water.headUnderWater = Water::NONE;
+		water.feetInWater = Water::NONE;
 
 		roundStartTime = clock();
 		getPerson().addGames(1);
@@ -654,6 +656,21 @@ namespace Duel6
 		return false;
 	}
 
+	bool Player::airHit(Float32 amount)
+	{
+		state.air -= amount;
+		if (state.air < 0)
+		{
+			state.air = 0;
+			if (hit(amount))
+			{
+				playSound(PlayerSounds::Type::Drowned);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void Player::dropWeapon(const Level& level)
 	{
 		Rectangle bbox = getCollisionRect();
@@ -691,37 +708,24 @@ namespace Duel6
 		Float32 feetY = rect.left.y + rect.getSize().y * 0.1f;
 		Float32 bottomY = rect.left.y;
 
-		// Check if head is in water
-		water.headUnderWater = false;
-		Water::Type waterType = world.getLevel().getWaterType(Int32(centerX), Int32(headY));
-		if (waterType != Water::Type::None)
+		Water headWater = world.getLevel().getWaterType(Int32(centerX), Int32(headY));
+		water.headUnderWater = headWater;
+
+		if (headWater != Water::NONE)
 		{
-			Float32 airHitAmount = world.getWaterSet().at(waterType)->getAirHit() * elapsedTime;
-			water.headUnderWater = true;
-			if ((state.air -= airHitAmount) < 0)
+			water.feetInWater = headWater;
+			headWater.onUnder(*this, elapsedTime);
+		}
+		else
+		{
+			state.air = std::min(state.air + 2 * D6_AIR_RECHARGE_SPEED * elapsedTime, D6_MAX_AIR);
+
+			Water feetWater = world.getLevel().getWaterType(Int32(centerX), Int32(feetY));
+			if (feetWater != Water::NONE && water.feetInWater == Water::NONE)
 			{
-				state.air = 0;
-				if (hit(airHitAmount))
-				{
-					playSound(PlayerSounds::Type::Drowned);
-				}
+				feetWater.onEnter(*this, Vector(centerX, bottomY), world);
 			}
-			return;
-		}
-
-		state.air = std::min(state.air + 2 * D6_AIR_RECHARGE_SPEED * elapsedTime, D6_MAX_AIR);
-
-		// Check if foot is in water
-		waterType = world.getLevel().getWaterType(Int32(centerX), Int32(feetY));
-		if (waterType != Water::Type::None && !water.feetInWater) {
-			const Water &water = *world.getWaterSet().at(waterType);
-			water.addSplash(world.getSpriteList(), Vector(centerX, bottomY));
-			water.getSplashSound().play();
-			this->water.feetInWater = true;
-		}
-		else if (waterType == Water::Type::None) {
-			water.type = Water::Type::None;
-			water.feetInWater = false;
+			water.feetInWater = feetWater;
 		}
 	}
 

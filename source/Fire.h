@@ -45,16 +45,14 @@ namespace Duel6
 		static const FireType BROAD_LEAVED_TREE;
 
 	private:
-		static std::vector<FireType> types;
+		static const std::vector<FireType> types;
 		Size id;
 		Size block;
 
 	private:
 		FireType(Size id, Size block)
 			: id(id), block(block)
-		{
-			types.push_back(*this);
-		}
+		{}
 
 	public:
 		static const std::vector<FireType>& values()

@@ -38,7 +38,6 @@ namespace Duel6
 	class GameResources
 	{
 	private:
-		Water::WaterSet waterSet;
 		Block::Meta blockMeta;
 		Sound::Sample gameOverSound;
 		Sound::Sample roundStartSound;
@@ -49,11 +48,6 @@ namespace Duel6
 
 	public:
 		GameResources(AppService& appService);
-
-		const Water::WaterSet& getWaterSet() const
-		{
-			return waterSet;
-		}
 
 		const Block::Meta& getBlockMeta() const
 		{

@@ -31,9 +31,9 @@
 
 namespace Duel6
 {
-	std::vector<FireType> FireType::types;
 	const FireType FireType::CONIFEROUS_TREE(0, 7);
 	const FireType FireType::BROAD_LEAVED_TREE(1, 8);
+	const std::vector<FireType> FireType::types = { CONIFEROUS_TREE, BROAD_LEAVED_TREE };
 
 	namespace
 	{

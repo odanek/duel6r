@@ -126,9 +126,8 @@ namespace Duel6
 
 		struct WaterState
 		{
-			bool headUnderWater;
-			bool feetInWater;
-			Water::Type type;
+			Water headUnderWater;
+			Water feetInWater;
 		};
 
 		struct PlayerState
@@ -187,6 +186,7 @@ namespace Duel6
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
 		bool hitByShot(Float32 pw, Shot& s, bool directHit, const Vector& hitPoint);
+		bool airHit(Float32 amount);
         void processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled);
 
         void setEventListener(PlayerEventListener& listener)
@@ -409,7 +409,7 @@ namespace Duel6
 
 		bool isUnderWater() const
 		{
-			return water.headUnderWater;
+			return water.headUnderWater != Water::NONE;
 		}
 
 		bool isPickingGun() const

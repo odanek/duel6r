@@ -50,7 +50,6 @@ namespace Duel6
 		ShotList shotList;
 		ExplosionList explosionList;
 		FireList fireList;
-		const Water::WaterSet& waterSet;
 		Size background;
 		// Bonus list
 
@@ -138,11 +137,6 @@ namespace Duel6
 		const FireList& getFireList() const
 		{
 			return fireList;
-		}
-
-		const Water::WaterSet& getWaterSet() const
-		{
-			return waterSet;
 		}
 
 		GLuint getBackground() const
