@@ -42,14 +42,13 @@ namespace Duel6
 	private:
 		typedef std::unique_ptr<Shot> ShotPointer;
 
-		World& world;
+	private:
 		std::list<ShotPointer> shots;
 
 	public:
-		ShotList(World& world);
+		ShotList();
 		void addShot(ShotPointer&& shot);
-		void addShot(Player& player, Orientation orientation);
-		void update(Float32 elapsedTime);
+		void update(World& world, Float32 elapsedTime);
 	};
 }
 

@@ -28,25 +28,42 @@
 #ifndef DUEL6_BONUSLIST_H
 #define DUEL6_BONUSLIST_H
 
-#include <vector>
+#include <list>
 #include "Type.h"
 #include "Bonus.h"
 #include "Player.h"
-#include "InfoMessageQueue.h"
 #include "PlayerSounds.h"
 #include "TextureManager.h"
 #include "Level.h"
+#include "GameSettings.h"
+#include "GameResources.h"
 
 namespace Duel6
 {
-	void BONUS_Init(TextureManager& textureManager);
-	GLuint BONUS_GetTexture(Size type);
-	void BONUS_Clear();
-	void BONUS_DrawAll();
-	void BONUS_AddNew(const Level& level);
-	void BONUS_AddDeadManGun(const Vector& position, Player& player);
-	void BONUS_Check(Player& player, InfoMessageQueue& messageQueue);
-	void BONUS_CheckPick(Player& player, InfoMessageQueue& messageQueue);
+	class BonusList
+	{
+	private:
+		const GameSettings& settings;
+		const TextureManager::Texture textures;
+		World& world;
+		std::list<Bonus> bonuses;
+
+	public:
+		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
+		void addNew();
+		GLuint getTexture(Size type) const;
+		void clear();
+		void render() const;
+		void addDeadManGun(Player& player, const Vector& position);
+		void check(Player& player);
+		void checkPick(Player& player);
+
+	private:
+		bool isApplicable(const Bonus& bonus, const Player& player, bool weapon) const;
+		void apply(const Bonus& bonus, Player& player);
+		void pickWeapon(const Bonus& bonus, Player& player);
+	};
+
 }
 
 #endif

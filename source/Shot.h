@@ -29,6 +29,7 @@
 #define DUEL6_SHOT_H
 
 #include "Type.h"
+#include "Vector.h"
 
 namespace Duel6
 {
@@ -46,6 +47,8 @@ namespace Duel6
 		virtual Player& getPlayer() = 0;
 		virtual const Player& getPlayer() const = 0;
 		virtual bool update(Float32 elapsedTime, World& world) = 0;
+		virtual void onHitPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) = 0;
+		virtual void onKillPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) = 0;
 	};
 }
 

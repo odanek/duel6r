@@ -25,26 +25,22 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShotBase.h"
+#include "ShitThrowerShot.h"
 
 namespace Duel6
 {
-	ShotBase::ShotBase(const Weapon& weapon, Player& player)
-		: weapon(weapon), player(player)
-	{}
-
-	Player& ShotBase::getPlayer()
+	ShitThrowerShot::ShitThrowerShot(Player& player, const LegacyWeapon& weapon, Orientation orientation,
+									 SpriteList::Iterator sprite, PlayerSkin& brownSkin)
+		: LegacyShot(player, weapon, orientation, sprite), brownSkin(brownSkin)
 	{
-		return player;
 	}
 
-	const Player& ShotBase::getPlayer() const
+	void ShitThrowerShot::onExplode(const Vector& centre, Float32 range, World& world)
 	{
-		return player;
 	}
 
-	const Weapon& ShotBase::getWeapon() const
+	void ShitThrowerShot::onHitPlayer(Player& player, bool directHit, const Vector& point, World& world)
 	{
-		return weapon;
+		player.useTemporarySkin(brownSkin);
 	}
 }

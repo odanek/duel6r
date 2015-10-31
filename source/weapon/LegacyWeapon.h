@@ -25,26 +25,74 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShotBase.h"
+#ifndef DUEL6_LEGACYWEAPON_H
+#define DUEL6_LEGACYWEAPON_H
+
+#include <string>
+#include "WeaponBase.h"
+#include "../Shot.h"
+#include "../SpriteList.h"
 
 namespace Duel6
 {
-	ShotBase::ShotBase(const Weapon& weapon, Player& player)
-		: weapon(weapon), player(player)
-	{}
+	class LegacyShot;
 
-	Player& ShotBase::getPlayer()
+	class LegacyWeapon : public WeaponBase
 	{
-		return player;
-	}
+	public:
+		struct Definition
+		{
+			Float32 bulletSpeed;
+			bool blood;
+			bool explodes;
+			Color explosionColor;
+			Int32 boom;
+			Int32 power;
+			Float32 reloadSpeed;
+			std::string name;
+			std::string shotSound;
+			std::string boomSound;
+			Float32 expGrow;
+			Int16 animation[16];
+			Int16 shotAnimation[18];
+			Int16 boomAnimation[14];
+		};
 
-	const Player& ShotBase::getPlayer() const
-	{
-		return player;
-	}
+		struct WeaponTextures
+		{
+			TextureManager::Texture boom;
+			TextureManager::Texture gun;
+			TextureManager::Texture shot;
+		};
 
-	const Weapon& ShotBase::getWeapon() const
-	{
-		return weapon;
-	}
+		struct WeaponSamples
+		{
+			Sound::Sample shot;
+			Sound::Sample boom;
+		};
+
+	protected:
+		const Definition& definition;
+		WeaponTextures textures;
+		WeaponSamples samples;
+
+	public:
+		LegacyWeapon(Sound& sound, TextureManager& textureManager, const Definition& definition, Size index);
+
+		void shoot(Player& player, Orientation orientation, World& world) const override;
+		Sprite& makeSprite(Sprite& sprite) const override;
+		GLuint getBonusTexture() const override;
+
+		const Definition& getDefinition() const;
+		const WeaponTextures& getTextures() const;
+		const WeaponSamples& getSamples() const;
+
+	public:
+		static std::unique_ptr<WeaponImpl> create(Sound& sound, TextureManager& textureManager, Size index);
+
+	protected:
+		virtual std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const;
+	};
 }
+
+#endif

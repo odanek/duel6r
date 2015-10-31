@@ -56,7 +56,7 @@ namespace Duel6
 		}
 		else
 		{
-			console.printLine(Format("Ghost Mode [on/off]: {0}") << (gameSettings.getGhostEnabled() ? "on" : "off"));
+			console.printLine(Format("Ghost Mode [on/off]: {0}") << (gameSettings.isGhostEnabled() ? "on" : "off"));
 		}
 	}
 
@@ -168,24 +168,28 @@ namespace Duel6
 		}
 	}
 
-	void ConsoleCommands::enableWeapon(Console& console, const Console::Arguments& args)
+	void ConsoleCommands::enableWeapon(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
 		if (args.length() == 3)
 		{
-			Int32 gn = std::stoi(args.get(1));
-			if (gn >= 0 && gn < D6_WEAPONS)
+			Int32 weaponIndex = std::stoi(args.get(1));
+
+			if (weaponIndex >= 0 && weaponIndex < (Int32)Weapon::values().size())
 			{
-				d6WpnDef[gn].enabled = (args.get(2) == "true");
-				std::string enabled = d6WpnDef[gn].enabled ? "enabled" : "disabled";
-				console.printLine(Format("\t{0}. {1} {2}") << gn << d6WpnDef[gn].name << enabled);
+				const Weapon& weapon = Weapon::values()[weaponIndex];
+				bool enable = (args.get(2) == "true");
+				gameSettings.enableWeapon(weapon, enable);
+				console.printLine(Format("\t{0}. {1} {2}") << weaponIndex << weapon.getName() << (enable ? "enabled" : "disabled"));
 			}
 		}
 		else
 		{
-			for (Int32 gn = 0; gn < D6_WEAPONS; gn++)
+			Size index = 0;
+			for (auto& weapon : Weapon::values())
 			{
-				std::string enabled = d6WpnDef[gn].enabled ? "enabled" : "disabled";
-				console.printLine(Format("\t{0,2}. {1,-13} {2}") << gn << d6WpnDef[gn].name << enabled);
+				bool enabled = gameSettings.isWeaponEnabled(weapon);
+				console.printLine(Format("\t{0,2}. {1,-13} {2}") << index << weapon.getName() << (enabled ? "enabled" : "disabled"));
+				index++;
 			}
 		}
 	}
@@ -294,7 +298,9 @@ namespace Duel6
 		console.registerCommand("skin", [&menu](Console& con, const Console::Arguments& args) {
 			loadSkin(con, args, menu);
 		});
-		console.registerCommand("gun", enableWeapon);
+		console.registerCommand("gun", [&gameSettings](Console& con, const Console::Arguments& args) {
+			enableWeapon(con, args, gameSettings);
+		});
 		console.registerCommand("start_ammo_range", [&gameSettings](Console& con, const Console::Arguments& args) {
 			ammoRange(con, args, gameSettings);
 		});

@@ -38,7 +38,7 @@ namespace Duel6
 	Bonus::Bonus(const Vector& position, const Weapon& weaponType, Int32 bullets)
 		: position(position), type(0), weapon(true), weaponType(&weaponType), bullets(bullets)
 	{
-		texture = weaponType.textures.gun.getGlTextures()[weaponType.animation[12]];
+		texture = weaponType.getBonusTexture();
 	}
 
 	void Bonus::render() const

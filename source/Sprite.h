@@ -59,6 +59,7 @@ namespace Duel6
 		bool finished;
 
 	public:
+		Sprite();
 		Sprite(const Int16* animation, const TextureManager::Texture& textures);
 
 		Sprite& setPosition(const Vector& position, Float32 z)

@@ -179,7 +179,7 @@ namespace Duel6
 			return (this == &player);
 		}
 
-		void startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo);
+		void startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon& weapon);
 		void endRound();
 		void setView(const PlayerView& view);
 		void update(World& world, ScreenMode screenMode, Float32 elapsedTime);
@@ -486,6 +486,11 @@ namespace Duel6
 		{
 			bodyAlpha = alpha;
 			setAlpha(1.0f);
+		}
+
+		void removeBody()
+		{
+			unsetFlag(FlagLying);
 		}
 
 	private:

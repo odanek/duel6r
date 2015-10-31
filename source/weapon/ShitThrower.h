@@ -25,26 +25,26 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShotBase.h"
+#ifndef DUEL6_SHITTHROWER_H
+#define DUEL6_SHITTHROWER_H
+
+#include "../PlayerSkin.h"
+#include "LegacyWeapon.h"
 
 namespace Duel6
 {
-	ShotBase::ShotBase(const Weapon& weapon, Player& player)
-		: weapon(weapon), player(player)
-	{}
-
-	Player& ShotBase::getPlayer()
+	class ShitThrower : public LegacyWeapon
 	{
-		return player;
-	}
+	private:
+		std::unique_ptr<PlayerSkin> brownSkin;
 
-	const Player& ShotBase::getPlayer() const
-	{
-		return player;
-	}
+	public:
+		ShitThrower(Sound& sound, TextureManager& textureManager, const Definition& definition);
 
-	const Weapon& ShotBase::getWeapon() const
-	{
-		return weapon;
-	}
+	protected:
+		std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const override;
+	};
 }
+
+
+#endif

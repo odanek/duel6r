@@ -25,26 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShotBase.h"
+#include "ShitThrowerShot.h"
+#include "ShitThrower.h"
 
 namespace Duel6
 {
-	ShotBase::ShotBase(const Weapon& weapon, Player& player)
-		: weapon(weapon), player(player)
-	{}
-
-	Player& ShotBase::getPlayer()
+	ShitThrower::ShitThrower(Sound& sound, TextureManager& textureManager, const Definition& definition)
+		: LegacyWeapon(sound, textureManager, definition, 16)
 	{
-		return player;
+		Color brownColor(83, 44, 0);
+		PlayerSkinColors skinColors(brownColor);
+		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
 	}
 
-	const Player& ShotBase::getPlayer() const
+	std::unique_ptr<Shot> ShitThrower::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
 	{
-		return player;
-	}
-
-	const Weapon& ShotBase::getWeapon() const
-	{
-		return weapon;
+		return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
 	}
 }

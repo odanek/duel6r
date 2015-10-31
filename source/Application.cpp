@@ -213,8 +213,8 @@ namespace Duel6
 		game = std::make_unique<Game>(service, gameSettings);
 		menu.setGameReference(game.get());
 
-		WPN_Init(textureManager, sound, console);
-		BONUS_Init(textureManager);
+		console.printLine("\n===Weapon initialization===");
+		Weapon::initialize(sound, textureManager, gameSettings);
 		ELEV_Init(textureManager);
 
 		// Execute config script and command line arguments
@@ -251,7 +251,6 @@ namespace Duel6
 
 	void Application::tearDown()
 	{
-		WPN_DeInit();
 		SDL_Quit();
 	}
 }

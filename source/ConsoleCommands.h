@@ -45,7 +45,7 @@ namespace Duel6
 		static void musicOnOff(Console& console, const Console::Arguments& args, Menu& menu);
 		static void joyScan(Console& console, const Console::Arguments& args, Menu& menu);
 		static void loadSkin(Console& console, const Console::Arguments& args, Menu& menu);
-		static void enableWeapon(Console& console, const Console::Arguments& args);
+		static void enableWeapon(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
 		static void ammoRange(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
 		static void openGLInfo(Console& console, const Console::Arguments& args);
 		static void ghostMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings);

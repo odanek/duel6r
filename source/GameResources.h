@@ -44,6 +44,7 @@ namespace Duel6
 		TextureManager::Texture blockTextures;
 		TextureManager::Texture bcgTextures;
 		TextureManager::Texture explosionTextures;
+		TextureManager::Texture bonusTextures;
 		std::unordered_map<Size, TextureManager::Texture> fireTextures;
 
 	public:
@@ -77,6 +78,11 @@ namespace Duel6
 		const TextureManager::Texture& getExplosionTextures() const
 		{
 			return explosionTextures;
+		}
+
+		const TextureManager::Texture& getBonuseTextures() const
+		{
+			return bonusTextures;
 		}
 
 		const std::unordered_map<Size, TextureManager::Texture>& getFireTextures() const

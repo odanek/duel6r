@@ -52,6 +52,8 @@ namespace Duel6
 		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
 		console.printLine(Format("...Loading explosion textures: {0}") << D6_TEXTURE_EXPL_PATH);
 		explosionTextures = textureManager.load(D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
+		console.printLine(Format("...Loading bonus textures: {0}") << D6_TEXTURE_EXPL_PATH);
+		bonusTextures = textureManager.load(D6_TEXTURE_BONUS_PATH, GL_LINEAR, true);
 
 		console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
 		for (const FireType& fireType : FireType::values())

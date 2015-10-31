@@ -310,7 +310,7 @@ namespace Duel6
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, BONUS_GetTexture(player.getBonus()));
+			glBindTexture(GL_TEXTURE_2D, game.getRound().getWorld().getBonusList().getTexture(player.getBonus())); // HACK, make proper Bonus object with methods
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);
@@ -537,7 +537,7 @@ namespace Duel6
 		sprites(world.getLevelRenderData().getSprites());
 		ELEV_DrawAll();
 		world.getSpriteList().render();
-		BONUS_DrawAll();
+		world.getBonusList().render();
 		invulRings(game.getPlayers());
 		water(world.getLevelRenderData().getWater());
 		youAreHere();

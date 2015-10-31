@@ -35,6 +35,7 @@ namespace Duel6
 	class WaterImpl
 	{
 	public:
+		virtual ~WaterImpl() {}
 		virtual void onEnter(Player& player, const Vector& location, World& world) const = 0;
 		virtual void onUnder(Player& player, Float32 elapsedTime) const = 0;
 	};
@@ -42,6 +43,14 @@ namespace Duel6
 	namespace
 	{
 		Int16 wtAnim[24] = { 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0 };
+
+		class EmptyImpl : public WaterImpl
+		{
+			void onEnter(Player& player, const Vector& location, World& world) const {}
+			void onUnder(Player& player, Float32 elapsedTime) const {}
+		};
+
+		static EmptyImpl NONE_WATER;
 
 		class WaterBase : public WaterImpl
 		{
@@ -135,28 +144,22 @@ namespace Duel6
 	std::vector<Water::WaterImplPtr> Water::implementations;
 
 	Water::Water()
-		: impl(nullptr)
+		: impl(&NONE_WATER)
 	{}
 
-	const std::vector<Water>& Water::values() const
+	const std::vector<Water>& Water::values()
 	{
 		return types;
 	}
 
 	void Water::onEnter(Player& player, const Vector& location, World& world)
 	{
-		if (impl)
-		{
-			impl->onEnter(player, location, world);
-		}
+		impl->onEnter(player, location, world);
 	}
 
 	void Water::onUnder(Player& player, Float32 elapsedTime)
 	{
-		if (impl)
-		{
-			impl->onUnder(player, elapsedTime);
-		}
+		impl->onUnder(player, elapsedTime);
 	}
 
 	void Water::assign(WaterImplPtr&& impl) const

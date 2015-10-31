@@ -29,85 +29,21 @@
 #define DUEL6_SHOTBASE_H
 
 #include "../Shot.h"
-#include "../Weapon.h"
-#include "../Vector.h"
-#include "../SpriteList.h"
-#include "../Player.h"
 
 namespace Duel6
 {
 	class ShotBase : public Shot
 	{
 	protected:
-		struct Hit
-		{
-			bool hit;
-			Player* player;
-		};
-
-	private:
-		Player& player;
 		const Weapon& weapon;
-		Orientation orientation;
-		Vector position;
-		Vector velocity;
-		SpriteList::Iterator sprite;
-		bool powerful;
+		Player& player;
 
 	public:
-		ShotBase(Player& player, SpriteList::Iterator sprite, Orientation shotOrientation);
+		ShotBase(const Weapon& weapon, Player& player);
 
-		Player& getPlayer() override
-		{
-			return player;
-		}
-
-		const Player& getPlayer() const override
-		{
-			return player;
-		}
-
-		const Weapon& getWeapon() const override
-		{
-			return weapon;
-		}
-
-		bool update(Float32 elapsedTime, World& world) override;
-
-	protected:
-		const Vector& getPosition() const
-		{
-			return position;
-		}
-
-		Vector getDimensions() const
-		{
-			return Vector(0.65f, 0.35f);
-		}
-
-		Vector getCentre() const
-		{
-			return getCollisionRect().getCentre();
-		}
-
-		Rectangle getCollisionRect() const
-		{
-			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
-		}
-
-		Vector getSpritePosition() const
-		{
-			return orientation == Orientation::Left ? Vector(position.x, position.y - 0.65f) : Vector(position.x - 0.35f, position.y - 0.65f);
-		}
-
-		void move(Float32 elapsedTime);
-
-		Float32 getExplosionRange() const;
-		Float32 getExplosionPower() const;
-
-		Hit checkPlayerCollision(std::vector<Player>& players);
-		Hit checkWorldCollision(const Level& level);
-		void explode(Hit hit, World& world);
+		Player& getPlayer() override;
+		const Player& getPlayer() const override;
+		const Weapon& getWeapon() const override;
 	};
 }
 

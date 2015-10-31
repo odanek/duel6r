@@ -34,6 +34,7 @@
 #include "Explosion.h"
 #include "Fire.h"
 #include "ShotList.h"
+#include "BonusList.h"
 
 namespace Duel6
 {
@@ -51,7 +52,7 @@ namespace Duel6
 		ExplosionList explosionList;
 		FireList fireList;
 		Size background;
-		// Bonus list
+		BonusList bonusList;
 
 	public:
 		World(Game& game, const std::string& levelPath, bool mirror, Size background);
@@ -142,6 +143,16 @@ namespace Duel6
 		GLuint getBackground() const
 		{
 			return (GLuint)background;
+		}
+
+		BonusList& getBonusList()
+		{
+			return bonusList;
+		}
+
+		const BonusList& getBonusList() const
+		{
+			return bonusList;
 		}
 
 	private:

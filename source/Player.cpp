@@ -60,7 +60,7 @@ namespace Duel6
 	{
 	}
 	
-	void Player::startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo)
+	void Player::startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon& weapon)
 	{
 		this->world = &world;
 		state.position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
@@ -69,11 +69,10 @@ namespace Duel6
 		manSprite.setPosition(getSpritePosition(), 0.5f);
 		sprite = world.getSpriteList().addSprite(manSprite);
 
-		state.weapon = &WPN_GetRandomWeapon();
-		Sprite gunSprite(state.weapon->animation, state.weapon->textures.gun);
-		gunSprite.setPosition(getGunSpritePosition(), 0.5f)
-			.setLooping(AnimationLooping::OnceAndStop)
-			.setFrame(6);
+		state.weapon = &weapon;
+		Sprite gunSprite;
+		weapon.makeSprite(gunSprite);
+		gunSprite.setPosition(getGunSpritePosition(), 0.5f);
 		this->gunSprite = world.getSpriteList().addSprite(gunSprite);
 
 		state.flags = FlagHasGun;
@@ -209,7 +208,7 @@ namespace Duel6
 	{
 		if (isOnGround() && !isMoving() && !isOnElevator())
 		{
-			BONUS_CheckPick(*this, world->getMessageQueue());
+			world->getBonusList().checkPick(*this);
 		}
 	}
 
@@ -224,14 +223,14 @@ namespace Duel6
 		getPerson().addShots(1);
 		Orientation originalOrientation = getOrientation();
 
-		world->getShotList().addShot(*this, originalOrientation);
+		getWeapon().shoot(*this, originalOrientation, *world);
 
 		if (getBonus() == D6_BONUS_SPLITFIRE && getAmmo() > 0)
 		{
 			state.ammo--;
 			getPerson().addShots(1);
 			Orientation secondaryOrientation = originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
-			world->getShotList().addShot(*this, secondaryOrientation);
+			getWeapon().shoot(*this, secondaryOrientation, *world);
 		}
 	}
 
@@ -241,9 +240,7 @@ namespace Duel6
 		state.weapon = &weapon;
 		state.ammo = bullets;
 		state.timeToReload = 0;
-					
-		gunSprite->setAnimation(weapon.animation).setTextures(weapon.textures.gun).setFrame(6);
-
+		weapon.makeSprite(*gunSprite);
 		return *this;
 	}
 
@@ -302,7 +299,7 @@ namespace Duel6
 	Float32 Player::getReloadInterval() const
 	{
 		Float32 coef = hasFastReload() ? 2.0f : 1.0f;
-		return getWeapon().reloadSpeed / coef;
+		return getWeapon().getReloadInterval() / coef;
 	}
 
 	void Player::checkKeys()
@@ -351,7 +348,7 @@ namespace Duel6
 		checkWater(world, elapsedTime);
 		if (isAlive())
 		{
-			BONUS_Check(*this, world.getMessageQueue());
+			world.getBonusList().check(*this);
 		}
 
 		checkKeys();
@@ -555,27 +552,14 @@ namespace Duel6
 		{
 			return false;
 		}
-
-		Player& shootingPlayer = shot.getPlayer();
-		Person& shootingPerson = shootingPlayer.getPerson();
-		const Weapon& weapon = shot.getWeapon();
-
-		if (directHit && weapon.blood)
+		else if (!isAlive())
 		{
-			Rectangle rect = getCollisionRect();
-			world->getExplosionList().add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, hitPoint.y), 0.2f, 0.5f, Color::RED);
-		}
-
-		if (!isAlive())
-		{
-			if (weapon.explodes && directHit)
-			{
-				unsetFlag(FlagLying);
-				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
-			}
+			shot.onHitPlayer(*this, directHit, hitPoint, *world);
 			return false;
 		}
 
+		Player& shootingPlayer = shot.getPlayer();
+		Person& shootingPerson = shootingPlayer.getPerson();
 
         if (!eventListener->onDamageByShot(*this, shootingPlayer, amount, shot, directHit))
         {
@@ -585,7 +569,8 @@ namespace Duel6
 		state.timeSinceHit = 0;
 		
 		if (directHit)
-		{			
+		{
+			playSound(PlayerSounds::Type::GotHit);
 			shootingPerson.addHits(1);
 			if (shootingPlayer.getBonus() == D6_BONUS_VAMPIRESHOTS)
 			{
@@ -603,21 +588,16 @@ namespace Duel6
 
 			state.orientation = (hitPoint.x < getCentre().x) ? Orientation::Left : Orientation::Right;
 
-			if (weapon.explodes && directHit)
-			{
-				unsetFlag(FlagLying);
-				world->getExplosionList().add(getCentre(), 0.5f, 1.2f, weapon.explosionColor);
-			}
+			shot.onKillPlayer(*this, directHit, hitPoint, *world);
 
 			Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
 			getPerson().addTimeAlive(timeAlive);
 
 			return true;
 		}
-		
-		if (directHit)
+		else
 		{
-			playSound(PlayerSounds::Type::GotHit);
+			shot.onHitPlayer(*this, directHit, hitPoint, *world);
 		}
 
 		return false;
@@ -679,13 +659,13 @@ namespace Duel6
 
 		if (level.isWall(x1, y - 1, true) && !level.isWall(x1, y, true))
 		{
-			BONUS_AddDeadManGun(Vector(x1, y), *this);
+			world->getBonusList().addDeadManGun(*this, Vector(x1, y));
 		}
 		else
 		{
 			if (level.isWall(x2, y - 1, true) && !level.isWall(x2, y, true))
 			{
-				BONUS_AddDeadManGun(Vector(x2, y), *this);
+				world->getBonusList().addDeadManGun(*this, Vector(x2, y));
 			}
 		}
 	}

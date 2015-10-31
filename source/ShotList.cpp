@@ -29,12 +29,10 @@
 #include "World.h"
 #include "Weapon.h"
 #include "Player.h"
-#include "weapon/ShotBase.h"
 
 namespace Duel6
 {
-	ShotList::ShotList(World& world)
-		: world(world)
+	ShotList::ShotList()
 	{}
 
 	void ShotList::addShot(ShotPointer&& shot)
@@ -42,15 +40,7 @@ namespace Duel6
 		shots.push_back(std::forward<ShotPointer>(shot));
 	}
 
-	void ShotList::addShot(Player& player, Orientation orientation)
-	{
-		player.getWeapon().shotSample.play();
-		const Weapon& weapon= player.getWeapon();
-		Sprite shotSprite(weapon.shotAnimation, weapon.textures.shot);
-		addShot(std::make_unique<ShotBase>(player, world.getSpriteList().addSprite(shotSprite), orientation));
-	}
-
-	void ShotList::update(Float32 elapsedTime)
+	void ShotList::update(World& world, Float32 elapsedTime)
 	{
 		auto iter = shots.begin();
 

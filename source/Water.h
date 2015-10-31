@@ -40,7 +40,7 @@ namespace Duel6
 	class Player;
 	class World;
 
-	class Water
+	class Water final
 	{
 	private:
 		typedef std::unique_ptr<WaterImpl> WaterImplPtr;
@@ -61,13 +61,13 @@ namespace Duel6
 	public:
 		Water();
 
-		const std::vector<Water>& values() const;
 		void onEnter(Player& player, const Vector& location, World& world);
 		void onUnder(Player& player, Float32 elapsedTime);
 		bool operator==(const Water& water) const;
 		bool operator!=(const Water& water) const;
 
 	public:
+		static const std::vector<Water>& values();
 		static void initialize(Sound& sound, TextureManager& textureManager);
 	};
 }

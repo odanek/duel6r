@@ -25,26 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShotBase.h"
+#include "WeaponBase.h"
 
 namespace Duel6
 {
-	ShotBase::ShotBase(const Weapon& weapon, Player& player)
-		: weapon(weapon), player(player)
+	WeaponBase::WeaponBase(const std::string& name, Float32 reloadInterval)
+		: name(name), reloadInterval(reloadInterval)
 	{}
 
-	Player& ShotBase::getPlayer()
+	std::string WeaponBase::getName() const
 	{
-		return player;
+		return name;
 	}
 
-	const Player& ShotBase::getPlayer() const
+	Float32 WeaponBase::getReloadInterval() const
 	{
-		return player;
-	}
-
-	const Weapon& ShotBase::getWeapon() const
-	{
-		return weapon;
+		return reloadInterval;
 	}
 }

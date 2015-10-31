@@ -30,52 +30,69 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include "Type.h"
-#include "Color.h"
 #include "Sound.h"
+#include "Sprite.h"
 #include "TextureManager.h"
-#include "World.h"
-#include "PlayerSkin.h"
 
 namespace Duel6
 {
-	struct WeaponTextures
+	class World;
+	class GameSettings;
+	class Player;
+
+	class WeaponImpl
 	{
-		TextureManager::Texture boom;
-		TextureManager::Texture gun;
-		TextureManager::Texture shot;
+	public:
+		virtual ~WeaponImpl() {}
+		virtual std::string getName() const = 0;
+		virtual Float32 getReloadInterval() const = 0;
+		virtual void shoot(Player& player, Orientation orientation, World& world) const = 0;
+		virtual Sprite& makeSprite(Sprite& sprite) const = 0;
+		virtual GLuint getBonusTexture() const = 0; // TODO: Unsafe
 	};
 
-	struct Weapon
+	class Weapon final
 	{
-		Int32 index;
-		bool enabled;
-		Float32 bulletSpeed;
-		bool blood;
-		bool explodes;
-		Color explosionColor;
-		Int32 boom;
-		Int32 power;
-		Float32 reloadSpeed;
-		std::string name;
-		std::string shotSound;
-		std::string boomSound;
-		Float32 expGrow;
-		bool shit; // TODO: Remove
-		Int16 animation[16];
-		Int16 shotAnimation[18];
-		Int16 boomAnimation[14];
-		WeaponTextures textures;
-		Sound::Sample shotSample;
-		Sound::Sample boomSample;
+	public:
+		struct Hash
+		{
+			std::size_t operator()(const Weapon& val) const
+			{
+				std::hash<WeaponImpl*> referenceHash;
+				return referenceHash(val.impl);
+			}
+		};
+
+	private:
+		typedef std::unique_ptr<WeaponImpl> WeaponImplPtr;
+
+	private:
+		WeaponImpl* impl;
+
+	private:
+		static std::vector<WeaponImplPtr> implementations;
+		static std::vector<Weapon> weapons;
+		explicit Weapon(WeaponImpl* impl);
+		static Weapon add(WeaponImplPtr&& impl);
+
+	public:
+		Weapon();
+		std::string getName() const;
+		Float32 getReloadInterval() const;
+		void shoot(Player& player, Orientation orientation, World& world) const;
+		Sprite& makeSprite(Sprite& sprite) const;
+		GLuint getBonusTexture() const;
+
+		bool operator==(const Weapon& weapon) const;
+		bool operator!=(const Weapon& weapon) const;
+
+	public:
+		static const std::vector<Weapon>& values();
+		static void initialize(Sound& sound, TextureManager& textureManager, GameSettings& settings);
+		static const Weapon& getRandomEnabled(const GameSettings& settings);
 	};
-
-	extern Weapon d6WpnDef[D6_WEAPONS];
-	extern std::unique_ptr<PlayerSkin> d6BrownSkin;
-
-	void WPN_Init(TextureManager& textureManager, Sound& sound, Console& console);
-	void WPN_DeInit();
-	const Weapon& WPN_GetRandomWeapon();
 }
 
 #endif

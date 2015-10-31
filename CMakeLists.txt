@@ -207,8 +207,18 @@ set(D6R_SOURCES
 	source/gui/TextBox.h
 	source/gui/TextBox.cpp
 
+    source/weapon/WeaponBase.h
+    source/weapon/WeaponBase.cpp
+    source/weapon/LegacyWeapon.h
+    source/weapon/LegacyWeapon.cpp
     source/weapon/ShotBase.h
     source/weapon/ShotBase.cpp
+    source/weapon/LegacyShot.h
+    source/weapon/LegacyShot.cpp
+    source/weapon/ShitThrower.h
+    source/weapon/ShitThrower.cpp
+    source/weapon/ShitThrowerShot.h
+    source/weapon/ShitThrowerShot.cpp
 
     source/collision/Collision.h
     source/collision/Collision.cpp

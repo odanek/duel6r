@@ -30,6 +30,7 @@
 #include "GameException.h"
 #include "Util.h"
 #include "GameMode.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
@@ -162,7 +163,7 @@ namespace Duel6
 			auto& ammoRange = game.getSettings().getAmmoRange();
 			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
 			std::pair<Int32, Int32>& position = startingPositions.front();
-			player.startRound(world, position.first, position.second, ammo);
+			player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
 			startingPositions.pop();
 			playerIndex++;
 		}
@@ -217,7 +218,7 @@ namespace Duel6
 		for (Player& player : world.getPlayers())
 		{
 			player.update(world, game.getSettings().getScreenMode(), elapsedTime);
-			if (game.getSettings().getGhostEnabled() && !player.isInGame() && !player.isGhost())
+			if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost())
 			{
 				player.makeGhost();
 			}

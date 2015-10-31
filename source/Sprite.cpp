@@ -29,10 +29,8 @@
 
 namespace Duel6
 {
-	Sprite::Sprite(const Int16* animation, const TextureManager::Texture& textures)
+	Sprite::Sprite()
 	{
-		this->animation = animation;
-		this->textures = &textures.getGlTextures()[0];
 		frame = 0;
 		delay = 0;
 		speed = 1;
@@ -44,6 +42,13 @@ namespace Duel6
 		size = Vector(1.0f, 1.0f);
 		grow = 0;
 		alpha = 1.0f;
+	}
+
+	Sprite::Sprite(const Int16* animation, const TextureManager::Texture& textures)
+		: Sprite()
+	{
+		this->animation = animation;
+		this->textures = &textures.getGlTextures()[0];
 	}
 
 	Sprite& Sprite::setAnimation(const Int16* animation)
