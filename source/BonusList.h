@@ -44,14 +44,14 @@ namespace Duel6
 	{
 	private:
 		const GameSettings& settings;
-		const TextureManager::Texture textures;
+		const TextureList textures;
 		World& world;
 		std::list<Bonus> bonuses;
 
 	public:
 		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
 		void addNew();
-		GLuint getTexture(Size type) const;
+		Texture getTexture(Size type) const;
 		void clear();
 		void render() const;
 		void addDeadManGun(Player& player, const Vector& position);

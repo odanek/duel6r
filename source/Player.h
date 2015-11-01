@@ -154,7 +154,7 @@ namespace Duel6
 
 	private:
 		Person& person;
-		const PlayerSkin& skin;
+		PlayerSkin skin;
 		mycam_c camera;
 		CameraPosition cameraPos;
 		const PlayerSounds& sounds;

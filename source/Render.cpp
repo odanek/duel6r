@@ -68,10 +68,10 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	void Renderer::background(GLuint texture) const
+	void Renderer::background(Texture texture) const
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, texture.getId());
 
 		glBegin(GL_QUADS);
 		glTexCoord2f(0, 0); glVertex2i(0, video.getScreen().getClientHeight());
@@ -287,7 +287,7 @@ namespace Duel6
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextures().getGlTextures()[3]);
+			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextureList().at(3).getId());
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f); glVertex2i(ibp[0] + 3, ibp[1] + 1);
@@ -310,7 +310,7 @@ namespace Duel6
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, game.getRound().getWorld().getBonusList().getTexture(player.getBonus())); // HACK, make proper Bonus object with methods
+			glBindTexture(GL_TEXTURE_2D, game.getRound().getWorld().getBonusList().getTexture(player.getBonus()).getId()); // HACK, make proper Bonus object with methods
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);
@@ -574,7 +574,7 @@ namespace Duel6
 
 		const Player& player = game.getPlayers().front();
 		setView(player.getView());
-		background(game.getResources().getBcgTextures().getGlTextures()[game.getRound().getWorld().getBackground()]);
+		background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 		video.setMode(Video::Mode::Perspective);
 		view(player);		
 	}
@@ -592,7 +592,7 @@ namespace Duel6
 			}
 
 			setView(player.getView());
-			background(game.getResources().getBcgTextures().getGlTextures()[game.getRound().getWorld().getBackground()]);
+			background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 
 			video.setMode(Video::Mode::Perspective);
 			view(player);

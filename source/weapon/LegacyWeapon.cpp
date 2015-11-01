@@ -66,10 +66,10 @@ namespace Duel6
 		: WeaponBase(definition.name, definition.reloadSpeed), definition(definition)
 	{
 		const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << index;
-		auto filterType = NEAREST_FILTER_BOOM.find(&definition) != NEAREST_FILTER_BOOM.end() ? GL_NEAREST : GL_LINEAR;
+		auto filterType = NEAREST_FILTER_BOOM.find(&definition) != NEAREST_FILTER_BOOM.end() ? TextureFilter::NEAREST : TextureFilter::LINEAR;
 		textures.boom = textureManager.load(Format("{0}/boom/") << wpnPath, filterType, true);
-		textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, GL_NEAREST, true);
-		textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, GL_NEAREST, true);
+		textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
+		textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
 
 		if (!definition.shotSound.empty())
 		{
@@ -99,9 +99,9 @@ namespace Duel6
 		return sprite.setAnimation(definition.animation).setTextures(textures.gun).setFrame(6).setLooping(AnimationLooping::OnceAndStop);
 	}
 
-	GLuint LegacyWeapon::getBonusTexture() const
+	Texture LegacyWeapon::getBonusTexture() const
 	{
-		return textures.gun.getGlTextures()[definition.animation[12]];
+		return textures.gun.at(definition.animation[12]);
 	}
 
 	const LegacyWeapon::Definition& LegacyWeapon::getDefinition() const

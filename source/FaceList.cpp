@@ -54,15 +54,14 @@ namespace Duel6
 		}
 	}
 
-	void FaceList::render(const TextureManager::Texture& textures) const
+	void FaceList::render(const TextureList& textures) const
 	{
 		if (faces.empty())
 		{
 			return;
 		}
 
-		const TextureManager::TextureList& glTextures = textures.getGlTextures();
-		GLuint curTexture = glTextures[faces[0].getCurrentTexture()];
+		Texture curTexture = textures.at(faces[0].getCurrentTexture());
 		Size first = 0, count = 0;
 
 		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
@@ -70,11 +69,11 @@ namespace Duel6
 
 		for (const Face& face : faces)
 		{
-			if (glTextures[face.getCurrentTexture()] != curTexture)
+			if (textures.at(face.getCurrentTexture()) != curTexture)
 			{
-				glBindTexture(GL_TEXTURE_2D, curTexture);
+				glBindTexture(GL_TEXTURE_2D, curTexture.getId());
 				glDrawArrays(GL_QUADS, first, count);
-				curTexture = glTextures[face.getCurrentTexture()];
+				curTexture = textures.at(face.getCurrentTexture());
 				first += count;
 				count = 4;
 			}
@@ -84,7 +83,7 @@ namespace Duel6
 			}
 		}
 
-		glBindTexture(GL_TEXTURE_2D, curTexture);
+		glBindTexture(GL_TEXTURE_2D, curTexture.getId());
 		glDrawArrays(GL_QUADS, first, count);
 	}
 

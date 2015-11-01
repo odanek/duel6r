@@ -50,7 +50,7 @@ namespace Duel6
 		virtual Float32 getReloadInterval() const = 0;
 		virtual void shoot(Player& player, Orientation orientation, World& world) const = 0;
 		virtual Sprite& makeSprite(Sprite& sprite) const = 0;
-		virtual GLuint getBonusTexture() const = 0; // TODO: Unsafe
+		virtual Texture getBonusTexture() const = 0;
 	};
 
 	class Weapon final
@@ -83,7 +83,7 @@ namespace Duel6
 		Float32 getReloadInterval() const;
 		void shoot(Player& player, Orientation orientation, World& world) const;
 		Sprite& makeSprite(Sprite& sprite) const;
-		GLuint getBonusTexture() const;
+		Texture getBonusTexture() const;
 
 		bool operator==(const Weapon& weapon) const;
 		bool operator!=(const Weapon& weapon) const;

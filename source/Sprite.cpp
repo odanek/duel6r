@@ -44,11 +44,11 @@ namespace Duel6
 		alpha = 1.0f;
 	}
 
-	Sprite::Sprite(const Int16* animation, const TextureManager::Texture& textures)
+	Sprite::Sprite(const Int16* animation, const TextureList& textures)
 		: Sprite()
 	{
 		this->animation = animation;
-		this->textures = &textures.getGlTextures()[0];
+		this->textures = textures;
 	}
 
 	Sprite& Sprite::setAnimation(const Int16* animation)
@@ -123,7 +123,8 @@ namespace Duel6
 
 		glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
 
-		glBindTexture(GL_TEXTURE_2D, textures[animation[frame]]);
+		Int32 textureIndex = animation[frame];
+		glBindTexture(GL_TEXTURE_2D, textures.at(textureIndex).getId());
 
 		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;
 

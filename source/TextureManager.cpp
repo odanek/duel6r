@@ -32,32 +32,47 @@
 
 namespace Duel6
 {
-	const TextureManager::Texture TextureManager::load(const std::string& path, GLint filtering, bool clamp)
+	TextureManager::TextureManager(const std::string& fileExtension)
+		: nextId(0), textureFileExtension(fileExtension)
+	{}
+
+	TextureManager::~TextureManager()
+	{
+		disposeAll();
+	}
+
+	const TextureList TextureManager::load(const std::string& path, TextureFilter filtering, bool clamp)
 	{
 		SubstitutionTable emptySubstitutionTable;
 		return load(path, filtering, clamp, emptySubstitutionTable);
 	}
 
-	const TextureManager::Texture TextureManager::load(const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable)
+	const TextureList TextureManager::load(const std::string& path, TextureFilter filtering, bool clamp, const SubstitutionTable& substitutionTable)
 	{
 		std::vector<std::string> textureFiles;
 		File::listDirectory(path, textureFileExtension, textureFiles);
 		std::sort(textureFiles.begin(), textureFiles.end());
 
-		textureMap.insert(std::make_pair(nextId, std::make_unique<TextureList>()));
-		TextureList& list = *textureMap.at(nextId);
-		nextId++;
+		Int32 listId = nextId++;
+		textureMap.insert(std::make_pair(listId, std::make_unique<TextureArray>()));
+		TextureArray& list = *textureMap.at(listId);
 
 		for (std::string& file : textureFiles)
 		{
 			Image image;
 			Util::loadTargaImage(path + file, image);
 			substituteColors(image, substitutionTable);
-			GLuint texture = Util::createTexture(image, filtering, clamp);
+			Texture texture = Util::createTexture(image, filtering, clamp);
 			list.push_back(texture);
 		}
 
-		return Texture(this, &list, nextId++);
+		return TextureList(listId, list);
+	}
+
+	void TextureManager::dispose(TextureList& list)
+	{
+		dispose(list.getKey());
+		list.release();
 	}
 
 	void TextureManager::dispose(const Int32 key)
@@ -65,7 +80,7 @@ namespace Duel6
 		auto entry = textureMap.find(key);
 		if (entry != textureMap.end())
 		{
-			disposeTextureList(*entry->second);
+			releaseTextureIds(*(entry->second));
 			textureMap.erase(key);
 		}
 	}
@@ -74,16 +89,17 @@ namespace Duel6
 	{
 		for (auto& entry : textureMap)
 		{
-			disposeTextureList(*entry.second);
+			releaseTextureIds(*(entry.second));
 		}
 		textureMap.clear();
 	}
 
-	void TextureManager::disposeTextureList(const TextureList& list)
+	void TextureManager::releaseTextureIds(const TextureArray& list)
 	{
-		if (!list.empty())
+		for (const Texture& texture : list)
 		{
-			glDeleteTextures(list.size(), &list[0]);
+			GLuint id = texture.getId();
+			glDeleteTextures(1, &id);
 		}
 	}
 

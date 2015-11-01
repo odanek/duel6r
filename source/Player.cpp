@@ -65,7 +65,7 @@ namespace Duel6
 		this->world = &world;
 		state.position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
 
-		Sprite manSprite(noAnim, skin.getTextures());
+		Sprite manSprite(noAnim, skin.getTextureList());
 		manSprite.setPosition(getSpritePosition(), 0.5f);
 		sprite = world.getSpriteList().addSprite(manSprite);
 
@@ -792,13 +792,13 @@ namespace Duel6
 	void Player::useTemporarySkin(PlayerSkin& tempSkin)
 	{
 		state.tempSkinDuration = Float32(10 + rand() % 5);
-		sprite->setTextures(tempSkin.getTextures());
+		sprite->setTextures(tempSkin.getTextureList());
 	}
 
 	void Player::switchToOriginalSkin()
 	{
 		state.tempSkinDuration = 0;
-		sprite->setTextures(skin.getTextures());
+		sprite->setTextures(skin.getTextureList());
 	}
 
     void Player::processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled)

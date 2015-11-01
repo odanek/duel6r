@@ -43,7 +43,7 @@ namespace Duel6
 			Float32 getReloadInterval() const { return 0.0f; }
 			void shoot(Player& player, Orientation orientation, World& world) const {}
 			Sprite& makeSprite(Sprite& sprite) const { return sprite; }
-			GLuint getBonusTexture() const { return 0; }
+			Texture getBonusTexture() const { return Texture(); }
 		};
 
 		NoneWeapon NO_WEAPON;
@@ -88,7 +88,7 @@ namespace Duel6
 		return impl->makeSprite(sprite);
 	}
 
-	GLuint Weapon::getBonusTexture() const
+	Texture Weapon::getBonusTexture() const
 	{
 		return impl->getBonusTexture();
 	}

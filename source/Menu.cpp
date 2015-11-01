@@ -98,7 +98,7 @@ namespace Duel6
 	void Menu::initialize()
 	{
 		appService.getConsole().printLine("\n===Menu initialization===");
-		menuBannerTexture = appService.getTextureManager().load(D6_TEXTURE_MENU_PATH, GL_LINEAR, true);
+		menuBannerTexture = appService.getTextureManager().load(D6_TEXTURE_MENU_PATH, TextureFilter::LINEAR, true);
 		appService.getConsole().printLine("...Starting GUI library");
 		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
@@ -612,7 +612,7 @@ namespace Duel6
 		font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE, Format("{0} {1}") << "version" << APP_VERSION);
 
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, menuBannerTexture.getGlTextures()[0]);
+		glBindTexture(GL_TEXTURE_2D, menuBannerTexture.at(0).getId());
 		glColor3ub(255, 255, 255);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, video.getScreen().getClientHeight() - 5);

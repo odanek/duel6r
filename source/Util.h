@@ -33,13 +33,14 @@
 #include "Type.h"
 #include "Image.h"
 #include "Video.h"
+#include "Texture.h"
 
 namespace Duel6
 {
 	namespace Util
 	{
 		void loadTargaImage(const std::string& path, Image& image);
-		GLuint createTexture(const Image& image, GLint filtering, bool clamp);
+		Texture createTexture(const Image& image, TextureFilter filtering, bool clamp);
 		std::string saveScreenTga(const Video& video);
 	}
 }

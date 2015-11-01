@@ -140,9 +140,9 @@ namespace Duel6
 			return fireList;
 		}
 
-		GLuint getBackground() const
+		Size getBackground() const
 		{
-			return (GLuint)background;
+			return background;
 		}
 
 		BonusList& getBonusList()

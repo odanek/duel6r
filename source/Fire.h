@@ -112,7 +112,7 @@ namespace Duel6
 	{
 	private:
 		SpriteList& spriteList;
-		const std::unordered_map<Size, TextureManager::Texture>& textures;
+		const std::unordered_map<Size, TextureList>& textures;
 		std::vector<Fire> fires;
 
 	public:

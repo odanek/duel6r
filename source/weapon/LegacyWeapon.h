@@ -60,9 +60,9 @@ namespace Duel6
 
 		struct WeaponTextures
 		{
-			TextureManager::Texture boom;
-			TextureManager::Texture gun;
-			TextureManager::Texture shot;
+			TextureList boom;
+			TextureList gun;
+			TextureList shot;
 		};
 
 		struct WeaponSamples
@@ -81,7 +81,7 @@ namespace Duel6
 
 		void shoot(Player& player, Orientation orientation, World& world) const override;
 		Sprite& makeSprite(Sprite& sprite) const override;
-		GLuint getBonusTexture() const override;
+		Texture getBonusTexture() const override;
 
 		const Definition& getDefinition() const;
 		const WeaponTextures& getTextures() const;

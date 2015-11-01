@@ -73,10 +73,10 @@ namespace Duel6
 		bool weapon;
 		const Weapon* weaponType;
 		Int32 bullets; // Number of bullets for weapon bonuses
-		GLuint texture;
+		Texture texture;
 
 	public:
-		Bonus(const Vector& position, Size type, GLuint texture);
+		Bonus(const Vector& position, Size type, Texture texture);
 
 		Bonus(const Vector& position, const Weapon& weaponType, Int32 bullets);
 

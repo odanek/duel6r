@@ -103,18 +103,24 @@ namespace Duel6
 
 	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode)
 	{
-		appService.getConsole().printLine("\n=== Starting new game ===");
-		appService.getConsole().printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
+		Console& console = appService.getConsole();
+		console.printLine("\n=== Starting new game ===");
+		console.printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
 		TextureManager& textureManager = appService.getTextureManager();
 		players.clear();
+
+		for (auto& skin : skins)
+		{
+			textureManager.dispose(skin.getTextureList());
+		}
 		skins.clear();
 
 		Size playerIndex = 0;
 		for (const PlayerDefinition& playerDef : playerDefinitions)
 		{
-			appService.getConsole().printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-			skins.push_back(std::make_unique<PlayerSkin>(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
-			players.push_back(Player(playerDef.getPerson(), *skins.back(), playerDef.getSounds(), playerDef.getControls()));
+			console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
+			skins.push_back(PlayerSkin(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
+			players.push_back(Player(playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls()));
 			playerIndex++;
 		}
 

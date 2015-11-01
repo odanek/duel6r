@@ -75,7 +75,7 @@ namespace Duel6
 		Gui::Textbox* textbox;
 		Gui::Spinner* gameModeSwitch;
 		Size backgroundCount;
-		TextureManager::Texture menuBannerTexture;
+		TextureList menuBannerTexture;
 		Sound::Track menuTrack;
 		bool playMusic;
 

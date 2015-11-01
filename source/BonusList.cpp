@@ -37,9 +37,9 @@ namespace Duel6
 		: settings(settings), textures(resources.getBonuseTextures()), world(world)
 	{}
 
-	GLuint BonusList::getTexture(Size type) const
+	Texture BonusList::getTexture(Size type) const
 	{
-		return textures.getGlTextures()[type];
+		return textures.at(type);
 	}
 
 	void BonusList::clear()
@@ -79,7 +79,7 @@ namespace Duel6
 			else
 			{
 				Size type = rand() % D6_BONUS_COUNT;
-				bonuses.push_back(Bonus(Vector(x + 0.2f, y + 0.2f), type, textures.getGlTextures()[type]));
+				bonuses.push_back(Bonus(Vector(x + 0.2f, y + 0.2f), type, textures.at(type)));
 			}
 		}
 	}

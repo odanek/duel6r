@@ -85,7 +85,7 @@ namespace Duel6
 		}
 
 		void optimize();
-		void render(const TextureManager::Texture& textures) const;
+		void render(const TextureList& textures) const;
 		void nextFrame();
 	};
 }

@@ -105,7 +105,7 @@ namespace Duel6
 		Int32 playedRounds;
 
 		std::vector<Player> players;
-		std::vector<std::unique_ptr<PlayerSkin>> skins;
+		std::vector<PlayerSkin> skins;
 
 	public:
 		Game(AppService& appService, GameSettings& settings);

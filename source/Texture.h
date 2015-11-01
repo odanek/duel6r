@@ -25,61 +25,94 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_TEXTUREMANAGER_H
-#define DUEL6_TEXTUREMANAGER_H
+#ifndef DUEL6_TEXTURE_H
+#define DUEL6_TEXTURE_H
 
-#include <memory>
-#include <unordered_map>
-#include <string>
+#include <vector>
 #include <SDL2/SDL_opengl.h>
 #include "Type.h"
-#include "Color.h"
-#include "Image.h"
-#include "Texture.h"
-
-#define D6_TEXTURE_EXTENSION	".tga"
-
-#define D6_TEXTURE_MAN_PATH     "textures/man/"
-#define D6_TEXTURE_BCG_PATH		"textures/backgrounds/"
-#define D6_TEXTURE_EXPL_PATH	"textures/explosion/"
-#define D6_TEXTURE_MENU_PATH	"textures/menu/"
-#define D6_TEXTURE_BLOCK_PATH	"textures/blocks/"
-#define D6_TEXTURE_WATER_PATH	"textures/water/"
-#define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
-#define D6_TEXTURE_BONUS_PATH	"textures/bonus/"
-#define D6_TEXTURE_FIRE_PATH	"textures/fire/"
-#define D6_TEXTURE_WPN_PATH		"textures/weapon/"
 
 namespace Duel6
 {
-	class TextureManager
+	class TextureManager;
+
+	class Texture
+	{
+	private:
+		GLuint id;
+
+	public:
+		Texture()
+			: id(0)
+		{}
+
+		explicit Texture(GLuint id)
+			: id(id)
+		{}
+
+		GLuint getId() const
+		{
+			return id;
+		}
+
+		operator==(const Texture& texture) const
+		{
+			return id == texture.id;
+		}
+
+		operator!=(const Texture& texture) const
+		{
+			return id != texture.id;
+		}
+	};
+
+	class TextureList
 	{
 	public:
 		typedef std::vector<Texture> TextureArray;
-		typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
 	private:
-		Int32 nextId;
-		std::string textureFileExtension;
-		std::unordered_map<Int32, std::unique_ptr<TextureArray>> textureMap;
+		friend class TextureManager;
+		Int32 key;
+		const TextureArray* textures;
+
+	private:
+		TextureList(Int32 key, const TextureArray& textures)
+			: key(key), textures(&textures)
+		{}
 
 	public:
-		TextureManager(const std::string& fileExtension);
-		~TextureManager();
+		TextureList()
+			: key(-1), textures(nullptr)
+		{}
 
-		Size size() { return textureMap.size(); }
-		void dispose(TextureList& textures);
-		void disposeAll();
+		const TextureArray& getTextures() const
+		{
+			return *textures;
+		}
 
-		const TextureList load(const std::string& path, TextureFilter filtering, bool clamp);
-		const TextureList load(const std::string& path, TextureFilter filtering, bool clamp, const SubstitutionTable& substitutionTable);
+		const Texture& at(Size index) const
+		{
+			return (*textures)[index];
+		}
 
 	private:
-		void dispose(const Int32 key);
+		Int32 getKey() const
+		{
+			return key;
+		}
 
-	private:
-		void releaseTextureIds(const TextureArray& list);
-		void substituteColors(Image& image, const SubstitutionTable& substitutionTable);
+		void release()
+		{
+			key = -1;
+			textures = nullptr;
+		}
+	};
+
+	enum class TextureFilter
+	{
+		NEAREST,
+		LINEAR
 	};
 }
 

@@ -42,7 +42,7 @@ namespace Duel6
 	{
 	private:
 		const Int16* animation;    // Source array of animations and delays
-		const GLuint* textures;   // Texture array
+		TextureList textures;   // Texture array
 		Size frame;    // Current animation frame
 		Float32 delay;    // Delay to next animation frame
 		Float32 speed;     // Speed of animation
@@ -60,7 +60,7 @@ namespace Duel6
 
 	public:
 		Sprite();
-		Sprite(const Int16* animation, const TextureManager::Texture& textures);
+		Sprite(const Int16* animation, const TextureList& textures);
 
 		Sprite& setPosition(const Vector& position, Float32 z)
 		{
@@ -77,9 +77,9 @@ namespace Duel6
 
 		Sprite& setAnimation(const Int16* animation);
 
-		Sprite& setTextures(const TextureManager::Texture& textures)
+		Sprite& setTextures(const TextureList& textures)
 		{
-			this->textures = &textures.getGlTextures()[0];
+			this->textures = textures;
 			return *this;
 		}
 
