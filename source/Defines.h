@@ -42,7 +42,7 @@
 #define D6_FILE_PLAYER_SOUNDS "sound/player/"
 
 #define D6_FILE_WATER_BLUE	"sound/game/water-blue.wav"
-#define D6_FILE_WATER_RED	"sound/game/water-blue.wav"
+#define D6_FILE_WATER_RED	"sound/game/water-red.wav"
 #define D6_FILE_WATER_GREEN "sound/game/water-green.wav"
 
 #define D6_FILE_PROFILE_SKIN   "skin.json"
