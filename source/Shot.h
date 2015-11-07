@@ -35,7 +35,7 @@ namespace Duel6
 {
 	class Player;
 	class World;
-	struct Weapon;
+	class Weapon;
 
 	class World;
 

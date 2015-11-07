@@ -55,12 +55,12 @@ namespace Duel6
 			return id;
 		}
 
-		operator==(const Texture& texture) const
+		bool operator==(const Texture& texture) const
 		{
 			return id == texture.id;
 		}
 
-		operator!=(const Texture& texture) const
+		bool operator!=(const Texture& texture) const
 		{
 			return id != texture.id;
 		}

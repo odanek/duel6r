@@ -48,7 +48,6 @@ namespace Duel6
 		Float32 speed;     // Speed of animation
 		AnimationLooping looping;   // Type of looping
 		Orientation orientation;   // Current orientation
-		Uint32 flags;  // Flags
 		Vector position;
 		Float32 z;
 		Vector size;

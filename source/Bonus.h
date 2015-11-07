@@ -36,7 +36,7 @@
 
 namespace Duel6
 {
-	struct Weapon; // Forward declaration, TODO: Remove
+	class Weapon;
 
 	/*
 	class BonusType
