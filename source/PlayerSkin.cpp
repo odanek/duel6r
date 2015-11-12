@@ -43,28 +43,6 @@ namespace Duel6
 		substTable[Color(180, 182, 0)] = colors.get(PlayerSkinColors::Shoes);
 		substTable[Color(255, 145, 172)] = colors.get(PlayerSkinColors::Face);
 
-		unsetOverlay();
-
-		textures = textureManager.load(texturePath, GL_NEAREST, true, substTable);
-	}
-
-	PlayerSkin::~PlayerSkin()
-	{
-		textures.dispose();
-	}
-
-	void PlayerSkin::unsetOverlay()
-	{
-		this->overlay = Color(0, 0, 0, 0);
-	}
-
-	void PlayerSkin::setOverlay(Color overlay)
-	{
-		this->overlay = overlay;
-	}
-
-	Color PlayerSkin::getOverlay()
-	{
-		return overlay;
+		textures = textureManager.load(texturePath, TextureFilter::NEAREST, true, substTable);
 	}
 }

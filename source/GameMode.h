@@ -31,17 +31,25 @@
 #include <string>
 #include <vector>
 #include "Player.h"
+#include "Game.h"
 #include "World.h"
+#include "Ranking.h"
 
 namespace Duel6
 {
     class GameMode
     {
     public:
-        virtual std::string getName() = 0;
-        virtual void initialize(World& world, Game& game) = 0;
-        virtual void preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers) = 0;
-        virtual bool checkRoundOver(World& world, std::vector<Player*>& alivePlayers) = 0;
+		virtual ~GameMode() {};
+
+        virtual std::string getName() const = 0;
+
+		virtual void initializePlayers(std::vector<Game::PlayerDefinition>& definitions) = 0;
+		virtual void initializeGame(Game& game, std::vector<Player>& players) = 0;
+		virtual void initializeRound(Game& game, std::vector<Player>& players, World& world) = 0;
+
+        virtual bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) = 0;
+		virtual Ranking getRanking(const std::vector<Player>& players) const = 0;
     };
 }
 #endif

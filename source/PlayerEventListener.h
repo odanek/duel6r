@@ -28,17 +28,13 @@
 #ifndef DUEL6_PLAYEREVENTLISTENER_H
 #define DUEL6_PLAYEREVENTLISTENER_H
 
-#include "Type.h"
+#include "InfoMessageQueue.h"
 #include "GameSettings.h"
+#include "Player.h"
+#include "Shot.h"
 
 namespace Duel6
 {
-
-    class Player;
-    class InfoMessageQueue;
-    class Shot;
-    class GameSettings;
-
     class PlayerEventListener
     {
     protected:
@@ -46,7 +42,6 @@ namespace Duel6
         const GameSettings& gameSettings;
 
     public:
-
         PlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings)
             : messageQueue(messageQueue), gameSettings(gameSettings)
         { }
@@ -70,7 +65,7 @@ namespace Duel6
         //TODO: Environment type (eg. water, lava, bonus)
         virtual void onKillByEnv(Player &player);
 
-        virtual void onSuicide(Player &player, int otherKilledPlayers);
+        virtual void onSuicide(Player &player, Size otherKilledPlayers);
 
         virtual void onRoundWin(Player& player);
     };

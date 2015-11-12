@@ -42,7 +42,7 @@
 #define D6_FILE_PLAYER_SOUNDS "sound/player/"
 
 #define D6_FILE_WATER_BLUE	"sound/game/water-blue.wav"
-#define D6_FILE_WATER_RED	"sound/game/water-blue.wav"
+#define D6_FILE_WATER_RED	"sound/game/water-red.wav"
 #define D6_FILE_WATER_GREEN "sound/game/water-green.wav"
 
 #define D6_FILE_PROFILE_SKIN   "skin.json"
@@ -76,7 +76,6 @@
 #define D6_CAM_TOLPER_Y         30
 
 #define D6_BONUS_COUNT			12
-#define D6_WEAPONS				17
 
 #define D6_PLAYER_HPBAR         3.0f
 #define D6_PLAYER_HPREGEN_DELAY 6.0f

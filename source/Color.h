@@ -28,6 +28,7 @@
 #ifndef DUEL6_COLOR_H
 #define DUEL6_COLOR_H
 
+#include <string>
 #include <functional>
 #include "Type.h"
 
@@ -37,6 +38,16 @@ namespace Duel6
 	{
 	private:
 		Uint8 color[4];
+
+	public:
+		static const Color BLACK;
+		static const Color WHITE;
+		static const Color RED;
+		static const Color GREEN;
+		static const Color BLUE;
+		static const Color CYAN;
+		static const Color MAGENTA;
+		static const Color YELLOW;
 
 	public:
 		Color()

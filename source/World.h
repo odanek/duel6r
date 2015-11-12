@@ -33,6 +33,8 @@
 #include "LevelRenderData.h"
 #include "Explosion.h"
 #include "Fire.h"
+#include "ShotList.h"
+#include "BonusList.h"
 
 namespace Duel6
 {
@@ -46,11 +48,11 @@ namespace Duel6
 		LevelRenderData levelRenderData;
 		InfoMessageQueue messageQueue;
 		SpriteList spriteList;
+		ShotList shotList;
 		ExplosionList explosionList;
 		FireList fireList;
-		const Water::WaterSet& waterSet;
 		Size background;
-		// Bonus list
+		BonusList bonusList;
 
 	public:
 		World(Game& game, const std::string& levelPath, bool mirror, Size background);
@@ -108,6 +110,16 @@ namespace Duel6
 			return spriteList;
 		}
 
+		ShotList& getShotList()
+		{
+			return shotList;
+		}
+
+		const ShotList& getShotList() const
+		{
+			return shotList;
+		}
+
 		ExplosionList& getExplosionList()
 		{
 			return explosionList;
@@ -128,14 +140,19 @@ namespace Duel6
 			return fireList;
 		}
 
-		const Water::WaterSet& getWaterSet() const
+		Size getBackground() const
 		{
-			return waterSet;
+			return background;
 		}
 
-		GLuint getBackground() const
+		BonusList& getBonusList()
 		{
-			return (GLuint)background;
+			return bonusList;
+		}
+
+		const BonusList& getBonusList() const
+		{
+			return bonusList;
 		}
 
 	private:

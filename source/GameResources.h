@@ -38,22 +38,17 @@ namespace Duel6
 	class GameResources
 	{
 	private:
-		Water::WaterSet waterSet;
 		Block::Meta blockMeta;
 		Sound::Sample gameOverSound;
 		Sound::Sample roundStartSound;
-		TextureManager::Texture blockTextures;
-		TextureManager::Texture bcgTextures;
-		TextureManager::Texture explosionTextures;
-		std::unordered_map<Size, TextureManager::Texture> fireTextures;
+		TextureList blockTextures;
+		TextureList bcgTextures;
+		TextureList explosionTextures;
+		TextureList bonusTextures;
+		std::unordered_map<Size, TextureList> fireTextures;
 
 	public:
 		GameResources(AppService& appService);
-
-		const Water::WaterSet& getWaterSet() const
-		{
-			return waterSet;
-		}
 
 		const Block::Meta& getBlockMeta() const
 		{
@@ -70,22 +65,27 @@ namespace Duel6
 			return roundStartSound;
 		}
 
-		const TextureManager::Texture& getBlockTextures() const
+		const TextureList& getBlockTextures() const
 		{
 			return blockTextures;
 		}
 
-		const TextureManager::Texture& getBcgTextures() const
+		const TextureList& getBcgTextures() const
 		{
 			return bcgTextures;
 		}
 
-		const TextureManager::Texture& getExplosionTextures() const
+		const TextureList& getExplosionTextures() const
 		{
 			return explosionTextures;
 		}
 
-		const std::unordered_map<Size, TextureManager::Texture>& getFireTextures() const
+		const TextureList& getBonuseTextures() const
+		{
+			return bonusTextures;
+		}
+
+		const std::unordered_map<Size, TextureList>& getFireTextures() const
 		{
 			return fireTextures;
 		}

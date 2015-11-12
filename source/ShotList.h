@@ -25,31 +25,31 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_GUICONTEXT_H
-#define DUEL6_GUI_GUICONTEXT_H
+#ifndef DUEL6_SHOTLIST_H
+#define DUEL6_SHOTLIST_H
 
-#include "MouseState.h"
+#include <memory>
+#include <list>
+#include "Shot.h"
+#include "Orientation.h"
 
 namespace Duel6
 {
-	namespace Gui
+	class World;
+
+	class ShotList
 	{
-		class GuiContext
-		{
-		private:
-			MouseState mouseState;
+	private:
+		typedef std::unique_ptr<Shot> ShotPointer;
 
-		public:
-			GuiContext(const MouseState& mouseState)
-				: mouseState(mouseState)
-			{}
+	private:
+		std::list<ShotPointer> shots;
 
-			const MouseState& getMouseState() const
-			{
-				return mouseState;
-			}
-		};
-	}
+	public:
+		ShotList();
+		void addShot(ShotPointer&& shot);
+		void update(World& world, Float32 elapsedTime);
+	};
 }
 
 #endif

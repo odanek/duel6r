@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2)
 
 ############################################################################
 #
@@ -12,22 +12,24 @@ cmake_minimum_required(VERSION 2.6)
 project(Duel6r)
 
 #########################################################################
-# compilation details
+# Compiler flags
 #########################################################################
 
-# turn off some warnings under msc
+# visual studio
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")    
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
 endif(MSVC)
 
-# gnu compiler
-if(CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-result -mfpmath=sse -msse2 -std=c++1y")
-	if(MINGW)
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
-	endif(MINGW)
-endif(CMAKE_COMPILER_IS_GNUCXX)
+# gnu compiler or clang
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -mfpmath=sse -msse2 -std=c++1y")
+endif(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+# MinGW
+if(MINGW)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
+endif(MINGW)
 
 # platform-independent debug macro
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
@@ -56,6 +58,7 @@ set(D6R_SOURCES
     source/BonusList.h
     source/BonusList.cpp
     source/Color.h
+    source/Color.cpp
     source/ConsoleCommands.h
     source/ConsoleCommands.cpp
     source/Context.h
@@ -98,8 +101,6 @@ set(D6R_SOURCES
     source/Input.h
     source/Input.cpp
     source/IoException.h
-    source/Lang.h
-    source/Lang.cpp
     source/Level.h
     source/Level.cpp
     source/LevelList.h
@@ -130,6 +131,7 @@ set(D6R_SOURCES
 	source/PlayerSkinColors.cpp
 	source/PlayerSounds.h
 	source/PlayerSounds.cpp
+    source/Ranking.h
 	source/Rectangle.h
     source/Render.h
     source/Render.cpp
@@ -137,7 +139,8 @@ set(D6R_SOURCES
     source/Round.cpp
     source/ScreenMode.h
     source/Shot.h
-    source/Shot.cpp
+    source/ShotList.h
+    source/ShotList.cpp
     source/Sound.cpp
     source/Sound.h
     source/SoundException.h
@@ -145,6 +148,8 @@ set(D6R_SOURCES
     source/Sprite.cpp
     source/SpriteList.h
     source/SpriteList.cpp
+    source/SysEvent.h
+    source/Texture.h
     source/TextureManager.h
     source/TextureManager.cpp
     source/Type.h
@@ -192,19 +197,29 @@ set(D6R_SOURCES
 	source/gui/Control.cpp
 	source/gui/Desktop.h
 	source/gui/Desktop.cpp
-	source/gui/Event.h
-	source/gui/GuiContext.h
 	source/gui/Label.h
 	source/gui/Label.cpp
 	source/gui/ListBox.h
 	source/gui/ListBox.cpp
-	source/gui/MouseState.h
 	source/gui/Slider.h
 	source/gui/Slider.cpp
 	source/gui/Spinner.h
 	source/gui/Spinner.cpp
 	source/gui/TextBox.h
 	source/gui/TextBox.cpp
+
+    source/weapon/WeaponBase.h
+    source/weapon/WeaponBase.cpp
+    source/weapon/LegacyWeapon.h
+    source/weapon/LegacyWeapon.cpp
+    source/weapon/ShotBase.h
+    source/weapon/ShotBase.cpp
+    source/weapon/LegacyShot.h
+    source/weapon/LegacyShot.cpp
+    source/weapon/ShitThrower.h
+    source/weapon/ShitThrower.cpp
+    source/weapon/ShitThrowerShot.h
+    source/weapon/ShitThrowerShot.cpp
 
     source/collision/Collision.h
     source/collision/Collision.cpp
@@ -220,6 +235,8 @@ set(D6R_SOURCES
     
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
+    source/gamemodes/GameModeBase.h
+    source/gamemodes/GameModeBase.cpp
 	source/gamemodes/TeamDeathMatchPlayerEventListener.h
 	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
 	source/gamemodes/PredatorPlayerEventListener.h
@@ -243,6 +260,11 @@ set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 4.0.1 DEBUG_OUTPUT_NAME
 # External dependencies
 #########################################################################
 
+# Platform
+if (MINGW)
+    target_link_libraries(${D6R_APP_NAME} mingw32)
+endif(MINGW)
+
 # OpenGL
 if(WIN32)
     target_link_libraries(${D6R_APP_NAME} opengl32.lib)
@@ -255,10 +277,10 @@ else(WIN32) # Linux GCC
 endif(WIN32)
 
 # SDL
-if(NOT MINGW)
+if(NOT APPLE)
 	find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
 	include_directories(${HEADERS_SDL2})
-endif(NOT MINGW)
+endif(NOT APPLE)
 
 if(MSVC)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library (release version)")
@@ -271,11 +293,9 @@ if(MSVC)
         debug ${LIB_SDL2_MAIN_D} debug ${LIB_SDL2_D} debug ${LIB_SDL2_MIXER_D})
 elseif(APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
-    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
+    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})    
-elseif(MINGW)
-    target_link_libraries(${D6R_APP_NAME} mingw32 SDL2main SDL2 SDL2_mixer)
-else(MSVC) # Linux GCC
+else(MSVC) # GCC or MINGW
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")

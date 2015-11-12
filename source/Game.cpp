@@ -28,6 +28,7 @@
 #include "Sound.h"
 #include "Render.h"
 #include "Game.h"
+#include "GameMode.h"
 
 namespace Duel6
 {
@@ -42,6 +43,7 @@ namespace Duel6
 
 	void Game::beforeClose(Context* nextContext)
 	{
+		endRound();
 	}
 
 	void Game::render() const
@@ -51,18 +53,22 @@ namespace Duel6
 
 	void Game::update(Float32 elapsedTime)
 	{
-		if (getRound().isOver() && !getRound().isLast())
+		if (getRound().isOver())
 		{
-			nextRound();
-			return;
+			if (!getRound().isLast())
+			{
+				nextRound();
+			}
 		}
-
-		getRound().update(elapsedTime);
+		else
+		{
+			getRound().update(elapsedTime);
+		}
 	}
 
-	void Game::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
+	void Game::keyEvent(const KeyPressEvent& event)
 	{
-		if (keyCode == SDLK_ESCAPE && (isOver() || (keyModifiers & KMOD_SHIFT) != 0))
+		if (event.getCode() == SDLK_ESCAPE && (isOver() || event.withShift()))
 		{
 			close();
 			return;
@@ -70,7 +76,7 @@ namespace Duel6
 
 		if (!getRound().isLast())
 		{
-			if (keyCode == SDLK_F1 && (getRound().hasWinner() || (keyModifiers & KMOD_SHIFT) != 0))
+			if (event.getCode() == SDLK_F1 && (getRound().hasWinner() || event.withShift()))
 			{
 				nextRound();
 				return;
@@ -83,26 +89,39 @@ namespace Duel6
 			}
 		}
 
-		getRound().keyEvent(keyCode, keyModifiers);
+		getRound().keyEvent(event);
 	}
 
-	void Game::textInputEvent(const char* text)
-	{
-	}
+	void Game::textInputEvent(const TextInputEvent& event)
+	{}
+
+	void Game::mouseButtonEvent(const MouseButtonEvent& event)
+	{}
+
+	void Game::mouseMotionEvent(const MouseMotionEvent& event)
+	{}
 
 	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode)
 	{
-		appService.getConsole().printLine("\n=== Starting new game ===");
-		appService.getConsole().printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
+		Console& console = appService.getConsole();
+		console.printLine("\n=== Starting new game ===");
+		console.printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
 		TextureManager& textureManager = appService.getTextureManager();
 		players.clear();
+
+		for (auto& skin : skins)
+		{
+			textureManager.dispose(skin.getTextureList());
+		}
 		skins.clear();
-		
+
+		Size playerIndex = 0;
 		for (const PlayerDefinition& playerDef : playerDefinitions)
 		{
-			appService.getConsole().printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-			skins.push_back(std::make_unique<PlayerSkin>(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
-			players.push_back(Player(playerDef.getPerson(), *skins.back(), playerDef.getSounds(), playerDef.getControls()));
+			console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
+			skins.push_back(PlayerSkin(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
+			players.push_back(Player(playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls()));
+			playerIndex++;
 		}
 
 		this->levels = levels;
@@ -110,20 +129,27 @@ namespace Duel6
 		this->gameMode = &gameMode;
 		settings.setScreenMode(screenMode);
 		settings.setScreenZoom(screenZoom);
-
 		playedRounds = 0;
+
+		gameMode.initializeGame(*this, players);
+
 		nextRound();
 	}
 
 	void Game::nextRound()
 	{
+		if (playedRounds != 0)
+		{
+			endRound();
+		}
+
         Int32 level = rand() % Int32(levels.size());
 		const std::string levelPath = levels[level];
 		bool mirror = rand() % 2 == 0;
 		Size background = backgrounds[rand() % backgrounds.size()];
 
 		Console& console = appService.getConsole();
-		console.printLine(Format(D6_L("\n===Loading level {0}===")) << levelPath);
+		console.printLine(Format("\n===Loading level {0}===") << levelPath);
 		console.printLine(Format("...Parameters: mirror: {0}, background: {1}") << mirror << background);
 		round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror, background);
 
@@ -131,5 +157,13 @@ namespace Duel6
 		resources.getRoundStartSound().play();
 
 		renderer.initScreen();
+	}
+
+	void Game::endRound()
+	{
+		for (Player& player : players)
+		{
+			player.endRound();
+		}
 	}
 }

@@ -31,21 +31,21 @@
 
 namespace Duel6
 {
-	Bonus::Bonus(const Vector& position, Size type, GLuint texture)
+	Bonus::Bonus(const Vector& position, Size type, Texture texture)
 		: position(position), type(type), weapon(false), weaponType(nullptr), bullets(0), texture(texture)
 	{}
 
 	Bonus::Bonus(const Vector& position, const Weapon& weaponType, Int32 bullets)
 		: position(position), type(0), weapon(true), weaponType(&weaponType), bullets(bullets)
 	{
-		texture = weaponType.textures.gun.getGlTextures()[weaponType.animation[12]];
+		texture = weaponType.getBonusTexture();
 	}
 
 	void Bonus::render() const
 	{
 		Vector pos = getSpritePosition();
 
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, texture.getId());
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.1f, 0.1f); glVertex3f(pos.x, pos.y + 1, 0.5f);
 			glTexCoord2f(0.9f, 0.1f); glVertex3f(pos.x + 1.0f, pos.y + 1, 0.5f);

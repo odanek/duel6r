@@ -92,37 +92,31 @@ namespace Duel6
 			y = Y;
 		}
 
-		void Spinner::check(const GuiContext& context)
+		void Spinner::update(Float32 elapsedTime)
 		{
-			static Int32 pWait = 0;
-			bool change = false;
-
-			if (pWait)
-				pWait--;
-
-			if (left->isPressed() && !pWait)
+			if (!left->isPressed() && !right->isPressed())
 			{
-				pWait = 120;  // TODO: Fix, hack to wait 2 seconds
-				if (now > 0)
-				{
-					now--;
-					change = true;
-				}
+				repeatWait = 0.0f;
 			}
-
-			if (right->isPressed() && !pWait)
+			else
 			{
-				pWait = 120;  // TODO: Fix, hack to wait 2 seconds
-				if (now + 1 < (int)items.size())
+				if (repeatWait > 0.0f)
 				{
-					now++;
-					change = true;
+					repeatWait -= elapsedTime;
 				}
-			}
-
-			if (change)
-			{
-				// EventType::Change;
+				else
+				{
+					if (left->isPressed() && now > 0)
+					{
+						repeatWait = 0.3f;
+						now--;
+					}
+					if (right->isPressed() && now + 1 < (Int32)items.size())
+					{
+						repeatWait = 0.3f;
+						now++;
+					}
+				}
 			}
 		}
 

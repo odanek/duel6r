@@ -42,12 +42,12 @@ namespace Duel6
 			Button *left, *right;
 			Int32 width, now;
 			std::vector<std::string> items;
+			Float32 repeatWait;
 
 		public:
 			Spinner(Desktop& desk);
 			~Spinner();
-			void check(const GuiContext& context) override;
-			void draw(const Font& font) const override;
+
 			void setPosition(int X, int Y, int W, int H);
 			void addItem(const std::string& item);
 			void delItem(int n);
@@ -59,6 +59,10 @@ namespace Duel6
 			{
 				return Control::Type::Switchbox;
 			}
+
+		protected:
+			void update(Float32 elapsedTime) override;
+			void draw(const Font& font) const override;
 		};
 
 	}

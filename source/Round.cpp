@@ -29,16 +29,18 @@
 #include "Game.h"
 #include "GameException.h"
 #include "Util.h"
+#include "GameMode.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
 	Round::Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background)
 		: game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background),
-		  deathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
+		  suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
 		  winner(false)
 	{
-        game.getMode().initialize(world, game);
 		preparePlayers();
+		game.getMode().initializeRound(game, players, world);
 	}
 
 	void Round::splitScreenView(Player& player, Int32 x, Int32 y)
@@ -150,21 +152,20 @@ namespace Duel6
 
 	void Round::preparePlayers()
 	{
-		game.getAppService().getConsole().printLine(D6_L("...Preparing players"));
+		game.getAppService().getConsole().printLine("...Preparing players");
 		std::queue<std::pair<Int32, Int32>> startingPositions;
 		findStartingPositions(startingPositions);
 
-		std::vector<Player>& players = world.getPlayers();
-	    for (Uint32 i=0; i < players.size(); i++)
+		auto& players = world.getPlayers();
+		Size playerIndex = 0;
+	    for (Player& player : players)
 		{
-			Player& player = players.at(i);
-
 			auto& ammoRange = game.getSettings().getAmmoRange();
 			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
 			std::pair<Int32, Int32>& position = startingPositions.front();
-			player.startGame(world, position.first, position.second, ammo);
+			player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
 			startingPositions.pop();
-			game.getMode().preparePlayer(player, i, players);
+			playerIndex++;
 		}
 
 		setPlayerViews();
@@ -179,14 +180,14 @@ namespace Duel6
         // todo: rewrite to copy_if if it is possible to do it that way without billion lines of compile errors:-)
         for (Player& player : allPlayers)
         {
-            if (!player.isDead())
+            if (player.isAlive())
             {
                 alivePlayers.push_back(&player);
             }
         }
         if (alivePlayers.size() == 2 && allPlayers.size() > 2)
         {
-            deathMode = true;
+            suddenDeathMode = true;
         }
 
 		if (game.getMode().checkRoundOver(world, alivePlayers))
@@ -201,12 +202,11 @@ namespace Duel6
 	void Round::update(Float32 elapsedTime)
 	{
 		// Check if there's a winner
-		if (!winner)
+		if (!hasWinner())
 		{
 			checkWinner();
 		}
-
-		if (hasWinner())
+		else
 		{
 			gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
 			if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT))
@@ -218,11 +218,15 @@ namespace Duel6
 		for (Player& player : world.getPlayers())
 		{
 			player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+			if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost())
+			{
+				player.makeGhost();
+			}
 		}
 
 		world.update(elapsedTime);
 
-		if (deathMode)
+		if (suddenDeathMode)
 		{
 			waterFillWait += elapsedTime;
 			if(waterFillWait > D6_RAISE_WATER_WAIT)
@@ -235,25 +239,25 @@ namespace Duel6
 		showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
 	}
 
-	void Round::keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers)
+	void Round::keyEvent(const KeyPressEvent& event)
 	{
 		// Switch between fullscreen and split screen mode
-		if (keyCode == SDLK_F2 && world.getPlayers().size() < 5)
+		if (event.getCode() == SDLK_F2 && world.getPlayers().size() < 5)
 		{
 			switchScreenMode();
 		}
 
 		// Turn on/off player statistics
-		if (keyCode == SDLK_F4)
+		if (event.getCode() == SDLK_F4)
 		{
 			game.getSettings().setShowRanking(!game.getSettings().isShowRanking());
 		}
 
 		// Save screenshot
-		if (keyCode == SDLK_F10)
+		if (event.getCode() == SDLK_F10)
 		{
 			std::string name = Util::saveScreenTga(game.getAppService().getVideo());
-			game.getAppService().getConsole().printLine(Format(D6_L("Screenshot saved to {0}")) << name);
+			game.getAppService().getConsole().printLine(Format("Screenshot saved to {0}") << name);
 		}
 	}
 

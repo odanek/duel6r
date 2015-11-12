@@ -29,4 +29,31 @@
 
 namespace Duel6
 {
+	GameSettings::GameSettings()
+		: ammoRange(15, 15), maxRounds(0), screenMode(ScreenMode::FullScreen),
+		  screenZoom(13), wireframe(false), showFps(false), showRanking(true), ghostMode(false)
+	{}
+
+	GameSettings& GameSettings::enableWeapon(const Weapon& weapon, bool enable)
+	{
+		if (enable)
+		{
+			enabledWeapons.insert(weapon);
+		}
+		else
+		{
+			enabledWeapons.erase(weapon);
+		}
+		return *this;
+	}
+
+	bool GameSettings::isWeaponEnabled(const Weapon& weapon) const
+	{
+		return enabledWeapons.find(weapon) != enabledWeapons.end();
+	}
+
+	const GameSettings::EnabledWeapons& GameSettings::getEnabledWeapons() const
+	{
+		return enabledWeapons;
+	}
 }

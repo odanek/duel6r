@@ -231,24 +231,23 @@ namespace Duel6
 		setInputScroll();
 	}
 
-	void Console::textInputEvent(const char* text)
+	void Console::textInputEvent(const std::string& text)
 	{
-		while (*text != 0)
+		for (auto iter = text.cbegin(); iter != text.cend(); ++iter)
 		{
-			if (*text >= ' ' && *text < 128 && *text != '`')
+			unsigned char letter = *iter;
+			if (letter >= ' ' && letter < 128 && letter != '`')
 			{
 				if (!insert || curpos == (int)input.length())
 				{
-					input.insert(input.begin() + curpos, *text);
+					input.insert(input.begin() + curpos, letter);
 					++curpos;
 				}
 				else
 				{
-					input[curpos++] = *text;
+					input[curpos++] = letter;
 				}
 			}
-
-			text++;
 		}
 	}
 }

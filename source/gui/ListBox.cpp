@@ -26,13 +26,14 @@
 */
 
 #include <SDL2/SDL_opengl.h>
+#include <algorithm>
 #include "ListBox.h"
 
 namespace Duel6
 {
 	namespace Gui
 	{
-		Listbox::Listbox(Desktop& desk, bool sb)
+		ListBox::ListBox(Desktop& desk, bool sb)
 			: Control(desk)
 		{
 			listPos.items = 0;
@@ -46,77 +47,94 @@ namespace Duel6
 			}
 		}
 
-		Listbox::~Listbox()
+		ListBox::~ListBox()
 		{
 			clear();
 		}
 
-		void Listbox::clear()
+		ListBox& ListBox::clear()
 		{
 			items.clear();
 			listPos.items = 0;
 			listPos.start = 0;
 			selected = -1;
+			return *this;
 		}
 
-		Int32 Listbox::selectedIndex() const
+		Int32 ListBox::selectedIndex() const
 		{
 			return selected;
 		}
 
-		const std::string& Listbox::selectedItem() const
+		const std::string& ListBox::selectedItem() const
 		{
 			return items[selected];
 		}
 
-		void Listbox::setCur(Int32 n)
+		ListBox& ListBox::selectItem(Int32 index)
 		{
-			selected = n;
-			listPos.start = selected - listPos.showCount / 2;
-		}
-
-		void Listbox::delItem(Int32 n)
-		{
-			if (!listPos.items || n < 0 || n >= listPos.items)
-				return;
-
-			items.erase(items.begin() + n);
-			listPos.items--;
-			if (selected >= listPos.items)
-				selected = listPos.items - 1;
-		}
-
-		void Listbox::delItem(const std::string& item)
-		{
-			for(Size i = 0; i < size(); i++)
+			if (index != selected)
 			{
-				if(item.compare(getItem(i)) == 0)
+				selected = index;
+				for (auto& listener : selectListeners)
 				{
-					delItem(i);
-					return;
+					listener(*this, index, items[index]);
 				}
 			}
+			return *this;
 		}
 
-		void Listbox::addItem(const std::string& item)
+		ListBox& ListBox::scrollToView(Int32 index)
+		{
+			listPos.start = selected - listPos.showCount / 2;
+			return *this;
+		}
+
+		ListBox& ListBox::removeItem(Int32 index)
+		{
+			if (index >= 0 && index < listPos.items)
+			{
+				items.erase(items.begin() + index);
+				listPos.items--;
+				if (selected >= listPos.items) {
+					selected = listPos.items - 1;
+				}
+			}
+			return *this;
+		}
+
+		ListBox& ListBox::removeItem(const std::string& item)
+		{
+			auto iter = std::find(items.begin(), items.end(), item);
+			if (iter != items.end())
+			{
+				removeItem(iter - items.begin());
+			}
+			return *this;
+		}
+
+		ListBox& ListBox::addItem(const std::string& item)
 		{
 			listPos.items++;
 			items.push_back(item);
 			if (listPos.items == 1)
+			{
 				selected = 0;
+			}
+			return *this;
 		}
 
-		const std::string& Listbox::getItem(Size n) const
+		const std::string& ListBox::getItem(Size index) const
 		{
-			return items.at(n);
+			return items.at(index);
 		}
 
-		Size Listbox::size() const
+		Size ListBox::size() const
 		{
 			return items.size();
 		}
 
-		void Listbox::setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight)
+		ListBox& ListBox::setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight)
 		{
 			this->x = x + 2;
 			this->y = y - 2;
@@ -128,22 +146,26 @@ namespace Duel6
 			{
 				slider->setPosition(x + (width << 3) + 4, y, height * itemHeight + 4);
 			}
+			return *this;
 		}
 
-		void Listbox::check(const GuiContext& context)
+		void ListBox::mouseButtonEvent(const MouseButtonEvent& event)
 		{
-			const MouseState& ms = context.getMouseState();
-
-			if (ms.isPressed() && ms.isInside(x, y, width, height))
+			if (items.size() > 0 && Control::mouseIn(event, x, y, width, height) && event.getButton() == SysEvent::MouseButton::LEFT && event.isPressed())
 			{
-				selected = listPos.start + ((y - ms.getY()) / itemHeight);
-				if (selected >= listPos.items)
-					selected = listPos.items - 1;
-				// Event: Change
+				Int32 itemIndex = std::min(std::max(listPos.start + ((y - event.getY()) / itemHeight), 0), listPos.items - 1);
+				selectItem(itemIndex);
+				if (event.isDoubleClick())
+				{
+					for (auto& listener : doubleClickListeners)
+					{
+						listener(*this, itemIndex, items[itemIndex]);
+					}
+				}
 			}
 		}
 
-		void Listbox::draw(const Font& font) const
+		void ListBox::draw(const Font& font) const
 		{
 			Int32 Y, i, shift;
 

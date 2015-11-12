@@ -25,19 +25,25 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LANG_H
-#define DUEL6_LANG_H
+#ifndef DUEL6_SHOTBASE_H
+#define DUEL6_SHOTBASE_H
 
-#include <string>
-
-#define D6_L(x) Duel6::Lang::Translate(x)
+#include "../Shot.h"
 
 namespace Duel6
 {
-	class Lang
+	class ShotBase : public Shot
 	{
+	protected:
+		const Weapon& weapon;
+		Player& player;
+
 	public:
-		static std::string Translate(const char* str);
+		ShotBase(const Weapon& weapon, Player& player);
+
+		Player& getPlayer() override;
+		const Player& getPlayer() const override;
+		const Weapon& getWeapon() const override;
 	};
 }
 

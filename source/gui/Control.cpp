@@ -43,7 +43,7 @@ namespace Duel6
 			desk.addControl(this);
 		}
 
-		void Control::drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p) const
+		void Control::drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p)
 		{
 			w--;
 			h--;

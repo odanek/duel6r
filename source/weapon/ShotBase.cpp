@@ -25,51 +25,26 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_EVENT_H
-#define DUEL6_GUI_EVENT_H
-
-#include "Control.h"
+#include "ShotBase.h"
 
 namespace Duel6
 {
-	namespace Gui
+	ShotBase::ShotBase(const Weapon& weapon, Player& player)
+		: weapon(weapon), player(player)
+	{}
+
+	Player& ShotBase::getPlayer()
 	{
-		class Event
-		{
-		public:
-			typedef std::function<void(const Event&)> Callback;
+		return player;
+	}
 
-		public:
-			enum class Type
-			{
-				None,
-				Pressed,
-				Change,
-				Released,
-				Active,
-				Click
-			};
+	const Player& ShotBase::getPlayer() const
+	{
+		return player;
+	}
 
-		private:
-			Control& sender;
-			Type type;
-
-		public:
-			Event(Control& sender, Type type)
-					: sender(sender), type(type)
-			{}
-
-			Control& getSender() const
-			{
-				return sender;
-			}
-
-			Type getType() const
-			{
-				return type;
-			}
-		};
+	const Weapon& ShotBase::getWeapon() const
+	{
+		return weapon;
 	}
 }
-
-#endif

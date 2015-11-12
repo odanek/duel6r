@@ -28,9 +28,10 @@
 #ifndef DUEL6_CONTEXT_H
 #define DUEL6_CONTEXT_H
 
+#include <string>
 #include <stack>
-#include <SDL2/SDL_keycode.h>
 #include "Type.h"
+#include "SysEvent.h"
 
 namespace Duel6
 {
@@ -64,8 +65,10 @@ namespace Duel6
 			return (this == &context);
 		}
 
-		virtual void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) = 0;
-		virtual void textInputEvent(const char* text) = 0;
+		virtual void keyEvent(const KeyPressEvent& event) = 0;
+		virtual void textInputEvent(const TextInputEvent& event) = 0;
+		virtual void mouseButtonEvent(const MouseButtonEvent& event) = 0;
+		virtual void mouseMotionEvent(const MouseMotionEvent& event) = 0;
 		virtual void update(Float32 elapsedTime) = 0;
 		virtual void render() const = 0;
 

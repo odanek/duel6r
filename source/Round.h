@@ -32,6 +32,7 @@
 #include <queue>
 #include "Player.h"
 #include "World.h"
+#include "SysEvent.h"
 
 namespace Duel6
 {
@@ -43,19 +44,18 @@ namespace Duel6
 		Game& game;
 		Int32 roundNumber;
 		World world;
-		bool deathMode;
+		bool suddenDeathMode;
 		Float32 waterFillWait;
 		Float32 showYouAreHere;
 		Float32 gameOverWait;
 		bool winner;
         std::vector<Player*> alivePlayers;
 
-
     public:
 		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background);
 
 		void update(Float32 elapsedTime);
-		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
+		void keyEvent(const KeyPressEvent& event);
 
 		const World& getWorld() const
 		{

@@ -26,25 +26,30 @@
 */
 
 #include "TeamDeathMatchPlayerEventListener.h"
-#include "../Player.h"
-#include "../InfoMessageQueue.h"
 
 namespace Duel6
 {
-	bool TeamDeathMatchPlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit)
+	bool TeamDeathMatchPlayerEventListener::onDamageByShot(Player& player, Player& shootingPlayer, Float32 amount, Shot& shot, bool directHit)
 	{
-
-		if (!friendlyFire && player.hasTeam(shootingPlayer.getTeam()))
+		if (!friendlyFire && &player != &shootingPlayer)
 		{
-			return false;
+			const Team* playerTeam = teamMap.at(&player);
+			const Team* shooterTeam = teamMap.at(&shootingPlayer);
+			if (playerTeam == shooterTeam)
+			{
+				return false;
+			}
 		}
 
 		return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
 	}
 
-	void TeamDeathMatchPlayerEventListener::onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide)
+	void TeamDeathMatchPlayerEventListener::onKillByPlayer(Player& player, Player& killer, Shot& shot, bool suicide)
 	{
-		if (!suicide && player.hasTeam(killer.getTeam()))
+		const Team* playerTeam = teamMap.at(&player);
+		const Team* killerTeam = teamMap.at(&killer);
+
+		if (!suicide && playerTeam == killerTeam)
 		{
 			messageQueue.add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
 			killer.getPerson().addPenalties(1);

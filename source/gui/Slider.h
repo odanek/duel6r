@@ -41,27 +41,37 @@ namespace Duel6
 		public:
 			struct Position
 			{
-				int items;
-				int start;
-				int showCount;
+				Int32 items;
+				Int32 start;
+				Int32 showCount;
 			};
 
 		private:
 			Position *pos;
 			Button *up, *down;
-			Int32 height, pWait;
+			Int32 height;
+			Float32 repeatWait;
 
 		public:
 			Slider(Desktop& desk);
 			void setPosition(int X, int Y, int H);
 			void connect(Position *to);
-			void draw(const Font& font) const override;
-			void check(const GuiContext& context) override;
 
 			Control::Type getType() const override
 			{
 				return Control::Type::Slider;
 			}
+
+		protected:
+			void draw(const Font& font) const override;
+			void update(Float32 elpasedTime) override;
+
+			void mouseButtonEvent(const MouseButtonEvent& event) override;
+			void mouseMotionEvent(const MouseMotionEvent& event) override;
+
+		protected:
+			Int32 getSliderHeight() const;
+			void scroll(Int32 mouseY);
 		};
 	}
 }

@@ -84,7 +84,7 @@ namespace Duel6
 
 		void Writer::writeToFile(const std::string& path, const Value& value)
 		{
-			File file(path, "wt");
+			File file(path, File::Mode::Text, File::Access::Write);
 			FileAppender appender(file);
 			write(appender, value, 0);
 		}

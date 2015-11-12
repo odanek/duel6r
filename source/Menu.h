@@ -69,13 +69,13 @@ namespace Duel6
 		LevelList levelList;
 		PersonList persons;
 		Gui::Button* button[7];
-		Gui::Listbox* listbox[7];
+		Gui::ListBox* listbox[7];
 		Gui::Label* label[8];
 		Gui::Spinner* controlSwitch[D6_MAX_PLAYERS];
 		Gui::Textbox* textbox;
 		Gui::Spinner* gameModeSwitch;
 		Size backgroundCount;
-		TextureManager::Texture menuBannerTexture;
+		TextureList menuBannerTexture;
 		Sound::Track menuTrack;
 		bool playMusic;
 
@@ -97,8 +97,10 @@ namespace Duel6
 
 		void savePersonData();
 
-		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers) override;
-		void textInputEvent(const char* text) override;
+		void keyEvent(const KeyPressEvent& event) override;
+		void textInputEvent(const TextInputEvent& event) override;
+		void mouseButtonEvent(const MouseButtonEvent& event) override;
+		void mouseMotionEvent(const MouseMotionEvent& event) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
 
@@ -123,7 +125,7 @@ namespace Duel6
 		void cleanPersonData();
 		void addPerson();
 		void deletePerson();
-		void addPlayer(Int32 c);
+		void addPlayer(Int32 index);
 		void removePlayer(Int32 c);
 		void rebuildTable();
 		bool question(const std::string& question);

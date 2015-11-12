@@ -29,20 +29,26 @@
 
 namespace Duel6
 {
-	Sprite::Sprite(const Int16* animation, const TextureManager::Texture& textures)
+	Sprite::Sprite()
 	{
-		this->animation = animation;
-		this->textures = &textures.getGlTextures()[0];
 		frame = 0;
 		delay = 0;
 		speed = 1;
 		looping = AnimationLooping::RepeatForever;
 		orientation = Orientation::Left;
-		flags = Draw;
+		visible = true;
+		noDepth = false;
+		finished = false;
 		size = Vector(1.0f, 1.0f);
 		grow = 0;
 		alpha = 1.0f;
-		unsetOverlay();
+	}
+
+	Sprite::Sprite(const Int16* animation, const TextureList& textures)
+		: Sprite()
+	{
+		this->animation = animation;
+		this->textures = textures;
 	}
 
 	Sprite& Sprite::setAnimation(const Int16* animation)
@@ -52,7 +58,7 @@ namespace Duel6
 			this->animation = animation;
 			delay = 0.0f;
 			frame = 0;
-			clearFlags(Finished);
+			finished = false;
 		}
 
 		return *this;
@@ -60,27 +66,13 @@ namespace Duel6
 
 	Sprite& Sprite::setDraw(bool draw)
 	{
-		if (draw)
-		{
-			addFlags(Draw);
-		}
-		else
-		{
-			clearFlags(Draw);
-		}
+		visible = draw;
 		return *this;
 	}
 
 	Sprite& Sprite::setNoDepth(bool depth)
 	{
-		if (depth)
-		{
-			addFlags(NoDepth);
-		}
-		else
-		{
-			clearFlags(NoDepth);
-		}
+		noDepth = depth;
 		return *this;
 	}
 
@@ -93,7 +85,7 @@ namespace Duel6
 			delay = 0;
 			if (animation[frame] == -1)
 			{
-				addFlags(Finished);
+				finished = true;
 
 				if (looping == AnimationLooping::RepeatForever)
 				{
@@ -116,7 +108,7 @@ namespace Duel6
 
 	void Sprite::render() const
 	{
-		if (!hasFlags(Draw))
+		if (!visible)
 		{
 			return;
 		}
@@ -129,18 +121,10 @@ namespace Duel6
 		GLfloat cur_col[4];
 		glGetFloatv(GL_CURRENT_COLOR, cur_col);
 
-		if (overlay == NO_OVERLAY)
-		{
-			glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
-		}
-		else
-		{
-            //TODO: Somme better way of overlaying the sprite with color?
-            //TODO: Overlay alpha does not work (currently is on or off)
-			glColor4f(overlay.getRed()/255.0f, overlay.getGreen()/255.0f, overlay.getBlue()/255.0f, overlay.getAlpha()/255.0f);
-		}
+		glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
 
-		glBindTexture(GL_TEXTURE_2D, textures[animation[frame]]);
+		Int32 textureIndex = animation[frame];
+		glBindTexture(GL_TEXTURE_2D, textures.at(textureIndex).getId());
 
 		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;
 
@@ -161,20 +145,5 @@ namespace Duel6
 		{
 			glEnable(GL_DEPTH_TEST);
 		}
-	}
-
-	void Sprite::addFlags(Uint32 flags)
-	{
-		this->flags |= flags;
-	}
-
-	void Sprite::clearFlags(Uint32 flags)
-	{
-		this->flags &= ~flags;
-	}
-
-	bool Sprite::hasFlags(Uint32 flags) const
-	{
-		return (this->flags & flags) == flags;
 	}
 }

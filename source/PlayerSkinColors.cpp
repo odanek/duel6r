@@ -30,6 +30,24 @@
 
 namespace Duel6
 {
+	PlayerSkinColors::PlayerSkinColors(const Color& color)
+	{
+		for (Size i = 0; i < 9; i++)
+		{
+			this->color[i] = color;
+		}
+	}
+
+	PlayerSkinColors& PlayerSkinColors::operator=(const PlayerSkinColors& colors)
+	{
+		for (Size i = 0; i < 9; i++)
+		{
+			this->color[i] = colors.color[i];
+		}
+		return *this;
+	}
+
+
 	PlayerSkinColors PlayerSkinColors::load(const std::string& profileRoot, const std::string& file)
 	{
 		Json::Parser parser;

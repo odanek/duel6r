@@ -28,6 +28,7 @@
 #include "BonusList.h"
 #include "ElevatorList.h"
 #include "Game.h"
+#include "GameMode.h"
 #include "Explosion.h"
 
 namespace Duel6
@@ -67,10 +68,10 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	void Renderer::background(GLuint texture) const
+	void Renderer::background(Texture texture) const
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, texture.getId());
 
 		glBegin(GL_QUADS);
 		glTexCoord2f(0, 0); glVertex2i(0, video.getScreen().getClientHeight());
@@ -82,36 +83,21 @@ namespace Duel6
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	std::vector<const Player *> Renderer::getRanking() const
-	{
-		std::vector<const Player*> ranking;
-
-		for (const Player& player : game.getPlayers())
-		{
-			ranking.push_back(&player);
-		}
-
-		std::sort(ranking.begin(), ranking.end(), [](const Player* pl1, const Player* pl2) {
-			return pl1->getPerson().hasHigherScoreThan(pl2->getPerson());
-		});
-		return ranking;
-	}
-
 	void Renderer::playerRankings() const
 	{
-		std::vector<const Player*> ladder = getRanking();
-		Size maxNameLength = 0;;
+		Ranking ranking = game.getMode().getRanking(game.getPlayers());
+		Int32 maxNameLength = 0;
 
-		for (const Player* player : ladder)
+		for (const auto& rankingEntry : ranking)
 		{
-			maxNameLength = std::max(maxNameLength, 5 + player->getPerson().getName().size());
+			maxNameLength = std::max(maxNameLength, Int32(5 + rankingEntry.name.size()));
 		}
 
 		const PlayerView& view = game.getPlayers().front().getView();
 		int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
 		int posY = view.getY() + view.getHeight() - 20;
 
-		for (const Player* player : ladder)
+		for (const auto& rankingEntry : ranking)
 		{			
 			glColor4f(0, 0, 1, 0.7f);
 			glEnable(GL_BLEND);
@@ -124,9 +110,9 @@ namespace Duel6
 			glEnd();
 			glDisable(GL_BLEND);			
 
-			Color fontColor(255, player->isDead() ? 0 : 255, 0);
-			font.print(posX, posY, fontColor, player->getPerson().getName());
-			font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << player->getPerson().getTotalPoints());
+			Color fontColor(rankingEntry.color);
+			font.print(posX, posY, fontColor, rankingEntry.name);
+			font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << rankingEntry.points);
 
 			posY -= 16;
 		}
@@ -160,14 +146,14 @@ namespace Duel6
         glEnd();
 		glDisable(GL_BLEND);
 
-        Color fontColor(255, 255, 255);
-        font.print(x + width / 2 - 35, y + height - 30, fontColor, D6_L("Round Over"));
+        Color fontColor = Color::WHITE;
+        font.print(x + width / 2 - 35, y + height - 30, fontColor, "Round Over");
 
         for (const Player& player : game.getPlayers())
         {
-            if (!player.isDead())
+            if (player.isAlive())
             {
-                font.print(x + 15, y + height - 70, fontColor, Format(D6_L("Winner is: {0}")) << player.getPerson().getName());
+                font.print(x + 15, y + height - 70, fontColor, Format("Winner is: {0}") << player.getPerson().getName());
                 break;
             }
         }
@@ -203,15 +189,17 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 
-		Color fontColor(255, 255, 255);
-		font.print(x + width / 2 - 35, y + height - 20, fontColor, D6_L("Game Over"));
+		Color fontColor = Color::WHITE;
+		font.print(x + width / 2 - 35, y + height - 20, fontColor, "Game Over");
 		
 		int count = 0;
 		int ladderY = y + height - 50;
-		for (const Player* player : getRanking())
+
+		Ranking ranking = game.getMode().getRanking(game.getPlayers());
+		for (const auto& rankingEntry : ranking)
 		{
-			font.print(x + 10, ladderY - 16*count, fontColor, player->getPerson().getName());
-			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << player->getPerson().getTotalPoints());
+			font.print(x + 10, ladderY - 16*count, fontColor, rankingEntry.name);
+			font.print(x + width - 40, ladderY - 16*count, fontColor, Format("{0,4}") << rankingEntry.points);
 			count++;
 		}
 	}
@@ -230,7 +218,7 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		font.print(x + 8, y, Color(255, 255, 255), Format(D6_L("Rounds: {0,3}|{1,3}")) << game.getPlayedRounds() << game.getSettings().getMaxRounds());
+		font.print(x + 8, y, Color::WHITE, Format("Rounds: {0,3}|{1,3}") << game.getPlayedRounds() << game.getSettings().getMaxRounds());
 	}
 
 	void Renderer::playerStatuses() const
@@ -254,7 +242,7 @@ namespace Duel6
 
 	void Renderer::playerStatus(const Player& player) const
 	{
-		Int32 alpha = 180, green = player.isDead() ? 0 : 1;
+		Int32 alpha = 180, green = player.isAlive() ? 1 : 0;
 		Int32 airBarLength = Int32((player.getAir() * 101) / D6_MAX_AIR);
 		Int32 lifeBarLength = Int32((player.getLife() * 101) / D6_MAX_LIFE);
 		Int32 reloadBarLength = 101 - Int32((player.getReloadTime() * 101) / player.getReloadInterval());
@@ -299,7 +287,7 @@ namespace Duel6
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextures().getGlTextures()[3]);
+			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextureList().at(3).getId());
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f); glVertex2i(ibp[0] + 3, ibp[1] + 1);
@@ -312,18 +300,9 @@ namespace Duel6
 		}
 
 		const std::string& playerName = player.getPerson().getName();
-		Color fontColor(0, 0, 255);
+		Color fontColor = Color::BLUE;
 		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
 		font.print(ibp[0] + 92 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
-
-
-		if (player.hasAnyTeam())
-		{
-			// Todo: Create color palette object like Colors.White, Colors.Blue etc.
-			Color whiteColor(255, 255, 255, 100);
-			std::string teamName = player.getTeam();
-			font.print(ibp[0] + 92 - 4 * teamName.length(), ibp[1] - 35, whiteColor, teamName);
-		}
 
 		if (player.getBonus() != -1)
 		{
@@ -331,7 +310,7 @@ namespace Duel6
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
-			glBindTexture(GL_TEXTURE_2D, BONUS_GetTexture(player.getBonus()));
+			glBindTexture(GL_TEXTURE_2D, game.getRound().getWorld().getBonusList().getTexture(player.getBonus()).getId()); // HACK, make proper Bonus object with methods
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);
@@ -370,7 +349,7 @@ namespace Duel6
 			glVertex2i(x - 1, y - 1);
 		glEnd();
 
-		font.print(x, y, Color(255, 255, 255), fpsCount);
+		font.print(x, y, Color::WHITE, fpsCount);
 	}
 
 	void Renderer::youAreHere() const
@@ -412,7 +391,7 @@ namespace Duel6
 
 		for (const Player& player : game.getPlayers())
 		{
-			if (!player.isDead() && player.getHPBarDuration() > 0)
+			if (player.isAlive() && player.getHPBarDuration() > 0)
 			{
 				Rectangle rect = player.getCollisionRect();
 				Float32 width = player.getLife() / D6_MAX_LIFE * rect.getSize().x;
@@ -458,7 +437,7 @@ namespace Duel6
 		glBegin(GL_POINTS);
 		for (const Player& player : game.getPlayers())
 		{
-			if (!player.isDead())
+			if (player.isAlive())
 			{
 				Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
 				Rectangle rect = player.getCollisionRect();
@@ -558,7 +537,7 @@ namespace Duel6
 		sprites(world.getLevelRenderData().getSprites());
 		ELEV_DrawAll();
 		world.getSpriteList().render();
-		BONUS_DrawAll();
+		world.getBonusList().render();
 		invulRings(game.getPlayers());
 		water(world.getLevelRenderData().getWater());
 		youAreHere();
@@ -595,7 +574,7 @@ namespace Duel6
 
 		const Player& player = game.getPlayers().front();
 		setView(player.getView());
-		background(game.getResources().getBcgTextures().getGlTextures()[game.getRound().getWorld().getBackground()]);
+		background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 		video.setMode(Video::Mode::Perspective);
 		view(player);		
 	}
@@ -607,13 +586,13 @@ namespace Duel6
 			video.setMode(Video::Mode::Orthogonal);
 			splitBox(player.getView());
 
-			if (player.isDead())
+			if (!player.isAlive())
 			{
 				glColor3f(1.0f, 0.5f, 0.5f);
 			}
 
 			setView(player.getView());
-			background(game.getResources().getBcgTextures().getGlTextures()[game.getRound().getWorld().getBackground()]);
+			background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 
 			video.setMode(Video::Mode::Perspective);
 			view(player);

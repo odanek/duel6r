@@ -66,8 +66,5 @@ namespace Duel6
 
 			font.print(x, y - 15, Color(0), text);
 		}
-
-		void Label::check(const GuiContext& context)
-		{}
 	}
 }

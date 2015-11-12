@@ -35,7 +35,8 @@ namespace Duel6
     {
         std::size_t operator()(const T& val) const
         {
-            return (std::size_t)(val);
+			std::hash<Size> standardHash;
+            return standardHash(Size(val));
         }
     };
 }

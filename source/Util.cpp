@@ -36,22 +36,23 @@ namespace Duel6
 {
 	namespace Util
 	{
-		GLuint createTexture(const Image& image, GLint filtering, bool clamp)
+		Texture createTexture(const Image& image, TextureFilter filtering, bool clamp)
 		{
-			GLuint texture;
-			glGenTextures(1, &texture);
-			glBindTexture(GL_TEXTURE_2D, texture);
+			GLuint textureId;
+			glGenTextures(1, &textureId);
+			glBindTexture(GL_TEXTURE_2D, textureId);
 			glTexImage2D(GL_TEXTURE_2D, 0, 4, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
 
 			//  gluBuild2DMipmaps(GL_TEXTURE_2D, 4, info.SizeX, info.SizeY, GL_RGBA, GL_UNSIGNED_BYTE, tgaData);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filtering);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
+			GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
 			// Clamp texture coordinates
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 
-			return texture;
+			return Texture(textureId);
 		}
 
 		static void readTgaColor(File& file, Color& color)
@@ -69,7 +70,7 @@ namespace Duel6
 
 		void loadTargaImage(const std::string& path, Image& image)
 		{
-			File file(path, "rb");
+			File file(path, File::Mode::Binary, File::Access::Read);
 
 			// Header
 			Uint16 header[9];
@@ -130,7 +131,7 @@ namespace Duel6
 
 		void saveTarga(const std::string& path, const Image& image)
 		{
-			File file(path, "wb");
+			File file(path, File::Mode::Binary, File::Access::Write);
 
 			// Header
 			Uint16 header[9] = { 0, 10, 0, 0, 0, 0, (Uint16)image.getWidth(), (Uint16)image.getHeight(), 0x18 };  // 0x2018

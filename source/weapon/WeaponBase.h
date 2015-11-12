@@ -25,12 +25,25 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Lang.h"
+#ifndef DUEL6_WEAPONBASE_H
+#define DUEL6_WEAPONBASE_H
+
+#include "../Weapon.h"
 
 namespace Duel6
 {
-	std::string Lang::Translate(const char* str)
+	class WeaponBase : public WeaponImpl
 	{
-		return std::string(str);
-	}
+	protected:
+		const std::string name;
+		const Float32 reloadInterval;
+
+	public:
+		WeaponBase(const std::string& name, Float32 reloadInterval);
+
+		std::string getName() const override;
+		Float32 getReloadInterval() const override;
+	};
 }
+
+#endif

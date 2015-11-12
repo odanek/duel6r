@@ -31,7 +31,11 @@
 #include <string>
 #include <vector>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+#if defined(__APPLE__)
+	#include <SDL2_mixer/SDL_mixer.h>
+#else
+	#include <SDL2/SDL_mixer.h>
+#endif
 #include "Type.h"
 #include "console/console.h"
 

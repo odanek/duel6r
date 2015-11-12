@@ -45,16 +45,14 @@ namespace Duel6
 		static const FireType BROAD_LEAVED_TREE;
 
 	private:
-		static std::vector<FireType> types;
+		static const std::vector<FireType> types;
 		Size id;
 		Size block;
 
 	private:
 		FireType(Size id, Size block)
 			: id(id), block(block)
-		{
-			types.push_back(*this);
-		}
+		{}
 
 	public:
 		static const std::vector<FireType>& values()
@@ -113,13 +111,14 @@ namespace Duel6
 	class FireList
 	{
 	private:
-		const std::unordered_map<Size, TextureManager::Texture>& textures;
+		SpriteList& spriteList;
+		const std::unordered_map<Size, TextureList>& textures;
 		std::vector<Fire> fires;
 
 	public:
-		FireList(const GameResources& resources);
+		FireList(const GameResources& resources, SpriteList& spriteList);
 		void find(FaceList& sprites);
-		void check(const Vector& explCentre, Float32 d, SpriteList& spriteList);
+		void check(const Vector& explCentre, Float32 d);
 	};
 }
 

@@ -55,13 +55,9 @@ namespace Duel6
 		PlayerSkinColors()
 		{}
 
-		PlayerSkinColors(const Color& color)
-		{
-			for (Size i = 0; i < 9; i++)
-			{
-				this->color[i] = color;
-			}
-		}
+		PlayerSkinColors(const Color& color);
+
+		PlayerSkinColors& operator=(const PlayerSkinColors& colors);
 
 		PlayerSkinColors& set(BodyPart bodyPart, const Color& color)
 		{

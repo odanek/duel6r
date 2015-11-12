@@ -40,26 +40,28 @@ namespace Duel6
 
 		console.printLine("\n===Initializing game resources===");
 		console.printLine("...Building water-list");
-		waterSet = Water::createWaterSet(sound, appService.getTextureManager());
+		Water::initialize(sound, appService.getTextureManager());
 		console.printLine("...Loading game sounds");
 		roundStartSound = sound.loadSample("sound/game/round-start.wav");
 		gameOverSound = sound.loadSample("sound/game/game-over.wav");
 		console.printLine(Format("...Loading block meta data: {0}") << D6_FILE_BLOCK_META);
 		blockMeta = Block::loadMeta(D6_FILE_BLOCK_META);
 		console.printLine(Format("...Loading block textures: {0}") << D6_TEXTURE_BLOCK_PATH);
-		blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, GL_LINEAR, true);
+		blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, TextureFilter::LINEAR, true);
 		console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
-		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, GL_LINEAR, true);
+		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, TextureFilter::LINEAR, true);
 		console.printLine(Format("...Loading explosion textures: {0}") << D6_TEXTURE_EXPL_PATH);
-		explosionTextures = textureManager.load(D6_TEXTURE_EXPL_PATH, GL_NEAREST, true);
+		explosionTextures = textureManager.load(D6_TEXTURE_EXPL_PATH, TextureFilter::NEAREST, true);
+		console.printLine(Format("...Loading bonus textures: {0}") << D6_TEXTURE_EXPL_PATH);
+		bonusTextures = textureManager.load(D6_TEXTURE_BONUS_PATH, TextureFilter::LINEAR, true);
 
 		console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
 		for (const FireType& fireType : FireType::values())
 		{
-			TextureManager::Texture texture = textureManager.load(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(), GL_LINEAR, true);
+			TextureList texture = textureManager.load(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(), TextureFilter::LINEAR, true);
 			fireTextures[fireType.getId()] = texture;
 
-			glBindTexture(GL_TEXTURE_2D, texture.getGlTextures()[2]);
+			glBindTexture(GL_TEXTURE_2D, texture.at(2).getId());
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}

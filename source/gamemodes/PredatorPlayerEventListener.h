@@ -25,26 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_INVISIBLEMANPLAYEREVENTLISTENER_H
-#define DUEL6_INVISIBLEMANPLAYEREVENTLISTENER_H
+#ifndef DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
+#define DUEL6_GAMEMODES_PREDATORPLAYEREVENTLISTENER_H
 
 #include "../Type.h"
 #include "../PlayerEventListener.h"
 
 namespace Duel6
 {
-    class PlayerEventListener;
-    class InfoMessageQueue;
-    class Player;
-    class Shot;
-    class GameSettings;
-
     class PredatorPlayerEventListener : public PlayerEventListener
     {
+	private:
+		Player& predator;
+
     public:
-        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings)
-                : PlayerEventListener(messageQueue, gameSettings)
-        { }
+        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player& predator)
+                : PlayerEventListener(messageQueue, gameSettings), predator(predator)
+        {}
 
         bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
     };

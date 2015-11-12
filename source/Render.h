@@ -64,7 +64,7 @@ namespace Duel6
 		void splitScreen() const;
 		void water(const FaceList& water) const;
 		void sprites(const FaceList& sprites) const;
-		void background(GLuint texture) const;
+		void background(Texture texture) const;
 		void playerRankings() const;
         void roundOverSummary() const;
 		void gameOverSummary() const;
@@ -79,7 +79,6 @@ namespace Duel6
 		void invulRing(const Player& player) const;
 		void splitBox(const PlayerView& view) const;
 		void infoMessages() const;
-		std::vector<const Player *> getRanking() const;
 		Color getGameOverOverlay() const;
 	};
 }

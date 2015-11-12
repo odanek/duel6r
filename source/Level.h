@@ -68,12 +68,19 @@ namespace Duel6
 			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
 		}
 
+		bool isWall(Float32 x, Float32 y, bool outside) const
+		{
+			Int32 ix = (Int32)floorf(x);
+			Int32 iy = (Int32)floorf(y);
+			return isWall(ix, iy, outside);
+		}
+
 		const Block& getBlockMeta(Int32 x, Int32 y) const
 		{
 			return blockMeta[getBlock(x, y)];
 		}
 
-		Water::Type getWaterType(Int32 x, Int32 y) const;
+		Water getWaterType(Int32 x, Int32 y) const;
 		void raiseWater();
 
 	private:

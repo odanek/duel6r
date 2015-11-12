@@ -31,7 +31,7 @@
 #include <SDL2/SDL_keycode.h>
 #include "../Font.h"
 #include "../Color.h"
-#include "GuiContext.h"
+#include "../SysEvent.h"
 
 namespace Duel6
 {
@@ -41,6 +41,8 @@ namespace Duel6
 
 		class Control
 		{
+			friend class Desktop;
+
 		public:
 			enum class Type
 			{
@@ -60,15 +62,7 @@ namespace Duel6
 			virtual ~Control()
 			{}
 
-			virtual void check(const GuiContext& context) = 0;
-			virtual void draw(const Font& font) const = 0;
 			virtual Type getType() const = 0;
-
-			virtual void keyEvent(SDL_Keycode keyCode)
-			{}
-
-			virtual void textInputEvent(const char* text)
-			{}
 
 			Int32 getX() const
 			{
@@ -81,7 +75,20 @@ namespace Duel6
 			}
 
 		protected:
-			void drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p) const;
+			virtual void update(Float32 elapsedTime) {}
+			virtual void draw(const Font& font) const = 0;
+
+			virtual void keyEvent(const KeyPressEvent& event) {}
+			virtual void textInputEvent(const TextInputEvent& event) {}
+			virtual void mouseMotionEvent(const MouseMotionEvent& event) {}
+			virtual void mouseButtonEvent(const MouseButtonEvent& event) {}
+
+		protected:
+			static void drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p);
+			static bool mouseIn(const MouseEvent& event, Int32 x, Int32 y, Int32 w, Int32 h)
+			{
+				return event.getX() >= x && event.getX() < x + w && event.getY() <= y && event.getY() > y - h;
+			}
 		};
 	}
 }

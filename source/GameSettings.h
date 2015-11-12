@@ -28,14 +28,19 @@
 #ifndef DUEL6_GAMESETTINGS_H
 #define DUEL6_GAMESETTINGS_H
 
+#include <unordered_set>
 #include <utility>
 #include "Type.h"
 #include "ScreenMode.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
 	class GameSettings
 	{
+	public:
+		typedef std::unordered_set<Weapon, Weapon::Hash> EnabledWeapons;
+
 	private:
 		std::pair<Int32, Int32> ammoRange;
 		Int32 maxRounds;
@@ -45,12 +50,10 @@ namespace Duel6
 		bool showFps;
 		bool showRanking;
 		bool ghostMode;
+		EnabledWeapons enabledWeapons;
 
 	public:
-		GameSettings()
-			: ammoRange(15, 15), maxRounds(0), screenMode(ScreenMode::FullScreen),
-			  screenZoom(13), wireframe(false), showFps(false), showRanking(true), ghostMode(true)
-		{}
+		GameSettings();
 
 		ScreenMode getScreenMode() const
 		{
@@ -107,7 +110,7 @@ namespace Duel6
 			return *this;
 		}
 
-		bool getGhostEnabled()
+		bool isGhostEnabled()
 		{
 			return this->ghostMode;
 		}
@@ -144,6 +147,10 @@ namespace Duel6
 			this->showRanking = showRanking;
 			return *this;
 		}
+
+		GameSettings& enableWeapon(const Weapon& weapon, bool enable);
+		bool isWeaponEnabled(const Weapon& weapon) const;
+		const EnabledWeapons& getEnabledWeapons() const;
 	};
 }
 

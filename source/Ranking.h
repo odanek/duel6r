@@ -25,47 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_MOUSESTATE_H
-#define DUEL6_GUI_MOUSESTATE_H
+#ifndef DUEL6_RANKING_H
+#define DUEL6_RANKING_H
 
-#include "../Type.h"
+#include <string>
+#include <vector>
+#include "Color.h"
 
 namespace Duel6
 {
-	namespace Gui
+	struct RankingEntry
 	{
-		class MouseState
-		{
-		private:
-			Int32 x, y;
-			bool buttonPressed;
+		std::string name;
+		Int32 points;
+		Color color;
+	};
 
-		public:
-			MouseState(Int32 x, Int32 y, bool buttonPressed)
-					: x(x), y(y), buttonPressed(buttonPressed)
-			{}
-
-			Int32 getX() const
-			{
-				return x;
-			}
-
-			Int32 getY() const
-			{
-				return y;
-			}
-
-			bool isPressed() const
-			{
-				return buttonPressed;
-			}
-
-			bool isInside(Int32 x, Int32 y, Int32 w, Int32 h) const
-			{
-				return this->x >= x && this->x < x + w && this->y <= y && this->y > y - h;
-			}
-		};
-	}
+	typedef std::vector<RankingEntry> Ranking;
 }
 
 #endif

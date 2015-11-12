@@ -74,10 +74,10 @@ namespace Duel6
 
 	void Level::raiseWater()
 	{
-		if(waterLevel < getHeight() - 2)
+		if(waterLevel < getHeight() - 1)
 		{
 			waterLevel++;
-			for(Int32 x = 1; x < getWidth() - 1; x++)
+			for(Int32 x = 0; x < getWidth(); x++)
 			{
 				if(!isWall(x, waterLevel, false))
 				{
@@ -100,29 +100,29 @@ namespace Duel6
 			}
 		}
 
-		Uint16 waterBlocks[] = { 4, 16, 33 };
+		static Uint16 waterBlocks[] = { 4, 16, 33 };
 		return waterBlocks[rand() % 3];
 	}
 
-	Water::Type Level::getWaterType(Int32 x, Int32 y) const
+	Water Level::getWaterType(Int32 x, Int32 y) const
 	{
 		if (isWater(x, y))
 		{
 			Uint16 block = getBlock(x, y);
 			if (block == 4)
 			{
-				return Water::Type::Blue;
+				return Water::BLUE;
 			}
 			else if (block == 16)
 			{
-				return Water::Type::Red;
+				return Water::RED;
 			}
 			else if (block == 33)
 			{
-				return Water::Type::Green;
+				return Water::GREEN;
 			}
 		}
 
-		return Water::Type::None;
+		return Water::NONE;
 	}
 }

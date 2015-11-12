@@ -26,77 +26,114 @@
 */
 
 #include "TeamDeathMatch.h"
-#include "../Game.h"
-#include "TeamDeathMatchPlayerEventListener.h"
 
 namespace Duel6
 {
 	namespace
 	{
-		// Predefined teams as a temporary solution
-		std::vector<std::string> TEAMS = {"Alpha", "Bravo", "Charlie", "Delta", "Echo"};
-		std::vector<Color> COLORS = { Color(255, 0, 0), Color(0, 255, 0), Color(0, 0, 255), Color(219, 216, 241), Color(115,137,186)};
+		std::vector<Team> TEAMS = {
+			{"Alpha", Color(255, 0, 0)},
+			{"Bravo", Color(0, 255, 0)},
+			{"Charlie", Color(255, 255, 0)},
+			{"Delta", Color(255, 0, 255)}
+		};
 	}
 
-	void TeamDeathMatch::preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers)
+	const Team& TeamDeathMatch::getPlayerTeam(Size playerIndex)
 	{
-		Int32 teamSize = std::max(0, (int)allPlayers.size() / teamsCount);
-		Int32 playerTeam = std::min(playerIndex / teamSize, teamsCount - 1);
-
-		// todo: add support for custom teams in future versions
-		std::string& teamName = TEAMS[playerTeam];
-		Color teamColor = COLORS[playerTeam];
-
-		player.setTeam(teamName);
-		player.setOverlay(teamColor);
-		player.setEventListener(*eventListener);
+		Size playerTeam = playerIndex % teamsCount;
+		return TEAMS[playerTeam];
 	}
 
-
-	bool TeamDeathMatch::checkRoundOver(World& world, std::vector<Player*>& alivePlayers)
+	void TeamDeathMatch::initializePlayers(std::vector<Game::PlayerDefinition>& definitions)
 	{
-		if (alivePlayers.size() == 0)
+		Size index = 0;
+		for (auto& definition : definitions)
+		{
+			const Team& team = getPlayerTeam(index);
+			PlayerSkinColors& colors = definition.getColors();
+			colors.set(PlayerSkinColors::Trousers, team.color);
+			colors.set(PlayerSkinColors::HairTop, team.color);
+			index++;
+		}
+	}
+
+	void TeamDeathMatch::initializeRound(Game& game, std::vector<Player>& players, World& world)
+	{
+		teamMap.clear();
+		Size index = 0;
+		for (auto& player : players)
+		{
+			const Team& team = getPlayerTeam(index);
+			teamMap.insert(std::make_pair(&player, &team));
+			index++;
+		}
+
+		eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(), friendlyFire, teamMap);
+		for (auto& player : players)
+		{
+			player.setEventListener(*eventListener);
+		}
+	}
+
+	bool TeamDeathMatch::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
+	{
+		if (alivePlayers.empty())
 		{
 			for (const Player& player : world.getPlayers())
 			{
-				world.getMessageQueue().add(player, D6_L("End of round - no winner"));
+				world.getMessageQueue().add(player, "End of round - no winner");
 			}
 			return true;
 		}
 
-		bool oneTeamRemaining = true;
-		std::string lastAliveTeam = "";
-
+		const Team* lastAliveTeam = teamMap.at(alivePlayers[0]);
 		for (Player *player : alivePlayers)
 		{
-			if (lastAliveTeam == "")
+			const Team* playerTeam = teamMap.at(player);
+			if (playerTeam != lastAliveTeam)
 			{
-				lastAliveTeam = player->getTeam();
-			}
-			else if (lastAliveTeam != player->getTeam())
-			{
-				oneTeamRemaining = false;
-				break;
+				return false;
 			}
 		}
 
-		if (oneTeamRemaining)
+		for(Player& player : world.getPlayers())
 		{
-			for(Player& player : world.getPlayers())
+			const Team* playerTeam = teamMap.at(&player);
+			if (playerTeam == lastAliveTeam)
 			{
-				if (player.hasTeam(lastAliveTeam))
-				{
-					world.getMessageQueue().add(player, Format("Team {0} won!") << lastAliveTeam);
-					player.getPerson().addWins(1);
-				}
+				world.getMessageQueue().add(player, Format("Team {0} won!") << lastAliveTeam->name);
+				player.getPerson().addWins(1);
 			}
 		}
 
-		return oneTeamRemaining;
+		return true;
 	}
 
-	void TeamDeathMatch::initialize(World& world, Game& game)
+	Ranking TeamDeathMatch::getRanking(const std::vector<Player>& players) const
 	{
-		eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(), friendlyFire);
+		Ranking ranking;
+
+		Size index = 0;
+		for (const auto& player : players)
+		{
+			Size teamIndex = index % teamsCount;
+			const Team& team = TEAMS[teamIndex];
+			if (teamIndex < ranking.size())
+			{
+				ranking[teamIndex].points += player.getPerson().getTotalPoints();
+			}
+			else
+			{
+				ranking.push_back(RankingEntry{team.name, player.getPerson().getTotalPoints(), team.color});
+			}
+			index++;
+		}
+
+		std::sort(ranking.begin(), ranking.end(), [](const RankingEntry& left, const RankingEntry& right) {
+			return left.points > right.points;
+		});
+
+		return ranking;
 	}
 }

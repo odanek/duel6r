@@ -25,10 +25,11 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_INVISIBLEMAN_H
-#define DUEL6_INVISIBLEMAN_H
+#ifndef DUEL6_GAMEMODES_PREDATOR_H
+#define DUEL6_GAMEMODES_PREDATOR_H
 
-#include "../GameMode.h"
+#include "GameModeBase.h"
+#include "PredatorPlayerEventListener.h"
 
 namespace Duel6
 {
@@ -43,35 +44,21 @@ namespace Duel6
      *
      * Others: - shotguns
      */
-    class Predator : public GameMode
+    class Predator : public GameModeBase
     {
 
     private:
-        int predatorIndex;
+        Player* predator;
         std::unique_ptr<PlayerEventListener> eventListener;
 
     public:
-        static std::string PREDATOR_TEAM()
+        std::string getName() const override
         {
             return "Predator";
         }
 
-        static std::string HUNTERS_TEAM()
-        {
-            return "Marines";
-        }
-
-    public:
-        Predator()
-		{}
-
-        std::string getName()
-        {
-            return "Predator";
-        }
-        void initialize(World& world, Game& game);
-        void preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& allPlayers);
-        bool checkRoundOver(World& world, std::vector<Player*>& alivePlayers);
+		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
+		bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) override;
     };
 }
 #endif

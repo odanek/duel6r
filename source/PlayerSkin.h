@@ -39,20 +39,17 @@ namespace Duel6
 	class PlayerSkin
 	{
 	private:
-		TextureManager::Texture textures;
-		Color overlay;
+		TextureList textures;
 
 	public:
 		PlayerSkin(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager);
-		PlayerSkin(const PlayerSkin& skin) = delete;
-		PlayerSkin& operator=(const PlayerSkin& skin) = delete;
 
-		~PlayerSkin();
+		TextureList& getTextureList()
+		{
+			return textures;
+		}
 
-		Color getOverlay();
-		void setOverlay(Color overlay);
-		void unsetOverlay();
-		const TextureManager::Texture& getTextures() const
+		const TextureList& getTextureList() const
 		{
 			return textures;
 		}

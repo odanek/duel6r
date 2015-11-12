@@ -43,10 +43,9 @@ Potrebuje: Knihovnu mylib
 
 #include "../Type.h"
 #include "../Format.h"
-#include "../Lang.h"
 #include "../Font.h"
 
-#define CON_Lang            D6_L
+#define CON_Lang(x)         x
 #define CON_Format			Format
 
 #define CON_VERSION         "5.7"
@@ -324,7 +323,7 @@ namespace Duel6
 		Console& printLine(const std::string& str);
 
 		void keyEvent(SDL_Keycode keyCode, Uint16 keyModifiers);
-		void textInputEvent(const char* text);
+		void textInputEvent(const std::string& text);
 
 		void toggle()
 		{

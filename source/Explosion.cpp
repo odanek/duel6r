@@ -56,7 +56,7 @@ namespace Duel6
 	{
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, textures.getGlTextures()[0]);
+		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
 		glBegin(GL_QUADS);
 
 		for (const Explosion& explosion : explosions)

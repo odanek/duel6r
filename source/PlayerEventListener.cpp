@@ -26,8 +26,6 @@
 */
 
 #include "PlayerEventListener.h"
-#include "Player.h"
-#include "InfoMessageQueue.h"
 #include "Weapon.h"
 
 namespace Duel6
@@ -46,22 +44,21 @@ namespace Duel6
 
 	void PlayerEventListener::onKillByPlayer(Player& player, Player& killer, Shot &shot, bool suicide)
 	{
-
 		if (suicide)
 		{
-			messageQueue.add(killer, Format(D6_L("killed also [{0}]")) << player.getPerson().getName());
+			messageQueue.add(killer, Format("killed also [{0}]") << player.getPerson().getName());
 			if (gameSettings.getScreenMode() == ScreenMode::SplitScreen)
 			{
-				messageQueue.add(player, Format(D6_L("killed by suicide of [{0}]")) << killer.getPerson().getName());
+				messageQueue.add(player, Format("killed by suicide of [{0}]") << killer.getPerson().getName());
 			}
 			killer.getPerson().addPenalties(1);
 		}
 		else
 		{
-			messageQueue.add(killer, Format(D6_L("killed [{0}]")) << player.getPerson().getName());
+			messageQueue.add(killer, Format("killed [{0}]") << player.getPerson().getName());
 			if (gameSettings.getScreenMode() == ScreenMode::SplitScreen)
 			{
-				messageQueue.add(player, Format(D6_L("killed by [{0}]")) << killer.getPerson().getName());
+				messageQueue.add(player, Format("killed by [{0}]") << killer.getPerson().getName());
 			}
 			killer.getPerson().addKills(1);
 			killer.addRoundKills(1);
@@ -74,18 +71,18 @@ namespace Duel6
 		//TODO: Change of behavior - when killed by bonus, player gets a penalty point!
 		//TODO: Fix by providing enviroment type
 		player.getPerson().addPenalties(1);
-		messageQueue.add(player, D6_L("You are dead"));
+		messageQueue.add(player, "You are dead");
 	}
 
-	void PlayerEventListener::onSuicide(Player &player, int otherKilledPlayers)
+	void PlayerEventListener::onSuicide(Player &player, Size otherKilledPlayers)
 	{
 		player.getPerson().addPenalties(1);
-		messageQueue.add(player, D6_L("Committed suicide"));
+		messageQueue.add(player, "Committed suicide");
 	}
 
 	void PlayerEventListener::onRoundWin(Player &player)
 	{
-		messageQueue.add(player, D6_L("You won the round"));
+		messageQueue.add(player, "You won the round");
 		player.getPerson().addWins(1);
 	}
 }

@@ -26,25 +26,25 @@
 */
 
 #include "DeathMatch.h"
-#include "../Game.h"
 
 namespace Duel6
 {
-	void DeathMatch::preparePlayer(Player& player, Int32 playerIndex, std::vector<Player>& players)
+	void DeathMatch::initializeRound(Game& game, std::vector<Player>& players, World& world)
 	{
-		player.unsetTeam();
-		player.unsetOverlay();
-		player.setEventListener(*eventListener);
+		eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
+		for (auto& player : players)
+		{
+			player.setEventListener(*eventListener);
+		}
 	}
 
-
-	bool DeathMatch::checkRoundOver(World& world, std::vector<Player*>& alivePlayers)
+	bool DeathMatch::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
 	{
 		if (alivePlayers.size() == 1)
 		{
 			for (Player *player : alivePlayers)
 			{
-				world.getMessageQueue().add(*player, D6_L("You have won!"));
+				world.getMessageQueue().add(*player, "You have won!");
 				player->getPerson().addWins(1);
 			}
 			return true;
@@ -53,16 +53,10 @@ namespace Duel6
 		{
 			for (const Player& player : world.getPlayers())
 			{
-				world.getMessageQueue().add(player, D6_L("End of round - no winner"));
+				world.getMessageQueue().add(player, "End of round - no winner");
 			}
 			return true;
 		}
 		return false;
-	}
-
-
-	void DeathMatch::initialize(World& world, Game& game)
-	{
-		eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
 	}
 }

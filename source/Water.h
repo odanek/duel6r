@@ -28,39 +28,47 @@
 #ifndef DUEL6_WATER_H
 #define DUEL6_WATER_H
 
-#include <unordered_map>
+#include <vector>
 #include <memory>
-#include "SpriteList.h"
 #include "Sound.h"
 #include "TextureManager.h"
-#include "EnumClassHash.h"
 #include "Vector.h"
 
 namespace Duel6
 {
-	class Water
+	class WaterImpl;
+	class Player;
+	class World;
+
+	class Water final
 	{
-	public:
-		enum class Type
-		{
-			Blue,
-			Red,
-			Green,
-			None
-		};
+	private:
+		typedef std::unique_ptr<WaterImpl> WaterImplPtr;
 
 	public:
-		typedef std::unordered_map<Type, std::unique_ptr<Water>, EnumClassHash<Type>> WaterSet;
+		static const Water NONE;
+		static const Water BLUE;
+		static const Water RED;
+		static const Water GREEN;
+
+	private:
+		mutable WaterImpl* impl;
+		static const std::vector<Water> types;
+		static std::vector<WaterImplPtr> implementations;
+
+		void assign(WaterImplPtr&& impl) const;
 
 	public:
-		virtual ~Water()
-		{}
+		Water();
 
-		virtual Sound::Sample getSplashSound() const = 0;
-		virtual void addSplash(SpriteList& spriteList, const Vector& position) const = 0;
-		virtual Float32 getAirHit() const = 0;
+		void onEnter(Player& player, const Vector& location, World& world);
+		void onUnder(Player& player, Float32 elapsedTime);
+		bool operator==(const Water& water) const;
+		bool operator!=(const Water& water) const;
 
-		static WaterSet createWaterSet(Sound& sound, TextureManager& textureManager);
+	public:
+		static const std::vector<Water>& values();
+		static void initialize(Sound& sound, TextureManager& textureManager);
 	};
 }
 

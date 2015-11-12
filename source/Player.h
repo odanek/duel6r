@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <string>
+#include <time.h>
 #include "mylib/mycam.h"
 #include "SpriteList.h"
 #include "Person.h"
@@ -45,7 +46,6 @@
 #include "Rectangle.h"
 #include "Defines.h"
 #include "Level.h"
-#include "PlayerEventListener.h"
 
 #define D6_MAX_LIFE				100.0f
 #define D6_MAX_AIR				200.0f
@@ -55,7 +55,7 @@ namespace Duel6
 	// Forward declarations
 	class Elevator; 
 	class Shot;
-	struct Weapon;
+	class Weapon;
 	class World;
 	class InfoMessageQueue;
     class PlayerEventListener;
@@ -108,8 +108,6 @@ namespace Duel6
 		Float32 TolY;
 	};
 
-
-
 	class Player
 	{
 	private:
@@ -128,9 +126,8 @@ namespace Duel6
 
 		struct WaterState
 		{
-			bool headUnderWater;
-			bool feetInWater;
-			Water::Type type;
+			Water headUnderWater;
+			Water feetInWater;
 		};
 
 		struct PlayerState
@@ -157,7 +154,7 @@ namespace Duel6
 
 	private:
 		Person& person;
-		const PlayerSkin& skin;
+		PlayerSkin skin;
 		mycam_c camera;
 		CameraPosition cameraPos;
 		const PlayerSounds& sounds;
@@ -168,9 +165,10 @@ namespace Duel6
 		SpriteList::Iterator gunSprite;
 		PlayerState state;
 		Int32 infoBarPosition[2];
-		std::string teamName;
         PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
+		Float32 bodyAlpha;
+		clock_t roundStartTime;
 
 	public:
 		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls);
@@ -181,29 +179,20 @@ namespace Duel6
 			return (this == &player);
 		}
 
-		void startGame(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo);
+		void startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon& weapon);
+		void endRound();
 		void setView(const PlayerView& view);
 		void update(World& world, ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
-		bool hitByShot(Float32 pw, Shot& s, bool directHit);
-        void processKills(Shot &shot, std::vector<Player *> killedPlayers);
-        void processHits(Shot &shot, std::vector<Player *> hittedPlayers);
+		bool hitByShot(Float32 pw, Shot& s, bool directHit, const Vector& hitPoint);
+		bool airHit(Float32 amount);
+        void processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled);
 
         void setEventListener(PlayerEventListener& listener)
         {
             eventListener = &listener;
         }
-
-		bool hasAnyTeam() const;
-		bool hasTeam(std::string team) const;
-		void setTeam(std::string team);
-		void unsetTeam();
-		std::string getTeam() const;
-
-
-		void setOverlay(Color overlay);
-		void unsetOverlay();
 
 		const Vector& getPosition() const
 		{
@@ -295,7 +284,7 @@ namespace Duel6
 
 		Player& setAlpha(Float32 alpha)
 		{
-			sprite->setAlpha(alpha);
+			sprite->setAlpha(bodyAlpha * alpha);
 			gunSprite->setAlpha(alpha);
 			return *this;
 		}
@@ -402,9 +391,9 @@ namespace Duel6
 			return hasFlag(FlagLying);
 		}
 
-		bool isDead() const
+		bool isAlive() const
 		{
-			return hasFlag(FlagDead);
+			return !hasFlag(FlagDead);
 		}
 
 		bool isGhost() const
@@ -412,9 +401,15 @@ namespace Duel6
 			return hasFlag(FlagGhost);
 		}
 
+		void makeGhost()
+		{
+			setFlag(FlagGhost);
+			setAlpha(0.1f);
+		}
+
 		bool isUnderWater() const
 		{
-			return water.headUnderWater;
+			return water.headUnderWater != Water::NONE;
 		}
 
 		bool isPickingGun() const
@@ -429,7 +424,7 @@ namespace Duel6
 
 		bool isInGame() const
 		{
-			return !isDead() || isLying();
+			return isAlive() || isLying();
 		}
 
 		bool isInvulnerable() const
@@ -487,6 +482,17 @@ namespace Duel6
 			sounds.getRandomSample(type).play();
 		}
 
+		void setBodyAlpha(Float32 alpha)
+		{
+			bodyAlpha = alpha;
+			setAlpha(1.0f);
+		}
+
+		void removeBody()
+		{
+			unsetFlag(FlagLying);
+		}
+
 	private:
 		void makeMove(const Level& level, Float32 elapsedTime);
 		void moveHorizontal(const Level& level, Float32 elapsedTime, Float32 speed);
@@ -499,7 +505,6 @@ namespace Duel6
 		void setAnm();
 		void updateCam(Int32 levelSizeX, Int32 levelSizeY);
 		void switchToOriginalSkin();
-		void findStartingPosition();
 		void dropWeapon(const Level& level);
 		Float32 getSpeed() const;
 

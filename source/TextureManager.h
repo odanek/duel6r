@@ -35,6 +35,7 @@
 #include "Type.h"
 #include "Color.h"
 #include "Image.h"
+#include "Texture.h"
 
 #define D6_TEXTURE_EXTENSION	".tga"
 
@@ -54,68 +55,30 @@ namespace Duel6
 	class TextureManager
 	{
 	public:
-		typedef std::vector<GLuint> TextureList;
+		typedef std::vector<Texture> TextureArray;
 		typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
-
-	public:
-		class Texture
-		{
-		private:
-            TextureManager* manager;
-			const TextureList* textures;
-			Int32 key;
-
-		private:
-			friend class TextureManager;
-			Texture(TextureManager* manager, const TextureList* textures, Int32 key)
-				: manager(manager), textures(textures), key(key)
-			{}
-
-		public:
-			Texture()
-				: manager(nullptr), textures(nullptr)
-			{}
-
-			const TextureList& getGlTextures() const
-			{
-				return *textures;
-			}
-
-			void dispose()
-			{
-				if (textures != nullptr)
-				{
-					textures = nullptr;
-					manager->dispose(key);
-				}
-			}
-		};
 
 	private:
 		Int32 nextId;
 		std::string textureFileExtension;
-		std::unordered_map<Int32, std::unique_ptr<TextureList>> textureMap;
+		std::unordered_map<Int32, std::unique_ptr<TextureArray>> textureMap;
 
 	public:
-		TextureManager(const std::string& fileExtension)
-			: nextId(0), textureFileExtension(fileExtension)
-		{}
+		TextureManager(const std::string& fileExtension);
+		~TextureManager();
 
-		~TextureManager()
-		{
-			disposeAll();
-		}
-
+		Size size() { return textureMap.size(); }
+		void dispose(TextureList& textures);
 		void disposeAll();
 
-		const Texture load(const std::string& path, GLint filtering, bool clamp);
-		const Texture load(const std::string& path, GLint filtering, bool clamp, const SubstitutionTable& substitutionTable);
+		const TextureList load(const std::string& path, TextureFilter filtering, bool clamp);
+		const TextureList load(const std::string& path, TextureFilter filtering, bool clamp, const SubstitutionTable& substitutionTable);
 
 	private:
 		void dispose(const Int32 key);
 
 	private:
-		void disposeTextureList(const TextureList& list);
+		void releaseTextureIds(const TextureArray& list);
 		void substituteColors(Image& image, const SubstitutionTable& substitutionTable);
 	};
 }

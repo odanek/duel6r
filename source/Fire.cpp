@@ -31,9 +31,9 @@
 
 namespace Duel6
 {
-	std::vector<FireType> FireType::types;
 	const FireType FireType::CONIFEROUS_TREE(0, 7);
 	const FireType FireType::BROAD_LEAVED_TREE(1, 8);
+	const std::vector<FireType> FireType::types = { CONIFEROUS_TREE, BROAD_LEAVED_TREE };
 
 	namespace
 	{
@@ -44,8 +44,8 @@ namespace Duel6
 		: type(type), face(face), position(position), burned(false)
 	{}
 
-	FireList::FireList(const GameResources& resources)
-		: textures(resources.getFireTextures())
+	FireList::FireList(const GameResources& resources, SpriteList& spriteList)
+		: spriteList(spriteList), textures(resources.getFireTextures())
 	{}
 
 	void FireList::find(FaceList& sprites)
@@ -67,7 +67,7 @@ namespace Duel6
 		}
 	}
 
-	void FireList::check(const Vector& explCentre, Float32 d, SpriteList& spriteList)
+	void FireList::check(const Vector& explCentre, Float32 d)
 	{
 		for (Fire& fire : fires)
 		{

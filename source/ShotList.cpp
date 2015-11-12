@@ -25,47 +25,36 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Type.h"
-#include "Shot.h"
-#include "Player.h"
+#include "ShotList.h"
+#include "World.h"
 #include "Weapon.h"
+#include "Player.h"
 
 namespace Duel6
 {
-	Shot::Shot(Player& player, SpriteList::Iterator sprite, Orientation shotOrientation)
-		: player(player), weapon(player.getWeapon()), orientation(shotOrientation), sprite(sprite)
+	ShotList::ShotList()
+	{}
+
+	void ShotList::addShot(ShotPointer&& shot)
 	{
-		const Vector dim = getDimensions();
-		const Rectangle playerRect = player.getCollisionRect();
-		if (orientation == Orientation::Left)
+		shots.push_back(std::forward<ShotPointer>(shot));
+	}
+
+	void ShotList::update(World& world, Float32 elapsedTime)
+	{
+		auto iter = shots.begin();
+
+		while (iter != shots.end())
 		{
-			position = Vector(playerRect.left.x - dim.x, player.getGunVerticalPosition() - dim.y / 2.0f);
-			velocity = Vector(-1.0f, 0.0f);
+			Shot& shot = *iter->get();
+			if (!shot.update(elapsedTime, world))
+			{
+				iter = shots.erase(iter);
+			}
+			else
+			{
+				++iter;
+			}
 		}
-		else
-		{
-			position = Vector(playerRect.right.x, player.getGunVerticalPosition() - dim.y / 2.0f);
-			velocity = Vector(1.0f, 0.0f);
-		}
-		this->sprite->setPosition(getSpritePosition(), 0.6f).setOrientation(this->orientation);
-	}
-
-	Shot& Shot::move(Float32 elapsedTime)
-	{
-		position += velocity * getWeapon().bulletSpeed * elapsedTime;
-		sprite->setPosition(getSpritePosition());
-		return *this;
-	}
-
-	Float32 Shot::getExplosionPower() const
-	{
-		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * getWeapon().power;
-	}
-
-	Float32 Shot::getExplosionRange() const
-	{
-		Float32 coef = getPlayer().hasPowerfulShots() ? 2.0f : 1.0f;
-		return coef * getWeapon().boom;
 	}
 }

@@ -51,9 +51,9 @@ namespace Duel6
 			void flush();
 
 			void draw(const Font& font) const override;
-			void check(const GuiContext& context) override;
-			void textInputEvent(const char* text) override;
-			void keyEvent(SDL_Keycode keyCode) override;
+
+			void textInputEvent(const TextInputEvent& event) override;
+			void keyEvent(const KeyPressEvent& event) override;
 
 			Control::Type getType() const override
 			{
