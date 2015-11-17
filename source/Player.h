@@ -127,28 +127,6 @@ namespace Duel6
 			Water feetInWater;
 		};
 
-		struct PlayerState
-		{
-			Uint32 flags;
-			Float32 velocity;
-			Orientation orientation;
-			Float32 jumpPhase;
-			Vector position;
-			Float32 life;
-			Float32 air; 
-			Int32 ammo;
-			BonusType bonus;
-            Int32 roundKills;
-			Float32 timeToReload;
-			Float32 bonusRemainingTime;
-			Float32 bonusDuration;
-			Float32 hpBarDuration;
-			Float32 timeSinceHit;
-			Float32 tempSkinDuration;
-			Weapon weapon;
-			const Elevator* elevator;
-		};
-
 	private:
 		Person& person;
 		PlayerSkin skin;
@@ -160,7 +138,24 @@ namespace Duel6
 		WaterState water;
 		SpriteList::Iterator sprite;
 		SpriteList::Iterator gunSprite;
-		PlayerState state;
+		Uint32 flags;
+		Float32 velocity;
+		Orientation orientation;
+		Float32 jumpPhase;
+		Vector position;
+		Float32 life;
+		Float32 air;
+		Int32 ammo;
+		BonusType bonus;
+		Int32 roundKills;
+		Float32 timeToReload;
+		Float32 bonusRemainingTime;
+		Float32 bonusDuration;
+		Float32 hpBarDuration;
+		Float32 timeSinceHit;
+		Float32 tempSkinDuration;
+		Weapon weapon;
+		const Elevator* elevator;
 		Int32 infoBarPosition[2];
         PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
@@ -193,7 +188,7 @@ namespace Duel6
 
 		const Vector& getPosition() const
 		{
-			return state.position;
+			return position;
 		}
 
 		Vector getDimensions() const
@@ -256,27 +251,27 @@ namespace Duel6
 
 		const Weapon& getWeapon() const
 		{
-			return state.weapon;
+			return weapon;
 		}
 
 		Int32 getAmmo() const
 		{
-			return state.ammo;
+			return ammo;
 		}
 
 		Int32 getRoundKills() const
 		{
-			return state.roundKills;
+			return roundKills;
 		}
 
 		void addRoundKills(Int32 kills)
 		{
-			state.roundKills += kills;
+			roundKills += kills;
 		}
 
 		Orientation getOrientation() const
 		{
-			return state.orientation;
+			return orientation;
 		}
 
 		Player& setAlpha(Float32 alpha)
@@ -288,54 +283,54 @@ namespace Duel6
 
 		Player& setBonus(BonusType type, Int32 duration)
 		{
-			state.bonus.onExpire(*this, *world);
-			state.bonus = type;
-			state.bonus.onApply(*this, *world, duration);
-			state.bonusRemainingTime = Float32(duration);
-			state.bonusDuration = Float32(duration);
+			bonus.onExpire(*this, *world);
+			bonus = type;
+			bonus.onApply(*this, *world, duration);
+			bonusRemainingTime = Float32(duration);
+			bonusDuration = Float32(duration);
 			return *this;
 		}
 
 		Float32 getLife() const
 		{
-			return state.life;
+			return life;
 		}
 
 		Float32 getAir() const
 		{
-			return state.air;
+			return air;
 		}
 
 		Float32 getReloadInterval() const;
 
 		Float32 getReloadTime() const
 		{
-			return state.timeToReload;
+			return timeToReload;
 		}
 
 		BonusType getBonus() const
 		{
-			return state.bonus;
+			return bonus;
 		}
 
 		Float32 getBonusRemainingTime() const
 		{
-			return state.bonusRemainingTime;
+			return bonusRemainingTime;
 		}
 
 		Float32 getBonusDuration() const
 		{
-			return state.bonusDuration;
+			return bonusDuration;
 		}
 
 		Float32 getHPBarDuration() const
 		{
-			return state.hpBarDuration;
+			return hpBarDuration;
 		}
 
 		void showHPBar()
 		{
-			state.hpBarDuration = D6_PLAYER_HPBAR;
+			hpBarDuration = D6_PLAYER_HPBAR;
 		}
 
 		Player& setInfoBarPosition(Int32 x, Int32 y)
@@ -360,7 +355,7 @@ namespace Duel6
 
 		Player& pickAmmo(Int32 ammo)
 		{
-			state.ammo += ammo;
+			this->ammo += ammo;
 			return *this;
 		}
 
@@ -369,7 +364,7 @@ namespace Duel6
 
 		bool isReloading()
 		{
-			return state.timeToReload > 0;
+			return timeToReload > 0;
 		}
 
 		bool isKneeling() const
@@ -425,22 +420,22 @@ namespace Duel6
 
 		bool isRising() const
 		{
-			return (state.jumpPhase >= 90.0f && state.jumpPhase < 180.0f);
+			return (jumpPhase >= 90.0f && jumpPhase < 180.0f);
 		}
 
 		bool isFalling() const
 		{
-			return (state.jumpPhase >= 180.0f && state.jumpPhase <= 270.0f);
+			return (jumpPhase >= 180.0f && jumpPhase <= 270.0f);
 		}
 
 		bool isOnGround() const
 		{
-			return (state.jumpPhase == 0.0f);
+			return (jumpPhase == 0.0f);
 		}
 
 		bool isMoving() const
 		{
-			return (state.velocity != 0.0f);
+			return (velocity != 0.0f);
 		}
 
 		bool hasPowerfulShots() const
@@ -455,7 +450,7 @@ namespace Duel6
 
 		bool isOnElevator() const
 		{
-			return (state.elevator != nullptr);
+			return (elevator != nullptr);
 		}
 
 		const PlayerSkin& getSkin() const
@@ -507,17 +502,17 @@ namespace Duel6
 
 		bool hasFlag(Uint32 flag) const
 		{
-			return (state.flags & flag) == flag;
+			return (flags & flag) == flag;
 		}
 
 		void setFlag(Uint32 flag)
 		{
-			state.flags |= flag;
+			flags |= flag;
 		}
 
 		void unsetFlag(Uint32 flag)
 		{
-			state.flags &= ~flag;
+			flags &= ~flag;
 		}
 	};
 }

@@ -63,33 +63,33 @@ namespace Duel6
 	void Player::startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon& weapon)
 	{
 		this->world = &world;
-		state.position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
+		position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
 
 		Sprite manSprite(noAnim, skin.getTextureList());
 		manSprite.setPosition(getSpritePosition(), 0.5f);
 		sprite = world.getSpriteList().addSprite(manSprite);
 
-		state.weapon = weapon;
+		this->weapon = weapon;
 		Sprite gunSprite;
 		weapon.makeSprite(gunSprite);
 		gunSprite.setPosition(getGunSpritePosition(), 0.5f);
 		this->gunSprite = world.getSpriteList().addSprite(gunSprite);
 
-		state.flags = FlagHasGun;
-		state.velocity = 0.0f;
-		state.orientation = Orientation::Left;
-		state.jumpPhase = 0;
-		state.timeToReload = 0;
-		state.life = D6_MAX_LIFE;
-		state.air = D6_MAX_AIR;
-		state.ammo = ammo;
-		state.elevator = nullptr;
-		state.bonus = BonusType::INVULNERABILITY;
-		state.bonusDuration = 2.0f;
-		state.bonusRemainingTime = 2.0f;
-		state.hpBarDuration = 0;
-		state.tempSkinDuration = 0;
-        state.roundKills = 0;
+		flags = FlagHasGun;
+		velocity = 0.0f;
+		orientation = Orientation::Left;
+		jumpPhase = 0;
+		timeToReload = 0;
+		life = D6_MAX_LIFE;
+		air = D6_MAX_AIR;
+		this->ammo = ammo;
+		elevator = nullptr;
+		bonus = BonusType::INVULNERABILITY;
+		bonusDuration = 2.0f;
+		bonusRemainingTime = 2.0f;
+		hpBarDuration = 0;
+		tempSkinDuration = 0;
+        roundKills = 0;
 		this->view = view;
 		water.headUnderWater = Water::NONE;
 		water.feetInWater = Water::NONE;
@@ -117,35 +117,35 @@ namespace Duel6
 	{
 		if (hasFlag(FlagMoveLeft))
 		{
-			state.velocity = std::max(state.velocity - elapsedTime, -D6_PLAYER_MAX_SPEED);
+			velocity = std::max(velocity - elapsedTime, -D6_PLAYER_MAX_SPEED);
 
-			if (state.velocity < 0.0f)
+			if (velocity < 0.0f)
 			{
-				state.orientation = Orientation::Left;
+				orientation = Orientation::Left;
 			}
 		} 
-		else if (state.velocity < 0.0f)
+		else if (velocity < 0.0f)
 		{
-			state.velocity = std::min(state.velocity + elapsedTime, 0.0f);
+			velocity = std::min(velocity + elapsedTime, 0.0f);
 		}
 
 		if (hasFlag(FlagMoveRight))
 		{
-			state.velocity = std::min(state.velocity + elapsedTime, D6_PLAYER_MAX_SPEED);
+			velocity = std::min(velocity + elapsedTime, D6_PLAYER_MAX_SPEED);
 
-			if (state.velocity > 0.0f)
+			if (velocity > 0.0f)
 			{
-				state.orientation = Orientation::Right;
+				orientation = Orientation::Right;
 			}
 		} 
-		else if (state.velocity > 0.0f)
+		else if (velocity > 0.0f)
 		{
-			state.velocity = std::max(state.velocity - elapsedTime, 0.0f);
+			velocity = std::max(velocity - elapsedTime, 0.0f);
 		}
 
 		if (isMoving())
 		{
-			state.position.x += state.velocity * D6_PLAYER_ACCEL * speed;
+			position.x += velocity * D6_PLAYER_ACCEL * speed;
 			checkHorizontalMove(level);
 		}
 	}
@@ -160,19 +160,19 @@ namespace Duel6
 
 			if (!level.isWall(left, up, true) && !level.isWall(right, up, true))
 			{
-				state.jumpPhase = 90.0f;
+				jumpPhase = 90.0f;
 			}
 		}
 
 		if (!isOnGround())
 		{
-			state.jumpPhase += D6_PLAYER_JPHASE_SPEED * elapsedTime;
-			if (state.jumpPhase > 270.0)
+			jumpPhase += D6_PLAYER_JPHASE_SPEED * elapsedTime;
+			if (jumpPhase > 270.0)
 			{
-				state.jumpPhase = 270.0f;
+				jumpPhase = 270.0f;
 			}
 
-			state.position.y += Math::fastSin(Int32(state.jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
+			position.y += Math::fastSin(Int32(jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
 
 			if (isRising())
 			{
@@ -199,7 +199,7 @@ namespace Duel6
 		{
 			if (isRising())
 			{
-				state.jumpPhase = 180.0f;
+				jumpPhase = 180.0f;
 			}
 		}
 	}
@@ -217,8 +217,8 @@ namespace Duel6
 		if (!getAmmo() || isReloading() || !hasGun())
 			return;
 
-		state.timeToReload = getReloadInterval();
-		state.ammo--;
+		timeToReload = getReloadInterval();
+		ammo--;
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
 		Orientation originalOrientation = getOrientation();
@@ -227,7 +227,7 @@ namespace Duel6
 
 		if (getBonus() == BonusType::SPLIT_FIRE && getAmmo() > 0)
 		{
-			state.ammo--;
+			ammo--;
 			getPerson().addShots(1);
 			Orientation secondaryOrientation = originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
 			getWeapon().shoot(*this, secondaryOrientation, *world);
@@ -237,9 +237,9 @@ namespace Duel6
 	Player& Player::pickWeapon(Weapon weapon, Int32 bullets)
 	{
 		setFlag(FlagPick);
-		state.weapon = weapon;
-		state.ammo = bullets;
-		state.timeToReload = 0;
+		this->weapon = weapon;
+		ammo = bullets;
+		timeToReload = 0;
 		weapon.makeSprite(*gunSprite);
 		return *this;
 	}
@@ -250,17 +250,17 @@ namespace Duel6
 
 		if (isOnElevator() && level.isWall((Int32) getPosition().x, (Int32) getPosition().y, false))
 		{
-			state.velocity = 0;
+			velocity = 0;
 		}
 
-		state.elevator = nullptr;
+		elevator = nullptr;
 
 		moveVertical(level, elapsedTime, speed);
 		moveHorizontal(level, elapsedTime, speed);
 
 		if (isOnElevator())
 		{
-			state.position += state.elevator->getVelocity() * elapsedTime;
+			position += elevator->getVelocity() * elapsedTime;
 		}
 
 		if (isPickingGun() && sprite->isFinished())
@@ -279,7 +279,7 @@ namespace Duel6
 			spd *= 0.67f;
 		}
 
-		if (state.tempSkinDuration)
+		if (tempSkinDuration)
 		{
 			spd *= 0.5f;
 		}
@@ -366,15 +366,15 @@ namespace Duel6
 		// Move intervals
 		if (isReloading())
 		{
-			if ((state.timeToReload -= elapsedTime) <= 0)
+			if ((timeToReload -= elapsedTime) <= 0)
 			{
-				state.timeToReload = 0;
+				timeToReload = 0;
 			}
 		}
 
 		if (getBonusRemainingTime() > 0)
 		{
-			if ((state.bonusRemainingTime -= elapsedTime) <= 0)
+			if ((bonusRemainingTime -= elapsedTime) <= 0)
 			{
 				setBonus(BonusType::NONE, 0);
 			}
@@ -382,17 +382,17 @@ namespace Duel6
 
 		if(getHPBarDuration() > 0)
 		{
-			state.hpBarDuration -= elapsedTime;
+			hpBarDuration -= elapsedTime;
 		}
 
-		if(getLife() < D6_MAX_LIFE && getLife() > 1 && state.timeSinceHit > D6_PLAYER_HPREGEN_DELAY)
+		if(getLife() < D6_MAX_LIFE && getLife() > 1 && timeSinceHit > D6_PLAYER_HPREGEN_DELAY)
 		{
 			addLife(elapsedTime * getRoundKills() * 0.8f, false);
 		}
 
-		if (state.tempSkinDuration > 0)
+		if (tempSkinDuration > 0)
 		{
-			if ((state.tempSkinDuration -= elapsedTime) <= 0)
+			if ((tempSkinDuration -= elapsedTime) <= 0)
 			{
 				switchToOriginalSkin();
 			}
@@ -403,7 +403,7 @@ namespace Duel6
 			updateCam(world.getLevel().getWidth(), world.getLevel().getHeight());
 		}
 
-		state.timeSinceHit += elapsedTime;
+		timeSinceHit += elapsedTime;
 	}
 
 	void Player::setAnm()
@@ -566,7 +566,7 @@ namespace Duel6
             return false;
         }
 
-		state.timeSinceHit = 0;
+		timeSinceHit = 0;
 		
 		if (directHit)
 		{
@@ -578,7 +578,7 @@ namespace Duel6
 			}
 		}
 
-		if (state.life <= 0.0f)
+		if (life <= 0.0f)
 		{
 			setFlag(FlagDead | FlagLying);
 			unsetFlag(FlagKnee | FlagPick);
@@ -586,7 +586,7 @@ namespace Duel6
 			sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
 			gunSprite->setDraw(false);
 
-			state.orientation = (hitPoint.x < getCentre().x) ? Orientation::Left : Orientation::Right;
+			orientation = (hitPoint.x < getCentre().x) ? Orientation::Left : Orientation::Right;
 
 			shot.onKillPlayer(*this, directHit, hitPoint, *world);
 
@@ -616,9 +616,9 @@ namespace Duel6
             return false;
         }
 
-		state.timeSinceHit = 0;
+		timeSinceHit = 0;
 
-		if (state.life <= 0.0f)
+		if (life <= 0.0f)
 		{
 			setFlag(FlagDead | FlagLying);
 			unsetFlag(FlagKnee | FlagPick);
@@ -638,10 +638,10 @@ namespace Duel6
 
 	bool Player::airHit(Float32 amount)
 	{
-		state.air -= amount;
-		if (state.air < 0)
+		air -= amount;
+		if (air < 0)
 		{
-			state.air = 0;
+			air = 0;
 			if (hit(amount))
 			{
 				playSound(PlayerSounds::Type::Drowned);
@@ -672,9 +672,9 @@ namespace Duel6
 
 	Player& Player::addLife(Float32 change, bool showHpBar)
 	{
-		Float32 oldLife = state.life;
-		state.life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), state.life + change));
-		if (showHpBar && oldLife != state.life) {
+		Float32 oldLife = life;
+		life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), life + change));
+		if (showHpBar && oldLife != life) {
 			showHPBar();
 		}
 		return *this;
@@ -698,7 +698,7 @@ namespace Duel6
 		}
 		else
 		{
-			state.air = std::min(state.air + 2 * D6_AIR_RECHARGE_SPEED * elapsedTime, D6_MAX_AIR);
+			air = std::min(air + 2 * D6_AIR_RECHARGE_SPEED * elapsedTime, D6_MAX_AIR);
 
 			Water feetWater = world.getLevel().getWaterType(Int32(centerX), Int32(feetY));
 			if (feetWater != Water::NONE && water.feetInWater == Water::NONE)
@@ -717,8 +717,8 @@ namespace Duel6
 
 		if (level.isWall(left, up, true) || level.isWall(right, up, true))
 		{
-			state.position.y = floorf(up) - 1.0f; // TODO: Coord
-			state.jumpPhase = 180.0f;
+			position.y = floorf(up) - 1.0f; // TODO: Coord
+			jumpPhase = 180.0f;
 		}
 	}
 
@@ -730,8 +730,8 @@ namespace Duel6
 
 		if (level.isWall(left, down, true) || level.isWall(right, down, true))
 		{
-			state.position.y = floorf(down) + 1.0001f; // TODO: Coord
-			state.jumpPhase = 0.0f;
+			position.y = floorf(down) + 1.0001f; // TODO: Coord
+			jumpPhase = 0.0f;
 		}
 
 		checkElevator();
@@ -750,7 +750,7 @@ namespace Duel6
 
 		if (!level.isWall(left, down, true) && !level.isWall(right, down, true))
 		{
-			state.jumpPhase = 180.0f;
+			jumpPhase = 180.0f;
 		}
 	}
 
@@ -759,12 +759,12 @@ namespace Duel6
 		Float32 up = getPosition().y + 0.94f; // TODO: Coord
 		Float32 down = getPosition().y; // TODO: Coord
 
-		if (state.velocity < 0)
+		if (velocity < 0)
 		{
 			Float32 left = getPosition().x + 0.1f; // TODO: Coord
 			if (level.isWall(left, up, true) || level.isWall(left, down, true))
 			{
-				state.position.x = floorf(left) + 0.9001f; // TODO: Coord
+				position.x = floorf(left) + 0.9001f; // TODO: Coord
 			}
 		}
 		else
@@ -772,7 +772,7 @@ namespace Duel6
 			Float32 right = getPosition().x + 0.9f; // TODO: Coord
 			if (level.isWall(right, up, true) || level.isWall(right, down, true))
 			{
-				state.position.x = floorf(right) - 0.9001f; // TODO: Coord
+				position.x = floorf(right) - 0.9001f; // TODO: Coord
 			}
 		}
 	}
@@ -783,21 +783,21 @@ namespace Duel6
 
 		if (elevator != nullptr)
 		{
-			state.elevator = elevator;
-			state.position.y = elevator->getPosition().y;
-			state.jumpPhase = 0.0f;
+			this->elevator = elevator;
+			position.y = elevator->getPosition().y;
+			jumpPhase = 0.0f;
 		}
 	}
 
 	void Player::useTemporarySkin(PlayerSkin& tempSkin)
 	{
-		state.tempSkinDuration = Float32(10 + rand() % 5);
+		tempSkinDuration = Float32(10 + rand() % 5);
 		sprite->setTextures(tempSkin.getTextureList());
 	}
 
 	void Player::switchToOriginalSkin()
 	{
-		state.tempSkinDuration = 0;
+		tempSkinDuration = 0;
 		sprite->setTextures(skin.getTextureList());
 	}
 
