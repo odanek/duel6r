@@ -52,7 +52,7 @@ namespace Duel6
 	// Forward declarations
 	class Elevator; 
 	class Shot;
-	struct Weapon;
+	class Weapon;
 	class World;
 	class InfoMessageQueue;
     class PlayerEventListener;
