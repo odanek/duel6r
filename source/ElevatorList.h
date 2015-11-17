@@ -37,12 +37,20 @@ namespace Duel6
 {
 	class Player; // Forward declaration
 
-	void ELEV_Init(TextureManager& textureManager);
-	void ELEV_Clear();
-	void ELEV_Add(Elevator& elevator);
-	void ELEV_MoveAll(Float32 elapsedTime);
-	void ELEV_DrawAll();
-	const Elevator* ELEV_CheckMan(Player& player);
+	class ElevatorList
+	{
+	private:
+		const TextureList& textures;
+		std::vector<Elevator> elevators;
+
+	public:
+		ElevatorList(const TextureList& textures);
+		void load(const std::string& path, bool mirror);
+		void add(Elevator& elevator);
+		void update(Float32 elapsedTime);
+		void render() const;
+		const Elevator* checkPlayer(Player& player);
+	};
 }
 
 #endif

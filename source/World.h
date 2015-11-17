@@ -35,6 +35,7 @@
 #include "Fire.h"
 #include "ShotList.h"
 #include "BonusList.h"
+#include "ElevatorList.h"
 
 namespace Duel6
 {
@@ -53,6 +54,7 @@ namespace Duel6
 		FireList fireList;
 		Size background;
 		BonusList bonusList;
+		ElevatorList elevatorList;
 
 	public:
 		World(Game& game, const std::string& levelPath, bool mirror, Size background);
@@ -155,8 +157,15 @@ namespace Duel6
 			return bonusList;
 		}
 
-	private:
-		void loadElevators(const std::string& path, bool mirror);
+		ElevatorList& getElevatorList()
+		{
+			return elevatorList;
+		}
+
+		const ElevatorList& getElevatorList() const
+		{
+			return elevatorList;
+		}
 	};
 }
 

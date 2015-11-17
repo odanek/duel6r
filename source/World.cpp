@@ -28,9 +28,6 @@
 #include "World.h"
 #include "Game.h"
 #include "Weapon.h"
-#include "ElevatorList.h"
-#include "BonusList.h"
-#include "json/JsonParser.h"
 
 namespace Duel6
 {
@@ -38,7 +35,8 @@ namespace Duel6
 		: players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
 		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
 		  explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
-		  background(background), bonusList(game.getSettings(), game.getResources(), *this)
+		  background(background), bonusList(game.getSettings(), game.getResources(), *this),
+		  elevatorList(game.getResources().getElevatorTextures())
 	{
 		Console& console = game.getAppService().getConsole();
 		console.printLine(Format("...Width   : {0}") << level.getWidth());
@@ -51,7 +49,7 @@ namespace Duel6
 
 		console.printLine("...Level initialization");
 		console.printLine("...Loading elevators: ");
-		loadElevators(levelPath, mirror);
+		elevatorList.load(levelPath, mirror);
 		fireList.find(levelRenderData.getSprites());
 	}
 
@@ -61,35 +59,13 @@ namespace Duel6
 		explosionList.update(elapsedTime);
 		levelRenderData.update(elapsedTime);
 		shotList.update(*this, elapsedTime);
-		ELEV_MoveAll(elapsedTime);
+		elevatorList.update(elapsedTime);
 		messageQueue.update(elapsedTime);
 
 		// Add new bonuses
 		if (rand() % int(3.0f / elapsedTime) == 0)
 		{
 			bonusList.addRandomBonus();
-		}
-	}
-
-	void World::loadElevators(const std::string& path, bool mirror)
-	{
-		Json::Parser parser;
-		Json::Value root = parser.parse(path);
-
-		Int32 width = root.get("width").asInt();
-		Int32 height = root.get("height").asInt();
-
-		ELEV_Clear();
-		Size elevators = root.get("elevators").getLength();
-		for (Size i = 0; i < elevators; i++) {
-			Elevator elevator;
-			Json::Value points = root.get("elevators").get(i).get("controlPoints");
-			for (Size j = 0; j < points.getLength(); j++) {
-				Int32 x = points.get(j).get("x").asInt();
-				Int32 y = points.get(j).get("y").asInt();
-				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y));
-			}
-			ELEV_Add(elevator);
 		}
 	}
 

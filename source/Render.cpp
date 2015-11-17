@@ -535,7 +535,7 @@ namespace Duel6
 		const World& world = game.getRound().getWorld();
 		world.getLevelRenderData().getWalls().render(game.getResources().getBlockTextures());
 		sprites(world.getLevelRenderData().getSprites());
-		ELEV_DrawAll();
+		world.getElevatorList().render();
 		world.getSpriteList().render();
 		world.getBonusList().render();
 		invulRings(game.getPlayers());

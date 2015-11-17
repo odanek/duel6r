@@ -779,7 +779,7 @@ namespace Duel6
 
 	void Player::checkElevator()
 	{
-		const Elevator* elevator = ELEV_CheckMan(*this);
+		const Elevator* elevator = world->getElevatorList().checkPlayer(*this);
 
 		if (elevator != nullptr)
 		{

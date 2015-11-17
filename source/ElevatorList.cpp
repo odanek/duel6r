@@ -28,46 +28,55 @@
 #include <SDL2/SDL_opengl.h>
 #include "Player.h"
 #include "ElevatorList.h"
-#include "Weapon.h"
+#include "json/JsonParser.h"
 
 namespace Duel6
 {
-	namespace
-	{
-		std::vector<Elevator> d6Elevators;
-		TextureList textures;
-	}	
+	ElevatorList::ElevatorList(const TextureList& textures)
+		: textures(textures)
+	{}
 
-	void ELEV_Init(TextureManager& textureManager)
+	void ElevatorList::add(Elevator& elevator)
 	{
-		textures = textureManager.load(D6_TEXTURE_ELEVATOR_PATH, TextureFilter::LINEAR, true);
+		elevators.push_back(elevator);
+		elevators.back().start();
 	}
 
-	void ELEV_Clear()
+	void ElevatorList::load(const std::string& path, bool mirror)
 	{
-		d6Elevators.clear();
+		Json::Parser parser;
+		Json::Value root = parser.parse(path);
+
+		Int32 width = root.get("width").asInt();
+		Int32 height = root.get("height").asInt();
+
+		Size elevators = root.get("elevators").getLength();
+		for (Size i = 0; i < elevators; i++) {
+			Elevator elevator;
+			Json::Value points = root.get("elevators").get(i).get("controlPoints");
+			for (Size j = 0; j < points.getLength(); j++) {
+				Int32 x = points.get(j).get("x").asInt();
+				Int32 y = points.get(j).get("y").asInt();
+				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y));
+			}
+			add(elevator);
+		}
 	}
 
-	void ELEV_Add(Elevator& elevator)
+	void ElevatorList::update(Float32 elapsedTime)
 	{
-		d6Elevators.push_back(elevator);
-		d6Elevators.back().start();
-	}
-
-	void ELEV_MoveAll(Float32 elapsedTime)
-	{
-		for (Elevator& elevator : d6Elevators)
+		for (Elevator& elevator : elevators)
 		{
 			elevator.update(elapsedTime);
 		}
 	}
 
-	void ELEV_DrawAll()
+	void ElevatorList::render() const
 	{
 		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
 		glBegin(GL_QUADS);
 
-		for (const Elevator& elevator : d6Elevators)
+		for (const Elevator& elevator : elevators)
 		{
 			elevator.render();
 		}
@@ -75,12 +84,12 @@ namespace Duel6
 		glEnd();
 	}
 
-	const Elevator* ELEV_CheckMan(Player& player)
+	const Elevator* ElevatorList::checkPlayer(Player& player)
 	{
 		Rectangle playerRect = player.getCollisionRect();
 		Float32 cX = playerRect.getCentre().x;
 
-		for (const Elevator& elevator : d6Elevators)
+		for (const Elevator& elevator : elevators)
 		{
 			const Vector& pos = elevator.getPosition();
 			if (cX >= pos.x && cX <= pos.x + 1.0f && playerRect.left.y >= pos.y - 0.05f && playerRect.left.y <= pos.y + 0.05f)  // TODO: Coord

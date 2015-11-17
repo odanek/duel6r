@@ -31,10 +31,6 @@
 #include "Game.h"
 #include "Menu.h"
 #include "ConsoleCommands.h"
-#include "BonusList.h"
-#include "Weapon.h"
-#include "ElevatorList.h"
-#include "Fire.h"
 #include "Application.h"
 
 namespace Duel6
@@ -218,7 +214,6 @@ namespace Duel6
 		{
 			gameSettings.enableWeapon(weapon, true);
 		}
-		ELEV_Init(textureManager);
 
 		// Execute config script and command line arguments
 		console.printLine("\n===Config===");

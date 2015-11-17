@@ -45,6 +45,7 @@ namespace Duel6
 		TextureList bcgTextures;
 		TextureList explosionTextures;
 		TextureList bonusTextures;
+		TextureList elevatorTextures;
 		std::unordered_map<Size, TextureList> fireTextures;
 
 	public:
@@ -83,6 +84,11 @@ namespace Duel6
 		const TextureList& getBonuseTextures() const
 		{
 			return bonusTextures;
+		}
+
+		const TextureList& getElevatorTextures() const
+		{
+			return elevatorTextures;
 		}
 
 		const std::unordered_map<Size, TextureList>& getFireTextures() const
