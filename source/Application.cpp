@@ -210,11 +210,14 @@ namespace Duel6
 		video.initialize(APP_NAME, APP_FILE_ICON, console);
 		menu.initialize();
 
-		game = std::make_unique<Game>(service, gameSettings);
+		gameResources = std::make_unique<GameResources>(service);
+		game = std::make_unique<Game>(service, *gameResources, gameSettings);
 		menu.setGameReference(game.get());
 
-		console.printLine("\n===Weapon initialization===");
-		Weapon::initialize(sound, textureManager, gameSettings);
+		for (Weapon weapon : Weapon::values())
+		{
+			gameSettings.enableWeapon(weapon, true);
+		}
 		ELEV_Init(textureManager);
 
 		// Execute config script and command line arguments

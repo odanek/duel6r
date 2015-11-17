@@ -25,42 +25,40 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_BONUSLIST_H
-#define DUEL6_BONUSLIST_H
-
-#include <list>
-#include "Type.h"
-#include "Bonus.h"
-#include "Player.h"
-#include "PlayerSounds.h"
-#include "TextureManager.h"
-#include "Level.h"
-#include "GameSettings.h"
-#include "GameResources.h"
+#include "../Player.h"
+#include "../World.h"
+#include "FastReload.h"
 
 namespace Duel6
 {
-	class BonusList
+	namespace Bonuses
 	{
-	private:
-		const GameSettings& settings;
-		Texture randomTexture;
-		World& world;
-		std::list<Bonus> bonuses;
-		std::list<LyingWeapon> weapons;
+		FastReload::FastReload(Texture texture)
+			: texture(texture)
+		{}
 
-	private:
-		static const Int32 RANDOM_BONUS_FREQUENCY = 6;
+		Texture FastReload::getTexture() const
+		{
+			return texture;
+		}
 
-	public:
-		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
-		void addRandomBonus();
-		void render() const;
-		void addPlayerGun(Player& player, const Vector& position);
-		void checkBonus(Player& player);
-		void checkWeapon(Player& player);
-	};
+		bool FastReload::isOneTime() const
+		{
+			return false;
+		}
 
+		bool FastReload::isApplicable(Player& player, World& world) const
+		{
+			return true;
+		}
+
+		void FastReload::onApply(Player& player, World& world, Int32 duration) const
+		{
+			world.getMessageQueue().add(player, Format("Fast reload for {0} seconds") << duration);
+		}
+
+		void FastReload::onExpire(Player& player, World& world) const
+		{
+		}
+	}
 }
-
-#endif

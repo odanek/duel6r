@@ -173,7 +173,7 @@ namespace Duel6
 
 		for (Player& player : players)
 		{
-			if (!player.isInGame() || player.getBonus() == D6_BONUS_INVIS || player.is(getPlayer()))
+			if (!player.isInGame() || player.getBonus() == BonusType::INVISIBILITY || player.is(getPlayer()))
 			{
 				continue;
 			}

@@ -33,66 +33,126 @@
 #include "TextureManager.h"
 #include "Vector.h"
 #include "Rectangle.h"
+#include "Weapon.h"
 
 namespace Duel6
 {
-	struct Weapon; // Forward declaration, TODO: Remove
+	class Player;
+	class World;
 
-	/*
-	class BonusType
+	class BonusTypeImpl
 	{
 	public:
-		virtual void apply(Player& player) const = 0;
-		virtual void cancel(Player& player) const = 0;
-		virtual void render() const = 0;
+		virtual Texture getTexture() const = 0;
+		virtual bool isOneTime() const = 0;
+		virtual bool isApplicable(Player& player, World& world) const = 0;
+		virtual void onApply(Player& player, World& world, Int32 duration) const = 0;
+		virtual void onExpire(Player& player, World& world) const = 0;
 	};
-	*/
 
-	enum BonusType
+	class BonusType
 	{
-		D6_BONUS_LIFEP = 0,
-		D6_BONUS_LIFEM,
-		D6_BONUS_LIFEF,
-		D6_BONUS_SHOTS,
-		D6_BONUS_SHOTP,
-		D6_BONUS_INVUL,
-		D6_BONUS_BULLT,
-		D6_BONUS_SPEED,
-		D6_BONUS_INVIS,
-		D6_BONUS_SPLITFIRE,
-		D6_BONUS_VAMPIRESHOTS,
-		D6_BONUS_GUESS // GUESS must be the last type
+	private:
+		typedef std::unique_ptr<BonusTypeImpl> BonusTypeImplPtr;
+
+	public:
+		static const BonusType NONE;
+		static const BonusType PLUS_LIFE;
+		static const BonusType MINUS_LIFE;
+		static const BonusType FULL_LIFE;
+		static const BonusType FAST_RELOAD;
+		static const BonusType POWERFUL_SHOTS;
+		static const BonusType INVULNERABILITY;
+		static const BonusType BULLETS;
+		static const BonusType FAST_MOVEMENT;
+		static const BonusType INVISIBILITY;
+		static const BonusType SPLIT_FIRE;
+		static const BonusType VAMPIRE_SHOTS;
+
+	private:
+		mutable BonusTypeImpl* impl;
+		void assign(BonusTypeImplPtr&& impl) const;
+
+	private:
+		static std::vector<BonusType> types;
+		static std::vector<BonusTypeImplPtr> implementations;
+
+	public:
+		BonusType();
+		BonusType(const BonusType& bonusType);
+
+		Texture getTexture() const;
+		bool isOneTime() const;
+		bool isApplicable(Player& player, World& world) const;
+		void onApply(Player& player, World& world, Int32 duration) const;
+		void onExpire(Player& player, World& world) const;
+
+		bool operator==(const BonusType& bonus) const;
+		bool operator!=(const BonusType& bonus) const;
+
+	public:
+		static const std::vector<BonusType>& values();
+		static void initialize(const TextureList& textures);
 	};
 
-	// TODO: Split into Bonus and LyingWeapon
 	class Bonus
 	{
 	private:
+		BonusType bonus;
+		Int32 duration;
 		Vector position;
-		Size type;
-		bool weapon;
-		const Weapon* weaponType;
-		Int32 bullets; // Number of bullets for weapon bonuses
 		Texture texture;
 
 	public:
-		Bonus(const Vector& position, Size type, Texture texture);
+		Bonus(BonusType type, Int32 duration, const Vector& position, Texture texture);
 
-		Bonus(const Vector& position, const Weapon& weaponType, Int32 bullets);
+		void render() const;
 
-		Size getType() const
+		const BonusType& getType() const
 		{
-			return type;
+			return bonus;
 		}
 
-		bool isWeapon() const
+		Int32 getDuration() const
+		{
+			return duration;
+		}
+
+		const Vector& getPosition() const
+		{
+			return position;
+		}
+
+		Vector getDimensions() const
+		{
+			return Vector(0.6f, 0.6f);
+		}
+
+		Rectangle getCollisionRect() const
+		{
+			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+		}
+
+		Vector getSpritePosition() const
+		{
+			return position - Vector(0.2f, 0.2f);
+		}
+	};
+
+	class LyingWeapon
+	{
+		Weapon weapon;
+		Vector position;
+		Int32 bullets;
+
+	public:
+		LyingWeapon(Weapon weapon, Int32 bullets, const Vector& position);
+
+		void render() const;
+
+		const Weapon& getWeapon() const
 		{
 			return weapon;
-		}
-
-		const Weapon& getWeaponType() const
-		{
-			return *weaponType;
 		}
 
 		Int32 getBullets() const
@@ -107,7 +167,7 @@ namespace Duel6
 
 		Vector getDimensions() const
 		{
-			return isWeapon() ? Vector(1.0f, 1.0f) : Vector(0.6f, 0.6f);
+			return Vector(1.0f, 1.0f);
 		}
 
 		Rectangle getCollisionRect() const
@@ -117,10 +177,8 @@ namespace Duel6
 
 		Vector getSpritePosition() const
 		{
-			return isWeapon() ? position : position - Vector(0.2f, 0.2f);
+			return position;
 		}
-
-		void render() const;
 	};
 }
 

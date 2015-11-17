@@ -34,18 +34,8 @@
 namespace Duel6
 {
 	BonusList::BonusList(const GameSettings& settings, const GameResources& resources, World& world)
-		: settings(settings), textures(resources.getBonuseTextures()), world(world)
+		: settings(settings), randomTexture(resources.getBonuseTextures().at(0)), world(world)
 	{}
-
-	Texture BonusList::getTexture(Size type) const
-	{
-		return textures.at(type);
-	}
-
-	void BonusList::clear()
-	{
-		bonuses.clear();
-	}
 
 	void BonusList::render() const
 	{
@@ -56,10 +46,15 @@ namespace Duel6
 			bonus.render();
 		}
 
+		for (const LyingWeapon& weapon : weapons)
+		{
+			weapon.render();
+		}
+
 		glDisable(GL_ALPHA_TEST);
 	}
 
-	void BonusList::addNew()
+	void BonusList::addRandomBonus()
 	{
 		const Level& level = world.getLevel();
 		bool weapon = ((rand() % 2) == 1);
@@ -74,114 +69,44 @@ namespace Duel6
 				{
 					return;
 				}
-				bonuses.push_back(Bonus(Vector(x, y), Weapon::getRandomEnabled(settings), rand() % 10 + 10));
+				Int32 bullets = rand() % 10 + 10;
+				weapons.push_back(LyingWeapon(Weapon::getRandomEnabled(settings), bullets, Vector(x, y)));
 			}
 			else
 			{
-				Size type = rand() % D6_BONUS_COUNT;
-				bonuses.push_back(Bonus(Vector(x + 0.2f, y + 0.2f), type, textures.at(type)));
+				BonusType type = BonusType::values()[rand() % BonusType::values().size()];
+				bool random = (rand() % RANDOM_BONUS_FREQUENCY) == 0;
+				Int32 duration = type.isOneTime() ? 0 : 13 + rand() % 17;
+				bonuses.push_back(Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? randomTexture : type.getTexture()));
 			}
 		}
 	}
 
-	void BonusList::addDeadManGun(Player& player, const Vector& position)
+	void BonusList::addPlayerGun(Player& player, const Vector& position)
 	{
-		bonuses.push_back(Bonus(position, player.getWeapon(), player.getAmmo()));
+		weapons.push_back(LyingWeapon(player.getWeapon(), player.getAmmo(), position));
 	}
 
-	bool BonusList::isApplicable(const Bonus& bonus, const Player& player, bool weapon) const
-	{
-		if (weapon != bonus.isWeapon())
-		{
-			return false;
-		}
-
-		if (!weapon && (bonus.getType() == D6_BONUS_LIFEM && player.isInvulnerable()))
-		{
-			return false;
-		}
-
-		return Collision::rectangles(bonus.getCollisionRect(), player.getCollisionRect());
-	}
-
-	void BonusList::apply(const Bonus& bonus, Player& player)
-	{
-		InfoMessageQueue& messageQueue = world.getMessageQueue();
-		Int32 duration = 13 + rand() % 17;
-		Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
-		Size type = (bonus.getType() == D6_BONUS_GUESS) ? rand() % (D6_BONUS_COUNT - 1) : bonus.getType();
-
-		switch (type)
-		{
-		case D6_BONUS_INVIS:
-			player.setBonus(type, duration).setAlpha(0.2f);
-			messageQueue.add(player, Format("Invisibility for {0} seconds") << duration);
-			break;
-
-		case D6_BONUS_SPEED:
-			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format("Fast movement for {0} seconds") << duration);
-			break;
-
-		case D6_BONUS_LIFEP:
-			player.addLife(Float32(hit));
-			messageQueue.add(player, Format("Life +{0}") << hit);
-			break;
-
-		case D6_BONUS_LIFEM:
-			if (player.hit(Float32(hit)))
-			{
-				player.playSound(PlayerSounds::Type::WasKilled);
-			}
-			messageQueue.add(player, Format("Life -{0}") << hit);
-			break;
-
-		case D6_BONUS_LIFEF:
-			player.setFullLife();
-			messageQueue.add(player, "Full life");
-			break;
-
-		case D6_BONUS_SHOTS:
-			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format("Fast reload for {0} seconds") << duration);
-			break;
-
-		case D6_BONUS_SHOTP:
-			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format("Powerful shots for {0} seconds") << duration);
-			break;
-
-		case D6_BONUS_INVUL:
-			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format("Invulnerability for {0} seconds") << duration);
-			break;
-
-		case D6_BONUS_BULLT:
-			hit = 5 + rand() % 12;
-			player.pickAmmo(hit);
-			messageQueue.add(player, Format("Bullets +{0}") << hit);
-			break;
-
-		case D6_BONUS_SPLITFIRE:
-			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format("Splitfire for {0} seconds") << duration);
-			break;
-
-		case D6_BONUS_VAMPIRESHOTS:
-			player.setBonus(type, duration).setAlpha(1.0f);
-			messageQueue.add(player, Format("Vampire shots for {0} seconds") << duration);
-			break;
-		}
-	}
-
-	void BonusList::check(Player& player)
+	void BonusList::checkBonus(Player& player)
 	{
 		auto bonusIter = bonuses.begin();
 		while (bonusIter != bonuses.end())
 		{
-			if (isApplicable(*bonusIter, player, false))
+			Bonus& bonus = *bonusIter;
+			BonusType type = bonusIter->getType();
+
+			bool collides = Collision::rectangles(bonus.getCollisionRect(), player.getCollisionRect());
+			if (collides && type.isApplicable(player, world))
 			{
-				apply(*bonusIter, player);
+				if (type.isOneTime())
+				{
+					type.onApply(player, world, 0);
+				}
+				else
+				{
+					player.setBonus(type, bonus.getDuration());
+				}
+
 				player.playSound(PlayerSounds::Type::PickedBonus);
 				bonusIter = bonuses.erase(bonusIter);
 			}
@@ -192,32 +117,32 @@ namespace Duel6
 		}
 	}
 
-	void BonusList::pickWeapon(const Bonus& bonus, Player& player)
+	void BonusList::checkWeapon(Player& player)
 	{
-		if (player.getAmmo() > 0)
+		auto weaponIter = weapons.begin();
+		while (weaponIter != weapons.end())
 		{
-			// Leave the current weapon at the same place
-			bonuses.push_back(Bonus(bonus.getPosition(), player.getWeapon(), player.getAmmo()));
-		}
+			LyingWeapon& weapon = *weaponIter;
+			Weapon type = weapon.getWeapon();
 
-		player.pickWeapon(bonus.getWeaponType(), bonus.getBullets());
-		world.getMessageQueue().add(player, Format("You picked up gun {0}") << bonus.getWeaponType().getName());
-	}
-
-	void BonusList::checkPick(Player& player)
-	{
-		auto bonusIter = bonuses.begin();
-		while (bonusIter != bonuses.end())
-		{
-			if (isApplicable(*bonusIter, player, true))
+			bool collides = Collision::rectangles(weapon.getCollisionRect(), player.getCollisionRect());
+			if (collides)
 			{
-				pickWeapon(*bonusIter, player);
-				bonuses.erase(bonusIter);
+				if (player.getAmmo() > 0)
+				{
+					// Leave the current weapon at the same place
+					addPlayerGun(player, weapon.getPosition());
+				}
+
+				player.pickWeapon(type, weapon.getBullets());
+				world.getMessageQueue().add(player, Format("You picked up gun {0}") << type.getName());
+
+				weapons.erase(weaponIter);
 				return;
 			}
 			else
 			{
-				++bonusIter;
+				++weaponIter;
 			}
 		}
 	}

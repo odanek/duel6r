@@ -26,7 +26,6 @@
 */
 
 #include <iterator>
-#include <stdlib.h>
 #include "Sound.h"
 #include "Weapon.h"
 #include "GameSettings.h"
@@ -103,12 +102,11 @@ namespace Duel6
 		return impl != weapon.impl;
 	}
 
-	void Weapon::initialize(Sound& sound, TextureManager& textureManager, GameSettings& settings)
+	void Weapon::initialize(Sound& sound, TextureManager& textureManager)
 	{
 		for (Size i = 0; i < 17; i++)
 		{
-			Weapon weapon = add(LegacyWeapon::create(sound, textureManager, i));
-			settings.enableWeapon(weapon, true);
+			add(LegacyWeapon::create(sound, textureManager, i));
 		}
 	}
 

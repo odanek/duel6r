@@ -208,6 +208,29 @@ set(D6R_SOURCES
 	source/gui/TextBox.h
 	source/gui/TextBox.cpp
 
+    source/bonus/Bullets.h
+    source/bonus/Bullets.cpp
+    source/bonus/FastMovement.h
+    source/bonus/FastMovement.cpp
+    source/bonus/FastReload.h
+    source/bonus/FastReload.cpp
+    source/bonus/FullLife.h
+    source/bonus/FullLife.cpp
+    source/bonus/Invisibility.h
+    source/bonus/Invisibility.cpp
+    source/bonus/Invulnerability.h
+    source/bonus/Invulnerability.cpp
+    source/bonus/MinusLife.h
+    source/bonus/MinusLife.cpp
+    source/bonus/PlusLife.h
+    source/bonus/PlusLife.cpp
+    source/bonus/PowerfulShots.h
+    source/bonus/PowerfulShots.cpp
+    source/bonus/SplitFire.h
+    source/bonus/SplitFire.cpp
+    source/bonus/VampireShots.h
+    source/bonus/VampireShots.cpp
+
     source/weapon/WeaponBase.h
     source/weapon/WeaponBase.cpp
     source/weapon/LegacyWeapon.h

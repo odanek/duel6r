@@ -32,8 +32,8 @@
 
 namespace Duel6
 {
-	Game::Game(AppService& appService, GameSettings& settings)
-		: appService(appService), resources(appService), settings(settings), renderer(appService, *this), playedRounds(0)
+	Game::Game(AppService& appService, GameResources& resources, GameSettings& settings)
+		: appService(appService), resources(resources), settings(settings), renderer(appService, *this), playedRounds(0)
 	{}
 
 	void Game::beforeStart(Context* prevContext)

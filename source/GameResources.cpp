@@ -29,6 +29,8 @@
 #include "GameResources.h"
 #include "Defines.h"
 #include "Fire.h"
+#include "Weapon.h"
+#include "Bonus.h"
 
 namespace Duel6
 {
@@ -39,6 +41,8 @@ namespace Duel6
 		TextureManager& textureManager = appService.getTextureManager();
 
 		console.printLine("\n===Initializing game resources===");
+		console.printLine("\n...Weapon initialization");
+		Weapon::initialize(sound, textureManager);
 		console.printLine("...Building water-list");
 		Water::initialize(sound, appService.getTextureManager());
 		console.printLine("...Loading game sounds");
@@ -65,5 +69,8 @@ namespace Duel6
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
+
+		console.printLine("\n...Bonus initialization");
+		BonusType::initialize(bonusTextures);
 	}
 }

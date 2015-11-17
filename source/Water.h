@@ -53,7 +53,7 @@ namespace Duel6
 
 	private:
 		mutable WaterImpl* impl;
-		static const std::vector<Water> types;
+		static std::vector<Water> types;
 		static std::vector<WaterImplPtr> implementations;
 
 		void assign(WaterImplPtr&& impl) const;

@@ -69,7 +69,7 @@ namespace Duel6
 		manSprite.setPosition(getSpritePosition(), 0.5f);
 		sprite = world.getSpriteList().addSprite(manSprite);
 
-		state.weapon = &weapon;
+		state.weapon = weapon;
 		Sprite gunSprite;
 		weapon.makeSprite(gunSprite);
 		gunSprite.setPosition(getGunSpritePosition(), 0.5f);
@@ -84,7 +84,7 @@ namespace Duel6
 		state.air = D6_MAX_AIR;
 		state.ammo = ammo;
 		state.elevator = nullptr;
-		state.bonus = D6_BONUS_INVUL;
+		state.bonus = BonusType::INVULNERABILITY;
 		state.bonusDuration = 2.0f;
 		state.bonusRemainingTime = 2.0f;
 		state.hpBarDuration = 0;
@@ -208,7 +208,7 @@ namespace Duel6
 	{
 		if (isOnGround() && !isMoving() && !isOnElevator())
 		{
-			world->getBonusList().checkPick(*this);
+			world->getBonusList().checkWeapon(*this);
 		}
 	}
 
@@ -225,7 +225,7 @@ namespace Duel6
 
 		getWeapon().shoot(*this, originalOrientation, *world);
 
-		if (getBonus() == D6_BONUS_SPLITFIRE && getAmmo() > 0)
+		if (getBonus() == BonusType::SPLIT_FIRE && getAmmo() > 0)
 		{
 			state.ammo--;
 			getPerson().addShots(1);
@@ -234,10 +234,10 @@ namespace Duel6
 		}
 	}
 
-	Player& Player::pickWeapon(const Weapon &weapon, Int32 bullets)
+	Player& Player::pickWeapon(Weapon weapon, Int32 bullets)
 	{
 		setFlag(FlagPick);
-		state.weapon = &weapon;
+		state.weapon = weapon;
 		state.ammo = bullets;
 		state.timeToReload = 0;
 		weapon.makeSprite(*gunSprite);
@@ -284,7 +284,7 @@ namespace Duel6
 			spd *= 0.5f;
 		}
 
-		if (getBonus() == D6_BONUS_SPEED)
+		if (getBonus() == BonusType::FAST_MOVEMENT)
 		{
 			spd *= 1.43f;
 		}
@@ -348,7 +348,7 @@ namespace Duel6
 		checkWater(world, elapsedTime);
 		if (isAlive())
 		{
-			world.getBonusList().check(*this);
+			world.getBonusList().checkBonus(*this);
 		}
 
 		checkKeys();
@@ -358,7 +358,7 @@ namespace Duel6
 		// Drop gun if still has it and died
 		if (isLying() && hasGun() && isOnGround())
 		{
-			clearBonus();
+			setBonus(BonusType::NONE, 0);
 			dropWeapon(world.getLevel());
 			unsetFlag(FlagHasGun);
 		}
@@ -376,7 +376,7 @@ namespace Duel6
 		{
 			if ((state.bonusRemainingTime -= elapsedTime) <= 0)
 			{
-				clearBonus();
+				setBonus(BonusType::NONE, 0);
 			}
 		}
 
@@ -572,7 +572,7 @@ namespace Duel6
 		{
 			playSound(PlayerSounds::Type::GotHit);
 			shootingPerson.addHits(1);
-			if (shootingPlayer.getBonus() == D6_BONUS_VAMPIRESHOTS)
+			if (shootingPlayer.getBonus() == BonusType::VAMPIRE_SHOTS)
 			{
 				shootingPlayer.addLife(amount);
 			}
@@ -659,13 +659,13 @@ namespace Duel6
 
 		if (level.isWall(x1, y - 1, true) && !level.isWall(x1, y, true))
 		{
-			world->getBonusList().addDeadManGun(*this, Vector(x1, y));
+			world->getBonusList().addPlayerGun(*this, Vector(x1, y));
 		}
 		else
 		{
 			if (level.isWall(x2, y - 1, true) && !level.isWall(x2, y, true))
 			{
-				world->getBonusList().addDeadManGun(*this, Vector(x2, y));
+				world->getBonusList().addPlayerGun(*this, Vector(x2, y));
 			}
 		}
 	}

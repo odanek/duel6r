@@ -47,9 +47,6 @@
 #include "Defines.h"
 #include "Level.h"
 
-#define D6_MAX_LIFE				100.0f
-#define D6_MAX_AIR				200.0f
-
 namespace Duel6
 {
 	// Forward declarations
@@ -140,7 +137,7 @@ namespace Duel6
 			Float32 life;
 			Float32 air; 
 			Int32 ammo;
-			Int32 bonus;
+			BonusType bonus;
             Int32 roundKills;
 			Float32 timeToReload;
 			Float32 bonusRemainingTime;
@@ -148,7 +145,7 @@ namespace Duel6
 			Float32 hpBarDuration;
 			Float32 timeSinceHit;
 			Float32 tempSkinDuration;
-			const Weapon *weapon;
+			Weapon weapon;
 			const Elevator* elevator;
 		};
 
@@ -259,7 +256,7 @@ namespace Duel6
 
 		const Weapon& getWeapon() const
 		{
-			return *state.weapon;
+			return state.weapon;
 		}
 
 		Int32 getAmmo() const
@@ -289,9 +286,11 @@ namespace Duel6
 			return *this;
 		}
 
-		Player& setBonus(Size type, Int32 duration)
+		Player& setBonus(BonusType type, Int32 duration)
 		{
+			state.bonus.onExpire(*this, *world);
 			state.bonus = type;
+			state.bonus.onApply(*this, *world, duration);
 			state.bonusRemainingTime = Float32(duration);
 			state.bonusDuration = Float32(duration);
 			return *this;
@@ -314,17 +313,9 @@ namespace Duel6
 			return state.timeToReload;
 		}
 
-		Int32 getBonus() const
+		BonusType getBonus() const
 		{
 			return state.bonus;
-		}
-
-		void clearBonus()
-		{
-			setAlpha(1.0f);
-			state.bonus = -1;
-			state.bonusRemainingTime = 0;
-			state.bonusDuration = 0;
 		}
 
 		Float32 getBonusRemainingTime() const
@@ -374,7 +365,7 @@ namespace Duel6
 		}
 
 		void useTemporarySkin(PlayerSkin& tempSkin);
-		Player& pickWeapon(const Weapon &weapon, Int32 bullets);
+		Player& pickWeapon(Weapon weapon, Int32 bullets);
 
 		bool isReloading()
 		{
@@ -429,7 +420,7 @@ namespace Duel6
 
 		bool isInvulnerable() const
 		{
-			return (getBonus() == D6_BONUS_INVUL);
+			return (getBonus() == BonusType::INVULNERABILITY);
 		}
 
 		bool isRising() const
@@ -454,12 +445,12 @@ namespace Duel6
 
 		bool hasPowerfulShots() const
 		{
-			return (getBonus() == D6_BONUS_SHOTP);
+			return (getBonus() == BonusType::POWERFUL_SHOTS);
 		}
 
 		bool hasFastReload() const
 		{
-			return (getBonus() == D6_BONUS_SHOTS);
+			return (getBonus() == BonusType::FAST_RELOAD);
 		}
 
 		bool isOnElevator() const

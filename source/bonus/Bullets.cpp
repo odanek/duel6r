@@ -25,42 +25,43 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_BONUSLIST_H
-#define DUEL6_BONUSLIST_H
-
-#include <list>
-#include "Type.h"
-#include "Bonus.h"
-#include "Player.h"
-#include "PlayerSounds.h"
-#include "TextureManager.h"
-#include "Level.h"
-#include "GameSettings.h"
-#include "GameResources.h"
+#include <stdlib.h>
+#include "../Player.h"
+#include "../World.h"
+#include "Bullets.h"
 
 namespace Duel6
 {
-	class BonusList
+	namespace Bonuses
 	{
-	private:
-		const GameSettings& settings;
-		Texture randomTexture;
-		World& world;
-		std::list<Bonus> bonuses;
-		std::list<LyingWeapon> weapons;
+		Bullets::Bullets(Texture texture)
+			: texture(texture)
+		{}
 
-	private:
-		static const Int32 RANDOM_BONUS_FREQUENCY = 6;
+		Texture Bullets::getTexture() const
+		{
+			return texture;
+		}
 
-	public:
-		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
-		void addRandomBonus();
-		void render() const;
-		void addPlayerGun(Player& player, const Vector& position);
-		void checkBonus(Player& player);
-		void checkWeapon(Player& player);
-	};
+		bool Bullets::isOneTime() const
+		{
+			return true;
+		}
 
+		bool Bullets::isApplicable(Player& player, World& world) const
+		{
+			return true;
+		}
+
+		void Bullets::onApply(Player& player, World& world, Int32 duration) const
+		{
+			Int32 bullets = 5 + rand() % 12;
+			player.pickAmmo(bullets);
+			world.getMessageQueue().add(player, Format("Bullets +{0}") << bullets);
+		}
+
+		void Bullets::onExpire(Player& player, World& world) const
+		{
+		}
+	}
 }
-
-#endif

@@ -25,42 +25,41 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_BONUSLIST_H
-#define DUEL6_BONUSLIST_H
-
-#include <list>
-#include "Type.h"
-#include "Bonus.h"
-#include "Player.h"
-#include "PlayerSounds.h"
-#include "TextureManager.h"
-#include "Level.h"
-#include "GameSettings.h"
-#include "GameResources.h"
+#include "../Player.h"
+#include "../World.h"
+#include "FullLife.h"
 
 namespace Duel6
 {
-	class BonusList
+	namespace Bonuses
 	{
-	private:
-		const GameSettings& settings;
-		Texture randomTexture;
-		World& world;
-		std::list<Bonus> bonuses;
-		std::list<LyingWeapon> weapons;
+		FullLife::FullLife(Texture texture)
+			: texture(texture)
+		{}
 
-	private:
-		static const Int32 RANDOM_BONUS_FREQUENCY = 6;
+		Texture FullLife::getTexture() const
+		{
+			return texture;
+		}
 
-	public:
-		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
-		void addRandomBonus();
-		void render() const;
-		void addPlayerGun(Player& player, const Vector& position);
-		void checkBonus(Player& player);
-		void checkWeapon(Player& player);
-	};
+		bool FullLife::isOneTime() const
+		{
+			return true;
+		}
 
+		bool FullLife::isApplicable(Player& player, World& world) const
+		{
+			return true;
+		}
+
+		void FullLife::onApply(Player& player, World& world, Int32 duration) const
+		{
+			player.setFullLife();
+			world.getMessageQueue().add(player, "Full life");
+		}
+
+		void FullLife::onExpire(Player& player, World& world) const
+		{
+		}
+	}
 }
-
-#endif

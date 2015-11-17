@@ -67,7 +67,7 @@ namespace Duel6
 		// Add new bonuses
 		if (rand() % int(3.0f / elapsedTime) == 0)
 		{
-			bonusList.addNew();
+			bonusList.addRandomBonus();
 		}
 	}
 

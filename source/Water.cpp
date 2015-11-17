@@ -140,7 +140,7 @@ namespace Duel6
 	const Water Water::BLUE;
 	const Water Water::RED;
 	const Water Water::GREEN;
-	const std::vector<Water> Water::types = { NONE, BLUE, RED, GREEN };
+	std::vector<Water> Water::types;
 	std::vector<Water::WaterImplPtr> Water::implementations;
 
 	Water::Water()
@@ -166,6 +166,7 @@ namespace Duel6
 	{
 		this->impl = impl.get();
 		implementations.push_back(std::forward<WaterImplPtr>(impl));
+		types.push_back(*this);
 	}
 
 	void Water::initialize(Sound& sound, TextureManager& textureManager)

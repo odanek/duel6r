@@ -25,42 +25,29 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_BONUSLIST_H
-#define DUEL6_BONUSLIST_H
+#ifndef DUEL6_BONUS_PLUSLIFE_H
+#define DUEL6_BONUS_PLUSLIFE_H
 
-#include <list>
-#include "Type.h"
-#include "Bonus.h"
-#include "Player.h"
-#include "PlayerSounds.h"
-#include "TextureManager.h"
-#include "Level.h"
-#include "GameSettings.h"
-#include "GameResources.h"
+#include "../Bonus.h"
 
 namespace Duel6
 {
-	class BonusList
+	namespace Bonuses
 	{
-	private:
-		const GameSettings& settings;
-		Texture randomTexture;
-		World& world;
-		std::list<Bonus> bonuses;
-		std::list<LyingWeapon> weapons;
+		class PlusLife : public BonusTypeImpl
+		{
+		private:
+			Texture texture;
 
-	private:
-		static const Int32 RANDOM_BONUS_FREQUENCY = 6;
-
-	public:
-		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
-		void addRandomBonus();
-		void render() const;
-		void addPlayerGun(Player& player, const Vector& position);
-		void checkBonus(Player& player);
-		void checkWeapon(Player& player);
-	};
-
+		public:
+			PlusLife(Texture texture);
+			Texture getTexture() const override;
+			bool isOneTime() const override;
+			bool isApplicable(Player& player, World& world) const override;
+			void onApply(Player& player, World& world, Int32 duration) const override;
+			void onExpire(Player& player, World& world) const override;
+		};
+	}
 }
 
 #endif

@@ -90,7 +90,7 @@ namespace Duel6
 
 	public:
 		static const std::vector<Weapon>& values();
-		static void initialize(Sound& sound, TextureManager& textureManager, GameSettings& settings);
+		static void initialize(Sound& sound, TextureManager& textureManager);
 		static const Weapon& getRandomEnabled(const GameSettings& settings);
 	};
 }

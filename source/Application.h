@@ -49,6 +49,7 @@ namespace Duel6
 		AppService service;
 		Menu menu;
 		GameSettings gameSettings;
+		std::unique_ptr<GameResources> gameResources;
 		std::unique_ptr<Game> game;
 		bool requestClose;
 

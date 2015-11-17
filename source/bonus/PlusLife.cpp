@@ -25,42 +25,42 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_BONUSLIST_H
-#define DUEL6_BONUSLIST_H
-
-#include <list>
-#include "Type.h"
-#include "Bonus.h"
-#include "Player.h"
-#include "PlayerSounds.h"
-#include "TextureManager.h"
-#include "Level.h"
-#include "GameSettings.h"
-#include "GameResources.h"
+#include "../Player.h"
+#include "../World.h"
+#include "PlusLife.h"
 
 namespace Duel6
 {
-	class BonusList
+	namespace Bonuses
 	{
-	private:
-		const GameSettings& settings;
-		Texture randomTexture;
-		World& world;
-		std::list<Bonus> bonuses;
-		std::list<LyingWeapon> weapons;
+		PlusLife::PlusLife(Texture texture)
+			: texture(texture)
+		{}
 
-	private:
-		static const Int32 RANDOM_BONUS_FREQUENCY = 6;
+		Texture PlusLife::getTexture() const
+		{
+			return texture;
+		}
 
-	public:
-		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
-		void addRandomBonus();
-		void render() const;
-		void addPlayerGun(Player& player, const Vector& position);
-		void checkBonus(Player& player);
-		void checkWeapon(Player& player);
-	};
+		bool PlusLife::isOneTime() const
+		{
+			return true;
+		}
 
+		bool PlusLife::isApplicable(Player& player, World& world) const
+		{
+			return true;
+		}
+
+		void PlusLife::onApply(Player& player, World& world, Int32 duration) const
+		{
+			Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
+			player.addLife(Float32(hit));
+			world.getMessageQueue().add(player, Format("Life +{0}") << hit);
+		}
+
+		void PlusLife::onExpire(Player& player, World& world) const
+		{
+		}
+	}
 }
-
-#endif

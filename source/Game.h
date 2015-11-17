@@ -94,7 +94,7 @@ namespace Duel6
 
 	private:
 		AppService& appService;
-		GameResources resources;
+		GameResources& resources;
 		GameSettings& settings;
 		GameMode* gameMode;
 		std::unique_ptr<Round> round;
@@ -108,7 +108,7 @@ namespace Duel6
 		std::vector<PlayerSkin> skins;
 
 	public:
-		Game(AppService& appService, GameSettings& settings);
+		Game(AppService& appService, GameResources& resources, GameSettings& settings);
 
 		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode);
 		void keyEvent(const KeyPressEvent& event) override;
