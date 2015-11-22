@@ -50,7 +50,7 @@ namespace Duel6
 		virtual void onExpire(Player& player, World& world) const = 0;
 	};
 
-	class BonusType
+	class BonusType final
 	{
 	private:
 		typedef std::unique_ptr<BonusTypeImpl> BonusTypeImplPtr;
