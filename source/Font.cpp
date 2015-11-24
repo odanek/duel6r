@@ -88,14 +88,4 @@ namespace Duel6
 
 		glEnd();
 	}
-
-	void Font::print(Int32 x, Int32 y, const Color& color, char character) const
-	{
-		y += charHeight - 1;
-
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		glBegin(GL_POINTS);
-			drawChar(x, y, character);
-		glEnd();
-	}
 }

@@ -37,26 +37,30 @@ Popis: Vykresleni konzoly
 
 namespace Duel6
 {
-	static Color conCol[4] =
+	namespace
 	{
-		Color(0, 0, 0),			// Font
-		Color(238, 221, 221),	// Background Up
-		Color(238, 221, 0),		// Background Down
-		Color(255, 0, 0)        // Separator
-	};
+		Color conCol[4] =
+		{
+			Color(0, 0, 0),			// Font
+			Color(238, 221, 221),	// Background top
+			Color(238, 221, 0),		// Background bottom
+			Color(255, 0, 0)        // Separator
+		};
+	}
 
 	void Console::renderLine(int y, Size pos, Int32 len, const Font& font) const
 	{
-		Int32 x = 0;
-
-		for (Int32 i = 0; i < len; i++, x += font.getCharWidth())
+		std::string line;
+		for (Int32 i = 0; i < len; i++, pos++)
 		{
 			if (pos >= CON_TEXT_SIZE)
 			{
 				pos -= CON_TEXT_SIZE;
 			}
-			font.print(x, y, conCol[0], text[pos++]);
+			line += text[pos];
 		}
+
+		font.print(0, y, conCol[0], line);
 	}
 
 	void Console::renderHistory(Int32 csY, const Font& font) const
@@ -131,32 +135,21 @@ namespace Duel6
 
 	void Console::renderSeparator(Int32 csY, const Font& font) const
 	{
-		Int32 x = 0;
 		Int32 y = csY - (show + 1) * font.getCharHeight();
-		char separatorChar = scroll ? '^' : '=';
-
-		for (Int32 i = 0; i < width; i++, x += font.getCharWidth())
-		{
-			font.print(x, y, conCol[3], separatorChar);
-		}
+		std::string separatorLine(width, scroll ? '^' : '=');
+		font.print(0, y, conCol[3], separatorLine);
 	}
 
 	void Console::renderInputLine(Int32 csY, const Font& font) const
 	{
 		Int32 y = csY - (show + 2) * font.getCharHeight();
-		Int32 d = ((int)input.length()) - inputscroll;
-		
-		char openingChar = (inputscroll > 0) ? '<' : ']';
-		font.print(0, y, conCol[0], openingChar);
 
-		Int32 x = font.getCharWidth();
-		for (Int32 i = 0; i < d; i++, x += font.getCharWidth())
-		{
-			font.print(x, y, conCol[0], (Uint8)input[inputscroll + i]);
-		}
+		std::string line = (inputscroll > 0) ? "<" : "]";
+		line += input.substr((size_t)inputscroll);
+		font.print(0, y, conCol[0], line);
 
-		x = font.getCharWidth() * (curpos - inputscroll + 1);
-		char cursor = insert ? 219 : '_';
+		int x = font.getCharWidth() * (curpos - inputscroll + 1);
+		std::string cursor = insert ? std::string(1, char(219)) : "_";
 		if ((clock() % CLOCKS_PER_SEC) > (CLOCKS_PER_SEC >> 1))
 		{
 			font.print(x, y, conCol[0], cursor);

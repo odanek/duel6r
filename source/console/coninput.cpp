@@ -34,31 +34,26 @@ Popis: Zpracovani prikazove radky
 
 namespace Duel6
 {
-	/*
-	==================================================
-	Opravi pozici od ktere se zobrazuje prikazova radka
-	==================================================
-	*/
 	void Console::setInputScroll()
 	{
-		int l = (int)input.length(), w = width - 1;
+		int inputLength = (int)input.length(), w = width - 1;
 
-		if (curpos == l)
+		if (curpos == inputLength)
 		{
-			inputscroll = (l + 2) - width;
+			inputscroll = (inputLength + 2) - width;
 			if (inputscroll < 0)
 				inputscroll = 0;
 			return;
 		}
 
-		if (l <= w)
+		if (inputLength <= w)
 		{
 			inputscroll = 0;
 			return;
 		}
 
-		if (l - inputscroll < w)
-			inputscroll = l - w;
+		if (inputLength - inputscroll < w)
+			inputscroll = inputLength - w;
 
 		if (curpos < inputscroll)
 			inputscroll = curpos;

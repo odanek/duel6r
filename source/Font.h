@@ -53,7 +53,6 @@ namespace Duel6
 
 		void load(const std::string& fontFile);
 		void print(Int32 x, Int32 y, const Color& color, const std::string& str) const;
-		void print(Int32 x, Int32 y, const Color& color, char character) const;		
 		
 		Int32 getCharWidth() const
 		{
