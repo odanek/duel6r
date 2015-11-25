@@ -248,7 +248,7 @@ namespace Duel6
 	{
 		Float32 speed = getSpeed() * elapsedTime;
 
-		if (isOnElevator() && level.isWall((Int32) getPosition().x, (Int32) getPosition().y, false))
+		if (isOnElevator() && level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, false))
 		{
 			state.velocity = 0;
 		}
@@ -762,7 +762,7 @@ namespace Duel6
 		if (state.velocity < 0)
 		{
 			Float32 left = getPosition().x + 0.1f; // TODO: Coord
-			if (level.isWall(left, up, true) || level.isWall(left, down, true))
+			if (level.isWall(left, up, true) || level.isWall(left, down, true) || (left < 0))
 			{
 				state.position.x = floorf(left) + 0.9001f; // TODO: Coord
 			}
@@ -773,6 +773,20 @@ namespace Duel6
 			if (level.isWall(right, up, true) || level.isWall(right, down, true))
 			{
 				state.position.x = floorf(right) - 0.9001f; // TODO: Coord
+			}
+		}
+		if(getPosition().x - 0.5f < Float32(0))
+		{
+			while(level.isWall(getPosition().x, up, true))
+			{
+				state.position.x += 0.5f;
+			}
+		}
+		if(getPosition().x + 0.5f > Float32(level.getWidth()))
+		{
+			while(level.isWall(getPosition().x, up, true))
+			{
+				state.position.x -= 0.5f;
 			}
 		}
 	}
