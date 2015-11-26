@@ -82,6 +82,7 @@ set(D6R_SOURCES
     source/Fire.cpp
     source/Font.h
     source/Font.cpp
+    source/FontException.h
     source/Format.h
     source/Format.cpp
     source/FormatException.h
@@ -300,30 +301,21 @@ else(WIN32) # Linux GCC
 endif(WIN32)
 
 # SDL
-if(NOT APPLE)
-	find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
-	include_directories(${HEADERS_SDL2})
-endif(NOT APPLE)
-
-if(MSVC)
-    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library (release version)")
-    find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library (release version)")
-    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library (release version)")
-    find_library(LIB_SDL2_D SDL2d DOC "Path to SDL2 import library (debug version)")
-    find_library(LIB_SDL2_MAIN_D SDL2maind DOC "Path to SDL2main import library (debug version)")
-    find_library(LIB_SDL2_MIXER_D SDL2_mixerd DOC "Path to SDL2_mixer import library (debug version)")
-    target_link_libraries(${D6R_APP_NAME} optimized ${LIB_SDL2_MAIN} optimized ${LIB_SDL2} optimized ${LIB_SDL2_MIXER}
-        debug ${LIB_SDL2_MAIN_D} debug ${LIB_SDL2_D} debug ${LIB_SDL2_MIXER_D})
-elseif(APPLE)
+if(APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})    
-else(MSVC) # GCC or MINGW
+    find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf framework")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
+else(APPLE) # MSVC, GCC or MINGW
+    find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
+    include_directories(${HEADERS_SDL2})
+
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER})
-endif(MSVC)
+    find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
+endif(APPLE)
 
 ########################
 #  Install application

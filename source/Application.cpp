@@ -32,6 +32,7 @@
 #include "Menu.h"
 #include "ConsoleCommands.h"
 #include "Application.h"
+#include "FontException.h"
 
 namespace Duel6
 {
@@ -194,15 +195,32 @@ namespace Duel6
 
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
-			D6_THROW(VideoException, std::string("Unable to set graphics mode: ") + SDL_GetError());
+			D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());
 		}
+		if (TTF_Init() != 0)
+		{
+			D6_THROW(FontException, Format("Unable to initialize font subsystem: {0}") << TTF_GetError());
+		}
+
+		// Print application info
+		SDL_version sdlVersion;
+		console.printLine("\n===Application information===");
+		console.printLine(Format("{0} version: {1}") << APP_NAME << APP_VERSION);
+		SDL_GetVersion(&sdlVersion);
+		console.printLine(Format("SDL version: {0}.{1}.{2}") << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
+		const SDL_version* mixVersion = Mix_Linked_Version();
+		console.printLine(Format("SDL_mixer version: {0}.{1}.{2}") << mixVersion->major << mixVersion->minor << mixVersion->patch);
+		const SDL_version* ttfVersion = TTF_Linked_Version();
+		console.printLine(Format("SDL_ttf version: {0}.{1}.{2}") << ttfVersion->major << ttfVersion->minor << ttfVersion->patch);
 
 		Console::registerBasicCommands(console);
 		ConsoleCommands::registerCommands(console, service, menu, gameSettings);
 
 		Math::initialize();
 
-		font.load(D6_FILE_FONT);
+		console.printLine("\n===Font initialization===");
+		font.load(D6_FILE_TTF_FONT, console);
+
 		video.initialize(APP_NAME, APP_FILE_ICON, console);
 		menu.initialize();
 
@@ -249,6 +267,9 @@ namespace Duel6
 
 	void Application::tearDown()
 	{
+		textureManager.disposeAll();
+		font.dispose();
+		TTF_Quit();
 		SDL_Quit();
 	}
 }

@@ -155,7 +155,6 @@ namespace Duel6
 
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		glCullFace(GL_FRONT);
-		glAlphaFunc(GL_GEQUAL, 1);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);

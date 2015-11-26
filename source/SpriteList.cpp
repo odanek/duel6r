@@ -61,6 +61,7 @@ namespace Duel6
 	void SpriteList::render() const
 	{
 		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GEQUAL, 1);
 		glDisable(GL_CULL_FACE);
 
 		renderTransparent(false);

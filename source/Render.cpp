@@ -60,6 +60,7 @@ namespace Duel6
 	void Renderer::sprites(const FaceList& sprites) const
 	{
 		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GEQUAL, 1);
 		glDisable(GL_CULL_FACE);
 
 		sprites.render(game.getResources().getBlockTextures());
@@ -287,6 +288,7 @@ namespace Duel6
 		{
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GEQUAL, 1);
 			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextureList().at(3).getId());
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);
@@ -310,6 +312,7 @@ namespace Duel6
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GEQUAL, 1);
 			glBindTexture(GL_TEXTURE_2D, player.getBonus().getTexture().getId());
 			glColor3ub(255, 255, 255);
 			glBegin(GL_QUADS);

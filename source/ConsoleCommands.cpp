@@ -260,17 +260,6 @@ namespace Duel6
 
 	void ConsoleCommands::registerCommands(Console& console, AppService& appService, Menu& menu, GameSettings& gameSettings)
 	{
-		SDL_version sdlVersion;
-		std::string verStr = "version";
-
-		// Print application info
-		console.printLine("\n===Application information===");
-		console.printLine(Format("{0} {1}: {2}") << APP_NAME << verStr << APP_VERSION);
-		SDL_GetVersion(&sdlVersion);
-		console.printLine(Format("SDL {0}: {1}.{2}.{3}") << verStr << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
-		const SDL_version* mixVersion = Mix_Linked_Version();
-		console.printLine(Format("SDL_mixer {0}: {1}.{2}.{3}") << verStr << mixVersion->major << mixVersion->minor << mixVersion->patch);
-
 		// Set some console functions
 		console.setLast(15);
 		console.registerCommand("switch_render_mode", [&gameSettings](Console& con, const Console::Arguments& args) {
