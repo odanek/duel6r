@@ -25,54 +25,20 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_FONT_H
-#define DUEL6_FONT_H
+#ifndef DUEL6_FONTEXCEPTION_H
+#define DUEL6_FONTEXCEPTION_H
 
-#include <vector>
-#if defined(__APPLE__)
-	#include <SDL2_ttf/SDL_ttf.h>
-#else
-	#include <SDL2/SDL_ttf.h>
-#endif
-#include "Type.h"
-#include "Color.h"
-#include "Format.h"
-#include "Texture.h"
+#include "Exception.h"
 
 namespace Duel6
 {
-	class Console;
-
-	class Font
+	class FontException
+		: public Exception
 	{
-	private:
-		TTF_Font* font;
-
 	public:
-		Font();
-		~Font();
-
-		void load(const std::string& fontFile, Console& console);
-		void print(Int32 x, Int32 y, const Color& color, const std::string& str) const;
-		void print(Float32 x, Float32 y, Float32 z, const Color& color, const std::string& str, Float32 height) const;
-		void dispose();
-
-		Float32 getTextWidth(const std::string& str, Float32 height) const;
-		Int32 getTextWidth(const std::string& str, Int32 height) const;
-
-		Int32 getCharWidth() const
-		{
-			return 8;
-		}
-
-		Int32 getCharHeight() const
-		{
-			return 16;
-		}
-
-	private:
-		Texture getTexture(const std::string& text) const;
-		Texture renderText(const std::string& text) const;
+		FontException(const std::string& file, Size line, const std::string& message)
+			: Exception(file, line, message)
+		{}
 	};
 }
 

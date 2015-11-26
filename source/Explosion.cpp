@@ -55,6 +55,8 @@ namespace Duel6
 	void ExplosionList::render() const
 	{
 		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GEQUAL, 1);
+
 		glDisable(GL_DEPTH_TEST);
 		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
 		glBegin(GL_QUADS);

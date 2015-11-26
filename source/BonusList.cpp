@@ -40,6 +40,7 @@ namespace Duel6
 	void BonusList::render() const
 	{
 		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GEQUAL, 1);
 
 		for (const Bonus& bonus : bonuses)
 		{

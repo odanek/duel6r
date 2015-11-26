@@ -40,6 +40,7 @@ namespace Duel6
 	namespace Util
 	{
 		void loadTargaImage(const std::string& path, Image& image);
+		void saveTarga(const std::string& path, const Image& image);
 		Texture createTexture(const Image& image, TextureFilter filtering, bool clamp);
 		std::string saveScreenTga(const Video& video);
 	}
