@@ -107,19 +107,7 @@ namespace Duel6
 			return false;
 		}
 
-		while (y-- > 0)
-		{
-			if (level.isWater(x, y))
-			{
-				return false;
-			}
-			if (level.isWall(x, y, true))
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return level.isWall(x, y - 1, true);
 	}
 
 	void Round::findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions)
@@ -143,10 +131,11 @@ namespace Duel6
 			D6_THROW(GameException, "No acceptable starting positions found in this level");
 		}
 
+		std::random_shuffle(possibleStartingPositions.begin(), possibleStartingPositions.end());
+
 		for (Size i = 0; i < world.getPlayers().size(); ++i)
 		{
-			Int32 arbitraryPosition = rand() % possibleStartingPositions.size();
-			startingPositions.push(possibleStartingPositions[arbitraryPosition]);
+			startingPositions.push(possibleStartingPositions[i % possibleStartingPositions.size()]);
 		}
 	}
 
