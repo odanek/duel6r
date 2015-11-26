@@ -779,14 +779,14 @@ namespace Duel6
 		{
 			while(level.isWall(getPosition().x, up, true))
 			{
-				state.position.x += 0.5f;
+				position.x += 0.5f;
 			}
 		}
 		if(getPosition().x + 0.5f > Float32(level.getWidth()))
 		{
 			while(level.isWall(getPosition().x, up, true))
 			{
-				state.position.x -= 0.5f;
+				position.x -= 0.5f;
 			}
 		}
 	}
