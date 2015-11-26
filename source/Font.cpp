@@ -179,7 +179,7 @@ namespace Duel6
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(x, y + height, z);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(x + width, y + 16, z);
+		glVertex3f(x + width, y + height, z);
 		glTexCoord2f(1.0f, 1.0f);
 		glVertex3f(x + width, y, z);
 		glEnd();
