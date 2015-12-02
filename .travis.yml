@@ -6,11 +6,12 @@ compiler:
 before_install:
 - yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
 - yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+- yes | sudo add-apt-repository ppa:george-edison55/cmake-3.x
 - sudo apt-get update -qq
 
 install:
 - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev gcc-4.9
-  gcc-4.9-base g++-4.9 cpp-4.9
+  gcc-4.9-base g++-4.9 cpp-4.9 cmake software-properties-common
 
 before_script:
   - mkdir build
