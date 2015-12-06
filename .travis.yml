@@ -13,7 +13,9 @@ addons:
     - libsdl2-mixer-dev
 
 install:
-    - export CXX="g++-5" CC="gcc-5"
+    - export CXX="g++-5"
+    - CC="gcc-5"
+    - g++ --version
 
 before_script:
   - mkdir build
