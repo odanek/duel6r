@@ -3,12 +3,17 @@ language: cpp
 addons:
   apt:
     sources:
+    - llvm-toolchain-precise
     - ubuntu-toolchain-r-test
     packages:
+    - g++-5
     - gcc-5
     - libsdl2-dev
     - libsdl2-image-dev
     - libsdl2-mixer-dev
+
+install:
+    - export CXX="g++-5" CC="gcc-5"
 
 before_script:
   - mkdir build
