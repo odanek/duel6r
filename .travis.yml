@@ -7,23 +7,14 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - kalakris-cmake
     packages:
     - libsdl2-dev
     - libsdl2-image-dev
     - libsdl2-mixer-dev
-    - gcc-4.9
-    - gcc-4.9-base
-    - g++-4.9
-    - cpp-4.9
-    - cmake
-    - software-properties-common
 
 before_script:
   - mkdir build
   - cd build
-  - export CC=gcc-4.9
-  - export CXX=g++-4.9
   - cmake ..
 
 script: make
