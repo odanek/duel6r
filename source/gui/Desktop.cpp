@@ -121,5 +121,13 @@ namespace Duel6
 				control->mouseMotionEvent(translatedEvent);
 			}
 		}
+
+		void Desktop::mouseWheelEvent(const MouseWheelEvent& event)
+		{
+			for (auto& control : controls)
+			{
+				control->mouseWheelEvent(event);
+			}
+		}
 	}
 }

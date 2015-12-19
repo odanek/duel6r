@@ -101,6 +101,7 @@ namespace Duel6
 		void textInputEvent(const TextInputEvent& event) override;
 		void mouseButtonEvent(const MouseButtonEvent& event) override;
 		void mouseMotionEvent(const MouseMotionEvent& event) override;
+		void mouseWheelEvent(const MouseWheelEvent& event) override;
 		void update(Float32 elapsedTime) override;
 		void render() const override;
 

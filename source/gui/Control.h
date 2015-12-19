@@ -82,6 +82,7 @@ namespace Duel6
 			virtual void textInputEvent(const TextInputEvent& event) {}
 			virtual void mouseMotionEvent(const MouseMotionEvent& event) {}
 			virtual void mouseButtonEvent(const MouseButtonEvent& event) {}
+			virtual void mouseWheelEvent(const MouseWheelEvent& event) {}
 
 		protected:
 			static void drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p);

@@ -149,6 +149,28 @@ namespace Duel6
 		}
 	};
 
+	class MouseWheelEvent : public MouseEvent
+	{
+	private:
+		Int32 amountX;
+		Int32 amountY;
+
+	public:
+		MouseWheelEvent(Int32 x, Int32 y, Int32 amountX, Int32 amountY)
+		: MouseEvent(x, y), amountX(amountX), amountY(amountY)
+		{}
+
+		Int32 getAmountX() const
+		{
+			return amountX;
+		}
+
+		Int32 getAmountY() const
+		{
+			return amountY;
+		}
+	};
+
 	class KeyPressEvent : public SysEvent
 	{
 	private:

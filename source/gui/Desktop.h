@@ -57,6 +57,7 @@ namespace Duel6
 			void textInputEvent(const TextInputEvent& event);
 			void mouseButtonEvent(const MouseButtonEvent& event);
 			void mouseMotionEvent(const MouseMotionEvent& event);
+			void mouseWheelEvent(const MouseWheelEvent& event);
 
 			void addControl(Control* control);
 		};

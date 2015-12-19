@@ -67,6 +67,7 @@ namespace Duel6
 		void keyEvent(Context& context, const KeyPressEvent& event);
 		void mouseButtonEvent(Context& context, const MouseButtonEvent& event);
 		void mouseMotionEvent(Context& context, const MouseMotionEvent& event);
+		void mouseWheelEvent(Context& context, const MouseWheelEvent& event);
 		void syncUpdateAndRender(Context& context);
 	};
 }

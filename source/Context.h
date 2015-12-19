@@ -69,6 +69,7 @@ namespace Duel6
 		virtual void textInputEvent(const TextInputEvent& event) = 0;
 		virtual void mouseButtonEvent(const MouseButtonEvent& event) = 0;
 		virtual void mouseMotionEvent(const MouseMotionEvent& event) = 0;
+		virtual void mouseWheelEvent(const MouseWheelEvent& event) = 0;
 		virtual void update(Float32 elapsedTime) = 0;
 		virtual void render() const = 0;
 
