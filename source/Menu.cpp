@@ -668,6 +668,11 @@ namespace Duel6
 		gui.mouseMotionEvent(event);
 	}
 
+	void Menu::mouseWheelEvent(const MouseWheelEvent& event)
+	{
+		gui.mouseWheelEvent(event);
+	}
+
 	void Menu::beforeClose(Context* newContext)
 	{
 		SDL_StopTextInput();

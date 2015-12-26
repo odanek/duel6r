@@ -775,20 +775,8 @@ namespace Duel6
 				position.x = floorf(right) - 0.9001f; // TODO: Coord
 			}
 		}
-		if(getPosition().x - 0.5f < Float32(0))
-		{
-			while(level.isWall(getPosition().x, up, true))
-			{
-				position.x += 0.5f;
-			}
-		}
-		if(getPosition().x + 0.5f > Float32(level.getWidth()))
-		{
-			while(level.isWall(getPosition().x, up, true))
-			{
-				position.x -= 0.5f;
-			}
-		}
+
+		position.x = std::max(-0.1f, std::min(position.x, level.getWidth() - 0.9f));
 	}
 
 	void Player::checkElevator()

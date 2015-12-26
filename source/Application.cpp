@@ -138,6 +138,11 @@ namespace Duel6
 		context.mouseMotionEvent(event);
 	}
 
+	void Application::mouseWheelEvent(Context& context, const MouseWheelEvent& event)
+	{
+		context.mouseWheelEvent(event);
+	}
+
 	void Application::processEvents(Context& context)
 	{
 		SDL_Event event;
@@ -159,6 +164,9 @@ namespace Duel6
 				break;
 			case SDL_MOUSEMOTION:
 				mouseMotionEvent(context, createMouseMotionEvent(event.motion, video.getScreen().getClientHeight()));
+				break;
+			case SDL_MOUSEWHEEL:
+				mouseWheelEvent(context, MouseWheelEvent(0, 0, event.wheel.x, event.wheel.y));
 				break;
 			case SDL_QUIT:
 				requestClose = true;

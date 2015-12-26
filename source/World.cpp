@@ -48,7 +48,7 @@ namespace Duel6
 		console.printLine(Format("...Water   : {0}") << levelRenderData.getWater().getFaces().size());
 
 		console.printLine("...Level initialization");
-		console.printLine("...Loading elevators: ");
+		console.printLine("...Loading elevators");
 		elevatorList.load(levelPath, mirror);
 		fireList.find(levelRenderData.getSprites());
 	}
