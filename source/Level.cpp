@@ -39,7 +39,7 @@ namespace Duel6
 	void Level::load(const std::string& path, bool mirror)
 	{
 		levelData.clear();
-		waterLevel = 0;
+		waterLevel = -1;
 		Json::Parser parser;
 		Json::Value root = parser.parse(path);
 

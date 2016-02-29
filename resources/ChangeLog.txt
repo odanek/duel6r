@@ -1,3 +1,20 @@
+4.1.0 (february 2016)
+======================
+- JSON writer with pretty-print added, person data are now saved in JSON format
+- GUI classes refactoring
+- Red and green waterfalls
+- Water rising now uses the level water color
+- 2 new levels added
+- World class refactoring
+- Ghost mode
+- Fire and explosion refactoring
+- Game modes added: TeamDeathMatch and Predator
+- Game time statistic
+- Huge shot and weapon refactoring
+- Double-click support in main menu
+- Bonus refactoring
+- TTF support
+
 4.0.1 (march 2015)
 ===================
 - Customizable player sounds
