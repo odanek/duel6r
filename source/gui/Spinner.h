@@ -48,11 +48,11 @@ namespace Duel6
 			Spinner(Desktop& desk);
 			~Spinner();
 
-			void setPosition(int X, int Y, int W, int H);
+			void setPosition(Int32 X, Int32 Y, Int32 W, Int32 H);
 			void addItem(const std::string& item);
-			void delItem(int n);
-			void setCur(int n);
-			int curItem();
+			void removeItem(Int32 n);
+			void setCurrent(Int32 n);
+			Int32 currentItem();
 			void clear();
 
 			Control::Type getType() const override

@@ -54,24 +54,24 @@ namespace Duel6
 			now = -1;
 		}
 
-		int Spinner::curItem()
+		Int32 Spinner::currentItem()
 		{
 			return now;
 		}
 
-		void Spinner::setCur(int n)
+		void Spinner::setCurrent(Int32 n)
 		{
 			now = n;
 		}
 
-		void Spinner::delItem(int n)
+		void Spinner::removeItem(Int32 n)
 		{
-			if (n < 0 || n >= (int)items.size())
+			if (n < 0 || n >= (Int32)items.size())
 				return;
 
 			items.erase(items.begin() + n);
-			if (now >= (int)items.size())
-				now = int(items.size()) - 1;
+			if (now >= (Int32)items.size())
+				now = Int32(items.size()) - 1;
 		}
 
 		void Spinner::addItem(const std::string& item)
@@ -83,7 +83,7 @@ namespace Duel6
 			}
 		}
 
-		void Spinner::setPosition(int X, int Y, int W, int H)
+		void Spinner::setPosition(Int32 X, Int32 Y, Int32 W, Int32 H)
 		{
 			left->setPosition(X, Y - 1, 18, 18);
 			right->setPosition(X + W - 18, Y - 1, 18, 18);

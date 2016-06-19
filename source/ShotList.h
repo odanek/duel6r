@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <list>
+#include <functional>
 #include "Shot.h"
 #include "Orientation.h"
 

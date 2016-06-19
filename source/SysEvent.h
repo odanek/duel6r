@@ -29,6 +29,7 @@
 #define DUEL6_SYSEVENT_H
 
 #include <SDL2/SDL.h>
+#include <string>
 #include "Type.h"
 
 namespace Duel6

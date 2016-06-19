@@ -43,7 +43,7 @@ namespace Duel6
 		std::string message;
 
 	public:
-		Exception(const std::string& file, Size line, const std::string& message)
+		Exception(const std::string& file, Int32 line, const std::string& message)
 			: file(file), line(line), message(message)
 		{}
 

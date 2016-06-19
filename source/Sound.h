@@ -76,13 +76,13 @@ namespace Duel6
 
 	private:
 		Console& console;
-		Size channels;
+		Int32 channels;
 		bool playing;
 		std::vector<Mix_Music*> modules;
 		std::vector<Mix_Chunk*> samples;
 
 	public:
-		Sound(Size channels, Console& console);
+		Sound(Int32 channels, Console& console);
 		~Sound();
 
 		Track loadModule(const std::string& fileName);
