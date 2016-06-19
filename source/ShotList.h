@@ -49,6 +49,8 @@ namespace Duel6
 		ShotList();
 		void addShot(ShotPointer&& shot);
 		void update(World& world, Float32 elapsedTime);
+		void forEach(std::function<bool(const Shot&)> handler) const;
+		void forEach(std::function<bool(Shot&)> handler);
 	};
 }
 

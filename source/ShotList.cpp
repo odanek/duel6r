@@ -57,4 +57,26 @@ namespace Duel6
 			}
 		}
 	}
+
+	void ShotList::forEach(std::function<bool(const Shot&)> handler) const
+	{
+		for (auto& shotPointer : shots)
+		{
+			if (!handler(*shotPointer))
+			{
+				break;
+			}
+		}
+	}
+
+	void ShotList::forEach(std::function<bool(Shot&)> handler)
+	{
+		for (auto& shotPointer : shots)
+		{
+			if (!handler(*shotPointer))
+			{
+				break;
+			}
+		}
+	}
 }

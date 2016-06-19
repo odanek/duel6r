@@ -32,6 +32,7 @@
 #include "../Vector.h"
 #include "../SpriteList.h"
 #include "../Player.h"
+#include "../ShotList.h"
 #include "LegacyWeapon.h"
 #include "ShotBase.h"
 
@@ -39,13 +40,6 @@ namespace Duel6
 {
 	class LegacyShot : public ShotBase
 	{
-	protected:
-		struct Hit
-		{
-			bool hit;
-			Player* player;
-		};
-
 	private:
 		const LegacyWeapon::Definition& definition;
 		const LegacyWeapon::WeaponTextures& textures;
@@ -55,10 +49,18 @@ namespace Duel6
 		Vector velocity;
 		SpriteList::Iterator sprite;
 		bool powerful;
+		Shot* hitByOtherShot;
 
 	public:
 		LegacyShot(Player& player, const LegacyWeapon& weapon, Orientation orientation, SpriteList::Iterator sprite);
+
 		bool update(Float32 elapsedTime, World& world) override;
+		Rectangle getCollisionRect() const override
+		{
+			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+		}
+		bool requestCollision(const ShotHit& hit) override;
+
 		void onHitPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) override;
 		void onKillPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) override;
 
@@ -80,11 +82,6 @@ namespace Duel6
 			return getCollisionRect().getCentre();
 		}
 
-		Rectangle getCollisionRect() const
-		{
-			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
-		}
-
 		Vector getSpritePosition() const
 		{
 			return orientation == Orientation::Left ? Vector(position.x, position.y - 0.65f) : Vector(position.x - 0.35f, position.y - 0.65f);
@@ -95,9 +92,11 @@ namespace Duel6
 		Float32 getExplosionRange() const;
 		Float32 getExplosionPower() const;
 
-		Hit checkPlayerCollision(std::vector<Player>& players);
-		Hit checkWorldCollision(const Level& level);
-		void explode(Hit hit, World& world);
+		ShotHit evaluateShotHit(World& world);
+		ShotHit checkPlayerCollision(std::vector<Player>& players);
+		ShotHit checkWorldCollision(const Level& level);
+		ShotHit checkShotCollision(ShotList& shotList);
+		void explode(ShotHit hit, World& world);
 		void addPlayerExplosion(Player& player, World& world);
 		void addPlayerBlood(const Player& player, const Vector& point, World& world);
 

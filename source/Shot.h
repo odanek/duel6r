@@ -30,6 +30,7 @@
 
 #include "Type.h"
 #include "Vector.h"
+#include "Rectangle.h"
 
 namespace Duel6
 {
@@ -38,15 +39,28 @@ namespace Duel6
 	class Weapon;
 
 	class World;
+	class Shot;
+
+	struct ShotHit
+	{
+		bool hit; // TODO: Remove and use C++17 std::optional
+		Player* player;
+		Shot* shot;
+	};
 
 	class Shot
 	{
 	public:
 		virtual ~Shot() {}
 		virtual const Weapon& getWeapon() const = 0;
+
 		virtual Player& getPlayer() = 0;
 		virtual const Player& getPlayer() const = 0;
+
 		virtual bool update(Float32 elapsedTime, World& world) = 0;
+		virtual Rectangle getCollisionRect() const = 0;
+		virtual bool requestCollision(const ShotHit& hit) = 0;
+
 		virtual void onHitPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) = 0;
 		virtual void onKillPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) = 0;
 	};

@@ -44,6 +44,7 @@ namespace Duel6
 	class World
 	{
 	private:
+		const GameSettings& gameSettings;
 		std::vector<Player>& players;
 		Level level;
 		LevelRenderData levelRenderData;
@@ -61,6 +62,11 @@ namespace Duel6
 
 		void update(Float32 elapsedTime);
 		void raiseWater();
+
+		const GameSettings& getGameSettings() const
+		{
+			return gameSettings;
+		}
 
 		std::vector<Player>& getPlayers()
 		{

@@ -60,6 +60,18 @@ namespace Duel6
 		}
 	}
 
+	void ConsoleCommands::shotCollision(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
+	{
+		if (args.length() == 2 && (args.get(1) == "on" || args.get(1) == "off"))
+		{
+			gameSettings.enableShotCollision(args.get(1) == "on");
+		}
+		else
+		{
+			console.printLine(Format("Shot collision [on/off]: {0}") << (gameSettings.isShotCollisionEnabled() ? "on" : "off"));
+		}
+	}
+
 	void ConsoleCommands::volume(Console& console, const Console::Arguments& args, Sound& sound)
 	{
 		if (args.length() == 2)
@@ -277,6 +289,9 @@ namespace Duel6
 		});
 		console.registerCommand("ghosts", [&gameSettings](Console& con, const Console::Arguments& args) {
 			ghostMode(con, args, gameSettings);
+		});
+		console.registerCommand("shot_collision", [&gameSettings](Console& con, const Console::Arguments& args) {
+			shotCollision(con, args, gameSettings);
 		});
 		console.registerCommand("music", [&menu](Console& con, const Console::Arguments& args) {
 			musicOnOff(con, args, menu);

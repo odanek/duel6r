@@ -33,7 +33,7 @@ namespace Duel6
 {
 	LegacyShot::LegacyShot(Player& player, const LegacyWeapon& weapon, Orientation orientation, SpriteList::Iterator sprite)
 		: ShotBase(player.getWeapon(), player), definition(weapon.getDefinition()), textures(weapon.getTextures()),
-		  samples(weapon.getSamples()), orientation(orientation), sprite(sprite)
+		  samples(weapon.getSamples()), orientation(orientation), sprite(sprite), hitByOtherShot(nullptr)
 	{
 		const Vector dim = getDimensions();
 		const Rectangle playerRect = player.getCollisionRect();
@@ -73,11 +73,7 @@ namespace Duel6
 	{
 		move(elapsedTime);
 
-		Hit hit = checkPlayerCollision(world.getPlayers());
-		if (!hit.hit)
-		{
-			hit = checkWorldCollision(world.getLevel());
-		}
+		ShotHit hit = evaluateShotHit(world);
 
 		if (hit.hit)
 		{
@@ -104,7 +100,17 @@ namespace Duel6
 		return true;
 	}
 
-	void LegacyShot::explode(Hit hit, World& world)
+	bool LegacyShot::requestCollision(const ShotHit& hit)
+	{
+		if (hit.shot != nullptr)
+		{
+			hitByOtherShot = hit.shot;
+			return true;
+		}
+		return false;
+	}
+
+	void LegacyShot::explode(ShotHit hit, World& world)
 	{
 		std::vector<Player*> killedPlayers;
 		std::vector<Player*> hittedPlayers;
@@ -167,7 +173,26 @@ namespace Duel6
 		}
 	}
 
-	LegacyShot::Hit LegacyShot::checkPlayerCollision(std::vector<Player>& players)
+	ShotHit LegacyShot::evaluateShotHit(World& world)
+	{
+		if (hitByOtherShot != nullptr)
+		{
+			return {true, nullptr, hitByOtherShot};
+		}
+
+		ShotHit hit = checkPlayerCollision(world.getPlayers());
+		if (!hit.hit)
+		{
+			hit = checkWorldCollision(world.getLevel());
+		}
+		if (!hit.hit && world.getGameSettings().isShotCollisionEnabled())
+		{
+			hit = checkShotCollision(world.getShotList());
+		}
+		return hit;
+	}
+
+	ShotHit LegacyShot::checkPlayerCollision(std::vector<Player>& players)
 	{
 		const Rectangle shotBox = getCollisionRect();
 
@@ -180,14 +205,14 @@ namespace Duel6
 
 			if (Collision::rectangles(player.getCollisionRect(), shotBox))
 			{
-				return {true, &player};
+				return {true, &player, nullptr};
 			}
 		}
 
-		return { false, nullptr };
+		return { false, nullptr, nullptr };
 	}
 
-	LegacyShot::Hit LegacyShot::checkWorldCollision(const Level& level)
+	ShotHit LegacyShot::checkWorldCollision(const Level& level)
 	{
 		const Rectangle box = getCollisionRect();
 		Float32 up = box.right.y;
@@ -200,7 +225,29 @@ namespace Duel6
 						level.isWall(right, up, true) ||
 						level.isWall(right, down, true);
 
-		return { hitsWall, nullptr };
+		return { hitsWall, nullptr, nullptr };
+	}
+
+	ShotHit LegacyShot::checkShotCollision(ShotList& shotList)
+	{
+		ShotHit hit = { false, nullptr, nullptr };
+
+		if (definition.collides)
+		{
+			shotList.forEach([this, &hit](Shot& otherShot) -> bool {
+				if (this != &otherShot && Collision::rectangles(this->getCollisionRect(), otherShot.getCollisionRect()))
+				{
+					if (otherShot.requestCollision({true, nullptr, this}))
+					{
+						hit.hit = true;
+						hit.shot = &otherShot;
+						return false;
+					}
+				}
+				return true;
+			});
+		}
+		return hit;
 	}
 
 	void LegacyShot::addPlayerExplosion(Player& player, World& world)
