@@ -45,6 +45,7 @@ namespace Duel6
 			Float32 bulletSpeed;
 			bool blood;
 			bool explodes;
+			bool collides;
 			Color explosionColor;
 			Int32 boom;
 			Int32 power;

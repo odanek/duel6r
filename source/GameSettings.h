@@ -50,6 +50,7 @@ namespace Duel6
 		bool showFps;
 		bool showRanking;
 		bool ghostMode;
+		bool shotCollision;
 		EnabledWeapons enabledWeapons;
 
 	public:
@@ -106,13 +107,24 @@ namespace Duel6
 
 		GameSettings& setGhostEnabled(bool enabled)
 		{
-			this->ghostMode = enabled;
+			ghostMode = enabled;
 			return *this;
 		}
 
 		bool isGhostEnabled()
 		{
 			return this->ghostMode;
+		}
+
+		GameSettings& enableShotCollision(bool enabled)
+		{
+			shotCollision = enabled;
+			return *this;
+		}
+
+		bool isShotCollisionEnabled() const
+		{
+			return shotCollision;
 		}
 
 		bool isWireframe() const
