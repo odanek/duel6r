@@ -72,7 +72,7 @@ namespace Duel6
 			if (textures.at(face.getCurrentTexture()) != curTexture)
 			{
 				glBindTexture(GL_TEXTURE_2D, curTexture.getId());
-				glDrawArrays(GL_QUADS, first, count);
+				glDrawArrays(GL_QUADS, (GLint)first, (GLsizei)count);
 				curTexture = textures.at(face.getCurrentTexture());
 				first += count;
 				count = 4;
@@ -84,7 +84,7 @@ namespace Duel6
 		}
 
 		glBindTexture(GL_TEXTURE_2D, curTexture.getId());
-		glDrawArrays(GL_QUADS, first, count);
+		glDrawArrays(GL_QUADS, (GLint)first, (GLsizei)count);
 	}
 
 	void FaceList::nextFrame()

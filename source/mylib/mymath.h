@@ -259,7 +259,7 @@ public:
     vec3_c      (T *v) { set (v); }
 
     // Funkce
-    mval_t          len         () const { return sqrt ((mval_t) (x * x + y * y + z * z)); }
+    mval_t          len         () const { return (mval_t)sqrt ((mval_t) (x * x + y * y + z * z)); }
     vec3_c&         normalize   ();
     vec_c<T,3>      vec         () const { vec_c<T,3> v; v.d[0] = x; v.d[1] = y; v.d[2] = z; return v; }
     matrix_c<T,1,3> mat_h       () const { matrix_c<T,1,3> m; m.d[0] = x; m.d[1] = y; m.d[2] = z; return m; }

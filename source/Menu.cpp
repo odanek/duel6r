@@ -91,7 +91,7 @@ namespace Duel6
 			{
 				control->addItem(controlsManager.get(j).getDescription());
 			}
-			control->setCur(i % controls);
+			control->setCurrent(Int32(i % controls));
 		}
 	}
 
@@ -227,12 +227,12 @@ namespace Duel6
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			controlSwitch[i] = new Gui::Spinner(gui);
-			controlSwitch[i]->setPosition(370, 468 - i * 18, 120, 0);
+			controlSwitch[i]->setPosition(370, 468 - Int32(i) * 18, 120, 0);
 
 			// TODO: Might be deleted in future if the use case is fully covered with detect-all functionality
 			Gui::Button* button = new Gui::Button(gui);
 			button->setCaption("D");
-			button->setPosition(494, 466 - i * 18, 17, 17);
+			button->setPosition(494, 466 - Int32(i) * 18, 17, 17);
 			button->onClick([this,i](Gui::Button&) {
 				detectControls(i);
 			});
@@ -348,7 +348,7 @@ namespace Duel6
 
 	void Menu::showMessage(const std::string& message)
 	{
-		Int32 width = message.size() * 8 + 60;
+		Int32 width = Int32(message.size()) * 8 + 60;
 		Int32 x = video.getScreen().getClientWidth() / 2 - width / 2,
 			  y = video.getScreen().getClientHeight() / 2 - 10;
 
@@ -456,7 +456,7 @@ namespace Duel6
 						pc.getShoot().isPressed() ||
 						pc.getPick().isPressed())
 					{
-						controlSwitch[playerIndex]->setCur(i);
+						controlSwitch[playerIndex]->setCurrent((Int32)i);
 						detected = true;
 					}
 				}
@@ -487,7 +487,7 @@ namespace Duel6
 			cleanPersonData();
 		}
 
-		GameMode& selectedMode = *gameModes[gameModeSwitch->curItem()];
+		GameMode& selectedMode = *gameModes[gameModeSwitch->currentItem()];
 
 		// Persons, colors, controls
 		std::vector<Game::PlayerDefinition> playerDefinitions;
@@ -495,7 +495,7 @@ namespace Duel6
 		{
 			Person& person = persons.getByName(listbox[CUR_PLAYERS_LIST]->getItem(i));
 			auto& profile = getPersonProfile(person.getName(), i);
-			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->curItem());
+			const PlayerControls& controls = controlsManager.get(controlSwitch[i]->currentItem());
 			playerDefinitions.push_back(Game::PlayerDefinition(person, profile.getSkinColors(), profile.getSounds(), controls));
 		}
 		selectedMode.initializePlayers(playerDefinitions);

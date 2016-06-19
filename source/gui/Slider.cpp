@@ -26,6 +26,7 @@
 */
 
 #include <SDL2/SDL_opengl.h>
+#include <algorithm>
 #include "Slider.h"
 
 namespace Duel6

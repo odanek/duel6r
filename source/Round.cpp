@@ -69,7 +69,7 @@ namespace Duel6
 			for (Player& player : players)
 			{
 				player.setView(PlayerView(0, 40, video.getScreen().getClientWidth(), video.getScreen().getClientHeight() - 40));
-				player.setInfoBarPosition(partition * index + partition / 2 - 80, 35);
+				player.setInfoBarPosition(Int32(partition * index + partition / 2) - 80, 35);
 				index++;
 			}
 

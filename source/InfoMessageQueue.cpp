@@ -86,8 +86,8 @@ namespace Duel6
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_QUADS);
 			glVertex2i(x, y + 15);
-			glVertex2i(x + 8 * msg.length(), y + 15);
-			glVertex2i(x + 8 * msg.length(), y + 1);
+			glVertex2i(x + 8 * GLint(msg.length()), y + 15);
+			glVertex2i(x + 8 * GLint(msg.length()), y + 1);
 			glVertex2i(x, y + 1);
 		glEnd();
 		glDisable(GL_BLEND);

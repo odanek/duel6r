@@ -108,7 +108,7 @@ namespace Duel6
 			auto iter = std::find(items.begin(), items.end(), item);
 			if (iter != items.end())
 			{
-				removeItem(iter - items.begin());
+				removeItem((Int32)(iter - items.begin()));
 			}
 			return *this;
 		}

@@ -42,7 +42,7 @@ namespace Duel6
 			glGenTextures(1, &textureId);
 			glBindTexture(GL_TEXTURE_2D, textureId);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+			glTexImage2D(GL_TEXTURE_2D, 0, 4, (GLsizei)image.getWidth(), (GLsizei)image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
 
 			GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);

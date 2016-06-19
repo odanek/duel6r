@@ -101,7 +101,7 @@ namespace Duel6
 		{
 			input = fittingCommands.front();
 			input.append(" ");
-			curpos = input.length();
+			curpos = (int)input.length();
 		}
 		else if (fittingCommands.size() > 1)
 		{
@@ -127,7 +127,7 @@ namespace Duel6
 			}
 
 			input = largestFit;
-			curpos = input.length();
+			curpos = (int)input.length();
 		}
 	}
 

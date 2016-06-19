@@ -34,7 +34,7 @@ namespace Duel6
 	{
 		if (player.is(predator))
 		{
-			amount *= 0.3;
+			amount *= 0.3f;
 		}
 
 		return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);

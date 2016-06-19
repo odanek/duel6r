@@ -151,7 +151,7 @@ namespace Duel6
 
 	void Font::print(Int32 x, Int32 y, const Color& color, const std::string& str) const
 	{
-		print(x, y, 0.0f, color, str, getCharHeight());
+		print(Float32(x), Float32(y), 0.0f, color, str, Float32(getCharHeight()));
 	}
 
 	void Font::print(Float32 x, Float32 y, Float32 z, const Color& color, const std::string& str, Float32 height) const

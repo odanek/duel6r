@@ -50,7 +50,7 @@ namespace Duel6
 
 	bool JoypadButton::isPressed() const
 	{
-		return (joypadIndex < input.getNumJoypads() && SDL_JoystickGetButton(input.getJoypad(joypadIndex), button) == 1);
+		return (joypadIndex < input.getNumJoypads() && SDL_JoystickGetButton(input.getJoypad(joypadIndex), (int)button) == 1);
 	}
 
 	PlayerControlsManager::PlayerControlsManager(const Input& input)

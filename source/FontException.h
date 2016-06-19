@@ -36,7 +36,7 @@ namespace Duel6
 		: public Exception
 	{
 	public:
-		FontException(const std::string& file, Size line, const std::string& message)
+		FontException(const std::string& file, Int32 line, const std::string& message)
 			: Exception(file, line, message)
 		{}
 	};

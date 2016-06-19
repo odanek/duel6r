@@ -48,8 +48,8 @@ namespace Duel6
 			virtual std::vector<std::string> getPropertyNames() const = 0;
 
 			virtual std::shared_ptr<ValueImpl>& get(Size index) = 0;
-			virtual const std::shared_ptr<ValueImpl>& get(const Size index) const = 0;
-			virtual void set(const Size index, std::shared_ptr<ValueImpl>& value) = 0;
+			virtual const std::shared_ptr<ValueImpl>& get(Size index) const = 0;
+			virtual void set(Size index, std::shared_ptr<ValueImpl>& value) = 0;
 			virtual void add(std::shared_ptr<ValueImpl>& value) = 0;
 
 			virtual Size getLength() const = 0;
@@ -86,17 +86,17 @@ namespace Duel6
 				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Object, got: ") + getTypeName());
 			}
 
-			std::shared_ptr<ValueImpl>& get(const Size index) override
+			std::shared_ptr<ValueImpl>& get(Size index) override
 			{
 				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Array, got: ") + getTypeName());
 			}
 
-			const std::shared_ptr<ValueImpl>& get(const Size index) const override
+			const std::shared_ptr<ValueImpl>& get(Size index) const override
 			{
 				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Array, got: ") + getTypeName());
 			}
 
-			void set(const Size index, std::shared_ptr<ValueImpl>& value) override
+			void set(Size index, std::shared_ptr<ValueImpl>& value) override
 			{
 				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Array, got: ") + getTypeName());
 			}
@@ -254,17 +254,17 @@ namespace Duel6
 			ArrayValue()
 			{}
 
-			std::shared_ptr<ValueImpl>& get(const Size index) override
+			std::shared_ptr<ValueImpl>& get(Size index) override
 			{
 				return values[index];
 			}
 
-			const std::shared_ptr<ValueImpl>& get(const Size index) const override
+			const std::shared_ptr<ValueImpl>& get(Size index) const override
 			{
 				return values[index];
 			}
 
-			void set(const Size index, std::shared_ptr<ValueImpl>& value) override
+			void set(Size index, std::shared_ptr<ValueImpl>& value) override
 			{
 				values[index] = value;
 			}

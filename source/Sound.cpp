@@ -63,7 +63,7 @@ namespace Duel6
 		}
 	}
 
-	Sound::Sound(Size channels, Console& console)
+	Sound::Sound(Int32 channels, Console& console)
 		: console(console), channels(channels), playing(false)
 	{
 		console.printLine("\n===Initialization of sound sub-system===");
@@ -155,7 +155,7 @@ namespace Duel6
 
 	void Sound::playSample(Mix_Chunk* chunk)
 	{
-		for (Size j = 0; j < channels; j++)
+		for (Int32 j = 0; j < channels; j++)
 		{
 			if (!Mix_Playing(j) && !Mix_Paused(j))
 			{

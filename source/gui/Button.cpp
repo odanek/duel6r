@@ -89,7 +89,7 @@ namespace Duel6
 			Int32 px, py;
 
 			drawFrame(x, y, width, height, pressed);
-			px = x + (width >> 1) - (caption.length() << 2) + pressed;
+			px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
 			py = y - (height >> 1) - 7 - pressed;
 			font.print(px, py, Color(0), caption);
 		}

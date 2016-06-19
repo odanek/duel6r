@@ -164,10 +164,10 @@ namespace Duel6
 
 	void Renderer::gameOverSummary() const
 	{
-		int width = 200;
-		int height = 50 + game.getPlayers().size() * 16;
-		int x = video.getScreen().getClientWidth() / 2 - width / 2;
-		int y = video.getScreen().getClientHeight() / 2 - height / 2;
+		Int32 width = 200;
+		Int32 height = 50 + Int32(game.getPlayers().size()) * 16;
+		Int32 x = video.getScreen().getClientWidth() / 2 - width / 2;
+		Int32 y = video.getScreen().getClientHeight() / 2 - height / 2;
 
 		glColor4f(1, 1, 1, 0.7f);
 		glEnable(GL_BLEND);
@@ -304,7 +304,7 @@ namespace Duel6
 		const std::string& playerName = player.getPerson().getName();
 		Color fontColor = Color::BLUE;
 		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
-		font.print(ibp[0] + 92 - 4 * playerName.length(), ibp[1] - 13, fontColor, playerName);
+		font.print(ibp[0] + 92 - 4 * Int32(playerName.length()), ibp[1] - 13, fontColor, playerName);
 
 		if (player.getBonus() != BonusType::NONE)
 		{
@@ -339,10 +339,10 @@ namespace Duel6
 	void Renderer::fpsCounter() const
 	{
 		std::string fpsCount = Format("FPS - {0}") << Int32(video.getFps());
-		Size width = 8 * fpsCount.size() + 2;
+		Int32 width = 8 * Int32(fpsCount.size()) + 2;
 
-		int x = video.getScreen().getClientWidth() - width;
-		int y = video.getScreen().getClientHeight() - 20;
+		Int32 x = Int32(video.getScreen().getClientWidth()) - width;
+		Int32 y = Int32(video.getScreen().getClientHeight()) - 20;
 
 		glBegin(GL_QUADS);
 			glColor3f(0.0f, 0.0f, 0.0f);
