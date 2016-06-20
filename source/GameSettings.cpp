@@ -32,7 +32,7 @@ namespace Duel6
 	GameSettings::GameSettings()
 		: ammoRange(15, 15), maxRounds(0), screenMode(ScreenMode::FullScreen),
 		  screenZoom(13), wireframe(false), showFps(false), showRanking(true),
-		  ghostMode(false), shotCollision(false)
+		  ghostMode(false), shotCollision(ShotCollisionSetting::None)
 	{}
 
 	GameSettings& GameSettings::enableWeapon(const Weapon& weapon, bool enable)
