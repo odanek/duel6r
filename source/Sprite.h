@@ -76,6 +76,11 @@ namespace Duel6
 
 		Sprite& setAnimation(const Int16* animation);
 
+		const Int16* getAnimation() const
+		{
+			return animation;
+		}
+
 		Sprite& setTextures(const TextureList& textures)
 		{
 			this->textures = textures;
