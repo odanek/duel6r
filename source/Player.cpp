@@ -263,11 +263,10 @@ namespace Duel6
 			position += elevator->getVelocity() * elapsedTime;
 		}
 
-		if (isPickingGun() && sprite->isFinished())
+		if (isPickingGun() && sprite->getAnimation() == d6PAnim && sprite->isFinished())
 		{
 			unsetFlag(FlagPick);
 		}
-		unsetFlag(FlagMoveLeft | FlagMoveRight | FlagMoveUp);
 	}
 
 	Float32 Player::getSpeed() const
@@ -304,6 +303,8 @@ namespace Duel6
 
 	void Player::checkKeys()
 	{
+		unsetFlag(FlagMoveLeft | FlagMoveRight | FlagMoveUp);
+
 		if ((!isAlive() && !isGhost()) || isPickingGun())
 		{
 			return;
