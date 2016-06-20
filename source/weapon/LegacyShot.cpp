@@ -185,9 +185,9 @@ namespace Duel6
 		{
 			hit = checkWorldCollision(world.getLevel());
 		}
-		if (!hit.hit && world.getGameSettings().isShotCollisionEnabled())
+		if (!hit.hit)
 		{
-			hit = checkShotCollision(world.getShotList());
+			hit = checkShotCollision(world.getShotList(), world.getGameSettings().getShotCollision());
 		}
 		return hit;
 	}
@@ -228,11 +228,11 @@ namespace Duel6
 		return { hitsWall, nullptr, nullptr };
 	}
 
-	ShotHit LegacyShot::checkShotCollision(ShotList& shotList)
+	ShotHit LegacyShot::checkShotCollision(ShotList& shotList, ShotCollisionSetting collisionSetting)
 	{
 		ShotHit hit = { false, nullptr, nullptr };
 
-		if (definition.collides)
+		if (collisionSetting == ShotCollisionSetting::All || (collisionSetting == ShotCollisionSetting::Large && definition.collides))
 		{
 			shotList.forEach([this, &hit](Shot& otherShot) -> bool {
 				if (this != &otherShot && Collision::rectangles(this->getCollisionRect(), otherShot.getCollisionRect()))

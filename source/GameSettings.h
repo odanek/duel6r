@@ -36,6 +36,13 @@
 
 namespace Duel6
 {
+	enum class ShotCollisionSetting
+	{
+		None,
+		Large,
+		All
+	};
+
 	class GameSettings
 	{
 	public:
@@ -50,7 +57,7 @@ namespace Duel6
 		bool showFps;
 		bool showRanking;
 		bool ghostMode;
-		bool shotCollision;
+		ShotCollisionSetting shotCollision;
 		EnabledWeapons enabledWeapons;
 
 	public:
@@ -116,13 +123,13 @@ namespace Duel6
 			return this->ghostMode;
 		}
 
-		GameSettings& enableShotCollision(bool enabled)
+		GameSettings& setShotCollision(ShotCollisionSetting value)
 		{
-			shotCollision = enabled;
+			shotCollision = value;
 			return *this;
 		}
 
-		bool isShotCollisionEnabled() const
+		ShotCollisionSetting getShotCollision() const
 		{
 			return shotCollision;
 		}

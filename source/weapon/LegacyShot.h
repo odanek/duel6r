@@ -33,6 +33,7 @@
 #include "../SpriteList.h"
 #include "../Player.h"
 #include "../ShotList.h"
+#include "../GameSettings.h"
 #include "LegacyWeapon.h"
 #include "ShotBase.h"
 
@@ -95,7 +96,7 @@ namespace Duel6
 		ShotHit evaluateShotHit(World& world);
 		ShotHit checkPlayerCollision(std::vector<Player>& players);
 		ShotHit checkWorldCollision(const Level& level);
-		ShotHit checkShotCollision(ShotList& shotList);
+		ShotHit checkShotCollision(ShotList& shotList, ShotCollisionSetting collisionSetting);
 		void explode(ShotHit hit, World& world);
 		void addPlayerExplosion(Player& player, World& world);
 		void addPlayerBlood(const Player& player, const Vector& point, World& world);

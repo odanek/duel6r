@@ -33,6 +33,7 @@
 #include "Game.h"
 #include "ConsoleCommands.h"
 #include "Weapon.h"
+#include "EnumClassHash.h"
 
 namespace Duel6
 {
@@ -62,13 +63,35 @@ namespace Duel6
 
 	void ConsoleCommands::shotCollision(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
-		if (args.length() == 2 && (args.get(1) == "on" || args.get(1) == "off"))
+		static const std::unordered_map<std::string, ShotCollisionSetting> stringOptions = {
+			{"none", ShotCollisionSetting::None},
+			{"large", ShotCollisionSetting::Large},
+			{"all", ShotCollisionSetting::All}
+		};
+		static const std::unordered_map<ShotCollisionSetting, std::string, EnumClassHash<ShotCollisionSetting>> collisionOptions = {
+			{ShotCollisionSetting::None, "none"},
+			{ShotCollisionSetting::Large, "large"},
+			{ShotCollisionSetting::All, "all"}
+		};
+
+		if (args.length() == 2)
 		{
-			gameSettings.enableShotCollision(args.get(1) == "on");
+			auto value = args.get(1);
+			auto collision = stringOptions.find(value);
+			if (collision != stringOptions.end())
+			{
+				gameSettings.setShotCollision(collision->second);
+				console.printLine(Format("Shot collision setting changed to: {0}") << value);
+			}
+			else
+			{
+				console.printLine("Allowed values: [none, large, all]");
+			}
 		}
 		else
 		{
-			console.printLine(Format("Shot collision [on/off]: {0}") << (gameSettings.isShotCollisionEnabled() ? "on" : "off"));
+			auto collision = collisionOptions.find(gameSettings.getShotCollision());
+			console.printLine(Format("Shot collision: {0}") << collision->second);
 		}
 	}
 
