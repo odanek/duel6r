@@ -240,10 +240,24 @@ set(D6R_SOURCES
     source/weapon/ShotBase.cpp
     source/weapon/LegacyShot.h
     source/weapon/LegacyShot.cpp
-    source/weapon/ShitThrower.h
-    source/weapon/ShitThrower.cpp
-    source/weapon/ShitThrowerShot.h
-    source/weapon/ShitThrowerShot.cpp
+    source/weapon/impl/ShitThrower.h
+    source/weapon/impl/ShitThrower.cpp
+    source/weapon/impl/ShitThrowerShot.h
+    source/weapon/impl/ShitThrowerShot.cpp
+    source/weapon/impl/Pistol.cpp
+    source/weapon/impl/Pistol.h
+    source/weapon/impl/Shotgun.cpp
+    source/weapon/impl/Shotgun.h
+    source/weapon/impl/Uzi.cpp
+    source/weapon/impl/Uzi.h
+    source/weapon/impl/Bazooka.cpp
+    source/weapon/impl/Bazooka.h
+    source/weapon/impl/Plasma.cpp
+    source/weapon/impl/Plasma.h
+    source/weapon/impl/Laser.cpp
+    source/weapon/impl/Laser.h
+    source/weapon/impl/Lightning.cpp
+    source/weapon/impl/Lightning.h
 
     source/collision/Collision.h
     source/collision/Collision.cpp

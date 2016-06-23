@@ -199,7 +199,7 @@ namespace Duel6
 			}
 			else if (isLying())
 			{
-				return Vector(1.0f, 0.4f);
+				return Vector(1.0f, 0.45f);
 			}
 			return Vector(1.0f, 1.0f);
 		}

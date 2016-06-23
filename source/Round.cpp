@@ -255,7 +255,6 @@ namespace Duel6
 		GameSettings& settings = game.getSettings();
 		settings.setScreenMode((settings.getScreenMode() == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen);
 		setPlayerViews();
-		game.getRenderer().initScreen();
 	}
 
 	bool Round::isOver() const

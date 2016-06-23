@@ -25,26 +25,22 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SHITTHROWER_H
-#define DUEL6_SHITTHROWER_H
-
-#include "../PlayerSkin.h"
-#include "LegacyWeapon.h"
+#include "Plasma.h"
 
 namespace Duel6
 {
-	class ShitThrower : public LegacyWeapon
+	namespace
 	{
-	private:
-		std::unique_ptr<PlayerSkin> brownSkin;
+		LegacyWeapon::Definition DEFINITION = { 12.2f, true, false, false, Color(0, 0, 0), 0, 25, 0.33f, "plasma", "plasma.wav", "", 0, { 1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } };
+		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.28f, 0.70f), Vector(0.38f, 0.23f));
+	}
 
-	public:
-		ShitThrower(Sound& sound, TextureManager& textureManager, const Definition& definition);
+	Plasma::Plasma(Sound& sound, TextureManager& textureManager)
+		: LegacyWeapon(sound, textureManager, DEFINITION, 4)
+	{}
 
-	protected:
-		std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const override;
-	};
+	Rectangle Plasma::getShotCollisionRectangle() const
+	{
+		return SHOT_COLLISION_RECT;
+	}
 }
-
-
-#endif

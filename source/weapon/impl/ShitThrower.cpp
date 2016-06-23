@@ -25,76 +25,26 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LEGACYWEAPON_H
-#define DUEL6_LEGACYWEAPON_H
-
-#include <string>
-#include "WeaponBase.h"
-#include "../Shot.h"
-#include "../SpriteList.h"
+#include "ShitThrowerShot.h"
+#include "ShitThrower.h"
 
 namespace Duel6
 {
-	class LegacyShot;
-
-	class LegacyWeapon : public WeaponBase
+	namespace
 	{
-	public:
-		struct Definition
-		{
-			Float32 bulletSpeed;
-			bool blood;
-			bool explodes;
-			bool collides;
-			Color explosionColor;
-			Int32 boom;
-			Int32 power;
-			Float32 reloadSpeed;
-			std::string name;
-			std::string shotSound;
-			std::string boomSound;
-			Float32 expGrow;
-			Int16 animation[16];
-			Int16 shotAnimation[18];
-			Int16 boomAnimation[14];
-		};
+		LegacyWeapon::Definition DEFINITION = { 5.49f, false, false, true, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", "shit.wav", "shit-hit.wav", 0.04f, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+	}
 
-		struct WeaponTextures
-		{
-			TextureList boom;
-			TextureList gun;
-			TextureList shot;
-		};
+	ShitThrower::ShitThrower(Sound& sound, TextureManager& textureManager)
+		: LegacyWeapon(sound, textureManager, DEFINITION, 16)
+	{
+		Color brownColor(83, 44, 0);
+		PlayerSkinColors skinColors(brownColor);
+		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
+	}
 
-		struct WeaponSamples
-		{
-			Sound::Sample shot;
-			Sound::Sample boom;
-		};
-
-	protected:
-		const Definition& definition;
-		WeaponTextures textures;
-		WeaponSamples samples;
-
-	public:
-		LegacyWeapon(Sound& sound, TextureManager& textureManager, const Definition& definition, Size index);
-
-		void shoot(Player& player, Orientation orientation, World& world) const override;
-		Sprite& makeSprite(Sprite& sprite) const override;
-		Texture getBonusTexture() const override;
-
-		const Definition& getDefinition() const;
-		const WeaponTextures& getTextures() const;
-		const WeaponSamples& getSamples() const;
-
-	public:
-		static std::unique_ptr<WeaponImpl> create(Sound& sound, TextureManager& textureManager, Size index);
-
-	protected:
-		virtual std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const;
-		virtual Rectangle getShotCollisionRectangle() const;
-	};
+	std::unique_ptr<Shot> ShitThrower::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
+	{
+		return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
+	}
 }
-
-#endif

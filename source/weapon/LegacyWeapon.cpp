@@ -26,16 +26,23 @@
 */
 
 #include <unordered_set>
-#include "LegacyWeapon.h"
-#include "ShitThrower.h"
 #include "../World.h"
+#include "LegacyWeapon.h"
 #include "LegacyShot.h"
+#include "impl/ShitThrower.h"
+#include "impl/Pistol.h"
+#include "impl/Shotgun.h"
+#include "impl/Uzi.h"
+#include "impl/Bazooka.h"
+#include "impl/Plasma.h"
+#include "impl/Laser.h"
+#include "impl/Lightning.h"
 
 namespace Duel6
 {
 	namespace
 	{
-		LegacyWeapon::Definition LEGACY_WEAPON[] =
+		const LegacyWeapon::Definition LEGACY_WEAPON[] =
 		{
 			{ 9.15f, true, false, false, Color(0, 0, 0), 0, 30, 0.98f, "pistol", "pistol.wav", "", 0, { 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
 			{ 6.1f, false, true, true, Color(255, 0, 0), 3, 100, 3.28f, "bazooka", "bazooka.wav", "bmbazook.wav", 0.01f, { 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0 }, { 0, 10, 1, 10, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } },
@@ -56,10 +63,12 @@ namespace Duel6
 			{ 5.49f, false, false, true, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", "shit.wav", "shit-hit.wav", 0.04f, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
 		};
 
-		static std::unordered_set<const LegacyWeapon::Definition*> NEAREST_FILTER_BOOM = {
+		const std::unordered_set<const LegacyWeapon::Definition*> NEAREST_FILTER_BOOM = {
 			&LEGACY_WEAPON[5], &LEGACY_WEAPON[6], &LEGACY_WEAPON[9], &LEGACY_WEAPON[13],
 			&LEGACY_WEAPON[14], &LEGACY_WEAPON[15], &LEGACY_WEAPON[16]
 		};
+
+		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.0f, 0.65f), Vector(0.65f, 0.35f));
 	}
 
 	LegacyWeapon::LegacyWeapon(Sound& sound, TextureManager& textureManager, const Definition& definition, Size index)
@@ -91,7 +100,12 @@ namespace Duel6
 
 	std::unique_ptr<Shot> LegacyWeapon::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
 	{
-		return std::make_unique<LegacyShot>(player, *this, orientation, spriteIterator);
+		return std::make_unique<LegacyShot>(player, *this, orientation, spriteIterator, getShotCollisionRectangle());
+	}
+
+	Rectangle LegacyWeapon::getShotCollisionRectangle() const
+	{
+		return SHOT_COLLISION_RECT;
 	}
 
 	Sprite& LegacyWeapon::makeSprite(Sprite& sprite) const
@@ -122,9 +136,37 @@ namespace Duel6
 	std::unique_ptr<WeaponImpl> LegacyWeapon::create(Sound& sound, TextureManager& textureManager, Size index)
 	{
 		const Definition& definition = LEGACY_WEAPON[index];
+		if (index == 0)
+		{
+			return std::make_unique<Pistol>(sound, textureManager);
+		}
+		if (index == 1)
+		{
+			return std::make_unique<Bazooka>(sound, textureManager);
+		}
+		if (index == 2)
+		{
+			return std::make_unique<Lightning>(sound, textureManager);
+		}
+		if (index == 3)
+		{
+			return std::make_unique<Shotgun>(sound, textureManager);
+		}
+		if (index == 4)
+		{
+			return std::make_unique<Plasma>(sound, textureManager);
+		}
+		if (index == 5)
+		{
+			return std::make_unique<Laser>(sound, textureManager);
+		}
+		if (index == 8)
+		{
+			return std::make_unique<Uzi>(sound, textureManager);
+		}
 		if (index == 16)
 		{
-			return std::make_unique<ShitThrower>(sound, textureManager, definition);
+			return std::make_unique<ShitThrower>(sound, textureManager);
 		}
 		return std::make_unique<LegacyWeapon>(sound, textureManager, definition, index);
 	}

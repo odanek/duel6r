@@ -45,6 +45,7 @@ namespace Duel6
 		const LegacyWeapon::Definition& definition;
 		const LegacyWeapon::WeaponTextures& textures;
 		const LegacyWeapon::WeaponSamples& samples;
+		Rectangle collisionRect;
 		Orientation orientation;
 		Vector position;
 		Vector velocity;
@@ -53,7 +54,7 @@ namespace Duel6
 		Shot* hitByOtherShot;
 
 	public:
-		LegacyShot(Player& player, const LegacyWeapon& weapon, Orientation orientation, SpriteList::Iterator sprite);
+		LegacyShot(Player& player, const LegacyWeapon& weapon, Orientation orientation, SpriteList::Iterator sprite, const Rectangle& collisionRect);
 
 		bool update(Float32 elapsedTime, World& world) override;
 		Rectangle getCollisionRect() const override
@@ -75,7 +76,7 @@ namespace Duel6
 
 		Vector getDimensions() const
 		{
-			return Vector(0.65f, 0.35f);
+			return collisionRect.getSize();
 		}
 
 		Vector getCentre() const
@@ -85,7 +86,14 @@ namespace Duel6
 
 		Vector getSpritePosition() const
 		{
-			return orientation == Orientation::Left ? Vector(position.x, position.y - 0.65f) : Vector(position.x - 0.35f, position.y - 0.65f);
+			if (orientation == Orientation::Left)
+			{
+				return getPosition() - collisionRect.left;
+			}
+			else
+			{
+				return Vector(getPosition().x + collisionRect.right.x - 1.0f, getPosition().y - collisionRect.left.y);
+			}
 		}
 
 		void move(Float32 elapsedTime);

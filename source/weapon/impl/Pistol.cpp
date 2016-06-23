@@ -25,22 +25,22 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShitThrowerShot.h"
+#include "Pistol.h"
 
 namespace Duel6
 {
-	ShitThrowerShot::ShitThrowerShot(Player& player, const LegacyWeapon& weapon, Orientation orientation,
-									 SpriteList::Iterator sprite, PlayerSkin& brownSkin)
-		: LegacyShot(player, weapon, orientation, sprite), brownSkin(brownSkin)
+	namespace
 	{
+		LegacyWeapon::Definition DEFINITION = { 9.15f, true, false, false, Color(0, 0, 0), 0, 30, 0.98f, "pistol", "pistol.wav", "", 0, { 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } };
+		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.25f, 0.74f), Vector(0.42f, 0.18f));
 	}
 
-	void ShitThrowerShot::onExplode(const Vector& centre, Float32 range, World& world)
-	{
-	}
+	Pistol::Pistol(Sound& sound, TextureManager& textureManager)
+		: LegacyWeapon(sound, textureManager, DEFINITION, 0)
+	{}
 
-	void ShitThrowerShot::onHitPlayer(Player& player, bool directHit, const Vector& point, World& world)
+	Rectangle Pistol::getShotCollisionRectangle() const
 	{
-		player.useTemporarySkin(brownSkin);
+		return SHOT_COLLISION_RECT;
 	}
 }

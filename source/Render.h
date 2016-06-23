@@ -36,6 +36,7 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "FaceList.h"
+#include "ShotList.h"
 
 namespace Duel6
 {
@@ -53,7 +54,6 @@ namespace Duel6
 			: font(appService.getFont()), video(appService.getVideo()), game(game)
 		{}
 
-		void initScreen();
 		void render() const;
 
 	private:
@@ -80,6 +80,8 @@ namespace Duel6
 		void splitBox(const PlayerView& view) const;
 		void infoMessages() const;
 		Color getGameOverOverlay() const;
+
+		void shotCollisionBox(const ShotList& shotList) const;
 	};
 }
 

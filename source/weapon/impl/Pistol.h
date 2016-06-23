@@ -25,21 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShitThrowerShot.h"
-#include "ShitThrower.h"
+#ifndef DUEL6_WEAPON_IMPL_PISTOL_H
+#define DUEL6_WEAPON_IMPL_PISTOL_H
+
+#include "../LegacyWeapon.h"
 
 namespace Duel6
 {
-	ShitThrower::ShitThrower(Sound& sound, TextureManager& textureManager, const Definition& definition)
-		: LegacyWeapon(sound, textureManager, definition, 16)
+	class Pistol : public LegacyWeapon
 	{
-		Color brownColor(83, 44, 0);
-		PlayerSkinColors skinColors(brownColor);
-		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
-	}
+	public:
+		Pistol(Sound& sound, TextureManager& textureManager);
 
-	std::unique_ptr<Shot> ShitThrower::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
-	{
-		return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
-	}
+	public:
+		Rectangle getShotCollisionRectangle() const override;
+	};
 }
+
+#endif

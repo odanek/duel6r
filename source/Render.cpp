@@ -525,6 +525,24 @@ namespace Duel6
 		}
 	}
 
+	void Renderer::shotCollisionBox(const ShotList& shotList) const
+	{
+		glColor3f(1.0f, 0.0f, 0.0f);
+
+		shotList.forEach([](const Shot& shot) -> bool {
+			const auto& rect = shot.getCollisionRect();
+			glBegin(GL_LINE_LOOP);
+				glVertex3f(rect.left.x, rect.left.y, 0.6f);
+				glVertex3f(rect.left.x, rect.right.y, 0.6f);
+				glVertex3f(rect.right.x, rect.right.y, 0.6f);
+				glVertex3f(rect.right.x, rect.left.y, 0.6f);
+			glEnd();
+			return true;
+		});
+
+		glColor3f(1.0f, 1.0f, 1.0f);
+	}
+
 	void Renderer::view(const Player& player) const
 	{
 		glLoadIdentity();
@@ -546,6 +564,7 @@ namespace Duel6
 		youAreHere();
 		roundKills();
 		hpBars();
+		//shotCollisionBox(world.getShotList());
 
 		world.getExplosionList().render();
 
@@ -604,26 +623,11 @@ namespace Duel6
 		}
 	}
 
-	void Renderer::initScreen()
-	{
-		glDrawBuffer(GL_FRONT_AND_BACK);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawBuffer(GL_BACK);
-	}
-
 	void Renderer::render() const
 	{
 		const GameSettings& settings = game.getSettings();
 
-		if (settings.isWireframe() || settings.getScreenMode() == ScreenMode::SplitScreen)
-		{
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
-		else
-		{
-			glClear(GL_DEPTH_BUFFER_BIT);
-		}
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glColor3f(1.0f, 1.0f, 1.0f);
 		if (settings.getScreenMode() == ScreenMode::FullScreen)
 		{
