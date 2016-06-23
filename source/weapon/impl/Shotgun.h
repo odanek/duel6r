@@ -25,26 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SHITTHROWERSHOT_H
-#define DUEL6_SHITTHROWERSHOT_H
+#ifndef DUEL6_WEAPON_IMPL_SHOTGUN_H
+#define DUEL6_WEAPON_IMPL_SHOTGUN_H
 
-#include "LegacyShot.h"
+#include "../LegacyWeapon.h"
 
 namespace Duel6
 {
-	class ShitThrowerShot : public LegacyShot
+	class Shotgun : public LegacyWeapon
 	{
-	private:
-		PlayerSkin& brownSkin;
+	public:
+		Shotgun(Sound& sound, TextureManager& textureManager);
 
 	public:
-		ShitThrowerShot(Player& player, const LegacyWeapon& weapon, Orientation shotOrientation, SpriteList::Iterator sprite, PlayerSkin& brownSkin);
-		void onHitPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) override;
-
-	protected:
-		void onExplode(const Vector& centre, Float32 range, World& world) override;
+		Rectangle getShotCollisionRectangle() const override;
 	};
 }
-
 
 #endif

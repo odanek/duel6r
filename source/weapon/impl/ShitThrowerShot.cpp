@@ -25,76 +25,27 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LEGACYWEAPON_H
-#define DUEL6_LEGACYWEAPON_H
-
-#include <string>
-#include "WeaponBase.h"
-#include "../Shot.h"
-#include "../SpriteList.h"
+#include "ShitThrowerShot.h"
 
 namespace Duel6
 {
-	class LegacyShot;
-
-	class LegacyWeapon : public WeaponBase
+	namespace
 	{
-	public:
-		struct Definition
-		{
-			Float32 bulletSpeed;
-			bool blood;
-			bool explodes;
-			bool collides;
-			Color explosionColor;
-			Int32 boom;
-			Int32 power;
-			Float32 reloadSpeed;
-			std::string name;
-			std::string shotSound;
-			std::string boomSound;
-			Float32 expGrow;
-			Int16 animation[16];
-			Int16 shotAnimation[18];
-			Int16 boomAnimation[14];
-		};
+		const Rectangle COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.0f, 0.65f), Vector(0.65f, 0.45f));
+	}
 
-		struct WeaponTextures
-		{
-			TextureList boom;
-			TextureList gun;
-			TextureList shot;
-		};
+	ShitThrowerShot::ShitThrowerShot(Player& player, const LegacyWeapon& weapon, Orientation orientation,
+									 SpriteList::Iterator sprite, PlayerSkin& brownSkin)
+		: LegacyShot(player, weapon, orientation, sprite, COLLISION_RECT), brownSkin(brownSkin)
+	{
+	}
 
-		struct WeaponSamples
-		{
-			Sound::Sample shot;
-			Sound::Sample boom;
-		};
+	void ShitThrowerShot::onExplode(const Vector& centre, Float32 range, World& world)
+	{
+	}
 
-	protected:
-		const Definition& definition;
-		WeaponTextures textures;
-		WeaponSamples samples;
-
-	public:
-		LegacyWeapon(Sound& sound, TextureManager& textureManager, const Definition& definition, Size index);
-
-		void shoot(Player& player, Orientation orientation, World& world) const override;
-		Sprite& makeSprite(Sprite& sprite) const override;
-		Texture getBonusTexture() const override;
-
-		const Definition& getDefinition() const;
-		const WeaponTextures& getTextures() const;
-		const WeaponSamples& getSamples() const;
-
-	public:
-		static std::unique_ptr<WeaponImpl> create(Sound& sound, TextureManager& textureManager, Size index);
-
-	protected:
-		virtual std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const;
-		virtual Rectangle getShotCollisionRectangle() const;
-	};
+	void ShitThrowerShot::onHitPlayer(Player& player, bool directHit, const Vector& point, World& world)
+	{
+		player.useTemporarySkin(brownSkin);
+	}
 }
-
-#endif

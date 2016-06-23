@@ -158,8 +158,6 @@ namespace Duel6
 
 		playedRounds++;
 		resources.getRoundStartSound().play();
-
-		renderer.initScreen();
 	}
 
 	void Game::endRound()

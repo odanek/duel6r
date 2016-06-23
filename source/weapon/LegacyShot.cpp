@@ -31,9 +31,11 @@
 
 namespace Duel6
 {
-	LegacyShot::LegacyShot(Player& player, const LegacyWeapon& weapon, Orientation orientation, SpriteList::Iterator sprite)
+	LegacyShot::LegacyShot(Player& player, const LegacyWeapon& weapon, Orientation orientation,
+						   SpriteList::Iterator sprite, const Rectangle& collisionRect)
 		: ShotBase(player.getWeapon(), player), definition(weapon.getDefinition()), textures(weapon.getTextures()),
-		  samples(weapon.getSamples()), orientation(orientation), sprite(sprite), hitByOtherShot(nullptr)
+		  samples(weapon.getSamples()), collisionRect(collisionRect), orientation(orientation), sprite(sprite),
+		  hitByOtherShot(nullptr)
 	{
 		const Vector dim = getDimensions();
 		const Rectangle playerRect = player.getCollisionRect();
