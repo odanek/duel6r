@@ -268,6 +268,14 @@ set(D6R_SOURCES
     source/weapon/impl/Bow.h
     source/weapon/impl/DoubleLaser.cpp
     source/weapon/impl/DoubleLaser.h
+    source/weapon/impl/KissOfDeath.cpp
+    source/weapon/impl/KissOfDeath.h
+    source/weapon/impl/Sling.cpp
+    source/weapon/impl/Sling.h
+    source/weapon/impl/Spray.cpp
+    source/weapon/impl/Spray.h
+    source/weapon/impl/StopperGun.cpp
+    source/weapon/impl/StopperGun.h
 
     source/collision/Collision.h
     source/collision/Collision.cpp

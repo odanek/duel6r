@@ -31,7 +31,7 @@ namespace Duel6
 {
 	namespace
 	{
-		const Rectangle COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.0f, 0.65f), Vector(0.65f, 0.45f));
+		const Rectangle COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.28f, 0.72f), Vector(0.38f, 0.18f));
 	}
 
 	ShitThrowerShot::ShitThrowerShot(Player& player, const LegacyWeapon& weapon, Orientation orientation,

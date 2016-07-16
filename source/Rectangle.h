@@ -63,6 +63,11 @@ namespace Duel6
         {
             return Rectangle(leftCorner, rightCorner);
         }
+
+		static Rectangle empty()
+		{
+			return Rectangle(Vector(0, 0), Vector(0, 0));
+		}
     };
 }
 

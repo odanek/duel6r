@@ -25,31 +25,22 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShitThrowerShot.h"
-#include "ShitThrower.h"
+#include "Sling.h"
 
 namespace Duel6
 {
 	namespace
 	{
-		LegacyWeapon::Definition DEFINITION = { 5.49f, false, false, true, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", "shit.wav", "shit-hit.wav", 0.04f, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+		LegacyWeapon::Definition DEFINITION = { 6.71f, true, false, false, Color(0, 0, 0), 0, 15, 0.82f, "sling", "prak.wav", "", 0, { 0, 5, 1, 5, 0, 5, 2, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.34f, 0.73f), Vector(0.21f, 0.18f));
 	}
 
-	ShitThrower::ShitThrower(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 16)
-	{
-		Color brownColor(83, 44, 0);
-		PlayerSkinColors skinColors(brownColor);
-		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
-	}
+	Sling::Sling(Sound& sound, TextureManager& textureManager)
+		: LegacyWeapon(sound, textureManager, DEFINITION, 14)
+	{}
 
-	std::unique_ptr<Shot> ShitThrower::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
+	Rectangle Sling::getShotCollisionRectangle() const
 	{
-		return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
-	}
-
-	Rectangle ShitThrower::getShotCollisionRectangle() const
-	{
-		return Rectangle::empty();
+		return SHOT_COLLISION_RECT;
 	}
 }
