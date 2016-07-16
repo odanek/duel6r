@@ -258,6 +258,16 @@ set(D6R_SOURCES
     source/weapon/impl/Laser.h
     source/weapon/impl/Lightning.cpp
     source/weapon/impl/Lightning.h
+    source/weapon/impl/MachineGun.cpp
+    source/weapon/impl/MachineGun.h
+    source/weapon/impl/Slime.cpp
+    source/weapon/impl/Slime.h
+    source/weapon/impl/Triton.cpp
+    source/weapon/impl/Triton.h
+    source/weapon/impl/Bow.cpp
+    source/weapon/impl/Bow.h
+    source/weapon/impl/DoubleLaser.cpp
+    source/weapon/impl/DoubleLaser.h
 
     source/collision/Collision.h
     source/collision/Collision.cpp
@@ -279,8 +289,7 @@ set(D6R_SOURCES
 	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
 	source/gamemodes/PredatorPlayerEventListener.h
 	source/gamemodes/PredatorPlayerEventListener.cpp
-)
-
+    )
 if(WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)
 endif(WIN32)
