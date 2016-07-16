@@ -37,6 +37,11 @@
 #include "impl/Plasma.h"
 #include "impl/Laser.h"
 #include "impl/Lightning.h"
+#include "impl/MachineGun.h"
+#include "impl/Triton.h"
+#include "impl/Slime.h"
+#include "impl/DoubleLaser.h"
+#include "impl/Bow.h"
 
 namespace Duel6
 {
@@ -160,10 +165,31 @@ namespace Duel6
 		{
 			return std::make_unique<Laser>(sound, textureManager);
 		}
+		if (index == 6)
+		{
+			return std::make_unique<MachineGun>(sound, textureManager);
+		}
+		if (index == 7)
+		{
+			return std::make_unique<Triton>(sound, textureManager);
+		}
 		if (index == 8)
 		{
 			return std::make_unique<Uzi>(sound, textureManager);
 		}
+		if (index == 9)
+		{
+			return std::make_unique<Bow>(sound, textureManager);
+		}
+		if (index == 10)
+		{
+			return std::make_unique<Slime>(sound, textureManager);
+		}
+		if (index == 11)
+		{
+			return std::make_unique<DoubleLaser>(sound, textureManager);
+		}
+
 		if (index == 16)
 		{
 			return std::make_unique<ShitThrower>(sound, textureManager);
