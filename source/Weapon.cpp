@@ -26,10 +26,28 @@
 */
 
 #include <iterator>
+#include <stdlib.h>
 #include "Sound.h"
 #include "Weapon.h"
 #include "GameSettings.h"
 #include "weapon/LegacyWeapon.h"
+#include "weapon/impl/Pistol.h"
+#include "weapon/impl/Bazooka.h"
+#include "weapon/impl/Lightning.h"
+#include "weapon/impl/Shotgun.h"
+#include "weapon/impl/Plasma.h"
+#include "weapon/impl/Laser.h"
+#include "weapon/impl/MachineGun.h"
+#include "weapon/impl/Triton.h"
+#include "weapon/impl/Uzi.h"
+#include "weapon/impl/Bow.h"
+#include "weapon/impl/Slime.h"
+#include "weapon/impl/DoubleLaser.h"
+#include "weapon/impl/ShitThrower.h"
+#include "weapon/impl/KissOfDeath.h"
+#include "weapon/impl/Spray.h"
+#include "weapon/impl/Sling.h"
+#include "weapon/impl/StopperGun.h"
 
 namespace Duel6
 {
@@ -104,10 +122,23 @@ namespace Duel6
 
 	void Weapon::initialize(Sound& sound, TextureManager& textureManager)
 	{
-		for (Size i = 0; i < 17; i++)
-		{
-			add(LegacyWeapon::create(sound, textureManager, i));
-		}
+		add(std::make_unique<Pistol>(sound, textureManager));
+		add(std::make_unique<Bazooka>(sound, textureManager));
+		add(std::make_unique<Lightning>(sound, textureManager));
+		add(std::make_unique<Shotgun>(sound, textureManager));
+		add(std::make_unique<Plasma>(sound, textureManager));
+		add(std::make_unique<Laser>(sound, textureManager));
+		add(std::make_unique<MachineGun>(sound, textureManager));
+		add(std::make_unique<Triton>(sound, textureManager));
+		add(std::make_unique<Uzi>(sound, textureManager));
+		add(std::make_unique<Bow>(sound, textureManager));
+		add(std::make_unique<Slime>(sound, textureManager));
+		add(std::make_unique<DoubleLaser>(sound, textureManager));
+		add(std::make_unique<KissOfDeath>(sound, textureManager));
+		add(std::make_unique<Spray>(sound, textureManager));
+		add(std::make_unique<Sling>(sound, textureManager));
+		add(std::make_unique<StopperGun>(sound, textureManager));
+		add(std::make_unique<ShitThrower>(sound, textureManager));
 	}
 
 	const std::vector<Weapon>& Weapon::values()

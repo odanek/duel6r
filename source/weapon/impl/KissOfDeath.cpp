@@ -25,31 +25,22 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ShitThrowerShot.h"
-#include "ShitThrower.h"
+#include "KissOfDeath.h"
 
 namespace Duel6
 {
 	namespace
 	{
-		LegacyWeapon::Definition DEFINITION = { 5.49f, false, false, true, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", "shit.wav", "shit-hit.wav", 0.04f, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+		LegacyWeapon::Definition DEFINITION = { 4.27f, false, true, true, Color(255, 0, 255), 0, 100, 3.11f, "kiss of death", "kiss2.wav", "kiss.wav", 0.01f, { 0, 8, 1, 8, 2, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } };
+		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.22f, 0.74f), Vector(0.43f, 0.22f));
 	}
 
-	ShitThrower::ShitThrower(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 16)
-	{
-		Color brownColor(83, 44, 0);
-		PlayerSkinColors skinColors(brownColor);
-		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
-	}
+	KissOfDeath::KissOfDeath(Sound& sound, TextureManager& textureManager)
+		: LegacyWeapon(sound, textureManager, DEFINITION, 12)
+	{}
 
-	std::unique_ptr<Shot> ShitThrower::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
+	Rectangle KissOfDeath::getShotCollisionRectangle() const
 	{
-		return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
-	}
-
-	Rectangle ShitThrower::getShotCollisionRectangle() const
-	{
-		return Rectangle::empty();
+		return SHOT_COLLISION_RECT;
 	}
 }

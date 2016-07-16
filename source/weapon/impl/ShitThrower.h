@@ -43,6 +43,7 @@ namespace Duel6
 
 	protected:
 		std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const override;
+		Rectangle getShotCollisionRectangle() const override;
 	};
 }
 

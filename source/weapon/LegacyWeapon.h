@@ -88,12 +88,9 @@ namespace Duel6
 		const WeaponTextures& getTextures() const;
 		const WeaponSamples& getSamples() const;
 
-	public:
-		static std::unique_ptr<WeaponImpl> create(Sound& sound, TextureManager& textureManager, Size index);
-
 	protected:
 		virtual std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const;
-		virtual Rectangle getShotCollisionRectangle() const;
+		virtual Rectangle getShotCollisionRectangle() const = 0;
 	};
 }
 
