@@ -84,20 +84,36 @@ namespace Duel6
 		glEnd();
 	}
 
-	const Elevator* ElevatorList::checkPlayer(Player& player)
+	const Elevator* ElevatorList::checkPlayer(Player& player, Float32 speedFactor)
 	{
+		const Float32 distanceThreshold = 0.05f;
 		Rectangle playerRect = player.getCollisionRect();
 		Float32 cX = playerRect.getCentre().x;
+		Vector speed = player.getSpeedVector();
+		Float32 verticalSpeedStep = speed.y * speedFactor;
 
 		for (const Elevator& elevator : elevators)
 		{
 			const Vector& pos = elevator.getPosition();
-			if (cX >= pos.x && cX <= pos.x + 1.0f && playerRect.left.y >= pos.y - 0.05f && playerRect.left.y <= pos.y + 0.05f)  // TODO: Coord
+			const Vector& acceleratedVelocity = elevator.getAcceleratedVelocity();
+			Float32 elevatorVerticalStep = acceleratedVelocity.y * speedFactor;
+			if (cX >= pos.x && cX <= pos.x + 1.0f)  // TODO: Coord
 			{
-				return &elevator;
+				bool before_below = playerRect.left.y <= pos.y - distanceThreshold - elevatorVerticalStep;
+				bool before_above = playerRect.left.y >= pos.y - elevatorVerticalStep + distanceThreshold;
+				bool before_inside = playerRect.left.y >= pos.y - distanceThreshold - elevatorVerticalStep && playerRect.left.y - verticalSpeedStep <= pos.y - elevatorVerticalStep + distanceThreshold;
+				bool after_above = playerRect.left.y + 2 * verticalSpeedStep >= pos.y + distanceThreshold;
+				bool after_below = playerRect.left.y + verticalSpeedStep <= pos.y - distanceThreshold;
+				bool after_inside = playerRect.left.y + verticalSpeedStep >= pos.y - distanceThreshold && playerRect.left.y + verticalSpeedStep <= pos.y + distanceThreshold;
+
+				if ((before_below && after_inside && !after_above)
+						|| (before_above && (after_below || after_inside))
+						|| (before_inside && (after_below || after_inside ))
+				){
+					return &elevator;
+				}
 			}
 		}
-
 		return nullptr;
 	}
 }

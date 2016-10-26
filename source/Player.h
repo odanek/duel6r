@@ -55,7 +55,7 @@ namespace Duel6
 	class Weapon;
 	class World;
 	class InfoMessageQueue;
-    class PlayerEventListener;
+	class PlayerEventListener;
 
 	struct PlayerView
 	{
@@ -114,11 +114,16 @@ namespace Duel6
 			FlagPick = 0x02,
 			FlagKnee = 0x04,
 			FlagLying = 0x08,
+			FlagMoveDown = 0x10,
 			FlagMoveLeft = 0x40,
 			FlagMoveRight = 0x80,
 			FlagMoveUp = 0x100,
 			FlagHasGun = 0x200,
-			FlagGhost = 0x400
+			FlagGhost = 0x400,
+			FlagDoubleJumpDebounce = 0x800,
+			FlagDoubleJump = 0x1000,
+			FlagDropDebounce = 0x2000,
+			FlagDropBoost = 0x4000
 		};
 
 		struct WaterState
@@ -143,6 +148,10 @@ namespace Duel6
 		Orientation orientation;
 		Float32 jumpPhase;
 		Vector position;
+		Vector acceleration;
+		Vector externalForces;
+		Vector externalForcesSpeed;
+		Vector speed;
 		Float32 life;
 		Float32 air;
 		Int32 ammo;
@@ -157,10 +166,11 @@ namespace Duel6
 		Weapon weapon;
 		const Elevator* elevator;
 		Int32 infoBarPosition[2];
-        PlayerEventListener* eventListener;
+		PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
 		Float32 bodyAlpha;
 		clock_t roundStartTime;
+
 
 	public:
 		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls);
@@ -170,7 +180,7 @@ namespace Duel6
 		{
 			return (this == &player);
 		}
-
+		Vector getSpeedVector() const;
 		void startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon& weapon);
 		void endRound();
 		void setView(const PlayerView& view);
@@ -178,13 +188,14 @@ namespace Duel6
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
 		bool hitByShot(Float32 pw, Shot& s, bool directHit, const Vector& hitPoint);
+		Float32 useSomeAir(Float32 amount); // Returns air spent >= 0. Spends only air available above certain limit (25)
 		bool airHit(Float32 amount);
-        void processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled);
+		void processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled);
 
-        void setEventListener(PlayerEventListener& listener)
-        {
-            eventListener = &listener;
-        }
+		void setEventListener(PlayerEventListener& listener)
+		{
+			eventListener = &listener;
+		}
 
 		const Vector& getPosition() const
 		{
@@ -420,22 +431,20 @@ namespace Duel6
 
 		bool isRising() const
 		{
-			return (jumpPhase >= 90.0f && jumpPhase < 180.0f);
+			return speed.y > 0;
 		}
 
 		bool isFalling() const
 		{
-			return (jumpPhase >= 180.0f && jumpPhase <= 270.0f);
+			return speed.y < 0;
 		}
 
-		bool isOnGround() const
-		{
-			return (jumpPhase == 0.0f);
-		}
+
+		bool isOnGround() const;
 
 		bool isMoving() const
 		{
-			return (velocity != 0.0f);
+				return (speed.x != 0.0f);
 		}
 
 		bool hasPowerfulShots() const
@@ -498,7 +507,7 @@ namespace Duel6
 		void checkMoveDown(const Level& level);
 		void checkFall(const Level& level);
 		void checkHorizontalMove(const Level& level);
-		void checkElevator();
+		void checkElevator(Float32 speedFactor);
 
 		bool hasFlag(Uint32 flag) const
 		{

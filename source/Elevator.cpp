@@ -29,7 +29,7 @@
 #include "Elevator.h"
 #include "Math.h"
 
-#define D6_ELEV_SPEED           1.83f
+#define D6_ELEV_SPEED 1.83f
 
 namespace Duel6
 {
@@ -43,13 +43,18 @@ namespace Duel6
 
 	void Elevator::update(Float32 elapsedTime)
 	{
-		if (travelled >= distance)
+		if (travelled >= distance * D6_ELEV_SPEED)
 		{
 			nextSection();
 		}
-
-		position += velocity * elapsedTime;
-		travelled += elapsedTime;
+#ifndef D6_ELEV_SAFETY_LAST
+		accelerate = 1.0f;
+#else
+		// accelerates till midway between two control points, then starts deccelerating
+		accelerate = 0.1f + 5.0f - 5.0f * fabs( 2.0f * (  (travelled) / (distance * D6_ELEV_SPEED) - 0.5f) );
+#endif
+		position += accelerate * velocity * elapsedTime;
+		travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
 	}
 
 	void Elevator::render() const
@@ -126,7 +131,7 @@ namespace Duel6
 	{
 		ControlPoint& left = controlPoints[forward ? section : section + 1];
 		ControlPoint& right = controlPoints[forward ? section + 1 : section];
-
+		accelerate = 0;
 		Vector dir = right.getLocation() - left.getLocation();
 		distance = dir.length() / D6_ELEV_SPEED;
 		travelled = 0;

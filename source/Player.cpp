@@ -50,6 +50,20 @@ namespace Duel6
 	static Int16 d6NAnim[4] = { 25, 100, -1, 0 };
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 
+	static const float GRAVITATIONAL_ACCELERATION = -0.2f;
+	static const float JUMP_FACTOR = -40.0f;
+	static const float JUMP_ACCELERATION = JUMP_FACTOR * GRAVITATIONAL_ACCELERATION;
+
+	// Very important fun aspect!
+	static const float SHOT_FORCE_FACTOR = 0.1f;
+
+	// collision detection
+	static const float FLOOR_DISTANCE_THRESHOLD = 0.0001f;
+	static const float DELTA = 0.30f;
+	static const float VERTICAL_DELTA = 0.5f * DELTA;
+	static const float HORIZONTAL_DELTA = 0.25f * DELTA;
+	static const float DELTA_HEIGHT = 0.94f;
+
 	Player::Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls)
 		: person(person), skin(skin), sounds(sounds), controls(controls), bodyAlpha(1.0f)
 	{
@@ -64,7 +78,8 @@ namespace Duel6
 	{
 		this->world = &world;
 		position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-
+		speed = Vector(0,0);
+		acceleration = Vector(0,0);
 		Sprite manSprite(noAnim, skin.getTextureList());
 		manSprite.setPosition(getSpritePosition(), 0.5f);
 		sprite = world.getSpriteList().addSprite(manSprite);
@@ -89,11 +104,12 @@ namespace Duel6
 		bonusRemainingTime = 2.0f;
 		hpBarDuration = 0;
 		tempSkinDuration = 0;
-        roundKills = 0;
+		roundKills = 0;
 		this->view = view;
 		water.headUnderWater = Water::NONE;
 		water.feetInWater = Water::NONE;
-
+		externalForces = {0,0};
+		externalForcesSpeed = {0,0};
 		roundStartTime = clock();
 		getPerson().addGames(1);
 	}
@@ -113,85 +129,93 @@ namespace Duel6
 		this->view = view;
 	}
 
+	bool Player::isOnGround() const
+	{
+		Float32 delta = VERTICAL_DELTA;
+		Float32 down = getPosition().y - FLOOR_DISTANCE_THRESHOLD;
+		Float32 left = getPosition().x + delta;
+		Float32 right = getPosition().x + (1 - delta);
+
+		return world->getLevel().isWall(left, down, true) || world->getLevel().isWall(right, down, true);
+	}
+
 	void Player::moveHorizontal(const Level& level, Float32 elapsedTime, Float32 speed)
 	{
 		if (hasFlag(FlagMoveLeft))
 		{
-			velocity = std::max(velocity - elapsedTime, -D6_PLAYER_MAX_SPEED);
-
-			if (velocity < 0.0f)
+			if(this->speed.x > -D6_PLAYER_MAX_SPEED){
+				this->speed.x -= elapsedTime;
+			}
+			if (this->speed.x < 0.0f)
 			{
 				orientation = Orientation::Left;
 			}
-		} 
-		else if (velocity < 0.0f)
+		}
+		else if (this->speed.x < 0.0f)
 		{
-			velocity = std::min(velocity + elapsedTime, 0.0f);
+			this->speed.x = std::min(this->speed.x + elapsedTime, 0.0f);
 		}
 
 		if (hasFlag(FlagMoveRight))
 		{
-			velocity = std::min(velocity + elapsedTime, D6_PLAYER_MAX_SPEED);
+			if(this->speed.x < D6_PLAYER_MAX_SPEED){
+				this->speed.x += elapsedTime;
+			}
 
-			if (velocity > 0.0f)
+			if (this->speed.x > 0.0f)
 			{
 				orientation = Orientation::Right;
 			}
-		} 
-		else if (velocity > 0.0f)
-		{
-			velocity = std::max(velocity - elapsedTime, 0.0f);
 		}
-
-		if (isMoving())
+		else if (this->speed.x > 0.0f)
 		{
-			position.x += velocity * D6_PLAYER_ACCEL * speed;
-			checkHorizontalMove(level);
+			this->speed.x = std::max(this->speed.x - elapsedTime, 0.0f);
 		}
 	}
 
 	void Player::moveVertical(const Level& level, Float32 elapsedTime, Float32 speed)
 	{
-		if (isOnGround() && hasFlag(FlagMoveUp))
-		{
-			Float32 up = getPosition().y + 1.0f; // TODO: Coord
-			Float32 left = getPosition().x + 0.1f; // TODO: Coord
-			Float32 right = getPosition().x + 0.9f; // TODO: Coord
-
+		checkElevator(speed);
+		if (hasFlag(FlagMoveUp) && this->speed.y <= 0 && (isOnGround() || isOnElevator())){
+			const Float32 delta =  VERTICAL_DELTA;
+			Float32 up = getPosition().y + 0.94f;
+			Float32 left = getPosition().x + delta;
+			Float32 right = getPosition().x + (1.0f - delta);
 			if (!level.isWall(left, up, true) && !level.isWall(right, up, true))
 			{
-				jumpPhase = 90.0f;
+				acceleration.y += JUMP_ACCELERATION;
+			}
+			if(isOnElevator()){ //leaving elevator
+				acceleration.y += elevator->getAcceleratedVelocity().y;
+				acceleration.x += elevator->getAcceleratedVelocity().x * elapsedTime * 10.0f;
+			}
+
+		}
+		if(hasFlag(FlagDoubleJump) && getBonus() == BonusType::FAST_MOVEMENT)
+		{
+			if (this->speed.y > 0.0)
+			{
+				acceleration.y += JUMP_ACCELERATION;
 			}
 		}
-
-		if (!isOnGround())
+		if(hasFlag(FlagDropBoost) && false)	// not too useful
 		{
-			jumpPhase += D6_PLAYER_JPHASE_SPEED * elapsedTime;
-			if (jumpPhase > 270.0)
-			{
-				jumpPhase = 270.0f;
-			}
-
-			position.y += Math::fastSin(Int32(jumpPhase)) * D6_PLAYER_JUMP_SPEED * speed;
-
-			if (isRising())
-			{
-				checkMoveUp(level);
-			}
-			else
-			{
-				checkMoveDown(level);
-			}
+			acceleration.y -= JUMP_ACCELERATION;
 		}
-		else
+		if(!isOnElevator()){
+			acceleration.y += GRAVITATIONAL_ACCELERATION;    // gravity
+		}
+		if (!isOnGround() )
 		{
-			checkFall(level);
+			if (this->speed.y < -D6_PLAYER_JUMP_SPEED){	// TODO: this criples the FlagDropBoost feature
+				this->speed.y = -D6_PLAYER_JUMP_SPEED;
+			}
 		}
 	}
 
 	void Player::fall()
 	{
-		if (isOnGround() && !isMoving())
+		if (isOnGround() || isOnElevator()) // && !isMoving())
 		{
 			setFlag(FlagKnee);
 		}
@@ -199,7 +223,7 @@ namespace Duel6
 		{
 			if (isRising())
 			{
-				jumpPhase = 180.0f;
+				speed.y = 0.0f; //TODO Accelerate
 			}
 		}
 	}
@@ -246,27 +270,158 @@ namespace Duel6
 
 	void Player::makeMove(const Level& level, Float32 elapsedTime)
 	{
+		static bool bleft = false, bright = false , bup = false, bdown = false;
 		Float32 speed = getSpeed() * elapsedTime;
 
 		if (isOnElevator() && level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, false))
 		{
-			velocity = 0;
+			this->speed.x = 0;
 		}
-
 		elevator = nullptr;
+		acceleration.x = 0;
+		acceleration.y = 0;
 
 		moveVertical(level, elapsedTime, speed);
 		moveHorizontal(level, elapsedTime, speed);
 
+		externalForcesSpeed += externalForces;
+		externalForces.x = 0;
+		externalForces.y = 0;
+		if (externalForcesSpeed.length() < 0.01){
+			externalForcesSpeed.x = 0;
+			externalForcesSpeed.y = 0;
+		}
+		//do not multiply by speed or elapsedTime !!!
+		this->speed.x += acceleration.x;
+		this->speed.y += acceleration.y;
+
+
+		// horizontal speed clamping
+		if(fabs(this->speed.x * speed) > 0.5f){
+			this->speed.x = std::copysign(0.5f, this->speed.x) / speed;
+		}
+		if(fabs(this->externalForcesSpeed.x * speed) > 0.5f){
+			this->externalForcesSpeed.x = std::copysign(0.5f, this->externalForcesSpeed.x) / speed;
+		}
+		Vector totalSpeed = this->speed + externalForcesSpeed;
+		bleft = false, bright = false, bup = false, bdown = false;
+
+		//collision detection here we go
+
+		{
+			Float32 delta = VERTICAL_DELTA;
+			Float32 up;
+			Float32 down;
+			Float32 left;
+			Float32 right;
+
+			/**
+			 * Down
+			 */
+			up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
+			down = getPosition().y + totalSpeed.y * speed;
+			left = getPosition().x + delta + totalSpeed.x * speed;
+			right = getPosition().x + (1.0f - delta)+ totalSpeed.x * speed;
+			if (level.isWall(right, down, true) || level.isWall(left, down, true)) {
+				bdown = true;
+				this->speed.y = 0;
+				totalSpeed.y = 0;
+				if(!(level.isWall(right, up, true) || level.isWall(left, down, true)) ) {
+					this->speed.y = -0.001;
+					totalSpeed.y = -0.001;
+				}
+			}
+
+			/**
+			 * Up
+			 */
+			up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
+			down = getPosition().y + totalSpeed.y * speed;
+			left = getPosition().x + delta + totalSpeed.x * speed;
+			right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
+
+			if (totalSpeed.y > 0.0f && (level.isWall(right, up, true) || level.isWall(left, up, true))) {
+				bup = true;
+				totalSpeed.y = 0;
+				this->speed.y = 0;
+			}
+
+			/**
+			 * Right
+			 */
+			delta = HORIZONTAL_DELTA;
+			left = getPosition().x + delta + totalSpeed.x * speed;
+			down = getPosition().y + 0.1f;
+			if(totalSpeed.y > 0){
+				up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
+			} else {
+				up = getPosition().y + DELTA_HEIGHT;
+			}
+			right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
+
+			if (totalSpeed.x > 0 && (floorf(right) > floorf(getPosition().x)) && ((level.isWall(right, up, true) || level.isWall(right, down, true)))) {
+				bright = true;
+			}
+
+			/**
+			 * Left
+			 */
+			up = getPosition().y + DELTA_HEIGHT;
+			down = getPosition().y + 0.1f;
+			left = getPosition().x + delta + totalSpeed.x * speed;
+			right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
+			if(totalSpeed.y > 0){
+				up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
+			} else {
+				up = getPosition().y + DELTA_HEIGHT;
+			}
+			if (level.isWall(left, up, true) || level.isWall(left, down, true) || (left < 0)) {
+				bleft = true;
+			}
+
+			/**
+			 * Put it all together
+			 */
+			if(bdown){
+				this->position.y = ceil(this->position.y - 0.5f);
+			} else if(bup){
+				this->position.y = floor(this->position.y + 0.5f);
+			}
+			if(bleft){
+				this->position.x = ceil(this->position.x + totalSpeed.x * speed) - delta;
+			} else if(bright){
+				this->position.x = floorf(this->position.x) + delta;
+			}
+			if(bleft || bright){
+				externalForcesSpeed.x *= 0.5;
+			}
+			if(bup || bdown){
+				externalForcesSpeed.y *= 0.5;
+			}
+			externalForcesSpeed.x *= 0.9;
+			externalForcesSpeed.y *= 0.9;
+			position.x = std::max(-0.1f, std::min(position.x, level.getWidth() - 0.9f));
+		}
+
 		if (isOnElevator())
 		{
-			position += elevator->getVelocity() * elapsedTime;
+			position += elevator->getAcceleratedVelocity() * elapsedTime;
 		}
 
 		if (isPickingGun() && sprite->getAnimation() == d6PAnim && sprite->isFinished())
 		{
 			unsetFlag(FlagPick);
 		}
+		if(isKneeling()) {
+			unsetFlag(FlagMoveLeft | FlagMoveRight);
+		}
+
+		position.y += totalSpeed.y * speed; // the speed has the elapsedTime already factored in
+		position.x += totalSpeed.x * D6_PLAYER_ACCEL * speed; // the speed has the elapsedTime already factored in
+	}
+	Vector Player::getSpeedVector() const
+	{
+		return speed;
 	}
 
 	Float32 Player::getSpeed() const
@@ -315,16 +470,31 @@ namespace Duel6
 			if (controls.getLeft().isPressed())
 			{
 				setFlag(FlagMoveLeft);
+			} else {
+				unsetFlag(FlagMoveLeft);
 			}
 
 			if (controls.getRight().isPressed())
 			{
 				setFlag(FlagMoveRight);
+			}else{
+				unsetFlag(FlagMoveRight);
 			}
 
 			if (controls.getUp().isPressed())
 			{
+				unsetFlag(FlagDoubleJump);
+				if(hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !hasFlag(FlagMoveUp)){
+					setFlag(FlagDoubleJump);
+					unsetFlag(FlagDoubleJumpDebounce);
+				}
 				setFlag(FlagMoveUp);
+			} else {
+				if(isOnGround()){
+					setFlag(FlagDoubleJumpDebounce);
+				}
+				unsetFlag(FlagDoubleJump);
+				unsetFlag(FlagMoveUp);
 			}
 			if (controls.getPick().isPressed())
 			{
@@ -338,9 +508,28 @@ namespace Duel6
 		}
 
 		unsetFlag(FlagKnee);
-		if (controls.getDown().isPressed())
-		{
-			fall();
+
+		if (controls.getDown().isPressed()) {
+			setFlag(FlagMoveDown);
+			if (isOnGround()) {
+				fall();
+			}
+			unsetFlag(FlagDropBoost);
+			if (hasFlag(FlagDropDebounce)) {
+				setFlag(FlagDropBoost);
+			} else {
+				fall();
+			}
+			unsetFlag(FlagDropDebounce);
+		} else {
+			if (hasFlag(FlagMoveDown)) {
+				setFlag(FlagDropDebounce);  //key down pressed first time
+			}
+			if (isOnGround()) {
+				unsetFlag(FlagDropBoost);
+				unsetFlag(FlagDropDebounce);
+			}
+			unsetFlag(FlagMoveDown);
 		}
 	}
 
@@ -406,7 +595,6 @@ namespace Duel6
 
 		timeSinceHit += elapsedTime;
 	}
-
 	void Player::setAnm()
 	{
 		Int16 *animation;
@@ -426,13 +614,21 @@ namespace Duel6
 		{
 			animation = d6PAnim;
 		}
-		else if (!isOnGround())
-		{
-			animation = d6JAnim;
-		}
 		else if (isKneeling())
 		{
 			animation = d6DAnim;
+		}
+		else if (isOnElevator())
+		{
+			if (!isMoving()) {
+				animation = d6SAnim;
+			} else {
+				animation = d6WAnim;
+			}
+		}
+		else if (!isOnGround())
+		{
+			animation = d6JAnim;
 		}
 		else if (!isMoving())
 		{
@@ -549,6 +745,7 @@ namespace Duel6
 
 	bool Player::hitByShot(Float32 amount, Shot& shot, bool directHit, const Vector& hitPoint)
 	{
+		externalForces += (getCentre() - hitPoint).unit() * amount * SHOT_FORCE_FACTOR;
 		if (isInvulnerable() || !isInGame())
 		{
 			return false;
@@ -562,10 +759,10 @@ namespace Duel6
 		Player& shootingPlayer = shot.getPlayer();
 		Person& shootingPerson = shootingPlayer.getPerson();
 
-        if (!eventListener->onDamageByShot(*this, shootingPlayer, amount, shot, directHit))
-        {
-            return false;
-        }
+		if (!eventListener->onDamageByShot(*this, shootingPlayer, amount, shot, directHit))
+		{
+			return false;
+		}
 
 		timeSinceHit = 0;
 		
@@ -612,10 +809,10 @@ namespace Duel6
 			return false;
 		}
 
-        if (!eventListener->onDamageByEnv(*this, amount))
-        {
-            return false;
-        }
+		if (!eventListener->onDamageByEnv(*this, amount))
+		{
+			return false;
+		}
 
 		timeSinceHit = 0;
 
@@ -710,85 +907,37 @@ namespace Duel6
 		}
 	}
 
+
+
 	void Player::checkMoveUp(const Level& level)
 	{
-		Float32 up = getPosition().y + 0.94f; // TODO: Coord
-		Float32 left = getPosition().x + 0.1f; // TODO: Coord
-		Float32 right = getPosition().x + 0.9f; // TODO: Coord
-
-		if (level.isWall(left, up, true) || level.isWall(right, up, true))
-		{
-			position.y = floorf(up) - 1.0f; // TODO: Coord
-			jumpPhase = 180.0f;
-		}
+		//TODO remove
 	}
 
 	void Player::checkMoveDown(const Level& level)
 	{
-		Float32 down = getPosition().y; // TODO: Coord
-		Float32 left = getPosition().x + 0.1f; // TODO: Coord
-		Float32 right = getPosition().x + 0.9f; // TODO: Coord
-
-		if (level.isWall(left, down, true) || level.isWall(right, down, true))
-		{
-			position.y = floorf(down) + 1.0001f; // TODO: Coord
-			jumpPhase = 0.0f;
-		}
-
-		checkElevator();
+		//TODO remove
 	}
 
 	void Player::checkFall(const Level& level)
 	{
-		checkElevator();
-
-		if (isOnElevator())
-			return;
-
-		Float32 down = getPosition().y - 0.001f; // TODO: Coord
-		Float32 left = getPosition().x + 0.1f; // TODO: Coord
-		Float32 right = getPosition().x + 0.9f; // TODO: Coord
-
-		if (!level.isWall(left, down, true) && !level.isWall(right, down, true))
-		{
-			jumpPhase = 180.0f;
-		}
+		//TODO remove
 	}
 
 	void Player::checkHorizontalMove(const Level& level)
 	{
-		Float32 up = getPosition().y + 0.94f; // TODO: Coord
-		Float32 down = getPosition().y; // TODO: Coord
-
-		if (velocity < 0)
-		{
-			Float32 left = getPosition().x + 0.1f; // TODO: Coord
-			if (level.isWall(left, up, true) || level.isWall(left, down, true) || (left < 0))
-			{
-				position.x = floorf(left) + 0.9001f; // TODO: Coord
-			}
-		}
-		else
-		{
-			Float32 right = getPosition().x + 0.9f; // TODO: Coord
-			if (level.isWall(right, up, true) || level.isWall(right, down, true))
-			{
-				position.x = floorf(right) - 0.9001f; // TODO: Coord
-			}
-		}
-
-		position.x = std::max(-0.1f, std::min(position.x, level.getWidth() - 0.9f));
+		//TODO remove
 	}
 
-	void Player::checkElevator()
+	void Player::checkElevator(Float32 speedFactor)
 	{
-		const Elevator* elevator = world->getElevatorList().checkPlayer(*this);
+		const Elevator* elevator = world->getElevatorList().checkPlayer(*this, speedFactor);
 
 		if (elevator != nullptr)
 		{
 			this->elevator = elevator;
 			position.y = elevator->getPosition().y;
-			jumpPhase = 0.0f;
+			speed.y = 0.0f;
 		}
 	}
 
@@ -804,28 +953,28 @@ namespace Duel6
 		sprite->setTextures(skin.getTextureList());
 	}
 
-    void Player::processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled)
-    {
-        bool suicide = (std::find(playersKilled.begin(), playersKilled.end(), this) != playersKilled.end());
+	void Player::processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled)
+	{
+		bool suicide = (std::find(playersKilled.begin(), playersKilled.end(), this) != playersKilled.end());
 
-        if (suicide)
-        {
-            playSound(PlayerSounds::Type::Suicide);
-            eventListener->onSuicide(*this, playersKilled.size() - 1);
-        }
-        else if (!playersKilled.empty())
-        {
-            playSound(PlayerSounds::Type::KilledOther);
-        }
+		if (suicide)
+		{
+			playSound(PlayerSounds::Type::Suicide);
+			eventListener->onSuicide(*this, playersKilled.size() - 1);
+		}
+		else if (!playersKilled.empty())
+		{
+			playSound(PlayerSounds::Type::KilledOther);
+		}
 
-        for (Player* player : playersKilled)
-        {
-            if (!player->is(*this))
-            {
-                player->playSound(PlayerSounds::Type::WasKilled);
-                player->eventListener->onKillByPlayer(*player, *this, shot, suicide);
-            }
-        }
+		for (Player* player : playersKilled)
+		{
+			if (!player->is(*this))
+			{
+				player->playSound(PlayerSounds::Type::WasKilled);
+				player->eventListener->onKillByPlayer(*player, *this, shot, suicide);
+			}
+		}
 
 		bool hittedSelf = (std::find(playersHit.begin(), playersHit.end(), this) != playersHit.end());
 		if (!hittedSelf && !playersHit.empty())
