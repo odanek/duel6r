@@ -187,7 +187,7 @@ namespace Duel6
 		void update(World& world, ScreenMode screenMode, Float32 elapsedTime);
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
-		bool hitByShot(Float32 pw, Shot& s, bool directHit, const Vector& hitPoint);
+		bool hitByShot(Float32 pw, Shot& s, bool directHit, const Vector& hitPoint,const Vector& shotVector);
 		Float32 useSomeAir(Float32 amount); // Returns air spent >= 0. Spends only air available above certain limit (25)
 		bool airHit(Float32 amount);
 		void processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled);
@@ -488,6 +488,7 @@ namespace Duel6
 			unsetFlag(FlagLying);
 		}
 
+		void die();
 	private:
 		void makeMove(const Level& level, Float32 elapsedTime);
 		void moveHorizontal(const Level& level, Float32 elapsedTime, Float32 speed);

@@ -50,12 +50,13 @@ namespace Duel6
 	static Int16 d6NAnim[4] = { 25, 100, -1, 0 };
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 
-	static const float GRAVITATIONAL_ACCELERATION = -0.2f;
-	static const float JUMP_FACTOR = -40.0f;
+	//TODO: This still needs further fine-tuning for good jumping experience
+	static const float GRAVITATIONAL_ACCELERATION = -16.0f;
+	static const float JUMP_FACTOR = -0.6f;
 	static const float JUMP_ACCELERATION = JUMP_FACTOR * GRAVITATIONAL_ACCELERATION;
 
 	// Very important fun aspect!
-	static const float SHOT_FORCE_FACTOR = 0.1f;
+	static const float SHOT_FORCE_FACTOR = 0.07f;
 
 	// collision detection
 	static const float FLOOR_DISTANCE_THRESHOLD = 0.0001f;
@@ -203,7 +204,7 @@ namespace Duel6
 			acceleration.y -= JUMP_ACCELERATION;
 		}
 		if(!isOnElevator()){
-			acceleration.y += GRAVITATIONAL_ACCELERATION;    // gravity
+			acceleration.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
 		}
 		if (!isOnGround() )
 		{
@@ -272,8 +273,8 @@ namespace Duel6
 	{
 		static bool bleft = false, bright = false , bup = false, bdown = false;
 		Float32 speed = getSpeed() * elapsedTime;
-
-		if (isOnElevator() && level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, false))
+		bool onElevator = isOnElevator();
+		if (onElevator  && level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, false))
 		{
 			this->speed.x = 0;
 		}
@@ -382,15 +383,17 @@ namespace Duel6
 			/**
 			 * Put it all together
 			 */
-			if(bdown){
-				this->position.y = ceil(this->position.y - 0.5f);
-			} else if(bup){
-				this->position.y = floor(this->position.y + 0.5f);
-			}
-			if(bleft){
-				this->position.x = ceil(this->position.x + totalSpeed.x * speed) - delta;
-			} else if(bright){
-				this->position.x = floorf(this->position.x) + delta;
+			if(!onElevator){
+				if(bdown){
+					this->position.y = ceil(this->position.y - 0.5f);
+				} else if(bup){
+					this->position.y = floor(this->position.y + 0.5f);
+				}
+				if(bleft){
+					this->position.x = ceil(this->position.x + totalSpeed.x * speed) - delta;
+				} else if(bright){
+					this->position.x = floorf(this->position.x) + delta;
+				}
 			}
 			if(bleft || bright){
 				externalForcesSpeed.x *= 0.5;
@@ -458,8 +461,6 @@ namespace Duel6
 
 	void Player::checkKeys()
 	{
-		unsetFlag(FlagMoveLeft | FlagMoveRight | FlagMoveUp);
-
 		if ((!isAlive() && !isGhost()) || isPickingGun())
 		{
 			return;
@@ -743,9 +744,13 @@ namespace Duel6
 		}
 	}
 
-	bool Player::hitByShot(Float32 amount, Shot& shot, bool directHit, const Vector& hitPoint)
+	bool Player::hitByShot(Float32 amount, Shot& shot, bool directHit, const Vector& hitPoint, const Vector& shotVector)
 	{
-		externalForces += (getCentre() - hitPoint).unit() * amount * SHOT_FORCE_FACTOR;
+		Vector estimatedShotVector = getCentre() - hitPoint;
+		if(directHit){
+			estimatedShotVector.x = shotVector.x;	//makes sure that close-up shots have the right effect
+		}
+		externalForces += estimatedShotVector.unit() * amount * SHOT_FORCE_FACTOR;
 		if (isInvulnerable() || !isInGame())
 		{
 			return false;
@@ -778,19 +783,9 @@ namespace Duel6
 
 		if (life <= 0.0f)
 		{
-			setFlag(FlagDead | FlagLying);
-			unsetFlag(FlagKnee | FlagPick);
-			
-			sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
-			gunSprite->setDraw(false);
-
+			die();
 			orientation = (hitPoint.x < getCentre().x) ? Orientation::Left : Orientation::Right;
-
 			shot.onKillPlayer(*this, directHit, hitPoint, *world);
-
-			Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
-			getPerson().addTimeAlive(timeAlive);
-
 			return true;
 		}
 		else
@@ -818,15 +813,8 @@ namespace Duel6
 
 		if (life <= 0.0f)
 		{
-			setFlag(FlagDead | FlagLying);
-			unsetFlag(FlagKnee | FlagPick);
-			
-			sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
-			gunSprite->setDraw(false);
+			die();
 			eventListener->onKillByEnv(*this);
-
-			Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
-			getPerson().addTimeAlive(timeAlive);
 
 			return true;
 		}
@@ -982,4 +970,18 @@ namespace Duel6
 			playSound(PlayerSounds::Type::HitOther);
 		}
 	}
+
+	void Player::die()
+	{
+		setFlag(FlagDead | FlagLying);
+		unsetFlag(FlagMoveUp | FlagMoveDown | FlagMoveLeft | FlagMoveRight | FlagKnee | FlagPick);
+		sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
+		gunSprite->setDraw(false);
+
+		Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
+		getPerson().addTimeAlive(timeAlive);
+
+	}
+
+
 }
