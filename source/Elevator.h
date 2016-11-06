@@ -63,6 +63,7 @@ namespace Duel6
 		bool forward;
 		Float32 distance;
 		Float32 travelled;
+		Float32 accelerate;
 		Vector position;
 		Vector velocity;
 
@@ -82,11 +83,19 @@ namespace Duel6
 			return position;
 		}
 
+		const Vector getAcceleratedVelocity() const
+		{
+			return velocity * accelerate;
+		}
+
 		const Vector& getVelocity() const
 		{
 			return velocity;
 		}
-
+		Float32 getAccelerate() const
+		{
+			return accelerate;
+		}
 	private:
 		void nextSection();
 		void startSection();

@@ -134,7 +134,7 @@ namespace Duel6
 			if (directHit || dist < range)
 			{
 				hittedPlayers.push_back(&player);
-				if (player.hitByShot(directHit ? power : ((range - dist) * power) / range, *this, directHit, getCentre()))
+				if (player.hitByShot(directHit ? power : ((range - dist) * power) / range, *this, directHit, getCentre(), velocity))
 				{
 					killedPlayers.push_back(&player);
 				}

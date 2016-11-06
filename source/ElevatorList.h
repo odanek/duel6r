@@ -49,7 +49,7 @@ namespace Duel6
 		void add(Elevator& elevator);
 		void update(Float32 elapsedTime);
 		void render() const;
-		const Elevator* checkPlayer(Player& player);
+		const Elevator* checkPlayer(Player& player, Float32 speedFactor);
 	};
 }
 
