@@ -51,12 +51,12 @@ namespace Duel6
 	static Int16 d6PAnim[] = { 0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0 };
 
 	//TODO: This still needs further fine-tuning for good jumping experience
-	static const float GRAVITATIONAL_ACCELERATION = -16.0f;
-	static const float JUMP_FACTOR = -0.6f;
+	static const float GRAVITATIONAL_ACCELERATION = -11.0f;
+	static const float JUMP_FACTOR = -0.7f;
 	static const float JUMP_ACCELERATION = JUMP_FACTOR * GRAVITATIONAL_ACCELERATION;
 
 	// Very important fun aspect!
-	static const float SHOT_FORCE_FACTOR = 0.07f;
+	static const float SHOT_FORCE_FACTOR = 0.05f;
 
 	// collision detection
 	static const float FLOOR_DISTANCE_THRESHOLD = 0.0001f;
@@ -132,7 +132,8 @@ namespace Duel6
 
 	bool Player::isOnGround() const
 	{
-		Float32 delta = VERTICAL_DELTA;
+		// enables jumping sideways out of places with no space above player's head
+		Float32 delta = 0.8f * VERTICAL_DELTA;
 		Float32 down = getPosition().y - FLOOR_DISTANCE_THRESHOLD;
 		Float32 left = getPosition().x + delta;
 		Float32 right = getPosition().x + (1 - delta);
@@ -188,7 +189,6 @@ namespace Duel6
 			}
 			if(isOnElevator()){ //leaving elevator
 				acceleration.y += elevator->getAcceleratedVelocity().y;
-				acceleration.x += elevator->getAcceleratedVelocity().x * elapsedTime * 10.0f;
 			}
 
 		}
@@ -204,7 +204,7 @@ namespace Duel6
 			acceleration.y -= JUMP_ACCELERATION;
 		}
 		if(!isOnElevator()){
-			acceleration.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
+			this->speed.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
 		}
 		if (!isOnGround() )
 		{
