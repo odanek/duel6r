@@ -170,7 +170,7 @@ namespace Duel6
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glColor3ub(color.getRed(), color.getGreen(), color.getBlue());
+		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 
 		Float32 width = getTextWidth(str, height);
 		glBegin(GL_QUADS);

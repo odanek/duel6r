@@ -222,120 +222,6 @@ namespace Duel6
 		font.print(x + 8, y, Color::WHITE, Format("Rounds: {0,3}|{1,3}") << game.getPlayedRounds() << game.getSettings().getMaxRounds());
 	}
 
-	void Renderer::playerStatuses() const
-	{
-		if (game.getSettings().getScreenMode() == ScreenMode::FullScreen)
-		{
-			glBegin(GL_QUADS);
-			glColor3ub(0, 0, 0);
-			glVertex2i(0, 40);
-			glVertex2i(video.getScreen().getClientWidth(), 40);
-			glVertex2i(video.getScreen().getClientWidth(), 0);
-			glVertex2i(0, 0);
-			glEnd();
-		}
-
-		for (const Player& player : game.getPlayers())
-		{
-			playerStatus(player);
-		}
-	}
-
-	void Renderer::playerStatus(const Player& player) const
-	{
-		Int32 alpha = 180, green = player.isAlive() ? 1 : 0;
-		Int32 airBarLength = Int32((player.getAir() * 101) / D6_MAX_AIR);
-		Int32 lifeBarLength = Int32((player.getLife() * 101) / D6_MAX_LIFE);
-		Int32 reloadBarLength = 101 - Int32((player.getReloadTime() * 101) / player.getReloadInterval());
-		const Int32 *ibp = player.getInfoBarPosition();
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glBegin(GL_QUADS);
-		glColor4ub(255, green * 255, 0, alpha);
-		glVertex2i(ibp[0] + 32, ibp[1] + 2);
-		glVertex2i(ibp[0] + 157, ibp[1] + 2);
-		glVertex2i(ibp[0] + 157, ibp[1] - 32);
-		glVertex2i(ibp[0] + 32, ibp[1] - 32);
-
-		glColor4ub(150, green * 150, 0, alpha);
-		glVertex2i(ibp[0] + 53, ibp[1] + 1);
-		glVertex2i(ibp[0] + 136, ibp[1] + 1);
-		glVertex2i(ibp[0] + 136, ibp[1] - 13);
-		glVertex2i(ibp[0] + 53, ibp[1] - 13);
-
-		glColor4ub(255, 0, 0, alpha);
-		glVertex2i(ibp[0] + 35, ibp[1] - 14);
-		glVertex2i(ibp[0] + 35 + lifeBarLength, ibp[1] - 14);
-		glVertex2i(ibp[0] + 35 + lifeBarLength, ibp[1] - 18);
-		glVertex2i(ibp[0] + 35, ibp[1] - 18);
-
-		glColor4ub(0, 0, 255, alpha);
-		glVertex2i(ibp[0] + 35, ibp[1] - 20);
-		glVertex2i(ibp[0] + 35 + airBarLength, ibp[1] - 20);
-		glVertex2i(ibp[0] + 35 + airBarLength, ibp[1] - 24);
-		glVertex2i(ibp[0] + 35, ibp[1] - 24);
-
-		glColor4ub(0, 100, 0, alpha);
-		glVertex2i(ibp[0] + 35, ibp[1] - 26);
-		glVertex2i(ibp[0] + 35 + reloadBarLength, ibp[1] - 26);
-		glVertex2i(ibp[0] + 35 + reloadBarLength, ibp[1] - 30);
-		glVertex2i(ibp[0] + 35, ibp[1] - 30);
-		glEnd();
-
-		if (game.getSettings().getScreenMode() == ScreenMode::FullScreen)
-		{
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GEQUAL, 1);
-			glBindTexture(GL_TEXTURE_2D, player.getSkin().getTextureList().at(3).getId());
-			glColor3ub(255, 255, 255);
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f); glVertex2i(ibp[0] + 3, ibp[1] + 1);
-			glTexCoord2f(1.0f, 0.0f); glVertex2i(ibp[0] + 33, ibp[1] + 1);
-			glTexCoord2f(1.0f, 1.0f); glVertex2i(ibp[0] + 33, ibp[1] - 31);
-			glTexCoord2f(0.0f, 1.0f); glVertex2i(ibp[0] + 3, ibp[1] - 31);
-			glEnd();
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_ALPHA_TEST);
-		}
-
-		const std::string& playerName = player.getPerson().getName();
-		Color fontColor = Color::BLUE;
-		font.print(ibp[0] + 35, ibp[1] - 13, fontColor, std::to_string(player.getAmmo()));
-		font.print(ibp[0] + 92 - 4 * Int32(playerName.length()), ibp[1] - 13, fontColor, playerName);
-
-		if (player.getBonus() != BonusType::NONE)
-		{
-			Int32 bonusBarLength = Int32(0.5f + (player.getBonusRemainingTime() * 16) / player.getBonusDuration());
-
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GEQUAL, 1);
-			glBindTexture(GL_TEXTURE_2D, player.getBonus().getTexture().getId());
-			glColor3ub(255, 255, 255);
-			glBegin(GL_QUADS);
-				glTexCoord2f(0.3f, 0.3f); glVertex2i(ibp[0] + 139, ibp[1] + 2);
-				glTexCoord2f(0.7f, 0.3f); glVertex2i(ibp[0] + 154, ibp[1] + 2);
-				glTexCoord2f(0.7f, 0.7f); glVertex2i(ibp[0] + 154, ibp[1] - 13);
-				glTexCoord2f(0.3f, 0.7f); glVertex2i(ibp[0] + 139, ibp[1] - 13);
-			glEnd();
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_ALPHA_TEST);
-
-			glBegin(GL_QUADS);
-				glColor4ub(200, 0, 200, alpha);
-				glVertex2i(ibp[0] + 139, ibp[1] - 30 + bonusBarLength);
-				glVertex2i(ibp[0] + 154, ibp[1] - 30 + bonusBarLength);
-				glVertex2i(ibp[0] + 154, ibp[1] - 30);
-				glVertex2i(ibp[0] + 139, ibp[1] - 30);
-			glEnd();
-		}
-
-		glDisable(GL_BLEND);
-	}
-
 	void Renderer::fpsCounter() const
 	{
 		std::string fpsCount = Format("FPS - {0}") << Int32(video.getFps());
@@ -385,74 +271,231 @@ namespace Duel6
 		glEnable(GL_DEPTH_TEST);
 	}
 
-	void Renderer::hpBars() const
+	Float32 Renderer::playerIndicator(const Player& player, const Indicator& indicator, const Color& color, Float32 value, Float32 xOfs, Float32 yOfs) const
 	{
+		glDepthMask(GL_FALSE);
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_QUADS);
 
-		for (const Player& player : game.getPlayers())
-		{
-			if (player.isAlive() && player.getHPBarDuration() > 0)
-			{
-				Rectangle rect = player.getCollisionRect();
-				Float32 width = player.getLife() / D6_MAX_LIFE * rect.getSize().x;
-				Float32 X = rect.left.x;
-				Float32 Y = rect.right.y + 0.25f;
+		Float32 width = value * 0.98f;
+		Float32 X = xOfs - 0.5f;
+		Float32 Y = yOfs;
 
-				Float32 alpha = 1.0f;
-				if(player.getHPBarDuration() > 2.0f)
-				{
-					alpha = (D6_PLAYER_HPBAR - player.getHPBarDuration());
-				}
-				else if(player.getHPBarDuration() < 1.0f)
-				{
-					alpha = player.getHPBarDuration();
-				}
+		Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
-				glColor4f(1, 0, 0, alpha);
-				glVertex3f(X, Y, 0.5f);
-				glVertex3f(X + width, Y, 0.5f);
-				glVertex3f(X + width, Y - 0.1f, 0.5f);
-				glVertex3f(X, Y - 0.1f, 0.5f);
+		glColor4ub(0, 0, 0, alpha);
+		glVertex3f(X, Y, 0.5f);
+		glVertex3f(X + 1.0f, Y, 0.5f);
+		glVertex3f(X + 1.0f, Y - 0.1f, 0.5f);
+		glVertex3f(X, Y - 0.1f, 0.5f);
 
-				glColor4f(0, 0, 0, alpha);
-				glVertex3f(X - 0.03f, Y + 0.03f, 0.5f);
-				glVertex3f(X + 1.03f, Y + 0.03f, 0.5f);
-				glVertex3f(X + 1.03f, Y - 0.13f, 0.5f);
-				glVertex3f(X - 0.03f, Y - 0.13f, 0.5f);
-			}
-		}
+		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+		glVertex3f(X + 0.01f, Y - 0.01f, 0.5f);
+		glVertex3f(X + 0.01f + width, Y - 0.01f, 0.5f);
+		glVertex3f(X + 0.01f + width, Y - 0.08f, 0.5f);
+		glVertex3f(X + 0.01f, Y - 0.08f, 0.5f);
 
 		glEnd();
 		glDisable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
-		glColor3ub(255, 255, 255);
+		glDepthMask(GL_TRUE);
+		glColor4ub(255, 255, 255, 255);
+
+		return 0.1f;
 	}
 
-	void Renderer::roundKills() const
+	void Renderer::playerName(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
+	{
+		const std::string& name = player.getPerson().getName();
+
+		Float32 width = 0.15f * name.size();
+		Float32 X = xOfs - width / 2;
+		Float32 Y = yOfs;
+
+		Uint8 alpha = Uint8(255 * indicator.getAlpha());
+
+		glDepthMask(GL_FALSE);
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+
+		Color color(0, 0, 255, alpha);
+		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+
+		glVertex3f(X, Y, 0.5f);
+		glVertex3f(X, Y + 0.3f, 0.5f);
+		glVertex3f(X + width, Y + 0.3f, 0.5f);
+		glVertex3f(X + width, Y, 0.5f);
+
+		glEnd();
+		glDisable(GL_BLEND);
+		glEnable(GL_TEXTURE_2D);
+		glColor4ub(255, 255, 255, 255);
+
+		Color fontColor(255, 255, 0, alpha);
+		font.print(X, Y, 0.5f, fontColor, name, 0.3f);
+
+		glDepthMask(GL_TRUE);
+	}
+
+	void Renderer::bulletIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
+	{
+		std::string bulletCount = Format("{0}") << player.getAmmo();
+
+		Float32 width = 0.15f * bulletCount.size();
+		Float32 X = xOfs - width / 2;
+		Float32 Y = yOfs;
+
+		Uint8 alpha = Uint8(255 * indicator.getAlpha());
+
+		glDepthMask(GL_FALSE);
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+
+		Color color(255, 255, 0, alpha);
+		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+
+		glVertex3f(X, Y, 0.5f);
+		glVertex3f(X, Y + 0.3f, 0.5f);
+		glVertex3f(X + width, Y + 0.3f, 0.5f);
+		glVertex3f(X + width, Y, 0.5f);
+
+		glEnd();
+		glDisable(GL_BLEND);
+		glEnable(GL_TEXTURE_2D);
+		glColor4ub(255, 255, 255, 255);
+
+		Color fontColor(0, 0, 255, alpha);
+		font.print(X, Y, 0.5f, fontColor, bulletCount, 0.3f);
+
+		glDepthMask(GL_TRUE);
+	}
+
+	void Renderer::bonusIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
+	{
+		Uint8 alpha = Uint8(255 * indicator.getAlpha());
+		glColor4ub(255, 255, 255, alpha);
+
+		Float32 size = 0.3f;
+		Float32 X = xOfs - size / 2;
+		Float32 Y = yOfs;
+
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_ALPHA_TEST);
+		glDepthMask(GL_FALSE);
+		glAlphaFunc(GL_GEQUAL, 1);
+		glBindTexture(GL_TEXTURE_2D, player.getBonus().getTexture().getId());
+
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.3f, 0.3f);
+			glVertex3f(X, Y + size, 0.5f);
+			glTexCoord2f(0.7f, 0.3f);
+			glVertex3f(X + size, Y + size, 0.5f);
+			glTexCoord2f(0.7f, 0.7f);
+			glVertex3f(X + size, Y, 0.5f);
+			glTexCoord2f(0.3f, 0.7f);
+			glVertex3f(X, Y, 0.5f);
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_ALPHA_TEST);
+		glDepthMask(GL_TRUE);
+
+		glColor4ub(255, 255, 255, 255);
+	}
+
+	void Renderer::playerStatus(const Player& player) const
+	{
+		const auto& indicators = player.getIndicators();
+
+		if (player.isAlive())
+		{
+			Rectangle rect = player.getCollisionRect();
+			Float32 xOfs = rect.getCentre().x;
+			Float32 yOfs= rect.right.y + 0.15f;
+
+			const auto& reload = indicators.getReload();
+			if (reload.isVisible())
+			{
+				yOfs += playerIndicator(player, reload, Color::GREEN, 1.0f - player.getReloadTime() / player.getReloadInterval(), xOfs, yOfs);
+			}
+
+			const auto& air = indicators.getAir();
+			if (air.isVisible())
+			{
+				yOfs += playerIndicator(player, air, Color::BLUE, player.getAir() / D6_MAX_AIR, xOfs, yOfs);
+			}
+
+			const auto& bonus = indicators.getBonus();
+			if (bonus.isVisible())
+			{
+				yOfs += playerIndicator(player, bonus, Color::MAGENTA, player.getBonusRemainingTime() / player.getBonusDuration(), xOfs, yOfs);
+			}
+
+			const auto& health = indicators.getHealth();
+			if (health.isVisible())
+			{
+				yOfs += playerIndicator(player, health, Color::RED, player.getLife() / D6_MAX_LIFE, xOfs, yOfs);
+			}
+
+			const auto& name = indicators.getName();
+			const auto& bullets = indicators.getBullets();
+
+			Float32 space = 0.08f;
+			Float32 nameWidth = name.isVisible() ? space + player.getPerson().getName().size() * 0.15f : 0;
+			std::string bulletString = Format("{0}") << player.getAmmo();
+			Float32 bulletWidth = bullets.isVisible() ? space + bulletString.size() * 0.15f : 0;
+			Float32 bonusWidth = bonus.isVisible() ? space + 0.3f : 0;
+			Float32 totalWidth = nameWidth + bulletWidth + bonusWidth;
+			Float32 halfWidth = totalWidth / 2;
+			Float32 xStart = xOfs - halfWidth;
+
+			if (name.isVisible())
+			{
+				Float32 nameX = xStart + nameWidth / 2;
+				playerName(player, name, nameX, yOfs);
+			}
+
+			if (bullets.isVisible())
+			{
+				Float32 bulletX = xStart + nameWidth + bulletWidth / 2;
+				bulletIndicator(player, bullets, bulletX, yOfs);
+			}
+
+			if (bonus.isVisible())
+			{
+				Float32 bonusX = xStart+ nameWidth + bulletWidth + bonusWidth / 2;
+				bonusIndicator(player, bonus, bonusX, yOfs);
+			}
+
+			if (name.isVisible() || bullets.isVisible() || bonus.isVisible())
+			{
+				yOfs += 0.4f;
+			}
+
+			roundKills(player, xOfs, yOfs);
+		}
+	}
+
+	void Renderer::roundKills(const Player& player, Float32 xOfs, Float32 yOfs) const
 	{
 		glColor3ub(0, 0, 255);
 		glDisable(GL_TEXTURE_2D);
 		glPointSize(5.0f);
 
-		glBegin(GL_POINTS);
-		for (const Player& player : game.getPlayers())
-		{
-			if (player.isAlive())
-			{
-				Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
-				Rectangle rect = player.getCollisionRect();
+		Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
+		Float32 X = xOfs + 0.05f - width / 2;
+		Float32 Y = yOfs + 0.1f;
 
-				Float32 X = rect.getCentre().x + 0.05f - width / 2;
-				Float32 Y = rect.right.y + 0.4f;
-				for (Int32 i = 0; i < player.getRoundKills(); i++, X += 0.2f)
-				{
-					glVertex3f(X, Y, 0.5f);
-				}
+		glBegin(GL_POINTS);
+			for (Int32 i = 0; i < player.getRoundKills(); i++, X += 0.2f)
+			{
+				glVertex3f(X, Y, 0.5f);
 			}
-		}
 		glEnd();
 
 		glEnable(GL_TEXTURE_2D);
@@ -562,8 +605,11 @@ namespace Duel6
 		invulRings(game.getPlayers());
 		water(world.getLevelRenderData().getWater());
 		youAreHere();
-		roundKills();
-		hpBars();
+
+		for (const Player& hpPlayer : game.getPlayers())
+		{
+			playerStatus(hpPlayer);
+		}
 		//shotCollisionBox(world.getShotList());
 
 		world.getExplosionList().render();
@@ -642,7 +688,6 @@ namespace Duel6
 		setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
 		glColor3f(1.0f, 1.0f, 1.0f);
 
-		playerStatuses();
 		infoMessages();
 
 		if (settings.isShowFps())

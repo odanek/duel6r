@@ -101,36 +101,36 @@ namespace Duel6
 		menuBannerTexture = appService.getTextureManager().load(D6_TEXTURE_MENU_PATH, TextureFilter::LINEAR, true);
 		appService.getConsole().printLine("...Starting GUI library");
 		gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
-			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 600) / 2);
+			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 700) / 2);
 
 		listbox[0] = new Gui::ListBox(gui, true);
 		listbox[0]->setPosition(10, 199, 94, 12, 16);
 
 		listbox[ALL_PLAYER_LIST] = new Gui::ListBox(gui, true);
-		listbox[ALL_PLAYER_LIST]->setPosition(10, 470, 20, 13, 18);
+		listbox[ALL_PLAYER_LIST]->setPosition(10, 539, 20, 17, 18);
 		listbox[ALL_PLAYER_LIST]->onDoubleClick([this](Gui::ListBox& listBox, Int32 index, const std::string& item) {
 			addPlayer(index);
 		});
 
 		listbox[CUR_PLAYERS_LIST] = new Gui::ListBox(gui, false);
-		listbox[CUR_PLAYERS_LIST]->setPosition(200, 470, 20, D6_MAX_PLAYERS, 18);
+		listbox[CUR_PLAYERS_LIST]->setPosition(200, 541, 20, D6_MAX_PLAYERS, 18);
 		listbox[CUR_PLAYERS_LIST]->onDoubleClick([this](Gui::ListBox& listBox, Int32 index, const std::string& item) {
 			removePlayer(index);
 		});
 
 		listbox[3] = new Gui::ListBox(gui, true);
-		listbox[3]->setPosition(654, 410, 13, 6, 16);
+		listbox[3]->setPosition(654, 475, 13, 10, 16);
 
 		listbox[4] = new Gui::ListBox(gui, true);
-		listbox[4]->setPosition(520, 363, 13, 3, 16);
+		listbox[4]->setPosition(520, 428, 13, 7, 16);
 
 		listbox[5] = new Gui::ListBox(gui, false);
-		listbox[5]->setPosition(654, 470, 15, 2, 16);
+		listbox[5]->setPosition(654, 541, 15, 2, 16);
 		listbox[5]->addItem("Fullscreen");
 		listbox[5]->addItem("Split screen");
 
 		listbox[6] = new Gui::ListBox(gui, true);
-		listbox[6]->setPosition(520, 470, 13, 5, 16);
+		listbox[6]->setPosition(520, 541, 13, 5, 16);
 
 		loadPersonProfiles(D6_FILE_PROFILES);
 		loadPersonData(D6_FILE_PHIST);
@@ -193,31 +193,31 @@ namespace Duel6
 		label[0]->setCaption("    Name   | Games | Wins | Shots | Accuracy | Kills | Penalties | Points | Alive | Time");
 
 		label[1] = new Gui::Label(gui);
-		label[1]->setPosition(520, 383, 125, 18);
+		label[1]->setPosition(520, 448, 125, 18);
 		label[1]->setCaption("Background");
 
 		label[2] = new Gui::Label(gui);
-		label[2]->setPosition(654, 429, 125, 18);
+		label[2]->setPosition(654, 494, 125, 18);
 		label[2]->setCaption("Level");
 
 		label[3] = new Gui::Label(gui);
-		label[3]->setPosition(654, 489, 125, 18);
+		label[3]->setPosition(654, 560, 125, 18);
 		label[3]->setCaption("Screen mode");
 
 		label[4] = new Gui::Label(gui);
-		label[4]->setPosition(520, 489, 125, 18);
+		label[4]->setPosition(520, 560, 125, 18);
 		label[4]->setCaption("Zoom");
 
 		label[5] = new Gui::Label(gui);
-		label[5]->setPosition(10, 489, 181, 18);
+		label[5]->setPosition(10, 560, 181, 18);
 		label[5]->setCaption("Persons");
 
 		label[6] = new Gui::Label(gui);
-		label[6]->setPosition(200, 489, 165, 18);
+		label[6]->setPosition(200, 560, 165, 18);
 		label[6]->setCaption("Players");
 
 		label[7] = new Gui::Label(gui);
-		label[7]->setPosition(370, 489, 120, 18);
+		label[7]->setPosition(370, 560, 120, 18);
 		label[7]->setCaption("Controller");
 
 		textbox = new Gui::Textbox(gui);
@@ -227,12 +227,11 @@ namespace Duel6
 		for (Size i = 0; i < D6_MAX_PLAYERS; i++)
 		{
 			controlSwitch[i] = new Gui::Spinner(gui);
-			controlSwitch[i]->setPosition(370, 468 - Int32(i) * 18, 120, 0);
+			controlSwitch[i]->setPosition(370, 539 - Int32(i) * 18, 120, 0);
 
-			// TODO: Might be deleted in future if the use case is fully covered with detect-all functionality
 			Gui::Button* button = new Gui::Button(gui);
 			button->setCaption("D");
-			button->setPosition(494, 466 - Int32(i) * 18, 17, 17);
+			button->setPosition(494, 537 - Int32(i) * 18, 17, 17);
 			button->onClick([this,i](Gui::Button&) {
 				detectControls(i);
 			});
@@ -241,7 +240,7 @@ namespace Duel6
 		// Button to detect all user's controllers in a batch
 		Gui::Button* button = new Gui::Button(gui);
 		button->setCaption("D");
-		button->setPosition(490, 487, 24, 17);
+		button->setPosition(490, 558, 24, 17);
 		button->onClick([this](Gui::Button&){
 			Size curPlayersCount = listbox[CUR_PLAYERS_LIST]->size();
 			for (Size j = 0; j < curPlayersCount; j++)
@@ -602,7 +601,7 @@ namespace Duel6
 
 	void Menu::render() const
 	{
-		Int32 tr_x = (video.getScreen().getClientWidth() - 800) / 2, tr_y = (video.getScreen().getClientHeight() - 600) / 2;
+		Int32 tr_x = (video.getScreen().getClientWidth() - 800) / 2, tr_y = (video.getScreen().getClientHeight() - 700) / 2;
 
 		gui.draw(font);
 
