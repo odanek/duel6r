@@ -94,6 +94,173 @@ namespace Duel6
 		}
 	};
 
+	class Indicator
+	{
+	public:
+		static constexpr Float32 DURATION = 2.0f;
+		static constexpr Float32 FADE_DURATION = 0.5f;
+
+	private:
+		Float32 totalDuration;
+		Float32 duration;
+
+	public:
+		Indicator()
+			: totalDuration(0), duration(0)
+		{}
+
+		Indicator& setDuration(Float32 duration, bool keepFade = true)
+		{
+			Float32 startDuration = keepFade ? getAlpha() * FADE_DURATION : 0;
+			this->totalDuration = startDuration + duration;
+			this->duration = duration < FADE_DURATION ? 0 : startDuration;
+			return *this;
+		}
+
+		Indicator& show(Float32 duration = DURATION)
+		{
+			return setDuration(duration);
+		}
+
+		Indicator& hide(bool keepFade = true)
+		{
+			return setDuration(0, keepFade);
+		}
+
+		bool isVisible() const
+		{
+			return totalDuration > 0.0f;
+		}
+
+		Float32 getAlpha() const
+		{
+			if (duration > totalDuration - FADE_DURATION)
+			{
+				return (totalDuration - duration) / FADE_DURATION;
+			}
+			else if (duration < FADE_DURATION)
+			{
+				return duration / FADE_DURATION;
+			}
+			return 1.0f;
+		}
+
+		Indicator& update(Float32 elapsedTime)
+		{
+			if (isVisible())
+			{
+				duration += elapsedTime;
+				if (duration > totalDuration) {
+					hide();
+				}
+			}
+			return *this;
+		}
+	};
+
+	struct PlayerIndicators
+	{
+	private:
+		Indicator health;
+		Indicator air;
+		Indicator reload;
+		Indicator name;
+		Indicator bullets;
+		Indicator bonus;
+
+	public:
+		PlayerIndicators& showAll(Float32 duration)
+		{
+			health.show(duration);
+			air.show(duration);
+			name.show(duration);
+			bullets.show(duration);
+			return *this;
+		}
+
+		PlayerIndicators& hideAll(bool keepFade)
+		{
+			health.hide(keepFade);
+			air.hide(keepFade);
+			reload.hide(keepFade);
+			name.hide(keepFade);
+			bullets.hide(keepFade);
+			bonus.hide(keepFade);
+			return *this;
+		}
+
+		PlayerIndicators& updateAll(Float32 elapsedTime)
+		{
+			health.update(elapsedTime);
+			air.update(elapsedTime);
+			reload.update(elapsedTime);
+			name.update(elapsedTime);
+			bullets.update(elapsedTime);
+			bonus.update(elapsedTime);
+			return *this;
+		}
+
+		Indicator& getHealth()
+		{
+			return health;
+		}
+
+		Indicator& getAir()
+		{
+			return air;
+		}
+
+		Indicator& getReload()
+		{
+			return reload;
+		}
+
+		Indicator& getName()
+		{
+			return name;
+		}
+
+		Indicator& getBullets()
+		{
+			return bullets;
+		}
+
+		Indicator& getBonus()
+		{
+			return bonus;
+		}
+
+		const Indicator& getHealth() const
+		{
+			return health;
+		}
+
+		const Indicator& getAir() const
+		{
+			return air;
+		}
+
+		const Indicator& getReload() const
+		{
+			return reload;
+		}
+
+		const Indicator& getName() const
+		{
+			return name;
+		}
+
+		const Indicator& getBullets() const
+		{
+			return bullets;
+		}
+
+		const Indicator& getBonus() const
+		{
+			return bonus;
+		}
+	};
+
 	struct CameraPosition
 	{
 		Float32 Left;
@@ -160,17 +327,15 @@ namespace Duel6
 		Float32 timeToReload;
 		Float32 bonusRemainingTime;
 		Float32 bonusDuration;
-		Float32 hpBarDuration;
 		Float32 timeSinceHit;
 		Float32 tempSkinDuration;
 		Weapon weapon;
 		const Elevator* elevator;
-		Int32 infoBarPosition[2];
 		PlayerEventListener* eventListener;
 		World* world; // TODO: Remove
 		Float32 bodyAlpha;
 		clock_t roundStartTime;
-
+		PlayerIndicators indicators;
 
 	public:
 		Player(Person& person, const PlayerSkin& skin, const PlayerSounds& sounds, const PlayerControls& controls);
@@ -240,6 +405,16 @@ namespace Duel6
 			return isKneeling() ? getSpritePosition() - Vector(0.0f, 0.15f) : getSpritePosition();
 		}
 
+		PlayerIndicators& getIndicators()
+		{
+			return indicators;
+		}
+
+		const PlayerIndicators& getIndicators() const
+		{
+			return indicators;
+		}
+
 		const PlayerView& getView() const
 		{
 			return view;
@@ -299,6 +474,7 @@ namespace Duel6
 			bonus.onApply(*this, *world, duration);
 			bonusRemainingTime = Float32(duration);
 			bonusDuration = Float32(duration);
+			indicators.getBonus().show(bonusDuration);
 			return *this;
 		}
 
@@ -332,28 +508,6 @@ namespace Duel6
 		Float32 getBonusDuration() const
 		{
 			return bonusDuration;
-		}
-
-		Float32 getHPBarDuration() const
-		{
-			return hpBarDuration;
-		}
-
-		void showHPBar()
-		{
-			hpBarDuration = D6_PLAYER_HPBAR;
-		}
-
-		Player& setInfoBarPosition(Int32 x, Int32 y)
-		{
-			infoBarPosition[0] = x;
-			infoBarPosition[1] = y;
-			return *this;
-		}
-
-		const Int32* getInfoBarPosition() const
-		{
-			return infoBarPosition;
 		}
 
 		Player &addLife(Float32 life, bool showHpBar = true);

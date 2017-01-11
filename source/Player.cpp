@@ -103,7 +103,6 @@ namespace Duel6
 		bonus = BonusType::INVULNERABILITY;
 		bonusDuration = 2.0f;
 		bonusRemainingTime = 2.0f;
-		hpBarDuration = 0;
 		tempSkinDuration = 0;
 		roundKills = 0;
 		this->view = view;
@@ -111,6 +110,12 @@ namespace Duel6
 		water.feetInWater = Water::NONE;
 		externalForces = {0,0};
 		externalForcesSpeed = {0,0};
+
+		indicators.hideAll(false);
+		indicators.getName().show(4.0f);
+		indicators.getBonus().show(bonusDuration + Indicator::FADE_DURATION);
+		indicators.getBullets().show(4.0f);
+
 		roundStartTime = clock();
 		getPerson().addGames(1);
 	}
@@ -243,6 +248,10 @@ namespace Duel6
 			return;
 
 		timeToReload = getReloadInterval();
+
+		indicators.getBullets().show();
+		indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
+
 		ammo--;
 		gunSprite->setFrame(0);
 		getPerson().addShots(1);
@@ -265,6 +274,7 @@ namespace Duel6
 		this->weapon = weapon;
 		ammo = bullets;
 		timeToReload = 0;
+		indicators.getReload().hide();
 		weapon.makeSprite(*gunSprite);
 		return *this;
 	}
@@ -461,7 +471,17 @@ namespace Duel6
 
 	void Player::checkKeys()
 	{
-		if ((!isAlive() && !isGhost()) || isPickingGun())
+		if (!isAlive() && !isGhost())
+		{
+			return;
+		}
+
+		if (controls.getStatus().isPressed())
+		{
+			indicators.showAll(5.0f);
+		}
+
+		if (isPickingGun())
 		{
 			return;
 		}
@@ -555,12 +575,10 @@ namespace Duel6
 		}
 
 		// Move intervals
+		indicators.updateAll(elapsedTime);
 		if (isReloading())
 		{
-			if ((timeToReload -= elapsedTime) <= 0)
-			{
-				timeToReload = 0;
-			}
+			timeToReload = std::max(0.0f, getReloadTime() - elapsedTime);
 		}
 
 		if (getBonusRemainingTime() > 0)
@@ -569,11 +587,6 @@ namespace Duel6
 			{
 				setBonus(BonusType::NONE, 0);
 			}
-		}
-
-		if(getHPBarDuration() > 0)
-		{
-			hpBarDuration -= elapsedTime;
 		}
 
 		if(getLife() < D6_MAX_LIFE && getLife() > 1 && timeSinceHit > D6_PLAYER_HPREGEN_DELAY)
@@ -824,16 +837,38 @@ namespace Duel6
 
 	bool Player::airHit(Float32 amount)
 	{
+		Float32 oldAir = air;
 		air -= amount;
+		bool outOfAir = false;
+
 		if (air < 0)
 		{
 			air = 0;
-			if (hit(amount))
+			outOfAir = true;
+		}
+		else if (air > D6_MAX_AIR)
+		{
+			air = D6_MAX_AIR;
+		}
+
+		if (air != oldAir)
+		{
+			if (air == D6_MAX_AIR)
 			{
-				playSound(PlayerSounds::Type::Drowned);
-				return true;
+				indicators.getAir().hide();
+			}
+			else
+			{
+				indicators.getAir().show();
 			}
 		}
+
+		if (outOfAir && hit(amount))
+		{
+			playSound(PlayerSounds::Type::Drowned);
+			return true;
+		}
+
 		return false;
 	}
 
@@ -861,7 +896,7 @@ namespace Duel6
 		Float32 oldLife = life;
 		life = std::max(0.0f, std::min(Float32(D6_MAX_LIFE), life + change));
 		if (showHpBar && oldLife != life) {
-			showHPBar();
+			indicators.getHealth().show();
 		}
 		return *this;
 	}
@@ -884,7 +919,7 @@ namespace Duel6
 		}
 		else
 		{
-			air = std::min(air + 2 * D6_AIR_RECHARGE_SPEED * elapsedTime, D6_MAX_AIR);
+			airHit(-2 * D6_AIR_RECHARGE_SPEED * elapsedTime);
 
 			Water feetWater = world.getLevel().getWaterType(Int32(centerX), Int32(feetY));
 			if (feetWater != Water::NONE && water.feetInWater == Water::NONE)
