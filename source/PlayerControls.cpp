@@ -60,25 +60,25 @@ namespace Duel6
 			std::unique_ptr<PlayerControls>(new PlayerControls("Keys 1",
 			new KeyboardButton(input, SDLK_LEFT), new KeyboardButton(input, SDLK_RIGHT), 
 			new KeyboardButton(input, SDLK_UP), new KeyboardButton(input, SDLK_DOWN),
-			new KeyboardButton(input, SDLK_RCTRL), new KeyboardButton(input, SDLK_RSHIFT)
+			new KeyboardButton(input, SDLK_RCTRL), new KeyboardButton(input, SDLK_RSHIFT), new KeyboardButton(input, SDLK_RETURN)
 			)));
 		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls("Keys 2",
 			new KeyboardButton(input, SDLK_a), new KeyboardButton(input, SDLK_d), 
 			new KeyboardButton(input, SDLK_w), new KeyboardButton(input, SDLK_s),
-			new KeyboardButton(input, SDLK_q), new KeyboardButton(input, SDLK_e)
+			new KeyboardButton(input, SDLK_q), new KeyboardButton(input, SDLK_e), new KeyboardButton(input, SDLK_TAB)
 			)));
 		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls("Keys 3",
 			new KeyboardButton(input, SDLK_j), new KeyboardButton(input, SDLK_l), 
 			new KeyboardButton(input, SDLK_i), new KeyboardButton(input, SDLK_k),
-			new KeyboardButton(input, SDLK_y), new KeyboardButton(input, SDLK_h)
+			new KeyboardButton(input, SDLK_y), new KeyboardButton(input, SDLK_h), new KeyboardButton(input, SDLK_u)
 			)));
 		controls.push_back(
 			std::unique_ptr<PlayerControls>(new PlayerControls("Keys 4",
 			new KeyboardButton(input, SDLK_KP_1), new KeyboardButton(input, SDLK_KP_3), 
 			new KeyboardButton(input, SDLK_KP_5), new KeyboardButton(input, SDLK_KP_2),
-			new KeyboardButton(input, SDLK_KP_0), new KeyboardButton(input, SDLK_KP_PERIOD)
+			new KeyboardButton(input, SDLK_KP_0), new KeyboardButton(input, SDLK_KP_PERIOD), new KeyboardButton(input, SDLK_KP_ENTER)
 			)));
 
 		for (Int32 i = 0; i < 10; i++) {
@@ -88,7 +88,7 @@ namespace Duel6
 				new JoypadAxis(input, i, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right),
 				new JoypadButton(input, i, 0),
 				new JoypadAxis(input, i, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right),
-				new JoypadButton(input, i, 1), new JoypadButton(input, i, 2)
+				new JoypadButton(input, i, 1), new JoypadButton(input, i, 2), new JoypadButton(input, i, 3)
 				)));
 		}
 	}

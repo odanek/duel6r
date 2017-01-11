@@ -48,7 +48,6 @@ namespace Duel6
 		const Video& video = game.getAppService().getVideo();
 		PlayerView view(x, y, video.getScreen().getClientWidth() / 2 - 4, video.getScreen().getClientHeight() / 2 - 4);
 		player.setView(view);
-		player.setInfoBarPosition(x + view.getWidth() / 2 - 76, y + 35);
 	}
 
 	void Round::setPlayerViews()
@@ -63,14 +62,9 @@ namespace Duel6
 
 		if (game.getSettings().getScreenMode() == ScreenMode::FullScreen)
 		{
-			Size index = 0;
-			Size partition = video.getScreen().getClientWidth() / players.size();
-
 			for (Player& player : players)
 			{
-				player.setView(PlayerView(0, 40, video.getScreen().getClientWidth(), video.getScreen().getClientHeight() - 40));
-				player.setInfoBarPosition(Int32(partition * index + partition / 2) - 80, 35);
-				index++;
+				player.setView(PlayerView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight()));
 			}
 
 			return;

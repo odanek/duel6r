@@ -114,10 +114,11 @@ namespace Duel6
 		std::unique_ptr<Control> down;
 		std::unique_ptr<Control> shoot;
 		std::unique_ptr<Control> pick;
+		std::unique_ptr<Control> status;
 
 	public:
-		PlayerControls(const std::string& description, Control* left, Control* right, Control* up, Control* down, Control* shoot, Control* pick)
-			: description(description), left(left), right(right), up(up), down(down), shoot(shoot), pick(pick)
+		PlayerControls(const std::string& description, Control* left, Control* right, Control* up, Control* down, Control* shoot, Control* pick, Control* status)
+			: description(description), left(left), right(right), up(up), down(down), shoot(shoot), pick(pick), status(status)
 		{}
 
 		const std::string& getDescription() const
@@ -153,6 +154,11 @@ namespace Duel6
 		const Control& getPick() const
 		{
 			return *pick;
+		}
+
+		const Control& getStatus() const
+		{
+			return *status;
 		}
 	};
 
