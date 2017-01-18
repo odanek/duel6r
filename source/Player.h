@@ -511,6 +511,7 @@ namespace Duel6
 		Player& pickAmmo(Int32 ammo)
 		{
 			this->ammo += ammo;
+			indicators.getBullets().show();
 			return *this;
 		}
 

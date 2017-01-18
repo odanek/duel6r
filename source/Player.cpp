@@ -249,6 +249,7 @@ namespace Duel6
 		ammo = bullets;
 		timeToReload = 0;
 		indicators.getReload().hide();
+		indicators.getBullets().show();
 		weapon.makeSprite(*gunSprite);
 		return *this;
 	}
