@@ -164,6 +164,11 @@ namespace Duel6
 			return *round;
 		}
 
+		void setPlayedRounds(Int32 playedRounds)
+		{
+			this->playedRounds = playedRounds;
+		}
+
 		Int32 getPlayedRounds() const
 		{
 			return playedRounds;
