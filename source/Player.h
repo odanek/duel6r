@@ -289,8 +289,6 @@ namespace Duel6
 			FlagGhost = 0x400,
 			FlagDoubleJumpDebounce = 0x800,
 			FlagDoubleJump = 0x1000,
-			FlagDropDebounce = 0x2000,
-			FlagDropBoost = 0x4000
 		};
 
 		struct WaterState
@@ -311,14 +309,12 @@ namespace Duel6
 		SpriteList::Iterator sprite;
 		SpriteList::Iterator gunSprite;
 		Uint32 flags;
-		Float32 velocity;
 		Orientation orientation;
-		Float32 jumpPhase;
 		Vector position;
 		Vector acceleration;
 		Vector externalForces;
 		Vector externalForcesSpeed;
-		Vector speed;
+		Vector velocity;
 		Float32 life;
 		Float32 air;
 		Int32 ammo;
@@ -345,7 +341,7 @@ namespace Duel6
 		{
 			return (this == &player);
 		}
-		Vector getSpeedVector() const;
+		Vector getVelocity() const;
 		void startRound(World& world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon& weapon);
 		void endRound();
 		void setView(const PlayerView& view);
@@ -353,7 +349,6 @@ namespace Duel6
 		void prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 		bool hit(Float32 pw); // Returns true if the shot caused the player to die
 		bool hitByShot(Float32 pw, Shot& s, bool directHit, const Vector& hitPoint,const Vector& shotVector);
-		Float32 useSomeAir(Float32 amount); // Returns air spent >= 0. Spends only air available above certain limit (25)
 		bool airHit(Float32 amount);
 		void processShot(Shot &shot, std::vector<Player*>& playersHit, std::vector<Player *>& playersKilled);
 
@@ -586,20 +581,19 @@ namespace Duel6
 
 		bool isRising() const
 		{
-			return speed.y > 0;
+			return velocity.y > 0;
 		}
 
 		bool isFalling() const
 		{
-			return speed.y < 0;
+			return velocity.y < 0;
 		}
-
 
 		bool isOnGround() const;
 
 		bool isMoving() const
 		{
-				return (speed.x != 0.0f);
+				return (velocity.x != 0.0f);
 		}
 
 		bool hasPowerfulShots() const
@@ -658,11 +652,6 @@ namespace Duel6
 		void switchToOriginalSkin();
 		void dropWeapon(const Level& level);
 		Float32 getSpeed() const;
-
-		void checkMoveUp(const Level& level);
-		void checkMoveDown(const Level& level);
-		void checkFall(const Level& level);
-		void checkHorizontalMove(const Level& level);
 		void checkElevator(Float32 speedFactor);
 
 		bool hasFlag(Uint32 flag) const

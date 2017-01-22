@@ -47,12 +47,8 @@ namespace Duel6
 		{
 			nextSection();
 		}
-#ifndef D6_ELEV_SAFETY_LAST
+
 		accelerate = 1.0f;
-#else
-		// accelerates till midway between two control points, then starts deccelerating
-		accelerate = 0.1f + 5.0f - 5.0f * fabs( 2.0f * (  (travelled) / (distance * D6_ELEV_SPEED) - 0.5f) );
-#endif
 		position += accelerate * velocity * elapsedTime;
 		travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
 	}

@@ -79,7 +79,7 @@ namespace Duel6
 	{
 		this->world = &world;
 		position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-		speed = Vector(0,0);
+		velocity = Vector(0,0);
 		acceleration = Vector(0,0);
 		Sprite manSprite(noAnim, skin.getTextureList());
 		manSprite.setPosition(getSpritePosition(), 0.5f);
@@ -92,9 +92,7 @@ namespace Duel6
 		this->gunSprite = world.getSpriteList().addSprite(gunSprite);
 
 		flags = FlagHasGun;
-		velocity = 0.0f;
 		orientation = Orientation::Left;
-		jumpPhase = 0;
 		timeToReload = 0;
 		life = D6_MAX_LIFE;
 		air = D6_MAX_AIR;
@@ -150,78 +148,82 @@ namespace Duel6
 	{
 		if (hasFlag(FlagMoveLeft))
 		{
-			if(this->speed.x > -D6_PLAYER_MAX_SPEED){
-				this->speed.x -= elapsedTime;
+			if(this->velocity.x > -D6_PLAYER_MAX_SPEED){
+				this->velocity.x -= elapsedTime;
 			}
-			if (this->speed.x < 0.0f)
+			if (this->velocity.x < 0.0f)
 			{
 				orientation = Orientation::Left;
 			}
 		}
-		else if (this->speed.x < 0.0f)
+		else if (this->velocity.x < 0.0f)
 		{
-			this->speed.x = std::min(this->speed.x + elapsedTime, 0.0f);
+			this->velocity.x = std::min(this->velocity.x + elapsedTime, 0.0f);
 		}
 
 		if (hasFlag(FlagMoveRight))
 		{
-			if(this->speed.x < D6_PLAYER_MAX_SPEED){
-				this->speed.x += elapsedTime;
+			if(this->velocity.x < D6_PLAYER_MAX_SPEED){
+				this->velocity.x += elapsedTime;
 			}
 
-			if (this->speed.x > 0.0f)
+			if (this->velocity.x > 0.0f)
 			{
 				orientation = Orientation::Right;
 			}
 		}
-		else if (this->speed.x > 0.0f)
+		else if (this->velocity.x > 0.0f)
 		{
-			this->speed.x = std::max(this->speed.x - elapsedTime, 0.0f);
+			this->velocity.x = std::max(this->velocity.x - elapsedTime, 0.0f);
 		}
 	}
 
 	void Player::moveVertical(const Level& level, Float32 elapsedTime, Float32 speed)
 	{
 		checkElevator(speed);
-		if (hasFlag(FlagMoveUp) && this->speed.y <= 0 && (isOnGround() || isOnElevator())){
+		if (hasFlag(FlagMoveUp) && this->velocity.y <= 0 && (isOnGround() || isOnElevator()))
+		{
 			const Float32 delta =  VERTICAL_DELTA;
 			Float32 up = getPosition().y + 0.94f;
 			Float32 left = getPosition().x + delta;
 			Float32 right = getPosition().x + (1.0f - delta);
+
 			if (!level.isWall(left, up, true) && !level.isWall(right, up, true))
 			{
 				acceleration.y += JUMP_ACCELERATION;
 			}
-			if(isOnElevator()){ //leaving elevator
+
+			if(isOnElevator())
+			{ //leaving elevator
 				acceleration.y += elevator->getAcceleratedVelocity().y;
 			}
 
 		}
 		if(hasFlag(FlagDoubleJump) && getBonus() == BonusType::FAST_MOVEMENT)
 		{
-			if (this->speed.y > 0.0)
+			if (this->velocity.y > 0.0)
 			{
 				acceleration.y += JUMP_ACCELERATION;
 			}
 		}
-		if(hasFlag(FlagDropBoost) && false)	// not too useful
+
+		if(!isOnElevator())
 		{
-			acceleration.y -= JUMP_ACCELERATION;
+			this->velocity.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
 		}
-		if(!isOnElevator()){
-			this->speed.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
-		}
+
 		if (!isOnGround() )
 		{
-			if (this->speed.y < -D6_PLAYER_JUMP_SPEED){	// TODO: this criples the FlagDropBoost feature
-				this->speed.y = -D6_PLAYER_JUMP_SPEED;
+			if (this->velocity.y < -D6_PLAYER_JUMP_SPEED)
+			{
+				this->velocity.y = -D6_PLAYER_JUMP_SPEED;
 			}
 		}
 	}
 
 	void Player::fall()
 	{
-		if (isOnGround() || isOnElevator()) // && !isMoving())
+		if (isOnGround() || isOnElevator())
 		{
 			setFlag(FlagKnee);
 		}
@@ -229,7 +231,7 @@ namespace Duel6
 		{
 			if (isRising())
 			{
-				speed.y = 0.0f; //TODO Accelerate
+				velocity.y = 0.0f; //TODO Accelerate
 			}
 		}
 	}
@@ -284,10 +286,11 @@ namespace Duel6
 	{
 		static bool bleft = false, bright = false , bup = false, bdown = false;
 		Float32 speed = getSpeed() * elapsedTime;
+
 		bool onElevator = isOnElevator();
-		if (onElevator  && level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, false))
+		if (onElevator && level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, false))
 		{
-			this->speed.x = 0;
+			this->velocity.x = 0;
 		}
 		elevator = nullptr;
 		acceleration.x = 0;
@@ -299,23 +302,24 @@ namespace Duel6
 		externalForcesSpeed += externalForces;
 		externalForces.x = 0;
 		externalForces.y = 0;
-		if (externalForcesSpeed.length() < 0.01){
+		if (externalForcesSpeed.length() < 0.01)
+		{
 			externalForcesSpeed.x = 0;
 			externalForcesSpeed.y = 0;
 		}
 		//do not multiply by speed or elapsedTime !!!
-		this->speed.x += acceleration.x;
-		this->speed.y += acceleration.y;
-
+		this->velocity += acceleration;
 
 		// horizontal speed clamping
-		if(fabs(this->speed.x * speed) > 0.5f){
-			this->speed.x = std::copysign(0.5f, this->speed.x) / speed;
+		if (fabs(this->velocity.x * speed) > 0.5f)
+		{
+			this->velocity.x = std::copysign(0.5f, this->velocity.x) / speed;
 		}
-		if(fabs(this->externalForcesSpeed.x * speed) > 0.5f){
+		if (fabs(this->externalForcesSpeed.x * speed) > 0.5f)
+		{
 			this->externalForcesSpeed.x = std::copysign(0.5f, this->externalForcesSpeed.x) / speed;
 		}
-		Vector totalSpeed = this->speed + externalForcesSpeed;
+		Vector totalSpeed = this->velocity + externalForcesSpeed;
 		bleft = false, bright = false, bup = false, bdown = false;
 
 		//collision detection here we go
@@ -336,10 +340,10 @@ namespace Duel6
 			right = getPosition().x + (1.0f - delta)+ totalSpeed.x * speed;
 			if (level.isWall(right, down, true) || level.isWall(left, down, true)) {
 				bdown = true;
-				this->speed.y = 0;
+				this->velocity.y = 0;
 				totalSpeed.y = 0;
 				if(!(level.isWall(right, up, true) || level.isWall(left, down, true)) ) {
-					this->speed.y = -0.001;
+					this->velocity.y = -0.001;
 					totalSpeed.y = -0.001;
 				}
 			}
@@ -355,7 +359,7 @@ namespace Duel6
 			if (totalSpeed.y > 0.0f && (level.isWall(right, up, true) || level.isWall(left, up, true))) {
 				bup = true;
 				totalSpeed.y = 0;
-				this->speed.y = 0;
+				this->velocity.y = 0;
 			}
 
 			/**
@@ -364,9 +368,12 @@ namespace Duel6
 			delta = HORIZONTAL_DELTA;
 			left = getPosition().x + delta + totalSpeed.x * speed;
 			down = getPosition().y + 0.1f;
-			if(totalSpeed.y > 0){
+			if(totalSpeed.y > 0)
+			{
 				up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
-			} else {
+			}
+			else
+			{
 				up = getPosition().y + DELTA_HEIGHT;
 			}
 			right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
@@ -394,22 +401,32 @@ namespace Duel6
 			/**
 			 * Put it all together
 			 */
-			if(!onElevator){
-				if(bdown){
+			if (!onElevator)
+			{
+				if (bdown)
+				{
 					this->position.y = ceil(this->position.y - 0.5f);
-				} else if(bup){
+				}
+				else if(bup)
+				{
 					this->position.y = floor(this->position.y + 0.5f);
 				}
-				if(bleft){
+
+				if(bleft)
+				{
 					this->position.x = ceil(this->position.x + totalSpeed.x * speed) - delta;
-				} else if(bright){
+				}
+				else if(bright)
+				{
 					this->position.x = floorf(this->position.x) + delta;
 				}
 			}
-			if(bleft || bright){
+			if(bleft || bright)
+			{
 				externalForcesSpeed.x *= 0.5;
 			}
-			if(bup || bdown){
+			if(bup || bdown)
+			{
 				externalForcesSpeed.y *= 0.5;
 			}
 			externalForcesSpeed.x *= 0.9;
@@ -433,9 +450,10 @@ namespace Duel6
 		position.y += totalSpeed.y * speed; // the speed has the elapsedTime already factored in
 		position.x += totalSpeed.x * D6_PLAYER_ACCEL * speed; // the speed has the elapsedTime already factored in
 	}
-	Vector Player::getSpeedVector() const
+
+	Vector Player::getVelocity() const
 	{
-		return speed;
+		return velocity;
 	}
 
 	Float32 Player::getSpeed() const
@@ -492,32 +510,41 @@ namespace Duel6
 			if (controls.getLeft().isPressed())
 			{
 				setFlag(FlagMoveLeft);
-			} else {
+			}
+			else
+			{
 				unsetFlag(FlagMoveLeft);
 			}
 
 			if (controls.getRight().isPressed())
 			{
 				setFlag(FlagMoveRight);
-			}else{
+			}
+			else
+			{
 				unsetFlag(FlagMoveRight);
 			}
 
 			if (controls.getUp().isPressed())
 			{
 				unsetFlag(FlagDoubleJump);
-				if(hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !hasFlag(FlagMoveUp)){
+				if(hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !hasFlag(FlagMoveUp))
+				{
 					setFlag(FlagDoubleJump);
 					unsetFlag(FlagDoubleJumpDebounce);
 				}
 				setFlag(FlagMoveUp);
-			} else {
-				if(isOnGround()){
+			}
+			else
+			{
+				if(isOnGround())
+				{
 					setFlag(FlagDoubleJumpDebounce);
 				}
 				unsetFlag(FlagDoubleJump);
 				unsetFlag(FlagMoveUp);
 			}
+
 			if (controls.getPick().isPressed())
 			{
 				pick();
@@ -531,27 +558,9 @@ namespace Duel6
 
 		unsetFlag(FlagKnee);
 
-		if (controls.getDown().isPressed()) {
-			setFlag(FlagMoveDown);
-			if (isOnGround()) {
-				fall();
-			}
-			unsetFlag(FlagDropBoost);
-			if (hasFlag(FlagDropDebounce)) {
-				setFlag(FlagDropBoost);
-			} else {
-				fall();
-			}
-			unsetFlag(FlagDropDebounce);
-		} else {
-			if (hasFlag(FlagMoveDown)) {
-				setFlag(FlagDropDebounce);  //key down pressed first time
-			}
-			if (isOnGround()) {
-				unsetFlag(FlagDropBoost);
-				unsetFlag(FlagDropDebounce);
-			}
-			unsetFlag(FlagMoveDown);
+		if (controls.getDown().isPressed())
+		{
+			fall();
 		}
 	}
 
@@ -931,28 +940,6 @@ namespace Duel6
 		}
 	}
 
-
-
-	void Player::checkMoveUp(const Level& level)
-	{
-		//TODO remove
-	}
-
-	void Player::checkMoveDown(const Level& level)
-	{
-		//TODO remove
-	}
-
-	void Player::checkFall(const Level& level)
-	{
-		//TODO remove
-	}
-
-	void Player::checkHorizontalMove(const Level& level)
-	{
-		//TODO remove
-	}
-
 	void Player::checkElevator(Float32 speedFactor)
 	{
 		const Elevator* elevator = world->getElevatorList().checkPlayer(*this, speedFactor);
@@ -961,7 +948,7 @@ namespace Duel6
 		{
 			this->elevator = elevator;
 			position.y = elevator->getPosition().y;
-			speed.y = 0.0f;
+			velocity.y = 0.0f;
 		}
 	}
 

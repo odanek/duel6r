@@ -28,7 +28,7 @@
 #ifndef DUEL6_DEFINES_H
 #define DUEL6_DEFINES_H
 
-#define APP_VERSION         "4.2.0"
+#define APP_VERSION         "4.3.0"
 #define APP_NAME            "Duel 6 Reloaded"
 #define APP_FILE_ICON       "data/duel6_icon.bmp"
 
@@ -66,7 +66,6 @@
 #define D6_INFO_DURATION		5.0f
 #define D6_PLAYER_MAX_SPEED     0.52f
 #define D6_PLAYER_ACCEL         3.721f
-#define D6_PLAYER_JPHASE_SPEED  122
 #define D6_PLAYER_JUMP_SPEED    4.88f
 #define D6_YOU_ARE_HERE_DURATION 3.0f
 
