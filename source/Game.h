@@ -169,6 +169,11 @@ namespace Duel6
 			return playedRounds;
 		}
 
+		void setPlayedRounds(Int32 playedRounds)
+		{
+			this->playedRounds = playedRounds;
+		}
+
         bool isOver() const
 		{
 			return getRound().isLast() && getRound().isOver();
