@@ -324,6 +324,7 @@ namespace Duel6
 		Float32 bonusRemainingTime;
 		Float32 bonusDuration;
 		Float32 timeSinceHit;
+		Float32 timeStuckInWall;
 		Float32 tempSkinDuration;
 		Weapon weapon;
 		const Elevator* elevator;
@@ -648,11 +649,13 @@ namespace Duel6
 		void pick();
 		void shoot();
 		void setAnm();
+		void unstuck();
 		void updateCam(Int32 levelSizeX, Int32 levelSizeY);
 		void switchToOriginalSkin();
 		void dropWeapon(const Level& level);
 		Float32 getSpeed() const;
 		void checkElevator(Float32 speedFactor);
+		void checkStuck(const Level& level, Float32 elapsedTime);
 
 		bool hasFlag(Uint32 flag) const
 		{

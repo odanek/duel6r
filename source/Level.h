@@ -29,6 +29,7 @@
 #define DUEL6_LEVEL_H
 
 #include <string>
+#include <queue>
 #include <vector>
 #include "Block.h"
 #include "Water.h"
@@ -82,10 +83,11 @@ namespace Duel6
 
 		Water getWaterType(Int32 x, Int32 y) const;
 		void raiseWater();
-
+		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
 	private:
 		void load(const std::string& path, bool mirror);
 		void mirrorLevelData();
+		bool isPossibleStartingPosition(Int32 x, Int32 y);
 
 		bool isInside(Int32 x, Int32 y) const
 		{

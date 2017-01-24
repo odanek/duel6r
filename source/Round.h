@@ -87,8 +87,6 @@ namespace Duel6
 
 	private:
 		void preparePlayers();
-		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
-		bool isPossibleStartingPosition(const Level& level, Int32 x, Int32 y);
 		void checkWinner();
 		void setPlayerViews();
 		void splitScreenView(Player& player, Int32 x, Int32 y);

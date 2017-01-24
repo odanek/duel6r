@@ -25,8 +25,10 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <queue>
 #include "Level.h"
 #include "json/JsonParser.h"
+#include "GameException.h"
 
 namespace Duel6
 {
@@ -124,5 +126,43 @@ namespace Duel6
 		}
 
 		return Water::NONE;
+	}
+
+	bool Level::isPossibleStartingPosition(Int32 x, Int32 y)
+	{
+		if (isWall(x, y, true) || isWater(x, y))
+		{
+			return false;
+		}
+
+		return isWall(x, y - 1, true);
+	}
+
+	void Level::findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions)
+	{
+		std::vector<std::pair<Int32, Int32>> possibleStartingPositions;
+
+		for (Int32 y = 1; y < getHeight(); y++)
+		{
+			for (Int32 x = 0; x < getWidth(); x++)
+			{
+				if (isPossibleStartingPosition(x, y))
+				{
+					possibleStartingPositions.push_back(std::pair<Int32, Int32>(x, y));
+				}
+			}
+		}
+
+		if (possibleStartingPositions.empty())
+		{
+			D6_THROW(GameException, "No acceptable starting positions found in this level");
+		}
+
+		std::random_shuffle(possibleStartingPositions.begin(), possibleStartingPositions.end());
+
+		for (Size i = 0; i < possibleStartingPositions.size(); ++i)
+		{
+			startingPositions.push(possibleStartingPositions[i]);
+		}
 	}
 }

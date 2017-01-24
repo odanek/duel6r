@@ -94,50 +94,11 @@ namespace Duel6
 		}
 	}
 
-	bool Round::isPossibleStartingPosition(const Level& level, Int32 x, Int32 y)
-	{
-		if (level.isWall(x, y, true) || level.isWater(x, y))
-		{
-			return false;
-		}
-
-		return level.isWall(x, y - 1, true);
-	}
-
-	void Round::findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions)
-	{
-		const Level& level = world.getLevel();
-		std::vector<std::pair<Int32, Int32>> possibleStartingPositions;
-
-		for (Int32 y = 1; y < level.getHeight(); y++)
-		{
-			for (Int32 x = 0; x < level.getWidth(); x++)
-			{
-				if (isPossibleStartingPosition(level, x, y))
-				{
-					possibleStartingPositions.push_back(std::pair<Int32, Int32>(x, y));
-				}
-			}
-		}
-
-		if (possibleStartingPositions.empty())
-		{
-			D6_THROW(GameException, "No acceptable starting positions found in this level");
-		}
-
-		std::random_shuffle(possibleStartingPositions.begin(), possibleStartingPositions.end());
-
-		for (Size i = 0; i < world.getPlayers().size(); ++i)
-		{
-			startingPositions.push(possibleStartingPositions[i % possibleStartingPositions.size()]);
-		}
-	}
-
 	void Round::preparePlayers()
 	{
 		game.getAppService().getConsole().printLine("...Preparing players");
 		std::queue<std::pair<Int32, Int32>> startingPositions;
-		findStartingPositions(startingPositions);
+		world.getLevel().findStartingPositions(startingPositions);
 
 		auto& players = world.getPlayers();
 		Size playerIndex = 0;

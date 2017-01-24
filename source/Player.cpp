@@ -26,6 +26,7 @@
 */
 
 #include <algorithm>
+#include <queue>
 #include "Sound.h"
 #include "TextureManager.h"
 #include "InfoMessageQueue.h"
@@ -456,6 +457,33 @@ namespace Duel6
 		return velocity;
 	}
 
+	void Player::checkStuck(const Level& level, Float32 elapsedTime)
+	{
+		if (level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, true))
+		{
+			timeStuckInWall += elapsedTime;
+			if(timeStuckInWall > D6_PLAYER_STUCK)
+			{
+				unstuck();
+			}
+		}
+		else
+		{
+			timeStuckInWall = 0;
+		}
+	}
+
+	void Player::unstuck()
+	{
+		std::queue<std::pair<Int32, Int32>> startingPositions;
+		world->getLevel().findStartingPositions(startingPositions);
+
+		std::pair<Int32, Int32>& newPosition = startingPositions.front();
+		position.x = Float32(newPosition.first);
+		position.y = Float32(newPosition.second) + 0.0001f;
+		timeStuckInWall = 0;
+	}
+
 	Float32 Player::getSpeed() const
 	{
 		Float32 spd = 1.0f;
@@ -618,6 +646,8 @@ namespace Duel6
 		}
 
 		timeSinceHit += elapsedTime;
+
+		checkStuck(world.getLevel(), elapsedTime);
 	}
 	void Player::setAnm()
 	{
@@ -818,7 +848,6 @@ namespace Duel6
 
 		return false;
 	}
-
 
 	bool Player::hit(Float32 amount)
 	{
