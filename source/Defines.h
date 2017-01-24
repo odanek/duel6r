@@ -78,4 +78,6 @@
 #define D6_MAX_AIR				200.0f
 #define D6_PLAYER_HPREGEN_DELAY 6.0f
 
+#define D6_PLAYER_STUCK         5.0f
+
 #endif
