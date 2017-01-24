@@ -476,6 +476,20 @@ namespace Duel6
 			return;
 		}
 
+		if (game->getSettings().isRoundLimit() && game->getPlayedRounds() > 0 && game->getPlayedRounds() < game->getSettings().getMaxRounds())
+		{
+			if(!question("Resume previous game? (Y/N)"))
+			{
+				cleanPersonData();
+				game->setPlayedRounds(0);
+			}
+		}
+		else
+		{
+			cleanPersonData();
+			game->setPlayedRounds(0);
+		}
+
 		if (game->getSettings().isRoundLimit())
 		{
 			if(!question("Clear statistics and start a new game? (Y/N)"))

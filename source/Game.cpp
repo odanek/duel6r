@@ -132,10 +132,7 @@ namespace Duel6
 		this->gameMode = &gameMode;
 		settings.setScreenMode(screenMode);
 		settings.setScreenZoom(screenZoom);
-		playedRounds = 0;
-
 		gameMode.initializeGame(*this, players);
-
 		nextRound();
 	}
 
