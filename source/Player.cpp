@@ -289,7 +289,7 @@ namespace Duel6
 		Float32 speed = getSpeed() * elapsedTime;
 
 		bool onElevator = isOnElevator();
-		if (onElevator && level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, false))
+		if (onElevator && level.isWall(Int32(getCentre().x), Int32(getCentre().y), false))
 		{
 			this->velocity.x = 0;
 		}
@@ -459,7 +459,7 @@ namespace Duel6
 
 	void Player::checkStuck(const Level& level, Float32 elapsedTime)
 	{
-		if (level.isWall((Int32) getPosition().x + 0.5f, (Int32) getPosition().y + 0.5f, true))
+		if (level.isWall(Int32(getCentre().x), Int32(getCentre().y), true))
 		{
 			timeStuckInWall += elapsedTime;
 			if(timeStuckInWall > D6_PLAYER_STUCK)
