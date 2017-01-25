@@ -104,10 +104,10 @@ namespace Duel6
 			(video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 700) / 2);
 
 		listbox[0] = new Gui::ListBox(gui, true);
-		listbox[0]->setPosition(10, 199, 94, 12, 16);
+		listbox[0]->setPosition(10, 199, 97, 12, 16);
 
 		listbox[ALL_PLAYER_LIST] = new Gui::ListBox(gui, true);
-		listbox[ALL_PLAYER_LIST]->setPosition(10, 539, 20, 17, 18);
+		listbox[ALL_PLAYER_LIST]->setPosition(10, 539, 20, 15, 18);
 		listbox[ALL_PLAYER_LIST]->onDoubleClick([this](Gui::ListBox& listBox, Int32 index, const std::string& item) {
 			addPlayer(index);
 		});
@@ -119,38 +119,38 @@ namespace Duel6
 		});
 
 		listbox[3] = new Gui::ListBox(gui, true);
-		listbox[3]->setPosition(654, 475, 13, 10, 16);
+		listbox[3]->setPosition(654, 475, 17, 15, 16);
 
 		listbox[4] = new Gui::ListBox(gui, true);
-		listbox[4]->setPosition(520, 428, 13, 7, 16);
+		listbox[4]->setPosition(520, 399, 13, 10, 16);
 
 		listbox[5] = new Gui::ListBox(gui, false);
-		listbox[5]->setPosition(654, 541, 15, 2, 16);
+		listbox[5]->setPosition(654, 541, 19, 2, 16);
 		listbox[5]->addItem("Fullscreen");
 		listbox[5]->addItem("Split screen");
 
 		listbox[6] = new Gui::ListBox(gui, true);
-		listbox[6]->setPosition(520, 541, 13, 5, 16);
+		listbox[6]->setPosition(520, 541, 13, 7, 16);
 
 		loadPersonProfiles(D6_FILE_PROFILES);
 		loadPersonData(D6_FILE_PHIST);
 
 		button[0] = new Gui::Button(gui);
-		button[0]->setPosition(200, 282, 80, 25);
+		button[0]->setPosition(200, 253, 80, 25);
 		button[0]->setCaption(">>");
 		button[0]->onClick([this](Gui::Button&) {
 			addPlayer(listbox[ALL_PLAYER_LIST]->selectedIndex());
 		});
 
 		button[1] = new Gui::Button(gui);
-		button[1]->setPosition(200, 253, 80, 25);
+		button[1]->setPosition(105, 253, 85, 25);
 		button[1]->setCaption("<<");
 		button[1]->onClick([this](Gui::Button&) {
 			removePlayer(listbox[CUR_PLAYERS_LIST]->selectedIndex());
 		});
 
 		button[2] = new Gui::Button(gui);
-		button[2]->setPosition(284, 282, 80, 25);
+		button[2]->setPosition(10, 253, 90, 25);
 		button[2]->setCaption("Remove");
 		button[2]->onClick([this](Gui::Button&) {
 			deletePerson();
@@ -164,8 +164,15 @@ namespace Duel6
 			addPerson();
 		});
 
+		button[4] = new Gui::Button(gui);
+		button[4]->setPosition(350, 0, 150, 50);
+		button[4]->setCaption("Play (F1)");
+		button[4]->onClick([this](Gui::Button&) {
+			play();
+		});
+
 		button[6] = new Gui::Button(gui);
-		button[6]->setPosition(370, 282, 125, 25);
+		button[6]->setPosition(505, 0, 150, 50);
 		button[6]->setCaption("Clear (F3)");
 		button[6]->onClick([this](Gui::Button&) {
 			if (deleteQuestion())
@@ -174,34 +181,27 @@ namespace Duel6
 			}
 		});
 
-		button[4] = new Gui::Button(gui);
-		button[4]->setPosition(520, 299, 125, 73);
-		button[4]->setCaption("Play (F1)");
-		button[4]->onClick([this](Gui::Button&) {
-			play();
-		});
-
 		button[5] = new Gui::Button(gui);
-		button[5]->setPosition(654, 299, 125, 73);
+		button[5]->setPosition(660, 0, 150, 50);
 		button[5]->setCaption("Quit (ESC)");
 		button[5]->onClick([this](Gui::Button&) {
 			close();
 		});
 
 		label[0] = new Gui::Label(gui);
-		label[0]->setPosition(10, 219, 772, 18);
+		label[0]->setPosition(10, 219, 800, 18);
 		label[0]->setCaption("    Name   | Games | Wins | Shots | Accuracy | Kills | Penalties | Points | Alive | Time");
 
 		label[1] = new Gui::Label(gui);
-		label[1]->setPosition(520, 448, 125, 18);
+		label[1]->setPosition(520, 418, 125, 18);
 		label[1]->setCaption("Background");
 
 		label[2] = new Gui::Label(gui);
-		label[2]->setPosition(654, 494, 125, 18);
+		label[2]->setPosition(654, 494, 155, 18);
 		label[2]->setCaption("Level");
 
 		label[3] = new Gui::Label(gui);
-		label[3]->setPosition(654, 560, 125, 18);
+		label[3]->setPosition(654, 560, 155, 18);
 		label[3]->setCaption("Screen mode");
 
 		label[4] = new Gui::Label(gui);
