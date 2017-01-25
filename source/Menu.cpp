@@ -472,7 +472,20 @@ namespace Duel6
 	{
 		if (listbox[CUR_PLAYERS_LIST]->size() < 2)
 		{
-			// TODO: message
+			showMessage("Can't play alone ...");
+			SDL_Event event;
+			while (true)
+			{
+				if (SDL_PollEvent(&event))
+				{
+					break;
+				}
+			}
+
+			while (SDL_PollEvent(&event))
+			{
+				// Eat all remaining keyboard events;
+			}
 			return;
 		}
 
@@ -486,18 +499,11 @@ namespace Duel6
 		}
 		else
 		{
-			cleanPersonData();
-			game->setPlayedRounds(0);
-		}
-
-		if (game->getSettings().isRoundLimit())
-		{
-			if(!question("Clear statistics and start a new game? (Y/N)"))
+			if(question("Clear statistics and start a new game? (Y/N)"))
 			{
-				return;
-
+				cleanPersonData();
+				game->setPlayedRounds(0);
 			}
-			cleanPersonData();
 		}
 
 		GameMode& selectedMode = *gameModes[gameModeSwitch->currentItem()];
