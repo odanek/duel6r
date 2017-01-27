@@ -499,7 +499,7 @@ namespace Duel6
 		}
 		else
 		{
-			if(question("Clear statistics and start a new game? (Y/N)"))
+			if(question("Clear statistics? (Y/N)"))
 			{
 				cleanPersonData();
 				game->setPlayedRounds(0);
