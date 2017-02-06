@@ -32,11 +32,11 @@ namespace Duel6
 {
 	bool PlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit)
 	{
-		player.addLife(-amount);
-		if(!player.is(shootingPlayer))
+		if (!player.is(shootingPlayer))
 		{
-			shootingPlayer.getPerson().addDamageCaused((Int32) amount);
+			shootingPlayer.getPerson().addDamageCaused(std::min((Int32) amount, (Int32)player.getLife()));
 		}
+		player.addLife(-amount);
 		return true;
 	}
 
