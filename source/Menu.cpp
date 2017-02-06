@@ -190,7 +190,7 @@ namespace Duel6
 
 		label[0] = new Gui::Label(gui);
 		label[0]->setPosition(10, 219, 800, 18);
-		label[0]->setCaption("    Name   | Games | Wins | Shots | Accuracy | Kills | Penalties | Points | Alive | Damage");
+		label[0]->setCaption("    Name   | Games | Wins | Shots | Accuracy | Kills | Penalties | Points | Alive | Damage | Time");
 
 		label[1] = new Gui::Label(gui);
 		label[1]->setPosition(520, 418, 125, 18);
@@ -330,7 +330,7 @@ namespace Duel6
 
 		for (auto person : ranking)
 		{
-			std::string personStat = Format("{0,-11}|{1,6} |{2,5} |{3,6} |{4,8}% |{5,6} |{6,10} |{7,7} |{8,5}% |{9,6}")
+			std::string personStat = Format("{0,-11}|{1,6} |{2,5} |{3,6} |{4,8}% |{5,6} |{6,10} |{7,7} |{8,5}% |{9,6} |{10,4}m ")
 				<< person->getName()
 				<< person->getGames()
 				<< person->getWins()
@@ -340,8 +340,8 @@ namespace Duel6
 				<< person->getPenalties()
 				<< person->getTotalPoints()
 				<< person->getAliveRatio()
-				//<< (person->getTotalGameTime() + 30) / 60
-                << person->getTotalDamage();
+                << person->getTotalDamage()
+				<< (person->getTotalGameTime() + 30) / 60;
 			listbox[0]->addItem(personStat);
 		}
 	}

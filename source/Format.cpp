@@ -55,8 +55,17 @@ namespace Duel6
 	bool Format::getPlaceholder(Size index, Placeholder& placeholder)
 	{
 		std::string prefix = '{' + std::to_string(index);
-		size_t start = format.find(prefix);
-			
+		size_t start = format.find(prefix + '}');
+
+		if (start != std::string::npos)
+		{
+			placeholder.offset = start;
+			placeholder.length = prefix.size() + 1;
+			placeholder.hasWidth = false;
+			return true;
+		}
+
+		start = format.find(prefix + ',');
 		if (start == std::string::npos)
 		{
 			return false;
@@ -70,32 +79,21 @@ namespace Duel6
 
 		placeholder.offset = start;
 		placeholder.length = end - start + 1;
+		placeholder.hasWidth = true;
 
-		if (end == start + prefix.length())
+		size_t widthStart = start + prefix.length() + 1;
+		std::string widthSpec = format.substr(widthStart, end - widthStart);
+		size_t padDelimitPos = widthSpec.find('|');
+		if (padDelimitPos != std::string::npos && padDelimitPos + 2 == widthSpec.length())
 		{
-			placeholder.hasWidth = false;
-			return true;
+			placeholder.paddingCharacter = format[end - 1];
+			widthSpec = widthSpec.substr(0, padDelimitPos);
 		}
-		else if (format[start + prefix.length()] == ',')
+		else
 		{
-			size_t widthStart = start + prefix.length() + 1;
-			placeholder.hasWidth = true;
-			std::string widthSpec = format.substr(widthStart, end - widthStart);
-			size_t padDelimitPos = widthSpec.find('|');
-			if (padDelimitPos != std::string::npos && padDelimitPos + 2 == widthSpec.length())
-			{
-				placeholder.paddingCharacter = format[end - 1];
-				widthSpec = widthSpec.substr(0, padDelimitPos);
-			}
-			else
-			{
-				placeholder.paddingCharacter = ' ';
-			}
-			placeholder.width = std::stoi(widthSpec);
-			return true;
+			placeholder.paddingCharacter = ' ';
 		}
-			
-		D6_THROW(FormatException, "Wrong format of parameter placeholder in: " + format);
+		placeholder.width = std::stoi(widthSpec);
 		return true;
 	}
 }
