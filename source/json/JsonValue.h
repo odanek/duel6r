@@ -69,6 +69,8 @@ namespace Duel6
 
 			Value get(const std::string& propertyName);
 			const Value get(const std::string& propertyName) const;
+			Value getOrDefault(const std::string& propertyName, Value defaultValue);
+			const Value getOrDefault(const std::string& propertyName, const Value defaultValue) const;
 			Value& set(const std::string& propertyName, Value value);
 			std::vector<std::string> getPropertyNames() const;
 

@@ -44,6 +44,8 @@ namespace Duel6
 
 			virtual std::shared_ptr<ValueImpl>& get(const std::string& propertyName) = 0;
 			virtual const std::shared_ptr<ValueImpl>& get(const std::string& propertyName) const = 0;
+			virtual std::shared_ptr<ValueImpl>& getOrDefault(const std::string& propertyName, std::shared_ptr<ValueImpl>& defaultValue) = 0;
+			virtual const std::shared_ptr<ValueImpl>& getOrDefault(const std::string& propertyName, const std::shared_ptr<ValueImpl>& defaultValue) const = 0;
 			virtual void set(const std::string& propertyName, std::shared_ptr<ValueImpl>& value) = 0;
 			virtual std::vector<std::string> getPropertyNames() const = 0;
 
@@ -72,6 +74,16 @@ namespace Duel6
 			}
 
 			const std::shared_ptr<ValueImpl>& get(const std::string& propertyName) const override
+			{
+				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Object, got: ") + getTypeName());
+			}
+
+			std::shared_ptr<ValueImpl>& getOrDefault(const std::string& propertyName, std::shared_ptr<ValueImpl>& defaultValue) override
+			{
+				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Object, got: ") + getTypeName());
+			}
+
+			const std::shared_ptr<ValueImpl>& getOrDefault(const std::string& propertyName, const std::shared_ptr<ValueImpl>& defaultValue) const override
 			{
 				D6_THROW(JsonException, std::string("Invalid JSON value type - expected: Object, got: ") + getTypeName());
 			}
@@ -323,6 +335,18 @@ namespace Duel6
 				return val->second;
 			}
 
+			std::shared_ptr<ValueImpl>& getOrDefault(const std::string& propertyName, std::shared_ptr<ValueImpl>& defaultValue) override
+			{
+				auto val = properties.find(propertyName);
+				return (val == properties.end()) ? defaultValue : val->second;
+			}
+
+			const std::shared_ptr<ValueImpl>& getOrDefault(const std::string& propertyName, const std::shared_ptr<ValueImpl>& defaultValue) const override
+			{
+				auto val = properties.find(propertyName);
+				return (val == properties.end()) ? defaultValue : val->second;
+			}
+
 			void set(const std::string& propertyName, std::shared_ptr<ValueImpl>& value) override
 			{
 				properties[propertyName] = value;
@@ -378,6 +402,16 @@ namespace Duel6
 		const Value Value::get(const std::string& propertyName) const
 		{
 			return Value(value->get(propertyName));
+		}
+
+		Value Value::getOrDefault(const std::string& propertyName, Value defaultValue)
+		{
+			return Value(value->getOrDefault(propertyName, defaultValue.value));
+		}
+
+		const Value Value::getOrDefault(const std::string& propertyName, const Value defaultValue) const
+		{
+			return Value(value->getOrDefault(propertyName, defaultValue.value));
 		}
 
 		std::vector<std::string> Value::getPropertyNames() const

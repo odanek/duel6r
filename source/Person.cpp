@@ -71,20 +71,7 @@ namespace Duel6
 		person.games = json.get("games").asInt();
 		person.timeAlive = json.get("timeAlive").asInt();
 		person.totalGameTime = json.get("totalGameTime").asInt();
-		person.totalDamage = Person::loadValue(json, "totalDamage", Json::Value::makeNumber(0)).asInt();
+		person.totalDamage = json.getOrDefault("totalDamage", Json::Value::makeNumber(0)).asInt();
 		return person;
-	}
-
-	Json::Value Person::loadValue(const Json::Value& json, const std::string& propertyName, const Json::Value& defaultValue)
-	{
-		try
-		{
-			return json.get(propertyName);
-		}
-		catch (const Duel6::JsonException& e)
-		{
-			return defaultValue;
-		}
-
 	}
 }
