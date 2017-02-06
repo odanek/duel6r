@@ -48,10 +48,13 @@ namespace Duel6
 		Int32 games;
 		Int32 timeAlive;
 		Int32 totalGameTime;
+		Int32 totalDamage;
+
+		static Json::Value loadValue(const Json::Value& json, const std::string& propertyName, const Json::Value& defaultValue);
 
 	public:
 		Person()
-			: shots(0), hits(0), kills(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0)
+			: shots(0), hits(0), kills(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0), totalDamage(0)
 		{}
 
 		explicit Person(const std::string& name)
@@ -120,6 +123,11 @@ namespace Duel6
 			return totalGameTime;
 		}
 
+		Int32 getTotalDamage() const
+		{
+			return totalDamage;
+		}
+
 		Person& addShots(Int32 shots)
 		{
 			this->shots += shots;
@@ -164,6 +172,11 @@ namespace Duel6
 		void addTotalGameTime(Int32 totalGameTime)
 		{
 			this->totalGameTime += totalGameTime;
+		}
+
+		void addDamageCaused(Int32 damageCaused)
+		{
+			this->totalDamage += damageCaused;
 		}
 
 		bool hasHigherScoreThan(const Person& person) const
