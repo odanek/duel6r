@@ -465,11 +465,19 @@ namespace Duel6
 
 		Player& setBonus(BonusType type, Int32 duration)
 		{
-			bonus.onExpire(*this, *world);
-			bonus = type;
-			bonus.onApply(*this, *world, duration);
-			bonusRemainingTime = Float32(duration);
-			bonusDuration = Float32(duration);
+			if(type == bonus)
+			{
+				bonusRemainingTime += Float32(duration) / 2;
+				bonusDuration += Float32(duration) / 2;
+			}
+			else
+			{
+				bonus.onExpire(*this, *world);
+				bonus = type;
+				bonusRemainingTime = Float32(duration);
+				bonusDuration = Float32(duration);
+			}
+			bonus.onApply(*this, *world, Int32(bonusDuration));
 			indicators.getBonus().show(bonusDuration);
 			return *this;
 		}
