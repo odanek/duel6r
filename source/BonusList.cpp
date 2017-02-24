@@ -59,28 +59,69 @@ namespace Duel6
 	{
 		const Level& level = world.getLevel();
 		bool weapon = ((rand() % 2) == 1);
-		Int32 x = rand() % level.getWidth();
-		Int32 y = rand() % level.getHeight();
+		Int32 x, y, attempts = 0;
 
-		if (!level.isWall(x, y, true))
+		do {
+			attempts++;
+			x = rand() % level.getWidth();
+			y = rand() % level.getHeight();
+		} while(!isValidPosition(x, y, weapon) && attempts <= MAX_BONUS_ATTEMPTS);
+
+		if(attempts > MAX_BONUS_ATTEMPTS)
 		{
-			if (weapon)
+			return;
+		}
+
+		if (weapon)
+		{
+			Int32 bullets = rand() % 10 + 10;
+			weapons.push_back(LyingWeapon(Weapon::getRandomEnabled(settings), bullets, Vector(x, y)));
+		}
+		else
+		{
+			BonusType type = BonusType::values()[rand() % BonusType::values().size()];
+			bool random = (rand() % RANDOM_BONUS_FREQUENCY) == 0;
+			Int32 duration = type.isOneTime() ? 0 : 13 + rand() % 17;
+			bonuses.push_back(Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? randomTexture : type.getTexture()));
+		}
+	}
+
+	bool BonusList::isValidPosition(const Int32 x, const Int32 y, bool weapon)
+	{
+		const Level& level = world.getLevel();
+
+		if(level.isWall(x, y, true) || (weapon && !level.isWall(x, y - 1, true)))
+		{
+			return false;
+		}
+
+		Rectangle candidate = Rectangle::fromCorners(Vector(x - 2, y - 2), Vector(x + 2, y + 2));
+		for (Player& player : world.getPlayers())
+		{
+			if (Collision::rectangles(candidate, player.getCollisionRect()))
 			{
-				if (!level.isWall(x, y - 1, true)) // Weapons must be on the ground
-				{
-					return;
-				}
-				Int32 bullets = rand() % 10 + 10;
-				weapons.push_back(LyingWeapon(Weapon::getRandomEnabled(settings), bullets, Vector(x, y)));
-			}
-			else
-			{
-				BonusType type = BonusType::values()[rand() % BonusType::values().size()];
-				bool random = (rand() % RANDOM_BONUS_FREQUENCY) == 0;
-				Int32 duration = type.isOneTime() ? 0 : 13 + rand() % 17;
-				bonuses.push_back(Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? randomTexture : type.getTexture()));
+				return false;
 			}
 		}
+
+		candidate = Rectangle::fromCorners(Vector(x, y), Vector(x + 1, y + 1));
+		for (const Bonus& bonus : bonuses)
+		{
+			if(Collision::rectangles(candidate, bonus.getCollisionRect()))
+			{
+				return false;
+			}
+		}
+
+		for (const LyingWeapon& lyingWeapon : weapons)
+		{
+			if(Collision::rectangles(candidate, lyingWeapon.getCollisionRect()))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	void BonusList::addPlayerGun(Player& player, const Vector& position)
