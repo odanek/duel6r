@@ -51,6 +51,8 @@ namespace Duel6
 
 	private:
 		static const Int32 RANDOM_BONUS_FREQUENCY = 6;
+		static const Int32 MAX_BONUS_ATTEMPTS = 50;
+		bool isValidPosition(const Int32 x, const Int32 y, bool weapon);
 
 	public:
 		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
