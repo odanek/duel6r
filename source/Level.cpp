@@ -41,7 +41,6 @@ namespace Duel6
 	void Level::load(const std::string& path, bool mirror)
 	{
 		levelData.clear();
-		waterLevel = -1;
 		Json::Parser parser;
 		Json::Value root = parser.parse(path);
 
@@ -53,7 +52,7 @@ namespace Duel6
 		levelData.resize(blockCount);
 		for (Size i = 0; i < blocks.getLength(); i++)
 		{
-			levelData[i] = blocks.get(i).asInt();
+			levelData[i] = Uint16(blocks.get(i).asInt());
 		}
 
 		if (mirror)
@@ -61,6 +60,7 @@ namespace Duel6
 			mirrorLevelData();
 		}
 		waterBlock = findWaterType();
+		waterLevel = findWaterLevel(waterBlock);
 	}
 
 	void Level::mirrorLevelData()
@@ -104,6 +104,22 @@ namespace Duel6
 
 		static Uint16 waterBlocks[] = { 4, 16, 33 };
 		return waterBlocks[rand() % 3];
+	}
+
+	Int32 Level::findWaterLevel(Uint16 waterBlock) const
+	{
+		for (Int32 level = 0; level < getHeight(); level++)
+		{
+			for (Int32 x = 0; x < getWidth(); x++)
+			{
+				if (!isWall(x, level, true) && getBlock(x, level) != waterBlock)
+				{
+					return level - 1;
+				}
+			}
+		}
+
+		return getHeight() - 1;
 	}
 
 	Water Level::getWaterType(Int32 x, Int32 y) const

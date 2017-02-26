@@ -105,6 +105,7 @@ namespace Duel6
 		}
 
 		Uint16 findWaterType() const;
+		Int32 findWaterLevel(Uint16 waterBlock) const;
 	};
 }
 
