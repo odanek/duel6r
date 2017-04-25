@@ -182,19 +182,39 @@ namespace Duel6
 		static Uint32 curTime = 0;
 		Uint32 lastTime = 0;
 
+		//TODO: Extract these constants somewhere else
+		// Game tick rate, should be 60. Influences the speed of the game, physics etc.
+		const static Uint32 desiredTickRate = 60;
+		// Maximal FPS. Influences rendering.
+		const static Uint32 desiredFPS = 300;
+
+		const static Float64 secPerTick = 1.0f / desiredTickRate;
+		const static Float64 secPerFrame = 1.0f / desiredFPS;
+		static Float64 tickDuration = 0.0f;
+		static Float64 frameDuration = 0.0f;
 		lastTime = curTime;
 		curTime = SDL_GetTicks();
 
-		// Draw
-		context.render();
-		video.screenUpdate(console, font);
-
-		// Update
-		if (curTime - lastTime < 70)
-		{
-			float elapsedTime = (curTime - lastTime) * 0.001f;;
-			context.update(elapsedTime);
+		if (frameDuration > secPerFrame) {
+			// Draw
+			context.render();
+			video.screenUpdate(console, font);
+			while (frameDuration > secPerFrame) {
+				// consume remaining time, there is no point in rendering the same scene
+				frameDuration -= secPerFrame;
+			}
 		}
+
+
+		while(tickDuration > secPerTick)
+		{
+			// Update the game by constant time slice
+			context.update(secPerTick);
+			tickDuration -= secPerTick;
+		}
+		Float64 elapsedTime = (curTime - lastTime)* 0.001f;
+		tickDuration += elapsedTime;
+		frameDuration += elapsedTime;
 	}
 
 	void Application::setup(Int32 argc, char** argv)
