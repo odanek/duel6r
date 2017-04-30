@@ -63,7 +63,9 @@ namespace Duel6
 		messageQueue.update(elapsedTime);
 
 		// Add new bonuses
-		if (rand() % int(3.0f / elapsedTime) == 0)
+		int mod = 3.0f / elapsedTime;
+
+		if (mod != 0 && rand() % mod == 0)
 		{
 			bonusList.addRandomBonus();
 		}
