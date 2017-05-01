@@ -556,7 +556,7 @@ namespace Duel6
 			if (controls.getUp().isPressed())
 			{
 				unsetFlag(FlagDoubleJump);
-				if(hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !hasFlag(FlagMoveUp))
+				if(hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !isOnElevator() && !hasFlag(FlagMoveUp))
 				{
 					setFlag(FlagDoubleJump);
 					unsetFlag(FlagDoubleJumpDebounce);
@@ -565,7 +565,7 @@ namespace Duel6
 			}
 			else
 			{
-				if(isOnGround())
+				if(isOnGround() || isOnElevator())
 				{
 					setFlag(FlagDoubleJumpDebounce);
 				}
