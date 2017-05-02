@@ -242,6 +242,7 @@ namespace Duel6
 		button->setCaption("D");
 		button->setPosition(490, 558, 24, 17);
 		button->onClick([this](Gui::Button&){
+			joyRescan();
 			Size curPlayersCount = listbox[CUR_PLAYERS_LIST]->size();
 			for (Size j = 0; j < curPlayersCount; j++)
 			{
