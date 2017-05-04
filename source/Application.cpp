@@ -33,7 +33,7 @@
 #include "ConsoleCommands.h"
 #include "Application.h"
 #include "FontException.h"
-
+#include "script/ScriptManager.h"
 namespace Duel6
 {
 	namespace
@@ -184,7 +184,7 @@ namespace Duel6
 
 		//TODO: Extract these constants somewhere else
 		// Game tick rate, should be 60. Influences the speed of the game, physics etc.
-		const static Uint32 desiredTickRate = 60;
+		const static Uint32 desiredTickRate = 30;
 		// Maximal FPS. Influences rendering.
 		const static Uint32 desiredFPS = 300;
 
@@ -195,15 +195,15 @@ namespace Duel6
 		lastTime = curTime;
 		curTime = SDL_GetTicks();
 
-		if (frameDuration > secPerFrame) {
+	//	if (frameDuration > secPerFrame) {
 			// Draw
 			context.render();
 			video.screenUpdate(console, font);
-			while (frameDuration > secPerFrame) {
+//			while (frameDuration > secPerFrame) {
 				// consume remaining time, there is no point in rendering the same scene
-				frameDuration -= secPerFrame;
-			}
-		}
+	//			frameDuration -= secPerFrame;
+//			}
+	//	}
 
 
 		while(tickDuration > secPerTick)
@@ -221,6 +221,7 @@ namespace Duel6
 	{
 		srand((unsigned)time(nullptr));
 
+		ScriptManager scriptEngine;
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
 			D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());

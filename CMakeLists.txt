@@ -349,6 +349,57 @@ else(APPLE) # MSVC, GCC or MINGW
 endif(APPLE)
 
 ########################
+#  Dependencies
+########################
+include(ExternalProject)
+set(DEPSDIR ${CMAKE_SOURCE_DIR}/deps)
+set(ANGELSCRIPT_VERSION 2.31.2)
+ExternalProject_Add(angelscript
+	PREFIX "_"
+	GIT_REPOSITORY https://github.com/fanick1/angelscript
+	GIT_TAG origin/tags/${ANGELSCRIPT_VERSION}
+	CONFIGURE_COMMAND ${CMAKE_COMMAND} -DLIBRARY_OUTPUT_PATH=${DEPSDIR}/angelscript/lib ../angelscript/sdk/angelscript/projects/cmake
+	INSTALL_COMMAND ""
+	BUILD_COMMAND make -j 8
+	STEP_TARGETS angelscript_copy angelscript
+)
+ExternalProject_Get_Property(angelscript SOURCE_DIR)
+message(STATUS "Source directory of angelscript ${SOURCE_DIR}")
+
+ExternalProject_Add_Step(angelscript angelscript_copy
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/add_on  ${DEPSDIR}/angelscript/include/angelscript/add_on # don't ask  
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/angelscript/include ${DEPSDIR}/angelscript/include
+	DEPENDEES build
+	WORKING_DIRECTORY ${SOURCE_DIR}
+	LOG 1
+)
+find_library(LIB_ANGELSCRIPT angelscript
+	HINTS ${DEPSDIR}/angelscript/lib # TODO HINTS OR PATHS?
+	NO_DEFAULT_PATH 
+	NO_SYSTEM_ENVIRONMENT_PATH
+	DOC "Path to angelscript" 
+	PATHS ${DEPSDIR}/angelscript/lib # TODO HINTS OR PATHS?
+)
+include_directories(${DEPSDIR}/angelscript/include)
+target_link_libraries(${D6R_APP_NAME} ${LIB_ANGELSCRIPT})
+
+########################
+#  Angelscript 
+########################
+find_package(Threads REQUIRED)
+target_link_libraries(${D6R_APP_NAME} Threads::Threads)
+
+set(AS_ADDON_SCRIPTSTDSTRING_DIR
+	${DEPSDIR}/angelscript/include/angelscript/add_on/scriptstdstring
+)
+set(AS_ADDON_SCRIPTSTDSTRING_SRC 
+	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring_utils.cpp
+	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring.cpp
+	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring.h
+)
+add_library(angelscript_addons ${AS_ADDON_SCRIPTSTDSTRING_SRC})
+target_link_libraries(${D6R_APP_NAME} angelscript_addons)
+########################
 #  Install application
 ########################
 
