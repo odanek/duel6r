@@ -33,7 +33,6 @@
 #include "ConsoleCommands.h"
 #include "Application.h"
 #include "FontException.h"
-#include "script/ScriptManager.h"
 namespace Duel6
 {
 	namespace
@@ -78,7 +77,7 @@ namespace Duel6
 	Application::Application()
 		: console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
 		service(font, console, textureManager, video, input, sound),
-		menu(service), requestClose(false)
+		menu(service), requestClose(false), scriptManager(console)
 	{}
 
 	Application::~Application()
@@ -220,8 +219,7 @@ namespace Duel6
 	void Application::setup(Int32 argc, char** argv)
 	{
 		srand((unsigned)time(nullptr));
-
-		ScriptManager scriptEngine;
+;
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
 			D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());

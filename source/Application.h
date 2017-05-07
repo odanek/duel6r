@@ -34,6 +34,7 @@
 #include "Menu.h"
 #include "Game.h"
 #include "Video.h"
+#include "script/ScriptManager.h"
 
 namespace Duel6
 {
@@ -52,6 +53,7 @@ namespace Duel6
 		std::unique_ptr<GameResources> gameResources;
 		std::unique_ptr<Game> game;
 		bool requestClose;
+		ScriptManager scriptManager;
 
 	public:
 		Application();

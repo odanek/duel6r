@@ -8,11 +8,11 @@ namespace Duel6{
 class ScriptManager{
 public:
 
-	void print(std::string & msg){
+	static void print(std::string & msg){
 		printf("%s", msg.c_str());
 	}
 	// Implement a simple message callback function
-	void MessageCallback(const asSMessageInfo *msg, void *param)
+	static void MessageCallback(const asSMessageInfo *msg, void *param)
 	{
 	  const char *type;
 
@@ -29,14 +29,31 @@ public:
 	  }
 	  printf("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
 	}
-	ScriptManager(){
+	ScriptManager(const Console & console):console(console){
 		engine = asCreateScriptEngine();
 		RegisterStdString(engine);
-		auto r = engine->SetMessageCallback(asMETHOD(ScriptManager, MessageCallback), this, asCALL_THISCALL);
+		auto r = engine->SetMessageCallback(asFUNCTION(ScriptManager::MessageCallback), 0, asCALL_CDECL);
 		assert(r >= 0);
+	    r = engine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(ScriptManager::print), asCALL_CDECL);
+	    assert(r >= 0);
+		registerConsole();
 	}
 private:
 	asIScriptEngine * engine;
+	const Console & console;
+
+	void registerConsole(){
+		auto r = engine->RegisterObjectType("Console", sizeof(Console), asOBJ_REF | asOBJ_NOCOUNT);
+		 if(r < 0){
+		        printf("Failed to register void Console type.\n");
+		 }
+
+		 r = engine->RegisterObjectMethod("Console", "void print(const string & in)", asMETHOD(Console, print), asCALL_THISCALL);
+		 if(r < 0){
+		        printf("Failed to register void Console::print(string & msg).\n");
+		 }
+	}
+
 };
 
 
