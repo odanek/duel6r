@@ -297,6 +297,10 @@ set(D6R_SOURCES
 	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
 	source/gamemodes/PredatorPlayerEventListener.h
 	source/gamemodes/PredatorPlayerEventListener.cpp
+
+	source/script/LevelScript.cpp
+	source/script/LevelScript.h
+	source/script/ScriptManager.h
     )
 if(WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)
@@ -369,7 +373,6 @@ message(STATUS "Source directory of angelscript ${SOURCE_DIR}")
 ExternalProject_Add_Step(angelscript angelscript_copy
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/add_on  ${DEPSDIR}/angelscript/include/angelscript/add_on # don't ask  
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/angelscript/include ${DEPSDIR}/angelscript/include
-	DEPENDEES build
 	WORKING_DIRECTORY ${SOURCE_DIR}
 	LOG 1
 )
@@ -388,16 +391,33 @@ target_link_libraries(${D6R_APP_NAME} ${LIB_ANGELSCRIPT})
 ########################
 find_package(Threads REQUIRED)
 target_link_libraries(${D6R_APP_NAME} Threads::Threads)
+set(AS_ADDON_DIR
+	${DEPSDIR}/angelscript/include/angelscript/add_on
+)
 
 set(AS_ADDON_SCRIPTSTDSTRING_DIR
-	${DEPSDIR}/angelscript/include/angelscript/add_on/scriptstdstring
+	${AS_ADDON_DIR}/scriptstdstring
 )
-set(AS_ADDON_SCRIPTSTDSTRING_SRC 
+set(AS_ADDON_SCRIPTBUILDER_DIR
+	${AS_ADDON_DIR}/scriptbuilder
+)
+
+set(AS_ADDON_SCRIPTSTDSTRING_SRC
 	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring_utils.cpp
 	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring.cpp
 	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring.h
 )
-add_library(angelscript_addons ${AS_ADDON_SCRIPTSTDSTRING_SRC})
+
+set(AS_ADDON_SCRIPTBUILDER_SRC
+	${AS_ADDON_SCRIPTBUILDER_DIR}/scriptbuilder.cpp
+	${AS_ADDON_SCRIPTBUILDER_DIR}/scriptbuilder.h
+)
+
+set(ANGELSCRIPT_ADDONS_SOURCES 
+	${AS_ADDON_SCRIPTSTDSTRING_SRC}
+	${AS_ADDON_SCRIPTBUILDER_SRC}
+) 
+add_library(angelscript_addons ${ANGELSCRIPT_ADDONS_SOURCES})
 target_link_libraries(${D6R_APP_NAME} angelscript_addons)
 ########################
 #  Install application

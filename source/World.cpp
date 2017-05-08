@@ -31,8 +31,8 @@
 
 namespace Duel6
 {
-	World::World(Game& game, const std::string& levelPath, bool mirror, Size background)
-		: gameSettings(game.getSettings()), players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
+	World::World(Game& game, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript)
+		: gameSettings(game.getSettings()), players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta(), levelScript),
 		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
 		  explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
 		  background(background), bonusList(game.getSettings(), game.getResources(), *this),

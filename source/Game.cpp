@@ -151,7 +151,8 @@ namespace Duel6
 		Console& console = appService.getConsole();
 		console.printLine(Format("\n===Loading level {0}===") << levelPath);
 		console.printLine(Format("...Parameters: mirror: {0}, background: {1}") << mirror << background);
-		round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror, background);
+		this->levelScript = appService.getScriptManager().loadLevelScript((std::string(D6_FILE_LEVEL) +  "global.as").c_str()); // TODO Path
+		round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror, background, *levelScript);
 
 		playedRounds++;
 		resources.getRoundStartSound().play();
@@ -162,6 +163,9 @@ namespace Duel6
 		for (Player& player : players)
 		{
 			player.endRound();
+		}
+		if(this->levelScript != nullptr){
+			delete this->levelScript;
 		}
 	}
 }

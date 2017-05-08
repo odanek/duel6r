@@ -32,8 +32,8 @@
 
 namespace Duel6
 {
-	Level::Level(const std::string& path, bool mirror, const Block::Meta& blockMeta)
-		: blockMeta(blockMeta)
+	Level::Level(const std::string& path, bool mirror, const Block::Meta& blockMeta, LevelScript & levelScript)
+		: blockMeta(blockMeta), levelScript(levelScript)
 	{
 		load(path, mirror);
 	}
@@ -61,6 +61,9 @@ namespace Duel6
 		}
 		waterBlock = findWaterType();
 		waterLevel = findWaterLevel(waterBlock);
+
+		//Call the script
+		levelScript.mapLoaded(*this);
 	}
 
 	void Level::mirrorLevelData()

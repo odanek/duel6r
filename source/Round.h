@@ -50,9 +50,9 @@ namespace Duel6
 		Float32 gameOverWait;
 		bool winner;
         std::vector<Player*> alivePlayers;
-
+        LevelScript & levelScript;
     public:
-		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background);
+		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript);
 
 		void update(Float32 elapsedTime);
 		void keyEvent(const KeyPressEvent& event);

@@ -36,6 +36,7 @@
 #include "ShotList.h"
 #include "BonusList.h"
 #include "ElevatorList.h"
+#include "script/LevelScript.h"
 
 namespace Duel6
 {
@@ -58,7 +59,7 @@ namespace Duel6
 		ElevatorList elevatorList;
 
 	public:
-		World(Game& game, const std::string& levelPath, bool mirror, Size background);
+		World(Game& game, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript);
 
 		void update(Float32 elapsedTime);
 		void raiseWater();

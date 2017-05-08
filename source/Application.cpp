@@ -75,9 +75,9 @@ namespace Duel6
 	}
 
 	Application::Application()
-		: console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
-		service(font, console, textureManager, video, input, sound),
-		menu(service), requestClose(false), scriptManager(console)
+		: console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console), scriptManager(console),
+		service(font, console, textureManager, video, input, sound, scriptManager),
+		menu(service), requestClose(false)
 	{}
 
 	Application::~Application()
@@ -183,7 +183,7 @@ namespace Duel6
 
 		//TODO: Extract these constants somewhere else
 		// Game tick rate, should be 60. Influences the speed of the game, physics etc.
-		const static Uint32 desiredTickRate = 30;
+		const static Uint32 desiredTickRate = 60;
 		// Maximal FPS. Influences rendering.
 		const static Uint32 desiredFPS = 300;
 

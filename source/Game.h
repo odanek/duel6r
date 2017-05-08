@@ -99,7 +99,7 @@ namespace Duel6
 		GameMode* gameMode;
 		std::unique_ptr<Round> round;
 		Renderer renderer;
-
+		LevelScript * levelScript;
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
 		Int32 playedRounds;

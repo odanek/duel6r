@@ -34,10 +34,10 @@
 
 namespace Duel6
 {
-	Round::Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background)
-		: game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background),
+	Round::Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript)
+		: game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background, levelScript),
 		  suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
-		  winner(false)
+		  winner(false), levelScript(levelScript)
 	{
 		preparePlayers();
 		game.getMode().initializeRound(game, players, world);
@@ -107,6 +107,9 @@ namespace Duel6
 			auto& ammoRange = game.getSettings().getAmmoRange();
 			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
 			std::pair<Int32, Int32>& position = startingPositions.front();
+
+			//TODO Call script spawn(Level, Player[])
+
 			player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
 			startingPositions.pop();
 			playerIndex++;
@@ -161,6 +164,7 @@ namespace Duel6
 
 		for (Player& player : world.getPlayers())
 		{
+			levelScript.playerThink(player);
 			player.update(world, game.getSettings().getScreenMode(), elapsedTime);
 			if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost())
 			{

@@ -33,9 +33,10 @@
 #include <vector>
 #include "Block.h"
 #include "Water.h"
-
+#include "script/LevelScript.h"
 namespace Duel6
 {
+	class LevelScript;
 	class Level
 	{
 	private:
@@ -45,9 +46,9 @@ namespace Duel6
 		std::vector<Uint16> levelData;
 		Uint16 waterBlock;
 		Int32 waterLevel;
-
+		LevelScript & levelScript;
 	public:
-		Level(const std::string& path, bool mirror, const Block::Meta& blockMeta);
+		Level(const std::string& path, bool mirror, const Block::Meta& blockMeta, LevelScript & levelScript);
 
 		Int32 getWidth() const
 		{
