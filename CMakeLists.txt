@@ -300,6 +300,7 @@ set(D6R_SOURCES
 
 	source/script/LevelScript.cpp
 	source/script/LevelScript.h
+	source/script/ScriptManager.cpp
 	source/script/ScriptManager.h
     )
 if(WIN32)

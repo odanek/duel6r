@@ -50,52 +50,12 @@ namespace Duel6{
 class ScriptManager{
 public:
 
-	static void print(std::string & msg){
-		printf("%s", msg.c_str());
-	}
+	static void print(std::string & msg);
 	// Implement a simple message callback function
-	static void MessageCallback(const asSMessageInfo *msg, void *param)
-	{
-	  const char *type;
+	static void MessageCallback(const asSMessageInfo *msg, void *param);
 
-	  switch(msg->type){
-		case asMSGTYPE_ERROR:
-			type = "ERR ";
-			break;
-		case asMSGTYPE_WARNING:
-			type = "WARN";
-			break;
-		case asMSGTYPE_INFORMATION:
-			type = "INFO";
-			break;
-	  }
-	  printf("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
-	}
-	ScriptManager(const Console & console):console(console){
-		engine = asCreateScriptEngine();
-		ctx = engine->CreateContext();
-
-		RegisterStdString(engine);
-		auto r = engine->SetMessageCallback(asFUNCTION(ScriptManager::MessageCallback), 0, asCALL_CDECL);
-		assert(r >= 0);
-		r = engine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(ScriptManager::print), asCALL_CDECL);
-		assert(r >= 0);
-		registerConsoleType();
-		registerLevelType();
-		registerPlayerType();
-	}
-
-	LevelScript * loadLevelScript(const char * scriptPath){
-		if(File::exists(scriptPath)){
-			asIScriptModule * module = loadModuleFromFile(engine, scriptPath);
-			if(module == nullptr){
-				D6_THROW(Exception, std::string("Cannot load script ") + std::string(scriptPath));
-			}
-			return new LevelScript(module, ctx);
-		} else {
-			D6_THROW(Exception, std::string("Cannot load script ") + std::string(scriptPath));
-		}
-	}
+	ScriptManager(const Console & console);
+	LevelScript * loadLevelScript(const char * scriptPath);
 
 private:
 	asIScriptEngine * engine;
@@ -103,64 +63,10 @@ private:
 	asIScriptContext * ctx;
 	const Console & console;
 
+	void registerConsoleType();
+	void registerLevelType();
+	void registerPlayerType();
 
-	void registerConsoleType() {
-		auto r = engine->RegisterObjectType("Console", sizeof(Console), asOBJ_REF | asOBJ_NOCOUNT);
-		if (r < 0) {
-			printf("Failed to register Console type.\n");
-		}
-
-		r = engine->RegisterObjectMethod("Console", "void print(const string & in)", asMETHOD(Console, print), asCALL_THISCALL);
-		if (r < 0) {
-			printf("Failed to register void Console::print(string & msg).\n");
-		}
-	}
-
-	void registerLevelType() {
-		auto r = engine->RegisterObjectType("Level", sizeof(Level), asOBJ_REF | asOBJ_NOCOUNT);
-		if (r < 0) {
-			printf("Failed to register Level type.\n");
-		}
-
-		r = engine->RegisterObjectMethod("Level", "void raiseWater()", asMETHOD(Level, raiseWater), asCALL_THISCALL);
-		if (r < 0) {
-			printf("Failed to register void Level::raiseWater().\n");
-		}
-	}
-
-	void registerPlayerType() {
-		auto r = engine->RegisterObjectType("Player", sizeof(Player), asOBJ_REF | asOBJ_NOCOUNT);
-		if (r < 0) {
-			printf("Failed to register Player type.\n");
-		}
-
-//		 r = engine->RegisterObjectProperty("Player", ""declaration, byteOffset)
-		r = engine->RegisterObjectMethod("Player", "void die()", asMETHOD(Player, die), asCALL_THISCALL);
-		if (r < 0) {
-			printf("Failed to register void Player::die().\n");
-		}
-	}
-
-	asIScriptModule * loadModuleFromFile(asIScriptEngine * engine, const char * filePath) {
-		CScriptBuilder scriptBuilder;
-
-		int r = scriptBuilder.StartNewModule(engine, filePath);
-		if (r < 0) {
-			printf("Unrecoverable error while starting a new module with script %s\n", filePath);
-			return nullptr;
-		}
-		r = scriptBuilder.AddSectionFromFile(filePath);
-		if (r < 0) {
-			printf("Please correct the errors in the script %s and try again.\n", filePath);
-			return nullptr;
-		}
-		r = scriptBuilder.BuildModule();
-		if (r < 0) {
-			printf("Please correct the errors in the script %s and try again.\n", filePath);
-			return nullptr;
-		}
-
-		return scriptBuilder.GetModule();
-	}
+	asIScriptModule * loadModuleFromFile(asIScriptEngine * engine, const char * filePath);
 };
 }
