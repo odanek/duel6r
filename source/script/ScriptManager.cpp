@@ -65,7 +65,7 @@ namespace Duel6{
 	  }
 	  printf("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
 	}
-	ScriptManager::ScriptManager(const Console & console):console(console){
+	ScriptManager::ScriptManager(Console & console):console(console){
 		engine = asCreateScriptEngine();
 		ctx = engine->CreateContext();
 
@@ -87,7 +87,18 @@ namespace Duel6{
 			}
 			return new LevelScript(module, ctx);
 		} else {
-			D6_THROW(Exception, std::string("Cannot load script ") + std::string(scriptPath));
+
+			asIScriptModule * module = engine->GetModule("_empty_", asGM_ONLY_IF_EXISTS);
+			if(module == nullptr){
+				CScriptBuilder scriptBuilder;
+				scriptBuilder.StartNewModule(engine, "_empty_");
+				scriptBuilder.BuildModule();
+				module = scriptBuilder.GetModule();
+			}
+
+			return new LevelScript(module, ctx);
+
+			//D6_THROW(Exception, std::string("Cannot load script ") + std::string(scriptPath));
 		}
 	}
 
@@ -97,10 +108,16 @@ namespace Duel6{
 			printf("Failed to register Console type.\n");
 		}
 
-		r = engine->RegisterObjectMethod("Console", "void print(const string & in)", asMETHOD(Console, print), asCALL_THISCALL);
+		r = engine->RegisterObjectMethod("Console", "void print(const string & in) const", asMETHODPR(Console, print, (const std::string&), Console&), asCALL_THISCALL);
 		if (r < 0) {
 			printf("Failed to register void Console::print(string & msg).\n");
 		}
+		// Enables the console.print()
+		r = engine->RegisterGlobalProperty("const Console console", &console);
+		if (r < 0) {
+			printf("Failed to register global Console @ console.\n");
+		}
+
 	}
 
 	void ScriptManager::registerLevelType() {
