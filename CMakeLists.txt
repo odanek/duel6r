@@ -371,21 +371,14 @@ ExternalProject_Add(angelscript
 ExternalProject_Get_Property(angelscript SOURCE_DIR)
 message(STATUS "Source directory of angelscript ${SOURCE_DIR}")
 
-ExternalProject_Add_Step(angelscript angelscript_copy
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/add_on  ${DEPSDIR}/angelscript/include/angelscript/add_on # don't ask  
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/angelscript/include ${DEPSDIR}/angelscript/include
-	WORKING_DIRECTORY ${SOURCE_DIR}
-	LOG 1
+add_library(angelscript_lib STATIC IMPORTED)
+set_target_properties(angelscript_lib PROPERTIES IMPORTED_LOCATION ${DEPSDIR}/angelscript/lib/${CMAKE_STATIC_LIBRARY_PREFIX}angelscript${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
-find_library(LIB_ANGELSCRIPT angelscript
-	HINTS ${DEPSDIR}/angelscript/lib # TODO HINTS OR PATHS?
-	NO_DEFAULT_PATH 
-	NO_SYSTEM_ENVIRONMENT_PATH
-	DOC "Path to angelscript" 
-	PATHS ${DEPSDIR}/angelscript/lib # TODO HINTS OR PATHS?
+add_custom_command(OUTPUT ${DEPSDIR}/angelscript/include
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/angelscript/include ${DEPSDIR}/angelscript/include
 )
 include_directories(${DEPSDIR}/angelscript/include)
-target_link_libraries(${D6R_APP_NAME} ${LIB_ANGELSCRIPT})
+target_link_libraries(${D6R_APP_NAME} angelscript_lib)
 
 ########################
 #  Angelscript 
@@ -418,8 +411,15 @@ set(ANGELSCRIPT_ADDONS_SOURCES
 	${AS_ADDON_SCRIPTSTDSTRING_SRC}
 	${AS_ADDON_SCRIPTBUILDER_SRC}
 ) 
+
+add_custom_command(OUTPUT ${ANGELSCRIPT_ADDONS_SOURCES}
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/add_on  ${DEPSDIR}/angelscript/include/angelscript/add_on # don't ask
+)
+
 add_library(angelscript_addons ${ANGELSCRIPT_ADDONS_SOURCES})
+add_dependencies(angelscript_addons angelscript)
 target_link_libraries(${D6R_APP_NAME} angelscript_addons)
+
 ########################
 #  Install application
 ########################
