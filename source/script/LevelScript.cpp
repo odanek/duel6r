@@ -109,7 +109,9 @@ int Function::setParam(asUINT arg, asWORD value) {
 }
 
 Function::~Function() {
-	function->Release();
+	if(exists){
+		function->Release();
+	}
 	ctx->Release();
 }
 }
