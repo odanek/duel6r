@@ -162,9 +162,10 @@ namespace Duel6
 			}
 		}
 
+		unsigned int playerId = 0;
 		for (Player& player : world.getPlayers())
 		{
-			levelScript.playerThink(player);
+			levelScript.playerThink(player, playerId++);
 			player.update(world, game.getSettings().getScreenMode(), elapsedTime);
 			if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost())
 			{

@@ -78,6 +78,11 @@ int Function::setParam(asUINT arg, Function::ADDRESS addr) {
 }
 
 template<>
+int Function::setParam(asUINT arg, int value) {
+	return ctx->SetArgAddress(arg, &value);
+}
+
+template<>
 int Function::setParam(asUINT arg, asBYTE value) {
 	return ctx->SetArgByte(arg, value);
 }

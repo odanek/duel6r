@@ -40,7 +40,7 @@
 #include "../Player.h"
 #include "../File.h"
 #include "../Exception.h"
-
+#include "../Sound.h"
 namespace Duel6{
 /**
  * Exposes game classes for use in the scripts
@@ -54,7 +54,7 @@ public:
 	// Implement a simple message callback function
 	static void MessageCallback(const asSMessageInfo *msg, void *param);
 
-	ScriptManager(Console & console);
+	ScriptManager(Sound & sound, Console & console);
 	LevelScript * loadLevelScript(const char * scriptPath);
 
 private:
@@ -62,11 +62,17 @@ private:
 	// For synchronous, single threaded scripting, we only need single scriptcontext object
 	asIScriptContext * ctx;
 	Console & console;
-
+	Sound & sound;
 	void registerConsoleType();
 	void registerLevelType();
 	void registerPlayerType();
+	void registerPersonType();
+
+	void registerSoundType();
+	void registerSampleType();
+	void registerMapType();
 
 	asIScriptModule * loadModuleFromFile(asIScriptEngine * engine, const char * filePath);
+	void expect(const char * FILE, int LINE, int r, const char * message);
 };
 }

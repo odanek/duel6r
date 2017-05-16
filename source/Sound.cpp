@@ -39,6 +39,9 @@ namespace Duel6
 		: Sample(nullptr, nullptr)
 	{}
 
+	Sound::Sample::~Sample()
+	{}
+
 	void Sound::Sample::play() const
 	{
 		if (sound != nullptr && chunk != nullptr)

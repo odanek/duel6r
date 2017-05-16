@@ -122,7 +122,7 @@ private:
 	template<typename T, typename ...A>
 	void setParams(int argPos, T t, A... a){
 		setParam(argPos, t);
-		setParams<T, A...>(argPos + 1, a...);
+		setParams<A...>(argPos + 1, a...);
 	}
 
 	template<typename T>
@@ -150,7 +150,7 @@ public :
 class LevelScript{
 public:
 	constexpr static const char * SIGNATURE_MAP_LOADED = "void mapLoaded(Level@)";
-	constexpr static const char * SIGNATURE_PLAYER_THINK= "void playerThink(Player@)";
+	constexpr static const char * SIGNATURE_PLAYER_THINK= "void playerThink(Player@, int& in)";
 
 	LevelScript(asIScriptModule * module, asIScriptContext * ctx)
 		:module(module), ctx(ctx),
@@ -166,9 +166,9 @@ public:
 		}
 	}
 
-	void playerThink(Player & player){
+	void playerThink(Player & player, unsigned int id){
 		if(playerThinkFn.ready()){
-			playerThinkFn.call<void, Function::ADDRESS>(&player); //TODO ADDRESS or OBJECT ? (both work in this case)
+			playerThinkFn.call<void, Function::ADDRESS, int>(&player, id); //TODO ADDRESS or OBJECT ? (both work in this case)
 		}
 	}
 

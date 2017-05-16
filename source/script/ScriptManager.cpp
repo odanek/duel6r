@@ -41,6 +41,7 @@
 #include "../File.h"
 #include "../Exception.h"
 
+#define TRY(CALL, MESSAGE) expect(__FILE__, __LINE__, (CALL), MESSAGE);
 namespace Duel6{
 
 
@@ -65,7 +66,7 @@ namespace Duel6{
 	  }
 	  printf("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
 	}
-	ScriptManager::ScriptManager(Console & console):console(console){
+	ScriptManager::ScriptManager(Sound & sound, Console & console):console(console), sound(sound){
 		engine = asCreateScriptEngine();
 		ctx = engine->CreateContext();
 
@@ -76,7 +77,10 @@ namespace Duel6{
 		assert(r >= 0);
 		registerConsoleType();
 		registerLevelType();
+		registerPersonType();
 		registerPlayerType();
+		registerSampleType();
+		registerSoundType();
 	}
 
 	LevelScript * ScriptManager::loadLevelScript(const char * scriptPath){
@@ -103,48 +107,93 @@ namespace Duel6{
 	}
 
 	void ScriptManager::registerConsoleType() {
-		auto r = engine->RegisterObjectType("Console", sizeof(Console), asOBJ_REF | asOBJ_NOCOUNT);
-		if (r < 0) {
-			printf("Failed to register Console type.\n");
-		}
-
-		r = engine->RegisterObjectMethod("Console", "void print(const string & in) const", asMETHODPR(Console, print, (const std::string&), Console&), asCALL_THISCALL);
-		if (r < 0) {
-			printf("Failed to register void Console::print(string & msg).\n");
-		}
+		TRY(engine->RegisterObjectType("Console", sizeof(Console), asOBJ_REF | asOBJ_NOCOUNT),
+			"Failed to register Console type.\n");
+		TRY(engine->RegisterObjectMethod("Console", "void print(const string & in) const", asMETHODPR(Console, print, (const std::string&), Console&), asCALL_THISCALL),
+			"Failed to register void Console::print(string & msg).\n");
 		// Enables the console.print()
-		r = engine->RegisterGlobalProperty("const Console console", &console);
-		if (r < 0) {
-			printf("Failed to register global Console @ console.\n");
-		}
-
+		TRY(engine->RegisterGlobalProperty("const Console console", &console),
+			"Failed to register global Console console.\n");
 	}
 
 	void ScriptManager::registerLevelType() {
-		auto r = engine->RegisterObjectType("Level", sizeof(Level), asOBJ_REF | asOBJ_NOCOUNT);
-		if (r < 0) {
-			printf("Failed to register Level type.\n");
-		}
-
-		r = engine->RegisterObjectMethod("Level", "void raiseWater()", asMETHOD(Level, raiseWater), asCALL_THISCALL);
-		if (r < 0) {
-			printf("Failed to register void Level::raiseWater().\n");
-		}
+		TRY(engine->RegisterObjectType("Level", sizeof(Level), asOBJ_REF | asOBJ_NOCOUNT),
+			"Failed to register Level type.\n");
+		TRY(engine->RegisterObjectMethod("Level", "void raiseWater()", asMETHOD(Level, raiseWater), asCALL_THISCALL),
+			"Failed to register void Level::raiseWater().\n");
 	}
 
+	void ScriptManager::registerPersonType() {
+		TRY(engine->RegisterObjectType("Person", sizeof(Person), asOBJ_REF | asOBJ_NOCOUNT),
+			"Failed to register Person type.\n");
+		TRY(engine->RegisterObjectMethod("Person", "const string & getName() const", asMETHODPR(Person, getName, (void) const, const std::string &), asCALL_THISCALL),
+			"Failed to register void Person::getName().\n");
+	}
 	void ScriptManager::registerPlayerType() {
-		auto r = engine->RegisterObjectType("Player", sizeof(Player), asOBJ_REF | asOBJ_NOCOUNT);
-		if (r < 0) {
-			printf("Failed to register Player type.\n");
-		}
+		TRY(engine->RegisterObjectType("Player", sizeof(Player), asOBJ_REF | asOBJ_NOCOUNT),
+			"Failed to register Player type.\n");
 
-//		 r = engine->RegisterObjectProperty("Player", ""declaration, byteOffset)
-		r = engine->RegisterObjectMethod("Player", "void die()", asMETHOD(Player, die), asCALL_THISCALL);
-		if (r < 0) {
-			printf("Failed to register void Player::die().\n");
-		}
+		TRY(engine->RegisterObjectMethod("Player", "bool isOnElevator() const", asMETHODPR(Player, isOnElevator, (void) const, bool), asCALL_THISCALL),
+			"Failed to register void Player::isOnElevator().\n");
+		TRY(engine->RegisterObjectMethod("Player", "void die()", asMETHOD(Player, die), asCALL_THISCALL),
+			"Failed to register void Player::die().\n");
+		TRY(engine->RegisterObjectMethod("Player", "Person & getPerson()", asMETHODPR(Player, getPerson, (void), Person &), asCALL_THISCALL),
+			"Failed to register void Player::getPerson().\n");
+
 	}
 
+	void ScriptManager::registerSoundType() {
+		TRY(engine->RegisterObjectType("Sound", sizeof(Sound), asOBJ_REF | asOBJ_NOCOUNT),
+			"Failed to register Sound type.\n");
+		TRY(engine->RegisterObjectMethod("Sound", "Sample loadSample(const string & in) const", asMETHODPR(Sound, loadSample, (const std::string&), Sound::Sample), asCALL_THISCALL),
+			"Failed to register void Sound::loadSample().\n");
+		TRY(engine->RegisterGlobalProperty("const Sound  SOUND", &sound),
+			"Failed to register global Sound SOUND.\n");
+	}
+
+	template<typename T>
+	void constructor(void * memory){
+		printf("Constructor 1 called %p \n", memory);
+		new (memory)T();
+	}
+
+	template<typename T>
+	void constructor(const T & t, void * memory){
+		new (memory)T(t);
+	}
+
+	template<typename T>
+	void destructor(void * memory){
+		((T*)memory)->~T();
+	}
+
+	void ScriptManager::registerSampleType() {
+		TRY(engine->RegisterObjectType("Sample", sizeof(Sound::Sample),  asOBJ_VALUE | asGetTypeTraits<Sound::Sample>()),
+			"Failed to register Sample type.\n");
+
+		TRY(engine->RegisterObjectBehaviour("Sample", asBEHAVE_CONSTRUCT, "void f()", asFUNCTIONPR(constructor<Sound::Sample>, (void *), void), asCALL_CDECL_OBJLAST),
+			"Failed to register Sample constructor.\n");
+		TRY(engine->RegisterObjectBehaviour("Sample", asBEHAVE_CONSTRUCT, "void f(const Sample & in)", asFUNCTIONPR(constructor<Sound::Sample>, (const Sound::Sample &, void *), void), asCALL_CDECL_OBJLAST),
+			"Failed to register Sample constructor.\n");
+
+		TRY(engine->RegisterObjectBehaviour("Sample", asBEHAVE_DESTRUCT, "void f()", asFUNCTIONPR(destructor<Sound::Sample>, (void *), void), asCALL_CDECL_OBJLAST),
+					"Failed to register Sample destructor.\n");
+		TRY(engine->RegisterObjectMethod("Sample", "Sample & opAssign(const Sample & in)", asMETHODPR(Sound::Sample, operator =, (const Sound::Sample &), Sound::Sample &), asCALL_THISCALL),
+			"Failed to register Sample opASsign.\n");
+
+		TRY(engine->RegisterObjectMethod("Sample", "void play()", asMETHOD(Sound::Sample, play), asCALL_THISCALL),
+			"Failed to register void Sample::play().\n");
+	}
+
+	void ScriptManager::registerMapType(){
+//		TRY(engine->RegisterObjectType("MapIntBool", sizeof(std::map<int, bool>),  asOBJ_VALUE | asGetTypeTraits<std::map<int, bool>>() ),
+//			"Failed to register MapIntBool type.\n");
+//		TRY(engine->RegisterObjectMethod("MapIntBool", "bool & opIndex(int index)", asMETHODPR((std::map<int, bool>), at, (int),  (std::map<int, bool>::mapped_type)), asCALL_THISCALL),
+//			"Failed to register void MapIntBool::[].\n");
+//		TRY(engine->RegisterObjectMethod("MapIntBool", "const bool & opIndex(int index) const", asMETHODPR((std::map<int, bool>), at, (int), (const bool &)), asCALL_THISCALL),
+//			"Failed to register void MapIntBool::[].\n");
+
+	}
 	asIScriptModule * ScriptManager::loadModuleFromFile(asIScriptEngine * engine, const char * filePath) {
 		CScriptBuilder scriptBuilder;
 
@@ -165,6 +214,12 @@ namespace Duel6{
 		}
 
 		return scriptBuilder.GetModule();
+	}
+
+	void ScriptManager::expect(const char * FILE, int LINE, int r, const char * message){
+		if (r < asEXECUTION_FINISHED) {
+			fprintf(stderr, "%s:%d %s\n", FILE, LINE, message);
+		}
 	}
 
 }

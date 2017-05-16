@@ -56,6 +56,7 @@ namespace Duel6
 
 		public:
 			Sample();
+			~Sample();
 			void play() const;
 		};
 
