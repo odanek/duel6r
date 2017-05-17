@@ -137,6 +137,8 @@ namespace Duel6{
 			"Failed to register void Player::isOnElevator().\n");
 		TRY(engine->RegisterObjectMethod("Player", "void die()", asMETHOD(Player, die), asCALL_THISCALL),
 			"Failed to register void Player::die().\n");
+		TRY(engine->RegisterObjectMethod("Player", "bool isDoubleJumping() const", asMETHODPR(Player, isDoubleJumping, (void) const, bool), asCALL_THISCALL),
+			"Failed to register void Player::isDoubleJumping().\n");
 		TRY(engine->RegisterObjectMethod("Player", "Person & getPerson()", asMETHODPR(Player, getPerson, (void), Person &), asCALL_THISCALL),
 			"Failed to register void Player::getPerson().\n");
 

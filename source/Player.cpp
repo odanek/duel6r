@@ -200,12 +200,9 @@ namespace Duel6
 			}
 
 		}
-		if(hasFlag(FlagDoubleJump) && getBonus() == BonusType::FAST_MOVEMENT)
+		if(isDoubleJumping())
 		{
-			if (this->velocity.y > 0.0)
-			{
-				acceleration.y += JUMP_ACCELERATION;
-			}
+			acceleration.y += JUMP_ACCELERATION;
 		}
 
 		if(!isOnElevator())

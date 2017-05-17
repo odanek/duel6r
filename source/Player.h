@@ -593,6 +593,10 @@ namespace Duel6
 			return velocity.y > 0;
 		}
 
+		bool isDoubleJumping() const
+		{
+			return hasFlag(FlagDoubleJump) && this->velocity.y > 0.0 && getBonus() == BonusType::FAST_MOVEMENT;
+		}
 		bool isFalling() const
 		{
 			return velocity.y < 0;
