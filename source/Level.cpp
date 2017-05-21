@@ -181,7 +181,7 @@ namespace Duel6
 
 	void Level::findTopmostNonWallPositions(StartingPositionList& startingPositions)
 	{
-		for (Int32 y = getHeight() - 1; y >= 0; y--)
+		for (Int32 y = getHeight() - 1; y >= 0 && startingPositions.empty(); y--)
 		{
 			for (Int32 x = 0; x < getWidth(); x++)
 			{
