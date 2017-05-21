@@ -48,6 +48,7 @@
 namespace Duel6
 {
 	class GameMode;
+	class Menu;
 
 	class Game
 		: public Context
@@ -99,6 +100,7 @@ namespace Duel6
 		GameMode* gameMode;
 		std::unique_ptr<Round> round;
 		Renderer renderer;
+		const Menu* menu;
 
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
@@ -197,6 +199,11 @@ namespace Duel6
 		const Renderer& getRenderer() const
 		{
 			return renderer;
+		}
+
+		void setMenuReference(const Menu* menu)
+		{
+			this->menu = menu;
 		}
 
 	private:

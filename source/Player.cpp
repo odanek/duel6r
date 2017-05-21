@@ -475,10 +475,10 @@ namespace Duel6
 
 	void Player::unstuck()
 	{
-		std::queue<std::pair<Int32, Int32>> startingPositions;
+		Level::StartingPositionList startingPositions;
 		world->getLevel().findStartingPositions(startingPositions);
 
-		std::pair<Int32, Int32>& newPosition = startingPositions.front();
+		Level::StartingPosition& newPosition = startingPositions.front();
 		position.x = Float32(newPosition.first);
 		position.y = Float32(newPosition.second) + 0.0001f;
 		timeStuckInWall = 0;

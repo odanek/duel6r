@@ -38,6 +38,10 @@ namespace Duel6
 {
 	class Level
 	{
+	public:
+		typedef std::pair<Int32, Int32> StartingPosition;
+		typedef std::vector<StartingPosition> StartingPositionList;
+
 	private:
 		const Block::Meta& blockMeta;
 		Int32 width;
@@ -83,7 +87,9 @@ namespace Duel6
 
 		Water getWaterType(Int32 x, Int32 y) const;
 		void raiseWater();
-		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
+		void findStartingPositions(StartingPositionList& startingPositions);
+		void findTopmostNonWallPositions(StartingPositionList& startingPositions);
+
 	private:
 		void load(const std::string& path, bool mirror);
 		void mirrorLevelData();

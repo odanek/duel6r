@@ -95,7 +95,7 @@ namespace Duel6
 
 		void joyRescan();
 
-		void savePersonData();
+		void savePersonData() const;
 
 		void keyEvent(const KeyPressEvent& event) override;
 		void textInputEvent(const TextInputEvent& event) override;

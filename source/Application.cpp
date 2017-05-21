@@ -36,6 +36,11 @@
 
 namespace Duel6
 {
+    namespace
+    {
+        static const Float64 updateTime = 1.0 / D6_UPDATE_FREQUENCY;
+    }
+
 	namespace
 	{
 		KeyPressEvent createKeyPressEvent(const SDL_KeyboardEvent& ke)
@@ -180,41 +185,21 @@ namespace Duel6
 	void Application::syncUpdateAndRender(Context& context)
 	{
 		static Uint32 curTime = 0;
-		Uint32 lastTime = 0;
+        static Float64 accumulatedTime = 0.0f;
+        Uint32 lastTime = curTime;
 
-		//TODO: Extract these constants somewhere else
-		// Game tick rate, should be 60. Influences the speed of the game, physics etc.
-		const static Uint32 desiredTickRate = 60;
-		// Maximal FPS. Influences rendering.
-		const static Uint32 desiredFPS = 300;
+        context.render();
+        video.screenUpdate(console, font);
 
-		const static Float64 secPerTick = 1.0f / desiredTickRate;
-		const static Float64 secPerFrame = 1.0f / desiredFPS;
-		static Float64 tickDuration = 0.0f;
-		static Float64 frameDuration = 0.0f;
-		lastTime = curTime;
 		curTime = SDL_GetTicks();
+        Float64 elapsedTime = (curTime - lastTime)* 0.001f;
+        accumulatedTime += elapsedTime;
 
-		if (frameDuration > secPerFrame) {
-			// Draw
-			context.render();
-			video.screenUpdate(console, font);
-			while (frameDuration > secPerFrame) {
-				// consume remaining time, there is no point in rendering the same scene
-				frameDuration -= secPerFrame;
-			}
-		}
-
-
-		while(tickDuration > secPerTick)
-		{
-			// Update the game by constant time slice
-			context.update(secPerTick);
-			tickDuration -= secPerTick;
-		}
-		Float64 elapsedTime = (curTime - lastTime)* 0.001f;
-		tickDuration += elapsedTime;
-		frameDuration += elapsedTime;
+        while (accumulatedTime > updateTime)
+        {
+            context.update(Float32(updateTime));
+            accumulatedTime -= updateTime;
+        }
 	}
 
 	void Application::setup(Int32 argc, char** argv)
@@ -255,6 +240,7 @@ namespace Duel6
 		gameResources = std::make_unique<GameResources>(service);
 		game = std::make_unique<Game>(service, *gameResources, gameSettings);
 		menu.setGameReference(game.get());
+        game->setMenuReference(&menu);
 
 		for (Weapon weapon : Weapon::values())
 		{
