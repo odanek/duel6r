@@ -364,6 +364,7 @@ ExternalProject_Add(angelscript
 	GIT_REPOSITORY https://github.com/fanick1/angelscript
 	GIT_TAG origin/tags/${ANGELSCRIPT_VERSION}
 	CONFIGURE_COMMAND ${CMAKE_COMMAND} -DLIBRARY_OUTPUT_PATH=${DEPSDIR}/angelscript/lib ../angelscript/sdk/angelscript/projects/cmake
+	UPDATE_COMMAND ""
 	INSTALL_COMMAND ""
 	BUILD_COMMAND make -j 8
 	STEP_TARGETS angelscript_copy angelscript

@@ -512,7 +512,26 @@ namespace Duel6
 		Float32 coef = hasFastReload() ? 2.0f : 1.0f;
 		return getWeapon().getReloadInterval() / coef;
 	}
-
+	void Player::updateControls(){
+		Uint8 controlFlags = 0x0;
+		controlFlags |= (ControlsFlags::Left   & (!controls.getLeft()  .isPressed() - 1));
+		controlFlags |= (ControlsFlags::Right  & (!controls.getRight() .isPressed() - 1));
+		controlFlags |= (ControlsFlags::Up     & (!controls.getUp()    .isPressed() - 1));
+		controlFlags |= (ControlsFlags::Down   & (!controls.getDown()  .isPressed() - 1));
+		controlFlags |= (ControlsFlags::Fire   & (!controls.getShoot() .isPressed() - 1));
+		controlFlags |= (ControlsFlags::Pick   & (!controls.getPick()  .isPressed() - 1));
+		controlFlags |= (ControlsFlags::Status & (!controls.getStatus().isPressed() - 1));
+		inputControls &= controlFlags;
+	}
+	bool Player::hasControlOn (Uint8 controlFlags) const{
+		return (inputControls && controlFlags);
+	}
+	void Player::setControl(Uint8 controlFlags){
+		inputControls |= controlFlags;
+	}
+	void Player::unsetControl (Uint8 controlFlags){
+		inputControls &= ~controlFlags;
+	}
 	void Player::checkKeys()
 	{
 		if (!isAlive() && !isGhost())
@@ -520,7 +539,7 @@ namespace Duel6
 			return;
 		}
 
-		if (controls.getStatus().isPressed())
+		if (inputControls.status)
 		{
 			indicators.showAll(5.0f);
 		}
@@ -532,7 +551,7 @@ namespace Duel6
 
 		if (!isKneeling())
 		{
-			if (controls.getLeft().isPressed())
+			if (inputControls.left)
 			{
 				setFlag(FlagMoveLeft);
 			}
@@ -541,7 +560,7 @@ namespace Duel6
 				unsetFlag(FlagMoveLeft);
 			}
 
-			if (controls.getRight().isPressed())
+			if (inputControls.right)
 			{
 				setFlag(FlagMoveRight);
 			}
@@ -550,7 +569,7 @@ namespace Duel6
 				unsetFlag(FlagMoveRight);
 			}
 
-			if (controls.getUp().isPressed())
+			if (inputControls.up)
 			{
 				unsetFlag(FlagDoubleJump);
 				if(hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !hasFlag(FlagMoveUp))
@@ -570,20 +589,20 @@ namespace Duel6
 				unsetFlag(FlagMoveUp);
 			}
 
-			if (controls.getPick().isPressed())
+			if (inputControls.pick)
 			{
 				pick();
 			}
 		}
 
-		if (!isGhost() && controls.getShoot().isPressed())
+		if (!isGhost() && inputControls.fire)
 		{
 			shoot();
 		}
 
 		unsetFlag(FlagKnee);
 
-		if (controls.getDown().isPressed())
+		if (inputControls.down)
 		{
 			fall();
 		}

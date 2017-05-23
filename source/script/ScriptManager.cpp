@@ -40,6 +40,8 @@
 #include "../Player.h"
 #include "../File.h"
 #include "../Exception.h"
+#include "../Vector.h"
+#include "../Round.h"
 
 #define TRY(CALL, MESSAGE) expect(__FILE__, __LINE__, (CALL), MESSAGE);
 namespace Duel6{
@@ -78,21 +80,24 @@ namespace Duel6{
 		registerConsoleType();
 		registerLevelType();
 		registerPersonType();
+		registerVectorType();
 		registerPlayerType();
 		registerSampleType();
 		registerSoundType();
+		registerRoundType();
 	}
 
 	LevelScript * ScriptManager::loadLevelScript(const char * scriptPath){
 		if(File::exists(scriptPath)){
 			asIScriptModule * module = loadModuleFromFile(engine, scriptPath);
 			if(module == nullptr){
-				D6_THROW(Exception, std::string("Cannot load script ") + std::string(scriptPath));
+				printf("Cannot load script %s\n", scriptPath);
+			} else {
+				return new LevelScript(module, ctx);
 			}
-			return new LevelScript(module, ctx);
-		} else {
+		}
 
-			asIScriptModule * module = engine->GetModule("_empty_", asGM_ONLY_IF_EXISTS);
+		asIScriptModule * module = engine->GetModule("_empty_", asGM_ONLY_IF_EXISTS);
 			if(module == nullptr){
 				CScriptBuilder scriptBuilder;
 				scriptBuilder.StartNewModule(engine, "_empty_");
@@ -101,9 +106,6 @@ namespace Duel6{
 			}
 
 			return new LevelScript(module, ctx);
-
-			//D6_THROW(Exception, std::string("Cannot load script ") + std::string(scriptPath));
-		}
 	}
 
 	void ScriptManager::registerConsoleType() {
@@ -129,6 +131,18 @@ namespace Duel6{
 		TRY(engine->RegisterObjectMethod("Person", "const string & getName() const", asMETHODPR(Person, getName, (void) const, const std::string &), asCALL_THISCALL),
 			"Failed to register void Person::getName().\n");
 	}
+
+	void ScriptManager::registerVectorType() {
+		TRY(engine->RegisterObjectType("Vector", sizeof(Vector), asOBJ_REF | asOBJ_NOCOUNT),
+			"Failed to register Vector type.\n");
+		TRY(engine->RegisterObjectProperty("Vector", "float x", asOFFSET(Vector, x)),
+			"Failed to register Vector.x.\n");
+		TRY(engine->RegisterObjectProperty("Vector", "float y", asOFFSET(Vector, y)),
+			"Failed to register Vector.y.\n");
+
+
+	}
+
 	void ScriptManager::registerPlayerType() {
 		TRY(engine->RegisterObjectType("Player", sizeof(Player), asOBJ_REF | asOBJ_NOCOUNT),
 			"Failed to register Player type.\n");
@@ -141,6 +155,27 @@ namespace Duel6{
 			"Failed to register void Player::isDoubleJumping().\n");
 		TRY(engine->RegisterObjectMethod("Player", "Person & getPerson()", asMETHODPR(Player, getPerson, (void), Person &), asCALL_THISCALL),
 			"Failed to register void Player::getPerson().\n");
+		TRY(engine->RegisterObjectMethod("Player", "bool hasFlag(uint flag) const", asMETHODPR(Player, hasFlag, (Uint32) const, bool), asCALL_THISCALL),
+			"Failed to register void Player::hasFlag().\n");
+		TRY(engine->RegisterObjectMethod("Player", "void setFlag(uint flag)", asMETHODPR(Player, setFlag, (Uint32), void), asCALL_THISCALL),
+			"Failed to register void Player::setFlag().\n");
+		TRY(engine->RegisterObjectMethod("Player", "void unsetFlag(uint flag)", asMETHODPR(Player, unsetFlag, (Uint32), void), asCALL_THISCALL),
+			"Failed to register void Player::unsetFlag().\n");
+
+		TRY(engine->RegisterObjectMethod("Player", "bool hasControlOn(uint8 flag) const", asMETHODPR(Player, hasControlOn, (Uint8) const, bool), asCALL_THISCALL),
+			"Failed to register void Player::hasFlag().\n");
+		TRY(engine->RegisterObjectMethod("Player", "void setControl(uint8 flag)", asMETHODPR(Player, setControl, (Uint8), void), asCALL_THISCALL),
+			"Failed to register void Player::setFlag().\n");
+		TRY(engine->RegisterObjectMethod("Player", "void unsetControl(uint8 flag)", asMETHODPR(Player, unsetControl, (Uint8), void), asCALL_THISCALL),
+			"Failed to register void Player::unsetFlag().\n");
+
+
+		TRY(engine->RegisterObjectProperty("Player", "Vector position", asOFFSET(Player, position)),
+			"Failed to register Player.position.\n");
+		TRY(engine->RegisterObjectProperty("Player", "uint ammo", asOFFSET(Player, ammo)),
+			"Failed to register Player.ammo.\n");
+		TRY(engine->RegisterObjectProperty("Player", "float life", asOFFSET(Player, life)),
+			"Failed to register Player.life.\n");
 
 	}
 
@@ -151,6 +186,14 @@ namespace Duel6{
 			"Failed to register void Sound::loadSample().\n");
 		TRY(engine->RegisterGlobalProperty("const Sound  SOUND", &sound),
 			"Failed to register global Sound SOUND.\n");
+	}
+	void ScriptManager::registerRoundType() {
+			TRY(engine->RegisterObjectType("Round", sizeof(Round), asOBJ_REF | asOBJ_NOCOUNT),
+				"Failed to register Round type.\n");
+			TRY(engine->RegisterObjectMethod("Round", "float getRemainingYouAreHere() const", asMETHODPR(Round, getRemainingGameOverWait, (void) const, Float32), asCALL_THISCALL),
+				"Failed to register void Round::getRemainingYouAreHere().\n");
+			TRY(engine->RegisterObjectMethod("Round", "int getRoundNumber() const", asMETHODPR(Round, getRoundNumber, (void) const, Int32), asCALL_THISCALL),
+				"Failed to register void Round::getRoundNumber().\n");
 	}
 
 	template<typename T>

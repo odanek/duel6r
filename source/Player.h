@@ -56,6 +56,7 @@ namespace Duel6
 	class World;
 	class InfoMessageQueue;
 	class PlayerEventListener;
+	class ScriptManager;
 
 	struct PlayerView
 	{
@@ -275,6 +276,7 @@ namespace Duel6
 	class Player
 	{
 	private:
+		friend class ScriptManager;
 		enum Flags
 		{
 			FlagDead = 0x01,
@@ -290,6 +292,81 @@ namespace Duel6
 			FlagDoubleJumpDebounce = 0x800,
 			FlagDoubleJump = 0x1000,
 		};
+		enum ControlsFlags{
+			Left   = 0b00000001,
+			Right  = 0b00000010,
+			Up     = 0b00000100,
+			Down   = 0b00001000,
+			Fire   = 0b00010000,
+			Pick   = 0b00100000,
+			Status = 0b01000000
+		};
+		struct Controls {
+			bool left = false;
+			bool right = false;
+			bool up = false;
+			bool down = false;
+			bool fire = false;
+			bool pick = false;
+			bool status = false;
+
+			void andOp (Uint8 flag) {
+				left = (flag & Left) == Left;
+				right = (flag & Right) == Right;
+				up = (flag & Up) == Up;
+				down = (flag & Down) == Down;
+
+				fire = (flag & Fire) == Fire;
+				pick = (flag & Pick) == Pick;
+				status = (flag & Status) == Status;
+			};
+			void orOp (Uint8 flag) {
+				left |= (flag & Left) == Left;
+				right |= (flag & Right) == Right;
+				up |= (flag & Up) == Up;
+				down |= (flag & Down) == Down;
+
+				fire |= (flag & Fire) == Fire;
+				pick |= (flag & Pick) == Pick;
+				status |= (flag & Status) == Status;
+			};
+			Controls(){}
+			Controls(Uint8 flag){
+				andOp(flag);
+			}
+			Controls & operator &=(Uint8 flag) {
+				andOp(flag);
+
+				return *this;
+			}
+			Controls & operator |=(Uint8 flag) {
+				orOp(flag);
+
+				return *this;
+			}
+
+			bool operator || (Uint8 flag) {
+			return  (left   && ((flag & Left  ) == Left  )) ||
+					(right  && ((flag & Right ) == Right )) ||
+					(up     && ((flag & Up    ) == Up    )) ||
+					(down   && ((flag & Down  ) == Down  )) ||
+					(fire   && ((flag & Fire  ) == Fire  )) ||
+					(pick   && ((flag & Pick  ) == Pick  )) ||
+					(status && ((flag & Status) == Status));
+			}
+
+			bool operator && (Uint8 flag) const {
+			return
+					((!left && (flag & Left) != Left) || (left && (flag & Left) == Left)) &&
+					((!right && (flag & Right) != Right) || (right && (flag & Right) == Right)) &&
+					((!up && (flag & Up) != Up) || (up && (flag & Up) == Up)) &&
+					((!down && (flag & Down) != Down) || (down && (flag & Down) == Down)) &&
+					((!fire && (flag & Fire) != Fire) || (fire && (flag & Fire) == Fire)) &&
+					((!pick && (flag & Pick) != Pick) || (pick && (flag & Pick) == Pick)) &&
+					((!status && (flag & Status) != Status) || (status && (flag & Status) == Left));
+
+			}
+		};
 
 		struct WaterState
 		{
@@ -303,6 +380,7 @@ namespace Duel6
 		mycam_c camera;
 		CameraPosition cameraPos;
 		const PlayerSounds& sounds;
+		Controls inputControls;
 		const PlayerControls& controls;
 		PlayerView view;
 		WaterState water;
@@ -651,6 +729,11 @@ namespace Duel6
 		}
 
 		void die();
+		void updateControls();
+		bool hasControlOn (Uint8 controlFlags) const;
+		void setControl(Uint8 controlFlags);
+		void unsetControl (Uint8 controlFlags);
+
 	private:
 		void makeMove(const Level& level, Float32 elapsedTime);
 		void moveHorizontal(const Level& level, Float32 elapsedTime, Float32 speed);

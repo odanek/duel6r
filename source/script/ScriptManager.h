@@ -65,10 +65,12 @@ private:
 	Sound & sound;
 	void registerConsoleType();
 	void registerLevelType();
+	void registerVectorType();
 	void registerPlayerType();
 	void registerPersonType();
 
 	void registerSoundType();
+	void registerRoundType();
 	void registerSampleType();
 	void registerMapType();
 

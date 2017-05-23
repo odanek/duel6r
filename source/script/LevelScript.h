@@ -33,6 +33,7 @@
 namespace Duel6{
 
 class Level;
+class Round;
 
 class Function{
 
@@ -150,12 +151,13 @@ public :
 class LevelScript{
 public:
 	constexpr static const char * SIGNATURE_MAP_LOADED = "void mapLoaded(Level@)";
-	constexpr static const char * SIGNATURE_PLAYER_THINK= "void playerThink(Player@, int& in)";
-
+	constexpr static const char * SIGNATURE_PLAYER_THINK = "void playerThink(Player@, uint& in)";
+	constexpr static const char * SIGNATURE_ROUND_UPDATE = "void roundUpdate(Round@, float)";
 	LevelScript(asIScriptModule * module, asIScriptContext * ctx)
 		:module(module), ctx(ctx),
 		 mapLoadedFn(module, ctx, SIGNATURE_MAP_LOADED),
-		playerThinkFn(module, ctx, SIGNATURE_PLAYER_THINK)
+		playerThinkFn(module, ctx, SIGNATURE_PLAYER_THINK),
+		roundUpdateFn(module, ctx, SIGNATURE_ROUND_UPDATE)
 		{
 
 	}
@@ -171,11 +173,16 @@ public:
 			playerThinkFn.call<void, Function::ADDRESS, int>(&player, id); //TODO ADDRESS or OBJECT ? (both work in this case)
 		}
 	}
-
+	void roundUpdate(Round & round, float elapsedTime){
+		if(roundUpdateFn.ready()){
+			roundUpdateFn.call<void, Function::ADDRESS, float>(&round, elapsedTime); //TODO ADDRESS or OBJECT ? (both work in this case)
+		}
+	}
 private:
 	asIScriptModule * module;
 	asIScriptContext * ctx;
 	Function mapLoadedFn;
 	Function playerThinkFn;
+	Function roundUpdateFn;
 };
 }
