@@ -152,7 +152,7 @@ class LevelScript{
 public:
 	constexpr static const char * SIGNATURE_MAP_LOADED = "void mapLoaded(Level@)";
 	constexpr static const char * SIGNATURE_PLAYER_THINK = "void playerThink(Player@, uint& in)";
-	constexpr static const char * SIGNATURE_ROUND_UPDATE = "void roundUpdate(Round@, float)";
+	constexpr static const char * SIGNATURE_ROUND_UPDATE = "void roundUpdate(Round@, float, uint)";
 	LevelScript(asIScriptModule * module, asIScriptContext * ctx)
 		:module(module), ctx(ctx),
 		 mapLoadedFn(module, ctx, SIGNATURE_MAP_LOADED),
@@ -162,22 +162,23 @@ public:
 
 	}
 	void mapLoaded(Level & level){
-
 		if(mapLoadedFn.ready()){
-			mapLoadedFn.call<void, Function::OBJECT>(&level); //TODO ADDRESS or OBJECT ? (both work in this case)
+			mapLoadedFn.call<void, Function::ADDRESS>(&level);
 		}
 	}
 
 	void playerThink(Player & player, unsigned int id){
 		if(playerThinkFn.ready()){
-			playerThinkFn.call<void, Function::ADDRESS, int>(&player, id); //TODO ADDRESS or OBJECT ? (both work in this case)
+			playerThinkFn.call<void, Function::ADDRESS, int>(&player, id);
 		}
 	}
-	void roundUpdate(Round & round, float elapsedTime){
+
+	void roundUpdate(Round & round, float elapsedTime, Uint32 frame){
 		if(roundUpdateFn.ready()){
-			roundUpdateFn.call<void, Function::ADDRESS, float>(&round, elapsedTime); //TODO ADDRESS or OBJECT ? (both work in this case)
+			roundUpdateFn.call<void, Function::ADDRESS, float, asDWORD>(&round, elapsedTime, frame);
 		}
 	}
+
 private:
 	asIScriptModule * module;
 	asIScriptContext * ctx;

@@ -37,7 +37,7 @@ namespace Duel6
 	Round::Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript)
 		: game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background, levelScript),
 		  suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
-		  winner(false), levelScript(levelScript)
+		  winner(false), levelScript(levelScript), frame(0)
 	{
 		preparePlayers();
 		game.getMode().initializeRound(game, players, world);
@@ -161,7 +161,7 @@ namespace Duel6
 				return;
 			}
 		}
-		levelScript.roundUpdate(*this, elapsedTime);
+		levelScript.roundUpdate(*this, elapsedTime, frame);
 
 		unsigned int playerId = 0;
 		for (Player& player : world.getPlayers())
@@ -189,6 +189,7 @@ namespace Duel6
 		}
 
 		showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
+		frame++;
 	}
 
 	void Round::keyEvent(const KeyPressEvent& event)

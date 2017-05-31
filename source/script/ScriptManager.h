@@ -54,14 +54,14 @@ public:
 	// Implement a simple message callback function
 	static void MessageCallback(const asSMessageInfo *msg, void *param);
 
-	ScriptManager(Sound & sound, Console & console);
+	ScriptManager(Sound & sound, Console * console);
 	LevelScript * loadLevelScript(const char * scriptPath);
 
 private:
 	asIScriptEngine * engine;
 	// For synchronous, single threaded scripting, we only need single scriptcontext object
 	asIScriptContext * ctx;
-	Console & console;
+	Console * console;
 	Sound & sound;
 	void registerConsoleType();
 	void registerLevelType();

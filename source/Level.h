@@ -40,16 +40,16 @@ namespace Duel6
 	class Level
 	{
 	private:
-		const Block::Meta& blockMeta;
+		const Block::Meta * blockMeta;
 		Int32 width;
 		Int32 height;
 		std::vector<Uint16> levelData;
 		Uint16 waterBlock;
 		Int32 waterLevel;
-		LevelScript & levelScript;
+		LevelScript * levelScript;
 	public:
-		Level(const std::string& path, bool mirror, const Block::Meta& blockMeta, LevelScript & levelScript);
-
+		Level(const std::string& path, bool mirror,const Block::Meta& blockMeta, LevelScript & levelScript);
+	//~Level(){};
 		Int32 getWidth() const
 		{
 			return width;
@@ -79,7 +79,7 @@ namespace Duel6
 
 		const Block& getBlockMeta(Int32 x, Int32 y) const
 		{
-			return blockMeta[getBlock(x, y)];
+			return (*blockMeta)[getBlock(x, y)];
 		}
 
 		Water getWaterType(Int32 x, Int32 y) const;

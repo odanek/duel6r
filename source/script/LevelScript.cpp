@@ -74,6 +74,9 @@ asWORD Function::getReturn() {
 
 template<>
 int Function::setParam(asUINT arg, Function::ADDRESS addr) {
+	// SetArgAddress can be used for both references and handles. For handles it will not automatically increment the object reference.
+	// Usually you'll want to use SetArgAddress for references,
+	// and SetArgObject for handles and objects sent by value.
 	return ctx->SetArgAddress(arg, addr);
 }
 
@@ -102,6 +105,10 @@ int Function::setParam(asUINT arg, float value) {
 }
 template<>
 int Function::setParam(asUINT arg, Function::OBJECT obj) {
+	// SetArgObject can be used for handles, references to objects, and objects sent by value.
+	// For handles it will automatically increment the reference, and for objects sent by value
+	// it will make a copy of the object. Usually you'll want to use SetArgAddress for references,
+	// and SetArgObject for handles and objects sent by value.
 	return ctx->SetArgObject(arg, obj);
 }
 template<>

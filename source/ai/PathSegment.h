@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006, Ondrej Danek (www.ondrej-danek.net)
+* Copyright (c) 2017, Frantisek Veverka
 * All rights reserved.
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -9,7 +9,7 @@
 *     * Redistributions in binary form must reproduce the above copyright
 *       notice, this list of conditions and the following disclaimer in the
 *       documentation and/or other materials provided with the distribution.
-*     * Neither the name of Ondrej Danek nor the
+*     * Neither the name of Frantisek Veverka nor the
 *       names of its contributors may be used to endorse or promote products
 *       derived from this software without specific prior written permission.
 *
@@ -24,75 +24,37 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#pragma once
+#include <sys/types.h>
+#include <new>
+class PathSegment{
+public:
+	uint id = 0;
+	uint l = 0;
+	uint r = 0;
 
-#ifndef DUEL6_ROUND_H
-#define DUEL6_ROUND_H
+	// TODO signed int for having the ground level y == -1
+	int y = 0;
+	PathSegment(){}
 
-#include <vector>
-#include <queue>
-#include "Player.h"
-#include "World.h"
-#include "SysEvent.h"
+	PathSegment(uint id, uint l, uint r, int y): id(id), l(l), r(r), y(y){}
 
-namespace Duel6
-{
-	class Game;
+	static PathSegment* factory();
 
-	class Round
-	{
-	private:
-		Game& game;
-		Int32 roundNumber;
-		World world;
-		bool suddenDeathMode;
-		Float32 waterFillWait;
-		Float32 showYouAreHere;
-		Float32 gameOverWait;
-		bool winner;
-		std::vector<Player*> alivePlayers;
-		LevelScript & levelScript;
-		Uint32 frame;
-	public:
-		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript);
+	static PathSegment* factory(uint id, uint l, uint r, int y){
+		return new PathSegment(id, l, r, y);
+	}
+	// For scripting
+	static void constructor(uint id, uint l, uint r, int y, void * self){
+		new(self) PathSegment(id, l, r, y);
+	}
 
-		void update(Float32 elapsedTime);
-		void keyEvent(const KeyPressEvent& event);
-
-		const World& getWorld() const
-		{
-			return world;
-		}
-
-		bool hasWinner() const
-		{
-			return winner;
-		}
-
-		Float32 getRemainingYouAreHere() const
-		{
-			return showYouAreHere;
-		}
-
-		Float32 getRemainingGameOverWait() const
-		{
-			return gameOverWait;
-		}
-
-		Int32 getRoundNumber() const
-		{
-			return roundNumber;
-		}
-
-		bool isOver() const;
-		bool isLast() const;
-
-	private:
-		void preparePlayers();
-		void checkWinner();
-		void setPlayerViews();
-		void splitScreenView(Player& player, Int32 x, Int32 y);
-		void switchScreenMode();
-	};
-}
-
-#endif
+	void addRef(){
+		refCounter++;
+	}
+	void release(){
+		if(--refCounter == 0) delete this;
+	}
+private:
+	uint refCounter = 1;
+};
