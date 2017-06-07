@@ -24,30 +24,18 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#pragma once
 
-#include "PathSegment.h"
+#include <angelscript.h>
+namespace Duel6 {
 
-namespace Duel6{
+// TODO This class is probably superfluous
+class Script {
 
-
-PathSegment* PathSegment::factory() {
-	return new PathSegment();
-}
-
-PathSegment* PathSegment::factory(unsigned int id, unsigned int l, unsigned int r, int y) {
-	return new PathSegment(id, l, r, y);
-}
-// For scripting
-void PathSegment::constructor(unsigned int id, unsigned int l, unsigned int r, int y, void * self) {
-	new (self) PathSegment(id, l, r, y);
-}
-
-void PathSegment::addRef() {
-	refCounter++;
-}
-void PathSegment::release() {
-	if (--refCounter == 0)
-		delete this;
-}
-
+public:
+	Script(asIScriptModule * module, asIScriptContext * ctx);
+private:
+	asIScriptModule * module;
+	asIScriptContext * ctx;
+};
 }

@@ -26,8 +26,9 @@
 */
 #pragma once
 
-#include <stdio.h>
 #include <angelscript.h>
+#include "Script.h"
+#include "Function.h"
 #include "../Level.h"
 
 namespace Duel6{
@@ -35,153 +36,34 @@ namespace Duel6{
 class Level;
 class Round;
 
-class Function{
-
-private:
-	asIScriptFunction * function;
-	asIScriptContext * ctx;
-	// Function found in the file with the script
-	bool exists = false;
+// draft
+class LevelScript : public Script{
 public:
-	bool ready(){return exists;}
 
-	// to distinguish passing objects and addresses to/from angelscript scripts in templated setParam() and getReturn()
-	struct OBJECT {
-		void * obj;
-		OBJECT(void * obj) :
-				obj(obj) {
-		}
-		operator void * (){
-			return obj;
-		}
-	};
-	struct ADDRESS {
-		void * address;
-		ADDRESS(void * address) :
-				address(address) {
-		}
-		operator void * (){
-			return address;
-		}
-	};
-
-	virtual ~Function();
-	Function(asIScriptModule * module, asIScriptContext * ctx , const char * funcDecl):ctx(ctx){
-		function = module->GetFunctionByDecl(funcDecl);
-
-		if(function == nullptr){
-			printf("Function %s not found\n", funcDecl);
-
-		} else {
-			function->AddRef();
-			exists = true;
-		}
-
-		ctx->AddRef();
-	}
-	template<typename R, typename T, typename ...A>
-	R call(T t, A... a){
-		ctx->Prepare(function);
-		setParams(0, t, a...);
-
-		auto r = ctx->Execute();
-		if (r != asEXECUTION_FINISHED) {
-			if (r == asEXECUTION_EXCEPTION) {
-				const char * sectionName;
-				int line;
-				ctx->GetExceptionLineNumber(&line, &sectionName);
-				fprintf(stderr, "%s:%d\n  %s: %d: %s\n", __FILE__, __LINE__, sectionName, line, ctx->GetExceptionString());
-			}
-		}
-
-		return getReturn<R>();
-	}
-
-	template<typename R, typename T>
-	R call(T t){
-		ctx->Prepare(function);
-		setParams(0, t);
-
-		auto r = ctx->Execute();
-		if (r != asEXECUTION_FINISHED) {
-			// The execution didn't complete as expected. Determine what happened.
-			if (r == asEXECUTION_EXCEPTION) {
-				const char * sectionName;
-				int line;
-				ctx->GetExceptionLineNumber(&line, &sectionName);
-				fprintf(stderr, "%s:%d\n  %s: %d: %s\n", __FILE__, __LINE__, sectionName, line, ctx->GetExceptionString());
-			}
-		}
-
-		return getReturn<R>();
-	}
-
-private:
-	template<typename R>
-	R getReturn();
-
-	template<typename T, typename ...A>
-	void setParams(int argPos, T t, A... a){
-		setParam(argPos, t);
-		setParams<A...>(argPos + 1, a...);
-	}
-
-	template<typename T>
-	void setParams(int argPos, T t){
-		setParam(argPos, t);
-	}
-
-	template<typename T>
-	int setParam(asUINT i, T t);
-};
-
-class Script{
-private:
-	asIScriptModule * module;
-
-public :
-	Script(asIScriptModule * module):module(module){
-
-	}
-	void execute(){
-
-	}
-};
-
-class LevelScript{
-public:
 	constexpr static const char * SIGNATURE_MAP_LOADED = "void mapLoaded(Level@)";
 	constexpr static const char * SIGNATURE_PLAYER_THINK = "void playerThink(Player@, uint& in)";
 	constexpr static const char * SIGNATURE_ROUND_UPDATE = "void roundUpdate(Round@, float, uint)";
-	LevelScript(asIScriptModule * module, asIScriptContext * ctx)
-		:module(module), ctx(ctx),
-		 mapLoadedFn(module, ctx, SIGNATURE_MAP_LOADED),
-		playerThinkFn(module, ctx, SIGNATURE_PLAYER_THINK),
-		roundUpdateFn(module, ctx, SIGNATURE_ROUND_UPDATE)
-		{
 
-	}
-	void mapLoaded(Level & level){
-		if(mapLoadedFn.ready()){
-			mapLoadedFn.call<void, Function::ADDRESS>(&level);
-		}
-	}
+	LevelScript(asIScriptModule * module, asIScriptContext * ctx);
 
-	void playerThink(Player & player, unsigned int id){
-		if(playerThinkFn.ready()){
-			playerThinkFn.call<void, Function::ADDRESS, int>(&player, id);
-		}
-	}
+	/**
+	 * Called on map load in Level::load()
+	 */
+	void mapLoaded(Level & level);
 
-	void roundUpdate(Round & round, float elapsedTime, Uint32 frame){
-		if(roundUpdateFn.ready()){
-			roundUpdateFn.call<void, Function::ADDRESS, float, asDWORD>(&round, elapsedTime, frame);
-		}
-	}
+	/**
+	 * Called on each player per game tick in Round::update()
+	 */
+	void playerThink(Player & player, unsigned int id);
+	/**
+	 * Called on each game tick in Round::update()
+	 * @param Round
+	 * @param elapsedTime
+	 * @param frame - current tick number
+	 */
+	void roundUpdate(Round & round, float elapsedTime, Uint32 frame);
 
 private:
-	asIScriptModule * module;
-	asIScriptContext * ctx;
 	Function mapLoadedFn;
 	Function playerThinkFn;
 	Function roundUpdateFn;

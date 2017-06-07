@@ -46,7 +46,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG -ggdb3 -g")
 
 # set the list of source files
 set(D6R_SOURCES
-
+	source/script/Function.cpp
+	source/script/Function.h
+	source/script/Script.cpp
+	source/script/Script.h
 	source/script/LevelScript.cpp
 	source/script/LevelScript.h
 	source/script/ScriptManager.cpp
@@ -393,45 +396,20 @@ target_link_libraries(${D6R_APP_NAME} Threads::Threads)
 set(AS_ADDON_DIR
 	${DEPSDIR}/angelscript/include/angelscript/add_on
 )
-
-set(AS_ADDON_SCRIPTSTDSTRING_DIR
-	${AS_ADDON_DIR}/scriptstdstring
-)
-set(AS_ADDON_SCRIPTBUILDER_DIR
-	${AS_ADDON_DIR}/scriptbuilder
-)
-set(AS_ADDON_SCRIPTARRAY_DIR
-	${AS_ADDON_DIR}/scriptarray
-)
-set(AS_ADDON_SCRIPTGRID_DIR
-	${AS_ADDON_DIR}/scriptgrid
-)
-
-set(AS_ADDON_SCRIPTSTDSTRING_SRC
-	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring_utils.cpp
-	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring.cpp
-	${AS_ADDON_SCRIPTSTDSTRING_DIR}/scriptstdstring.h
-)
-
-set(AS_ADDON_SCRIPTBUILDER_SRC
-	${AS_ADDON_SCRIPTBUILDER_DIR}/scriptbuilder.cpp
-	${AS_ADDON_SCRIPTBUILDER_DIR}/scriptbuilder.h
-)
-
-set(AS_ADDON_SRCRIPTARRAY_SRC
-	${AS_ADDON_SCRIPTARRAY_DIR}/scriptarray.cpp
-	${AS_ADDON_SCRIPTARRAY_DIR}/scriptarray.h
-)
-set(AS_ADDON_SCRIPTGRID_SRC
-	${AS_ADDON_SCRIPTGRID_DIR}/scriptgrid.cpp
-	${AS_ADDON_SCRIPTGRID_DIR}/scriptgrid.h
-)
 	
 set(ANGELSCRIPT_ADDONS_SOURCES 
-	${AS_ADDON_SCRIPTSTDSTRING_SRC}
-	${AS_ADDON_SCRIPTBUILDER_SRC}
-	${AS_ADDON_SRCRIPTARRAY_SRC}
-	${AS_ADDON_SCRIPTGRID_SRC}
+	${AS_ADDON_DIR}/scriptstdstring/scriptstdstring_utils.cpp
+	${AS_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
+	${AS_ADDON_DIR}/scriptstdstring/scriptstdstring.h
+	${AS_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
+	${AS_ADDON_DIR}/scriptbuilder/scriptbuilder.h
+	${AS_ADDON_DIR}/scriptarray/scriptarray.cpp
+	${AS_ADDON_DIR}/scriptarray/scriptarray.h
+	${AS_ADDON_DIR}/scriptgrid/scriptgrid.cpp
+	${AS_ADDON_DIR}/scriptgrid/scriptgrid.h
+	${AS_ADDON_DIR}/scriptdictionary/scriptdictionary.cpp
+	${AS_ADDON_DIR}/scriptdictionary/scriptdictionary.h
+
 ) 
 
 add_custom_command(OUTPUT ${ANGELSCRIPT_ADDONS_SOURCES}

@@ -68,7 +68,7 @@ private:
 	void registerVectorType();
 	void registerPlayerType();
 	void registerPersonType();
-
+	void registerPathSegment();
 	void registerSoundType();
 	void registerRoundType();
 	void registerSampleType();

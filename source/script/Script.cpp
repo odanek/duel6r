@@ -24,30 +24,10 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "Script.h"
+namespace Duel6 {
 
-#include "PathSegment.h"
-
-namespace Duel6{
-
-
-PathSegment* PathSegment::factory() {
-	return new PathSegment();
+Script::Script(asIScriptModule * module, asIScriptContext * ctx) :
+		module(module), ctx(ctx) {
 }
-
-PathSegment* PathSegment::factory(unsigned int id, unsigned int l, unsigned int r, int y) {
-	return new PathSegment(id, l, r, y);
-}
-// For scripting
-void PathSegment::constructor(unsigned int id, unsigned int l, unsigned int r, int y, void * self) {
-	new (self) PathSegment(id, l, r, y);
-}
-
-void PathSegment::addRef() {
-	refCounter++;
-}
-void PathSegment::release() {
-	if (--refCounter == 0)
-		delete this;
-}
-
 }

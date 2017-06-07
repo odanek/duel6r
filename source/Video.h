@@ -149,6 +149,8 @@ namespace Duel6
 			return fps;
 		}
 
+		virtual ~Video();
+
 	private:
 		void renderConsole(Console& console, const Font& font);
 		void swapBuffers();

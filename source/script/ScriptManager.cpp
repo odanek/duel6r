@@ -31,6 +31,7 @@
 #include <angelscript/add_on/scriptbuilder/scriptbuilder.h>
 #include <angelscript/add_on/scriptarray/scriptarray.h>
 #include <angelscript/add_on/scriptgrid/scriptgrid.h>
+#include <angelscript/add_on/scriptdictionary/scriptdictionary.h>
 #include <assert.h>
 #include <string>
 #include <stdio.h>
@@ -47,11 +48,8 @@
 
 #define TRY(CALL, MESSAGE) expect(__FILE__, __LINE__, (CALL), MESSAGE);
 
-
-
 template<typename T>
 void constructor(void * memory){
-	printf("Constructor 1 called %p \n", memory);
 	new (memory)T();
 }
 
@@ -70,7 +68,6 @@ void destructor(void * memory){
 }
 
 namespace Duel6{
-
 
 	void ScriptManager::print(std::string & msg){
 		printf("%s", msg.c_str());
@@ -96,10 +93,14 @@ namespace Duel6{
 	ScriptManager::ScriptManager(Sound & sound, Console * console):console(console), sound(sound){
 		engine = asCreateScriptEngine();
 		ctx = engine->CreateContext();
-
+		// enable string type
 		RegisterStdString(engine);
+		// enable array type e.g. array<type> or type[]
 		RegisterScriptArray(engine, true);
+		// enable grid type e.g. grid<uint> or grid<uint> x = { {1,2,3}, {4,5,6}, {7,8,9}}
 		RegisterScriptGrid(engine);
+		// enable dictionary type
+		RegisterScriptDictionary(engine);
 		auto r = engine->SetMessageCallback(asFUNCTION(ScriptManager::MessageCallback), 0, asCALL_CDECL);
 		assert(r >= 0);
 		r = engine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(ScriptManager::print), asCALL_CDECL);
@@ -112,21 +113,7 @@ namespace Duel6{
 		registerSampleType();
 		registerSoundType();
 		registerRoundType();
-		r = engine->RegisterObjectType("PathSegment", sizeof(PathSegment), asOBJ_REF); assert (r >= 0);
-
-//		r = engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_CONSTRUCT, "void f(uint, uint, uint, int)", asFUNCTION(PathSegment::constructor), asCALL_CDECL_OBJLAST); assert ( r >= 0);
-//		r = engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_CONSTRUCT, "void f()", asFUNCTIONPR(constructor<PathSegment>, (void *), void), asCALL_CDECL_OBJLAST); assert ( r >= 0);
-		r = engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_FACTORY, "PathSegment@ f()", asFUNCTIONPR(PathSegment::factory,(void), PathSegment *), asCALL_CDECL); assert ( r >= 0);
-		r = engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_FACTORY, "PathSegment@ f(uint, uint, uint, int)", asFUNCTIONPR(PathSegment::factory, (uint, uint, uint, int), PathSegment *), asCALL_CDECL); assert ( r >= 0);
-
-		r = engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_ADDREF, "void f()", asMETHOD(PathSegment, addRef), asCALL_THISCALL); assert ( r >= 0);
-		r = engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_RELEASE, "void f()", asMETHOD(PathSegment, release), asCALL_THISCALL); assert ( r >= 0);
-		r = engine->RegisterObjectProperty("PathSegment", "uint id", asOFFSET(PathSegment, id)); assert ( r >= 0);
-		r = engine->RegisterObjectProperty("PathSegment", "uint l", asOFFSET(PathSegment, l)); assert ( r >= 0);
-		r = engine->RegisterObjectProperty("PathSegment", "uint r", asOFFSET(PathSegment, r)); assert ( r >= 0);
-		r = engine->RegisterObjectProperty("PathSegment", "int y", asOFFSET(PathSegment, y)); assert ( r >= 0);
-
-
+		registerPathSegment();
 	}
 
 	LevelScript * ScriptManager::loadLevelScript(const char * scriptPath){
@@ -150,6 +137,27 @@ namespace Duel6{
 			return new LevelScript(module, ctx);
 	}
 
+	void ScriptManager::registerPathSegment() {
+		TRY(engine->RegisterObjectType("PathSegment", sizeof(PathSegment), asOBJ_REF),
+				"Failed to register PathSegment");
+		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_FACTORY, "PathSegment@ f()", asFUNCTIONPR(PathSegment::factory,(void), PathSegment *), asCALL_CDECL),
+				"Failed to register PathSegment");
+		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_FACTORY, "PathSegment@ f(uint, uint, uint, int)", asFUNCTIONPR(PathSegment::factory, (uint, uint, uint, int), PathSegment *), asCALL_CDECL),
+				"Failed to register PathSegment");
+		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_ADDREF, "void f()", asMETHOD(PathSegment, addRef), asCALL_THISCALL),
+				"Failed to register PathSegment");
+		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_RELEASE, "void f()", asMETHOD(PathSegment, release), asCALL_THISCALL),
+				"Failed to register PathSegment");
+		TRY(engine->RegisterObjectProperty("PathSegment", "uint id", asOFFSET(PathSegment, id)),
+				"Failed to register PathSegment.id");
+		TRY(engine->RegisterObjectProperty("PathSegment", "uint l", asOFFSET(PathSegment, l)),
+				"Failed to register PathSegment.l");
+		TRY(engine->RegisterObjectProperty("PathSegment", "uint r", asOFFSET(PathSegment, r)),
+				"Failed to register PathSegment.r");
+		TRY(engine->RegisterObjectProperty("PathSegment", "int y", asOFFSET(PathSegment, y)),
+				"Failed to register PathSegment.y");
+	}
+
 	void ScriptManager::registerConsoleType() {
 		TRY(engine->RegisterObjectType("Console", sizeof(Console), asOBJ_REF | asOBJ_NOCOUNT),
 			"Failed to register Console type.\n");
@@ -163,17 +171,6 @@ namespace Duel6{
 	void ScriptManager::registerLevelType() {
 		TRY(engine->RegisterObjectType("Level", sizeof(Level),  asOBJ_REF | asOBJ_NOCOUNT),
 			"Failed to register Level type.\n");
-
-//		TRY(engine->RegisterObjectBehaviour("Level", asBEHAVE_CONSTRUCT, "void f()", asFUNCTIONPR(constructor<Level>, (void *), void), asCALL_CDECL_OBJLAST),
-//			"Failed to register Level constructor.\n");
-//		TRY(engine->RegisterObjectBehaviour("Level", asBEHAVE_CONSTRUCT, "void f(const Level & in)", asFUNCTIONPR(constructor<Level>, (const Level &, void *), void), asCALL_CDECL_OBJLAST),
-//			"Failed to register Level constructor.\n");
-//
-//		TRY(engine->RegisterObjectBehaviour("Level", asBEHAVE_DESTRUCT, "void f()", asFUNCTIONPR(destructor<Level>, (void *), void), asCALL_CDECL_OBJLAST),
-//					"Failed to register Level destructor.\n");
-//		TRY(engine->RegisterObjectMethod("Level", "Level & opAssign(const Level & in)", asMETHODPR(Level, operator =, (const Level &), Level &), asCALL_THISCALL),
-//			"Failed to register Level opASsign.\n");
-
 		TRY(engine->RegisterObjectMethod("Level", "void raiseWater()", asMETHOD(Level, raiseWater), asCALL_THISCALL),
 			"Failed to register void Level::raiseWater().\n");
 		TRY(engine->RegisterObjectMethod("Level", "int getWidth() const", asMETHODPR(Level, getWidth, (void) const, int), asCALL_THISCALL),
@@ -186,7 +183,6 @@ namespace Duel6{
 			"Failed to register void Level::isWall().\n");
 		TRY(engine->RegisterObjectMethod("Level", "bool isWall(float x, float y, bool outside) const", asMETHODPR(Level, isWall, (Float32, Float32, bool) const, bool), asCALL_THISCALL),
 			"Failed to register void Level::isWall().\n");
-
 	}
 
 	void ScriptManager::registerPersonType() {
@@ -203,8 +199,6 @@ namespace Duel6{
 			"Failed to register Vector.x.\n");
 		TRY(engine->RegisterObjectProperty("Vector", "float y", asOFFSET(Vector, y)),
 			"Failed to register Vector.y.\n");
-
-
 	}
 
 	void ScriptManager::registerPlayerType() {
@@ -217,7 +211,6 @@ namespace Duel6{
 			"Failed to register enum Orientation.\n");
 		TRY(engine->RegisterObjectType("Player", sizeof(Player), asOBJ_REF | asOBJ_NOCOUNT),
 			"Failed to register Player type.\n");
-
 		TRY(engine->RegisterObjectMethod("Player", "bool isOnElevator() const", asMETHODPR(Player, isOnElevator, (void) const, bool), asCALL_THISCALL),
 			"Failed to register void Player::isOnElevator().\n");
 		TRY(engine->RegisterObjectMethod("Player", "void die()", asMETHOD(Player, die), asCALL_THISCALL),
@@ -248,7 +241,6 @@ namespace Duel6{
 			"Failed to register Player.ammo.\n");
 		TRY(engine->RegisterObjectProperty("Player", "float life", asOFFSET(Player, life)),
 			"Failed to register Player.life.\n");
-
 	}
 
 	void ScriptManager::registerSoundType() {
@@ -259,6 +251,7 @@ namespace Duel6{
 		TRY(engine->RegisterGlobalProperty("const Sound  SOUND", &sound),
 			"Failed to register global Sound SOUND.\n");
 	}
+
 	void ScriptManager::registerRoundType() {
 			TRY(engine->RegisterObjectType("Round", sizeof(Round), asOBJ_REF | asOBJ_NOCOUNT),
 				"Failed to register Round type.\n");
@@ -272,17 +265,14 @@ namespace Duel6{
 	void ScriptManager::registerSampleType() {
 		TRY(engine->RegisterObjectType("Sample", sizeof(Sound::Sample),  asOBJ_VALUE | asGetTypeTraits<Sound::Sample>()),
 			"Failed to register Sample type.\n");
-
 		TRY(engine->RegisterObjectBehaviour("Sample", asBEHAVE_CONSTRUCT, "void f()", asFUNCTIONPR(constructor<Sound::Sample>, (void *), void), asCALL_CDECL_OBJLAST),
 			"Failed to register Sample constructor.\n");
 		TRY(engine->RegisterObjectBehaviour("Sample", asBEHAVE_CONSTRUCT, "void f(const Sample & in)", asFUNCTIONPR(constructor<Sound::Sample>, (const Sound::Sample &, void *), void), asCALL_CDECL_OBJLAST),
 			"Failed to register Sample constructor.\n");
-
 		TRY(engine->RegisterObjectBehaviour("Sample", asBEHAVE_DESTRUCT, "void f()", asFUNCTIONPR(destructor<Sound::Sample>, (void *), void), asCALL_CDECL_OBJLAST),
-					"Failed to register Sample destructor.\n");
+			"Failed to register Sample destructor.\n");
 		TRY(engine->RegisterObjectMethod("Sample", "Sample & opAssign(const Sample & in)", asMETHODPR(Sound::Sample, operator =, (const Sound::Sample &), Sound::Sample &), asCALL_THISCALL),
 			"Failed to register Sample opASsign.\n");
-
 		TRY(engine->RegisterObjectMethod("Sample", "void play()", asMETHOD(Sound::Sample, play), asCALL_THISCALL),
 			"Failed to register void Sample::play().\n");
 	}
@@ -296,6 +286,7 @@ namespace Duel6{
 //			"Failed to register void MapIntBool::[].\n");
 
 	}
+
 	asIScriptModule * ScriptManager::loadModuleFromFile(asIScriptEngine * engine, const char * filePath) {
 		CScriptBuilder scriptBuilder;
 

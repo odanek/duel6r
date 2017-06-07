@@ -201,4 +201,9 @@ namespace Duel6
 			glDisable(GL_DEPTH_TEST);
 		}
 	}
+
+	Video::~Video(){
+		SDL_GL_DeleteContext(glContext);
+		SDL_DestroyWindow(window);
+	}
 }
