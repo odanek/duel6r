@@ -34,6 +34,7 @@
 #include "Block.h"
 #include "Water.h"
 #include "script/LevelScript.h"
+#include "script/GlobalScript.h"
 namespace Duel6
 {
 	class LevelScript;
@@ -47,9 +48,10 @@ namespace Duel6
 		Uint16 waterBlock;
 		Int32 waterLevel;
 		LevelScript * levelScript;
+		GlobalScript * globalScript;
 	public:
-		Level(const std::string& path, bool mirror,const Block::Meta& blockMeta, LevelScript & levelScript);
-	//~Level(){};
+		Level(const std::string& path, bool mirror,const Block::Meta& blockMeta, LevelScript & levelScript, GlobalScript & globalScript);
+
 		Int32 getWidth() const
 		{
 			return width;
@@ -85,6 +87,10 @@ namespace Duel6
 		Water getWaterType(Int32 x, Int32 y) const;
 		void raiseWater();
 		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
+		void setBlock(Uint16 block, Int32 x, Int32 y)
+		{
+			levelData[(height - y - 1) * width + x] = block;
+		}
 	private:
 		void load(const std::string& path, bool mirror);
 		void mirrorLevelData();
@@ -98,11 +104,6 @@ namespace Duel6
 		Uint16 getBlock(Int32 x, Int32 y) const
 		{
 			return levelData[(height - y - 1) * width + x];
-		}
-
-		void setBlock(Uint16 block, Int32 x, Int32 y)
-		{
-			levelData[(height - y - 1) * width + x] = block;
 		}
 
 		Uint16 findWaterType() const;

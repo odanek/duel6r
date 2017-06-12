@@ -59,11 +59,11 @@ namespace Duel6
 		ElevatorList elevatorList;
 
 	public:
-		World(Game& game, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript);
+		World(Game& game, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript, GlobalScript & globalScript);
 
 		void update(Float32 elapsedTime);
 		void raiseWater();
-
+		void setLevelBlock(Uint16 block, Int32 x, Int32 y);
 		const GameSettings& getGameSettings() const
 		{
 			return gameSettings;

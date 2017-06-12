@@ -52,6 +52,11 @@ set(D6R_SOURCES
 	source/script/Script.h
 	source/script/LevelScript.cpp
 	source/script/LevelScript.h
+	source/script/GlobalScript.cpp
+	source/script/GlobalScript.h
+	source/script/PlayerScript.cpp
+	source/script/PlayerScript.h
+
 	source/script/ScriptManager.cpp
 	source/script/ScriptManager.h
 	

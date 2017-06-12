@@ -44,6 +44,8 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "Round.h"
+#include "script/LevelScript.h"
+#include "script/GlobalScript.h"
 
 namespace Duel6
 {
@@ -100,6 +102,7 @@ namespace Duel6
 		std::unique_ptr<Round> round;
 		Renderer renderer;
 		LevelScript * levelScript;
+		GlobalScript * globalScript;
 		std::vector<std::string> levels;
 		std::vector<Size> backgrounds;
 		Int32 playedRounds;

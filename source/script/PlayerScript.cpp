@@ -25,39 +25,28 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "LevelScript.h"
+#include "PlayerScript.h"
 
 namespace Duel6 {
 
-LevelScript::LevelScript(asIScriptModule * module, asIScriptContext * ctx):
+PlayerScript::PlayerScript(asIScriptModule * module, asIScriptContext * ctx):
 		Script(module, ctx),
-		mapLoadedFn(module, ctx, SIGNATURE_MAP_LOADED),
 		playerThinkFn(module, ctx, SIGNATURE_PLAYER_THINK),
-		roundUpdateFn(module, ctx, SIGNATURE_ROUND_UPDATE),
-		roundStartFn(module, ctx, SIGNATURE_ROUND_START) {
+		roundUpdateFn(module, ctx, SIGNATURE_ROUND_UPDATE){
+
 }
 
-void LevelScript::mapLoaded(Level & level) {
-	if (mapLoadedFn.ready()) {
-		mapLoadedFn.call<void, Function::ADDRESS>(&level);
-	}
-}
 
-void LevelScript::playerThink(Player & player, unsigned int id) {
+void PlayerScript::playerThink(Player & player, unsigned int id, float elapsedTime, Uint32 frame ) {
 	if (playerThinkFn.ready()) {
-		playerThinkFn.call<void, Function::ADDRESS, int>(&player, id);
+		playerThinkFn.call<void, Function::ADDRESS, int, float, Uint32>(&player, id, elapsedTime, frame);
 	}
 }
 
-void LevelScript::roundUpdate(Round & round, float elapsedTime, Uint32 frame) {
+void PlayerScript::roundUpdate(Round & round, float elapsedTime, Uint32 frame) {
 	if (roundUpdateFn.ready()) {
-		roundUpdateFn.call<void, Function::ADDRESS, float, asDWORD>(&round, elapsedTime, frame);
+		roundUpdateFn.call<void, Function::ADDRESS, float, Uint32>(&round, elapsedTime, frame);
 	}
 }
 
-void LevelScript::roundStart(Round & round) {
-	if (roundStartFn.ready()) {
-		roundStartFn.call<void, Function::ADDRESS>(&round);
-	}
-}
 }

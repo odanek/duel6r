@@ -36,8 +36,6 @@
 #include <string>
 #include <stdio.h>
 
-#include "LevelScript.h"
-
 #include "../Level.h"
 #include "../Player.h"
 #include "../File.h"
@@ -112,29 +110,26 @@ namespace Duel6{
 		registerPlayerType();
 		registerSampleType();
 		registerSoundType();
+		registerWorldType();
 		registerRoundType();
 		registerPathSegment();
 	}
 
-	LevelScript * ScriptManager::loadLevelScript(const char * scriptPath){
-		if(File::exists(scriptPath)){
-			asIScriptModule * module = loadModuleFromFile(engine, scriptPath);
-			if(module == nullptr){
-				printf("Cannot load script %s\n", scriptPath);
-			} else {
-				return new LevelScript(module, ctx);
+	void ScriptManager::checkedLoad(asIScriptEngine * engine, const char * scriptPath, asIScriptModule ** module) {
+		if (File::exists(scriptPath)) {
+			*module = loadModuleFromFile(engine, scriptPath);
+			if (*module != nullptr) {
+				return;
 			}
+			printf("Cannot load script %s\n", scriptPath);
 		}
-
-		asIScriptModule * module = engine->GetModule("_empty_", asGM_ONLY_IF_EXISTS);
-			if(module == nullptr){
-				CScriptBuilder scriptBuilder;
-				scriptBuilder.StartNewModule(engine, "_empty_");
-				scriptBuilder.BuildModule();
-				module = scriptBuilder.GetModule();
-			}
-
-			return new LevelScript(module, ctx);
+		*module = engine->GetModule("_empty_", asGM_ONLY_IF_EXISTS);
+		if(*module == nullptr){
+			CScriptBuilder scriptBuilder;
+			scriptBuilder.StartNewModule(engine, "_empty_");
+			scriptBuilder.BuildModule();
+			*module = scriptBuilder.GetModule();
+		}
 	}
 
 	void ScriptManager::registerPathSegment() {
@@ -168,6 +163,24 @@ namespace Duel6{
 			"Failed to register global Console console.\n");
 	}
 
+	int getPlayersAliveCount(void * world) {
+		World * w = static_cast<World *>(world);
+		int cnt = 0;
+		for (auto player : w->getPlayers()){
+			if(player.isAlive()) cnt ++;
+		}
+		return cnt;
+	}
+	void ScriptManager::registerWorldType() {
+		TRY(engine->RegisterObjectType("World", sizeof(World),  asOBJ_REF | asOBJ_NOCOUNT),
+			"Failed to register World type.\n");
+		TRY(engine->RegisterObjectMethod("World", "void raiseWater()", asMETHOD(World, raiseWater), asCALL_THISCALL),
+			"Failed to register void World::raiseWater().\n");
+		TRY(engine->RegisterObjectMethod("World", "void setLevelBlock(uint16 block, int x, int y)", asMETHODPR(World, setLevelBlock, (Uint16, Int32, Int32), void), asCALL_THISCALL),
+			"Failed to register void World::setLevelBlock().\n");
+		TRY(engine->RegisterObjectMethod("World", "int getPlayersAliveCount()", asFUNCTIONPR(getPlayersAliveCount, (void *), int), asCALL_CDECL_OBJLAST),
+			"Failed to register void World::setLevelBlock().\n");
+	}
 	void ScriptManager::registerLevelType() {
 		TRY(engine->RegisterObjectType("Level", sizeof(Level),  asOBJ_REF | asOBJ_NOCOUNT),
 			"Failed to register Level type.\n");
@@ -259,6 +272,9 @@ namespace Duel6{
 				"Failed to register void Round::getRemainingYouAreHere().\n");
 			TRY(engine->RegisterObjectMethod("Round", "int getRoundNumber() const", asMETHODPR(Round, getRoundNumber, (void) const, Int32), asCALL_THISCALL),
 				"Failed to register void Round::getRoundNumber().\n");
+
+			TRY(engine->RegisterObjectMethod("Round", "World @ getWorld() const", asMETHODPR(Round, getWorld, (void) const, const World &), asCALL_THISCALL),
+				"Failed to register void Round::getWorld().\n");
 	}
 
 

@@ -34,8 +34,6 @@
 #include <string>
 #include <stdio.h>
 
-#include "LevelScript.h"
-
 #include "../Level.h"
 #include "../Player.h"
 #include "../File.h"
@@ -55,7 +53,13 @@ public:
 	static void MessageCallback(const asSMessageInfo *msg, void *param);
 
 	ScriptManager(Sound & sound, Console * console);
-	LevelScript * loadLevelScript(const char * scriptPath);
+
+	template<typename S>
+	S * loadScript(const char * scriptPath){
+			asIScriptModule * module;
+			checkedLoad(engine, scriptPath, &module);
+			return new S(module, ctx);
+	}
 
 private:
 	asIScriptEngine * engine;
@@ -73,8 +77,10 @@ private:
 	void registerRoundType();
 	void registerSampleType();
 	void registerMapType();
+	void registerWorldType();
 
 	asIScriptModule * loadModuleFromFile(asIScriptEngine * engine, const char * filePath);
+	void checkedLoad(asIScriptEngine * engine, const char * scriptPath, asIScriptModule ** module);
 	void expect(const char * FILE, int LINE, int r, const char * message);
 };
 }

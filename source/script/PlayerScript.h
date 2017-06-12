@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006, Ondrej Danek (www.ondrej-danek.net)
+* Copyright (c) 2017, Frantisek Veverka
 * All rights reserved.
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -9,7 +9,7 @@
 *     * Redistributions in binary form must reproduce the above copyright
 *       notice, this list of conditions and the following disclaimer in the
 *       documentation and/or other materials provided with the distribution.
-*     * Neither the name of Ondrej Danek nor the
+*     * Neither the name of Frantisek Veverka nor the
 *       names of its contributors may be used to endorse or promote products
 *       derived from this software without specific prior written permission.
 *
@@ -24,76 +24,39 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#pragma once
 
-#ifndef DUEL6_ROUND_H
-#define DUEL6_ROUND_H
+#include <angelscript.h>
+#include "Script.h"
+#include "Function.h"
+#include "../Level.h"
 
-#include <vector>
-#include <queue>
-#include "Player.h"
-#include "World.h"
-#include "SysEvent.h"
+namespace Duel6{
 
-namespace Duel6
-{
-	class Game;
+class Level;
+class Round;
 
-	class Round
-	{
-	private:
-		Game& game;
-		Int32 roundNumber;
-		World world;
-		bool suddenDeathMode;
-		Float32 waterFillWait;
-		Float32 showYouAreHere;
-		Float32 gameOverWait;
-		bool winner;
-		std::vector<Player*> alivePlayers;
-		LevelScript & levelScript;
-		GlobalScript & globalScript;
-		Uint32 frame;
-	public:
-		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript, GlobalScript & globalScript);
+// draft
+class PlayerScript : public Script{
+public:
+	constexpr static const char * SIGNATURE_PLAYER_THINK = "void playerThink(Player@, uint& in, float, uint)";
+	constexpr static const char * SIGNATURE_ROUND_UPDATE = "void roundUpdate(Round@, float, uint)";
+	PlayerScript(asIScriptModule * module, asIScriptContext * ctx);
 
-		void update(Float32 elapsedTime);
-		void keyEvent(const KeyPressEvent& event);
+	/**
+	 * Called on each player per game tick in Round::update()
+	 */
+	void playerThink(Player & player, unsigned int id, float elapsedTime, Uint32 frame);
+	/**
+	 * Called on each game tick in Round::update()
+	 * @param Round
+	 * @param elapsedTime
+	 * @param frame - current tick number
+	 */
+	void roundUpdate(Round & round, float elapsedTime, Uint32 frame);
 
-		const World& getWorld() const
-		{
-			return world;
-		}
-
-		bool hasWinner() const
-		{
-			return winner;
-		}
-
-		Float32 getRemainingYouAreHere() const
-		{
-			return showYouAreHere;
-		}
-
-		Float32 getRemainingGameOverWait() const
-		{
-			return gameOverWait;
-		}
-
-		Int32 getRoundNumber() const
-		{
-			return roundNumber;
-		}
-
-		bool isOver() const;
-		bool isLast() const;
-
-	private:
-		void preparePlayers();
-		void checkWinner();
-		void setPlayerViews();
-		void splitScreenView(Player& player, Int32 x, Int32 y);
-		void switchScreenMode();
-	};
+private:
+	Function playerThinkFn;
+	Function roundUpdateFn;
+};
 }
-
-#endif

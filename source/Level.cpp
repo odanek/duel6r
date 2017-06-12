@@ -32,8 +32,8 @@
 
 namespace Duel6
 {
-	Level::Level(const std::string& path, bool mirror, const Block::Meta& blockMeta, LevelScript & levelScript)
-		: blockMeta(&blockMeta), levelScript(&levelScript)
+	Level::Level(const std::string& path, bool mirror, const Block::Meta& blockMeta, LevelScript & levelScript, GlobalScript & globalScript)
+		: blockMeta(&blockMeta), levelScript(&levelScript), globalScript(&globalScript)
 	{
 		load(path, mirror);
 	}
@@ -63,6 +63,7 @@ namespace Duel6
 		waterLevel = findWaterLevel(waterBlock);
 
 		//Call the script
+		globalScript->mapLoaded(*this);
 		levelScript->mapLoaded(*this);
 	}
 

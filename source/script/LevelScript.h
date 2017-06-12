@@ -43,6 +43,7 @@ public:
 	constexpr static const char * SIGNATURE_MAP_LOADED = "void mapLoaded(Level@)";
 	constexpr static const char * SIGNATURE_PLAYER_THINK = "void playerThink(Player@, uint& in)";
 	constexpr static const char * SIGNATURE_ROUND_UPDATE = "void roundUpdate(Round@, float, uint)";
+	constexpr static const char * SIGNATURE_ROUND_START = "void roundStart(Round@)";
 
 	LevelScript(asIScriptModule * module, asIScriptContext * ctx);
 
@@ -63,9 +64,16 @@ public:
 	 */
 	void roundUpdate(Round & round, float elapsedTime, Uint32 frame);
 
+	/**
+	 * Called on round start
+	 * @param Round
+	 */
+	void roundStart(Round & round);
+
 private:
 	Function mapLoadedFn;
 	Function playerThinkFn;
 	Function roundUpdateFn;
+	Function roundStartFn;
 };
 }
