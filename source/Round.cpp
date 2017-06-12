@@ -100,7 +100,7 @@ namespace Duel6
 	void Round::preparePlayers()
 	{
 		game.getAppService().getConsole().printLine("...Preparing players");
-		std::queue<std::pair<Int32, Int32>> startingPositions;
+		Level::StartingPositionList startingPositions;
 		world.getLevel().findStartingPositions(startingPositions);
 
 		auto& players = world.getPlayers();
@@ -109,12 +109,9 @@ namespace Duel6
 		{
 			auto& ammoRange = game.getSettings().getAmmoRange();
 			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
-			std::pair<Int32, Int32>& position = startingPositions.front();
-
-			//TODO Call script spawn(Level, Player[])
-
+			Level::StartingPosition position = startingPositions.back();
 			player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
-			startingPositions.pop();
+			startingPositions.pop_back();
 			playerIndex++;
 		}
 

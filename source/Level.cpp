@@ -33,7 +33,7 @@
 namespace Duel6
 {
 	Level::Level(const std::string& path, bool mirror, const Block::Meta& blockMeta, LevelScript & levelScript, GlobalScript & globalScript)
-		: blockMeta(&blockMeta), levelScript(&levelScript), globalScript(&globalScript)
+		: blockMeta(blockMeta), levelScript(&levelScript), globalScript(&globalScript)
 	{
 		load(path, mirror);
 	}
@@ -158,31 +158,42 @@ namespace Duel6
 		return isWall(x, y - 1, true);
 	}
 
-	void Level::findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions)
+	void Level::findStartingPositions(StartingPositionList& startingPositions)
 	{
-		std::vector<std::pair<Int32, Int32>> possibleStartingPositions;
-
-		for (Int32 y = 1; y < getHeight(); y++)
+		for (Int32 y = 0; y < getHeight(); y++)
 		{
 			for (Int32 x = 0; x < getWidth(); x++)
 			{
 				if (isPossibleStartingPosition(x, y))
 				{
-					possibleStartingPositions.push_back(std::pair<Int32, Int32>(x, y));
+					startingPositions.push_back(std::make_pair(x, y));
 				}
 			}
 		}
 
-		if (possibleStartingPositions.empty())
+		if (startingPositions.empty())
 		{
-			D6_THROW(GameException, "No acceptable starting positions found in this level");
+			findTopmostNonWallPositions(startingPositions);
+			if (startingPositions.empty())
+			{
+				D6_THROW(GameException, "No acceptable starting positions found in this level");
+			}
 		}
 
-		std::random_shuffle(possibleStartingPositions.begin(), possibleStartingPositions.end());
+		std::random_shuffle(startingPositions.begin(), startingPositions.end());
+	}
 
-		for (Size i = 0; i < possibleStartingPositions.size(); ++i)
+	void Level::findTopmostNonWallPositions(StartingPositionList& startingPositions)
+	{
+		for (Int32 y = getHeight() - 1; y >= 0 && startingPositions.empty(); y--)
 		{
-			startingPositions.push(possibleStartingPositions[i]);
+			for (Int32 x = 0; x < getWidth(); x++)
+			{
+				if (!isWall(x, y, true))
+				{
+					startingPositions.push_back(std::make_pair(x, y));
+				}
+			}
 		}
 	}
 }

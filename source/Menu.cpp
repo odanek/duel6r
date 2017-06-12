@@ -296,7 +296,7 @@ namespace Duel6
 		gameModes.push_back(std::make_unique<TeamDeathMatch>(4, true));
 	}
 
-	void Menu::savePersonData()
+	void Menu::savePersonData() const
 	{
 		Json::Value json = Json::Value::makeObject();
 		json.set("persons", persons.toJson());

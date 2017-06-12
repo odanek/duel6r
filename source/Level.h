@@ -40,8 +40,12 @@ namespace Duel6
 	class LevelScript;
 	class Level
 	{
+	public:
+		typedef std::pair<Int32, Int32> StartingPosition;
+		typedef std::vector<StartingPosition> StartingPositionList;
+
 	private:
-		const Block::Meta * blockMeta;
+		const Block::Meta & blockMeta;
 		Int32 width;
 		Int32 height;
 		std::vector<Uint16> levelData;
@@ -50,7 +54,7 @@ namespace Duel6
 		LevelScript * levelScript;
 		GlobalScript * globalScript;
 	public:
-		Level(const std::string& path, bool mirror,const Block::Meta& blockMeta, LevelScript & levelScript, GlobalScript & globalScript);
+		Level(const std::string& path, bool mirror, const Block::Meta& blockMeta, LevelScript & levelScript, GlobalScript & globalScript);
 
 		Int32 getWidth() const
 		{
@@ -81,12 +85,14 @@ namespace Duel6
 
 		const Block& getBlockMeta(Int32 x, Int32 y) const
 		{
-			return (*blockMeta)[getBlock(x, y)];
+			return blockMeta[getBlock(x, y)];
 		}
 
 		Water getWaterType(Int32 x, Int32 y) const;
 		void raiseWater();
-		void findStartingPositions(std::queue<std::pair<Int32, Int32>>& startingPositions);
+		void findStartingPositions(StartingPositionList& startingPositions);
+		void findTopmostNonWallPositions(StartingPositionList& startingPositions);
+
 		void setBlock(Uint16 block, Int32 x, Int32 y)
 		{
 			levelData[(height - y - 1) * width + x] = block;

@@ -28,6 +28,7 @@
 #include "Sound.h"
 #include "Render.h"
 #include "Game.h"
+#include "Menu.h"
 #include "GameMode.h"
 
 namespace Duel6
@@ -141,6 +142,7 @@ namespace Duel6
 		if (playedRounds != 0)
 		{
 			endRound();
+			menu->savePersonData();
 		}
 
         Int32 level = rand() % Int32(levels.size());
