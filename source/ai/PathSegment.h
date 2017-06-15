@@ -25,34 +25,29 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
+#include "../Type.h"
 
-#include <new>
 
 namespace Duel6{
 
 class PathSegment{
 public:
-	unsigned int id = 0;
-	unsigned int l = 0;
-	unsigned int r = 0;
+	Uint32 id = 0;
+	Uint32 l = 0;
+	Uint32 r = 0;
 
-	// TODO signed int for having the ground level y == -1
-	int y = 0;
+	Int32 y = 0;
 
 	PathSegment(){}
 
-	PathSegment(unsigned int id, unsigned int l, unsigned int r, int y): id(id), l(l), r(r), y(y){}
-
-	static PathSegment* factory();
-
-	static PathSegment* factory(unsigned int id, unsigned int l, unsigned int r, int y);
-
-	// For scripting
-	static void constructor(unsigned int id, unsigned int l, unsigned int r, int y, void * self);
+	PathSegment(Uint32 id, Uint32 l, Uint32 r, Int32 y): id(id), l(l), r(r), y(y){}
 
 	// TODO extract scripting-related support functionality
+	// For scripting
+	static PathSegment* factory();
+	static PathSegment* factory(Uint32 id, Uint32 l, Uint32 r, Int32 y);
+	static void constructor(Uint32 id, Uint32 l, Uint32 r, Int32 y, void * self);
 	void addRef();
-
 	void release();
 private:
 	unsigned int refCounter = 1;

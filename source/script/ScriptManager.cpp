@@ -137,7 +137,7 @@ namespace Duel6{
 				"Failed to register PathSegment");
 		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_FACTORY, "PathSegment@ f()", asFUNCTIONPR(PathSegment::factory,(void), PathSegment *), asCALL_CDECL),
 				"Failed to register PathSegment");
-		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_FACTORY, "PathSegment@ f(uint, uint, uint, int)", asFUNCTIONPR(PathSegment::factory, (uint, uint, uint, int), PathSegment *), asCALL_CDECL),
+		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_FACTORY, "PathSegment@ f(uint, uint, uint, int)", asFUNCTIONPR(PathSegment::factory, (Uint32, Uint32, Uint32, Int32), PathSegment *), asCALL_CDECL),
 				"Failed to register PathSegment");
 		TRY(engine->RegisterObjectBehaviour("PathSegment", asBEHAVE_ADDREF, "void f()", asMETHOD(PathSegment, addRef), asCALL_THISCALL),
 				"Failed to register PathSegment");

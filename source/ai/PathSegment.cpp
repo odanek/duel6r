@@ -26,7 +26,7 @@
  */
 
 #include "PathSegment.h"
-
+#include <new>
 namespace Duel6{
 
 
@@ -34,11 +34,11 @@ PathSegment* PathSegment::factory() {
 	return new PathSegment();
 }
 
-PathSegment* PathSegment::factory(unsigned int id, unsigned int l, unsigned int r, int y) {
+PathSegment* PathSegment::factory(Uint32 id, Uint32 l, Uint32 r, Int32 y) {
 	return new PathSegment(id, l, r, y);
 }
 // For scripting
-void PathSegment::constructor(unsigned int id, unsigned int l, unsigned int r, int y, void * self) {
+void PathSegment::constructor(Uint32 id, Uint32 l, Uint32 r, Int32 y, void * self) {
 	new (self) PathSegment(id, l, r, y);
 }
 
