@@ -59,7 +59,7 @@ namespace Duel6
 		{
 			Vertex& vertex = wv.getVertex();
 			Float32 vertexPhase = phase + 60.0f * vertex.x;
-			Float32 height = Math::fastSin((Int32)vertexPhase) * waveHeight;
+			Float32 height = Math::angleSin(vertexPhase) * waveHeight;
 			vertex.y = wv.getY() + height;
 		}
 	}

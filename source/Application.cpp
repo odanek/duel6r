@@ -229,8 +229,6 @@ namespace Duel6
 		Console::registerBasicCommands(console);
 		ConsoleCommands::registerCommands(console, service, menu, gameSettings);
 
-		Math::initialize();
-
 		console.printLine("\n===Font initialization===");
 		font.load(D6_FILE_TTF_FONT, console);
 

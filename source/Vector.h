@@ -178,9 +178,14 @@ namespace Duel6
 			return (*this) / length();
 		}
 
-		static Vector direction(Int32 angle)
+		Float32 angle() const
 		{
-			return Vector(Math::fastSin(90 + angle), Math::fastSin(angle));
+			return Math::radiansToAngle(atan2(y, x));
+		}
+
+		static Vector direction(Float32 angle)
+		{
+			return Vector(cosf(Math::angleToRadians(angle)), sinf(Math::angleToRadians(angle)));
 		}
 
 		static Vector min(const Vector& left, const Vector& right)

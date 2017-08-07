@@ -40,16 +40,18 @@ namespace Duel6
 	public:
 		static const Float64 Pi;
 
-	private:
-		static Float32 sineLookupTable[450];
-
 	public:
-		static void initialize();
-
-		static Float32 fastSin(Int32 angle)
+        template <class T>
+		static T radianSin(T angle)
 		{
-			return sineLookupTable[std::abs(angle) % 360];
+			return std::sin(angle);
 		}
+
+        template <class T>
+        static T angleSin(T angle)
+        {
+            return radianSin(angleToRadians(angle));
+        }
 
 		template <class T>
 		static T sqr(T val)
@@ -73,6 +75,24 @@ namespace Duel6
 		static Int32 sign(T val)
 		{
 			return val < 0 ? -1 : (val > 0 ? 1 : 0);
+		}
+
+		template <class T>
+		static T angleToRadians(T angle)
+		{
+			return T(angle * Pi / 180.0);
+		}
+
+		template <class T>
+		static T radiansToAngle(T radians)
+		{
+			return T(radians * 180.0 / Pi);
+		}
+
+		static Float32 angleDiff(Float32 left, Float32 right)
+		{
+			Float32 diff = std::abs(left - right);
+			return std::min(diff, 360.0f - diff);
 		}
 	};
 }

@@ -42,6 +42,7 @@ namespace Duel6
 		size = Vector(1.0f, 1.0f);
 		grow = 0;
 		alpha = 1.0f;
+		zRotation = 0;
 	}
 
 	Sprite::Sprite(const Int16* animation, const TextureList& textures)
@@ -128,6 +129,16 @@ namespace Duel6
 
 		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;
 
+		if (zRotation != 0.0)
+		{
+			Vector translate = position + rotationCentre;
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glTranslatef(translate.x, translate.y, 0);
+			glRotatef(zRotation, 0, 0, 1);
+			glTranslatef(-translate.x, -translate.y, 0);
+		}
+
 		glBegin(GL_QUADS);
 			glTexCoord2f(leftSide, 0.0f);
 			glVertex3f(position.x, position.y + size.y, z);;
@@ -138,6 +149,11 @@ namespace Duel6
 			glTexCoord2f(leftSide, 1.0f);
 			glVertex3f(position.x, position.y, z);
 		glEnd();
+
+		if (zRotation != 0.0)
+		{
+			glPopMatrix();
+		}
 
 		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);
 

@@ -56,6 +56,8 @@ namespace Duel6
 		bool visible;
 		bool noDepth;
 		bool finished;
+		Float32 zRotation;
+		Vector rotationCentre;
 
 	public:
 		Sprite();
@@ -127,6 +129,13 @@ namespace Duel6
 		Sprite& setDraw(bool draw);
 
 		Sprite& setNoDepth(bool depth);
+
+		Sprite& setZRotation(Float32 angle, Vector centre = Vector())
+		{
+			zRotation = angle;
+			rotationCentre = centre;
+			return *this;
+		}
 
 		Size getFrame() const
 		{
