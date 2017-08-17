@@ -25,13 +25,15 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
-#include "mylib/mymath.h"
 #include "VideoException.h"
 #include "Video.h"
 
+#include "renderer/GL1Renderer.h"
+
 namespace Duel6
 {
+	IRenderer* TheRenderer = nullptr; // TODO: Remove
+
 	void Video::screenUpdate(Console& console, const Font& font)
 	{
 		renderConsole(console, font);
@@ -89,6 +91,10 @@ namespace Duel6
 
 		window = createWindow(name, icon, screen, console);
 		glContext = createContext(screen, console);
+
+		TheRenderer = new GL1Renderer(glContext);
+		TheRenderer->initialize();
+
 		SDL_ShowCursor(SDL_DISABLE);
 		setMode(Mode::Orthogonal);
 	}
@@ -153,12 +159,6 @@ namespace Duel6
 		console.printLine(Format("...RGB ({0}, {1}, {2})") << val[0] << val[1] << val[2]);
 		console.printLine(Format("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})") << val[3] << val[4] << val[5] << val[6]);
 
-		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-		glCullFace(GL_FRONT);
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
 		return glc;
 	}
 
@@ -169,17 +169,8 @@ namespace Duel6
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 
-			//gluPerspective (g_vid.gl_fov, g_vid.gl_aspect, g_vid.gl_nearclip, g_vid.gl_farclip);        
-			float fovy = MM_D2R(view.getFieldOfView()) / 2;
-			float f = cos(fovy) / sin(fovy);
-
-			mat4_c<mval_t> p(0.0f);
-			p(0, 0) = f / screen.getAspect();
-			p(1, 1) = f;
-			p(2, 2) = (view.getNearClip() + view.getFarClip()) / (view.getNearClip() - view.getFarClip());
-			p(3, 2) = (2 * view.getNearClip() * view.getFarClip()) / (view.getNearClip() - view.getFarClip());
-			p(2, 3) = -1;
-			glMultMatrixf(&p(0, 0));
+			Matrix projection = Matrix::perspective(view.getFieldOfView(), screen.getAspect(), view.getNearClip(), view.getFarClip());
+			glMultMatrixf(projection.getStorage());
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -192,7 +183,10 @@ namespace Duel6
 		{
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			glOrtho(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
+
+			Matrix projection = Matrix::orthographic(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
+			glMultMatrixf(projection.getStorage());
+
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 

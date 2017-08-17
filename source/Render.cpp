@@ -35,12 +35,12 @@ namespace Duel6
 {
 	void Renderer::setView(const PlayerView& view) const
 	{
-		glViewport(view.getX(), view.getY(), view.getWidth(), view.getHeight());
+		setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());
 	}
 
 	void Renderer::setView(int x, int y, int width, int height) const
 	{
-		glViewport(x, y, width, height);
+		TheRenderer->setViewport(x, y, width, height);
 	}
 
 	void Renderer::water(const FaceList& water) const
@@ -540,7 +540,8 @@ namespace Duel6
 
 	void Renderer::splitBox(const PlayerView& view) const
 	{
-		glViewport(view.getX() - 2, view.getY() - 2, view.getWidth() + 4, view.getHeight() + 4);
+		TheRenderer->setViewport(view.getX() - 2, view.getY() - 2, view.getWidth() + 4, view.getHeight() + 4);
+
 		glColor3f(1, 0, 0);
 		glBegin(GL_QUADS);
 		glVertex2i(0, 0);

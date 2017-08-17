@@ -299,10 +299,15 @@ set(D6R_SOURCES
     source/gamemodes/Predator.h
 
 	source/renderer/Renderer.h
-    
+	source/renderer/GL1Renderer.h
+	source/renderer/GL1Renderer.cpp
+	source/renderer/GLES2Renderer.h
+	source/renderer/GLES2Renderer.cpp
+
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
     )
+
 if(WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)
 endif(WIN32)

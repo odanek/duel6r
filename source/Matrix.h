@@ -57,8 +57,8 @@ namespace Duel6
             return data;
         }
 
-        Float32& at(Int32 column, Int32 row);
-        Float32 at(Int32 column, Int32 row) const;
+        Float32& operator()(Int32 column, Int32 row);
+        Float32 operator()(Int32 column, Int32 row) const;
 
         Vector getColumn(Int32 index) const;
         Matrix& setColumn(Int32 index, Vector column);
@@ -81,6 +81,8 @@ namespace Duel6
         static Matrix translate(Float32 x, Float32 y, Float32 z);
         static Matrix scale(Float32 x, Float32 y, Float32 z);
         static Matrix rotate(Float32 radians, const Vector &axis);
+        static Matrix perspective(Float32 fov, Float32 aspect, Float32 nearClip, Float32 farClip);
+        static Matrix orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far);
     };
 
     Vector operator*(const Vector& v, const Matrix& m);

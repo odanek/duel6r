@@ -25,32 +25,25 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERER_H
-#define DUEL6_RENDERER_RENDERER_H
+#ifndef DUEL6_RENDERER_GL1RENDERER_H
+#define DUEL6_RENDERER_GL1RENDERER_H
 
-#include "../Vector.h"
-#include "../Matrix.h"
-#include "../Color.h"
-#include "../Texture.h"
+#include <SDL2/SDL_video.h>
+#include "Renderer.h"
 
 namespace Duel6
 {
-    class Material
+    class GL1Renderer
+        : public IRenderer
     {
-        Color color;
-        Texture texture;
-    };
+    private:
+        SDL_GLContext context;
 
-    class IRenderer  // TODO: Rename
-    {
     public:
-        virtual void initialize() = 0;
-        virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
+        GL1Renderer(SDL_GLContext context);
 
-
-//        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
-//        virtual void quad(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
-//        virtual void orthoQuad(Vector position, Vector size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
+        void initialize() override;
+        void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
     };
 }
 

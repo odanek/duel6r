@@ -47,12 +47,12 @@ namespace Duel6
         return *this;
     }
 
-    Float32& Matrix::at(Int32 column, Int32 row)
+    Float32& Matrix::operator()(Int32 column, Int32 row)
     {
         return data[row + 4 * column];
     }
 
-    Float32 Matrix::at(Int32 column, Int32 row) const
+    Float32 Matrix::operator()(Int32 column, Int32 row) const
     {
         return data[row + 4 * column];
     }
@@ -274,6 +274,65 @@ namespace Duel6
         dest[12] = 0;
         dest[13] = 0;
         dest[14] = 0;
+        dest[15] = 1;
+
+        return result;
+    }
+
+    Matrix Matrix::perspective(Float32 fovAngle, Float32 aspect, Float32 nearClip, Float32 farClip)
+    {
+        Float32 fovY = Math::angleToRadians(fovAngle) / 2;
+        Float32 f = Math::radianCos(fovY) / Math::radianSin(fovY);
+
+        Matrix result;
+        Float32* dest = result.data;
+
+        dest[0] = f / aspect;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+
+        dest[4] = 0;
+        dest[5] = f;
+        dest[6] = 0;
+        dest[7] = 0;
+
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = (nearClip + farClip) / (nearClip - farClip);
+        dest[11] = -1;
+
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = (2 * nearClip * farClip) / (nearClip - farClip);
+        dest[15] = 0;
+
+        return result;
+    }
+
+    Matrix Matrix::orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far)
+    {
+        Matrix result;
+        Float32* dest = result.data;
+
+        dest[0] = 2 / (right - left);
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+
+        dest[4] = 0;
+        dest[5] = 2 / (top - bottom);
+        dest[6] = 0;
+        dest[7] = 0;
+
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = 2 / (near - far);
+        dest[11] = 0;
+
+        dest[12] = (right + left) / (left - right);
+        dest[13] = (top + bottom) / (bottom - top);
+        dest[14] = (near + far) / (near - far);
         dest[15] = 1;
 
         return result;

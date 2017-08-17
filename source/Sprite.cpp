@@ -129,10 +129,11 @@ namespace Duel6
 
 		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;
 
-		if (zRotation != 0.0)
+		bool rotated = zRotation != 0.0;
+		if (rotated)
 		{
 			Vector translate = position + rotationCentre;
-			glMatrixMode(GL_MODELVIEW);
+
 			glPushMatrix();
 			glTranslatef(translate.x, translate.y, 0);
 			glRotatef(zRotation, 0, 0, 1);
@@ -150,7 +151,7 @@ namespace Duel6
 			glVertex3f(position.x, position.y, z);
 		glEnd();
 
-		if (zRotation != 0.0)
+		if (rotated)
 		{
 			glPopMatrix();
 		}

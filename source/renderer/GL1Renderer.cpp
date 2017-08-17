@@ -25,33 +25,26 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERER_H
-#define DUEL6_RENDERER_RENDERER_H
-
-#include "../Vector.h"
-#include "../Matrix.h"
-#include "../Color.h"
-#include "../Texture.h"
+#include <SDL2/SDL_opengl.h>
+#include "GL1Renderer.h"
 
 namespace Duel6
 {
-    class Material
+    GL1Renderer::GL1Renderer(SDL_GLContext context)
+        : context(context)
+    {}
+
+    void GL1Renderer::initialize()
     {
-        Color color;
-        Texture texture;
-    };
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        glCullFace(GL_FRONT);
 
-    class IRenderer  // TODO: Rename
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+
+    void GL1Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height)
     {
-    public:
-        virtual void initialize() = 0;
-        virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
-
-
-//        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
-//        virtual void quad(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
-//        virtual void orthoQuad(Vector position, Vector size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
-    };
+        glViewport(x, y, width, height);
+    }
 }
-
-#endif

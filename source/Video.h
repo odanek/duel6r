@@ -32,8 +32,12 @@
 #include "console/console.h"
 #include "Type.h"
 
+#include "renderer/Renderer.h" // TODO: Remove
+
 namespace Duel6
 {
+	extern IRenderer* TheRenderer;  // TODO: Glob fix
+
 	class Video
 	{
 	public:
