@@ -29,7 +29,6 @@
 #define DUEL6_UTIL_H
 
 #include <string>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Image.h"
 #include "Video.h"
@@ -41,7 +40,6 @@ namespace Duel6
 	{
 		void loadTargaImage(const std::string& path, Image& image);
 		void saveTarga(const std::string& path, const Image& image);
-		Texture createTexture(const Image& image, TextureFilter filtering, bool clamp);
 		std::string saveScreenTga(const Video& video);
 	}
 }

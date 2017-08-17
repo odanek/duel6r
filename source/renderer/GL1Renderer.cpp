@@ -43,6 +43,36 @@ namespace Duel6
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 
+    Texture GL1Renderer::createTexture(const Image& image, TextureFilter filtering, bool clamp)
+    {
+        GLuint textureId;
+        glGenTextures(1, &textureId);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, 4, (GLsizei)image.getWidth(), (GLsizei)image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+
+        GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+
+        // Clamp texture coordinates
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+
+        return Texture(textureId);
+    }
+
+    void GL1Renderer::freeTexture(Texture texture)
+    {
+        GLuint id = texture.getId();
+        glDeleteTextures(1, &id);
+    }
+
+    void GL1Renderer::readScreenData(Int32 width, Int32 height, Image& image)
+    {
+        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+    }
+
     void GL1Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height)
     {
         glViewport(x, y, width, height);

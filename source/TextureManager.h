@@ -31,7 +31,6 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Color.h"
 #include "Image.h"

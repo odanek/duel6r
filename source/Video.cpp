@@ -28,6 +28,7 @@
 #include "VideoException.h"
 #include "Video.h"
 
+#include "SDL2/SDL_opengl.h"
 #include "renderer/GL1Renderer.h"
 
 namespace Duel6

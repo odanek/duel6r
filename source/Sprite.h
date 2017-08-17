@@ -29,7 +29,6 @@
 #define DUEL6_SPRITE_H
 
 #include <vector>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "AnimationLooping.h"
 #include "Orientation.h"

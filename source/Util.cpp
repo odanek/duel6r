@@ -36,25 +36,6 @@ namespace Duel6
 {
 	namespace Util
 	{
-		Texture createTexture(const Image& image, TextureFilter filtering, bool clamp)
-		{
-			GLuint textureId;
-			glGenTextures(1, &textureId);
-			glBindTexture(GL_TEXTURE_2D, textureId);
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, (GLsizei)image.getWidth(), (GLsizei)image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
-
-			GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-
-			// Clamp texture coordinates
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-
-			return Texture(textureId);
-		}
-
 		static void readTgaColor(File& file, Color& color)
 		{
 			Uint8 colBytes[3];
@@ -201,7 +182,7 @@ namespace Duel6
 			}
 
 			Image image(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
-			glReadPixels(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+			TheRenderer->readScreenData(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(), image);
 			saveTarga(name, image);
 			return name;
 		}

@@ -30,7 +30,6 @@
 
 #include <vector>
 #include <unordered_map>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Context.h"
 #include "LevelList.h"

@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <SDL2/SDL_opengl.h>
 #include <stdlib.h>
 #include "Sound.h"
 #include "Video.h"

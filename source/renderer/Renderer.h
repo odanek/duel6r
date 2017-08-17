@@ -32,6 +32,7 @@
 #include "../Matrix.h"
 #include "../Color.h"
 #include "../Texture.h"
+#include "../Image.h"
 
 namespace Duel6
 {
@@ -45,7 +46,14 @@ namespace Duel6
     {
     public:
         virtual void initialize() = 0;
+
+        virtual Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) = 0;
+        virtual void freeTexture(Texture texture) = 0;
+
+        virtual void readScreenData(Int32 width, Int32 height, Image& image) = 0;
+
         virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
+
 
 
 //        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;

@@ -29,7 +29,6 @@
 #define DUEL6_TEXTURE_H
 
 #include <vector>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 
 namespace Duel6
@@ -39,18 +38,18 @@ namespace Duel6
 	class Texture
 	{
 	private:
-		GLuint id;
+		Uint32 id;
 
 	public:
 		Texture()
 			: id(0)
 		{}
 
-		explicit Texture(GLuint id)
+		explicit Texture(Uint32 id)
 			: id(id)
 		{}
 
-		GLuint getId() const
+		Uint32 getId() const
 		{
 			return id;
 		}

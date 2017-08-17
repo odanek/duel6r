@@ -40,9 +40,15 @@ namespace Duel6
         SDL_GLContext context;
 
     public:
-        GL1Renderer(SDL_GLContext context);
+        explicit GL1Renderer(SDL_GLContext context);
 
         void initialize() override;
+
+        Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) override;
+        void freeTexture(Texture texture) override;
+
+        void readScreenData(Int32 width, Int32 height, Image& image) override;
+
         void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
     };
 }

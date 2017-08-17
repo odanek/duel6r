@@ -28,7 +28,6 @@
 #ifndef DUEL6_BONUS_H
 #define DUEL6_BONUS_H
 
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "TextureManager.h"
 #include "Vector.h"
