@@ -25,88 +25,35 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_MATH_H
-#define DUEL6_MATH_H
+#ifndef DUEL6_RENDERER_RENDERER_H
+#define DUEL6_RENDERER_RENDERER_H
 
-#include <string>
-#include <cstdlib>
-#include <cmath>
-#include "Type.h"
+#include "../Vector.h"
+#include "../Color.h"
+#include "../Texture.h"
 
 namespace Duel6
 {
-	class Math
-	{
-	public:
-		static const Float64 Pi;
+    class Matrix
+    {
+    public:
 
-	public:
-        template <class T>
-		static T radianSin(T angle)
-		{
-			return std::sin(angle);
-		}
+    public:
+        static const Matrix IDENTITY;
+    };
 
-		template <class T>
-		static T radianCos(T angle)
-		{
-			return std::cos(angle);
-		}
+    class Material
+    {
+        Color color;
+        Texture texture;
+    };
 
-        template <class T>
-        static T angleSin(T angle)
-        {
-            return radianSin(angleToRadians(angle));
-        }
-
-		template <class T>
-		static T angleCos(T angle)
-		{
-			return radianCos(angleToRadians(angle));
-		}
-
-		template <class T>
-		static T sqr(T val)
-		{
-			return val * val;
-		}
-
-		template <class T>
-		static T norm(T x, T y, T z = 0)
-		{
-			return std::sqrt(sqr(x) + sqr(y) + sqr(z));
-		}
-
-		template <class T>
-		static T distance(T x1, T y1, T x2, T y2, T z1 = 0, T z2 = 0)
-		{
-			return norm(x1 - x2, y1 - y2, z1 - z2);
-		}
-
-		template <class T>
-		static Int32 sign(T val)
-		{
-			return val < 0 ? -1 : (val > 0 ? 1 : 0);
-		}
-
-		template <class T>
-		static T angleToRadians(T angle)
-		{
-			return T(angle * Pi / 180.0);
-		}
-
-		template <class T>
-		static T radiansToAngle(T radians)
-		{
-			return T(radians * 180.0 / Pi);
-		}
-
-		static Float32 angleDiff(Float32 left, Float32 right)
-		{
-			Float32 diff = std::abs(left - right);
-			return std::min(diff, 360.0f - diff);
-		}
-	};
+    class Renderer
+    {
+        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
+        virtual void quad(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
+        virtual void orthoQuad(Vector position, Vector size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
+    };
 }
 
 #endif

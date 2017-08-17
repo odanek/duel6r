@@ -25,88 +25,65 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_MATH_H
-#define DUEL6_MATH_H
+#ifndef DUEL6_MATRIX_H
+#define DUEL6_MATRIX_H
 
-#include <string>
-#include <cstdlib>
-#include <cmath>
 #include "Type.h"
+#include "Vector.h"
 
 namespace Duel6
 {
-	class Math
-	{
-	public:
-		static const Float64 Pi;
+    class Matrix
+    {
+    private:
+        Float32 data[16];
 
-	public:
-        template <class T>
-		static T radianSin(T angle)
-		{
-			return std::sin(angle);
-		}
+    public:
+        static const Matrix IDENTITY;
 
-		template <class T>
-		static T radianCos(T angle)
-		{
-			return std::cos(angle);
-		}
+    public:
+        Matrix();
 
-        template <class T>
-        static T angleSin(T angle)
+        Matrix(const Matrix& m);
+        Matrix& operator=(const Matrix& m);
+
+        Float32* getStorage()
         {
-            return radianSin(angleToRadians(angle));
+            return data;
         }
 
-		template <class T>
-		static T angleCos(T angle)
-		{
-			return radianCos(angleToRadians(angle));
-		}
+        const Float32* getStorage() const
+        {
+            return data;
+        }
 
-		template <class T>
-		static T sqr(T val)
-		{
-			return val * val;
-		}
+        Float32& at(Int32 column, Int32 row);
+        Float32 at(Int32 column, Int32 row) const;
 
-		template <class T>
-		static T norm(T x, T y, T z = 0)
-		{
-			return std::sqrt(sqr(x) + sqr(y) + sqr(z));
-		}
+        Vector getColumn(Int32 index) const;
+        Matrix& setColumn(Int32 index, Vector column);
+//        Vector getRow(Int32 index) const;
+//        Matrix& setRow(Int32 index, Vector row);
 
-		template <class T>
-		static T distance(T x1, T y1, T x2, T y2, T z1 = 0, T z2 = 0)
-		{
-			return norm(x1 - x2, y1 - y2, z1 - z2);
-		}
+        Matrix operator+(const Matrix& m) const;
+        Matrix& operator+=(const Matrix& m);
 
-		template <class T>
-		static Int32 sign(T val)
-		{
-			return val < 0 ? -1 : (val > 0 ? 1 : 0);
-		}
+        Matrix operator-(const Matrix& m) const;
+        Matrix& operator-=(const Matrix& m);
 
-		template <class T>
-		static T angleToRadians(T angle)
-		{
-			return T(angle * Pi / 180.0);
-		}
+        Matrix operator*(const Matrix& m) const;
+        Matrix operator*(Float32 value) const;
+        Matrix& operator*=(Float32 value);
+        Matrix operator/(Float32 value) const;
+        Matrix& operator/=(Float32 value);
+        Vector operator*(const Vector& v) const;
 
-		template <class T>
-		static T radiansToAngle(T radians)
-		{
-			return T(radians * 180.0 / Pi);
-		}
+        static Matrix translate(Float32 x, Float32 y, Float32 z);
+        static Matrix scale(Float32 x, Float32 y, Float32 z);
+        static Matrix rotate(Float32 radians, const Vector &axis);
+    };
 
-		static Float32 angleDiff(Float32 left, Float32 right)
-		{
-			Float32 diff = std::abs(left - right);
-			return std::min(diff, 360.0f - diff);
-		}
-	};
+    Vector operator*(const Vector& v, const Matrix& m);
 }
 
 #endif

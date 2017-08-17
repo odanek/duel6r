@@ -111,6 +111,8 @@ set(D6R_SOURCES
     source/Main.cpp
     source/Math.h
     source/Math.cpp
+	source/Matrix.h
+	source/Matrix.cpp
     source/Menu.h
     source/Menu.cpp
     source/msdir.c
@@ -157,6 +159,7 @@ set(D6R_SOURCES
     source/Util.h
     source/Util.cpp
     source/Vector.h
+    source/Vector.cpp
     source/Vertex.h
     source/Video.h
     source/Video.cpp
@@ -282,21 +285,23 @@ set(D6R_SOURCES
 	source/collision/WorldCollision.cpp
 	source/collision/WorldCollision.h
 
+	source/gamemodes/GameModeBase.h
+	source/gamemodes/GameModeBase.cpp
+	source/gamemodes/TeamDeathMatchPlayerEventListener.h
+	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
+	source/gamemodes/PredatorPlayerEventListener.h
+	source/gamemodes/PredatorPlayerEventListener.cpp
     source/gamemodes/DeathMatch.h
     source/gamemodes/DeathMatch.cpp
     source/gamemodes/TeamDeathMatch.h
     source/gamemodes/TeamDeathMatch.cpp
     source/gamemodes/Predator.cpp
     source/gamemodes/Predator.h
+
+	source/renderer/Renderer.h
     
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
-    source/gamemodes/GameModeBase.h
-    source/gamemodes/GameModeBase.cpp
-	source/gamemodes/TeamDeathMatchPlayerEventListener.h
-	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
-	source/gamemodes/PredatorPlayerEventListener.h
-	source/gamemodes/PredatorPlayerEventListener.cpp
     )
 if(WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)

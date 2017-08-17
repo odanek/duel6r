@@ -39,38 +39,36 @@ namespace Duel6
 	public:
 		Float32 x;
 		Float32 y;
+		Float32 z;
+
+	public:
+		static const Vector ZERO;
+		static const Vector UNIT_X;
+		static const Vector UNIT_Y;
+		static const Vector UNIT_Z;
 
 	public:
 		Vector()
+			: x(0), y(0), z(0)
 		{}
 
-		explicit Vector(Float32 val)
-			: x(val), y(val)
+		Vector(Float32 x, Float32 y, Float32 z = 0)
+			: x(x), y(y), z(z)
 		{}
 
-		Vector(Float32 x, Float32 y)
-			: x(x), y(y)
+		Vector(Int32 x, Int32 y, Int32 z = 0)
+			: x(Float32(x)), y(Float32(y)), z(Float32(z))
 		{}
 
-		Vector(Int32 x, Int32 y)
-			: x(Float32(x)), y(Float32(y))
-		{}
+		Vector(const Vector& v) = default;
 
-		Vector(const Vector& v)
-			: x(v.x), y(v.y)
-		{}
+		Vector& operator=(const Vector& v) = default;
 
-		Vector& operator=(const Vector& v)
-		{
-			x = v.x;
-			y = v.y;
-			return *this;
-		}
-
-		Vector& set(Float32 x, Float32 y)
+		Vector& set(Float32 x, Float32 y, Float32 z = 0)
 		{
 			this->x = x;
 			this->y = y;
+			this->z = z;
 			return *this;
 		}
 
@@ -86,68 +84,79 @@ namespace Duel6
 			return *this;
 		}
 
+		Vector& setZ(Float32 z)
+		{
+			this->z = z;
+			return *this;
+		}
+
 		Vector operator+(const Vector& v) const
 		{
-			return Vector(x + v.x, y + v.y);
+			return Vector(x + v.x, y + v.y, z + v.z);
 		}
 
 		Vector& operator+=(const Vector& v)
 		{
 			x += v.x;
 			y += v.y;
+			z += v.z;
 			return *this;
 		}
 
 		Vector operator-(const Vector& v) const
 		{
-			return Vector(x - v.x, y - v.y);
+			return Vector(x - v.x, y - v.y, z - v.z);
 		}
 
 		Vector operator-() const
 		{
-			return Vector(-x, -y);
+			return Vector(-x, -y, -z);
 		}
 
 		Vector& operator-=(const Vector& v)
 		{
 			x -= v.x;
 			y -= v.y;
+			z -= v.z;
 			return *this;
 		}
 
 		Vector operator*(Float32 val) const
 		{
-			return Vector(x * val, y * val);
+			return Vector(x * val, y * val, z * val);
 		}
 
 		Vector& operator*=(Float32 val)
 		{
 			x *= val;
 			y *= val;
+			z *= val;
 			return *this;
 		}
 
 		Vector operator*(const Vector& v) const
 		{
-			return Vector(x * v.x, y * v.y);
+			return Vector(x * v.x, y * v.y, z * v.z);
 		}
 
 		Vector& operator*=(const Vector& v)
 		{
 			x *= v.x;
 			y *= v.y;
+			z *= v.z;
 			return *this;
 		}
 
 		Vector operator/(Float32 val) const
 		{
-			return Vector(x / val, y / val);
+			return Vector(x / val, y / val, z / val);
 		}
 
 		Vector& operator/=(Float32 val)
 		{
 			x /= val;
 			y /= val;
+			z /= val;
 			return *this;
 		}
 
@@ -155,22 +164,23 @@ namespace Duel6
 		{
 			x /= v.x;
 			y /= v.y;
+			z /= v.z;
 			return *this;
 		}
 
 		Float32 dot(const Vector& v) const
 		{
-			return x * v.x + y * v.y;
+			return x * v.x + y * v.y + z * v.z;
 		}
 
 		Float32 length() const
 		{
-			return Math::norm(x, y);
+			return Math::norm(x, y, z);
 		}
 
 		Vector abs() const
 		{
-			return Vector(std::abs(x), std::abs(y));
+			return Vector(std::abs(x), std::abs(y), std::abs(z));
 		}
 
 		Vector unit() const
@@ -190,18 +200,18 @@ namespace Duel6
 
 		static Vector min(const Vector& left, const Vector& right)
 		{
-			return Vector(std::min(left.x, right.x), std::min(left.y, right.y));
+			return Vector(std::min(left.x, right.x), std::min(left.y, right.y), std::min(left.z, right.z));
 		}
 
 		static Vector max(const Vector& left, const Vector& right)
 		{
-			return Vector(std::max(left.x, right.x), std::max(left.y, right.y));
+			return Vector(std::max(left.x, right.x), std::max(left.y, right.y), std::max(left.z, right.z));
 		}
 	};
 
 	inline Vector operator*(Float32 val, const Vector& vec)
 	{
-		return Vector(val * vec.x, val * vec.y);
+		return Vector(val * vec.x, val * vec.y, val * vec.z);
 	}
 }
 
