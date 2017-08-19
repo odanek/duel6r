@@ -25,36 +25,42 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GL1RENDERER_H
-#define DUEL6_RENDERER_GL1RENDERER_H
+#ifndef DUEL6_VIEWPARAMETERS_H
+#define DUEL6_VIEWPARAMETERS_H
 
-#include <SDL2/SDL_video.h>
-#include "Renderer.h"
-#include "../ScreenParameters.h"
-#include "../ViewParameters.h"
+#include "Type.h"
 
 namespace Duel6
 {
-    class GL1Renderer
-        : public Renderer
+    class ViewParameters
     {
     private:
-        SDL_GLContext context;
-        ScreenParameters screen;
-        ViewParameters view;
+        Float32 nearClip;
+        Float32 farClip;
+        Float32 fov;
 
     public:
-        explicit GL1Renderer(SDL_GLContext context, const ScreenParameters& screen, const ViewParameters& view);
+        ViewParameters()
+        {}
 
-        void initialize() override;
+        ViewParameters(Float32 nearClip, Float32 farClip, Float32 fov)
+                : nearClip(nearClip), farClip(farClip), fov(fov)
+        {}
 
-        Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) override;
-        void freeTexture(Texture texture) override;
+        Float32 getNearClip() const
+        {
+            return nearClip;
+        }
 
-        void readScreenData(Int32 width, Int32 height, Image& image) override;
+        Float32 getFarClip() const
+        {
+            return farClip;
+        }
 
-        void setMode(Mode mode) override;
-        void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
+        Float32 getFieldOfView() const
+        {
+            return fov;
+        }
     };
 }
 

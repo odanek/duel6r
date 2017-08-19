@@ -31,101 +31,17 @@
 #include <SDL2/SDL.h>
 #include "console/console.h"
 #include "Type.h"
+#include "ScreenParameters.h"
+#include "ViewParameters.h"
 
 #include "renderer/Renderer.h" // TODO: Remove
 
 namespace Duel6
 {
-	extern Renderer* globRenderer;  // TODO: Glob fix
+	extern std::unique_ptr<Renderer> globRenderer;  // TODO: Glob fix
 
 	class Video
 	{
-	public:
-		class ScreenParameters
-		{
-		private:
-			Uint32 clientWidth;
-			Uint32 clientHeight;
-			Uint32 bitsPerPixel;
-			Uint32 aaSamples;
-			bool fullScreen;
-
-		public:
-			ScreenParameters()
-			{}
-
-			ScreenParameters(Uint32 width, Uint32 height, Uint32 bpp, Uint32 aa, bool fullScreen)
-				: clientWidth(width), clientHeight(height), bitsPerPixel(bpp), aaSamples(aa), fullScreen(fullScreen)
-			{}
-
-			Uint32 getClientWidth() const
-			{
-				return clientWidth;
-			}
-
-			Uint32 getClientHeight() const
-			{
-				return clientHeight;
-			}
-
-			bool isFullScreen() const
-			{
-				return fullScreen;
-			}
-
-			Uint32 getBitsPerPixel() const
-			{
-				return bitsPerPixel;
-			}
-
-			Uint32 getAntiAlias() const
-			{
-				return aaSamples;
-			}
-
-			Float32 getAspect() const
-			{
-				return Float32(clientWidth) / Float32(clientHeight);
-			}
-		};
-
-		class ViewParameters
-		{
-		private:
-			Float32 nearClip;
-			Float32 farClip;
-			Float32 fov;
-
-		public:
-			ViewParameters()
-			{}
-
-			ViewParameters(Float32 nearClip, Float32 farClip, Float32 fov)
-				: nearClip(nearClip), farClip(farClip), fov(fov)
-			{}
-
-			Float32 getNearClip() const
-			{
-				return nearClip;
-			}
-
-			Float32 getFarClip() const
-			{
-				return farClip;
-			}
-
-			Float32 getFieldOfView() const
-			{
-				return fov;
-			}
-		};
-
-		enum class Mode
-		{
-			Orthogonal,
-			Perspective
-		};
-
 	private:
 		SDL_Window *window;
 		SDL_GLContext glContext;
@@ -136,7 +52,6 @@ namespace Duel6
 	public:
 		void initialize(const std::string& name, const std::string& icon, Console& console);
 		void screenUpdate(Console& console, const Font& font);
-		void setMode(Mode mode) const;
 
 		const ScreenParameters& getScreen() const
 		{
@@ -159,6 +74,7 @@ namespace Duel6
 		void calculateFps();
 		SDL_Window* createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console);
 		SDL_GLContext createContext(const ScreenParameters& params, Console& console);
+        std::unique_ptr<Renderer> createRenderer();
 	};
 }
 

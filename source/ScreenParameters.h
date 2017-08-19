@@ -25,36 +25,59 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GL1RENDERER_H
-#define DUEL6_RENDERER_GL1RENDERER_H
+#ifndef DUEL6_SCREENPARAMETERS_H
+#define DUEL6_SCREENPARAMETERS_H
 
-#include <SDL2/SDL_video.h>
-#include "Renderer.h"
-#include "../ScreenParameters.h"
-#include "../ViewParameters.h"
+#include "Type.h"
 
 namespace Duel6
 {
-    class GL1Renderer
-        : public Renderer
+    class ScreenParameters
     {
     private:
-        SDL_GLContext context;
-        ScreenParameters screen;
-        ViewParameters view;
+        Uint32 clientWidth;
+        Uint32 clientHeight;
+        Uint32 bitsPerPixel;
+        Uint32 aaSamples;
+        bool fullScreen;
 
     public:
-        explicit GL1Renderer(SDL_GLContext context, const ScreenParameters& screen, const ViewParameters& view);
+        ScreenParameters()
+        {}
 
-        void initialize() override;
+        ScreenParameters(Uint32 width, Uint32 height, Uint32 bpp, Uint32 aa, bool fullScreen)
+                : clientWidth(width), clientHeight(height), bitsPerPixel(bpp), aaSamples(aa), fullScreen(fullScreen)
+        {}
 
-        Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) override;
-        void freeTexture(Texture texture) override;
+        Uint32 getClientWidth() const
+        {
+            return clientWidth;
+        }
 
-        void readScreenData(Int32 width, Int32 height, Image& image) override;
+        Uint32 getClientHeight() const
+        {
+            return clientHeight;
+        }
 
-        void setMode(Mode mode) override;
-        void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
+        bool isFullScreen() const
+        {
+            return fullScreen;
+        }
+
+        Uint32 getBitsPerPixel() const
+        {
+            return bitsPerPixel;
+        }
+
+        Uint32 getAntiAlias() const
+        {
+            return aaSamples;
+        }
+
+        Float32 getAspect() const
+        {
+            return Float32(clientWidth) / Float32(clientHeight);
+        }
     };
 }
 

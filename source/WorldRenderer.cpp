@@ -648,15 +648,15 @@ namespace Duel6
 		const Player& player = game.getPlayers().front();
 		setView(player.getView());
 		background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
-		video.setMode(Video::Mode::Perspective);
-		view(player);		
+		globRenderer->setMode(Renderer::Mode::Perspective);
+		view(player);
 	}
 
 	void WorldRenderer::splitScreen() const
 	{
 		for (const Player& player : game.getPlayers())
 		{
-			video.setMode(Video::Mode::Orthogonal);
+            globRenderer->setMode(Renderer::Mode::Orthogonal);
 			splitBox(player.getView());
 
 			if (!player.isAlive())
@@ -667,7 +667,7 @@ namespace Duel6
 			setView(player.getView());
 			background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 
-			video.setMode(Video::Mode::Perspective);
+			globRenderer->setMode(Renderer::Mode::Perspective);
 			view(player);
 
 			glColor3f(1, 1, 1);
@@ -689,7 +689,7 @@ namespace Duel6
 			splitScreen();
 		}
 
-		video.setMode(Video::Mode::Orthogonal);
+		globRenderer->setMode(Renderer::Mode::Orthogonal);
 		setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
 		glColor3f(1.0f, 1.0f, 1.0f);
 

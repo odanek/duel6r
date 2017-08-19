@@ -141,6 +141,7 @@ set(D6R_SOURCES
     source/Round.h
     source/Round.cpp
     source/ScreenMode.h
+	source/ScreenParameters.h
     source/Shot.h
     source/ShotList.h
     source/ShotList.cpp
@@ -164,6 +165,7 @@ set(D6R_SOURCES
     source/Video.h
     source/Video.cpp
     source/VideoException.h
+	source/ViewParameters.h
 	source/Water.cpp
 	source/Water.h
     source/WaterList.h

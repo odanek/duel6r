@@ -33,7 +33,7 @@
 
 namespace Duel6
 {
-	Renderer* globRenderer = nullptr; // TODO: Remove
+	std::unique_ptr<Renderer> globRenderer; // TODO: Remove
 
 	void Video::screenUpdate(Console& console, const Font& font)
 	{
@@ -92,12 +92,9 @@ namespace Duel6
 
 		window = createWindow(name, icon, screen, console);
 		glContext = createContext(screen, console);
-
-		globRenderer = new GL1Renderer(glContext);
-		globRenderer->initialize();
+		globRenderer = createRenderer();
 
 		SDL_ShowCursor(SDL_DISABLE);
-		setMode(Mode::Orthogonal);
 	}
 
 	SDL_Window* Video::createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console)
@@ -163,37 +160,11 @@ namespace Duel6
 		return glc;
 	}
 
-	void Video::setMode(Mode mode) const
-	{
-		if (mode == Mode::Perspective)
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-
-			Matrix projection = Matrix::perspective(view.getFieldOfView(), screen.getAspect(), view.getNearClip(), view.getFarClip());
-			glMultMatrixf(projection.getStorage());
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
-		}
-		else
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-
-			Matrix projection = Matrix::orthographic(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
-			glMultMatrixf(projection.getStorage());
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_DEPTH_TEST);
-		}
-	}
+    std::unique_ptr<Renderer> Video::createRenderer()
+    {
+        std::unique_ptr<Renderer> renderer = std::make_unique<GL1Renderer>(glContext, screen, view);
+        renderer->initialize();
+        renderer->setMode(Renderer::Mode::Orthogonal);
+        return renderer;
+    }
 }

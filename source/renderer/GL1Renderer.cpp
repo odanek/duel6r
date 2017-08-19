@@ -30,8 +30,8 @@
 
 namespace Duel6
 {
-    GL1Renderer::GL1Renderer(SDL_GLContext context)
-        : context(context)
+    GL1Renderer::GL1Renderer(SDL_GLContext context, const ScreenParameters& screen, const ViewParameters& view)
+        : context(context), screen(screen), view(view)
     {}
 
     void GL1Renderer::initialize()
@@ -76,5 +76,39 @@ namespace Duel6
     void GL1Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height)
     {
         glViewport(x, y, width, height);
+    }
+
+    void GL1Renderer::setMode(Mode mode)
+    {
+        if (mode == Mode::Perspective)
+        {
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+
+            Matrix projection = Matrix::perspective(view.getFieldOfView(), screen.getAspect(), view.getNearClip(), view.getFarClip());
+            glMultMatrixf(projection.getStorage());
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+        }
+        else
+        {
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+
+            Matrix projection = Matrix::orthographic(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
+            glMultMatrixf(projection.getStorage());
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_TEXTURE_2D);
+            glDisable(GL_DEPTH_TEST);
+        }
     }
 }
