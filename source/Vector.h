@@ -29,6 +29,7 @@
 #define DUEL6_VECTOR_H
 
 #include <algorithm>
+#include "mylib/mymath.h"
 #include "Math.h"
 #include "Type.h"
 
@@ -52,6 +53,10 @@ namespace Duel6
 			: x(0), y(0), z(0)
 		{}
 
+		Vector(const Vector& v) = default;
+
+		Vector& operator=(const Vector& v) = default;
+
 		Vector(Float32 x, Float32 y, Float32 z = 0)
 			: x(x), y(y), z(z)
 		{}
@@ -60,9 +65,9 @@ namespace Duel6
 			: x(Float32(x)), y(Float32(y)), z(Float32(z))
 		{}
 
-		Vector(const Vector& v) = default;
-
-		Vector& operator=(const Vector& v) = default;
+		explicit Vector(const vec3_c<Float32>& v)
+			: x(v.x), y(v.y), z(v.z)
+		{}
 
 		Vector& set(Float32 x, Float32 y, Float32 z = 0)
 		{
@@ -171,6 +176,11 @@ namespace Duel6
 		Float32 dot(const Vector& v) const
 		{
 			return x * v.x + y * v.y + z * v.z;
+		}
+
+		Vector cross(const Vector& v) const
+		{
+			return Vector(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
 		}
 
 		Float32 length() const

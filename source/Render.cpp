@@ -591,7 +591,10 @@ namespace Duel6
 	void Renderer::view(const Player& player) const
 	{
 		glLoadIdentity();
-		player.getCamera().look();
+
+		const mycam_c& camera = player.getCamera();
+		Matrix lookMatrix = Matrix::lookAt(Vector(camera.getPos()), Vector(camera.getFront()), Vector(camera.getUp()));
+		glMultMatrixf(lookMatrix.getStorage());
 
 		if (game.getSettings().isWireframe())
 		{

@@ -79,10 +79,21 @@ namespace Duel6
         Vector operator*(const Vector& v) const;
 
         static Matrix translate(Float32 x, Float32 y, Float32 z);
+        static Matrix translate(const Vector& v)
+        {
+            return translate(v.x, v.y, v.z);
+        }
+
         static Matrix scale(Float32 x, Float32 y, Float32 z);
+        static Matrix scale(const Vector& v)
+        {
+            return scale(v.x, v.y, v.z);
+        }
+
         static Matrix rotate(Float32 radians, const Vector &axis);
         static Matrix perspective(Float32 fov, Float32 aspect, Float32 nearClip, Float32 farClip);
         static Matrix orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far);
+        static Matrix lookAt(const Vector& eye, const Vector& front, const Vector& up);
     };
 
     Vector operator*(const Vector& v, const Matrix& m);

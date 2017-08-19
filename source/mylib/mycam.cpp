@@ -30,7 +30,6 @@ Projekt: Knihovna mylib
 Popis: Prace s kamerou
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "mycam.h"
 
 /*
@@ -227,15 +226,6 @@ void mycam_c::setpos (const vec3_c<mval_t> &p)
 	}
 }
 
-/*
-==================================================
-vrati pozici kamery v prostoru
-==================================================
-*/
-void mycam_c::getpos (vec3_c<mval_t> &p) const
-{
-    p = m_pos;
-}
 
 /*
 ==================================================
@@ -265,29 +255,6 @@ void mycam_c::strafe (mval_t spd)
 	{
 		m_frustum->updatepos(m_pos);
 	}
-}
-
-/*
-==================================================
-opengl transformace podle pohledu kamery
-==================================================
-*/
-void mycam_c::look () const
-{
-    //gluLookAt (m_pos.x, m_pos.y, m_pos.z,
-    //           m_pos.x + m_front.x, m_pos.y + m_front.y, m_pos.z + m_front.z,
-    //           m_up.x, m_up.y, m_up.z);
-    vec3_c<mval_t> s = m_front % m_up;
-    vec3_c<mval_t> u = s % m_front;
-    
-    mat4_c<mval_t> p(0.0f);
-    p(0,0) = s.x; p(1,0) = s.y; p(2,0) = s.z; p(3,0) = 0.0f;
-    p(0,1) = u.x; p(1,1) = u.y; p(2,1) = u.z; p(3,1) = 0.0f;
-    p(0,2) = -m_front.x; p(1,2) = -m_front.y; p(2,2) = -m_front.z; p(3,2) = 0.0f;
-    p(0,3) = 0.0f; p(1,3) = 0.0f; p(2,3) = 0.0f; p(3,3) = 1.0f;
-
-    glMultMatrixf(&p(0,0));
-    glTranslatef(-m_pos.x, -m_pos.y, -m_pos.z);
 }
 
 /*
@@ -337,19 +304,6 @@ void mycam_c::rotate (mval_t h, mval_t p, mval_t r)
     m_roll += (mval_t) MM_D2R (r);
 
     makerotation ();
-}
-
-/*
-==================================================
-je treba volat pred kreslenim "billboard" polygonu
-==================================================
-*/
-void mycam_c::facecam () const
-{
-    glRotatef (MM_R2D (m_heading), 0, 1.0f, 0);
-    glRotatef (MM_R2D (m_pitch), 1.0f, 0, 0);
-    glRotatef (MM_R2D (m_roll), 0, 0, 1.0f);
-    glRotatef (-180, 0, 1.0f, 0);
 }
 
 /*

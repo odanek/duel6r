@@ -279,6 +279,7 @@ namespace Duel6
         return result;
     }
 
+    // Source: gluPerspective
     Matrix Matrix::perspective(Float32 fovAngle, Float32 aspect, Float32 nearClip, Float32 farClip)
     {
         Float32 fovY = Math::angleToRadians(fovAngle) / 2;
@@ -310,6 +311,7 @@ namespace Duel6
         return result;
     }
 
+    // Source: glOrtho
     Matrix Matrix::orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far)
     {
         Matrix result;
@@ -336,6 +338,38 @@ namespace Duel6
         dest[15] = 1;
 
         return result;
+    }
+
+    // Source: gluLookAt
+    Matrix Matrix::lookAt(const Vector& eye, const Vector& front, const Vector& up)
+    {
+        Vector s = front.cross(up);
+        Vector u = s.cross(front);
+
+        Matrix result;
+        Float32* dest = result.data;
+
+        dest[0] = s.x;
+        dest[4] = s.y;
+        dest[8] = s.z;
+        dest[12] = 0.0f;
+
+        dest[1] = u.x;
+        dest[5] = u.y;
+        dest[9] = u.z;
+        dest[13] = 0.0f;
+
+        dest[2] = -front.x;
+        dest[6] = -front.y;
+        dest[10] = -front.z;
+        dest[14] = 0.0f;
+
+        dest[3] = 0.0f;
+        dest[7] = 0.0f;
+        dest[11] = 0.0f;
+        dest[15] = 1.0f;
+
+        return result * translate(-eye);
     }
 
     Vector operator*(const Vector& v, const Matrix& m)

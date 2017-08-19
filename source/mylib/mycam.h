@@ -73,22 +73,30 @@ class mycam_c
     public:
         myfrust_c       *m_frustum;
 
-        enum
-        {
-            CM_WALK,
-            CM_FLY
-        };
-
                 mycam_c         ();
                 ~mycam_c        ();
+
         void    setpos          (const vec3_c<mval_t> &p);
-        void    getpos          (vec3_c<mval_t> &p) const;
+
+        vec3_c<mval_t> getPos() const
+        {
+            return m_pos;
+        }
+
+        vec3_c<mval_t> getFront() const
+        {
+            return m_front;
+        }
+
+        vec3_c<mval_t> getUp() const
+        {
+            return m_up;
+        }
+
         void    getdir          (vec3_c<mval_t> &front, vec3_c<mval_t> &side, vec3_c<mval_t> &up) const;
         void    move            (mval_t spd);
         void    strafe          (mval_t spd);
         void    rotate          (mval_t h, mval_t p, mval_t r);
-        void    look            () const;
-        void    facecam         () const;
         void    resize          (bool fr, mval_t fov, float a);
 
     private:
