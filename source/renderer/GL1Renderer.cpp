@@ -115,4 +115,16 @@ namespace Duel6
     {
         return modelMatrix;
     }
+
+    void GL1Renderer::enableFaceCulling(bool enable)
+    {
+        if (enable)
+        {
+            glEnable(GL_CULL_FACE);
+        }
+        else
+        {
+            glDisable(GL_CULL_FACE);
+        }
+    }
 }

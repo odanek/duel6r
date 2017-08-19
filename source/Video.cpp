@@ -181,7 +181,6 @@ namespace Duel6
             // TODO: Remove
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
         }
         else
         {
@@ -191,7 +190,6 @@ namespace Duel6
             globRenderer->setModelMatrix(Matrix::IDENTITY);
 
             // TODO: Remove
-            glDisable(GL_CULL_FACE);
             glDisable(GL_TEXTURE_2D);
             glDisable(GL_DEPTH_TEST);
         }

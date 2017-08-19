@@ -44,9 +44,15 @@ namespace Duel6
 		globRenderer->setViewport(x, y, width, height);
 	}
 
+	void WorldRenderer::walls(const FaceList& walls) const
+	{
+		globRenderer->enableFaceCulling(true);
+		walls.render(game.getResources().getBlockTextures());
+		globRenderer->enableFaceCulling(false);
+	}
+
 	void WorldRenderer::water(const FaceList& water) const
 	{
-		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
@@ -55,19 +61,16 @@ namespace Duel6
 
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
-		glEnable(GL_CULL_FACE);
 	}
 
 	void WorldRenderer::sprites(const FaceList& sprites) const
 	{
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GEQUAL, 1);
-		glDisable(GL_CULL_FACE);
 
 		sprites.render(game.getResources().getBlockTextures());
 
 		glDisable(GL_ALPHA_TEST);
-		glEnable(GL_CULL_FACE);
 	}
 
 	void WorldRenderer::background(Texture texture) const
@@ -600,7 +603,7 @@ namespace Duel6
 		}
 
 		const World& world = game.getRound().getWorld();
-		world.getLevelRenderData().getWalls().render(game.getResources().getBlockTextures());
+		walls(world.getLevelRenderData().getWalls());
 		sprites(world.getLevelRenderData().getSprites());
 		world.getElevatorList().render();
 		world.getSpriteList().render();

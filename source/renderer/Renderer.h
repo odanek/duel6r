@@ -63,6 +63,8 @@ namespace Duel6
         virtual void setModelMatrix(const Matrix& m) = 0;
         virtual Matrix getModelMatrix() const = 0;
 
+        virtual void enableFaceCulling(bool enable) = 0;
+
 
 
 //        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;

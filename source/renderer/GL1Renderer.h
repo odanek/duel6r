@@ -65,6 +65,7 @@ namespace Duel6
         void setModelMatrix(const Matrix& m) override;
         Matrix getModelMatrix() const override;
 
+        void enableFaceCulling(bool enable) override;
     };
 }
 

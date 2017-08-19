@@ -63,7 +63,6 @@ namespace Duel6
 	{
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GEQUAL, 1);
-		glDisable(GL_CULL_FACE);
 
 		renderTransparent(false);
 
@@ -76,7 +75,6 @@ namespace Duel6
 
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 	}
 

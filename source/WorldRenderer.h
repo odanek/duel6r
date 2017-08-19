@@ -62,6 +62,7 @@ namespace Duel6
 		void view(const Player& player) const;
 		void fullScreen() const;
 		void splitScreen() const;
+		void walls(const FaceList& walls) const;
 		void water(const FaceList& water) const;
 		void sprites(const FaceList& sprites) const;
 		void background(Texture texture) const;
