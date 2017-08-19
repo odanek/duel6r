@@ -82,16 +82,15 @@ namespace Duel6
 
 	void InfoMessageQueue::renderMessage(Int32 x, Int32 y, const std::string& msg, const Font& font)
 	{
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
 		glColor4f(0, 0, 1, 0.7f);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_QUADS);
 			glVertex2i(x, y + 15);
 			glVertex2i(x + 8 * GLint(msg.length()), y + 15);
 			glVertex2i(x + 8 * GLint(msg.length()), y + 1);
 			glVertex2i(x, y + 1);
 		glEnd();
-		glDisable(GL_BLEND);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
 		font.print(x, y, Color::YELLOW, msg);
 	}

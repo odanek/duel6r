@@ -69,14 +69,13 @@ namespace Duel6
 
 		glDisable(GL_ALPHA_TEST);
 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
 		globRenderer->enableDepthWrite(false);
 
 		renderTransparent(true);
 
 		globRenderer->enableDepthWrite(true);
-		glDisable(GL_BLEND);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 	}
 
 	void SpriteList::renderTransparent(bool transparent) const

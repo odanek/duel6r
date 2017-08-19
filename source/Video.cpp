@@ -28,7 +28,6 @@
 #include "VideoException.h"
 #include "Video.h"
 
-#include <SDL2/SDL_opengl.h>
 #include "renderer/GL1Renderer.h"
 
 namespace Duel6
@@ -186,9 +185,6 @@ namespace Duel6
             globRenderer->setProjectionMatrix(projection);
             globRenderer->setViewMatrix(Matrix::IDENTITY);
             globRenderer->setModelMatrix(Matrix::IDENTITY);
-
-            // TODO: Remove
-            glEnable(GL_TEXTURE_2D);
             globRenderer->enableDepthTest(true);
         }
         else
@@ -197,9 +193,6 @@ namespace Duel6
             globRenderer->setProjectionMatrix(projection);
             globRenderer->setViewMatrix(Matrix::IDENTITY);
             globRenderer->setModelMatrix(Matrix::IDENTITY);
-
-            // TODO: Remove
-            glDisable(GL_TEXTURE_2D);
             globRenderer->enableDepthTest(false);
         }
     }

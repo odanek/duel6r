@@ -44,6 +44,7 @@ namespace Duel6
 
 	public:
 		static const Vector ZERO;
+		static const Vector ONE;
 		static const Vector UNIT_X;
 		static const Vector UNIT_Y;
 		static const Vector UNIT_Z;

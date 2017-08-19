@@ -64,6 +64,7 @@ namespace Duel6
 		Texture curTexture = textures.at(faces[0].getCurrentTexture());
 		Size first = 0, count = 0;
 
+		glEnable(GL_TEXTURE_2D);
 		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
 
@@ -85,6 +86,7 @@ namespace Duel6
 
 		glBindTexture(GL_TEXTURE_2D, curTexture.getId());
 		glDrawArrays(GL_QUADS, (GLint)first, (GLsizei)count);
+		glDisable(GL_TEXTURE_2D);
 	}
 
 	void FaceList::nextFrame()

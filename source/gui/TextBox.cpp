@@ -25,9 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_keycode.h>
 #include "TextBox.h"
+#include "../Video.h"
 
 namespace Duel6
 {
@@ -86,17 +86,10 @@ namespace Duel6
 
 		void Textbox::draw(const Font& font) const
 		{
-			int     w = (width << 3) + 8;
+			int w = (width << 3) + 8;
 
 			drawFrame(x - 2, y + 2, w + 4, 22, true);
-			glBegin(GL_QUADS);
-			glColor3ub(255, 255, 255);
-			glVertex2i(x, y);
-			glVertex2i(x + w, y);
-			glVertex2i(x + w, y - 17);
-			glVertex2i(x, y - 17);
-			glEnd();
-
+			globRenderer->quadXY(Vector(x, y - 17), Vector(w, 17), Color::WHITE);
 			font.print(x, y - 16, Color(0), text + "_");
 		}
 	}

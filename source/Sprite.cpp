@@ -121,15 +121,10 @@ namespace Duel6
 			globRenderer->enableDepthTest(false);
 		}
 
-		GLfloat cur_col[4];
-		glGetFloatv(GL_CURRENT_COLOR, cur_col);
-
-		glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
+        glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
 		Int32 textureIndex = animation[frame];
-		glBindTexture(GL_TEXTURE_2D, textures.at(textureIndex).getId());
-
-		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;
+		Texture texture = textures.at(textureIndex);
 
 		bool rotated = zRotation != 0.0;
 		if (rotated)
@@ -143,23 +138,18 @@ namespace Duel6
 			globRenderer->setModelMatrix(unshift * rotate * shift);
 		}
 
-		glBegin(GL_QUADS);
-			glTexCoord2f(leftSide, 0.0f);
-			glVertex3f(position.x, position.y + size.y, z);;
-			glTexCoord2f(1.0f - leftSide, 0.0f);
-			glVertex3f(position.x + size.x, position.y + size.y, z);;
-			glTexCoord2f(1.0f - leftSide, 1.0f);
-			glVertex3f(position.x + size.x, position.y, z);
-			glTexCoord2f(leftSide, 1.0f);
-			glVertex3f(position.x, position.y, z);
-		glEnd();
+		bool reversed = (orientation == Orientation::Right);
+		Vector texturePos = Vector(reversed ? 1.0f : 0.0f, 1.0f);
+		Vector textureSize = Vector(reversed ? -1.0f : 1.0f, -1.0f);
+
+		globRenderer->quadXY(Vector(position.x, position.y, z), size, texturePos, textureSize, texture);
 
 		if (rotated)
 		{
 			globRenderer->setModelMatrix(Matrix::IDENTITY);
 		}
 
-		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		if (isNoDepth())
 		{

@@ -73,6 +73,7 @@ namespace Duel6
 
 	void ElevatorList::render() const
 	{
+		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
 		glBegin(GL_QUADS);
 
@@ -82,6 +83,7 @@ namespace Duel6
 		}
 
 		glEnd();
+		glDisable(GL_TEXTURE_2D);
 	}
 
 	const Elevator* ElevatorList::checkPlayer(Player& player, Float32 speedFactor)

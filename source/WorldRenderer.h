@@ -81,6 +81,7 @@ namespace Duel6
 		void invulRings(const std::vector<Player>& players) const;
 		void invulRing(const Player& player) const;
 		void splitBox(const PlayerView& view) const;
+		void screenCurtain(const Color& color) const;
 		void infoMessages() const;
 		Color getGameOverOverlay() const;
 

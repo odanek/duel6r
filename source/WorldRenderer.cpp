@@ -54,12 +54,11 @@ namespace Duel6
 	void WorldRenderer::water(const FaceList& water) const
 	{
 		globRenderer->enableDepthWrite(false);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
 
 		water.render(game.getResources().getBlockTextures());
 
-		glDisable(GL_BLEND);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 		globRenderer->enableDepthWrite(true);
 	}
 
@@ -104,16 +103,15 @@ namespace Duel6
 
 		for (const auto& rankingEntry : ranking)
 		{			
+			globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
 			glColor4f(0, 0, 1, 0.7f);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBegin(GL_QUADS);
 				glVertex2i(posX, posY + 15);
 				glVertex2i(posX + 8 * maxNameLength, posY + 15);
 				glVertex2i(posX + 8 * maxNameLength, posY + 1);
 				glVertex2i(posX, posY + 1);
 			glEnd();
-			glDisable(GL_BLEND);			
+			globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
 			Color fontColor(rankingEntry.color);
 			font.print(posX, posY, fontColor, rankingEntry.name);
@@ -130,9 +128,9 @@ namespace Duel6
         int x = video.getScreen().getClientWidth() / 2 - width / 2;
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
-        glColor4f(1, 1, 1, 0.7f);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+
+		glColor4f(1, 1, 1, 0.7f);
         glBegin(GL_QUADS);
         glVertex2i(x - 2, y + height + 2);
         glVertex2i(x + width + 2, y + height + 2);
@@ -141,15 +139,14 @@ namespace Duel6
         glEnd();
 
         glColor4f(0, 0, 1, 0.7f);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBegin(GL_QUADS);
         glVertex2i(x, y + height);
         glVertex2i(x + width, y + height);
         glVertex2i(x + width, y );
         glVertex2i(x, y);
         glEnd();
-		glDisable(GL_BLEND);
+
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
         Color fontColor = Color::WHITE;
         font.print(x + width / 2 - 35, y + height - 30, fontColor, "Round Over");
@@ -173,9 +170,9 @@ namespace Duel6
 		Int32 x = video.getScreen().getClientWidth() / 2 - width / 2;
 		Int32 y = video.getScreen().getClientHeight() / 2 - height / 2;
 
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+
 		glColor4f(1, 1, 1, 0.7f);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		
 		glBegin(GL_QUADS);
 			glVertex2i(x - 2, y + height + 2);
 			glVertex2i(x + width + 2, y + height + 2);
@@ -184,15 +181,14 @@ namespace Duel6
 		glEnd();
 
 		glColor4f(0, 0, 1, 0.7f);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		
 		glBegin(GL_QUADS);
 			glVertex2i(x, y + height);
 			glVertex2i(x + width, y + height);
 			glVertex2i(x + width, y );
 			glVertex2i(x, y);
 		glEnd();
-		glDisable(GL_BLEND);
+
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
 		Color fontColor = Color::WHITE;
 		font.print(x + width / 2 - 35, y + height - 20, fontColor, "Game Over");
@@ -251,7 +247,6 @@ namespace Duel6
 		if(remainingTime <= 0) return;
                 
 		glColor3ub(255, 255, 0);
-		glDisable(GL_TEXTURE_2D);
         globRenderer->enableDepthTest(false);
 		glLineWidth(3.0f);
 		
@@ -269,7 +264,6 @@ namespace Duel6
 			glEnd();
 		}		
 
-		glEnable(GL_TEXTURE_2D);
 		glLineWidth(1.0f);
 		glColor3ub(255, 255, 255);
         globRenderer->enableDepthTest(true);
@@ -278,9 +272,7 @@ namespace Duel6
 	Float32 WorldRenderer::playerIndicator(const Player& player, const Indicator& indicator, const Color& color, Float32 value, Float32 xOfs, Float32 yOfs) const
 	{
 		globRenderer->enableDepthWrite(false);
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
 		glBegin(GL_QUADS);
 
 		Float32 width = value * 0.98f;
@@ -302,8 +294,8 @@ namespace Duel6
 		glVertex3f(X + 0.01f, Y - 0.08f, 0.5f);
 
 		glEnd();
-		glDisable(GL_BLEND);
-		glEnable(GL_TEXTURE_2D);
+
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 		globRenderer->enableDepthWrite(true);
 		glColor4ub(255, 255, 255, 255);
 
@@ -321,9 +313,7 @@ namespace Duel6
 		Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
 		globRenderer->enableDepthWrite(false);
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
 		glBegin(GL_QUADS);
 
 		Color color(0, 0, 255, alpha);
@@ -335,8 +325,7 @@ namespace Duel6
 		glVertex3f(X + width, Y, 0.5f);
 
 		glEnd();
-		glDisable(GL_BLEND);
-		glEnable(GL_TEXTURE_2D);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 		glColor4ub(255, 255, 255, 255);
 
 		Color fontColor(255, 255, 0, alpha);
@@ -356,9 +345,8 @@ namespace Duel6
 		Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
 		globRenderer->enableDepthWrite(false);
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
 		glBegin(GL_QUADS);
 
 		Color color(255, 255, 0, alpha);
@@ -370,8 +358,8 @@ namespace Duel6
 		glVertex3f(X + width, Y, 0.5f);
 
 		glEnd();
-		glDisable(GL_BLEND);
-		glEnable(GL_TEXTURE_2D);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+
 		glColor4ub(255, 255, 255, 255);
 
 		Color fontColor(0, 0, 255, alpha);
@@ -488,7 +476,6 @@ namespace Duel6
 	void WorldRenderer::roundKills(const Player& player, Float32 xOfs, Float32 yOfs) const
 	{
 		glColor3ub(0, 0, 255);
-		glDisable(GL_TEXTURE_2D);
 		glPointSize(5.0f);
 
 		Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
@@ -502,7 +489,6 @@ namespace Duel6
 			}
 		glEnd();
 
-		glEnable(GL_TEXTURE_2D);
 		glPointSize(1.0f);
 		glColor3ub(255, 255, 255);
 	}
@@ -514,7 +500,6 @@ namespace Duel6
 		Int32 p = Int32(player.getBonusRemainingTime() * 30) % 360;
 
 		glColor3ub(255, 0, 0);
-		glDisable(GL_TEXTURE_2D);
 		glPointSize(2.0f);
 		glBegin(GL_POINTS);
 
@@ -526,7 +511,6 @@ namespace Duel6
 		}
 
 		glEnd();
-		glEnable(GL_TEXTURE_2D);
 		glPointSize(1.0f);
 		glColor3ub(255, 255, 255);
 	}
@@ -544,16 +528,20 @@ namespace Duel6
 
 	void WorldRenderer::splitBox(const PlayerView& view) const
 	{
+		const auto& screen = video.getScreen();
 		setView(view.getX() - 2, view.getY() - 2, view.getWidth() + 4, view.getHeight() + 4);
+		globRenderer->quadXY(Vector::ZERO, Vector(screen.getClientWidth(), screen.getClientHeight()), Color::RED);
+	}
 
-		glColor3f(1, 0, 0);
-		glBegin(GL_QUADS);
-		glVertex2i(0, 0);
-		glVertex2i(0, video.getScreen().getClientHeight());
-		glVertex2i(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
-		glVertex2i(video.getScreen().getClientWidth(), 0);
-		glEnd();
-		glColor3f(1, 1, 1);
+	void WorldRenderer::screenCurtain(const Color& color) const
+	{
+		const auto& screen = video.getScreen();
+
+		video.setMode(Video::Mode::Orthogonal);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+		globRenderer->quadXY(Vector::ZERO, Vector(screen.getClientWidth(), screen.getClientHeight()), color);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+		video.setMode(Video::Mode::Perspective);
 	}
 
 	void WorldRenderer::infoMessages() const
@@ -628,29 +616,23 @@ namespace Duel6
 
 	Color WorldRenderer::getGameOverOverlay() const
 	{
-		Uint8 overlay = Uint8(255.0f * game.getRound().getRemainingGameOverWait() / D6_GAME_OVER_WAIT);
-		if (game.isOver())
-		{
-			overlay = (Uint8)std::min(overlay + 51, 255);
-			return Color(overlay);
-		}
-
-		return Color(255, overlay, overlay);
+		Float32 overlay = game.getRound().getRemainingGameOverWait() / D6_GAME_OVER_WAIT;
+		return Color(128, 0, 0, Uint8(200 - 200 * overlay));
 	}
 
 	void WorldRenderer::fullScreen() const
 	{
-		if (game.getRound().hasWinner())
-		{
-			Color overlayColor = getGameOverOverlay();
-			glColor3ub(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue());			
-		}
-
 		const Player& player = game.getPlayers().front();
 		setView(player.getView());
 		background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 		video.setMode(Video::Mode::Perspective);
 		view(player);
+
+		if (game.getRound().hasWinner())
+		{
+			Color overlayColor = getGameOverOverlay();
+			screenCurtain(overlayColor);
+		}
 	}
 
 	void WorldRenderer::splitScreen() const
@@ -660,18 +642,16 @@ namespace Duel6
             video.setMode(Video::Mode::Orthogonal);
 			splitBox(player.getView());
 
-			if (!player.isAlive())
-			{
-				glColor3f(1.0f, 0.5f, 0.5f);
-			}
-
 			setView(player.getView());
 			background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 
 			video.setMode(Video::Mode::Perspective);
 			view(player);
 
-			glColor3f(1, 1, 1);
+			if (!player.isAlive())
+			{
+				screenCurtain(Color(255, 0, 0, 128));
+			}
 		}
 	}
 

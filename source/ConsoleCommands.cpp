@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Sound.h"
 #include "Util.h"
 #include "Math.h"
@@ -254,13 +253,15 @@ namespace Duel6
 
 	void ConsoleCommands::openGLInfo(Console& console, const Console::Arguments& args)
 	{
+		Renderer::Info info = globRenderer->getInfo();
+
 		console.printLine("\n===OpenGL info===");
-		console.printLine(Format("Vendor     : {0}") << (const char *)glGetString(GL_VENDOR));
-		console.printLine(Format("Renderer   : {0}") << (const char *)glGetString(GL_RENDERER));
-		console.printLine(Format("Version    : {0}") << (const char *)glGetString(GL_VERSION));
+		console.printLine(Format("Vendor     : {0}") << info.vendor);
+		console.printLine(Format("Renderer   : {0}") << info.renderer);
+		console.printLine(Format("Version    : {0}") << info.version);
 		console.printLine("Extensions :");
 
-		const char* estr = (const char *)glGetString(GL_EXTENSIONS);
+		const char* estr = info.extensions.c_str();
 
 		if (estr == nullptr || strlen(estr) < 2)
 		{

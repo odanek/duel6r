@@ -36,16 +36,30 @@
 
 namespace Duel6
 {
-    class Material
-    {
-        Color color;
-        Texture texture;
-    };
 
     class Renderer
     {
     public:
+        struct Info
+        {
+            std::string vendor;
+            std::string renderer;
+            std::string version;
+            std::string extensions;
+        };
+
+        enum class BlendFunc
+        {
+            None,
+            SrcAlpha,
+            SrcColor
+        };
+
+    public:
+        virtual ~Renderer() = default;
+
         virtual void initialize() = 0;
+        virtual Info getInfo() = 0;
 
         virtual Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) = 0;
         virtual void freeTexture(Texture texture) = 0;
@@ -68,8 +82,18 @@ namespace Duel6
         virtual void enableDepthTest(bool enable) = 0;
         virtual void enableDepthWrite(bool enable) = 0;
 
+        virtual void setBlendFunc(BlendFunc func) = 0;
+
         virtual void clearBuffers() = 0;
 
+        virtual void triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color) = 0;
+        virtual void triangle(const Vector& p1, const Vector& t1,
+                              const Vector& p2, const Vector& t2,
+                              const Vector& p3, const Vector& t3,
+                              const Texture& texture) = 0;
+
+        virtual void quadXY(const Vector& position, const Vector& size, const Color& color) = 0;
+        virtual void quadXY(const Vector& position, const Vector& size, const Vector& texturePosition, const Vector& textureSize, const Texture& texture) = 0;
 
 
 //        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;

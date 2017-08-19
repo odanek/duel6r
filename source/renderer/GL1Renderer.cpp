@@ -36,10 +36,22 @@ namespace Duel6
     void GL1Renderer::initialize()
     {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-        glCullFace(GL_FRONT);
+
+        glFrontFace(GL_CW);
+        glCullFace(GL_BACK);
 
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+
+    Renderer::Info GL1Renderer::getInfo()
+    {
+        Info info;
+        info.vendor = (const char *)glGetString(GL_VENDOR);
+        info.renderer = (const char *)glGetString(GL_RENDERER);
+        info.version = (const char *)glGetString(GL_VERSION);
+        info.extensions = (const char *)glGetString(GL_EXTENSIONS);
+        return info;
     }
 
     Texture GL1Renderer::createTexture(const Image& image, TextureFilter filtering, bool clamp)
@@ -135,6 +147,24 @@ namespace Duel6
         glDepthMask(GLboolean(enable ? GL_TRUE : GL_FALSE));
     }
 
+    void GL1Renderer::setBlendFunc(Renderer::BlendFunc func)
+    {
+        switch (func)
+        {
+            case BlendFunc::None:
+                glDisable(GL_BLEND);
+                break;
+            case BlendFunc::SrcAlpha:
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                break;
+            case BlendFunc::SrcColor:
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+                break;
+        }
+    }
+
     void GL1Renderer::clearBuffers()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -150,5 +180,65 @@ namespace Duel6
         {
             glDisable(option);
         }
+    }
+
+    void GL1Renderer::triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color)
+    {
+        glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+
+        glBegin(GL_TRIANGLES);
+        glVertex3f(p1.x, p1.y, p1.z);
+        glVertex3f(p2.x, p2.y, p2.z);
+        glVertex3f(p3.x, p3.y, p3.z);
+        glEnd();
+
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    void GL1Renderer::triangle(const Vector& p1, const Vector& t1,
+                               const Vector& p2, const Vector& t2,
+                               const Vector& p3, const Vector& t3,
+                               const Texture& texture)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture.getId());
+
+        glBegin(GL_TRIANGLES);
+        glTexCoord2f(t1.x, t1.y);
+        glVertex3f(p1.x, p1.y, p1.z);
+        glTexCoord2f(t2.x, t2.y);
+        glVertex3f(p2.x, p2.y, p2.z);
+        glTexCoord2f(t3.x, t3.y);
+        glVertex3f(p3.x, p3.y, p3.z);
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+    }
+
+    void GL1Renderer::quadXY(const Vector &position, const Vector &size, const Color &color)
+    {
+        Float32 z = position.z;
+        Vector p2 = Vector(position.x, position.y + size.y, z);
+        Vector p3 = Vector(position.x + size.x, position.y + size.y, z);
+        Vector p4 = Vector(position.x + size.x, position.y, z);
+
+        triangle(position, p2, p3, color);
+        triangle(position, p3, p4, color);
+    }
+
+    void GL1Renderer::quadXY(const Vector &position, const Vector &size,
+                           const Vector &texturePosition, const Vector &textureSize,
+                           const Texture &texture)
+    {
+        Float32 z = position.z;
+        Vector p2 = Vector(position.x, position.y + size.y, z);
+        Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y, 0.0f);
+        Vector p3 = Vector(position.x + size.x, position.y + size.y, z);
+        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y, 0.0f);
+        Vector p4 = Vector(position.x + size.x, position.y, z);
+        Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y, 0.0f);
+
+        triangle(position, texturePosition, p2, t2, p3, t3, texture);
+        triangle(position, texturePosition, p3, t3, p4, t4, texture);
     }
 }

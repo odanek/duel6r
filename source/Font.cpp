@@ -36,6 +36,7 @@ Popis: Prace s fonty, psani na obrazovku
 #include "console/console.h"
 #include "Font.h"
 #include "FontException.h"
+#include "Video.h"
 
 namespace Duel6
 {
@@ -161,32 +162,13 @@ namespace Duel6
 			return;
 		}
 
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, getTexture(str).getId());
-
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-
+		Texture texture = getTexture(str);
 		Float32 width = getTextWidth(str, height);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(x, y, z);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(x, y + height, z);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(x + width, y + height, z);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(x + width, y, z);
-		glEnd();
 
-		glDisable(GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_TEXTURE_2D);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		globRenderer->quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), texture);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 	}
 
 	Texture Font::getTexture(const std::string& text) const

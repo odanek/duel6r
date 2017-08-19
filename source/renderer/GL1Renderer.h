@@ -49,6 +49,7 @@ namespace Duel6
         explicit GL1Renderer(SDL_GLContext context);
 
         void initialize() override;
+        Info getInfo() override;
 
         Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) override;
         void freeTexture(Texture texture) override;
@@ -71,7 +72,19 @@ namespace Duel6
         void enableDepthTest(bool enable) override;
         void enableDepthWrite(bool enable) override;
 
+        void setBlendFunc(BlendFunc func) override;
+
         void clearBuffers() override;
+
+        void triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color) override;
+        void triangle(const Vector& p1, const Vector& t1,
+                      const Vector& p2, const Vector& t2,
+                      const Vector& p3, const Vector& t3,
+                      const Texture& texture) override;
+
+        void quadXY(const Vector &position, const Vector &size, const Color &color) override;
+        void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
+                  const Vector &textureSize, const Texture &texture) override;
 
     private:
         void enableOption(GLenum option, bool enable);

@@ -59,6 +59,7 @@ namespace Duel6
 		glAlphaFunc(GL_GEQUAL, 1);
 
 		globRenderer->enableDepthTest(false);
+		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
 		glBegin(GL_QUADS);
 
@@ -77,6 +78,7 @@ namespace Duel6
 
 		glEnd();
 		glColor3f(1, 1, 1);
+		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_ALPHA_TEST);
 		globRenderer->enableDepthTest(true);
 	}

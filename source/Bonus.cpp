@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Bonus.h"
 #include "bonus/PlusLife.h"
 #include "bonus/MinusLife.h"
@@ -38,6 +37,7 @@
 #include "bonus/VampireShots.h"
 #include "bonus/FullLife.h"
 #include "bonus/FastReload.h"
+#include "Video.h"
 
 namespace Duel6
 {
@@ -46,25 +46,25 @@ namespace Duel6
 		class NoneBonus : public BonusTypeImpl
 		{
 		public:
-			virtual Texture getTexture() const
+			Texture getTexture() const override
 			{
 				return Texture();
 			}
 
-			virtual bool isOneTime() const
+			bool isOneTime() const override
 			{
 				return true;
 			}
 
-			virtual bool isApplicable(Player& player, World& world) const
+			bool isApplicable(Player& player, World& world) const override
 			{
 				return false;
 			}
 
-			virtual void onApply(Player& player, World& world, Int32 duration) const
+			void onApply(Player& player, World& world, Int32 duration) const override
 			{}
 
-			virtual void onExpire(Player& player, World& world) const
+			void onExpire(Player& player, World& world) const override
 			{}
 		};
 
@@ -158,35 +158,25 @@ namespace Duel6
 
 	Bonus::Bonus(BonusType type, Int32 duration, const Vector& position, Texture texture)
 		: bonus(type), duration(duration), position(position), texture(texture)
-	{}
+	{
+		this->position.z = 0.5f;
+	}
 
 	void Bonus::render() const
 	{
 		Vector pos = getSpritePosition();
-
-		glBindTexture(GL_TEXTURE_2D, texture.getId());
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.1f, 0.1f); glVertex3f(pos.x, pos.y + 1, 0.5f);
-			glTexCoord2f(0.9f, 0.1f); glVertex3f(pos.x + 1.0f, pos.y + 1, 0.5f);
-			glTexCoord2f(0.9f, 0.9f); glVertex3f(pos.x + 1.0f, pos.y, 0.5f);
-			glTexCoord2f(0.1f, 0.9f); glVertex3f(pos.x, pos.y, 0.5f);
-		glEnd();
+		globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), texture);
 	}
 
 	LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, const Vector& position)
 		: weapon(weapon), position(position), bullets(bullets)
-	{}
+	{
+		this->position.z = 0.5f;
+	}
 
 	void LyingWeapon::render() const
 	{
 		Vector pos = getSpritePosition();
-
-		glBindTexture(GL_TEXTURE_2D, weapon.getBonusTexture().getId());
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.1f, 0.1f); glVertex3f(pos.x, pos.y + 1, 0.5f);
-			glTexCoord2f(0.9f, 0.1f); glVertex3f(pos.x + 1.0f, pos.y + 1, 0.5f);
-			glTexCoord2f(0.9f, 0.9f); glVertex3f(pos.x + 1.0f, pos.y, 0.5f);
-			glTexCoord2f(0.1f, 0.9f); glVertex3f(pos.x, pos.y, 0.5f);
-		glEnd();
+		globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), weapon.getBonusTexture());
 	}
 }
