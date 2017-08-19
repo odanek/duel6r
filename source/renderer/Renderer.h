@@ -45,13 +45,6 @@ namespace Duel6
     class Renderer
     {
     public:
-        enum class Mode
-        {
-            Orthogonal,
-            Perspective
-        };
-
-    public:
         virtual void initialize() = 0;
 
         virtual Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) = 0;
@@ -59,8 +52,16 @@ namespace Duel6
 
         virtual void readScreenData(Int32 width, Int32 height, Image& image) = 0;
 
-        virtual void setMode(Mode mode) = 0;
         virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
+
+        virtual void setProjectionMatrix(const Matrix& m) = 0;
+        virtual Matrix getProjectionMatrix() const = 0;
+
+        virtual void setViewMatrix(const Matrix& m) = 0;
+        virtual Matrix getViewMatrix() const = 0;
+
+        virtual void setModelMatrix(const Matrix& m) = 0;
+        virtual Matrix getModelMatrix() const = 0;
 
 
 

@@ -40,11 +40,12 @@ namespace Duel6
     {
     private:
         SDL_GLContext context;
-        ScreenParameters screen;
-        ViewParameters view;
+        Matrix projectionMatrix;
+        Matrix viewMatrix;
+        Matrix modelMatrix;
 
     public:
-        explicit GL1Renderer(SDL_GLContext context, const ScreenParameters& screen, const ViewParameters& view);
+        explicit GL1Renderer(SDL_GLContext context);
 
         void initialize() override;
 
@@ -53,8 +54,17 @@ namespace Duel6
 
         void readScreenData(Int32 width, Int32 height, Image& image) override;
 
-        void setMode(Mode mode) override;
         void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
+
+        void setProjectionMatrix(const Matrix& m) override;
+        Matrix getProjectionMatrix() const override;
+
+        void setViewMatrix(const Matrix& m) override;
+        Matrix getViewMatrix() const override;
+
+        void setModelMatrix(const Matrix& m) override;
+        Matrix getModelMatrix() const override;
+
     };
 }
 

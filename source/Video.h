@@ -42,7 +42,14 @@ namespace Duel6
 
 	class Video
 	{
-	private:
+    public:
+        enum class Mode
+        {
+            Orthogonal,
+            Perspective
+        };
+
+    private:
 		SDL_Window *window;
 		SDL_GLContext glContext;
 		Float32 fps;		
@@ -67,6 +74,8 @@ namespace Duel6
 		{
 			return fps;
 		}
+
+        void setMode(Mode mode) const;
 
 	private:
 		void renderConsole(Console& console, const Font& font);

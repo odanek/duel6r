@@ -94,6 +94,8 @@ namespace Duel6
 		glContext = createContext(screen, console);
 		globRenderer = createRenderer();
 
+        setMode(Mode::Orthogonal);
+
 		SDL_ShowCursor(SDL_DISABLE);
 	}
 
@@ -162,9 +164,36 @@ namespace Duel6
 
     std::unique_ptr<Renderer> Video::createRenderer()
     {
-        std::unique_ptr<Renderer> renderer = std::make_unique<GL1Renderer>(glContext, screen, view);
+        std::unique_ptr<Renderer> renderer = std::make_unique<GL1Renderer>(glContext);
         renderer->initialize();
-        renderer->setMode(Renderer::Mode::Orthogonal);
         return renderer;
+    }
+
+    void Video::setMode(Mode mode) const
+    {
+        if (mode == Mode::Perspective)
+        {
+            Matrix projection = Matrix::perspective(view.getFieldOfView(), screen.getAspect(), view.getNearClip(), view.getFarClip());
+            globRenderer->setProjectionMatrix(projection);
+            globRenderer->setViewMatrix(Matrix::IDENTITY);
+            globRenderer->setModelMatrix(Matrix::IDENTITY);
+
+            // TODO: Remove
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+        }
+        else
+        {
+            Matrix projection = Matrix::orthographic(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
+            globRenderer->setProjectionMatrix(projection);
+            globRenderer->setViewMatrix(Matrix::IDENTITY);
+            globRenderer->setModelMatrix(Matrix::IDENTITY);
+
+            // TODO: Remove
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_TEXTURE_2D);
+            glDisable(GL_DEPTH_TEST);
+        }
     }
 }

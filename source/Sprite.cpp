@@ -27,6 +27,7 @@
 
 #include <SDL2/SDL_opengl.h>
 #include "Sprite.h"
+#include "Video.h"
 
 namespace Duel6
 {
@@ -135,10 +136,11 @@ namespace Duel6
 		{
 			Vector translate = position + rotationCentre;
 
-			glPushMatrix();
-			glTranslatef(translate.x, translate.y, 0);
-			glRotatef(zRotation, 0, 0, 1);
-			glTranslatef(-translate.x, -translate.y, 0);
+			Matrix shift = Matrix::translate(-translate);
+			Matrix rotate = Matrix::rotate(zRotation, Vector::UNIT_Z);
+			Matrix unshift = Matrix::translate(translate);
+
+			globRenderer->setModelMatrix(unshift * rotate * shift);
 		}
 
 		glBegin(GL_QUADS);
@@ -154,7 +156,7 @@ namespace Duel6
 
 		if (rotated)
 		{
-			glPopMatrix();
+			globRenderer->setModelMatrix(Matrix::IDENTITY);
 		}
 
 		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);

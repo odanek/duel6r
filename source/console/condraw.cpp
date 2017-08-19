@@ -180,10 +180,6 @@ namespace Duel6
 			scroll = 0;
 		}
 
-		// Vycisteni transformacni matice
-		glPushMatrix();
-		glLoadIdentity();
-
 		renderBackground(csX, csY, font);
 
 		// Vypsani poslednich show radku
@@ -194,7 +190,5 @@ namespace Duel6
 
 		renderSeparator(csY, font);
 		renderInputLine(csY, font);
-
-		glPopMatrix();
 	}
 }

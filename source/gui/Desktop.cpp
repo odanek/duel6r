@@ -28,6 +28,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include "Desktop.h"
+#include "../Video.h"
 
 namespace Duel6
 {
@@ -77,15 +78,14 @@ namespace Duel6
 			glVertex2i(0, screenHeight);
 			glEnd();
 
-			glPushMatrix();
-			glTranslatef((GLfloat)trX, (GLfloat)trY, 0);
+			globRenderer->setViewMatrix(Matrix::translate(Float32(trX), Float32(trY), 0));
 
 			for (auto& control : controls)
 			{
 				control->draw(font);
 			}
 
-			glPopMatrix();
+			globRenderer->setViewMatrix(Matrix::IDENTITY);
 		}
 
 		void Desktop::keyEvent(const KeyPressEvent& event)

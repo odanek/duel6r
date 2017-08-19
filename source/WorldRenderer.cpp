@@ -590,11 +590,9 @@ namespace Duel6
 
 	void WorldRenderer::view(const Player& player) const
 	{
-		glLoadIdentity();
-
 		const mycam_c& camera = player.getCamera();
-		Matrix lookMatrix = Matrix::lookAt(Vector(camera.getPos()), Vector(camera.getFront()), Vector(camera.getUp()));
-		glMultMatrixf(lookMatrix.getStorage());
+		Matrix viewMatrix = Matrix::lookAt(Vector(camera.getPos()), Vector(camera.getFront()), Vector(camera.getUp()));
+		globRenderer->setViewMatrix(viewMatrix);
 
 		if (game.getSettings().isWireframe())
 		{
@@ -648,7 +646,7 @@ namespace Duel6
 		const Player& player = game.getPlayers().front();
 		setView(player.getView());
 		background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
-		globRenderer->setMode(Renderer::Mode::Perspective);
+		video.setMode(Video::Mode::Perspective);
 		view(player);
 	}
 
@@ -656,7 +654,7 @@ namespace Duel6
 	{
 		for (const Player& player : game.getPlayers())
 		{
-            globRenderer->setMode(Renderer::Mode::Orthogonal);
+            video.setMode(Video::Mode::Orthogonal);
 			splitBox(player.getView());
 
 			if (!player.isAlive())
@@ -667,7 +665,7 @@ namespace Duel6
 			setView(player.getView());
 			background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 
-			globRenderer->setMode(Renderer::Mode::Perspective);
+			video.setMode(Video::Mode::Perspective);
 			view(player);
 
 			glColor3f(1, 1, 1);
@@ -689,7 +687,7 @@ namespace Duel6
 			splitScreen();
 		}
 
-		globRenderer->setMode(Renderer::Mode::Orthogonal);
+		video.setMode(Video::Mode::Orthogonal);
 		setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
 		glColor3f(1.0f, 1.0f, 1.0f);
 

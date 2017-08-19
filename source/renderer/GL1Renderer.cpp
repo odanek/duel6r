@@ -30,8 +30,8 @@
 
 namespace Duel6
 {
-    GL1Renderer::GL1Renderer(SDL_GLContext context, const ScreenParameters& screen, const ViewParameters& view)
-        : context(context), screen(screen), view(view)
+    GL1Renderer::GL1Renderer(SDL_GLContext context)
+        : context(context), projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
     {}
 
     void GL1Renderer::initialize()
@@ -78,37 +78,41 @@ namespace Duel6
         glViewport(x, y, width, height);
     }
 
-    void GL1Renderer::setMode(Mode mode)
+    void GL1Renderer::setProjectionMatrix(const Matrix& m)
     {
-        if (mode == Mode::Perspective)
-        {
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
+        projectionMatrix = m;
+        glMatrixMode(GL_PROJECTION);
+        glLoadMatrixf(m.getStorage());
+    }
 
-            Matrix projection = Matrix::perspective(view.getFieldOfView(), screen.getAspect(), view.getNearClip(), view.getFarClip());
-            glMultMatrixf(projection.getStorage());
+    Matrix GL1Renderer::getProjectionMatrix() const
+    {
+        return projectionMatrix;
+    }
 
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
+    void GL1Renderer::setViewMatrix(const Matrix& m)
+    {
+        viewMatrix = m;
+        Matrix modelView = viewMatrix * modelMatrix;
+        glMatrixMode(GL_MODELVIEW);
+        glLoadMatrixf(modelView.getStorage());
+    }
 
-            glEnable(GL_TEXTURE_2D);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-        }
-        else
-        {
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
+    Matrix GL1Renderer::getViewMatrix() const
+    {
+        return viewMatrix;
+    }
 
-            Matrix projection = Matrix::orthographic(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
-            glMultMatrixf(projection.getStorage());
+    void GL1Renderer::setModelMatrix(const Matrix& m)
+    {
+        modelMatrix = m;
+        Matrix modelView = viewMatrix * modelMatrix;
+        glMatrixMode(GL_MODELVIEW);
+        glLoadMatrixf(modelView.getStorage());
+    }
 
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-
-            glDisable(GL_CULL_FACE);
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_DEPTH_TEST);
-        }
+    Matrix GL1Renderer::getModelMatrix() const
+    {
+        return modelMatrix;
     }
 }

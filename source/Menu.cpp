@@ -624,12 +624,12 @@ namespace Duel6
 
 	void Menu::render() const
 	{
-		Int32 tr_x = (video.getScreen().getClientWidth() - 800) / 2, tr_y = (video.getScreen().getClientHeight() - 700) / 2;
+		Int32 trX = (video.getScreen().getClientWidth() - 800) / 2;
+		Int32 trY = (video.getScreen().getClientHeight() - 700) / 2;
 
 		gui.draw(font);
 
-		glPushMatrix();
-		glTranslatef((GLfloat)tr_x, (GLfloat)-tr_y, 0);
+		globRenderer->setViewMatrix(Matrix::translate(Float32(trX), -Float32(trY), 0));
 
 		font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE, Format("{0} {1}") << "version" << APP_VERSION);
 
@@ -644,7 +644,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 
-		glPopMatrix();
+		globRenderer->setViewMatrix(Matrix::IDENTITY);
 	}
 
 	void Menu::keyEvent(const KeyPressEvent& event)
