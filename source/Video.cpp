@@ -33,7 +33,16 @@
 
 namespace Duel6
 {
-	std::unique_ptr<Renderer> globRenderer; // TODO: Remove
+	Renderer* globRenderer = nullptr; // TODO: Remove
+
+	Video::~Video()
+	{
+		if (globRenderer != nullptr)
+		{
+			delete globRenderer;
+			globRenderer = nullptr;
+		}
+	}
 
 	void Video::screenUpdate(Console& console, const Font& font)
 	{
@@ -162,9 +171,9 @@ namespace Duel6
 		return glc;
 	}
 
-    std::unique_ptr<Renderer> Video::createRenderer()
+    Renderer* Video::createRenderer()
     {
-        std::unique_ptr<Renderer> renderer = std::make_unique<GL1Renderer>(glContext);
+        Renderer* renderer = new GL1Renderer(glContext);
         renderer->initialize();
         return renderer;
     }

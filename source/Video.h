@@ -38,7 +38,7 @@
 
 namespace Duel6
 {
-	extern std::unique_ptr<Renderer> globRenderer;  // TODO: Glob fix
+	extern Renderer* globRenderer;  // TODO: Glob fix
 
 	class Video
 	{
@@ -57,6 +57,8 @@ namespace Duel6
 		ViewParameters view;
 
 	public:
+		~Video();
+
 		void initialize(const std::string& name, const std::string& icon, Console& console);
 		void screenUpdate(Console& console, const Font& font);
 
@@ -83,7 +85,7 @@ namespace Duel6
 		void calculateFps();
 		SDL_Window* createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console);
 		SDL_GLContext createContext(const ScreenParameters& params, Console& console);
-        std::unique_ptr<Renderer> createRenderer();
+        Renderer* createRenderer();
 	};
 }
 
