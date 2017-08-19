@@ -599,7 +599,7 @@ namespace Duel6
 
 		if (game.getSettings().isWireframe())
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            globRenderer->enableWireframe(true);
 		}
 
 		const World& world = game.getRound().getWorld();
@@ -622,7 +622,7 @@ namespace Duel6
 
 		if (game.getSettings().isWireframe())
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            globRenderer->enableWireframe(false);
 		}
 	}
 

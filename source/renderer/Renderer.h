@@ -64,6 +64,7 @@ namespace Duel6
         virtual Matrix getModelMatrix() const = 0;
 
         virtual void enableFaceCulling(bool enable) = 0;
+        virtual void enableWireframe(bool enable) = 0;
 
 
 

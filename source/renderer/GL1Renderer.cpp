@@ -127,4 +127,9 @@ namespace Duel6
             glDisable(GL_CULL_FACE);
         }
     }
+
+    void GL1Renderer::enableWireframe(bool enable)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, enable ? GL_LINE : GL_FILL);
+    }
 }
