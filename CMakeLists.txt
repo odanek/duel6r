@@ -136,8 +136,8 @@ set(D6R_SOURCES
 	source/PlayerSounds.cpp
     source/Ranking.h
 	source/Rectangle.h
-    source/Render.h
-    source/Render.cpp
+	source/WorldRenderer.h
+	source/WorldRenderer.cpp
     source/Round.h
     source/Round.cpp
     source/ScreenMode.h

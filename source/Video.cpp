@@ -33,7 +33,7 @@
 
 namespace Duel6
 {
-	IRenderer* TheRenderer = nullptr; // TODO: Remove
+	Renderer* globRenderer = nullptr; // TODO: Remove
 
 	void Video::screenUpdate(Console& console, const Font& font)
 	{
@@ -93,8 +93,8 @@ namespace Duel6
 		window = createWindow(name, icon, screen, console);
 		glContext = createContext(screen, console);
 
-		TheRenderer = new GL1Renderer(glContext);
-		TheRenderer->initialize();
+		globRenderer = new GL1Renderer(glContext);
+		globRenderer->initialize();
 
 		SDL_ShowCursor(SDL_DISABLE);
 		setMode(Mode::Orthogonal);

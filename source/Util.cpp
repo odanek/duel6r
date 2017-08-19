@@ -182,7 +182,7 @@ namespace Duel6
 			}
 
 			Image image(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
-			TheRenderer->readScreenData(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(), image);
+			globRenderer->readScreenData(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(), image);
 			saveTarga(name, image);
 			return name;
 		}

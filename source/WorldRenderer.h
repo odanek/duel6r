@@ -42,7 +42,7 @@ namespace Duel6
 {
 	class Game;
 
-	class Renderer
+	class WorldRenderer
 	{
 	private:
 		const Font& font;
@@ -50,7 +50,7 @@ namespace Duel6
 		const Game& game;
 
 	public:
-		Renderer(AppService& appService, const Game& game)
+        WorldRenderer(AppService& appService, const Game& game)
 			: font(appService.getFont()), video(appService.getVideo()), game(game)
 		{}
 

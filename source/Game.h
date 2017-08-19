@@ -38,7 +38,7 @@
 #include "Context.h"
 #include "World.h"
 #include "Player.h"
-#include "Render.h"
+#include "WorldRenderer.h"
 #include "Water.h"
 #include "AppService.h"
 #include "GameSettings.h"
@@ -99,7 +99,7 @@ namespace Duel6
 		GameSettings& settings;
 		GameMode* gameMode;
 		std::unique_ptr<Round> round;
-		Renderer renderer;
+		WorldRenderer worldRenderer;
 		const Menu* menu;
 
 		std::vector<std::string> levels;
@@ -181,9 +181,14 @@ namespace Duel6
 			return getRound().isLast() && getRound().isOver();
 		}
 
-		Renderer& getRenderer()
+		WorldRenderer& getWorldRenderer()
 		{
-			return renderer;
+			return worldRenderer;
+		}
+
+		const WorldRenderer& getWorldRenderer() const
+		{
+			return worldRenderer;
 		}
 
 		GameMode& getMode()
@@ -194,11 +199,6 @@ namespace Duel6
 		const GameMode& getMode() const
 		{
 			return *gameMode;
-		}
-
-		const Renderer& getRenderer() const
-		{
-			return renderer;
 		}
 
 		void setMenuReference(const Menu* menu)

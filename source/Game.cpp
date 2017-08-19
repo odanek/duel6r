@@ -26,7 +26,7 @@
 */
 
 #include "Sound.h"
-#include "Render.h"
+#include "WorldRenderer.h"
 #include "Game.h"
 #include "Menu.h"
 #include "GameMode.h"
@@ -34,7 +34,7 @@
 namespace Duel6
 {
 	Game::Game(AppService& appService, GameResources& resources, GameSettings& settings)
-		: appService(appService), resources(resources), settings(settings), renderer(appService, *this), playedRounds(0)
+		: appService(appService), resources(resources), settings(settings), worldRenderer(appService, *this), playedRounds(0)
 	{}
 
 	void Game::beforeStart(Context* prevContext)
@@ -49,7 +49,7 @@ namespace Duel6
 
 	void Game::render() const
 	{
-		renderer.render();
+		worldRenderer.render();
 	}
 
 	void Game::update(Float32 elapsedTime)

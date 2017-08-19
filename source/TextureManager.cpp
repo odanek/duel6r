@@ -62,7 +62,7 @@ namespace Duel6
 			Image image;
 			Util::loadTargaImage(path + file, image);
 			substituteColors(image, substitutionTable);
-			Texture texture = TheRenderer->createTexture(image, filtering, clamp);
+			Texture texture = globRenderer->createTexture(image, filtering, clamp);
 			list.push_back(texture);
 		}
 
@@ -98,7 +98,7 @@ namespace Duel6
 	{
 		for (const Texture& texture : list)
 		{
-			TheRenderer->freeTexture(texture);
+			globRenderer->freeTexture(texture);
 		}
 	}
 

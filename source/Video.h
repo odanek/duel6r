@@ -36,7 +36,7 @@
 
 namespace Duel6
 {
-	extern IRenderer* TheRenderer;  // TODO: Glob fix
+	extern Renderer* globRenderer;  // TODO: Glob fix
 
 	class Video
 	{

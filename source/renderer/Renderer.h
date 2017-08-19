@@ -42,7 +42,7 @@ namespace Duel6
         Texture texture;
     };
 
-    class IRenderer  // TODO: Rename
+    class Renderer
     {
     public:
         virtual void initialize() = 0;

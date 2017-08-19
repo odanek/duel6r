@@ -34,17 +34,17 @@
 
 namespace Duel6
 {
-	void Renderer::setView(const PlayerView& view) const
+	void WorldRenderer::setView(const PlayerView& view) const
 	{
 		setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());
 	}
 
-	void Renderer::setView(int x, int y, int width, int height) const
+	void WorldRenderer::setView(int x, int y, int width, int height) const
 	{
-		TheRenderer->setViewport(x, y, width, height);
+		globRenderer->setViewport(x, y, width, height);
 	}
 
-	void Renderer::water(const FaceList& water) const
+	void WorldRenderer::water(const FaceList& water) const
 	{
 		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
@@ -58,7 +58,7 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	void Renderer::sprites(const FaceList& sprites) const
+	void WorldRenderer::sprites(const FaceList& sprites) const
 	{
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GEQUAL, 1);
@@ -70,7 +70,7 @@ namespace Duel6
 		glEnable(GL_CULL_FACE);
 	}
 
-	void Renderer::background(Texture texture) const
+	void WorldRenderer::background(Texture texture) const
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texture.getId());
@@ -85,7 +85,7 @@ namespace Duel6
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	void Renderer::playerRankings() const
+	void WorldRenderer::playerRankings() const
 	{
 		Ranking ranking = game.getMode().getRanking(game.getPlayers());
 		Int32 maxNameLength = 0;
@@ -120,7 +120,7 @@ namespace Duel6
 		}
 	}
 
-    void Renderer::roundOverSummary() const
+    void WorldRenderer::roundOverSummary() const
     {
         int width = 200;
         int height = 120;
@@ -163,7 +163,7 @@ namespace Duel6
         font.print(x + width / 2 - 2, y + height - 95, fontColor, Format("{0}") << (Int32) game.getRound().getRemainingGameOverWait());
     }
 
-	void Renderer::gameOverSummary() const
+	void WorldRenderer::gameOverSummary() const
 	{
 		Int32 width = 200;
 		Int32 height = 50 + Int32(game.getPlayers().size()) * 16;
@@ -206,7 +206,7 @@ namespace Duel6
 		}
 	}
 
-	void Renderer::roundsPlayed() const
+	void WorldRenderer::roundsPlayed() const
 	{
 		int width = 135;
 		int x = video.getScreen().getClientWidth() / 2 - width / 2;
@@ -223,7 +223,7 @@ namespace Duel6
 		font.print(x + 8, y, Color::WHITE, Format("Rounds: {0,3}|{1,3}") << game.getPlayedRounds() << game.getSettings().getMaxRounds());
 	}
 
-	void Renderer::fpsCounter() const
+	void WorldRenderer::fpsCounter() const
 	{
 		std::string fpsCount = Format("FPS - {0}") << Int32(video.getFps());
 		Int32 width = 8 * Int32(fpsCount.size()) + 2;
@@ -242,7 +242,7 @@ namespace Duel6
 		font.print(x, y, Color::WHITE, fpsCount);
 	}
 
-	void Renderer::youAreHere() const
+	void WorldRenderer::youAreHere() const
 	{
 		Float32 remainingTime = game.getRound().getRemainingYouAreHere();
 		if(remainingTime <= 0) return;
@@ -272,7 +272,7 @@ namespace Duel6
 		glEnable(GL_DEPTH_TEST);
 	}
 
-	Float32 Renderer::playerIndicator(const Player& player, const Indicator& indicator, const Color& color, Float32 value, Float32 xOfs, Float32 yOfs) const
+	Float32 WorldRenderer::playerIndicator(const Player& player, const Indicator& indicator, const Color& color, Float32 value, Float32 xOfs, Float32 yOfs) const
 	{
 		glDepthMask(GL_FALSE);
 		glDisable(GL_TEXTURE_2D);
@@ -307,7 +307,7 @@ namespace Duel6
 		return 0.1f;
 	}
 
-	void Renderer::playerName(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
+	void WorldRenderer::playerName(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
 	{
 		const std::string& name = player.getPerson().getName();
 
@@ -342,7 +342,7 @@ namespace Duel6
 		glDepthMask(GL_TRUE);
 	}
 
-	void Renderer::bulletIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
+	void WorldRenderer::bulletIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
 	{
 		std::string bulletCount = Format("{0}") << player.getAmmo();
 
@@ -377,7 +377,7 @@ namespace Duel6
 		glDepthMask(GL_TRUE);
 	}
 
-	void Renderer::bonusIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
+	void WorldRenderer::bonusIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
 	{
 		Uint8 alpha = Uint8(255 * indicator.getAlpha());
 		glColor4ub(255, 255, 255, alpha);
@@ -409,7 +409,7 @@ namespace Duel6
 		glColor4ub(255, 255, 255, 255);
 	}
 
-	void Renderer::playerStatus(const Player& player) const
+	void WorldRenderer::playerStatus(const Player& player) const
 	{
 		const auto& indicators = player.getIndicators();
 
@@ -482,7 +482,7 @@ namespace Duel6
 		}
 	}
 
-	void Renderer::roundKills(const Player& player, Float32 xOfs, Float32 yOfs) const
+	void WorldRenderer::roundKills(const Player& player, Float32 xOfs, Float32 yOfs) const
 	{
 		glColor3ub(0, 0, 255);
 		glDisable(GL_TEXTURE_2D);
@@ -504,7 +504,7 @@ namespace Duel6
 		glColor3ub(255, 255, 255);
 	}
         
-	void Renderer::invulRing(const Player& player) const
+	void WorldRenderer::invulRing(const Player& player) const
 	{
 		Vector playerCentre = player.getCentre();
 		Float32 radius = player.getDimensions().length() / 2.0f;
@@ -528,7 +528,7 @@ namespace Duel6
 		glColor3ub(255, 255, 255);
 	}
 
-	void Renderer::invulRings(const std::vector<Player>& players) const
+	void WorldRenderer::invulRings(const std::vector<Player>& players) const
 	{
 		for (const Player& player : players)
 		{
@@ -539,9 +539,9 @@ namespace Duel6
 		}
 	}
 
-	void Renderer::splitBox(const PlayerView& view) const
+	void WorldRenderer::splitBox(const PlayerView& view) const
 	{
-		TheRenderer->setViewport(view.getX() - 2, view.getY() - 2, view.getWidth() + 4, view.getHeight() + 4);
+		setView(view.getX() - 2, view.getY() - 2, view.getWidth() + 4, view.getHeight() + 4);
 
 		glColor3f(1, 0, 0);
 		glBegin(GL_QUADS);
@@ -553,7 +553,7 @@ namespace Duel6
 		glColor3f(1, 1, 1);
 	}
 
-	void Renderer::infoMessages() const
+	void WorldRenderer::infoMessages() const
 	{
 		const InfoMessageQueue& messageQueue = game.getRound().getWorld().getMessageQueue();
 
@@ -570,7 +570,7 @@ namespace Duel6
 		}
 	}
 
-	void Renderer::shotCollisionBox(const ShotList& shotList) const
+	void WorldRenderer::shotCollisionBox(const ShotList& shotList) const
 	{
 		glColor3f(1.0f, 0.0f, 0.0f);
 
@@ -588,7 +588,7 @@ namespace Duel6
 		glColor3f(1.0f, 1.0f, 1.0f);
 	}
 
-	void Renderer::view(const Player& player) const
+	void WorldRenderer::view(const Player& player) const
 	{
 		glLoadIdentity();
 
@@ -625,7 +625,7 @@ namespace Duel6
 		}
 	}
 
-	Color Renderer::getGameOverOverlay() const
+	Color WorldRenderer::getGameOverOverlay() const
 	{
 		Uint8 overlay = Uint8(255.0f * game.getRound().getRemainingGameOverWait() / D6_GAME_OVER_WAIT);
 		if (game.isOver())
@@ -637,7 +637,7 @@ namespace Duel6
 		return Color(255, overlay, overlay);
 	}
 
-	void Renderer::fullScreen() const
+	void WorldRenderer::fullScreen() const
 	{
 		if (game.getRound().hasWinner())
 		{
@@ -652,7 +652,7 @@ namespace Duel6
 		view(player);		
 	}
 
-	void Renderer::splitScreen() const
+	void WorldRenderer::splitScreen() const
 	{
 		for (const Player& player : game.getPlayers())
 		{
@@ -674,7 +674,7 @@ namespace Duel6
 		}
 	}
 
-	void Renderer::render() const
+	void WorldRenderer::render() const
 	{
 		const GameSettings& settings = game.getSettings();
 

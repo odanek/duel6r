@@ -30,7 +30,7 @@
 #include "Util.h"
 #include "Math.h"
 #include "Menu.h"
-#include "Render.h"
+#include "WorldRenderer.h"
 #include "Game.h"
 #include "ConsoleCommands.h"
 #include "Weapon.h"

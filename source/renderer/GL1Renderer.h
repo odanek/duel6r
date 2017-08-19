@@ -34,7 +34,7 @@
 namespace Duel6
 {
     class GL1Renderer
-        : public IRenderer
+        : public Renderer
     {
     private:
         SDL_GLContext context;
