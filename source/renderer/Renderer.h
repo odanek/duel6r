@@ -65,6 +65,10 @@ namespace Duel6
 
         virtual void enableFaceCulling(bool enable) = 0;
         virtual void enableWireframe(bool enable) = 0;
+        virtual void enableDepthTest(bool enable) = 0;
+        virtual void enableDepthWrite(bool enable) = 0;
+
+        virtual void clearBuffers() = 0;
 
 
 

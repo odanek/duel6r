@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "GL1Renderer.h"
 
 namespace Duel6
@@ -118,18 +117,38 @@ namespace Duel6
 
     void GL1Renderer::enableFaceCulling(bool enable)
     {
-        if (enable)
-        {
-            glEnable(GL_CULL_FACE);
-        }
-        else
-        {
-            glDisable(GL_CULL_FACE);
-        }
+        enableOption(GL_CULL_FACE, enable);
     }
 
     void GL1Renderer::enableWireframe(bool enable)
     {
         glPolygonMode(GL_FRONT_AND_BACK, enable ? GL_LINE : GL_FILL);
+    }
+
+    void GL1Renderer::enableDepthTest(bool enable)
+    {
+        enableOption(GL_DEPTH_TEST, enable);
+    }
+
+    void GL1Renderer::enableDepthWrite(bool enable)
+    {
+        glDepthMask(GLboolean(enable ? GL_TRUE : GL_FALSE));
+    }
+
+    void GL1Renderer::clearBuffers()
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void GL1Renderer::enableOption(GLenum option, bool enable)
+    {
+        if (enable)
+        {
+            glEnable(option);
+        }
+        else
+        {
+            glDisable(option);
+        }
     }
 }

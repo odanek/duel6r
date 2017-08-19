@@ -29,6 +29,7 @@
 #define DUEL6_RENDERER_GL1RENDERER_H
 
 #include <SDL2/SDL_video.h>
+#include <SDL2/SDL_opengl.h>
 #include "Renderer.h"
 #include "../ScreenParameters.h"
 #include "../ViewParameters.h"
@@ -67,6 +68,13 @@ namespace Duel6
 
         void enableFaceCulling(bool enable) override;
         void enableWireframe(bool enable) override;
+        void enableDepthTest(bool enable) override;
+        void enableDepthWrite(bool enable) override;
+
+        void clearBuffers() override;
+
+    private:
+        void enableOption(GLenum option, bool enable);
     };
 }
 

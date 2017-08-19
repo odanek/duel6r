@@ -180,7 +180,7 @@ namespace Duel6
 
             // TODO: Remove
             glEnable(GL_TEXTURE_2D);
-            glEnable(GL_DEPTH_TEST);
+            globRenderer->enableDepthTest(true);
         }
         else
         {
@@ -191,7 +191,7 @@ namespace Duel6
 
             // TODO: Remove
             glDisable(GL_TEXTURE_2D);
-            glDisable(GL_DEPTH_TEST);
+            globRenderer->enableDepthTest(false);
         }
     }
 }

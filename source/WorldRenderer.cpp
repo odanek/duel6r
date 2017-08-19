@@ -53,14 +53,14 @@ namespace Duel6
 
 	void WorldRenderer::water(const FaceList& water) const
 	{
-		glDepthMask(GL_FALSE);
+		globRenderer->enableDepthWrite(false);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 
 		water.render(game.getResources().getBlockTextures());
 
 		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
+		globRenderer->enableDepthWrite(true);
 	}
 
 	void WorldRenderer::sprites(const FaceList& sprites) const
@@ -252,7 +252,7 @@ namespace Duel6
                 
 		glColor3ub(255, 255, 0);
 		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_DEPTH_TEST);
+        globRenderer->enableDepthTest(false);
 		glLineWidth(3.0f);
 		
 		Float32 radius = 0.5f + 0.5f * std::abs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
@@ -272,12 +272,12 @@ namespace Duel6
 		glEnable(GL_TEXTURE_2D);
 		glLineWidth(1.0f);
 		glColor3ub(255, 255, 255);
-		glEnable(GL_DEPTH_TEST);
+        globRenderer->enableDepthTest(true);
 	}
 
 	Float32 WorldRenderer::playerIndicator(const Player& player, const Indicator& indicator, const Color& color, Float32 value, Float32 xOfs, Float32 yOfs) const
 	{
-		glDepthMask(GL_FALSE);
+		globRenderer->enableDepthWrite(false);
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -304,7 +304,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
-		glDepthMask(GL_TRUE);
+		globRenderer->enableDepthWrite(true);
 		glColor4ub(255, 255, 255, 255);
 
 		return 0.1f;
@@ -320,7 +320,7 @@ namespace Duel6
 
 		Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
-		glDepthMask(GL_FALSE);
+		globRenderer->enableDepthWrite(false);
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -342,7 +342,7 @@ namespace Duel6
 		Color fontColor(255, 255, 0, alpha);
 		font.print(X, Y, 0.5f, fontColor, name, 0.3f);
 
-		glDepthMask(GL_TRUE);
+		globRenderer->enableDepthWrite(true);
 	}
 
 	void WorldRenderer::bulletIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
@@ -355,7 +355,7 @@ namespace Duel6
 
 		Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
-		glDepthMask(GL_FALSE);
+		globRenderer->enableDepthWrite(false);
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -377,7 +377,7 @@ namespace Duel6
 		Color fontColor(0, 0, 255, alpha);
 		font.print(X, Y, 0.5f, fontColor, bulletCount, 0.3f);
 
-		glDepthMask(GL_TRUE);
+		globRenderer->enableDepthWrite(true);
 	}
 
 	void WorldRenderer::bonusIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
@@ -391,7 +391,7 @@ namespace Duel6
 
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_ALPHA_TEST);
-		glDepthMask(GL_FALSE);
+		globRenderer->enableDepthWrite(false);
 		glAlphaFunc(GL_GEQUAL, 1);
 		glBindTexture(GL_TEXTURE_2D, player.getBonus().getTexture().getId());
 
@@ -407,7 +407,7 @@ namespace Duel6
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_ALPHA_TEST);
-		glDepthMask(GL_TRUE);
+		globRenderer->enableDepthWrite(true);
 
 		glColor4ub(255, 255, 255, 255);
 	}
@@ -679,7 +679,8 @@ namespace Duel6
 	{
 		const GameSettings& settings = game.getSettings();
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        globRenderer->clearBuffers();
+
 		glColor3f(1.0f, 1.0f, 1.0f);
 		if (settings.getScreenMode() == ScreenMode::FullScreen)
 		{

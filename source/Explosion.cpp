@@ -58,7 +58,7 @@ namespace Duel6
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GEQUAL, 1);
 
-		glDisable(GL_DEPTH_TEST);
+		globRenderer->enableDepthTest(false);
 		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
 		glBegin(GL_QUADS);
 
@@ -78,7 +78,7 @@ namespace Duel6
 		glEnd();
 		glColor3f(1, 1, 1);
 		glDisable(GL_ALPHA_TEST);
-		glEnable(GL_DEPTH_TEST);
+		globRenderer->enableDepthTest(true);
 	}
 
 	void ExplosionList::add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color)

@@ -27,6 +27,7 @@
 
 #include <SDL2/SDL_opengl.h>
 #include "SpriteList.h"
+#include "Video.h"
 
 namespace Duel6
 {
@@ -67,15 +68,15 @@ namespace Duel6
 		renderTransparent(false);
 
 		glDisable(GL_ALPHA_TEST);
+
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
-		glDepthMask(GL_FALSE);
+		globRenderer->enableDepthWrite(false);
 
 		renderTransparent(true);
 
-		glDepthMask(GL_TRUE);
+		globRenderer->enableDepthWrite(true);
 		glDisable(GL_BLEND);
-		glEnable(GL_DEPTH_TEST);
 	}
 
 	void SpriteList::renderTransparent(bool transparent) const

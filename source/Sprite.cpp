@@ -118,7 +118,7 @@ namespace Duel6
 
 		if (isNoDepth())
 		{
-			glDisable(GL_DEPTH_TEST);
+			globRenderer->enableDepthTest(false);
 		}
 
 		GLfloat cur_col[4];
@@ -163,7 +163,7 @@ namespace Duel6
 
 		if (isNoDepth())
 		{
-			glEnable(GL_DEPTH_TEST);
+			globRenderer->enableDepthTest(true);
 		}
 	}
 }
