@@ -33,64 +33,10 @@
 #include "../Color.h"
 #include "../Texture.h"
 #include "../Image.h"
+#include "../Material.h"
 
 namespace Duel6
 {
-    struct Material
-    {
-    private:
-        Texture texture;
-        Color color;
-        bool masked;
-
-    public:
-        explicit Material(const Texture& texture, const Color& color = Color::WHITE, bool masked = false)
-            : texture(texture), color(color), masked(masked)
-        {}
-
-        Material& operator=(const Material& m) = default;
-
-        const Texture& getTexture() const
-        {
-            return texture;
-        }
-
-        bool isColored() const
-        {
-            return &color != &Color::WHITE;
-        }
-
-        const Color& getColor() const
-        {
-            return color;
-        }
-
-        bool isMasked() const
-        {
-            return masked;
-        }
-
-        static Material makeTexture(const Texture& texture)
-        {
-            return Material(texture);
-        }
-
-        static Material makeColoredTexture(const Texture& texture, const Color& color)
-        {
-            return Material(texture, color);
-        }
-
-        static Material makeMaskedTexture(const Texture& texture)
-        {
-            return Material(texture, Color::WHITE, true);
-        }
-
-        static Material makeMaskedColoredTexture(const Texture& texture, const Color& color)
-        {
-            return Material(texture, color, true);
-        }
-    };
-
     class Renderer
     {
     public:
@@ -160,8 +106,9 @@ namespace Duel6
         virtual void quadYZ(const Vector& position, const Vector& size, const Vector& texturePosition,
                             const Vector& textureSize, const Material& material) = 0;
 
-        virtual void line(const Vector& position, const Vector& size, Float32 width, const Color& color) = 0;
         virtual void point(const Vector& position, Float32 size, const Color& color) = 0;
+        virtual void line(const Vector& from, const Vector& to, Float32 width, const Color& color) = 0;
+        virtual void frame(const Vector& position, const Vector& size, Float32 width, const Color& color) = 0;
     };
 }
 

@@ -96,8 +96,9 @@ namespace Duel6
         void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
                     const Vector &textureSize, const Material& material) override;
 
-        void line(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
+        void line(const Vector &from, const Vector &to, Float32 width, const Color &color) override;
         void point(const Vector &position, Float32 size, const Color &color) override;
+        void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
 
     private:
         void enableOption(GLenum option, bool enable);

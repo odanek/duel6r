@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include <stdlib.h>
 #include "Sound.h"
 #include "Video.h"
@@ -354,22 +353,9 @@ namespace Duel6
 		Int32 x = video.getScreen().getClientWidth() / 2 - width / 2,
 			  y = video.getScreen().getClientHeight() / 2 - 10;
 
-		glColor3f(1.0f, 0.8f, 0.8f);
-		glBegin(GL_QUADS);
-			glVertex2i(x, y);
-			glVertex2i(x, y + 20);
-			glVertex2i(x + width, y + 20);
-			glVertex2i(x + width, y);
-		glEnd();
-		glColor3f(0, 0, 0);
-		glLineWidth(2);
-		glBegin(GL_LINE_LOOP);
-			glVertex2i(x, y);
-			glVertex2i(x, y + 20);
-			glVertex2i(x + width, y + 20);
-			glVertex2i(x + width, y);
-		glEnd();
-		glLineWidth(1);
+		globRenderer->quadXY(Vector(x, y), Vector(width, 20), Color(255, 204, 204));
+		globRenderer->frame(Vector(x, y), Vector(width, 20), 2, Color::BLACK);
+
 		font.print(x + 30, y + 2, Color::RED, message);
 		video.screenUpdate(appService.getConsole(), font);
 	}
@@ -633,16 +619,9 @@ namespace Duel6
 
 		font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE, Format("{0} {1}") << "version" << APP_VERSION);
 
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, menuBannerTexture.at(0).getId());
-		glColor3ub(255, 255, 255);
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f); glVertex2i(300, video.getScreen().getClientHeight() - 5);
-			glTexCoord2f(1.0f, 0.0f); glVertex2i(500, video.getScreen().getClientHeight() - 5);
-			glTexCoord2f(1.0f, 1.0f); glVertex2i(500, video.getScreen().getClientHeight() - 100);
-			glTexCoord2f(0.0f, 1.0f); glVertex2i(300, video.getScreen().getClientHeight() - 100);
-		glEnd();
-		glDisable(GL_TEXTURE_2D);
+		Int32 clientHeight = video.getScreen().getClientHeight();
+		Material material = Material::makeTexture(menuBannerTexture.at(0));
+		globRenderer->quadXY(Vector(300, clientHeight - 100), Vector(200, 95), Vector(0, 1), Vector(1, -1), material);
 
 		globRenderer->setViewMatrix(Matrix::IDENTITY);
 	}

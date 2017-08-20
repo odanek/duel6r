@@ -247,9 +247,9 @@ namespace Duel6
 
     void GL1Renderer::quadXY(const Vector &position, const Vector &size, const Color &color)
     {
-        Vector p2 = Vector(position.x, position.y + size.y, position.z);
-        Vector p3 = Vector(position.x + size.x, position.y + size.y, position.z);
-        Vector p4 = Vector(position.x + size.x, position.y, position.z);
+        Vector p2(position.x, position.y + size.y, position.z);
+        Vector p3(position.x + size.x, position.y + size.y, position.z);
+        Vector p4(position.x + size.x, position.y, position.z);
 
         triangle(position, p2, p3, color);
         triangle(position, p3, p4, color);
@@ -259,12 +259,12 @@ namespace Duel6
                              const Vector &texturePosition, const Vector &textureSize,
                              const Material& material)
     {
-        Vector p2 = Vector(position.x, position.y + size.y, position.z);
-        Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
-        Vector p3 = Vector(position.x + size.x, position.y + size.y, position.z);
-        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4 = Vector(position.x + size.x, position.y, position.z);
-        Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
+        Vector p2(position.x, position.y + size.y, position.z);
+        Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
+        Vector p3(position.x + size.x, position.y + size.y, position.z);
+        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
+        Vector p4(position.x + size.x, position.y, position.z);
+        Vector t4(texturePosition.x + textureSize.x, texturePosition.y);
 
         triangle(position, texturePosition, p2, t2, p3, t3, material);
         triangle(position, texturePosition, p3, t3, p4, t4, material);
@@ -272,9 +272,9 @@ namespace Duel6
 
     void GL1Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color)
     {
-        Vector p2 = Vector(position.x + size.x, position.y, position.z);
-        Vector p3 = Vector(position.x + size.x, position.y, position.z + size.z);
-        Vector p4 = Vector(position.x, position.y, position.z + size.z);
+        Vector p2(position.x + size.x, position.y, position.z);
+        Vector p3(position.x + size.x, position.y, position.z + size.z);
+        Vector p4(position.x, position.y, position.z + size.z);
 
         triangle(position, p2, p3, color);
         triangle(position, p3, p4, color);
@@ -284,12 +284,12 @@ namespace Duel6
                              const Vector &texturePosition, const Vector &textureSize,
                              const Material& material)
     {
-        Vector p2 = Vector(position.x + size.x, position.y, position.z);
-        Vector t2 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
-        Vector p3 = Vector(position.x + size.x, position.y, position.z + size.z);
-        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4 = Vector(position.x, position.y, position.z + size.z);
-        Vector t4 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
+        Vector p2(position.x + size.x, position.y, position.z);
+        Vector t2(texturePosition.x + textureSize.x, texturePosition.y);
+        Vector p3(position.x + size.x, position.y, position.z + size.z);
+        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
+        Vector p4(position.x, position.y, position.z + size.z);
+        Vector t4(texturePosition.x, texturePosition.y + textureSize.y);
 
         triangle(position, texturePosition, p2, t2, p3, t3, material);
         triangle(position, texturePosition, p3, t3, p4, t4, material);
@@ -297,9 +297,9 @@ namespace Duel6
 
     void GL1Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color)
     {
-        Vector p2 = Vector(position.x, position.y + size.y, position.z);
-        Vector p3 = Vector(position.x, position.y + size.y, position.z + size.z);
-        Vector p4 = Vector(position.x, position.y, position.z + size.z);
+        Vector p2(position.x, position.y + size.y, position.z);
+        Vector p3(position.x, position.y + size.y, position.z + size.z);
+        Vector p4(position.x, position.y, position.z + size.z);
 
         triangle(position, p2, p3, color);
         triangle(position, p3, p4, color);
@@ -309,24 +309,53 @@ namespace Duel6
                              const Vector &texturePosition, const Vector &textureSize,
                              const Material& material)
     {
-        Vector p2 = Vector(position.x, position.y + size.y, position.z);
-        Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
-        Vector p3 = Vector(position.x, position.y + size.y, position.z + size.z);
-        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4 = Vector(position.x, position.y, position.z + size.z);
-        Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
+        Vector p2(position.x, position.y + size.y, position.z);
+        Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
+        Vector p3(position.x, position.y + size.y, position.z + size.z);
+        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
+        Vector p4(position.x, position.y, position.z + size.z);
+        Vector t4(texturePosition.x + textureSize.x, texturePosition.y);
 
         triangle(position, texturePosition, p2, t2, p3, t3, material);
         triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
-    void GL1Renderer::line(const Vector &position, const Vector &size, Float32 width, const Color &color)
-    {
-
-    }
-
     void GL1Renderer::point(const Vector &position, Float32 size, const Color &color)
     {
+        glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        glPointSize(size);
 
+        glBegin(GL_POINTS);
+        glVertex3f(position.x, position.y, position.z);
+        glEnd();
+
+        glPointSize(1.0f);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    void GL1Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color)
+    {
+        glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        glLineWidth(width);
+
+        glBegin(GL_LINES);
+        glVertex3f(from.x, from.y, from.z);
+        glVertex3f(to.x, to.y, to.z);
+        glEnd();
+
+        glLineWidth(1.0f);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    void GL1Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color)
+    {
+        Vector p2(position.x, position.y + size.y);
+        Vector p3(position.x + size.x, position.y + size.y);
+        Vector p4(position.x + size.x, position.y);
+
+        line(position, p2, width, color);
+        line(p2, p3, width, color);
+        line(p3, p4, width, color);
+        line(p4, position, width, color);
     }
 }

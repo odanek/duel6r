@@ -109,6 +109,7 @@ set(D6R_SOURCES
     source/LevelRenderData.h
     source/LevelRenderData.cpp
     source/Main.cpp
+	source/Material.h
     source/Math.h
     source/Math.cpp
 	source/Matrix.h
