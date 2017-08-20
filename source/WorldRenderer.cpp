@@ -74,17 +74,9 @@ namespace Duel6
 
 	void WorldRenderer::background(Texture texture) const
 	{
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texture.getId());
-
-		glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex2i(0, video.getScreen().getClientHeight());
-		glTexCoord2f(1, 0); glVertex2i(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
-		glTexCoord2f(1, 1); glVertex2i(video.getScreen().getClientWidth(), 0);
-		glTexCoord2f(0, 1); glVertex2i(0, 0);
-		glEnd();
-
-		glDisable(GL_TEXTURE_2D);
+		Int32 cw = video.getScreen().getClientWidth();
+		Int32 ch = video.getScreen().getClientHeight();
+		globRenderer->quadXY(Vector(0, 0), Vector(cw, ch), Vector(0, 1), Vector(1, -1), Material::makeTexture(texture));
 	}
 
 	void WorldRenderer::playerRankings() const
@@ -104,13 +96,7 @@ namespace Duel6
 		for (const auto& rankingEntry : ranking)
 		{			
 			globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-			glColor4f(0, 0, 1, 0.7f);
-			glBegin(GL_QUADS);
-				glVertex2i(posX, posY + 15);
-				glVertex2i(posX + 8 * maxNameLength, posY + 15);
-				glVertex2i(posX + 8 * maxNameLength, posY + 1);
-				glVertex2i(posX, posY + 1);
-			glEnd();
+			globRenderer->quadXY(Vector(posX, posY + 1), Vector(8 * maxNameLength, 14), Color(0, 0, 255, 178));
 			globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
 			Color fontColor(rankingEntry.color);
@@ -129,23 +115,8 @@ namespace Duel6
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-
-		glColor4f(1, 1, 1, 0.7f);
-        glBegin(GL_QUADS);
-        glVertex2i(x - 2, y + height + 2);
-        glVertex2i(x + width + 2, y + height + 2);
-        glVertex2i(x + width + 2, y - 2);
-        glVertex2i(x - 2, y - 2);
-        glEnd();
-
-        glColor4f(0, 0, 1, 0.7f);
-        glBegin(GL_QUADS);
-        glVertex2i(x, y + height);
-        glVertex2i(x + width, y + height);
-        glVertex2i(x + width, y );
-        glVertex2i(x, y);
-        glEnd();
-
+		globRenderer->quadXY(Vector(x - 2, y - 2), Vector(width + 4, height + 4), Color(255, 255, 255, 178));
+		globRenderer->quadXY(Vector(x, y), Vector(width, height), Color(0, 0, 255, 178));
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
         Color fontColor = Color::WHITE;
@@ -171,23 +142,8 @@ namespace Duel6
 		Int32 y = video.getScreen().getClientHeight() / 2 - height / 2;
 
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-
-		glColor4f(1, 1, 1, 0.7f);
-		glBegin(GL_QUADS);
-			glVertex2i(x - 2, y + height + 2);
-			glVertex2i(x + width + 2, y + height + 2);
-			glVertex2i(x + width + 2, y - 2);
-			glVertex2i(x - 2, y - 2);
-		glEnd();
-
-		glColor4f(0, 0, 1, 0.7f);
-		glBegin(GL_QUADS);
-			glVertex2i(x, y + height);
-			glVertex2i(x + width, y + height);
-			glVertex2i(x + width, y );
-			glVertex2i(x, y);
-		glEnd();
-
+		globRenderer->quadXY(Vector(x - 2, y - 2), Vector(width + 4, height + 4), Color(255, 255, 255, 178));
+		globRenderer->quadXY(Vector(x, y), Vector(width, height), Color(0, 0, 255, 178));
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
 		Color fontColor = Color::WHITE;
@@ -207,18 +163,11 @@ namespace Duel6
 
 	void WorldRenderer::roundsPlayed() const
 	{
-		int width = 135;
+		int width = 134;
 		int x = video.getScreen().getClientWidth() / 2 - width / 2;
 		int y = video.getScreen().getClientHeight() - 20;
-		
-		glBegin(GL_QUADS);
-			glColor3f(0.0f, 0.0f, 0.0f);
-			glVertex2i(x - 1, y + 17);
-			glVertex2i(x + width, y + 17);
-			glVertex2i(x + width, y - 1);
-			glVertex2i(x - 1, y - 1);
-		glEnd();
 
+		globRenderer->quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
 		font.print(x + 8, y, Color::WHITE, Format("Rounds: {0,3}|{1,3}") << game.getPlayedRounds() << game.getSettings().getMaxRounds());
 	}
 
@@ -230,14 +179,7 @@ namespace Duel6
 		Int32 x = Int32(video.getScreen().getClientWidth()) - width;
 		Int32 y = Int32(video.getScreen().getClientHeight()) - 20;
 
-		glBegin(GL_QUADS);
-			glColor3f(0.0f, 0.0f, 0.0f);
-			glVertex2i(x - 1, y + 17);
-			glVertex2i(x + width, y + 17);
-			glVertex2i(x + width, y - 1);
-			glVertex2i(x - 1, y - 1);
-		glEnd();
-
+		globRenderer->quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
 		font.print(x, y, Color::WHITE, fpsCount);
 	}
 
@@ -245,59 +187,45 @@ namespace Duel6
 	{
 		Float32 remainingTime = game.getRound().getRemainingYouAreHere();
 		if(remainingTime <= 0) return;
-                
-		glColor3ub(255, 255, 0);
+
         globRenderer->enableDepthTest(false);
-		glLineWidth(3.0f);
-		
+
 		Float32 radius = 0.5f + 0.5f * std::abs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
 		for (const Player& player : game.getPlayers())
 		{
 			Vector playerCentre = player.getCentre();
-			glBegin(GL_LINE_LOOP);
-			for (Int32 u = 0; u < 36; u++)
+			playerCentre.z = 0.5;
+
+			Vector lastPoint;
+			for (Int32 u = 0; u < 37; u++)
 			{				
 				Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
 				Vector pos = playerCentre + spike * radius * Vector::direction(u * 10);
-				glVertex3f(pos.x, pos.y, 0.5f);
+				if (u > 0)
+				{
+					globRenderer->line(lastPoint, pos, 3.0f, Color::YELLOW);
+				}
+				lastPoint = pos;
 			}
-			glEnd();
-		}		
+		}
 
-		glLineWidth(1.0f);
-		glColor3ub(255, 255, 255);
         globRenderer->enableDepthTest(true);
 	}
 
 	Float32 WorldRenderer::playerIndicator(const Player& player, const Indicator& indicator, const Color& color, Float32 value, Float32 xOfs, Float32 yOfs) const
 	{
-		globRenderer->enableDepthWrite(false);
-		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-		glBegin(GL_QUADS);
-
 		Float32 width = value * 0.98f;
 		Float32 X = xOfs - 0.5f;
 		Float32 Y = yOfs;
 
 		Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
-		glColor4ub(0, 0, 0, alpha);
-		glVertex3f(X, Y, 0.5f);
-		glVertex3f(X + 1.0f, Y, 0.5f);
-		glVertex3f(X + 1.0f, Y - 0.1f, 0.5f);
-		glVertex3f(X, Y - 0.1f, 0.5f);
-
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), alpha);
-		glVertex3f(X + 0.01f, Y - 0.01f, 0.5f);
-		glVertex3f(X + 0.01f + width, Y - 0.01f, 0.5f);
-		glVertex3f(X + 0.01f + width, Y - 0.08f, 0.5f);
-		glVertex3f(X + 0.01f, Y - 0.08f, 0.5f);
-
-		glEnd();
-
+		globRenderer->enableDepthWrite(false);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+		globRenderer->quadXY(Vector(X, Y - 0.1f, 0.5f), Vector(1.0f, 0.1f), Color::BLACK.withAlpha(alpha));
+		globRenderer->quadXY(Vector(X + 0.01f, Y - 0.08f, 0.5f), Vector(width, 0.07f), color.withAlpha(alpha));
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 		globRenderer->enableDepthWrite(true);
-		glColor4ub(255, 255, 255, 255);
 
 		return 0.1f;
 	}
@@ -314,22 +242,10 @@ namespace Duel6
 
 		globRenderer->enableDepthWrite(false);
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-		glBegin(GL_QUADS);
-
-		Color color(0, 0, 255, alpha);
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-
-		glVertex3f(X, Y, 0.5f);
-		glVertex3f(X, Y + 0.3f, 0.5f);
-		glVertex3f(X + width, Y + 0.3f, 0.5f);
-		glVertex3f(X + width, Y, 0.5f);
-
-		glEnd();
+		globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::BLUE.withAlpha(alpha));
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
-		glColor4ub(255, 255, 255, 255);
 
-		Color fontColor(255, 255, 0, alpha);
-		font.print(X, Y, 0.5f, fontColor, name, 0.3f);
+		font.print(X, Y, 0.5f, Color::YELLOW.withAlpha(alpha), name, 0.3f);
 
 		globRenderer->enableDepthWrite(true);
 	}
@@ -347,23 +263,10 @@ namespace Duel6
 		globRenderer->enableDepthWrite(false);
 
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-		glBegin(GL_QUADS);
-
-		Color color(255, 255, 0, alpha);
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-
-		glVertex3f(X, Y, 0.5f);
-		glVertex3f(X, Y + 0.3f, 0.5f);
-		glVertex3f(X + width, Y + 0.3f, 0.5f);
-		glVertex3f(X + width, Y, 0.5f);
-
-		glEnd();
+		globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::YELLOW.withAlpha(alpha));
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
-		glColor4ub(255, 255, 255, 255);
-
-		Color fontColor(0, 0, 255, alpha);
-		font.print(X, Y, 0.5f, fontColor, bulletCount, 0.3f);
+		font.print(X, Y, 0.5f, Color::BLUE.withAlpha(alpha), bulletCount, 0.3f);
 
 		globRenderer->enableDepthWrite(true);
 	}
@@ -371,33 +274,18 @@ namespace Duel6
 	void WorldRenderer::bonusIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const
 	{
 		Uint8 alpha = Uint8(255 * indicator.getAlpha());
-		glColor4ub(255, 255, 255, alpha);
+		Texture texture = player.getBonus().getTexture();
+		Material material = Material::makeColoredTexture(texture, Color::WHITE.withAlpha(alpha));
 
 		Float32 size = 0.3f;
 		Float32 X = xOfs - size / 2;
 		Float32 Y = yOfs;
 
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_ALPHA_TEST);
 		globRenderer->enableDepthWrite(false);
-		glAlphaFunc(GL_GEQUAL, 1);
-		glBindTexture(GL_TEXTURE_2D, player.getBonus().getTexture().getId());
-
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.3f, 0.3f);
-			glVertex3f(X, Y + size, 0.5f);
-			glTexCoord2f(0.7f, 0.3f);
-			glVertex3f(X + size, Y + size, 0.5f);
-			glTexCoord2f(0.7f, 0.7f);
-			glVertex3f(X + size, Y, 0.5f);
-			glTexCoord2f(0.3f, 0.7f);
-			glVertex3f(X, Y, 0.5f);
-		glEnd();
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_ALPHA_TEST);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+		globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f), Vector(0.4f, -0.4f), material);
+		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 		globRenderer->enableDepthWrite(true);
-
-		glColor4ub(255, 255, 255, 255);
 	}
 
 	void WorldRenderer::playerStatus(const Player& player) const
@@ -475,22 +363,14 @@ namespace Duel6
 
 	void WorldRenderer::roundKills(const Player& player, Float32 xOfs, Float32 yOfs) const
 	{
-		glColor3ub(0, 0, 255);
-		glPointSize(5.0f);
-
 		Float32 width = (2 * player.getRoundKills() - 1) * 0.1f;
 		Float32 X = xOfs + 0.05f - width / 2;
 		Float32 Y = yOfs + 0.1f;
 
-		glBegin(GL_POINTS);
-			for (Int32 i = 0; i < player.getRoundKills(); i++, X += 0.2f)
-			{
-				glVertex3f(X, Y, 0.5f);
-			}
-		glEnd();
-
-		glPointSize(1.0f);
-		glColor3ub(255, 255, 255);
+		for (Int32 i = 0; i < player.getRoundKills(); i++, X += 0.2f)
+		{
+			globRenderer->point(Vector(X, Y, 0.5f), 5.0f, Color::BLUE);
+		}
 	}
         
 	void WorldRenderer::invulRing(const Player& player) const
@@ -499,20 +379,12 @@ namespace Duel6
 		Float32 radius = player.getDimensions().length() / 2.0f;
 		Int32 p = Int32(player.getBonusRemainingTime() * 30) % 360;
 
-		glColor3ub(255, 0, 0);
-		glPointSize(2.0f);
-		glBegin(GL_POINTS);
-
 		for (Int32 uh = p; uh < 360 + p; uh += 15)
 		{
 			Int32 u = uh % 360;
 			Vector pos = playerCentre + radius * Vector::direction(u);
-			glVertex3f(pos.x, pos.y, 0.5f);
+			globRenderer->point(Vector(pos.x, pos.y, 0.5f), 2.0f, Color::RED);
 		}
-
-		glEnd();
-		glPointSize(1.0f);
-		glColor3ub(255, 255, 255);
 	}
 
 	void WorldRenderer::invulRings(const std::vector<Player>& players) const
@@ -563,20 +435,11 @@ namespace Duel6
 
 	void WorldRenderer::shotCollisionBox(const ShotList& shotList) const
 	{
-		glColor3f(1.0f, 0.0f, 0.0f);
-
 		shotList.forEach([](const Shot& shot) -> bool {
 			const auto& rect = shot.getCollisionRect();
-			glBegin(GL_LINE_LOOP);
-				glVertex3f(rect.left.x, rect.left.y, 0.6f);
-				glVertex3f(rect.left.x, rect.right.y, 0.6f);
-				glVertex3f(rect.right.x, rect.right.y, 0.6f);
-				glVertex3f(rect.right.x, rect.left.y, 0.6f);
-			glEnd();
+			globRenderer->frame(Vector(rect.left.x, rect.left.y, 0.6f), rect.getSize(), 1.0f, Color::RED);
 			return true;
 		});
-
-		glColor3f(1.0f, 1.0f, 1.0f);
 	}
 
 	void WorldRenderer::view(const Player& player) const
@@ -661,7 +524,6 @@ namespace Duel6
 
         globRenderer->clearBuffers();
 
-		glColor3f(1.0f, 1.0f, 1.0f);
 		if (settings.getScreenMode() == ScreenMode::FullScreen)
 		{
 			fullScreen();
@@ -673,7 +535,6 @@ namespace Duel6
 
 		video.setMode(Video::Mode::Orthogonal);
 		setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
-		glColor3f(1.0f, 1.0f, 1.0f);
 
 		infoMessages();
 

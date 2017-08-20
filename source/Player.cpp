@@ -112,7 +112,7 @@ namespace Duel6
 
 		indicators.hideAll(false);
 		indicators.getName().show(4.0f);
-		indicators.getBonus().show(bonusDuration + Indicator::FADE_DURATION);
+		indicators.getBonus().show(bonusDuration);
 		indicators.getBullets().show(4.0f);
 
 		roundStartTime = clock();

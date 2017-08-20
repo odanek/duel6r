@@ -31,8 +31,8 @@ Popis: Vykresleni konzoly
 */
 
 #include <time.h>
-#include <SDL2/SDL_opengl.h>
 #include "../Color.h"
+#include "../Video.h" // TODO: Remove
 #include "console.h"
 
 namespace Duel6
@@ -117,20 +117,11 @@ namespace Duel6
 	void Console::renderBackground(Int32 csX, Int32 csY, const Font& font) const
 	{
 		Int32 sizeY = (show + 2) * font.getCharHeight() + 2;
+		Int32 bottom = csY - sizeY;
 
-		glBegin(GL_QUADS);
-		glColor4ub(conCol[1].getRed(), conCol[1].getGreen(), conCol[1].getBlue(), 125);
-		glVertex2i(0, csY);
-		glVertex2i(csX, csY);
-		glColor4ub(conCol[2].getRed(), conCol[2].getGreen(), conCol[2].getBlue(), 125);
-		glVertex2i(csX, csY - sizeY);
-		glVertex2i(0, csY - sizeY);
-		glColor4ub(conCol[0].getRed(), conCol[0].getGreen(), conCol[0].getBlue(), 125);
-		glVertex2i(0, csY - sizeY);
-		glVertex2i(csX, csY - sizeY);
-		glVertex2i(csX, csY - sizeY - 3);
-		glVertex2i(0, csY - sizeY - 3);
-		glEnd();
+		// TODO: Gradient col[1] -> col[2]
+		globRenderer->quadXY(Vector(0, bottom), Vector(csX, sizeY), conCol[2]);
+		globRenderer->quadXY(Vector(0, bottom - 3), Vector(csX, 3), conCol[0]);
 	}
 
 	void Console::renderSeparator(Int32 csY, const Font& font) const

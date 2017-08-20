@@ -167,6 +167,11 @@ namespace Duel6
 			return *this;
 		}
 
+		Color withAlpha(Uint8 value) const
+		{
+			return Color(color[0], color[1], color[2], value);
+		}
+
 		Color& set(Size index, Uint8 value)
 		{
 			color[index] = value;
