@@ -25,9 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include <algorithm>
 #include "ListBox.h"
+#include "../Video.h"
 
 namespace Duel6
 {
@@ -170,13 +170,7 @@ namespace Duel6
 			Int32 Y, i, shift;
 
 			drawFrame(x - 2, y + 2, width + 4, height + 4, true);
-			glBegin(GL_QUADS);
-			glColor3ub(255, 255, 255);
-			glVertex2i(x, y);
-			glVertex2i(x + width, y);
-			glVertex2i(x + width, y - height + 1);
-			glVertex2i(x, y - height + 1);
-			glEnd();
+			globRenderer->quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
 
 			if (items.empty())
 				return;
@@ -190,13 +184,7 @@ namespace Duel6
 					break;
 				if (i == selected)
 				{
-					glBegin(GL_QUADS);
-					glColor3ub(0, 0, 200);
-					glVertex2i(x, Y);
-					glVertex2i(x + width - 1, Y);
-					glVertex2i(x + width - 1, Y - (itemHeight - 1));
-					glVertex2i(x, Y - (itemHeight - 1));
-					glEnd();
+					globRenderer->quadXY(Vector(x, Y - (itemHeight - 1)), Vector(width - 1, itemHeight - 1), Color(0, 0, 200));
 				}
 
 				font.print(x, Y - shift, (i == selected) ? Color(255) : Color(0), items[i]);

@@ -26,7 +26,6 @@
 */
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 #include "Desktop.h"
 #include "../Video.h"
 
@@ -70,14 +69,7 @@ namespace Duel6
 
 		void Desktop::draw(const Font& font) const
 		{
-			glBegin(GL_QUADS);
-			glColor3ub(bcgColor.getRed(), bcgColor.getGreen(), bcgColor.getBlue());
-			glVertex2i(0, 0);
-			glVertex2i(screenWidth, 0);
-			glVertex2i(screenWidth, screenHeight);
-			glVertex2i(0, screenHeight);
-			glEnd();
-
+			globRenderer->quadXY(Vector(0, 0), Vector(screenWidth, screenHeight), bcgColor);
 			globRenderer->setViewMatrix(Matrix::translate(Float32(trX), Float32(trY), 0));
 
 			for (auto& control : controls)

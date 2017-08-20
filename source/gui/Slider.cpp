@@ -24,8 +24,7 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-#include <SDL2/SDL_opengl.h>
+#include "../Video.h"
 #include <algorithm>
 #include "Slider.h"
 
@@ -134,29 +133,14 @@ namespace Duel6
 
 			px = up->getX() + 7 + (up->isPressed() ? 1 : 0);
 			py = up->getY() - 4 - (up->isPressed() ? 1 : 0);
-			glBegin(GL_TRIANGLES);
-			glColor3ub(0, 0, 0);
-			glVertex2i(px, py);
-			glVertex2i(px + 3, py - 6);
-			glVertex2i(px - 3, py - 6);
-			glEnd();
+			globRenderer->triangle(Vector(px, py), Vector(px + 2, py - 6), Vector(px - 3, py - 6), Color::BLACK);
+
 
 			px = down->getX() + 7 + (down->isPressed() ? 1 : 0);
 			py = down->getY() - 4 + (down->isPressed() ? 1 : 0);
-			glBegin(GL_TRIANGLES);
-			glColor3ub(0, 0, 0);
-			glVertex2i(px - 3, py);
-			glVertex2i(px + 3, py);
-			glVertex2i(px, py - 6);
-			glEnd();
+			globRenderer->triangle(Vector(px - 3, py), Vector(px + 3, py), Vector(px, py - 6), Color::BLACK);
 
-			glBegin(GL_QUADS);
-			glColor3ub(230, 230, 230);
-			glVertex2i(x, y);
-			glVertex2i(x + 15, y);
-			glVertex2i(x + 15, y - height + 1);
-			glVertex2i(x, y - height + 1);
-			glEnd();
+			globRenderer->quadXY(Vector(x, y - height + 1), Vector(15, height - 1), Color(230, 230, 230));
 
 			if (pos->items > 0)
 			{
@@ -165,13 +149,7 @@ namespace Duel6
 					s = height - h;
 			}
 
-			glBegin(GL_QUADS);
-			glColor3ub(bcgColor.getRed(), bcgColor.getGreen(), bcgColor.getBlue());
-			glVertex2i(x, y - s);
-			glVertex2i(x + 15, y - s);
-			glVertex2i(x + 15, y - s - h + 1);
-			glVertex2i(x, y - s - h + 1);
-			glEnd();
+			globRenderer->quadXY(Vector(x, y - s - h + 1), Vector(15, h - 1), bcgColor);
 
 			drawFrame(x, y - s, 16, h, false);
 		}

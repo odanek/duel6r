@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
+#include "../Video.h"
 #include "Spinner.h"
 
 namespace Duel6
@@ -125,28 +125,15 @@ namespace Duel6
 			int     px, py;
 
 			drawFrame(x + 20, y, width - 40, 18, true);
-			glBegin(GL_QUADS);
-			glColor3ub(255, 255, 255);
-			glVertex2i(x + 22, y - 1);
-			glVertex2i(x + width - 21, y - 1);
-			glVertex2i(x + width - 21, y - 16);
-			glVertex2i(x + 22, y - 16);
-			glEnd();
+			globRenderer->quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
 
-			glBegin(GL_TRIANGLES);
 			px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
 			py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
-			glColor3ub(0, 0, 0);
-			glVertex2i(px + 2, py);
-			glVertex2i(px + 2, py - 7);
-			glVertex2i(px - 2, py - 4);
+			globRenderer->triangle(Vector(px + 2, py), Vector(px + 2, py -7), Vector(px - 2, py - 4), Color::BLACK);
 
 			px = right->getX() + 7 + (right->isPressed() ? 1 : 0);
 			py = right->getY() - 4 - (right->isPressed() ? 1 : 0);
-			glVertex2i(px - 1, py);
-			glVertex2i(px - 1, py - 7);
-			glVertex2i(px + 3, py - 4);
-			glEnd();
+			globRenderer->triangle(Vector(px - 1, py), Vector(px - 1, py -7), Vector(px + 3, py - 4), Color::BLACK);
 
 			if (items.empty())
 				return;

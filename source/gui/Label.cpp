@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Label.h"
+#include "../Video.h"
 
 namespace Duel6
 {
@@ -56,14 +56,7 @@ namespace Duel6
 
 		void Label::draw(const Font& font) const
 		{
-			glBegin(GL_QUADS);
-			glColor3ub(170, 170, 170);
-			glVertex2i(x, y);
-			glVertex2i(x + width - 1, y);
-			glVertex2i(x + width - 1, y - height + 1);
-			glVertex2i(x, y - height + 1);
-			glEnd();
-
+			globRenderer->quadXY(Vector(x, y - height + 1), Vector(width - 1, height - 1), Color(170, 170, 170));
 			font.print(x, y - 15, Color(0), text);
 		}
 	}
