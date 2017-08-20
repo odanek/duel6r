@@ -28,6 +28,7 @@
 #ifndef DUEL6_RENDERER_RENDERER_H
 #define DUEL6_RENDERER_RENDERER_H
 
+#include <vector>
 #include "../Vector.h"
 #include "../Matrix.h"
 #include "../Color.h"
@@ -45,7 +46,7 @@ namespace Duel6
             std::string vendor;
             std::string renderer;
             std::string version;
-            std::string extensions;
+            std::vector<std::string> extensions;
         };
 
         enum class BlendFunc

@@ -261,34 +261,15 @@ namespace Duel6
 		console.printLine(Format("Version    : {0}") << info.version);
 		console.printLine("Extensions :");
 
-		const char* estr = info.extensions.c_str();
-
-		if (estr == nullptr || strlen(estr) < 2)
+		if (info.extensions.empty())
 		{
 			console.printLine("...No supported extensions");
 		}
 		else
 		{
-			while (*estr)
+			for (const auto& name : info.extensions)
 			{
-				while (*estr == ' ')
-				{
-					estr++;
-				}
-
-				if (*estr == 0)
-				{
-					break;
-				}
-
-				std::string extensionName;
-				while (*estr != ' ' && *estr != 0)
-				{
-					extensionName += *estr;
-					++estr;
-				}
-
-				console.printLine(Format("...{0}") << extensionName);
+				console.printLine(Format("...{0}") << name);
 			}
 		}
 

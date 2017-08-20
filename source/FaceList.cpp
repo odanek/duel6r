@@ -25,8 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "FaceList.h"
+#include "Video.h"
 
 namespace Duel6
 {
@@ -54,39 +54,35 @@ namespace Duel6
 		}
 	}
 
-	void FaceList::render(const TextureList& textures) const
+	void FaceList::render(const TextureList& textures, bool masked) const
 	{
 		if (faces.empty())
 		{
 			return;
 		}
 
-		Texture curTexture = textures.at(faces[0].getCurrentTexture());
-		Size first = 0, count = 0;
-
-		glEnable(GL_TEXTURE_2D);
-		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
+		const Vertex* vertex = &vertexes[0];
 
 		for (const Face& face : faces)
 		{
-			if (textures.at(face.getCurrentTexture()) != curTexture)
-			{
-				glBindTexture(GL_TEXTURE_2D, curTexture.getId());
-				glDrawArrays(GL_QUADS, (GLint)first, (GLsizei)count);
-				curTexture = textures.at(face.getCurrentTexture());
-				first += count;
-				count = 4;
-			}
-			else
-			{
-				count += 4;
-			}
-		}
+			const Texture& texture = textures.at(face.getCurrentTexture());
+			Material material(texture, Color::WHITE, masked);
 
-		glBindTexture(GL_TEXTURE_2D, curTexture.getId());
-		glDrawArrays(GL_QUADS, (GLint)first, (GLsizei)count);
-		glDisable(GL_TEXTURE_2D);
+			const Vertex& v1 = vertex[0];
+			const Vertex& v2 = vertex[1];
+			const Vertex& v3 = vertex[2];
+			const Vertex& v4 = vertex[3];
+
+			globRenderer->triangle(Vector(v1.x, v1.y, v1.z), Vector(v1.u, v1.v),
+								   Vector(v2.x, v2.y, v2.z), Vector(v2.u, v2.v),
+								   Vector(v3.x, v3.y, v3.z), Vector(v3.u, v3.v), material);
+
+			globRenderer->triangle(Vector(v1.x, v1.y, v1.z), Vector(v1.u, v1.v),
+								   Vector(v3.x, v3.y, v3.z), Vector(v3.u, v3.v),
+								   Vector(v4.x, v4.y, v4.z), Vector(v4.u, v4.v), material);
+
+			vertex += 4;
+		}
 	}
 
 	void FaceList::nextFrame()

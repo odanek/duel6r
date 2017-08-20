@@ -25,10 +25,26 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <SDL2/SDL_opengl.h>
 #include "GL1Renderer.h"
 
 namespace Duel6
 {
+    namespace
+    {
+        void enableOption(GLenum option, bool enable)
+        {
+            if (enable)
+            {
+                glEnable(option);
+            }
+            else
+            {
+                glDisable(option);
+            }
+        }
+    }
+
     GL1Renderer::GL1Renderer(SDL_GLContext context)
         : context(context), projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
     {}
@@ -39,9 +55,6 @@ namespace Duel6
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
-
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 
     Renderer::Info GL1Renderer::getInfo()
@@ -50,7 +63,34 @@ namespace Duel6
         info.vendor = (const char *)glGetString(GL_VENDOR);
         info.renderer = (const char *)glGetString(GL_RENDERER);
         info.version = (const char *)glGetString(GL_VERSION);
-        info.extensions = (const char *)glGetString(GL_EXTENSIONS);
+
+        const char *extensions = (const char *)glGetString(GL_EXTENSIONS);
+
+        if (extensions != nullptr)
+        {
+            while (*extensions != 0)
+            {
+                while (*extensions == ' ')
+                {
+                    extensions++;
+                }
+
+                if (*extensions == 0)
+                {
+                    break;
+                }
+
+                std::string extensionName;
+                while (*extensions != ' ' && *extensions != 0)
+                {
+                    extensionName += *extensions;
+                    ++extensions;
+                }
+
+                info.extensions.push_back(extensionName);
+            }
+        }
+
         return info;
     }
 
@@ -176,18 +216,6 @@ namespace Duel6
     void GL1Renderer::clearBuffers()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    void GL1Renderer::enableOption(GLenum option, bool enable)
-    {
-        if (enable)
-        {
-            glEnable(option);
-        }
-        else
-        {
-            glDisable(option);
-        }
     }
 
     void GL1Renderer::triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color)

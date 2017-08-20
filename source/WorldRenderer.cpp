@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "BonusList.h"
 #include "ElevatorList.h"
 #include "Game.h"
@@ -47,7 +46,7 @@ namespace Duel6
 	void WorldRenderer::walls(const FaceList& walls) const
 	{
 		globRenderer->enableFaceCulling(true);
-		walls.render(game.getResources().getBlockTextures());
+		walls.render(game.getResources().getBlockTextures(), false);
 		globRenderer->enableFaceCulling(false);
 	}
 
@@ -56,7 +55,7 @@ namespace Duel6
 		globRenderer->enableDepthWrite(false);
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
 
-		water.render(game.getResources().getBlockTextures());
+		water.render(game.getResources().getBlockTextures(), false);
 
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 		globRenderer->enableDepthWrite(true);
@@ -64,12 +63,7 @@ namespace Duel6
 
 	void WorldRenderer::sprites(const FaceList& sprites) const
 	{
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GEQUAL, 1);
-
-		sprites.render(game.getResources().getBlockTextures());
-
-		glDisable(GL_ALPHA_TEST);
+		sprites.render(game.getResources().getBlockTextures(), true);
 	}
 
 	void WorldRenderer::background(Texture texture) const

@@ -29,7 +29,6 @@
 #define DUEL6_RENDERER_GL1RENDERER_H
 
 #include <SDL2/SDL_video.h>
-#include <SDL2/SDL_opengl.h>
 #include "Renderer.h"
 #include "../ScreenParameters.h"
 #include "../ViewParameters.h"
@@ -99,9 +98,6 @@ namespace Duel6
         void line(const Vector &from, const Vector &to, Float32 width, const Color &color) override;
         void point(const Vector &position, Float32 size, const Color &color) override;
         void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
-
-    private:
-        void enableOption(GLenum option, bool enable);
     };
 }
 
