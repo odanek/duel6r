@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Font.h"
 #include "InfoMessageQueue.h"
 
@@ -83,15 +82,8 @@ namespace Duel6
 	void InfoMessageQueue::renderMessage(Int32 x, Int32 y, const std::string& msg, const Font& font)
 	{
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-		glColor4f(0, 0, 1, 0.7f);
-		glBegin(GL_QUADS);
-			glVertex2i(x, y + 15);
-			glVertex2i(x + 8 * GLint(msg.length()), y + 15);
-			glVertex2i(x + 8 * GLint(msg.length()), y + 1);
-			glVertex2i(x, y + 1);
-		glEnd();
+		globRenderer->quadXY(Vector(x, y + 1), Vector(8 * Uint32(msg.length()), 14), Color(0, 0, 255, 178));
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
-
 		font.print(x, y, Color::YELLOW, msg);
 	}
 

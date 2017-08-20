@@ -86,6 +86,14 @@ namespace Duel6
         void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
                   const Vector &textureSize, const Texture &texture) override;
 
+        void quadXZ(const Vector &position, const Vector &size, const Color &color) override;
+        void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,
+                    const Vector &textureSize, const Texture &texture) override;
+
+        void quadYZ(const Vector &position, const Vector &size, const Color &color) override;
+        void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
+                    const Vector &textureSize, const Texture &texture) override;
+
     private:
         void enableOption(GLenum option, bool enable);
     };

@@ -217,10 +217,9 @@ namespace Duel6
 
     void GL1Renderer::quadXY(const Vector &position, const Vector &size, const Color &color)
     {
-        Float32 z = position.z;
-        Vector p2 = Vector(position.x, position.y + size.y, z);
-        Vector p3 = Vector(position.x + size.x, position.y + size.y, z);
-        Vector p4 = Vector(position.x + size.x, position.y, z);
+        Vector p2 = Vector(position.x, position.y + size.y, position.z);
+        Vector p3 = Vector(position.x + size.x, position.y + size.y, position.z);
+        Vector p4 = Vector(position.x + size.x, position.y, position.z);
 
         triangle(position, p2, p3, color);
         triangle(position, p3, p4, color);
@@ -230,13 +229,62 @@ namespace Duel6
                            const Vector &texturePosition, const Vector &textureSize,
                            const Texture &texture)
     {
-        Float32 z = position.z;
-        Vector p2 = Vector(position.x, position.y + size.y, z);
-        Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y, 0.0f);
-        Vector p3 = Vector(position.x + size.x, position.y + size.y, z);
-        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y, 0.0f);
-        Vector p4 = Vector(position.x + size.x, position.y, z);
-        Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y, 0.0f);
+        Vector p2 = Vector(position.x, position.y + size.y, position.z);
+        Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
+        Vector p3 = Vector(position.x + size.x, position.y + size.y, position.z);
+        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
+        Vector p4 = Vector(position.x + size.x, position.y, position.z);
+        Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
+
+        triangle(position, texturePosition, p2, t2, p3, t3, texture);
+        triangle(position, texturePosition, p3, t3, p4, t4, texture);
+    }
+
+    void GL1Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color)
+    {
+        Vector p2 = Vector(position.x + size.x, position.y, position.z);
+        Vector p3 = Vector(position.x + size.x, position.y, position.z + size.z);
+        Vector p4 = Vector(position.x, position.y, position.z + size.z);
+
+        triangle(position, p2, p3, color);
+        triangle(position, p3, p4, color);
+    }
+
+    void GL1Renderer::quadXZ(const Vector &position, const Vector &size,
+                             const Vector &texturePosition, const Vector &textureSize,
+                             const Texture &texture)
+    {
+        Vector p2 = Vector(position.x + size.x, position.y, position.z);
+        Vector t2 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
+        Vector p3 = Vector(position.x + size.x, position.y, position.z + size.z);
+        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
+        Vector p4 = Vector(position.x, position.y, position.z + size.z);
+        Vector t4 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
+
+        triangle(position, texturePosition, p2, t2, p3, t3, texture);
+        triangle(position, texturePosition, p3, t3, p4, t4, texture);
+    }
+
+    void GL1Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color)
+    {
+        Vector p2 = Vector(position.x, position.y + size.y, position.z);
+        Vector p3 = Vector(position.x, position.y + size.y, position.z + size.z);
+        Vector p4 = Vector(position.x, position.y, position.z + size.z);
+
+        triangle(position, p2, p3, color);
+        triangle(position, p3, p4, color);
+    }
+
+    void GL1Renderer::quadYZ(const Vector &position, const Vector &size,
+                             const Vector &texturePosition, const Vector &textureSize,
+                             const Texture &texture)
+    {
+        Vector p2 = Vector(position.x, position.y + size.y, position.z);
+        Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
+        Vector p3 = Vector(position.x, position.y + size.y, position.z + size.z);
+        Vector t3 = Vector(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
+        Vector p4 = Vector(position.x, position.y, position.z + size.z);
+        Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
 
         triangle(position, texturePosition, p2, t2, p3, t3, texture);
         triangle(position, texturePosition, p3, t3, p4, t4, texture);

@@ -25,9 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Elevator.h"
 #include "Math.h"
+#include "Video.h"
 
 #define D6_ELEV_SPEED 1.83f
 
@@ -53,46 +53,21 @@ namespace Duel6
 		travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
 	}
 
-	void Elevator::render() const
+	void Elevator::render(const Texture& texture) const
 	{
-		Float32 X = position.x, Y = position.y;
+		Float32 X = position.x, Y = position.y - 0.3f;
 
 		// Front
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.7f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.7f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.7f);
+		globRenderer->quadXY(Vector(X, Y, 0.7f), Vector(1.0f, 0.3f), Vector::ZERO, Vector(1, 1), texture);
 
 #ifdef D6_RENDER_BACKS
-		// Back
-		glTexCoord2f (0.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.3f);
-		glTexCoord2f (1.0f, 0.0f); glVertex3f (X, Y, 0.3f);
-		glTexCoord2f (1.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.3f);
-		glTexCoord2f (0.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.3f);
+		globRenderer->quadXY(Vector(X + 1.0f, Y, 0.7f), Vector(-1.0f, 0.3f), Vector::ZERO, Vector(1, 1), texture);
 #endif
-		// Left
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.3f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X, Y, 0.7f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.7f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.3f);
+		globRenderer->quadYZ(Vector(X, Y, 0.3f), Vector(0.0f, 0.3f, 0.4f), Vector::ZERO, Vector(1, 1), texture);
+		globRenderer->quadYZ(Vector(X + 1.0f, Y, 0.7f), Vector(0.0f, 0.3f, -0.4f), Vector::ZERO, Vector(1, 1), texture);
 
-		// Right
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.7f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.3f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.3f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
-
-		// Top
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.3f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.3f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y, 0.7f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y, 0.7f);
-
-		// Base
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y - 0.3f, 0.7f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.3f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.3f);
+		globRenderer->quadXZ(Vector(X, Y + 0.3f, 0.3f), Vector(1.0f, 0.0f, 0.4f), Vector::ZERO, Vector(1, 1), texture);
+		globRenderer->quadXZ(Vector(X, Y, 0.7f), Vector(1.0f, 0.0f, -0.4f), Vector::ZERO, Vector(1, 1), texture);
 	}
 
 	void Elevator::nextSection()

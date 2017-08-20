@@ -31,6 +31,7 @@
 #include <vector>
 #include "Type.h"
 #include "Vector.h"
+#include "Texture.h"
 
 namespace Duel6
 {
@@ -76,7 +77,7 @@ namespace Duel6
 		
 		void start();
 		void update(Float32 elapsedTime);
-		void render() const;
+		void render(const Texture& texture) const;
 
 		const Vector& getPosition() const
 		{

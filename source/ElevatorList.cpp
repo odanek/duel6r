@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Player.h"
 #include "ElevatorList.h"
 #include "json/JsonParser.h"
@@ -73,17 +72,15 @@ namespace Duel6
 
 	void ElevatorList::render() const
 	{
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
-		glBegin(GL_QUADS);
+		globRenderer->enableFaceCulling(true);
 
+		const Texture& texture = textures.at(0);
 		for (const Elevator& elevator : elevators)
 		{
-			elevator.render();
+			elevator.render(texture);
 		}
 
-		glEnd();
-		glDisable(GL_TEXTURE_2D);
+		globRenderer->enableFaceCulling(false);
 	}
 
 	const Elevator* ElevatorList::checkPlayer(Player& player, Float32 speedFactor)

@@ -95,6 +95,11 @@ namespace Duel6
         virtual void quadXY(const Vector& position, const Vector& size, const Color& color) = 0;
         virtual void quadXY(const Vector& position, const Vector& size, const Vector& texturePosition, const Vector& textureSize, const Texture& texture) = 0;
 
+        virtual void quadXZ(const Vector& position, const Vector& size, const Color& color) = 0;
+        virtual void quadXZ(const Vector& position, const Vector& size, const Vector& texturePosition, const Vector& textureSize, const Texture& texture) = 0;
+
+        virtual void quadYZ(const Vector& position, const Vector& size, const Color& color) = 0;
+        virtual void quadYZ(const Vector& position, const Vector& size, const Vector& texturePosition, const Vector& textureSize, const Texture& texture) = 0;
 
 //        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
 //        virtual void quad(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
