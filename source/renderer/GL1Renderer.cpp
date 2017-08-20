@@ -54,13 +54,13 @@ namespace Duel6
         return info;
     }
 
-    Texture GL1Renderer::createTexture(const Image& image, TextureFilter filtering, bool clamp)
+    Texture GL1Renderer::createTexture(Int32 width, Int32 height, void* data, Int32 alignment, TextureFilter filtering, bool clamp)
     {
         GLuint textureId;
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D, textureId);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, (GLsizei)image.getWidth(), (GLsizei)image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+        glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+        glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
         GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
@@ -71,6 +71,14 @@ namespace Duel6
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 
         return Texture(textureId);
+    }
+
+    void GL1Renderer::setTextureFilter(const Texture &texture, TextureFilter filter)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture.getId());
+        GLint filterValue = filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterValue);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterValue);
     }
 
     void GL1Renderer::freeTexture(Texture texture)
@@ -198,10 +206,22 @@ namespace Duel6
     void GL1Renderer::triangle(const Vector& p1, const Vector& t1,
                                const Vector& p2, const Vector& t2,
                                const Vector& p3, const Vector& t3,
-                               const Texture& texture)
+                               const Material& material)
     {
+        if (material.isColored())
+        {
+            const Color& color = material.getColor();
+            glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        }
+
+        if (material.isMasked())
+        {
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(GL_GEQUAL, 1.0f);
+        }
+
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, texture.getId());
+        glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
 
         glBegin(GL_TRIANGLES);
         glTexCoord2f(t1.x, t1.y);
@@ -213,6 +233,16 @@ namespace Duel6
         glEnd();
 
         glDisable(GL_TEXTURE_2D);
+
+        if (material.isMasked())
+        {
+            glDisable(GL_ALPHA_TEST);
+        }
+
+        if (material.isColored())
+        {
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
 
     void GL1Renderer::quadXY(const Vector &position, const Vector &size, const Color &color)
@@ -226,8 +256,8 @@ namespace Duel6
     }
 
     void GL1Renderer::quadXY(const Vector &position, const Vector &size,
-                           const Vector &texturePosition, const Vector &textureSize,
-                           const Texture &texture)
+                             const Vector &texturePosition, const Vector &textureSize,
+                             const Material& material)
     {
         Vector p2 = Vector(position.x, position.y + size.y, position.z);
         Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
@@ -236,8 +266,8 @@ namespace Duel6
         Vector p4 = Vector(position.x + size.x, position.y, position.z);
         Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
 
-        triangle(position, texturePosition, p2, t2, p3, t3, texture);
-        triangle(position, texturePosition, p3, t3, p4, t4, texture);
+        triangle(position, texturePosition, p2, t2, p3, t3, material);
+        triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
     void GL1Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color)
@@ -252,7 +282,7 @@ namespace Duel6
 
     void GL1Renderer::quadXZ(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Texture &texture)
+                             const Material& material)
     {
         Vector p2 = Vector(position.x + size.x, position.y, position.z);
         Vector t2 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
@@ -261,8 +291,8 @@ namespace Duel6
         Vector p4 = Vector(position.x, position.y, position.z + size.z);
         Vector t4 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
 
-        triangle(position, texturePosition, p2, t2, p3, t3, texture);
-        triangle(position, texturePosition, p3, t3, p4, t4, texture);
+        triangle(position, texturePosition, p2, t2, p3, t3, material);
+        triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
     void GL1Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color)
@@ -277,7 +307,7 @@ namespace Duel6
 
     void GL1Renderer::quadYZ(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Texture &texture)
+                             const Material& material)
     {
         Vector p2 = Vector(position.x, position.y + size.y, position.z);
         Vector t2 = Vector(texturePosition.x, texturePosition.y + textureSize.y);
@@ -286,7 +316,17 @@ namespace Duel6
         Vector p4 = Vector(position.x, position.y, position.z + size.z);
         Vector t4 = Vector(texturePosition.x + textureSize.x, texturePosition.y);
 
-        triangle(position, texturePosition, p2, t2, p3, t3, texture);
-        triangle(position, texturePosition, p3, t3, p4, t4, texture);
+        triangle(position, texturePosition, p2, t2, p3, t3, material);
+        triangle(position, texturePosition, p3, t3, p4, t4, material);
+    }
+
+    void GL1Renderer::line(const Vector &position, const Vector &size, Float32 width, const Color &color)
+    {
+
+    }
+
+    void GL1Renderer::point(const Vector &position, Float32 size, const Color &color)
+    {
+
     }
 }

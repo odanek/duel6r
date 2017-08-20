@@ -165,7 +165,8 @@ namespace Duel6
 	void Bonus::render() const
 	{
 		Vector pos = getSpritePosition();
-		globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), texture);
+		Material material = Material::makeMaskedTexture(texture);
+		globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), material);
 	}
 
 	LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, const Vector& position)
@@ -177,6 +178,7 @@ namespace Duel6
 	void LyingWeapon::render() const
 	{
 		Vector pos = getSpritePosition();
-		globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), weapon.getBonusTexture());
+		Material material = Material::makeMaskedTexture(weapon.getBonusTexture());
+		globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), material);
 	}
 }

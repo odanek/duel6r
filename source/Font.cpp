@@ -25,14 +25,8 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Prace s fonty, psani na obrazovku
-*/
-
 #include <list>
 #include <unordered_map>
-#include <SDL2/SDL_opengl.h>
 #include "console/console.h"
 #include "Font.h"
 #include "FontException.h"
@@ -90,8 +84,7 @@ namespace Duel6
 					Entry lastEntry = entryList.back();
 					entryList.pop_back();
 					entryMap.erase(lastEntry.text);
-					GLuint textureId = lastEntry.texture.getId();
-					glDeleteTextures(1, &textureId);
+					globRenderer->freeTexture(lastEntry.texture);
 				}
 			}
 
@@ -99,8 +92,7 @@ namespace Duel6
 			{
 				for (const Entry& entry : entryList)
 				{
-					GLuint textureId = entry.texture.getId();
-					glDeleteTextures(1, &textureId);
+					globRenderer->freeTexture(entry.texture);
 				}
 				entryList.clear();
 				entryMap.clear();
@@ -163,11 +155,11 @@ namespace Duel6
 		}
 
 		Texture texture = getTexture(str);
+		Material material = Material::makeColoredTexture(texture, color);
 		Float32 width = getTextWidth(str, height);
 
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		globRenderer->quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), texture);
+		globRenderer->quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), material);
 		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 	}
 
@@ -188,22 +180,11 @@ namespace Duel6
 
 		SDL_LockSurface(image);
 
-		GLuint texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// Clamp texture coordinates
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		Texture texture = globRenderer->createTexture(image->w, image->h, image->pixels, 4, TextureFilter::LINEAR, true);
 
 		SDL_UnlockSurface(image);
 		SDL_FreeSurface(image);
 
-		return Texture(texture);
+		return texture;
 	}
 }

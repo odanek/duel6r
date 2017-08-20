@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Util.h"
 #include "Explosion.h"
 
@@ -55,31 +54,17 @@ namespace Duel6
 
 	void ExplosionList::render() const
 	{
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GEQUAL, 1);
-
 		globRenderer->enableDepthTest(false);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
-		glBegin(GL_QUADS);
 
 		for (const Explosion& explosion : explosions)
 		{
-			glColor3ub(explosion.color.getRed(), explosion.color.getGreen(), explosion.color.getBlue());
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(explosion.centre.x - explosion.now, explosion.centre.y + explosion.now, 0.6f);
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(explosion.centre.x + explosion.now, explosion.centre.y + explosion.now, 0.6f);
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(explosion.centre.x + explosion.now, explosion.centre.y - explosion.now, 0.6f);
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(explosion.centre.x - explosion.now, explosion.centre.y - explosion.now, 0.6f);
+			Material material = Material::makeMaskedColoredTexture(textures.at(0), explosion.color);
+			Vector position = explosion.centre - Vector(explosion.now, explosion.now);
+			position.z = 0.6f;
+			Vector size = Vector(2 * explosion.now, 2 * explosion.now);
+			globRenderer->quadXY(position, size, Vector::ZERO, Vector(1, 1), material);
 		}
 
-		glEnd();
-		glColor3f(1, 1, 1);
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_ALPHA_TEST);
 		globRenderer->enableDepthTest(true);
 	}
 

@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include <stdlib.h>
 #include "Sound.h"
 #include "BonusList.h"
@@ -40,9 +39,6 @@ namespace Duel6
 
 	void BonusList::render() const
 	{
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GEQUAL, 1);
-
 		for (const Bonus& bonus : bonuses)
 		{
 			bonus.render();
@@ -52,8 +48,6 @@ namespace Duel6
 		{
 			weapon.render();
 		}
-
-		glDisable(GL_ALPHA_TEST);
 	}
 
 	void BonusList::addRandomBonus()

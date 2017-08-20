@@ -62,7 +62,7 @@ namespace Duel6
 			Image image;
 			Util::loadTargaImage(path + file, image);
 			substituteColors(image, substitutionTable);
-			Texture texture = globRenderer->createTexture(image, filtering, clamp);
+			Texture texture = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1, filtering, clamp);
 			list.push_back(texture);
 		}
 

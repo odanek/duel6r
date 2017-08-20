@@ -36,6 +36,60 @@
 
 namespace Duel6
 {
+    struct Material
+    {
+    private:
+        Texture texture;
+        Color color;
+        bool masked;
+
+    public:
+        explicit Material(const Texture& texture, const Color& color = Color::WHITE, bool masked = false)
+            : texture(texture), color(color), masked(masked)
+        {}
+
+        Material& operator=(const Material& m) = default;
+
+        const Texture& getTexture() const
+        {
+            return texture;
+        }
+
+        bool isColored() const
+        {
+            return &color != &Color::WHITE;
+        }
+
+        const Color& getColor() const
+        {
+            return color;
+        }
+
+        bool isMasked() const
+        {
+            return masked;
+        }
+
+        static Material makeTexture(const Texture& texture)
+        {
+            return Material(texture);
+        }
+
+        static Material makeColoredTexture(const Texture& texture, const Color& color)
+        {
+            return Material(texture, color);
+        }
+
+        static Material makeMaskedTexture(const Texture& texture)
+        {
+            return Material(texture, Color::WHITE, true);
+        }
+
+        static Material makeMaskedColoredTexture(const Texture& texture, const Color& color)
+        {
+            return Material(texture, color, true);
+        }
+    };
 
     class Renderer
     {
@@ -61,7 +115,9 @@ namespace Duel6
         virtual void initialize() = 0;
         virtual Info getInfo() = 0;
 
-        virtual Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) = 0;
+        virtual Texture createTexture(Int32 width, Int32 height, void* data, Int32 alignment,
+                                      TextureFilter filtering, bool clamp) = 0;
+        virtual void setTextureFilter(const Texture& texture, TextureFilter filter) = 0;
         virtual void freeTexture(Texture texture) = 0;
 
         virtual void readScreenData(Int32 width, Int32 height, Image& image) = 0;
@@ -90,20 +146,22 @@ namespace Duel6
         virtual void triangle(const Vector& p1, const Vector& t1,
                               const Vector& p2, const Vector& t2,
                               const Vector& p3, const Vector& t3,
-                              const Texture& texture) = 0;
+                              const Material& material) = 0;
 
         virtual void quadXY(const Vector& position, const Vector& size, const Color& color) = 0;
-        virtual void quadXY(const Vector& position, const Vector& size, const Vector& texturePosition, const Vector& textureSize, const Texture& texture) = 0;
+        virtual void quadXY(const Vector& position, const Vector& size, const Vector& texturePosition,
+                            const Vector& textureSize, const Material& material) = 0;
 
         virtual void quadXZ(const Vector& position, const Vector& size, const Color& color) = 0;
-        virtual void quadXZ(const Vector& position, const Vector& size, const Vector& texturePosition, const Vector& textureSize, const Texture& texture) = 0;
+        virtual void quadXZ(const Vector& position, const Vector& size, const Vector& texturePosition,
+                            const Vector& textureSize, const Material& material) = 0;
 
         virtual void quadYZ(const Vector& position, const Vector& size, const Color& color) = 0;
-        virtual void quadYZ(const Vector& position, const Vector& size, const Vector& texturePosition, const Vector& textureSize, const Texture& texture) = 0;
+        virtual void quadYZ(const Vector& position, const Vector& size, const Vector& texturePosition,
+                            const Vector& textureSize, const Material& material) = 0;
 
-//        virtual void block(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
-//        virtual void quad(const Vector& position, const Vector& size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
-//        virtual void orthoQuad(Vector position, Vector size, const Material& material, const Matrix& transform = Matrix::IDENTITY) = 0;
+        virtual void line(const Vector& position, const Vector& size, Float32 width, const Color& color) = 0;
+        virtual void point(const Vector& position, Float32 size, const Color& color) = 0;
     };
 }
 

@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "SpriteList.h"
 #include "Video.h"
 
@@ -62,12 +61,7 @@ namespace Duel6
 
 	void SpriteList::render() const
 	{
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GEQUAL, 1);
-
 		renderTransparent(false);
-
-		glDisable(GL_ALPHA_TEST);
 
 		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
 		globRenderer->enableDepthWrite(false);

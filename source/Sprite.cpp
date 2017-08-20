@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Sprite.h"
 #include "Video.h"
 
@@ -121,10 +120,9 @@ namespace Duel6
 			globRenderer->enableDepthTest(false);
 		}
 
-        glColor4f(1.0f, 1.0f, 1.0f, alpha);
-
 		Int32 textureIndex = animation[frame];
 		Texture texture = textures.at(textureIndex);
+		Material material(texture, Color(255, 255, 255, Uint8(255 * alpha)), !isTransparent());
 
 		bool rotated = zRotation != 0.0;
 		if (rotated)
@@ -142,14 +140,12 @@ namespace Duel6
 		Vector texturePos = Vector(reversed ? 1.0f : 0.0f, 1.0f);
 		Vector textureSize = Vector(reversed ? -1.0f : 1.0f, -1.0f);
 
-		globRenderer->quadXY(Vector(position.x, position.y, z), size, texturePos, textureSize, texture);
+		globRenderer->quadXY(Vector(position.x, position.y, z), size, texturePos, textureSize, material);
 
 		if (rotated)
 		{
 			globRenderer->setModelMatrix(Matrix::IDENTITY);
 		}
-
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		if (isNoDepth())
 		{

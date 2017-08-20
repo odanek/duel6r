@@ -51,7 +51,9 @@ namespace Duel6
         void initialize() override;
         Info getInfo() override;
 
-        Texture createTexture(const Image& image, TextureFilter filtering, bool clamp) override;
+        Texture createTexture(Int32 width, Int32 height, void* data, Int32 alignment,
+                              TextureFilter filtering, bool clamp) override;
+        void setTextureFilter(const Texture &texture, TextureFilter filter) override;
         void freeTexture(Texture texture) override;
 
         void readScreenData(Int32 width, Int32 height, Image& image) override;
@@ -80,19 +82,22 @@ namespace Duel6
         void triangle(const Vector& p1, const Vector& t1,
                       const Vector& p2, const Vector& t2,
                       const Vector& p3, const Vector& t3,
-                      const Texture& texture) override;
+                      const Material& material) override;
 
         void quadXY(const Vector &position, const Vector &size, const Color &color) override;
         void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
-                  const Vector &textureSize, const Texture &texture) override;
+                  const Vector &textureSize, const Material& material) override;
 
         void quadXZ(const Vector &position, const Vector &size, const Color &color) override;
         void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Texture &texture) override;
+                    const Vector &textureSize, const Material& material) override;
 
         void quadYZ(const Vector &position, const Vector &size, const Color &color) override;
         void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Texture &texture) override;
+                    const Vector &textureSize, const Material& material) override;
+
+        void line(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
+        void point(const Vector &position, Float32 size, const Color &color) override;
 
     private:
         void enableOption(GLenum option, bool enable);
