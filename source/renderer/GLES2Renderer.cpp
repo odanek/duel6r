@@ -34,7 +34,9 @@ namespace Duel6
     static const char* colorVertexShader =
                     "attribute vec3 vp;"
                     "uniform mat4 mvp;"
+                    "uniform float pointSize;"
                     "void main() {"
+                    "  gl_PointSize = pointSize;"
                     "  gl_Position = mvp * vec4(vp, 1.0);"
                     "}";
     static const char* textureVertexShader =
@@ -275,6 +277,7 @@ namespace Duel6
         points[6] = p3.x; points[7] = p3.y; points[8] = p3.z;
 
         glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        glUniform1f(glGetUniformLocation(colorProgram, "pointSize"), 1.0f);
 
         Float32 colorData[] = { color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() / 255.0f};
         GLint location = glGetUniformLocation(colorProgram, "color");
@@ -300,7 +303,7 @@ namespace Duel6
         points[11] = t2.x; points[12] = t2.y;
         points[13] = t3.x; points[14] = t3.y;
 
-        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        glUniformMatrix4fv(glGetUniformLocation(textureProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
         glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
         glUniform1i(glGetUniformLocation(textureProgram, "myTex"), 0);
@@ -391,7 +394,6 @@ namespace Duel6
 
     void GLES2Renderer::point(const Vector &position, Float32 size, const Color &color)
     {
-        // TODO: gl_PointSize
         glUseProgram(colorProgram);
         glEnableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
@@ -399,6 +401,7 @@ namespace Duel6
         points[0] = position.x; points[1] = position.y; points[2] = position.z;
 
         glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        glUniform1f(glGetUniformLocation(colorProgram, "pointSize"), size);
 
         Float32 colorData[] = { color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() / 255.0f};
         GLint location = glGetUniformLocation(colorProgram, "color");
