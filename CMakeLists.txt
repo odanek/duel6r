@@ -34,6 +34,9 @@ endif(MINGW)
 # platform-independent debug macro
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
+# Renderer switch
+set(D6R_RENDERER "es2")
+
 #########################################################################
 #
 # Duel 6 Reloaded
@@ -302,14 +305,22 @@ set(D6R_SOURCES
     source/gamemodes/Predator.h
 
 	source/renderer/Renderer.h
-	source/renderer/GL1Renderer.h
-	source/renderer/GL1Renderer.cpp
-	source/renderer/GLES2Renderer.h
-	source/renderer/GLES2Renderer.cpp
 
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
+
+#    glew/glew.c
     )
+
+if(D6R_RENDERER STREQUAL "gl1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")
+	set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL1Renderer.h source/renderer/GL1Renderer.cpp)
+endif(D6R_RENDERER STREQUAL "gl1")
+
+if(D6R_RENDERER STREQUAL "es2")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES2")
+	set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
+endif(D6R_RENDERER STREQUAL "es2")
 
 if(WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)
@@ -360,6 +371,8 @@ else(APPLE) # MSVC, GCC or MINGW
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
 endif(APPLE)
+
+include_directories("glew")
 
 ########################
 #  Install application

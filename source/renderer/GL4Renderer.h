@@ -25,26 +25,29 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GL1RENDERER_H
-#define DUEL6_RENDERER_GL1RENDERER_H
+#ifndef DUEL6_RENDERER_GL4RENDERER_H
+#define DUEL6_RENDERER_GL4RENDERER_H
 
-#include <SDL2/SDL_video.h>
-#include <SDL2/SDL_opengl.h>
+//#define GLEW_STATIC
+//#include <GL/glew.h>
 #include "Renderer.h"
 
 namespace Duel6
 {
-    class GL1Renderer
-        : public Renderer
+    class GL4Renderer
+            : public Renderer
     {
     private:
-        SDL_GLContext context;
+        void* context;
         Matrix projectionMatrix;
         Matrix viewMatrix;
         Matrix modelMatrix;
+        Matrix mvpMatrix;
+        GLuint colorTriangleProgram;
+        GLuint textureTriangleProgram;
 
     public:
-        explicit GL1Renderer(SDL_GLContext context);
+        explicit GL4Renderer(void* context);
 
         void initialize() override;
         Info getInfo() override;
@@ -84,7 +87,7 @@ namespace Duel6
 
         void quadXY(const Vector &position, const Vector &size, const Color &color) override;
         void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
-                  const Vector &textureSize, const Material& material) override;
+                    const Vector &textureSize, const Material& material) override;
 
         void quadXZ(const Vector &position, const Vector &size, const Color &color) override;
         void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,

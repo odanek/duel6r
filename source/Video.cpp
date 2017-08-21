@@ -28,7 +28,11 @@
 #include "VideoException.h"
 #include "Video.h"
 
-#include "renderer/GL1Renderer.h"
+#if defined(D6_RENDERER_GL1)
+	#include "renderer/GL1Renderer.h"
+#elif defined(D6_RENDERER_GLES2)
+	#include "renderer/GLES2Renderer.h"
+#endif
 
 namespace Duel6
 {
@@ -132,9 +136,20 @@ namespace Duel6
 
 	SDL_GLContext Video::createContext(const ScreenParameters& params, Console& console)
 	{
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+#if defined(D6_RENDERER_GL1)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+#elif defined(D6_RENDERER_GLES2)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
+
+//      OpenGL 4.3
+//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 		SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, params.getBitsPerPixel());
 		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
@@ -172,7 +187,11 @@ namespace Duel6
 
     Renderer* Video::createRenderer()
     {
-        Renderer* renderer = new GL1Renderer(glContext);
+#if defined(D6_RENDERER_GL1)
+        Renderer* renderer = new GLE1Renderer(glContext);
+#elif defined(D6_RENDERER_GLES2)
+        Renderer* renderer = new GLES2Renderer(glContext);
+#endif
         renderer->initialize();
         return renderer;
     }
