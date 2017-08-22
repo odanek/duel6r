@@ -75,7 +75,9 @@ namespace Duel6
 
     void GLES2Renderer::initialize()
     {
-//        glewInit();
+#ifdef D6_GLEW
+        glewInit();
+#endif
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);

@@ -28,9 +28,12 @@
 #ifndef DUEL6_RENDERER_GLES2RENDERER_H
 #define DUEL6_RENDERER_GLES2RENDERER_H
 
-//#define GLEW_STATIC
-//#include <GL/glew.h>
-#include <SDL2/SDL_opengles2.h>
+#ifdef D6_GLEW
+    #define GLEW_STATIC
+    #include <GL/glew.h>
+#else
+    #include <SDL2/SDL_opengles2.h>
+#endif
 #include "Renderer.h"
 
 namespace Duel6
