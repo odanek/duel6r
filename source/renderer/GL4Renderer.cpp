@@ -61,9 +61,9 @@ namespace Duel6
             "#version 430\n"
                     "in vec2 uv;"
                     "out vec4 result;"
-                    "uniform sampler2D myTex;"
+                    "uniform sampler2D textureUnit;"
                     "void main() {"
-                    "  result = texture2D(myTex, uv);"
+                    "  result = texture2D(textureUnit, uv);"
                     "}";
 
     GL4Renderer::GL4Renderer(void* context)
@@ -278,7 +278,7 @@ namespace Duel6
         glUseProgram(textureTriangleProgram);
 
         glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
-        glUniform1i(glGetUniformLocation(textureTriangleProgram, "myTex"), 0);
+        glUniform1i(glGetUniformLocation(textureTriangleProgram, "textureUnit"), 0);
 
         glUniformMatrix4fv(glGetUniformLocation(textureTriangleProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 

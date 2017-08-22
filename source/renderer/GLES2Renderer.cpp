@@ -59,11 +59,11 @@ namespace Duel6
     static const char* textureFragmentShader =
                     "precision highp float;"
                     "varying vec2 uvFrag;"
-                    "uniform sampler2D myTex;"
+                    "uniform sampler2D textureUnit;"
                     "uniform bool alphaTest;"
                     "uniform vec4 modulateColor;"
                     "void main() {"
-                    "  vec4 color = texture2D(myTex, uvFrag);"
+                    "  vec4 color = texture2D(textureUnit, uvFrag);"
                     "  if (alphaTest && color.w < 1.0) discard;"
                     "  gl_FragColor = color * modulateColor;"
                     "}";
@@ -308,7 +308,7 @@ namespace Duel6
         glUniformMatrix4fv(glGetUniformLocation(textureProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
         glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
-        glUniform1i(glGetUniformLocation(textureProgram, "myTex"), 0);
+        glUniform1i(glGetUniformLocation(textureProgram, "textureUnit"), 0);
 
         glUniform1i(glGetUniformLocation(textureProgram, "alphaTest"), material.isMasked() ? 1 : 0);
 
