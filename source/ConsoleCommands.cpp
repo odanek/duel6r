@@ -293,6 +293,20 @@ namespace Duel6
 		console.printLine("");
 	}
 
+    void ConsoleCommands::vsync(Console& console, const Console::Arguments& args)
+    {
+        if (args.length() == 1)
+        {
+            bool enabled = (SDL_GL_GetSwapInterval() == 1);
+            console.printLine(Format("Vertical synchronization: {0}") << (enabled ? "on" : "off"));
+        }
+        else if (args.length() == 2)
+        {
+            bool enable = (args.get(1) == "on");
+            SDL_GL_SetSwapInterval(enable ? 1 : 0);
+        }
+    }
+
 	void ConsoleCommands::registerCommands(Console& console, AppService& appService, Menu& menu, GameSettings& gameSettings)
 	{
 		// Set some console functions
@@ -304,6 +318,7 @@ namespace Duel6
 			toggleShowFps(con, args, gameSettings);
 		});
 		console.registerCommand("gl_info", openGLInfo);
+		console.registerCommand("vsync", vsync);
 		console.registerCommand("volume", [&appService](Console& con, const Console::Arguments& args) {
 			volume(con, args, appService.getSound());
 		});
