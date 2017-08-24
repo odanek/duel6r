@@ -181,7 +181,24 @@ namespace Duel6
 
 		bool hasHigherScoreThan(const Person& person) const
 		{
-			return getTotalPoints() > person.getTotalPoints() || (getTotalPoints() == person.getTotalPoints() && getWins() > person.getWins());
+			if (getTotalPoints() > person.getTotalPoints())
+			{
+				return true;
+			}
+			if (getTotalPoints() < person.getTotalPoints())
+			{
+				return false;
+			}
+			if (getWins() > person.getWins())
+			{
+				return true;
+			}
+			if (getWins() < person.getWins())
+			{
+				return false;
+			}
+
+			return  getTotalDamage() > person.getTotalDamage();
 		}
 
 		Person& reset();
