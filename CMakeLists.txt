@@ -339,6 +339,10 @@ set(D6R_APP_DEBUG_NAME "duel6rd" CACHE STRING "Filename of the debug version of 
 add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
 set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 4.0.1 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
 
+add_custom_command(TARGET ${D6R_APP_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/resources/ $<TARGET_FILE_DIR:${D6R_APP_NAME}>)
+
 #########################################################################
 # External dependencies
 #########################################################################
@@ -382,3 +386,7 @@ endif(APPLE)
 
 # install binary files
 install(TARGETS ${D6R_APP_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+#install(DIRECTORY resources/data DESTINATION data)
+#install(DIRECTORY resources/levels DESTINATION levels)
+#install(DIRECTORY resources/sound DESTINATION sound)
+#install(DIRECTORY resources/textures DESTINATION textures)
