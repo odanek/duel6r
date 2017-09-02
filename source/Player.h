@@ -31,7 +31,7 @@
 #include <memory>
 #include <string>
 #include <time.h>
-#include "mylib/mycam.h"
+#include "Camera.h"
 #include "SpriteList.h"
 #include "Person.h"
 #include "PlayerSkin.h"
@@ -267,7 +267,7 @@ namespace Duel6
 		Float32 Right;
 		Float32 Up;
 		Float32 Down;
-		vec3_c<Float32> Pos;
+		Vector Pos;
 		Float32 TolX;
 		Float32 TolY;
 	};
@@ -300,7 +300,7 @@ namespace Duel6
 	private:
 		Person& person;
 		PlayerSkin skin;
-		mycam_c camera;
+		Camera camera;
 		CameraPosition cameraPos;
 		const PlayerSounds& sounds;
 		const PlayerControls& controls;
@@ -426,7 +426,7 @@ namespace Duel6
 			return person;
 		}
 
-		const mycam_c& getCamera() const
+		const Camera& getCamera() const
 		{
 			return camera;
 		}

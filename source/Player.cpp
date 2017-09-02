@@ -705,7 +705,7 @@ namespace Duel6
 	void Player::prepareCam(const Video& video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY)
 	{
 		Float32 fovX, fovY, mZ, dX = 0.0, dY = 0.0;
-		fovY = (Float32)tan(MM_D2R(video.getView().getFieldOfView()) / 2.0f);
+		fovY = Math::degTan(video.getView().getFieldOfView() / 2.0f);
 		fovX = video.getScreen().getAspect() * fovY;
 
 		if (screenMode == ScreenMode::FullScreen)
@@ -741,7 +741,7 @@ namespace Duel6
 		cameraPos.TolX = (dX * D6_CAM_TOLPER_X) / 200.0f;
 		cameraPos.TolY = (dY * D6_CAM_TOLPER_Y) / 200.0f;
 		
-		camera.setpos(cameraPos.Pos);
+		camera.setPosition(cameraPos.Pos);
 
 		if (screenMode == ScreenMode::SplitScreen)
 		{
@@ -793,7 +793,7 @@ namespace Duel6
 		}
 		if (mX != 0.0 || mY != 0.0)
 		{
-			camera.setpos(cameraPos.Pos);
+			camera.setPosition(cameraPos.Pos);
 		}
 	}
 

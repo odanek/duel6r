@@ -29,7 +29,6 @@
 #define DUEL6_VECTOR_H
 
 #include <algorithm>
-#include "mylib/mymath.h"
 #include "Math.h"
 #include "Type.h"
 
@@ -64,10 +63,6 @@ namespace Duel6
 
 		Vector(Int32 x, Int32 y, Int32 z = 0)
 			: x(Float32(x)), y(Float32(y)), z(Float32(z))
-		{}
-
-		explicit Vector(const vec3_c<Float32>& v)
-			: x(v.x), y(v.y), z(v.z)
 		{}
 
 		Vector& set(Float32 x, Float32 y, Float32 z = 0)

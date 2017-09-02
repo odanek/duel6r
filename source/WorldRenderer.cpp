@@ -438,8 +438,8 @@ namespace Duel6
 
 	void WorldRenderer::view(const Player& player) const
 	{
-		const mycam_c& camera = player.getCamera();
-		Matrix viewMatrix = Matrix::lookAt(Vector(camera.getPos()), Vector(camera.getFront()), Vector(camera.getUp()));
+		const Camera& camera = player.getCamera();
+		Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
 		globRenderer->setViewMatrix(viewMatrix);
 
 		if (game.getSettings().isWireframe())

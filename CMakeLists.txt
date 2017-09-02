@@ -60,6 +60,8 @@ set(D6R_SOURCES
     source/Bonus.cpp
     source/BonusList.h
     source/BonusList.cpp
+	source/Camera.h
+	source/Camera.cpp
     source/Color.h
     source/Color.cpp
     source/ConsoleCommands.h
@@ -178,13 +180,8 @@ set(D6R_SOURCES
     source/Weapon.cpp
     source/World.h
     source/World.cpp
-    
-    source/mylib/mycam.cpp
-    source/mylib/mycam.h
-    source/mylib/mymath.cpp
-    source/mylib/mymath.h
-        
-    source/console/conarg.cpp
+
+	source/console/conarg.cpp
     source/console/concmd.cpp
     source/console/condraw.cpp
     source/console/coninput.cpp

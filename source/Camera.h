@@ -25,9 +25,43 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Knihovna mylib
-Popis: Zakladni matematicke procedury
-*/
+#ifndef DUEL6_CAMERA_H
+#define DUEL6_CAMERA_H
 
-#include "mymath.h"
+#include "Vector.h"
+
+namespace Duel6
+{
+    class Camera
+    {
+    private:
+        Vector position;
+        Vector front;
+        Vector up;
+        Vector side;
+        Float32 yaw;
+        Float32 pitch;
+        Float32 roll;
+
+    public:
+        Camera();
+
+        Vector getPosition() const;
+        void setPosition(const Vector& position);
+
+        Vector getFront() const;
+        Vector getUp() const;
+        Vector getSide() const;
+
+        Float32 getYaw() const;
+        Float32 getPitch() const;
+        Float32 getRoll() const;
+
+        void rotate(Float32 yaw, Float32 pitch, Float32 roll);
+
+    private:
+        void update();
+    };
+}
+
+#endif

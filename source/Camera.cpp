@@ -25,100 +25,83 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_MATH_H
-#define DUEL6_MATH_H
-
-#include <string>
-#include <cstdlib>
-#include <cmath>
-#include "Type.h"
+#include "Camera.h"
+#include "Math.h"
 
 namespace Duel6
 {
-	class Math
-	{
-	public:
-		static const Float64 Pi;
+    Camera::Camera()
+        : position(Vector::ZERO), front(Vector::UNIT_Z), up(Vector::UNIT_Y), side(Vector::UNIT_X),
+          yaw(0), pitch(0), roll(0)
+    {}
 
-	public:
-        template <class T>
-		static T radianSin(T angle)
-		{
-			return std::sin(angle);
-		}
+    Vector Camera::getPosition() const
+    {
+        return position;
+    }
 
-		template <class T>
-		static T radianCos(T angle)
-		{
-			return std::cos(angle);
-		}
+    void Camera::setPosition(const Vector& position)
+    {
+        this->position = position;
+    }
 
-		template <class T>
-		static T radianTan(T angle)
-		{
-			return std::tan(angle);
-		}
+    Vector Camera::getFront() const
+    {
+        return front;
+    }
 
-        template <class T>
-        static T degSin(T angle)
-        {
-            return radianSin(angleToRadians(angle));
-        }
+    Vector Camera::getUp() const
+    {
+        return up;
+    }
 
-		template <class T>
-		static T degCos(T angle)
-		{
-			return radianCos(angleToRadians(angle));
-		}
+    Vector Camera::getSide() const
+    {
+        return side;
+    }
 
-		template <class T>
-		static T degTan(T angle)
-		{
-			return radianTan(angleToRadians(angle));
-		}
+    Float32 Camera::getYaw() const
+    {
+        return yaw;
+    }
 
-		template <class T>
-		static T sqr(T val)
-		{
-			return val * val;
-		}
+    Float32 Camera::getPitch() const
+    {
+        return pitch;
+    }
 
-		template <class T>
-		static T norm(T x, T y, T z = 0)
-		{
-			return std::sqrt(sqr(x) + sqr(y) + sqr(z));
-		}
+    Float32 Camera::getRoll() const
+    {
+        return roll;
+    }
 
-		template <class T>
-		static T distance(T x1, T y1, T x2, T y2, T z1 = 0, T z2 = 0)
-		{
-			return norm(x1 - x2, y1 - y2, z1 - z2);
-		}
+    void Camera::rotate(Float32 yaw, Float32 pitch, Float32 roll)
+    {
+        this->yaw += yaw;
+        this->pitch += pitch;
+        this->roll += roll;
+        update();
+    }
 
-		template <class T>
-		static Int32 sign(T val)
-		{
-			return val < 0 ? -1 : (val > 0 ? 1 : 0);
-		}
+    void Camera::update()
+    {
+        Float32 a = Math::degSin(pitch);
+        Float32 b = Math::degCos(pitch);
+        Float32 c = Math::degSin(yaw);
+        Float32 d = Math::degCos(yaw);
+        Float32 e = Math::degSin(roll);
+        Float32 f = Math::degCos(roll);
 
-		template <class T>
-		static T angleToRadians(T angle)
-		{
-			return T(angle * Pi / 180.0);
-		}
+        front.x = c * b;
+        front.y = -a;
+        front.z = b * d;
 
-		template <class T>
-		static T radiansToAngle(T radians)
-		{
-			return T(radians * 180.0 / Pi);
-		}
+        side.x = d * f + c * a * e;
+        side.y = e * b;
+        side.z = c * e + d * a * f;;
 
-		static Float32 angleDiff(Float32 left, Float32 right)
-		{
-			Float32 diff = std::abs(left - right);
-			return std::min(diff, 360.0f - diff);
-		}
-	};
+        up.x = -d * e + c * a * f;
+        up.y = f * b;
+        up.z = c * e + d * a * f;
+    }
 }
-
-#endif
