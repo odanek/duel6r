@@ -26,17 +26,13 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <random>
 #include "File.h"
 #include "Math.h"
 
 namespace Duel6
 {
-    namespace {
-        std::random_device randomDevice;
-        std::default_random_engine randomEngine(randomDevice());
-    }
-
+    std::random_device Math::randomDevice;
+    std::default_random_engine Math::randomEngine(randomDevice());
 	const Float64 Math::Pi = 3.14159265358979323846;
 
     Int32 Math::random(Int32 max)

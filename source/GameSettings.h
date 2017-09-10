@@ -43,6 +43,12 @@ namespace Duel6
 		All
 	};
 
+	enum class LevelSelectionMode
+	{
+		Random,
+		Shuffle
+	};
+
 	class GameSettings
 	{
 	public:
@@ -59,6 +65,7 @@ namespace Duel6
 		bool ghostMode;
 		ShotCollisionSetting shotCollision;
 		EnabledWeapons enabledWeapons;
+		LevelSelectionMode levelSelectionMode;
 
 	public:
 		GameSettings();
@@ -164,6 +171,17 @@ namespace Duel6
 		GameSettings& setShowRanking(bool showRanking)
 		{
 			this->showRanking = showRanking;
+			return *this;
+		}
+
+		LevelSelectionMode getLevelSelectionMode() const
+		{
+			return levelSelectionMode;
+		}
+
+		GameSettings& setLevelSelectionMode(LevelSelectionMode mode)
+		{
+			levelSelectionMode = mode;
 			return *this;
 		}
 

@@ -61,6 +61,19 @@ namespace Duel6
 		}
 	}
 
+	void ConsoleCommands::levelSelectionMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
+	{
+		if (args.length() == 2 && (args.get(1) == "random" || args.get(1) == "shuffle"))
+		{
+			gameSettings.setLevelSelectionMode(args.get(1) == "random" ? LevelSelectionMode::Random : LevelSelectionMode::Shuffle);
+		}
+		else
+		{
+			std::string mode(gameSettings.getLevelSelectionMode() == LevelSelectionMode::Random ? "random" : "shuffle");
+			console.printLine(Format("Level selection mode [random/shuffle]: {0}") << mode);
+		}
+	}
+
 	void ConsoleCommands::shotCollision(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
 	{
 		static const std::unordered_map<std::string, ShotCollisionSetting> stringOptions = {
@@ -310,6 +323,9 @@ namespace Duel6
 		});
 		console.registerCommand("ghosts", [&gameSettings](Console& con, const Console::Arguments& args) {
 			ghostMode(con, args, gameSettings);
+		});
+		console.registerCommand("level_selection_mode", [&gameSettings](Console& con, const Console::Arguments& args) {
+			levelSelectionMode(con, args, gameSettings);
 		});
 		console.registerCommand("shot_collision", [&gameSettings](Console& con, const Console::Arguments& args) {
 			shotCollision(con, args, gameSettings);

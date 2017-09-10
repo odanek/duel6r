@@ -176,7 +176,7 @@ namespace Duel6
 			}
 		}
 
-		std::random_shuffle(startingPositions.begin(), startingPositions.end());
+		std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
 	}
 
 	void Level::findTopmostNonWallPositions(StartingPositionList& startingPositions)

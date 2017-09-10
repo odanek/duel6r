@@ -28,6 +28,7 @@
 #ifndef DUEL6_MATH_H
 #define DUEL6_MATH_H
 
+#include <random>
 #include <string>
 #include <cstdlib>
 #include <cmath>
@@ -39,6 +40,8 @@ namespace Duel6
 	{
 	public:
 		static const Float64 Pi;
+		static std::random_device randomDevice;
+		static std::default_random_engine randomEngine;
 
 	public:
         template <class T>

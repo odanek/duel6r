@@ -129,6 +129,8 @@ namespace Duel6
 		}
 
 		this->levels = levels;
+		std::shuffle(this->levels.begin(), this->levels.end(), Math::randomEngine);
+
 		this->backgrounds = backgrounds;
 		this->gameMode = &gameMode;
 		settings.setScreenMode(screenMode);
@@ -145,7 +147,8 @@ namespace Duel6
 			menu->savePersonData();
 		}
 
-        Int32 level = Math::random(Int32(levels.size()));
+		bool shuffle = settings.getLevelSelectionMode() == LevelSelectionMode::Shuffle;
+        Int32 level = shuffle ? playedRounds % Int32(levels.size()) : Math::random(Int32(levels.size()));
 		const std::string levelPath = levels[level];
 		bool mirror = Math::random(2) == 0;
 		Size background = backgrounds[Math::random(Int32(backgrounds.size()))];
