@@ -45,6 +45,9 @@ namespace Duel6
 			delete globRenderer;
 			globRenderer = nullptr;
 		}
+
+        SDL_GL_DeleteContext(glContext);
+        SDL_DestroyWindow(window);
 	}
 
 	void Video::screenUpdate(Console& console, const Font& font)

@@ -56,6 +56,7 @@ namespace Duel6
 
 		public:
 			Sample();
+			~Sample();
 			void play() const;
 		};
 
@@ -71,6 +72,7 @@ namespace Duel6
 
 		public:
 			Track();
+			~Track();
 			void play(bool loop) const;
 		};
 
