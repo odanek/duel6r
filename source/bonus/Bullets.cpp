@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "../Player.h"
 #include "../World.h"
 #include "Bullets.h"
@@ -55,7 +55,7 @@ namespace Duel6
 
 		void Bullets::onApply(Player& player, World& world, Int32 duration) const
 		{
-			Int32 bullets = 5 + rand() % 12;
+			Int32 bullets = 5 + Math::random(12);
 			player.pickAmmo(bullets);
 			world.getMessageQueue().add(player, Format("Bullets +{0}") << bullets);
 		}

@@ -31,6 +31,7 @@
 #include "Defines.h"
 #include "EnumClassHash.h"
 #include "PlayerSounds.h"
+#include "Math.h"
 
 namespace Duel6
 {
@@ -99,7 +100,7 @@ namespace Duel6
 	const Sound::Sample& PlayerSounds::getRandomSample(Type type) const
 	{
 		const std::vector<Sound::Sample>& samples = sounds[(Int32)type];
-		Size which = rand() % samples.size();
+		Size which = (Size)Math::random(Int32(samples.size()));
 		return samples[which];
 	}
 

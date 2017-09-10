@@ -261,6 +261,6 @@ namespace Duel6
 	void LegacyShot::addPlayerBlood(const Player& player, const Vector& point, World& world)
 	{
 		Rectangle rect = player.getCollisionRect();
-		world.getExplosionList().add(Vector(rect.left.x + (0.3f + (rand() % 40) * 0.01f) * rect.getSize().x, point.y), 0.2f, 0.5f, Color::RED);
+		world.getExplosionList().add(Vector(rect.left.x + (0.3f + (Math::random(40)) * 0.01f) * rect.getSize().x, point.y), 0.2f, 0.5f, Color::RED);
 	}
 }

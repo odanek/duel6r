@@ -145,10 +145,10 @@ namespace Duel6
 			menu->savePersonData();
 		}
 
-        Int32 level = rand() % Int32(levels.size());
+        Int32 level = Math::random(Int32(levels.size()));
 		const std::string levelPath = levels[level];
-		bool mirror = rand() % 2 == 0;
-		Size background = backgrounds[rand() % backgrounds.size()];
+		bool mirror = Math::random(2) == 0;
+		Size background = backgrounds[Math::random(Int32(backgrounds.size()))];
 
 		Console& console = appService.getConsole();
 		console.printLine(Format("\n===Loading level {0}===") << levelPath);

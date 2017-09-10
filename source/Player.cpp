@@ -983,7 +983,7 @@ namespace Duel6
 
 	void Player::useTemporarySkin(PlayerSkin& tempSkin)
 	{
-		tempSkinDuration = Float32(10 + rand() % 5);
+		tempSkinDuration = Float32(10 + Math::random(5));
 		sprite->setTextures(tempSkin.getTextureList());
 	}
 

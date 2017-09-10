@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
+#include "Math.h"
 #include "Sound.h"
 #include "BonusList.h"
 #include "World.h"
@@ -53,13 +53,13 @@ namespace Duel6
 	void BonusList::addRandomBonus()
 	{
 		const Level& level = world.getLevel();
-		bool weapon = ((rand() % 2) == 1);
+		bool weapon = (Math::random(2) == 1);
 		Int32 x, y, attempts = 0;
 
 		do {
 			attempts++;
-			x = rand() % level.getWidth();
-			y = rand() % level.getHeight();
+			x = Math::random(level.getWidth());
+			y = Math::random(level.getHeight());
 		} while(!isValidPosition(x, y, weapon) && attempts <= MAX_BONUS_ATTEMPTS);
 
 		if(attempts > MAX_BONUS_ATTEMPTS)
@@ -69,14 +69,14 @@ namespace Duel6
 
 		if (weapon)
 		{
-			Int32 bullets = rand() % 10 + 10;
+			Int32 bullets = Math::random(10) + 10;
 			weapons.push_back(LyingWeapon(Weapon::getRandomEnabled(settings), bullets, Vector(x, y)));
 		}
 		else
 		{
-			BonusType type = BonusType::values()[rand() % BonusType::values().size()];
-			bool random = (rand() % RANDOM_BONUS_FREQUENCY) == 0;
-			Int32 duration = type.isOneTime() ? 0 : 13 + rand() % 17;
+			BonusType type = BonusType::values()[Math::random(BonusType::values().size())];
+			bool random = Math::random(RANDOM_BONUS_FREQUENCY) == 0;
+			Int32 duration = type.isOneTime() ? 0 : 13 + Math::random(17);
 			bonuses.push_back(Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? randomTexture : type.getTexture()));
 		}
 	}

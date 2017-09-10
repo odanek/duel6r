@@ -40,7 +40,7 @@ namespace Duel6
 			Texture texture;
 
 		public:
-			Bullets(Texture texture);
+			explicit Bullets(Texture texture);
 			Texture getTexture() const override;
 			bool isOneTime() const override;
 			bool isApplicable(Player& player, World& world) const override;

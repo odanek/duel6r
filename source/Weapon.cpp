@@ -149,7 +149,7 @@ namespace Duel6
 	const Weapon& Weapon::getRandomEnabled(const GameSettings& settings)
 	{
 		auto& enabledWeapons = settings.getEnabledWeapons();
-		Size randomIndex = rand() % enabledWeapons.size();
+		Size randomIndex = Math::random(enabledWeapons.size());
 		auto randomWeapon = enabledWeapons.cbegin();
 		std::advance(randomWeapon, randomIndex);
 		return *randomWeapon;

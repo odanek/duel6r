@@ -118,6 +118,11 @@ namespace Duel6
 			Float32 diff = std::abs(left - right);
 			return std::min(diff, 360.0f - diff);
 		}
+
+        static Int32 random(Int32 max);
+        static Int32 random(Int32 min, Int32 max);
+        static Float32 random(Float32 min, Float32 max);
+        static Float64 random(Float64 min, Float64 max);
 	};
 }
 

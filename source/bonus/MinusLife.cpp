@@ -54,7 +54,7 @@ namespace Duel6
 
 		void MinusLife::onApply(Player& player, World& world, Int32 duration) const
 		{
-			Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
+			Int32 hit = (Int32(D6_MAX_LIFE) / 7) + Math::random(Int32(D6_MAX_LIFE) / 2);
 			if (player.hit(Float32(hit)))
 			{
 				player.playSound(PlayerSounds::Type::WasKilled);

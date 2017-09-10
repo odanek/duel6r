@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <time.h>
 #include "VideoException.h"
 #include "InfoMessageQueue.h"
 #include "Game.h"
@@ -204,8 +203,6 @@ namespace Duel6
 
 	void Application::setup(Int32 argc, char** argv)
 	{
-		srand((unsigned)time(nullptr));
-
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
 			D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());
