@@ -66,13 +66,15 @@ namespace Duel6
                     "  result = texture2D(textureUnit, uv);"
                     "}";
 
-    GL4Renderer::GL4Renderer(void* context)
-        : context(context), projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
+    GL4Renderer::GL4Renderer()
+        : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
     {}
 
     void GL4Renderer::initialize()
     {
+#ifdef D6_GLEW
         glewInit();
+#endif
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);

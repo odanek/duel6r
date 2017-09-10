@@ -188,9 +188,9 @@ namespace Duel6
     Renderer* Video::createRenderer()
     {
 #if defined(D6_RENDERER_GL1)
-        Renderer* renderer = new GLE1Renderer(glContext);
+        Renderer* renderer = new GL1Renderer();
 #elif defined(D6_RENDERER_GLES2)
-        Renderer* renderer = new GLES2Renderer(glContext);
+        Renderer* renderer = new GLES2Renderer();
 #endif
         renderer->initialize();
         return renderer;

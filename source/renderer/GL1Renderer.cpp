@@ -29,8 +29,8 @@
 
 namespace Duel6
 {
-    GL1Renderer::GL1Renderer(SDL_GLContext context)
-        : context(context), projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
+    GL1Renderer::GL1Renderer()
+        : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
     {}
 
     void GL1Renderer::initialize()

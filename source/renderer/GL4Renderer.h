@@ -28,8 +28,11 @@
 #ifndef DUEL6_RENDERER_GL4RENDERER_H
 #define DUEL6_RENDERER_GL4RENDERER_H
 
-//#define GLEW_STATIC
-//#include <GL/glew.h>
+#idef D6_GLEW
+    #include <GL/glew.h>
+#else
+    #include <SDL2/SDL2_opengl.h>
+#endif
 #include "Renderer.h"
 
 namespace Duel6
@@ -38,7 +41,6 @@ namespace Duel6
             : public Renderer
     {
     private:
-        void* context;
         Matrix projectionMatrix;
         Matrix viewMatrix;
         Matrix modelMatrix;
@@ -47,7 +49,7 @@ namespace Duel6
         GLuint textureTriangleProgram;
 
     public:
-        explicit GL4Renderer(void* context);
+        GL4Renderer();
 
         void initialize() override;
         Info getInfo() override;

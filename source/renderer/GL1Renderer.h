@@ -28,7 +28,6 @@
 #ifndef DUEL6_RENDERER_GL1RENDERER_H
 #define DUEL6_RENDERER_GL1RENDERER_H
 
-#include <SDL2/SDL_video.h>
 #include <SDL2/SDL_opengl.h>
 #include "Renderer.h"
 
@@ -38,13 +37,12 @@ namespace Duel6
         : public Renderer
     {
     private:
-        SDL_GLContext context;
         Matrix projectionMatrix;
         Matrix viewMatrix;
         Matrix modelMatrix;
 
     public:
-        explicit GL1Renderer(SDL_GLContext context);
+        GL1Renderer();
 
         void initialize() override;
         Info getInfo() override;

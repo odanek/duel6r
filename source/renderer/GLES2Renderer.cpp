@@ -69,8 +69,8 @@ namespace Duel6
                     "}";
 
 
-    GLES2Renderer::GLES2Renderer(void* context)
-            : context(context), projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
+    GLES2Renderer::GLES2Renderer()
+            : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
     {}
 
     void GLES2Renderer::initialize()

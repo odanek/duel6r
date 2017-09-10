@@ -29,7 +29,6 @@
 #define DUEL6_RENDERER_GLES2RENDERER_H
 
 #ifdef D6_GLEW
-    #define GLEW_STATIC
     #include <GL/glew.h>
 #else
     #include <SDL2/SDL_opengles2.h>
@@ -42,7 +41,6 @@ namespace Duel6
             : public Renderer
     {
     private:
-        void* context;
         Matrix projectionMatrix;
         Matrix viewMatrix;
         Matrix modelMatrix;
@@ -51,7 +49,7 @@ namespace Duel6
         GLuint textureProgram;
 
     public:
-        explicit GLES2Renderer(void* context);
+        GLES2Renderer();
 
         void initialize() override;
         Info getInfo() override;

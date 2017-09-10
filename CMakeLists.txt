@@ -35,7 +35,7 @@ endif(MINGW)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
 # Renderer switch
-set(D6R_RENDERER "es2")
+set(D6R_RENDERER "gl1")
 
 #########################################################################
 #
@@ -317,9 +317,8 @@ if(D6R_RENDERER STREQUAL "es2")
 	set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
 
 	if(WIN32)
+		set(D6R_WITH_GLEW ON)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
-		set(D6R_SOURCES ${D6R_SOURCES} glew/glew.c)
-		include_directories("glew")
 	endif(WIN32)
 endif(D6R_RENDERER STREQUAL "es2")
 
@@ -376,6 +375,14 @@ else(APPLE) # MSVC, GCC or MINGW
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
 endif(APPLE)
+
+# GLEW
+if(D6R_WITH_GLEW)
+	find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
+	target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
+	find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
+	include_directories(${HEADERS_GLEW})
+endif(D6R_WITH_GLEW)
 
 ########################
 #  Install application
