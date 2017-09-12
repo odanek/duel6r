@@ -28,36 +28,29 @@
 #include "Label.h"
 #include "../Video.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		Label::Label(Desktop& desk)
-			: Control(desk)
-		{
-		}
+namespace Duel6 {
+    namespace Gui {
+        Label::Label(Desktop &desk)
+                : Control(desk) {
+        }
 
-		Label::~Label()
-		{
-		}
+        Label::~Label() {
+        }
 
-		void Label::setPosition(int X, int Y, int W, int H)
-		{
-			x = X;
-			y = Y;
-			width = W;
-			height = H;
-		}
+        void Label::setPosition(int X, int Y, int W, int H) {
+            x = X;
+            y = Y;
+            width = W;
+            height = H;
+        }
 
-		void Label::setCaption(const std::string& caption)
-		{
-			text = caption;
-		}
+        void Label::setCaption(const std::string &caption) {
+            text = caption;
+        }
 
-		void Label::draw(const Font& font) const
-		{
-			globRenderer->quadXY(Vector(x, y - height + 1), Vector(width - 1, height - 1), Color(170, 170, 170));
-			font.print(x, y - 15, Color(0), text);
-		}
-	}
+        void Label::draw(const Font &font) const {
+            globRenderer->quadXY(Vector(x, y - height + 1), Vector(width - 1, height - 1), Color(170, 170, 170));
+            font.print(x, y - 15, Color(0), text);
+        }
+    }
 }

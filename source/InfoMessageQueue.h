@@ -32,30 +32,30 @@
 #include <list>
 #include "InfoMessage.h"
 
-namespace Duel6
-{
-	class InfoMessageQueue
-	{
-	private:
-		/** How long each message stays on the screen (in seconds). */
-		Float32 duration;
-		std::list<InfoMessage> messages;
+namespace Duel6 {
+    class InfoMessageQueue {
+    private:
+        /** How long each message stays on the screen (in seconds). */
+        Float32 duration;
+        std::list<InfoMessage> messages;
 
-	public:
-		InfoMessageQueue(Float32  duration)
-			: duration(duration)
-		{}
+    public:
+        InfoMessageQueue(Float32 duration)
+                : duration(duration) {}
 
-		InfoMessageQueue& add(const Player& player, const std::string& msg);
-		InfoMessageQueue& update(float elapsedTime);
+        InfoMessageQueue &add(const Player &player, const std::string &msg);
 
-		void renderPlayerMessages(const Player& player, const Font& font) const;
-		void renderAllMessages(const PlayerView& view, Int32 offsetY, const Font& font) const;
-		void clear();
+        InfoMessageQueue &update(float elapsedTime);
 
-	private:
-		static void renderMessage(Int32 x, Int32 y, const std::string& msg, const Font& font);
-	};
+        void renderPlayerMessages(const Player &player, const Font &font) const;
+
+        void renderAllMessages(const PlayerView &view, Int32 offsetY, const Font &font) const;
+
+        void clear();
+
+    private:
+        static void renderMessage(Int32 x, Int32 y, const std::string &msg, const Font &font);
+    };
 }
 
 #endif

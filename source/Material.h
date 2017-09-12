@@ -31,10 +31,8 @@
 #include "Color.h"
 #include "Texture.h"
 
-namespace Duel6
-{
-    struct Material
-    {
+namespace Duel6 {
+    struct Material {
     private:
         Texture texture;
         Color color;
@@ -42,48 +40,39 @@ namespace Duel6
 
     public:
         explicit Material(const Texture &texture, const Color &color = Color::WHITE, bool masked = false)
-                : texture(texture), color(color), masked(masked)
-        {}
+                : texture(texture), color(color), masked(masked) {}
 
         Material &operator=(const Material &m) = default;
 
-        const Texture &getTexture() const
-        {
+        const Texture &getTexture() const {
             return texture;
         }
 
-        bool isColored() const
-        {
+        bool isColored() const {
             return &color != &Color::WHITE;
         }
 
-        const Color &getColor() const
-        {
+        const Color &getColor() const {
             return color;
         }
 
-        bool isMasked() const
-        {
+        bool isMasked() const {
             return masked;
         }
 
-        static Material makeTexture(const Texture &texture)
-        {
+        static Material makeTexture(const Texture &texture) {
             return Material(texture);
         }
 
-        static Material makeColoredTexture(const Texture &texture, const Color &color)
-        {
+        static Material makeColoredTexture(const Texture &texture, const Color &color) {
             return Material(texture, color);
         }
 
-        static Material makeMaskedTexture(const Texture &texture)
-        {
+        static Material makeMaskedTexture(const Texture &texture) {
             return Material(texture, Color::WHITE, true);
         }
 
-        static Material makeMaskedColoredTexture(const Texture &texture, const Color &color)
-        {
+        static Material makeMaskedColoredTexture(const Texture &texture, const Color &color) {
             return Material(texture, color, true);
         }
     };

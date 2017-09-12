@@ -30,8 +30,7 @@
 
 #include "../Type.h"
 
-namespace Duel6
-{
+namespace Duel6 {
 }
 
 #endif

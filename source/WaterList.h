@@ -33,45 +33,41 @@
 #include "FaceList.h"
 #include "console/console.h"
 
-namespace Duel6
-{
-	class WaterList
-	{
-	private:
-		class WaterVertex
-		{
-		private:
-			Float32 y;
-			Vertex& vertex;
+namespace Duel6 {
+    class WaterList {
+    private:
+        class WaterVertex {
+        private:
+            Float32 y;
+            Vertex &vertex;
 
-		public:
-			WaterVertex(Vertex& vertex, Float32 height)
-				: vertex(vertex)
-			{
-				y = vertex.y - height;
-			}
+        public:
+            WaterVertex(Vertex &vertex, Float32 height)
+                    : vertex(vertex) {
+                y = vertex.y - height;
+            }
 
-			Vertex& getVertex()
-			{
-				return vertex;
-			}
+            Vertex &getVertex() {
+                return vertex;
+            }
 
-			Float32 getY() const
-			{
-				return y;
-			}
-		};
+            Float32 getY() const {
+                return y;
+            }
+        };
 
-	private:
-		std::vector<WaterVertex> vertexes;
-		Float32 waveHeight;
-		Float32 phase;
-			
-	public:
-		WaterList();
-		void build(FaceList& waterFaces, Float32 waveHeight);
-		void update(Float32 elapsedTime);
-	};
+    private:
+        std::vector<WaterVertex> vertexes;
+        Float32 waveHeight;
+        Float32 phase;
+
+    public:
+        WaterList();
+
+        void build(FaceList &waterFaces, Float32 waveHeight);
+
+        void update(Float32 elapsedTime);
+    };
 }
 
 #endif

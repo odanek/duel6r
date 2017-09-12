@@ -36,57 +36,58 @@
 
 #include "renderer/Renderer.h" // TODO: Remove
 
-namespace Duel6
-{
-	extern Renderer* globRenderer;  // TODO: Glob fix
+namespace Duel6 {
+    extern Renderer *globRenderer;  // TODO: Glob fix
 
-	class Video
-	{
+    class Video {
     public:
-        enum class Mode
-        {
+        enum class Mode {
             Orthogonal,
             Perspective
         };
 
     private:
-		SDL_Window *window;
-		SDL_GLContext glContext;
-		Float32 fps;		
-		ScreenParameters screen;
-		ViewParameters view;
+        SDL_Window *window;
+        SDL_GLContext glContext;
+        Float32 fps;
+        ScreenParameters screen;
+        ViewParameters view;
 
-	public:
-		~Video();
+    public:
+        ~Video();
 
-		void initialize(const std::string& name, const std::string& icon, Console& console);
-		void screenUpdate(Console& console, const Font& font);
+        void initialize(const std::string &name, const std::string &icon, Console &console);
 
-		const ScreenParameters& getScreen() const
-		{
-			return screen;
-		}
+        void screenUpdate(Console &console, const Font &font);
 
-		const ViewParameters& getView() const
-		{
-			return view;
-		}
+        const ScreenParameters &getScreen() const {
+            return screen;
+        }
 
-		Float32 getFps() const
-		{
-			return fps;
-		}
+        const ViewParameters &getView() const {
+            return view;
+        }
+
+        Float32 getFps() const {
+            return fps;
+        }
 
         void setMode(Mode mode) const;
 
-	private:
-		void renderConsole(Console& console, const Font& font);
-		void swapBuffers();
-		void calculateFps();
-		SDL_Window* createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console);
-		SDL_GLContext createContext(const ScreenParameters& params, Console& console);
-        Renderer* createRenderer();
-	};
+    private:
+        void renderConsole(Console &console, const Font &font);
+
+        void swapBuffers();
+
+        void calculateFps();
+
+        SDL_Window *createWindow(const std::string &name, const std::string &icon, const ScreenParameters &params,
+                                 Console &console);
+
+        SDL_GLContext createContext(const ScreenParameters &params, Console &console);
+
+        Renderer *createRenderer();
+    };
 }
 
 #endif

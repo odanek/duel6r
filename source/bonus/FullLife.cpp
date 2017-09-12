@@ -29,37 +29,29 @@
 #include "../World.h"
 #include "FullLife.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		FullLife::FullLife(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        FullLife::FullLife(Texture texture)
+                : texture(texture) {}
 
-		Texture FullLife::getTexture() const
-		{
-			return texture;
-		}
+        Texture FullLife::getTexture() const {
+            return texture;
+        }
 
-		bool FullLife::isOneTime() const
-		{
-			return true;
-		}
+        bool FullLife::isOneTime() const {
+            return true;
+        }
 
-		bool FullLife::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool FullLife::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void FullLife::onApply(Player& player, World& world, Int32 duration) const
-		{
-			player.setFullLife();
-			world.getMessageQueue().add(player, "Full life");
-		}
+        void FullLife::onApply(Player &player, World &world, Int32 duration) const {
+            player.setFullLife();
+            world.getMessageQueue().add(player, "Full life");
+        }
 
-		void FullLife::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void FullLife::onExpire(Player &player, World &world) const {
+        }
+    }
 }

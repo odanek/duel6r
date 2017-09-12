@@ -31,23 +31,21 @@
 #include "GameModeBase.h"
 #include "../PlayerEventListener.h"
 
-namespace Duel6
-{
+namespace Duel6 {
     class PlayerEventListener;
 
-    class DeathMatch : public GameModeBase
-    {
+    class DeathMatch : public GameModeBase {
     private:
         std::unique_ptr<PlayerEventListener> eventListener;
 
     public:
-        std::string getName() const override
-        {
+        std::string getName() const override {
             return "Deathmatch";
         }
 
-		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
-		bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) override;
+        void initializeRound(Game &game, std::vector<Player> &players, World &world) override;
+
+        bool checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) override;
     };
 }
 

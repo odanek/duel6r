@@ -28,11 +28,9 @@
 #include "File.h"
 #include "LevelList.h"
 
-namespace Duel6
-{
-	void LevelList::initialize(const std::string& directoryName, const std::string& fileExtension)
-	{
-		directory = directoryName;
-		File::listDirectory(directoryName, fileExtension, fileNames);
-	}
+namespace Duel6 {
+    void LevelList::initialize(const std::string &directoryName, const std::string &fileExtension) {
+        directory = directoryName;
+        File::listDirectory(directoryName, fileExtension, fileNames);
+    }
 }

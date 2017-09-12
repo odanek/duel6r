@@ -29,36 +29,28 @@
 #include "../World.h"
 #include "VampireShots.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		VampireShots::VampireShots(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        VampireShots::VampireShots(Texture texture)
+                : texture(texture) {}
 
-		Texture VampireShots::getTexture() const
-		{
-			return texture;
-		}
+        Texture VampireShots::getTexture() const {
+            return texture;
+        }
 
-		bool VampireShots::isOneTime() const
-		{
-			return false;
-		}
+        bool VampireShots::isOneTime() const {
+            return false;
+        }
 
-		bool VampireShots::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool VampireShots::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void VampireShots::onApply(Player& player, World& world, Int32 duration) const
-		{
-			world.getMessageQueue().add(player, Format("Vampire shots for {0} seconds") << duration);
-		}
+        void VampireShots::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Vampire shots for {0} seconds") << duration);
+        }
 
-		void VampireShots::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void VampireShots::onExpire(Player &player, World &world) const {
+        }
+    }
 }

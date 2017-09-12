@@ -28,28 +28,28 @@
 #include "ShitThrowerShot.h"
 #include "ShitThrower.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 5.49f, false, false, true, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower", "shit.wav", "shit-hit.wav", 0.04f, { 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {5.49f, false, false, true, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower",
+                                               "shit.wav", "shit-hit.wav", 0.04f,
+                                               {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0},
+                                               {0, 10, 1, 10, 2, 10, 1, 10, -1, 0},
+                                               {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+    }
 
-	ShitThrower::ShitThrower(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 16)
-	{
-		Color brownColor(83, 44, 0);
-		PlayerSkinColors skinColors(brownColor);
-		brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
-	}
+    ShitThrower::ShitThrower(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 16) {
+        Color brownColor(83, 44, 0);
+        PlayerSkinColors skinColors(brownColor);
+        brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
+    }
 
-	std::unique_ptr<Shot> ShitThrower::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
-	{
-		return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
-	}
+    std::unique_ptr<Shot>
+    ShitThrower::makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const {
+        return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
+    }
 
-	Rectangle ShitThrower::getShotCollisionRectangle() const
-	{
-		return Rectangle::empty();
-	}
+    Rectangle ShitThrower::getShotCollisionRectangle() const {
+        return Rectangle::empty();
+    }
 }

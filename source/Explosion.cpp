@@ -28,53 +28,43 @@
 #include "Util.h"
 #include "Explosion.h"
 
-namespace Duel6
-{
-	ExplosionList::ExplosionList(const GameResources& resources, Float32 speed)
-		: textures(resources.getExplosionTextures()), speed(speed)
-	{
-	}
+namespace Duel6 {
+    ExplosionList::ExplosionList(const GameResources &resources, Float32 speed)
+            : textures(resources.getExplosionTextures()), speed(speed) {
+    }
 
-	void ExplosionList::update(Float32 elapsedTime)
-	{
-		auto explIter = explosions.begin();
-		while (explIter != explosions.end())
-		{
-			explIter->now += speed * elapsedTime;
-			if (explIter->now > explIter->max)
-			{
-				explIter = explosions.erase(explIter);
-			}
-			else
-			{
-				++explIter;
-			}
-		}
-	}
+    void ExplosionList::update(Float32 elapsedTime) {
+        auto explIter = explosions.begin();
+        while (explIter != explosions.end()) {
+            explIter->now += speed * elapsedTime;
+            if (explIter->now > explIter->max) {
+                explIter = explosions.erase(explIter);
+            } else {
+                ++explIter;
+            }
+        }
+    }
 
-	void ExplosionList::render() const
-	{
-		globRenderer->enableDepthTest(false);
+    void ExplosionList::render() const {
+        globRenderer->enableDepthTest(false);
 
-		for (const Explosion& explosion : explosions)
-		{
-			Material material = Material::makeMaskedColoredTexture(textures.at(0), explosion.color);
-			Vector position = explosion.centre - Vector(explosion.now, explosion.now);
-			position.z = 0.6f;
-			Vector size = Vector(2 * explosion.now, 2 * explosion.now);
-			globRenderer->quadXY(position, size, Vector::ZERO, Vector(1, 1), material);
-		}
+        for (const Explosion &explosion : explosions) {
+            Material material = Material::makeMaskedColoredTexture(textures.at(0), explosion.color);
+            Vector position = explosion.centre - Vector(explosion.now, explosion.now);
+            position.z = 0.6f;
+            Vector size = Vector(2 * explosion.now, 2 * explosion.now);
+            globRenderer->quadXY(position, size, Vector::ZERO, Vector(1, 1), material);
+        }
 
-		globRenderer->enableDepthTest(true);
-	}
+        globRenderer->enableDepthTest(true);
+    }
 
-	void ExplosionList::add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color)
-	{
-		Explosion explosion;
-		explosion.centre = centre;
-		explosion.now = startSize;
-		explosion.max = maxSize;
-		explosion.color = color;
-		explosions.push_back(explosion);
-	}
+    void ExplosionList::add(const Vector &centre, Float32 startSize, Float32 maxSize, const Color &color) {
+        Explosion explosion;
+        explosion.centre = centre;
+        explosion.now = startSize;
+        explosion.max = maxSize;
+        explosion.color = color;
+        explosions.push_back(explosion);
+    }
 }

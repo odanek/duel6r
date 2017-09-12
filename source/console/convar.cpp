@@ -33,151 +33,119 @@ Popis: Zpracovani promenych
 #include <sstream>
 #include "console.h"
 
-namespace Duel6
-{
-	void Console::registerVariable(const std::string& name, Uint32 flags, Variable::Pointer&& ptr)
-	{
-		verifyRegistration(name, CON_Lang("Variable registration"), ptr == nullptr);
+namespace Duel6 {
+    void Console::registerVariable(const std::string &name, Uint32 flags, Variable::Pointer &&ptr) {
+        verifyRegistration(name, CON_Lang("Variable registration"), ptr == nullptr);
 
-		// Sort lexicographically
-		Size position = 0;
-		for (const VarRecord& var : vars)
-		{
-			if (var.getName().compare(name) > 0)
-			{
-				break;
-			}
-			++position;
-		}
+        // Sort lexicographically
+        Size position = 0;
+        for (const VarRecord &var : vars) {
+            if (var.getName().compare(name) > 0) {
+                break;
+            }
+            ++position;
+        }
 
-		vars.emplace(vars.begin() + position, name, flags, std::forward<Variable::Pointer>(ptr));
+        vars.emplace(vars.begin() + position, name, flags, std::forward<Variable::Pointer>(ptr));
 
-		if (hasFlag(RegInfoFlag))
-		{
-			print(CON_Format(CON_Lang("Variable registration: \"{0}\" has been successful\n")) << name);
-		}
-	}
+        if (hasFlag(RegInfoFlag)) {
+            print(CON_Format(CON_Lang("Variable registration: \"{0}\" has been successful\n")) << name);
+        }
+    }
 
-	Console::VarRecord* Console::findVar(const std::string& name)
-	{
-		for (VarRecord& var : vars)
-		{
-			if (var.getName() == name)
-			{
-				return &var;
-			}
-		}
+    Console::VarRecord *Console::findVar(const std::string &name) {
+        for (VarRecord &var : vars) {
+            if (var.getName() == name) {
+                return &var;
+            }
+        }
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 
-	void Console::varCmd(VarRecord& var, Arguments& args)
-	{
-		Size c = args.length();
+    void Console::varCmd(VarRecord &var, Arguments &args) {
+        Size c = args.length();
 
-		if (c > 2)
-		{
-			print(CON_Lang("CONSTR0041|Variables : Usage variable_name [new_value]\n"));
-			return;
-		}
+        if (c > 2) {
+            print(CON_Lang("CONSTR0041|Variables : Usage variable_name [new_value]\n"));
+            return;
+        }
 
-		if (c == 1)
-		{
-			var.printInfo(*this);
-		}
-		else
-		{
-			if (!(var.hasFlag(Variable::ReadOnlyFlag)))
-			{
-				var.setValue(args.get(1));
-			}
-			else
-			{
-				print(CON_Format(CON_Lang("Variable \"{0}\" is read-only\n")) << var.getName());
-			}
-		}
-	}
+        if (c == 1) {
+            var.printInfo(*this);
+        } else {
+            if (!(var.hasFlag(Variable::ReadOnlyFlag))) {
+                var.setValue(args.get(1));
+            } else {
+                print(CON_Format(CON_Lang("Variable \"{0}\" is read-only\n")) << var.getName());
+            }
+        }
+    }
 
-	void Console::VarRecord::printInfo(Console& console) const
-	{
-		const char *flagstr = "ra";
-		int i, f = 1;
+    void Console::VarRecord::printInfo(Console &console) const {
+        const char *flagstr = "ra";
+        int i, f = 1;
 
-		for (i = 0; i < 2; i++, f <<= 1)
-		{
-			if (hasFlag(f))
-			{
-				console.print(std::string(1, flagstr[i]));
-			}
-			else
-			{
-				console.print("-");
-			}
-		}
+        for (i = 0; i < 2; i++, f <<= 1) {
+            if (hasFlag(f)) {
+                console.print(std::string(1, flagstr[i]));
+            } else {
+                console.print("-");
+            }
+        }
 
-		console.print(CON_Format(CON_Lang(" {0} \"{1}\" with value {2}\n")) << var->getTypeName() << name << getValue());
-	}
+        console.print(
+                CON_Format(CON_Lang(" {0} \"{1}\" with value {2}\n")) << var->getTypeName() << name << getValue());
+    }
 
-	std::string Console::IntVariable::getValue() const
-	{
-		return std::to_string(value);
-	}
+    std::string Console::IntVariable::getValue() const {
+        return std::to_string(value);
+    }
 
-	void Console::IntVariable::setValue(const std::string& val)
-	{
-		value = std::stoi(val);
-	}
+    void Console::IntVariable::setValue(const std::string &val) {
+        value = std::stoi(val);
+    }
 
-	std::string Console::IntVariable::getTypeName() const
-	{
-		return "int";
-	}
+    std::string Console::IntVariable::getTypeName() const {
+        return "int";
+    }
 
-	std::string Console::BoolVariable::getValue() const
-	{
-		return value ? "true" : "false";
-	}
+    std::string Console::BoolVariable::getValue() const {
+        return value ? "true" : "false";
+    }
 
-	void Console::BoolVariable::setValue(const std::string& val)
-	{
-		value = (val == "true");
-	}
+    void Console::BoolVariable::setValue(const std::string &val) {
+        value = (val == "true");
+    }
 
-	std::string Console::BoolVariable::getTypeName() const
-	{
-		return "bool";
-	}
+    std::string Console::BoolVariable::getTypeName() const {
+        return "bool";
+    }
 
-	std::string Console::FloatVariable::getValue() const
-	{
-		return std::to_string(value);
-	}
+    std::string Console::FloatVariable::getValue() const {
+        return std::to_string(value);
+    }
 
-	void Console::FloatVariable::setValue(const std::string& val)
-	{
-		value = std::stof(val);
-	}
+    void Console::FloatVariable::setValue(const std::string &val) {
+        value = std::stof(val);
+    }
 
-	std::string Console::FloatVariable::getTypeName() const
-	{
-		return "float";
-	}
+    std::string Console::FloatVariable::getTypeName() const {
+        return "float";
+    }
 
-	template <>
-	std::unique_ptr<Console::Variable> Console::Variable::from(Int32& val)
-	{
-		return std::make_unique<Console::IntVariable>(val);
-	}
+    template<>
+    std::unique_ptr<Console::Variable> Console::Variable::from(Int32 &val) {
+        return std::make_unique<Console::IntVariable>(val);
+    }
 
-	template <>
-	std::unique_ptr<Console::Variable> Console::Variable::from(Float32& val)
-	{
-		return std::make_unique<Console::FloatVariable>(val);
-	}
+    template<>
+    std::unique_ptr<Console::Variable> Console::Variable::from(Float32 &val) {
+        return std::make_unique<Console::FloatVariable>(val);
+    }
 
-	template <>
-	std::unique_ptr<Console::Variable> Console::Variable::from(bool& val)
-	{
-		return std::make_unique<Console::BoolVariable>(val);
-	}
+    template<>
+    std::unique_ptr<Console::Variable> Console::Variable::from(bool &val) {
+        return std::make_unique<Console::BoolVariable>(val);
+    }
 }

@@ -27,20 +27,20 @@
 
 #include "KissOfDeath.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 4.27f, false, true, true, Color(255, 0, 255), 0, 100, 3.11f, "kiss of death", "kiss2.wav", "kiss.wav", 0.01f, { 0, 8, 1, 8, 2, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0 }, { 0, 10, 1, 10, 2, 10, 1, 10, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.22f, 0.74f), Vector(0.43f, 0.22f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {4.27f, false, true, true, Color(255, 0, 255), 0, 100, 3.11f,
+                                               "kiss of death", "kiss2.wav", "kiss.wav", 0.01f,
+                                               {0, 8, 1, 8, 2, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0},
+                                               {0, 10, 1, 10, 2, 10, 1, 10, -1, 0},
+                                               {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.22f, 0.74f), Vector(0.43f, 0.22f));
+    }
 
-	KissOfDeath::KissOfDeath(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 12)
-	{}
+    KissOfDeath::KissOfDeath(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 12) {}
 
-	Rectangle KissOfDeath::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle KissOfDeath::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

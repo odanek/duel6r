@@ -32,16 +32,14 @@
 #include <unordered_map>
 #include "../Color.h"
 
-namespace Duel6
-{
-	class Player;
+namespace Duel6 {
+    class Player;
 
-	struct Team
-	{
-		std::string name;
-		Color color;
-	};
+    struct Team {
+        std::string name;
+        Color color;
+    };
 
-	typedef std::unordered_map<const Player*, const Team*> TeamMap;
+    typedef std::unordered_map<const Player *, const Team *> TeamMap;
 }
 #endif

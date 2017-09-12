@@ -27,8 +27,7 @@
 
 #include "Vector.h"
 
-namespace Duel6
-{
+namespace Duel6 {
     const Vector Vector::ZERO = Vector(0, 0, 0);
     const Vector Vector::ONE = Vector(1, 1, 1);
     const Vector Vector::UNIT_X = Vector(1, 0, 0);

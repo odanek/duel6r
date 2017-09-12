@@ -28,13 +28,11 @@
 #ifndef DUEL6_SCREENMODE_H
 #define DUEL6_SCREENMODE_H
 
-namespace Duel6
-{
-	enum class ScreenMode
-	{
-		FullScreen,
-		SplitScreen
-	};
+namespace Duel6 {
+    enum class ScreenMode {
+        FullScreen,
+        SplitScreen
+    };
 }
 
 #endif

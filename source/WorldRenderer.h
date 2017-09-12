@@ -38,55 +38,79 @@
 #include "FaceList.h"
 #include "ShotList.h"
 
-namespace Duel6
-{
-	class Game;
+namespace Duel6 {
+    class Game;
 
-	class WorldRenderer
-	{
-	private:
-		const Font& font;
-		const Video& video;
-		const Game& game;
+    class WorldRenderer {
+    private:
+        const Font &font;
+        const Video &video;
+        const Game &game;
 
-	public:
-        WorldRenderer(AppService& appService, const Game& game)
-			: font(appService.getFont()), video(appService.getVideo()), game(game)
-		{}
+    public:
+        WorldRenderer(AppService &appService, const Game &game)
+                : font(appService.getFont()), video(appService.getVideo()), game(game) {}
 
-		void render() const;
+        void render() const;
 
-	private:
-		void setView(const PlayerView& view) const;
-		void setView(int x, int y, int width, int height) const;
-		void view(const Player& player) const;
-		void fullScreen() const;
-		void splitScreen() const;
-		void walls(const FaceList& walls) const;
-		void water(const FaceList& water) const;
-		void sprites(const FaceList& sprites) const;
-		void background(Texture texture) const;
-		void playerRankings() const;
+    private:
+        void setView(const PlayerView &view) const;
+
+        void setView(int x, int y, int width, int height) const;
+
+        void view(const Player &player) const;
+
+        void fullScreen() const;
+
+        void splitScreen() const;
+
+        void walls(const FaceList &walls) const;
+
+        void water(const FaceList &water) const;
+
+        void sprites(const FaceList &sprites) const;
+
+        void background(Texture texture) const;
+
+        void playerRankings() const;
+
         void roundOverSummary() const;
-		void gameOverSummary() const;
-		void roundsPlayed() const;
-		void fpsCounter() const;
-		void youAreHere() const;
-		void roundKills(const Player& player, Float32 xOfs, Float32 yOfs) const;
-		void playerStatus(const Player& player) const;
-		Float32 playerIndicator(const Player& player, const Indicator& indicator, const Color& color, Float32 value, Float32 xOfs, Float32 yOfs) const;
-		void playerName(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const;
-		void bulletIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const;
-		void bonusIndicator(const Player& player, const Indicator& indicator, Float32 xOfs, Float32 yOfs) const;
-		void invulRings(const std::vector<Player>& players) const;
-		void invulRing(const Player& player) const;
-		void splitBox(const PlayerView& view) const;
-		void screenCurtain(const Color& color) const;
-		void infoMessages() const;
-		Color getGameOverOverlay() const;
 
-		void shotCollisionBox(const ShotList& shotList) const;
-	};
+        void gameOverSummary() const;
+
+        void roundsPlayed() const;
+
+        void fpsCounter() const;
+
+        void youAreHere() const;
+
+        void roundKills(const Player &player, Float32 xOfs, Float32 yOfs) const;
+
+        void playerStatus(const Player &player) const;
+
+        Float32 playerIndicator(const Player &player, const Indicator &indicator, const Color &color, Float32 value,
+                                Float32 xOfs, Float32 yOfs) const;
+
+        void playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const;
+
+        void bulletIndicator(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const;
+
+        void bonusIndicator(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const;
+
+        void invulRings(const std::vector<Player> &players) const;
+
+        void invulRing(const Player &player) const;
+
+        void splitBox(const PlayerView &view) const;
+
+        void screenCurtain(const Color &color) const;
+
+        void infoMessages() const;
+
+        Color getGameOverOverlay() const;
+
+        void shotCollisionBox(const ShotList &shotList) const;
+    };
 }
 
 #endif

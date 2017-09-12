@@ -33,35 +33,29 @@
 
 #define D6_THROW(exceptionClass, message) throw exceptionClass(__FILE__, __LINE__, message)
 
-namespace Duel6
-{
-	class Exception
-	{
-	private:
-		std::string file;
-		Int32 line;
-		std::string message;
+namespace Duel6 {
+    class Exception {
+    private:
+        std::string file;
+        Int32 line;
+        std::string message;
 
-	public:
-		Exception(const std::string& file, Int32 line, const std::string& message)
-			: file(file), line(line), message(message)
-		{}
+    public:
+        Exception(const std::string &file, Int32 line, const std::string &message)
+                : file(file), line(line), message(message) {}
 
-		const std::string& getFile() const
-		{
-			return file;
-		}
+        const std::string &getFile() const {
+            return file;
+        }
 
-		Int32 getLine() const
-		{
-			return line;
-		}
+        Int32 getLine() const {
+            return line;
+        }
 
-		const std::string& getMessage() const
-		{
-			return message;
-		}
-	};
+        const std::string &getMessage() const {
+            return message;
+        }
+    };
 }
 
 #endif

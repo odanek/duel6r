@@ -296,6 +296,7 @@ set(D6R_SOURCES
 	source/gamemodes/PredatorPlayerEventListener.cpp
     source/gamemodes/DeathMatch.h
     source/gamemodes/DeathMatch.cpp
+    source/gamemodes/Team.h
     source/gamemodes/TeamDeathMatch.h
     source/gamemodes/TeamDeathMatch.cpp
     source/gamemodes/Predator.cpp

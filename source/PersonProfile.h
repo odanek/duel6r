@@ -31,32 +31,27 @@
 #include "PlayerSkinColors.h"
 #include "PlayerSounds.h"
 
-namespace Duel6
-{
-	class PersonProfile
-	{
-	private:
-		PlayerSkinColors skinColors;
-		PlayerSounds sounds;
+namespace Duel6 {
+    class PersonProfile {
+    private:
+        PlayerSkinColors skinColors;
+        PlayerSounds sounds;
 
-	public:
-		PersonProfile(Sound& sound, const std::string& profileRoot);
+    public:
+        PersonProfile(Sound &sound, const std::string &profileRoot);
 
-		PlayerSkinColors& getSkinColors()
-		{
-			return skinColors;
-		}
+        PlayerSkinColors &getSkinColors() {
+            return skinColors;
+        }
 
-		const PlayerSkinColors& getSkinColors() const
-		{
-			return skinColors;
-		}
+        const PlayerSkinColors &getSkinColors() const {
+            return skinColors;
+        }
 
-		const PlayerSounds& getSounds() const
-		{
-			return sounds;
-		}
-	};
+        const PlayerSounds &getSounds() const {
+            return sounds;
+        }
+    };
 }
 
 #endif

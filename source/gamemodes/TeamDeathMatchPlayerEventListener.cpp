@@ -27,36 +27,29 @@
 
 #include "TeamDeathMatchPlayerEventListener.h"
 
-namespace Duel6
-{
-	bool TeamDeathMatchPlayerEventListener::onDamageByShot(Player& player, Player& shootingPlayer, Float32 amount, Shot& shot, bool directHit)
-	{
-		if (!friendlyFire && &player != &shootingPlayer)
-		{
-			const Team* playerTeam = teamMap.at(&player);
-			const Team* shooterTeam = teamMap.at(&shootingPlayer);
-			if (playerTeam == shooterTeam)
-			{
-				return false;
-			}
-		}
+namespace Duel6 {
+    bool TeamDeathMatchPlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount,
+                                                           Shot &shot, bool directHit) {
+        if (!friendlyFire && &player != &shootingPlayer) {
+            const Team *playerTeam = teamMap.at(&player);
+            const Team *shooterTeam = teamMap.at(&shootingPlayer);
+            if (playerTeam == shooterTeam) {
+                return false;
+            }
+        }
 
-		return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
-	}
+        return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
+    }
 
-	void TeamDeathMatchPlayerEventListener::onKillByPlayer(Player& player, Player& killer, Shot& shot, bool suicide)
-	{
-		const Team* playerTeam = teamMap.at(&player);
-		const Team* killerTeam = teamMap.at(&killer);
+    void TeamDeathMatchPlayerEventListener::onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide) {
+        const Team *playerTeam = teamMap.at(&player);
+        const Team *killerTeam = teamMap.at(&killer);
 
-		if (!suicide && playerTeam == killerTeam)
-		{
-			messageQueue.add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
-			killer.getPerson().addPenalties(1);
-		}
-		else
-		{
-			PlayerEventListener::onKillByPlayer(player, killer, shot, suicide);
-		}
-	}
+        if (!suicide && playerTeam == killerTeam) {
+            messageQueue.add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
+            killer.getPerson().addPenalties(1);
+        } else {
+            PlayerEventListener::onKillByPlayer(player, killer, shot, suicide);
+        }
+    }
 }

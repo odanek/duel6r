@@ -32,98 +32,81 @@
 #include <sstream>
 #include "Type.h"
 
-namespace Duel6
-{
-	template <class T>
-	class Formatter
-	{
-	public:
-		std::string format(const T& val)
-		{
-			return std::to_string(val);
-		}
-	};
+namespace Duel6 {
+    template<class T>
+    class Formatter {
+    public:
+        std::string format(const T &val) {
+            return std::to_string(val);
+        }
+    };
 
-	template <>
-	class Formatter<std::string>
-	{
-	public:
-		std::string format(const std::string& val)
-		{
-			return val;
-		}
-	};
+    template<>
+    class Formatter<std::string> {
+    public:
+        std::string format(const std::string &val) {
+            return val;
+        }
+    };
 
-	template <>
-	class Formatter<const char*>
-	{
-	public:
-		std::string format(const char* const& val)
-		{
-			return std::string(val);
-		}
-	};
+    template<>
+    class Formatter<const char *> {
+    public:
+        std::string format(const char *const &val) {
+            return std::string(val);
+        }
+    };
 
-	template <Size N>
-	class Formatter<const char[N]>
-	{
-	private:
-		typedef const char Type[N];
+    template<Size N>
+    class Formatter<const char[N]> {
+    private:
+        typedef const char Type[N];
 
-	public:
-		std::string format(const Type& val)
-		{
-			return std::string(val);
-		}
-	};
+    public:
+        std::string format(const Type &val) {
+            return std::string(val);
+        }
+    };
 
-	template <Size N>
-	class Formatter<char[N]>
-	{
-	private:
-		typedef char Type[N];
+    template<Size N>
+    class Formatter<char[N]> {
+    private:
+        typedef char Type[N];
 
-	public:
-		std::string format(const Type& val)
-		{
-			return std::string(val);
-		}
-	};
+    public:
+        std::string format(const Type &val) {
+            return std::string(val);
+        }
+    };
 
-	template <>
-	class Formatter<char>
-	{
-	public:
-		std::string format(const char& val)
-		{
-			return std::string(1, val);
-		}
-	};
+    template<>
+    class Formatter<char> {
+    public:
+        std::string format(const char &val) {
+            return std::string(1, val);
+        }
+    };
 
-	template <>
-	class Formatter<bool>
-	{
-	public:
-		std::string format(const bool& val)
-		{
-			return val ? "true" : "false";
-		}
-	};
+    template<>
+    class Formatter<bool> {
+    public:
+        std::string format(const bool &val) {
+            return val ? "true" : "false";
+        }
+    };
 
-	template <class T>
-	class Formatter<T*>
-	{
-	private:
-		typedef T* Type;
+    template<class T>
+    class Formatter<T *> {
+    private:
+        typedef T *Type;
 
-	public:
-		std::string format(const Type& val)
-		{
-			std::stringstream ret;
-			ret << "0x" << std::hex << val;
-			return ret.str();
-		}
-	};
+    public:
+        std::string format(const Type &val) {
+            std::stringstream ret;
+            ret << "0x" << std::hex << val;
+            return ret.str();
+        }
+    };
 }
 
 #endif

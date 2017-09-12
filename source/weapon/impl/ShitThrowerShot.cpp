@@ -27,25 +27,20 @@
 
 #include "ShitThrowerShot.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		const Rectangle COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.28f, 0.72f), Vector(0.38f, 0.18f));
-	}
+namespace Duel6 {
+    namespace {
+        const Rectangle COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.28f, 0.72f), Vector(0.38f, 0.18f));
+    }
 
-	ShitThrowerShot::ShitThrowerShot(Player& player, const LegacyWeapon& weapon, Orientation orientation,
-									 SpriteList::Iterator sprite, PlayerSkin& brownSkin)
-		: LegacyShot(player, weapon, orientation, sprite, COLLISION_RECT), brownSkin(brownSkin)
-	{
-	}
+    ShitThrowerShot::ShitThrowerShot(Player &player, const LegacyWeapon &weapon, Orientation orientation,
+                                     SpriteList::Iterator sprite, PlayerSkin &brownSkin)
+            : LegacyShot(player, weapon, orientation, sprite, COLLISION_RECT), brownSkin(brownSkin) {
+    }
 
-	void ShitThrowerShot::onExplode(const Vector& centre, Float32 range, World& world)
-	{
-	}
+    void ShitThrowerShot::onExplode(const Vector &centre, Float32 range, World &world) {
+    }
 
-	void ShitThrowerShot::onHitPlayer(Player& player, bool directHit, const Vector& point, World& world)
-	{
-		player.useTemporarySkin(brownSkin);
-	}
+    void ShitThrowerShot::onHitPlayer(Player &player, bool directHit, const Vector &point, World &world) {
+        player.useTemporarySkin(brownSkin);
+    }
 }

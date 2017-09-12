@@ -31,82 +31,67 @@
 
 #define D6_ELEV_SPEED 1.83f
 
-namespace Duel6
-{
-	void Elevator::start()
-	{
-		position = controlPoints[0].getLocation();
-		section = 0;
-		forward = true;
-		startSection();
-	}
+namespace Duel6 {
+    void Elevator::start() {
+        position = controlPoints[0].getLocation();
+        section = 0;
+        forward = true;
+        startSection();
+    }
 
-	void Elevator::update(Float32 elapsedTime)
-	{
-		if (travelled >= distance * D6_ELEV_SPEED)
-		{
-			nextSection();
-		}
+    void Elevator::update(Float32 elapsedTime) {
+        if (travelled >= distance * D6_ELEV_SPEED) {
+            nextSection();
+        }
 
-		accelerate = 1.0f;
-		position += accelerate * velocity * elapsedTime;
-		travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
-	}
+        accelerate = 1.0f;
+        position += accelerate * velocity * elapsedTime;
+        travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
+    }
 
-	void Elevator::render(const Texture& texture) const
-	{
-		Float32 X = position.x, Y = position.y - 0.3f;
-		Material material = Material::makeTexture(texture);
+    void Elevator::render(const Texture &texture) const {
+        Float32 X = position.x, Y = position.y - 0.3f;
+        Material material = Material::makeTexture(texture);
 
-		// Front
-		globRenderer->quadXY(Vector(X, Y, 0.7f), Vector(1.0f, 0.3f), Vector::ZERO, Vector(1, 1), material);
+        // Front
+        globRenderer->quadXY(Vector(X, Y, 0.7f), Vector(1.0f, 0.3f), Vector::ZERO, Vector(1, 1), material);
 
 #ifdef D6_RENDER_BACKS
-		globRenderer->quadXY(Vector(X + 1.0f, Y, 0.7f), Vector(-1.0f, 0.3f), Vector::ZERO, Vector(1, 1), material);
+        globRenderer->quadXY(Vector(X + 1.0f, Y, 0.7f), Vector(-1.0f, 0.3f), Vector::ZERO, Vector(1, 1), material);
 #endif
-		globRenderer->quadYZ(Vector(X, Y, 0.3f), Vector(0.0f, 0.3f, 0.4f), Vector::ZERO, Vector(1, 1), material);
-		globRenderer->quadYZ(Vector(X + 1.0f, Y, 0.7f), Vector(0.0f, 0.3f, -0.4f), Vector::ZERO, Vector(1, 1), material);
+        globRenderer->quadYZ(Vector(X, Y, 0.3f), Vector(0.0f, 0.3f, 0.4f), Vector::ZERO, Vector(1, 1), material);
+        globRenderer->quadYZ(Vector(X + 1.0f, Y, 0.7f), Vector(0.0f, 0.3f, -0.4f), Vector::ZERO, Vector(1, 1),
+                             material);
 
-		globRenderer->quadXZ(Vector(X, Y + 0.3f, 0.3f), Vector(1.0f, 0.0f, 0.4f), Vector::ZERO, Vector(1, 1), material);
-		globRenderer->quadXZ(Vector(X, Y, 0.7f), Vector(1.0f, 0.0f, -0.4f), Vector::ZERO, Vector(1, 1), material);
-	}
+        globRenderer->quadXZ(Vector(X, Y + 0.3f, 0.3f), Vector(1.0f, 0.0f, 0.4f), Vector::ZERO, Vector(1, 1), material);
+        globRenderer->quadXZ(Vector(X, Y, 0.7f), Vector(1.0f, 0.0f, -0.4f), Vector::ZERO, Vector(1, 1), material);
+    }
 
-	void Elevator::nextSection()
-	{
-		if (forward)
-		{
-			if (section + 2 == controlPoints.size())
-			{
-				forward = false;
-			}
-			else
-			{
-				++section;
-			}
-		}
-		else
-		{
-			if (section == 0)
-			{
-				forward = true;
-			}
-			else
-			{
-				--section;
-			}
-		}
+    void Elevator::nextSection() {
+        if (forward) {
+            if (section + 2 == controlPoints.size()) {
+                forward = false;
+            } else {
+                ++section;
+            }
+        } else {
+            if (section == 0) {
+                forward = true;
+            } else {
+                --section;
+            }
+        }
 
-		startSection();
-	}
+        startSection();
+    }
 
-	void Elevator::startSection()
-	{
-		ControlPoint& left = controlPoints[forward ? section : section + 1];
-		ControlPoint& right = controlPoints[forward ? section + 1 : section];
-		accelerate = 0;
-		Vector dir = right.getLocation() - left.getLocation();
-		distance = dir.length() / D6_ELEV_SPEED;
-		travelled = 0;
-		velocity = dir / distance;
-	}
+    void Elevator::startSection() {
+        ControlPoint &left = controlPoints[forward ? section : section + 1];
+        ControlPoint &right = controlPoints[forward ? section + 1 : section];
+        accelerate = 0;
+        Vector dir = right.getLocation() - left.getLocation();
+        distance = dir.length() / D6_ELEV_SPEED;
+        travelled = 0;
+        velocity = dir / distance;
+    }
 }

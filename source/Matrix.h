@@ -31,10 +31,8 @@
 #include "Type.h"
 #include "Vector.h"
 
-namespace Duel6
-{
-    class Matrix
-    {
+namespace Duel6 {
+    class Matrix {
     private:
         Float32 data[16];
 
@@ -44,59 +42,70 @@ namespace Duel6
     public:
         Matrix();
 
-        Matrix(const Matrix& m);
-        Matrix& operator=(const Matrix& m);
+        Matrix(const Matrix &m);
 
-        Float32* getStorage()
-        {
+        Matrix &operator=(const Matrix &m);
+
+        Float32 *getStorage() {
             return data;
         }
 
-        const Float32* getStorage() const
-        {
+        const Float32 *getStorage() const {
             return data;
         }
 
-        Float32& operator()(Int32 column, Int32 row);
+        Float32 &operator()(Int32 column, Int32 row);
+
         Float32 operator()(Int32 column, Int32 row) const;
 
         Vector getColumn(Int32 index) const;
-        Matrix& setColumn(Int32 index, Vector column);
+
+        Matrix &setColumn(Int32 index, Vector column);
 //        Vector getRow(Int32 index) const;
 //        Matrix& setRow(Int32 index, Vector row);
 
-        Matrix operator+(const Matrix& m) const;
-        Matrix& operator+=(const Matrix& m);
+        Matrix operator+(const Matrix &m) const;
 
-        Matrix operator-(const Matrix& m) const;
-        Matrix& operator-=(const Matrix& m);
+        Matrix &operator+=(const Matrix &m);
 
-        Matrix operator*(const Matrix& m) const;
+        Matrix operator-(const Matrix &m) const;
+
+        Matrix &operator-=(const Matrix &m);
+
+        Matrix operator*(const Matrix &m) const;
+
         Matrix operator*(Float32 value) const;
-        Matrix& operator*=(Float32 value);
+
+        Matrix &operator*=(Float32 value);
+
         Matrix operator/(Float32 value) const;
-        Matrix& operator/=(Float32 value);
-        Vector operator*(const Vector& v) const;
+
+        Matrix &operator/=(Float32 value);
+
+        Vector operator*(const Vector &v) const;
 
         static Matrix translate(Float32 x, Float32 y, Float32 z);
-        static Matrix translate(const Vector& v)
-        {
+
+        static Matrix translate(const Vector &v) {
             return translate(v.x, v.y, v.z);
         }
 
         static Matrix scale(Float32 x, Float32 y, Float32 z);
-        static Matrix scale(const Vector& v)
-        {
+
+        static Matrix scale(const Vector &v) {
             return scale(v.x, v.y, v.z);
         }
 
         static Matrix rotate(Float32 radians, const Vector &axis);
+
         static Matrix perspective(Float32 fov, Float32 aspect, Float32 nearClip, Float32 farClip);
+
         static Matrix orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far);
-        static Matrix lookAt(const Vector& eye, const Vector& front, const Vector& up);
+
+        static Matrix lookAt(const Vector &eye, const Vector &front, const Vector &up);
     };
 
-    Vector operator*(const Vector& v, const Matrix& m);
+    Vector operator*(const Vector &v, const Matrix &m);
 }
 
 #endif

@@ -29,36 +29,28 @@
 #include "../World.h"
 #include "FastMovement.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		FastMovement::FastMovement(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        FastMovement::FastMovement(Texture texture)
+                : texture(texture) {}
 
-		Texture FastMovement::getTexture() const
-		{
-			return texture;
-		}
+        Texture FastMovement::getTexture() const {
+            return texture;
+        }
 
-		bool FastMovement::isOneTime() const
-		{
-			return false;
-		}
+        bool FastMovement::isOneTime() const {
+            return false;
+        }
 
-		bool FastMovement::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool FastMovement::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void FastMovement::onApply(Player& player, World& world, Int32 duration) const
-		{
-			world.getMessageQueue().add(player, Format("Fast movement for {0} seconds") << duration);
-		}
+        void FastMovement::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Fast movement for {0} seconds") << duration);
+        }
 
-		void FastMovement::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void FastMovement::onExpire(Player &player, World &world) const {
+        }
+    }
 }

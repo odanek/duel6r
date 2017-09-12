@@ -34,178 +34,147 @@
 #include "File.h"
 #include "json/JsonValue.h"
 
-namespace Duel6
-{
-	class Person
-	{
-	private:
-		std::string name;
-		Int32 shots;
-		Int32 hits;
-		Int32 kills;
-		Int32 wins;
-		Int32 penalties;
-		Int32 games;
-		Int32 timeAlive;
-		Int32 totalGameTime;
-		Int32 totalDamage;
+namespace Duel6 {
+    class Person {
+    private:
+        std::string name;
+        Int32 shots;
+        Int32 hits;
+        Int32 kills;
+        Int32 wins;
+        Int32 penalties;
+        Int32 games;
+        Int32 timeAlive;
+        Int32 totalGameTime;
+        Int32 totalDamage;
 
-		static Json::Value loadValue(const Json::Value& json, const std::string& propertyName, const Json::Value& defaultValue);
+    public:
+        Person()
+                : shots(0), hits(0), kills(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0),
+                  totalDamage(0) {}
 
-	public:
-		Person()
-			: shots(0), hits(0), kills(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0), totalDamage(0)
-		{}
+        explicit Person(const std::string &name)
+                : Person() {
+            this->name = name;
+        }
 
-		explicit Person(const std::string& name)
-			: Person()
-		{
-			this->name = name;
-		}
+        const std::string &getName() const {
+            return name;
+        }
 
-		const std::string& getName() const
-		{
-			return name;
-		}
+        Int32 getShots() const {
+            return shots;
+        }
 
-		Int32 getShots() const
-		{
-			return shots;
-		}
+        Int32 getHits() const {
+            return hits;
+        }
 
-		Int32 getHits() const
-		{
-			return hits;
-		}
+        Int32 getKills() const {
+            return kills;
+        }
 
-		Int32 getKills() const
-		{
-			return kills;
-		}
+        Int32 getWins() const {
+            return wins;
+        }
 
-		Int32 getWins() const
-		{
-			return wins;
-		}
+        Int32 getPenalties() const {
+            return penalties;
+        }
 
-		Int32 getPenalties() const
-		{
-			return penalties;
-		}
+        Int32 getGames() const {
+            return games;
+        }
 
-		Int32 getGames() const
-		{
-			return games;
-		}
+        Int32 getAccuracy() const {
+            return getShots() > 0 ? (getHits() * 100 / getShots()) : 0;
+        }
 
-		Int32 getAccuracy() const
-		{
-			return getShots() > 0 ? (getHits() * 100 / getShots()) : 0;
-		}
+        Int32 getTotalPoints() const {
+            return getKills() + getWins() - getPenalties();
+        }
 
-		Int32 getTotalPoints() const
-		{
-			return getKills() + getWins() - getPenalties();
-		}
+        Int32 getTimeAlive() const {
+            return timeAlive;
+        }
 
-		Int32 getTimeAlive() const
-		{
-			return timeAlive;
-		}
+        Int32 getAliveRatio() const {
+            return totalGameTime > 0 ? (timeAlive * 100) / totalGameTime : 0;
+        }
 
-		Int32 getAliveRatio() const
-		{
-			return totalGameTime > 0 ? (timeAlive * 100) / totalGameTime : 0;
-		}
+        Int32 getTotalGameTime() const {
+            return totalGameTime;
+        }
 
-		Int32 getTotalGameTime() const
-		{
-			return totalGameTime;
-		}
+        Int32 getTotalDamage() const {
+            return totalDamage;
+        }
 
-		Int32 getTotalDamage() const
-		{
-			return totalDamage;
-		}
+        Person &addShots(Int32 shots) {
+            this->shots += shots;
+            return *this;
+        }
 
-		Person& addShots(Int32 shots)
-		{
-			this->shots += shots;
-			return *this;
-		}
+        Person &addHits(Int32 hits) {
+            this->hits += hits;
+            return *this;
+        }
 
-		Person& addHits(Int32 hits)
-		{
-			this->hits += hits;
-			return *this;
-		}
+        Person &addKills(Int32 kills) {
+            this->kills += kills;
+            return *this;
+        }
 
-		Person& addKills(Int32 kills)
-		{
-			this->kills += kills;
-			return *this;
-		}
+        Person &addPenalties(Int32 penalties) {
+            this->penalties += penalties;
+            return *this;
+        }
 
-		Person& addPenalties(Int32 penalties)
-		{
-			this->penalties += penalties;
-			return *this;
-		}
+        Person &addWins(Int32 wins) {
+            this->wins += wins;
+            return *this;
+        }
 
-		Person& addWins(Int32 wins)
-		{
-			this->wins += wins;
-			return *this;
-		}
+        Person &addGames(Int32 games) {
+            this->games += games;
+            return *this;
+        }
 
-		Person& addGames(Int32 games)
-		{
-			this->games += games;
-			return *this;
-		}
+        void addTimeAlive(Int32 timeAlive) {
+            this->timeAlive += timeAlive;
+        }
 
-		void addTimeAlive(Int32 timeAlive)
-		{
-			this->timeAlive += timeAlive;
-		}
+        void addTotalGameTime(Int32 totalGameTime) {
+            this->totalGameTime += totalGameTime;
+        }
 
-		void addTotalGameTime(Int32 totalGameTime)
-		{
-			this->totalGameTime += totalGameTime;
-		}
+        void addDamageCaused(Int32 damageCaused) {
+            this->totalDamage += damageCaused;
+        }
 
-		void addDamageCaused(Int32 damageCaused)
-		{
-			this->totalDamage += damageCaused;
-		}
+        bool hasHigherScoreThan(const Person &person) const {
+            if (getTotalPoints() > person.getTotalPoints()) {
+                return true;
+            }
+            if (getTotalPoints() < person.getTotalPoints()) {
+                return false;
+            }
+            if (getWins() > person.getWins()) {
+                return true;
+            }
+            if (getWins() < person.getWins()) {
+                return false;
+            }
 
-		bool hasHigherScoreThan(const Person& person) const
-		{
-			if (getTotalPoints() > person.getTotalPoints())
-			{
-				return true;
-			}
-			if (getTotalPoints() < person.getTotalPoints())
-			{
-				return false;
-			}
-			if (getWins() > person.getWins())
-			{
-				return true;
-			}
-			if (getWins() < person.getWins())
-			{
-				return false;
-			}
+            return getTotalDamage() > person.getTotalDamage();
+        }
 
-			return  getTotalDamage() > person.getTotalDamage();
-		}
+        Person &reset();
 
-		Person& reset();
+        Json::Value toJson() const;
 
-		Json::Value toJson() const;
-		static Person fromJson(const Json::Value& json);
-	};
+        static Person fromJson(const Json::Value &json);
+    };
 }
 
 #endif

@@ -27,12 +27,9 @@
 
 #include "Collision.h"
 
-namespace Duel6
-{
-    namespace Collision
-    {
-        bool rectangles(const Rectangle& r1, const Rectangle& r2)
-        {
+namespace Duel6 {
+    namespace Collision {
+        bool rectangles(const Rectangle &r1, const Rectangle &r2) {
             return (r1.right.x > r2.left.x &&
                     r1.left.x < r2.right.x &&
                     r1.right.y > r2.left.y &&

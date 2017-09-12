@@ -28,63 +28,51 @@
 #include "Camera.h"
 #include "Math.h"
 
-namespace Duel6
-{
+namespace Duel6 {
     Camera::Camera()
-        : position(Vector::ZERO), front(Vector::UNIT_Z), up(Vector::UNIT_Y), side(Vector::UNIT_X),
-          yaw(0), pitch(0), roll(0)
-    {}
+            : position(Vector::ZERO), front(Vector::UNIT_Z), up(Vector::UNIT_Y), side(Vector::UNIT_X),
+              yaw(0), pitch(0), roll(0) {}
 
-    Vector Camera::getPosition() const
-    {
+    Vector Camera::getPosition() const {
         return position;
     }
 
-    void Camera::setPosition(const Vector& position)
-    {
+    void Camera::setPosition(const Vector &position) {
         this->position = position;
     }
 
-    Vector Camera::getFront() const
-    {
+    Vector Camera::getFront() const {
         return front;
     }
 
-    Vector Camera::getUp() const
-    {
+    Vector Camera::getUp() const {
         return up;
     }
 
-    Vector Camera::getSide() const
-    {
+    Vector Camera::getSide() const {
         return side;
     }
 
-    Float32 Camera::getYaw() const
-    {
+    Float32 Camera::getYaw() const {
         return yaw;
     }
 
-    Float32 Camera::getPitch() const
-    {
+    Float32 Camera::getPitch() const {
         return pitch;
     }
 
-    Float32 Camera::getRoll() const
-    {
+    Float32 Camera::getRoll() const {
         return roll;
     }
 
-    void Camera::rotate(Float32 yaw, Float32 pitch, Float32 roll)
-    {
+    void Camera::rotate(Float32 yaw, Float32 pitch, Float32 roll) {
         this->yaw += yaw;
         this->pitch += pitch;
         this->roll += roll;
         update();
     }
 
-    void Camera::update()
-    {
+    void Camera::update() {
         Float32 a = Math::degSin(pitch);
         Float32 b = Math::degCos(pitch);
         Float32 c = Math::degSin(yaw);

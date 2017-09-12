@@ -31,36 +31,41 @@
 #include "../File.h"
 #include "JsonValue.h"
 
-namespace Duel6
-{
-	namespace Json
-	{
-		class Appender;
+namespace Duel6 {
+    namespace Json {
+        class Appender;
 
-		class Writer
-		{
-		private:
-			bool pretty;
+        class Writer {
+        private:
+            bool pretty;
 
-		public:
-			Writer(bool pretty);
+        public:
+            explicit Writer(bool pretty);
 
-			std::string writeToString(const Value& value);
-			void writeToFile(const std::string& path, const Value& value);
+            std::string writeToString(const Value &value);
 
-		private:
-			void write(Appender& appender, const Value& value, Size indent);
-			void writeNull(Appender& appender);
-			void writeBoolean(Appender& appender, bool value);
-			void writeNumber(Appender& appender, Float64 value);
-			void writeString(Appender& appender, const std::string& value);
-			void writeArray(Appender& appender, const Value& value, Size indent);
-			void writeObject(Appender& appender, const Value& value, Size indent);
+            void writeToFile(const std::string &path, const Value &value);
 
-			std::string space(Size indent);
-			std::string lineBreak();
-		};
-	}
+        private:
+            void write(Appender &appender, const Value &value, Size indent);
+
+            void writeNull(Appender &appender);
+
+            void writeBoolean(Appender &appender, bool value);
+
+            void writeNumber(Appender &appender, Float64 value);
+
+            void writeString(Appender &appender, const std::string &value);
+
+            void writeArray(Appender &appender, const Value &value, Size indent);
+
+            void writeObject(Appender &appender, const Value &value, Size indent);
+
+            std::string space(Size indent);
+
+            std::string lineBreak();
+        };
+    }
 }
 
 #endif

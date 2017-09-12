@@ -36,63 +36,73 @@
 #include "Sprite.h"
 #include "TextureManager.h"
 
-namespace Duel6
-{
-	class World;
-	class GameSettings;
-	class Player;
+namespace Duel6 {
+    class World;
+    class GameSettings;
+    class Player;
 
-	class WeaponImpl
-	{
-	public:
-		virtual ~WeaponImpl() {}
-		virtual std::string getName() const = 0;
-		virtual Float32 getReloadInterval() const = 0;
-		virtual void shoot(Player& player, Orientation orientation, World& world) const = 0;
-		virtual Sprite& makeSprite(Sprite& sprite) const = 0;
-		virtual Texture getBonusTexture() const = 0;
-	};
+    class WeaponImpl {
+    public:
+        virtual ~WeaponImpl() {}
 
-	class Weapon final
-	{
-	public:
-		struct Hash
-		{
-			std::size_t operator()(const Weapon& val) const
-			{
-				std::hash<WeaponImpl*> referenceHash;
-				return referenceHash(val.impl);
-			}
-		};
+        virtual std::string getName() const = 0;
 
-	private:
-		typedef std::unique_ptr<WeaponImpl> WeaponImplPtr;
+        virtual Float32 getReloadInterval() const = 0;
 
-	private:
-		WeaponImpl* impl;
+        virtual void shoot(Player &player, Orientation orientation, World &world) const = 0;
 
-	private:
-		static std::vector<WeaponImplPtr> implementations;
-		static std::vector<Weapon> weapons;
-		explicit Weapon(WeaponImpl* impl);
-		static Weapon add(WeaponImplPtr&& impl);
+        virtual Sprite &makeSprite(Sprite &sprite) const = 0;
 
-	public:
-		Weapon();
-		std::string getName() const;
-		Float32 getReloadInterval() const;
-		void shoot(Player& player, Orientation orientation, World& world) const;
-		Sprite& makeSprite(Sprite& sprite) const;
-		Texture getBonusTexture() const;
+        virtual Texture getBonusTexture() const = 0;
+    };
 
-		bool operator==(const Weapon& weapon) const;
-		bool operator!=(const Weapon& weapon) const;
+    class Weapon final {
+    public:
+        struct Hash {
+            std::size_t operator()(const Weapon &val) const {
+                std::hash<WeaponImpl *> referenceHash;
+                return referenceHash(val.impl);
+            }
+        };
 
-	public:
-		static const std::vector<Weapon>& values();
-		static void initialize(Sound& sound, TextureManager& textureManager);
-		static const Weapon& getRandomEnabled(const GameSettings& settings);
-	};
+    private:
+        typedef std::unique_ptr<WeaponImpl> WeaponImplPtr;
+
+    private:
+        WeaponImpl *impl;
+
+    private:
+        static std::vector<WeaponImplPtr> implementations;
+        static std::vector<Weapon> weapons;
+
+        explicit Weapon(WeaponImpl *impl);
+
+        static Weapon add(WeaponImplPtr &&impl);
+
+    public:
+        Weapon();
+
+        std::string getName() const;
+
+        Float32 getReloadInterval() const;
+
+        void shoot(Player &player, Orientation orientation, World &world) const;
+
+        Sprite &makeSprite(Sprite &sprite) const;
+
+        Texture getBonusTexture() const;
+
+        bool operator==(const Weapon &weapon) const;
+
+        bool operator!=(const Weapon &weapon) const;
+
+    public:
+        static const std::vector<Weapon> &values();
+
+        static void initialize(Sound &sound, TextureManager &textureManager);
+
+        static const Weapon &getRandomEnabled(const GameSettings &settings);
+    };
 }
 
 #endif

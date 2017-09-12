@@ -28,58 +28,58 @@
 #ifndef DUEL6_DEFINES_H
 #define DUEL6_DEFINES_H
 
-#define APP_VERSION         "4.3.0"
-#define APP_NAME            "Duel 6 Reloaded"
-#define APP_FILE_ICON       "data/duel6_icon.bmp"
+#define APP_VERSION              "5.0.0"
+#define APP_NAME                 "Duel 6 Reloaded"
+#define APP_FILE_ICON            "data/duel6_icon.bmp"
 
-#define D6_FILE_CONFIG      "data/config.script"
-#define D6_FILE_BLOCK_META  "data/blocks.json"
-#define D6_FILE_TTF_FONT    "data/font.ttf"
-#define D6_FILE_LEVEL       "levels/"
-#define D6_FILE_PHIST       "data/persons.json"
-#define D6_FILE_PROFILES	"profiles"
-#define D6_FILE_WEAPON_SOUNDS "sound/weapon/"
-#define D6_FILE_PLAYER_SOUNDS "sound/player/"
+#define D6_FILE_CONFIG           "data/config.script"
+#define D6_FILE_BLOCK_META       "data/blocks.json"
+#define D6_FILE_TTF_FONT         "data/font.ttf"
+#define D6_FILE_LEVEL            "levels/"
+#define D6_FILE_PHIST            "data/persons.json"
+#define D6_FILE_PROFILES         "profiles"
+#define D6_FILE_WEAPON_SOUNDS    "sound/weapon/"
+#define D6_FILE_PLAYER_SOUNDS    "sound/player/"
 
-#define D6_FILE_WATER_BLUE	"sound/game/water-blue.wav"
-#define D6_FILE_WATER_RED	"sound/game/water-red.wav"
-#define D6_FILE_WATER_GREEN "sound/game/water-green.wav"
+#define D6_FILE_WATER_BLUE       "sound/game/water-blue.wav"
+#define D6_FILE_WATER_RED        "sound/game/water-red.wav"
+#define D6_FILE_WATER_GREEN      "sound/game/water-green.wav"
 
-#define D6_FILE_PROFILE_SKIN   "skin.json"
-#define D6_FILE_PROFILE_SOUNDS "sounds.json"
+#define D6_FILE_PROFILE_SKIN     "skin.json"
+#define D6_FILE_PROFILE_SOUNDS   "sounds.json"
 
 //#define D6_RENDER_BACKS
 
-#define D6_LEVEL_EXTENSION		".json"
+#define D6_LEVEL_EXTENSION       ".json"
 
-#define D6_UPDATE_FREQUENCY     200
+#define D6_UPDATE_FREQUENCY      200
 
-#define D6_SPRITE_SPEED_COEF	61
+#define D6_SPRITE_SPEED_COEF     61
 
-#define D6_ANM_SPEED			0.328f
-#define D6_WAVE_HEIGHT			0.1f
+#define D6_ANM_SPEED             0.328f
+#define D6_WAVE_HEIGHT           0.1f
 
-#define D6_EXPL_SPEED       	0.61f
+#define D6_EXPL_SPEED            0.61f
 
-#define D6_MAX_PLAYERS			15
-#define D6_AIR_RECHARGE_SPEED	60
-#define D6_GAME_OVER_WAIT		6.0f
-#define D6_ROUND_OVER_WAIT		1.0f
-#define D6_INFO_DURATION		5.0f
-#define D6_PLAYER_MAX_SPEED     0.52f
-#define D6_PLAYER_ACCEL         3.721f
-#define D6_PLAYER_JUMP_SPEED    4.88f
+#define D6_MAX_PLAYERS           15
+#define D6_AIR_RECHARGE_SPEED    60
+#define D6_GAME_OVER_WAIT        6.0f
+#define D6_ROUND_OVER_WAIT       1.0f
+#define D6_INFO_DURATION         5.0f
+#define D6_PLAYER_MAX_SPEED      0.52f
+#define D6_PLAYER_ACCEL          3.721f
+#define D6_PLAYER_JUMP_SPEED     4.88f
 #define D6_YOU_ARE_HERE_DURATION 3.0f
 
-#define D6_RAISE_WATER_WAIT		3.0f
+#define D6_RAISE_WATER_WAIT      3.0f
 
-#define D6_CAM_TOLPER_X         30
-#define D6_CAM_TOLPER_Y         30
+#define D6_CAM_TOLPER_X          30
+#define D6_CAM_TOLPER_Y          30
 
-#define D6_MAX_LIFE				100.0f
-#define D6_MAX_AIR				200.0f
-#define D6_PLAYER_HPREGEN_DELAY 6.0f
+#define D6_MAX_LIFE              100.0f
+#define D6_MAX_AIR               200.0f
+#define D6_PLAYER_HPREGEN_DELAY  6.0f
 
-#define D6_PLAYER_STUCK         5.0f
+#define D6_PLAYER_STUCK          5.0f
 
 #endif

@@ -36,21 +36,17 @@
 #include "../Image.h"
 #include "../Material.h"
 
-namespace Duel6
-{
-    class Renderer
-    {
+namespace Duel6 {
+    class Renderer {
     public:
-        struct Info
-        {
+        struct Info {
             std::string vendor;
             std::string renderer;
             std::string version;
             std::vector<std::string> extensions;
         };
 
-        enum class BlendFunc
-        {
+        enum class BlendFunc {
             None,
             SrcAlpha,
             SrcColor
@@ -60,56 +56,71 @@ namespace Duel6
         virtual ~Renderer() = default;
 
         virtual void initialize() = 0;
+
         virtual Info getInfo() = 0;
 
-        virtual Texture createTexture(Int32 width, Int32 height, void* data, Int32 alignment,
+        virtual Texture createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
                                       TextureFilter filtering, bool clamp) = 0;
-        virtual void setTextureFilter(const Texture& texture, TextureFilter filter) = 0;
+
+        virtual void setTextureFilter(const Texture &texture, TextureFilter filter) = 0;
+
         virtual void freeTexture(Texture texture) = 0;
 
-        virtual void readScreenData(Int32 width, Int32 height, Image& image) = 0;
+        virtual void readScreenData(Int32 width, Int32 height, Image &image) = 0;
 
         virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
 
-        virtual void setProjectionMatrix(const Matrix& m) = 0;
+        virtual void setProjectionMatrix(const Matrix &m) = 0;
+
         virtual Matrix getProjectionMatrix() const = 0;
 
-        virtual void setViewMatrix(const Matrix& m) = 0;
+        virtual void setViewMatrix(const Matrix &m) = 0;
+
         virtual Matrix getViewMatrix() const = 0;
 
-        virtual void setModelMatrix(const Matrix& m) = 0;
+        virtual void setModelMatrix(const Matrix &m) = 0;
+
         virtual Matrix getModelMatrix() const = 0;
 
         virtual void enableFaceCulling(bool enable) = 0;
+
         virtual void enableWireframe(bool enable) = 0;
+
         virtual void enableDepthTest(bool enable) = 0;
+
         virtual void enableDepthWrite(bool enable) = 0;
 
         virtual void setBlendFunc(BlendFunc func) = 0;
 
         virtual void clearBuffers() = 0;
 
-        virtual void triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color) = 0;
-        virtual void triangle(const Vector& p1, const Vector& t1,
-                              const Vector& p2, const Vector& t2,
-                              const Vector& p3, const Vector& t3,
-                              const Material& material) = 0;
+        virtual void triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) = 0;
 
-        virtual void quadXY(const Vector& position, const Vector& size, const Color& color) = 0;
-        virtual void quadXY(const Vector& position, const Vector& size, const Vector& texturePosition,
-                            const Vector& textureSize, const Material& material) = 0;
+        virtual void triangle(const Vector &p1, const Vector &t1,
+                              const Vector &p2, const Vector &t2,
+                              const Vector &p3, const Vector &t3,
+                              const Material &material) = 0;
 
-        virtual void quadXZ(const Vector& position, const Vector& size, const Color& color) = 0;
-        virtual void quadXZ(const Vector& position, const Vector& size, const Vector& texturePosition,
-                            const Vector& textureSize, const Material& material) = 0;
+        virtual void quadXY(const Vector &position, const Vector &size, const Color &color) = 0;
 
-        virtual void quadYZ(const Vector& position, const Vector& size, const Color& color) = 0;
-        virtual void quadYZ(const Vector& position, const Vector& size, const Vector& texturePosition,
-                            const Vector& textureSize, const Material& material) = 0;
+        virtual void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
+                            const Vector &textureSize, const Material &material) = 0;
 
-        virtual void point(const Vector& position, Float32 size, const Color& color) = 0;
-        virtual void line(const Vector& from, const Vector& to, Float32 width, const Color& color) = 0;
-        virtual void frame(const Vector& position, const Vector& size, Float32 width, const Color& color) = 0;
+        virtual void quadXZ(const Vector &position, const Vector &size, const Color &color) = 0;
+
+        virtual void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,
+                            const Vector &textureSize, const Material &material) = 0;
+
+        virtual void quadYZ(const Vector &position, const Vector &size, const Color &color) = 0;
+
+        virtual void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
+                            const Vector &textureSize, const Material &material) = 0;
+
+        virtual void point(const Vector &position, Float32 size, const Color &color) = 0;
+
+        virtual void line(const Vector &from, const Vector &to, Float32 width, const Color &color) = 0;
+
+        virtual void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) = 0;
     };
 }
 

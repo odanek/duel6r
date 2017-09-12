@@ -29,51 +29,55 @@
 #define DUEL6_FONT_H
 
 #include <vector>
+
 #if defined(__APPLE__)
-	#include <SDL2_ttf/SDL_ttf.h>
+#include <SDL2_ttf/SDL_ttf.h>
 #else
-	#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #endif
+
 #include "Type.h"
 #include "Color.h"
 #include "Format.h"
 #include "Texture.h"
 
-namespace Duel6
-{
-	class Console;
+namespace Duel6 {
+    class Console;
 
-	class Font
-	{
-	private:
-		TTF_Font* font;
+    class Font {
+    private:
+        TTF_Font *font;
 
-	public:
-		Font();
-		~Font();
+    public:
+        Font();
 
-		void load(const std::string& fontFile, Console& console);
-		void print(Int32 x, Int32 y, const Color& color, const std::string& str) const;
-		void print(Float32 x, Float32 y, Float32 z, const Color& color, const std::string& str, Float32 height) const;
-		void dispose();
+        ~Font();
 
-		Float32 getTextWidth(const std::string& str, Float32 height) const;
-		Int32 getTextWidth(const std::string& str, Int32 height) const;
+        void load(const std::string &fontFile, Console &console);
 
-		Int32 getCharWidth() const
-		{
-			return 8;
-		}
+        void print(Int32 x, Int32 y, const Color &color, const std::string &str) const;
 
-		Int32 getCharHeight() const
-		{
-			return 16;
-		}
+        void print(Float32 x, Float32 y, Float32 z, const Color &color, const std::string &str, Float32 height) const;
 
-	private:
-		Texture getTexture(const std::string& text) const;
-		Texture renderText(const std::string& text) const;
-	};
+        void dispose();
+
+        Float32 getTextWidth(const std::string &str, Float32 height) const;
+
+        Int32 getTextWidth(const std::string &str, Int32 height) const;
+
+        Int32 getCharWidth() const {
+            return 8;
+        }
+
+        Int32 getCharHeight() const {
+            return 16;
+        }
+
+    private:
+        Texture getTexture(const std::string &text) const;
+
+        Texture renderText(const std::string &text) const;
+    };
 }
 
 #endif

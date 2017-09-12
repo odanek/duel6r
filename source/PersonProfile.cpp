@@ -28,9 +28,8 @@
 #include "Defines.h"
 #include "PersonProfile.h"
 
-namespace Duel6
-{
-	PersonProfile::PersonProfile(Sound& sound, const std::string& profileRoot)
-		: skinColors(PlayerSkinColors::load(profileRoot, D6_FILE_PROFILE_SKIN)), sounds(PlayerSounds::load(sound, profileRoot, D6_FILE_PROFILE_SOUNDS))
-	{}
+namespace Duel6 {
+    PersonProfile::PersonProfile(Sound &sound, const std::string &profileRoot)
+            : skinColors(PlayerSkinColors::load(profileRoot, D6_FILE_PROFILE_SKIN)),
+              sounds(PlayerSounds::load(sound, profileRoot, D6_FILE_PROFILE_SOUNDS)) {}
 }

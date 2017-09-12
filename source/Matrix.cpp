@@ -29,42 +29,34 @@
 #include "Math.h"
 #include "Matrix.h"
 
-namespace Duel6
-{
+namespace Duel6 {
     const Matrix Matrix::IDENTITY = Matrix::scale(1, 1, 1);
 
-    Matrix::Matrix()
-    {}
+    Matrix::Matrix() {}
 
-    Matrix::Matrix(const Matrix& m)
-    {
+    Matrix::Matrix(const Matrix &m) {
         *this = m;
     }
 
-    Matrix& Matrix::operator=(const Matrix& m)
-    {
+    Matrix &Matrix::operator=(const Matrix &m) {
         memcpy(data, m.data, 16 * sizeof(Float32));
         return *this;
     }
 
-    Float32& Matrix::operator()(Int32 column, Int32 row)
-    {
+    Float32 &Matrix::operator()(Int32 column, Int32 row) {
         return data[row + 4 * column];
     }
 
-    Float32 Matrix::operator()(Int32 column, Int32 row) const
-    {
+    Float32 Matrix::operator()(Int32 column, Int32 row) const {
         return data[row + 4 * column];
     }
 
-    Vector Matrix::getColumn(Int32 index) const
-    {
+    Vector Matrix::getColumn(Int32 index) const {
         const Float32 *columnPtr = &data[index * 4];
         return Vector(columnPtr[0], columnPtr[1], columnPtr[2]);
     }
 
-    Matrix& Matrix::setColumn(Int32 index, Vector column)
-    {
+    Matrix &Matrix::setColumn(Int32 index, Vector column) {
         Float32 *columnPtr = &data[index * 4];
         columnPtr[0] = column.x;
         columnPtr[1] = column.y;
@@ -78,8 +70,7 @@ namespace Duel6
 //    Matrix& Matrix::setRow(Int32 index, Vector row)
 //    {}
 
-    Matrix Matrix::operator+(const Matrix& m) const
-    {
+    Matrix Matrix::operator+(const Matrix &m) const {
         Matrix result;
         Float32 *dest = result.data;
         const Float32 *left = data;
@@ -92,8 +83,7 @@ namespace Duel6
         return result;
     }
 
-    Matrix& Matrix::operator+=(const Matrix& m)
-    {
+    Matrix &Matrix::operator+=(const Matrix &m) {
         Float32 *dest = data;
         const Float32 *src = m.data;
 
@@ -104,8 +94,7 @@ namespace Duel6
         return *this;
     }
 
-    Matrix Matrix::operator-(const Matrix& m) const
-    {
+    Matrix Matrix::operator-(const Matrix &m) const {
         Matrix result;
         Float32 *dest = result.data;
         const Float32 *left = data;
@@ -118,8 +107,7 @@ namespace Duel6
         return result;
     }
 
-    Matrix& Matrix::operator-=(const Matrix& m)
-    {
+    Matrix &Matrix::operator-=(const Matrix &m) {
         Float32 *dest = data;
         const Float32 *src = m.data;
 
@@ -130,21 +118,17 @@ namespace Duel6
         return *this;
     }
 
-    Matrix Matrix::operator*(const Matrix& m) const
-    {
+    Matrix Matrix::operator*(const Matrix &m) const {
         Matrix result;
         Float32 *dest = result.data;
 
-        for (Int32 column = 0; column < 4; column++)
-        {
-            for (Int32 row = 0; row < 4; row++, dest++)
-            {
+        for (Int32 column = 0; column < 4; column++) {
+            for (Int32 row = 0; row < 4; row++, dest++) {
                 Float32 sum = 0;
                 const Float32 *left = &data[row];
                 const Float32 *right = &m.data[4 * column];
 
-                for (Int32 i = 0; i < 4; i++, left += 4, right++)
-                {
+                for (Int32 i = 0; i < 4; i++, left += 4, right++) {
                     sum += (*left) * (*right);
                 }
 
@@ -155,8 +139,7 @@ namespace Duel6
         return result;
     }
 
-    Matrix Matrix::operator*(Float32 value) const
-    {
+    Matrix Matrix::operator*(Float32 value) const {
         Matrix result;
         Float32 *dest = result.data;
         const Float32 *src = data;
@@ -168,8 +151,7 @@ namespace Duel6
         return result;
     }
 
-    Matrix& Matrix::operator*=(Float32 value)
-    {
+    Matrix &Matrix::operator*=(Float32 value) {
         Float32 *ptr = data;
 
         for (Int32 i = 0; i < 16; i++, ptr++) {
@@ -179,8 +161,7 @@ namespace Duel6
         return *this;
     }
 
-    Matrix Matrix::operator/(Float32 value) const
-    {
+    Matrix Matrix::operator/(Float32 value) const {
         Matrix result;
         Float32 *dest = result.data;
         const Float32 *src = data;
@@ -192,8 +173,7 @@ namespace Duel6
         return result;
     }
 
-    Matrix& Matrix::operator/=(Float32 value)
-    {
+    Matrix &Matrix::operator/=(Float32 value) {
         Float32 *ptr = data;
 
         for (Int32 i = 0; i < 16; i++, ptr++) {
@@ -203,8 +183,7 @@ namespace Duel6
         return *this;
     }
 
-    Vector Matrix::operator*(const Vector& v) const
-    {
+    Vector Matrix::operator*(const Vector &v) const {
         Float32 x = data[0] * v.x + data[4] * v.y + data[8] * v.z + data[12];
         Float32 y = data[1] * v.x + data[5] * v.y + data[9] * v.z + data[13];
         Float32 z = data[2] * v.x + data[6] * v.y + data[10] * v.z + data[14];
@@ -212,8 +191,7 @@ namespace Duel6
         return Vector(x / w, y / w, z / w);
     }
 
-    Matrix Matrix::translate(Float32 x, Float32 y, Float32 z)
-    {
+    Matrix Matrix::translate(Float32 x, Float32 y, Float32 z) {
         Matrix result;
 
         Float32 *dest = result.data;
@@ -229,8 +207,7 @@ namespace Duel6
         return result;
     }
 
-    Matrix Matrix::scale(Float32 x, Float32 y, Float32 z)
-    {
+    Matrix Matrix::scale(Float32 x, Float32 y, Float32 z) {
         Matrix result;
 
         Float32 *dest = result.data;
@@ -243,8 +220,7 @@ namespace Duel6
         return result;
     }
 
-    Matrix Matrix::rotate(Float32 radians, const Vector& axis)
-    {
+    Matrix Matrix::rotate(Float32 radians, const Vector &axis) {
         Matrix result;
         Float32 *dest = result.data;
 
@@ -280,13 +256,12 @@ namespace Duel6
     }
 
     // Source: gluPerspective
-    Matrix Matrix::perspective(Float32 fovAngle, Float32 aspect, Float32 nearClip, Float32 farClip)
-    {
+    Matrix Matrix::perspective(Float32 fovAngle, Float32 aspect, Float32 nearClip, Float32 farClip) {
         Float32 fovY = Math::angleToRadians(fovAngle) / 2;
         Float32 f = Math::radianCos(fovY) / Math::radianSin(fovY);
 
         Matrix result;
-        Float32* dest = result.data;
+        Float32 *dest = result.data;
 
         dest[0] = f / aspect;
         dest[1] = 0;
@@ -312,10 +287,9 @@ namespace Duel6
     }
 
     // Source: glOrtho
-    Matrix Matrix::orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far)
-    {
+    Matrix Matrix::orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far) {
         Matrix result;
-        Float32* dest = result.data;
+        Float32 *dest = result.data;
 
         dest[0] = 2 / (right - left);
         dest[1] = 0;
@@ -341,13 +315,12 @@ namespace Duel6
     }
 
     // Source: gluLookAt
-    Matrix Matrix::lookAt(const Vector& eye, const Vector& front, const Vector& up)
-    {
+    Matrix Matrix::lookAt(const Vector &eye, const Vector &front, const Vector &up) {
         Vector s = front.cross(up);
         Vector u = s.cross(front);
 
         Matrix result;
-        Float32* dest = result.data;
+        Float32 *dest = result.data;
 
         dest[0] = s.x;
         dest[4] = s.y;
@@ -372,9 +345,8 @@ namespace Duel6
         return result * translate(-eye);
     }
 
-    Vector operator*(const Vector& v, const Matrix& m)
-    {
-        const Float32* data = m.getStorage();
+    Vector operator*(const Vector &v, const Matrix &m) {
+        const Float32 *data = m.getStorage();
         Float32 x = data[0] * v.x + data[1] * v.y + data[2] * v.z + data[3];
         Float32 y = data[4] * v.x + data[5] * v.y + data[6] * v.z + data[7];
         Float32 z = data[8] * v.x + data[9] * v.y + data[10] * v.z + data[11];

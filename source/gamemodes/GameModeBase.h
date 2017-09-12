@@ -30,17 +30,17 @@
 
 #include "../GameMode.h"
 
-namespace Duel6
-{
-	class GameModeBase : public GameMode
-	{
-	public:
-		void initializePlayers(std::vector<Game::PlayerDefinition>& definitions) {}
-		void initializeGame(Game& game, std::vector<Player>& players) {}
-		void initializeRound(Game& game, std::vector<Player>& players, World& world) {}
+namespace Duel6 {
+    class GameModeBase : public GameMode {
+    public:
+        void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) {}
 
-		Ranking getRanking(const std::vector<Player>& players) const;
-	};
+        void initializeGame(Game &game, std::vector<Player> &players) {}
+
+        void initializeRound(Game &game, std::vector<Player> &players, World &world) {}
+
+        Ranking getRanking(const std::vector<Player> &players) const;
+    };
 }
 
 #endif

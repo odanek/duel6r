@@ -30,20 +30,19 @@
 
 #include "../Weapon.h"
 
-namespace Duel6
-{
-	class WeaponBase : public WeaponImpl
-	{
-	protected:
-		const std::string name;
-		const Float32 reloadInterval;
+namespace Duel6 {
+    class WeaponBase : public WeaponImpl {
+    protected:
+        const std::string name;
+        const Float32 reloadInterval;
 
-	public:
-		WeaponBase(const std::string& name, Float32 reloadInterval);
+    public:
+        WeaponBase(const std::string &name, Float32 reloadInterval);
 
-		std::string getName() const override;
-		Float32 getReloadInterval() const override;
-	};
+        std::string getName() const override;
+
+        Float32 getReloadInterval() const override;
+    };
 }
 
 #endif

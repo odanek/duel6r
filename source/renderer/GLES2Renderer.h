@@ -29,17 +29,16 @@
 #define DUEL6_RENDERER_GLES2RENDERER_H
 
 #ifdef D6_GLEW
-    #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-    #include <SDL2/SDL_opengles2.h>
+#include <SDL2/SDL_opengles2.h>
 #endif
+
 #include "Renderer.h"
 
-namespace Duel6
-{
+namespace Duel6 {
     class GLES2Renderer
-            : public Renderer
-    {
+            : public Renderer {
     private:
         Matrix projectionMatrix;
         Matrix viewMatrix;
@@ -52,55 +51,70 @@ namespace Duel6
         GLES2Renderer();
 
         void initialize() override;
+
         Info getInfo() override;
 
-        Texture createTexture(Int32 width, Int32 height, void* data, Int32 alignment,
+        Texture createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
                               TextureFilter filtering, bool clamp) override;
+
         void setTextureFilter(const Texture &texture, TextureFilter filter) override;
+
         void freeTexture(Texture texture) override;
 
-        void readScreenData(Int32 width, Int32 height, Image& image) override;
+        void readScreenData(Int32 width, Int32 height, Image &image) override;
 
         void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
 
-        void setProjectionMatrix(const Matrix& m) override;
+        void setProjectionMatrix(const Matrix &m) override;
+
         Matrix getProjectionMatrix() const override;
 
-        void setViewMatrix(const Matrix& m) override;
+        void setViewMatrix(const Matrix &m) override;
+
         Matrix getViewMatrix() const override;
 
-        void setModelMatrix(const Matrix& m) override;
+        void setModelMatrix(const Matrix &m) override;
+
         Matrix getModelMatrix() const override;
 
         void enableFaceCulling(bool enable) override;
+
         void enableWireframe(bool enable) override;
+
         void enableDepthTest(bool enable) override;
+
         void enableDepthWrite(bool enable) override;
 
         void setBlendFunc(BlendFunc func) override;
 
         void clearBuffers() override;
 
-        void triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color) override;
-        void triangle(const Vector& p1, const Vector& t1,
-                      const Vector& p2, const Vector& t2,
-                      const Vector& p3, const Vector& t3,
-                      const Material& material) override;
+        void triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) override;
+
+        void triangle(const Vector &p1, const Vector &t1,
+                      const Vector &p2, const Vector &t2,
+                      const Vector &p3, const Vector &t3,
+                      const Material &material) override;
 
         void quadXY(const Vector &position, const Vector &size, const Color &color) override;
+
         void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material& material) override;
+                    const Vector &textureSize, const Material &material) override;
 
         void quadXZ(const Vector &position, const Vector &size, const Color &color) override;
+
         void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material& material) override;
+                    const Vector &textureSize, const Material &material) override;
 
         void quadYZ(const Vector &position, const Vector &size, const Color &color) override;
+
         void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material& material) override;
+                    const Vector &textureSize, const Material &material) override;
 
         void line(const Vector &from, const Vector &to, Float32 width, const Color &color) override;
+
         void point(const Vector &position, Float32 size, const Color &color) override;
+
         void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
 
     private:

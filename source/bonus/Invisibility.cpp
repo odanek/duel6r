@@ -29,38 +29,30 @@
 #include "../World.h"
 #include "Invisibility.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		Invisibility::Invisibility(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        Invisibility::Invisibility(Texture texture)
+                : texture(texture) {}
 
-		Texture Invisibility::getTexture() const
-		{
-			return texture;
-		}
+        Texture Invisibility::getTexture() const {
+            return texture;
+        }
 
-		bool Invisibility::isOneTime() const
-		{
-			return false;
-		}
+        bool Invisibility::isOneTime() const {
+            return false;
+        }
 
-		bool Invisibility::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool Invisibility::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void Invisibility::onApply(Player& player, World& world, Int32 duration) const
-		{
-			player.setAlpha(0.2f);
-			world.getMessageQueue().add(player, Format("Invisibility for {0} seconds") << duration);
-		}
+        void Invisibility::onApply(Player &player, World &world, Int32 duration) const {
+            player.setAlpha(0.2f);
+            world.getMessageQueue().add(player, Format("Invisibility for {0} seconds") << duration);
+        }
 
-		void Invisibility::onExpire(Player& player, World& world) const
-		{
-			player.setAlpha(1.0f);
-		}
-	}
+        void Invisibility::onExpire(Player &player, World &world) const {
+            player.setAlpha(1.0f);
+        }
+    }
 }

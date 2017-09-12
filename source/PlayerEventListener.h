@@ -33,20 +33,17 @@
 #include "Player.h"
 #include "Shot.h"
 
-namespace Duel6
-{
-    class PlayerEventListener
-    {
+namespace Duel6 {
+    class PlayerEventListener {
     protected:
-        InfoMessageQueue& messageQueue;
-        const GameSettings& gameSettings;
+        InfoMessageQueue &messageQueue;
+        const GameSettings &gameSettings;
 
     public:
-        PlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings)
-            : messageQueue(messageQueue), gameSettings(gameSettings)
-        { }
+        PlayerEventListener(InfoMessageQueue &messageQueue, const GameSettings &gameSettings)
+                : messageQueue(messageQueue), gameSettings(gameSettings) {}
 
-        virtual ~PlayerEventListener() { }
+        virtual ~PlayerEventListener() {}
 
         /**
          * Event which is being triggered when player takes damage from another player.
@@ -67,7 +64,7 @@ namespace Duel6
 
         virtual void onSuicide(Player &player, Size otherKilledPlayers);
 
-        virtual void onRoundWin(Player& player);
+        virtual void onRoundWin(Player &player);
     };
 }
 

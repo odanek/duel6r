@@ -28,21 +28,20 @@
 #include "PlayerSkin.h"
 #include "TextureManager.h"
 
-namespace Duel6
-{
-	PlayerSkin::PlayerSkin(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager)
-	{
-		TextureManager::SubstitutionTable substTable;
-		substTable[Color(255, 255, 0)] = colors.get(PlayerSkinColors::HairTop);
-		substTable[Color(222,218,0)] = colors.get(PlayerSkinColors::HairBottom);
-		substTable[Color(0, 0, 172)] = colors.get(PlayerSkinColors::BodyOuter);
-		substTable[Color(0, 0, 255)] = colors.get(PlayerSkinColors::BodyInner);
-		substTable[Color(0, 182, 0)] = colors.get(PlayerSkinColors::HandOuter);
-		substTable[Color(0, 255, 0)] = colors.get(PlayerSkinColors::HandInner);
-		substTable[Color(139, 0, 0)] = colors.get(PlayerSkinColors::Trousers);
-		substTable[Color(180, 182, 0)] = colors.get(PlayerSkinColors::Shoes);
-		substTable[Color(255, 145, 172)] = colors.get(PlayerSkinColors::Face);
+namespace Duel6 {
+    PlayerSkin::PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors,
+                           TextureManager &textureManager) {
+        TextureManager::SubstitutionTable substTable;
+        substTable[Color(255, 255, 0)] = colors.get(PlayerSkinColors::HairTop);
+        substTable[Color(222, 218, 0)] = colors.get(PlayerSkinColors::HairBottom);
+        substTable[Color(0, 0, 172)] = colors.get(PlayerSkinColors::BodyOuter);
+        substTable[Color(0, 0, 255)] = colors.get(PlayerSkinColors::BodyInner);
+        substTable[Color(0, 182, 0)] = colors.get(PlayerSkinColors::HandOuter);
+        substTable[Color(0, 255, 0)] = colors.get(PlayerSkinColors::HandInner);
+        substTable[Color(139, 0, 0)] = colors.get(PlayerSkinColors::Trousers);
+        substTable[Color(180, 182, 0)] = colors.get(PlayerSkinColors::Shoes);
+        substTable[Color(255, 145, 172)] = colors.get(PlayerSkinColors::Face);
 
-		textures = textureManager.load(texturePath, TextureFilter::NEAREST, true, substTable);
-	}
+        textures = textureManager.load(texturePath, TextureFilter::NEAREST, true, substTable);
+    }
 }

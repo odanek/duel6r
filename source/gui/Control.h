@@ -33,65 +33,64 @@
 #include "../Color.h"
 #include "../SysEvent.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class Desktop;
+namespace Duel6 {
+    namespace Gui {
+        class Desktop;
 
-		class Control
-		{
-			friend class Desktop;
+        class Control {
+            friend class Desktop;
 
-		public:
-			enum class Type
-			{
-				Button,
-				Label,
-				Textbox,
-				Listbox,
-				Switchbox,
-				Slider
-			};
+        public:
+            enum class Type {
+                Button,
+                Label,
+                Textbox,
+                Listbox,
+                Switchbox,
+                Slider
+            };
 
-		protected:
-			Int32 x, y;
+        protected:
+            Int32 x, y;
 
-		public:
-			Control(Desktop& desk);
-			virtual ~Control()
-			{}
+        public:
+            Control(Desktop &desk);
 
-			virtual Type getType() const = 0;
+            virtual ~Control() {}
 
-			Int32 getX() const
-			{
-				return x;
-			}
+            virtual Type getType() const = 0;
 
-			Int32 getY() const
-			{
-				return y;
-			}
+            Int32 getX() const {
+                return x;
+            }
 
-		protected:
-			virtual void update(Float32 elapsedTime) {}
-			virtual void draw(const Font& font) const = 0;
+            Int32 getY() const {
+                return y;
+            }
 
-			virtual void keyEvent(const KeyPressEvent& event) {}
-			virtual void textInputEvent(const TextInputEvent& event) {}
-			virtual void mouseMotionEvent(const MouseMotionEvent& event) {}
-			virtual void mouseButtonEvent(const MouseButtonEvent& event) {}
-			virtual void mouseWheelEvent(const MouseWheelEvent& event) {}
+        protected:
+            virtual void update(Float32 elapsedTime) {}
 
-		protected:
-			static void drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p);
-			static bool mouseIn(const MouseEvent& event, Int32 x, Int32 y, Int32 w, Int32 h)
-			{
-				return event.getX() >= x && event.getX() < x + w && event.getY() <= y && event.getY() > y - h;
-			}
-		};
-	}
+            virtual void draw(const Font &font) const = 0;
+
+            virtual void keyEvent(const KeyPressEvent &event) {}
+
+            virtual void textInputEvent(const TextInputEvent &event) {}
+
+            virtual void mouseMotionEvent(const MouseMotionEvent &event) {}
+
+            virtual void mouseButtonEvent(const MouseButtonEvent &event) {}
+
+            virtual void mouseWheelEvent(const MouseWheelEvent &event) {}
+
+        protected:
+            static void drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p);
+
+            static bool mouseIn(const MouseEvent &event, Int32 x, Int32 y, Int32 w, Int32 h) {
+                return event.getX() >= x && event.getX() < x + w && event.getY() <= y && event.getY() > y - h;
+            }
+        };
+    }
 }
 
 #endif

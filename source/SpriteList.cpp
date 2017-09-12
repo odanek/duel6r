@@ -28,58 +28,46 @@
 #include "SpriteList.h"
 #include "Video.h"
 
-namespace Duel6
-{
-	SpriteList::Iterator SpriteList::addSprite(const Sprite& sprite)
-	{
-		sprites.push_back(sprite);
-		return std::prev(sprites.end());
-	}
+namespace Duel6 {
+    SpriteList::Iterator SpriteList::addSprite(const Sprite &sprite) {
+        sprites.push_back(sprite);
+        return std::prev(sprites.end());
+    }
 
-	void SpriteList::update(Float32 elapsedTime)
-	{
-		// Update everything
-		for (Sprite& sprite : sprites)
-		{
-			sprite.update(elapsedTime);
-		}
+    void SpriteList::update(Float32 elapsedTime) {
+        // Update everything
+        for (Sprite &sprite : sprites) {
+            sprite.update(elapsedTime);
+        }
 
-		// Delete sprites with finished animations
-		auto sprite = sprites.begin();
-		while (sprite != sprites.end())
-		{
-			if (sprite->getLooping() == AnimationLooping::OnceAndRemove && sprite->isFinished())
-			{
-				sprite = sprites.erase(sprite);
-			}
-			else
-			{
-				++sprite;
-			}
-		}
-	}
+        // Delete sprites with finished animations
+        auto sprite = sprites.begin();
+        while (sprite != sprites.end()) {
+            if (sprite->getLooping() == AnimationLooping::OnceAndRemove && sprite->isFinished()) {
+                sprite = sprites.erase(sprite);
+            } else {
+                ++sprite;
+            }
+        }
+    }
 
-	void SpriteList::render() const
-	{
-		renderTransparent(false);
+    void SpriteList::render() const {
+        renderTransparent(false);
 
-		globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-		globRenderer->enableDepthWrite(false);
+        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->enableDepthWrite(false);
 
-		renderTransparent(true);
+        renderTransparent(true);
 
-		globRenderer->enableDepthWrite(true);
-		globRenderer->setBlendFunc(Renderer::BlendFunc::None);
-	}
+        globRenderer->enableDepthWrite(true);
+        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+    }
 
-	void SpriteList::renderTransparent(bool transparent) const
-	{
-		for (const Sprite& sprite : sprites)
-		{
-			if (sprite.isTransparent() == transparent)
-			{
-				sprite.render();
-			}
-		}
-	}
+    void SpriteList::renderTransparent(bool transparent) const {
+        for (const Sprite &sprite : sprites) {
+            if (sprite.isTransparent() == transparent) {
+                sprite.render();
+            }
+        }
+    }
 }

@@ -30,67 +30,58 @@
 #include "LegacyWeapon.h"
 #include "LegacyShot.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		const std::unordered_set<Size> NEAREST_FILTER_BOOM = { 5, 6, 9, 13, 14, 15, 16 };
-	}
+namespace Duel6 {
+    namespace {
+        const std::unordered_set<Size> NEAREST_FILTER_BOOM = {5, 6, 9, 13, 14, 15, 16};
+    }
 
-	LegacyWeapon::LegacyWeapon(Sound& sound, TextureManager& textureManager, const Definition& definition, Size index)
-		: WeaponBase(definition.name, definition.reloadSpeed), definition(definition)
-	{
-		const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << index;
-		auto filterType = NEAREST_FILTER_BOOM.find(index) != NEAREST_FILTER_BOOM.end() ? TextureFilter::NEAREST : TextureFilter::LINEAR;
-		textures.boom = textureManager.load(Format("{0}/boom/") << wpnPath, filterType, true);
-		textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
-		textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
+    LegacyWeapon::LegacyWeapon(Sound &sound, TextureManager &textureManager, const Definition &definition, Size index)
+            : WeaponBase(definition.name, definition.reloadSpeed), definition(definition) {
+        const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << index;
+        auto filterType = NEAREST_FILTER_BOOM.find(index) != NEAREST_FILTER_BOOM.end() ? TextureFilter::NEAREST
+                                                                                       : TextureFilter::LINEAR;
+        textures.boom = textureManager.load(Format("{0}/boom/") << wpnPath, filterType, true);
+        textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
+        textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
 
-		if (!definition.shotSound.empty())
-		{
-			samples.shot = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.shotSound);
-		}
-		if (!definition.boomSound.empty())
-		{
-			samples.boom = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.boomSound);
-		}
-	}
+        if (!definition.shotSound.empty()) {
+            samples.shot = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.shotSound);
+        }
+        if (!definition.boomSound.empty()) {
+            samples.boom = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.boomSound);
+        }
+    }
 
-	void LegacyWeapon::shoot(Player& player, Orientation orientation, World& world) const
-	{
-		Sprite shotSprite(definition.shotAnimation, textures.shot);
-		auto spriteIterator = world.getSpriteList().addSprite(shotSprite);
-		world.getShotList().addShot(makeShot(player, orientation, spriteIterator));
-		samples.shot.play();
-	}
+    void LegacyWeapon::shoot(Player &player, Orientation orientation, World &world) const {
+        Sprite shotSprite(definition.shotAnimation, textures.shot);
+        auto spriteIterator = world.getSpriteList().addSprite(shotSprite);
+        world.getShotList().addShot(makeShot(player, orientation, spriteIterator));
+        samples.shot.play();
+    }
 
-	std::unique_ptr<Shot> LegacyWeapon::makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const
-	{
-		return std::make_unique<LegacyShot>(player, *this, orientation, spriteIterator, getShotCollisionRectangle());
-	}
+    std::unique_ptr<Shot>
+    LegacyWeapon::makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const {
+        return std::make_unique<LegacyShot>(player, *this, orientation, spriteIterator, getShotCollisionRectangle());
+    }
 
-	Sprite& LegacyWeapon::makeSprite(Sprite& sprite) const
-	{
-		return sprite.setAnimation(definition.animation).setTextures(textures.gun).setFrame(6).setLooping(AnimationLooping::OnceAndStop);
-	}
+    Sprite &LegacyWeapon::makeSprite(Sprite &sprite) const {
+        return sprite.setAnimation(definition.animation).setTextures(textures.gun).setFrame(6).setLooping(
+                AnimationLooping::OnceAndStop);
+    }
 
-	Texture LegacyWeapon::getBonusTexture() const
-	{
-		return textures.gun.at(definition.animation[12]);
-	}
+    Texture LegacyWeapon::getBonusTexture() const {
+        return textures.gun.at(definition.animation[12]);
+    }
 
-	const LegacyWeapon::Definition& LegacyWeapon::getDefinition() const
-	{
-		return definition;
-	}
+    const LegacyWeapon::Definition &LegacyWeapon::getDefinition() const {
+        return definition;
+    }
 
-	const LegacyWeapon::WeaponTextures& LegacyWeapon::getTextures() const
-	{
-		return textures;
-	}
+    const LegacyWeapon::WeaponTextures &LegacyWeapon::getTextures() const {
+        return textures;
+    }
 
-	const LegacyWeapon::WeaponSamples& LegacyWeapon::getSamples() const
-	{
-		return samples;
-	}
+    const LegacyWeapon::WeaponSamples &LegacyWeapon::getSamples() const {
+        return samples;
+    }
 }

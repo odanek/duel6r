@@ -30,16 +30,14 @@
 
 #include "../LegacyWeapon.h"
 
-namespace Duel6
-{
-	class StopperGun : public LegacyWeapon
-	{
-	public:
-		StopperGun(Sound& sound, TextureManager& textureManager);
+namespace Duel6 {
+    class StopperGun : public LegacyWeapon {
+    public:
+        StopperGun(Sound &sound, TextureManager &textureManager);
 
-	public:
-		Rectangle getShotCollisionRectangle() const override;
-	};
+    public:
+        Rectangle getShotCollisionRectangle() const override;
+    };
 }
 
 #endif

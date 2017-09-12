@@ -30,35 +30,28 @@
 
 #include "Type.h"
 
-namespace Duel6
-{
-    class ViewParameters
-    {
+namespace Duel6 {
+    class ViewParameters {
     private:
         Float32 nearClip;
         Float32 farClip;
         Float32 fov;
 
     public:
-        ViewParameters()
-        {}
+        ViewParameters() {}
 
         ViewParameters(Float32 nearClip, Float32 farClip, Float32 fov)
-                : nearClip(nearClip), farClip(farClip), fov(fov)
-        {}
+                : nearClip(nearClip), farClip(farClip), fov(fov) {}
 
-        Float32 getNearClip() const
-        {
+        Float32 getNearClip() const {
             return nearClip;
         }
 
-        Float32 getFarClip() const
-        {
+        Float32 getFarClip() const {
             return farClip;
         }
 
-        Float32 getFieldOfView() const
-        {
+        Float32 getFieldOfView() const {
             return fov;
         }
     };

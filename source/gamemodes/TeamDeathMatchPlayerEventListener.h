@@ -32,23 +32,20 @@
 #include "../Type.h"
 #include "../PlayerEventListener.h"
 
-namespace Duel6
-{
-    class TeamDeathMatchPlayerEventListener : public PlayerEventListener
-    {
+namespace Duel6 {
+    class TeamDeathMatchPlayerEventListener : public PlayerEventListener {
     private:
         bool friendlyFire;
-		const TeamMap& teamMap;
+        const TeamMap &teamMap;
 
     public:
-        TeamDeathMatchPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings,
-										  bool friendlyFire, const TeamMap& teamMap)
-            : PlayerEventListener(messageQueue, gameSettings), friendlyFire(friendlyFire), teamMap(teamMap)
-        {}
+        TeamDeathMatchPlayerEventListener(InfoMessageQueue &messageQueue, const GameSettings &gameSettings,
+                                          bool friendlyFire, const TeamMap &teamMap)
+                : PlayerEventListener(messageQueue, gameSettings), friendlyFire(friendlyFire), teamMap(teamMap) {}
 
-        bool onDamageByShot(Player& player, Player& shootingPlayer, Float32 amount, Shot& shot, bool directHit);
+        bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
 
-        void onKillByPlayer(Player& player, Player& killer, Shot& shot, bool suicice);
+        void onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicice);
     };
 }
 

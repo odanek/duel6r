@@ -30,10 +30,8 @@
 
 #include "Vector.h"
 
-namespace Duel6
-{
-    class Camera
-    {
+namespace Duel6 {
+    class Camera {
     private:
         Vector position;
         Vector front;
@@ -47,14 +45,19 @@ namespace Duel6
         Camera();
 
         Vector getPosition() const;
-        void setPosition(const Vector& position);
+
+        void setPosition(const Vector &position);
 
         Vector getFront() const;
+
         Vector getUp() const;
+
         Vector getSide() const;
 
         Float32 getYaw() const;
+
         Float32 getPitch() const;
+
         Float32 getRoll() const;
 
         void rotate(Float32 yaw, Float32 pitch, Float32 roll);

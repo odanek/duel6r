@@ -27,46 +27,37 @@
 
 #include "GL1Renderer.h"
 
-namespace Duel6
-{
+namespace Duel6 {
     GL1Renderer::GL1Renderer()
-        : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
-    {}
+            : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
 
-    void GL1Renderer::initialize()
-    {
+    void GL1Renderer::initialize() {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
     }
 
-    Renderer::Info GL1Renderer::getInfo()
-    {
+    Renderer::Info GL1Renderer::getInfo() {
         Info info;
-        info.vendor = (const char *)glGetString(GL_VENDOR);
-        info.renderer = (const char *)glGetString(GL_RENDERER);
-        info.version = (const char *)glGetString(GL_VERSION);
+        info.vendor = (const char *) glGetString(GL_VENDOR);
+        info.renderer = (const char *) glGetString(GL_RENDERER);
+        info.version = (const char *) glGetString(GL_VERSION);
 
-        const char *extensions = (const char *)glGetString(GL_EXTENSIONS);
+        const char *extensions = (const char *) glGetString(GL_EXTENSIONS);
 
-        if (extensions != nullptr)
-        {
-            while (*extensions != 0)
-            {
-                while (*extensions == ' ')
-                {
+        if (extensions != nullptr) {
+            while (*extensions != 0) {
+                while (*extensions == ' ') {
                     extensions++;
                 }
 
-                if (*extensions == 0)
-                {
+                if (*extensions == 0) {
                     break;
                 }
 
                 std::string extensionName;
-                while (*extensions != ' ' && *extensions != 0)
-                {
+                while (*extensions != ' ' && *extensions != 0) {
                     extensionName += *extensions;
                     ++extensions;
                 }
@@ -78,8 +69,8 @@ namespace Duel6
         return info;
     }
 
-    Texture GL1Renderer::createTexture(Int32 width, Int32 height, void* data, Int32 alignment, TextureFilter filtering, bool clamp)
-    {
+    Texture GL1Renderer::createTexture(Int32 width, Int32 height, void *data, Int32 alignment, TextureFilter filtering,
+                                       bool clamp) {
         GLuint textureId;
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D, textureId);
@@ -97,92 +88,76 @@ namespace Duel6
         return Texture(textureId);
     }
 
-    void GL1Renderer::setTextureFilter(const Texture &texture, TextureFilter filter)
-    {
+    void GL1Renderer::setTextureFilter(const Texture &texture, TextureFilter filter) {
         glBindTexture(GL_TEXTURE_2D, texture.getId());
         GLint filterValue = filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterValue);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterValue);
     }
 
-    void GL1Renderer::freeTexture(Texture texture)
-    {
+    void GL1Renderer::freeTexture(Texture texture) {
         GLuint id = texture.getId();
         glDeleteTextures(1, &id);
     }
 
-    void GL1Renderer::readScreenData(Int32 width, Int32 height, Image& image)
-    {
+    void GL1Renderer::readScreenData(Int32 width, Int32 height, Image &image) {
         glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
     }
 
-    void GL1Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height)
-    {
+    void GL1Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height) {
         glViewport(x, y, width, height);
     }
 
-    void GL1Renderer::setProjectionMatrix(const Matrix& m)
-    {
+    void GL1Renderer::setProjectionMatrix(const Matrix &m) {
         projectionMatrix = m;
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(m.getStorage());
     }
 
-    Matrix GL1Renderer::getProjectionMatrix() const
-    {
+    Matrix GL1Renderer::getProjectionMatrix() const {
         return projectionMatrix;
     }
 
-    void GL1Renderer::setViewMatrix(const Matrix& m)
-    {
+    void GL1Renderer::setViewMatrix(const Matrix &m) {
         viewMatrix = m;
         Matrix modelView = viewMatrix * modelMatrix;
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(modelView.getStorage());
     }
 
-    Matrix GL1Renderer::getViewMatrix() const
-    {
+    Matrix GL1Renderer::getViewMatrix() const {
         return viewMatrix;
     }
 
-    void GL1Renderer::setModelMatrix(const Matrix& m)
-    {
+    void GL1Renderer::setModelMatrix(const Matrix &m) {
         modelMatrix = m;
         Matrix modelView = viewMatrix * modelMatrix;
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(modelView.getStorage());
     }
 
-    Matrix GL1Renderer::getModelMatrix() const
-    {
+    Matrix GL1Renderer::getModelMatrix() const {
         return modelMatrix;
     }
 
-    void GL1Renderer::enableFaceCulling(bool enable)
-    {
+    void GL1Renderer::enableFaceCulling(bool enable) {
         enableOption(GL_CULL_FACE, enable);
     }
 
-    void GL1Renderer::enableWireframe(bool enable)
-    {
+    void GL1Renderer::enableWireframe(bool enable) {
         glPolygonMode(GL_FRONT_AND_BACK, enable ? GL_LINE : GL_FILL);
     }
 
-    void GL1Renderer::enableDepthTest(bool enable)
-    {
+    void GL1Renderer::enableDepthTest(bool enable) {
         enableOption(GL_DEPTH_TEST, enable);
     }
 
-    void GL1Renderer::enableDepthWrite(bool enable)
-    {
+    void GL1Renderer::enableDepthWrite(bool enable) {
         glDepthMask(GLboolean(enable ? GL_TRUE : GL_FALSE));
     }
 
-    void GL1Renderer::setBlendFunc(Renderer::BlendFunc func)
-    {
-        switch (func)
-        {
+    void GL1Renderer::setBlendFunc(Renderer::BlendFunc func) {
+        switch (func) {
             case BlendFunc::None:
                 glDisable(GL_BLEND);
                 break;
@@ -197,13 +172,11 @@ namespace Duel6
         }
     }
 
-    void GL1Renderer::clearBuffers()
-    {
+    void GL1Renderer::clearBuffers() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void GL1Renderer::triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color)
-    {
+    void GL1Renderer::triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) {
         glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 
         glBegin(GL_TRIANGLES);
@@ -215,19 +188,16 @@ namespace Duel6
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    void GL1Renderer::triangle(const Vector& p1, const Vector& t1,
-                               const Vector& p2, const Vector& t2,
-                               const Vector& p3, const Vector& t3,
-                               const Material& material)
-    {
-        if (material.isColored())
-        {
-            const Color& color = material.getColor();
+    void GL1Renderer::triangle(const Vector &p1, const Vector &t1,
+                               const Vector &p2, const Vector &t2,
+                               const Vector &p3, const Vector &t3,
+                               const Material &material) {
+        if (material.isColored()) {
+            const Color &color = material.getColor();
             glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         }
 
-        if (material.isMasked())
-        {
+        if (material.isMasked()) {
             glEnable(GL_ALPHA_TEST);
             glAlphaFunc(GL_GEQUAL, 1.0f);
         }
@@ -246,19 +216,16 @@ namespace Duel6
 
         glDisable(GL_TEXTURE_2D);
 
-        if (material.isMasked())
-        {
+        if (material.isMasked()) {
             glDisable(GL_ALPHA_TEST);
         }
 
-        if (material.isColored())
-        {
+        if (material.isColored()) {
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
 
-    void GL1Renderer::quadXY(const Vector &position, const Vector &size, const Color &color)
-    {
+    void GL1Renderer::quadXY(const Vector &position, const Vector &size, const Color &color) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector p3(position.x + size.x, position.y + size.y, position.z);
         Vector p4(position.x + size.x, position.y, position.z);
@@ -269,8 +236,7 @@ namespace Duel6
 
     void GL1Renderer::quadXY(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Material& material)
-    {
+                             const Material &material) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
         Vector p3(position.x + size.x, position.y + size.y, position.z);
@@ -282,8 +248,7 @@ namespace Duel6
         triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
-    void GL1Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color)
-    {
+    void GL1Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color) {
         Vector p2(position.x + size.x, position.y, position.z);
         Vector p3(position.x + size.x, position.y, position.z + size.z);
         Vector p4(position.x, position.y, position.z + size.z);
@@ -294,8 +259,7 @@ namespace Duel6
 
     void GL1Renderer::quadXZ(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Material& material)
-    {
+                             const Material &material) {
         Vector p2(position.x + size.x, position.y, position.z);
         Vector t2(texturePosition.x + textureSize.x, texturePosition.y);
         Vector p3(position.x + size.x, position.y, position.z + size.z);
@@ -307,8 +271,7 @@ namespace Duel6
         triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
-    void GL1Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color)
-    {
+    void GL1Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector p3(position.x, position.y + size.y, position.z + size.z);
         Vector p4(position.x, position.y, position.z + size.z);
@@ -319,8 +282,7 @@ namespace Duel6
 
     void GL1Renderer::quadYZ(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Material& material)
-    {
+                             const Material &material) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
         Vector p3(position.x, position.y + size.y, position.z + size.z);
@@ -332,8 +294,7 @@ namespace Duel6
         triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
-    void GL1Renderer::point(const Vector &position, Float32 size, const Color &color)
-    {
+    void GL1Renderer::point(const Vector &position, Float32 size, const Color &color) {
         glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         glPointSize(size);
 
@@ -345,8 +306,7 @@ namespace Duel6
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    void GL1Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color)
-    {
+    void GL1Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
         glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         glLineWidth(width);
 
@@ -359,8 +319,7 @@ namespace Duel6
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    void GL1Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color)
-    {
+    void GL1Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color) {
         Vector p2(position.x, position.y + size.y);
         Vector p3(position.x + size.x, position.y + size.y);
         Vector p4(position.x + size.x, position.y);
@@ -371,14 +330,10 @@ namespace Duel6
         line(p4, position, width, color);
     }
 
-    void GL1Renderer::enableOption(GLenum option, bool enable)
-    {
-        if (enable)
-        {
+    void GL1Renderer::enableOption(GLenum option, bool enable) {
+        if (enable) {
             glEnable(option);
-        }
-        else
-        {
+        } else {
             glDisable(option);
         }
     }

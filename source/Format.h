@@ -30,48 +30,43 @@
 
 #include "Formatter.h"
 
-namespace Duel6
-{
-	/** Type-safe string formatting. */
-	class Format
-	{
-	private:
-		struct Placeholder
-		{
-			Size offset;
-			Size length;
-			bool hasWidth;
-			Int32 width;
-			char paddingCharacter;
-		};
+namespace Duel6 {
+    /** Type-safe string formatting. */
+    class Format {
+    private:
+        struct Placeholder {
+            Size offset;
+            Size length;
+            bool hasWidth;
+            Int32 width;
+            char paddingCharacter;
+        };
 
-	private:
-		Size paramIndex;
-		std::string format;
+    private:
+        Size paramIndex;
+        std::string format;
 
-	public:
-		explicit Format(const std::string& format)
-			: paramIndex(0), format(format)
-		{}
+    public:
+        explicit Format(const std::string &format)
+                : paramIndex(0), format(format) {}
 
-		template <class T>
-		Format& operator<<(const T& val)
-		{			
-			Formatter<T> formatter;
-			std::string value = formatter.format(val);
-			insertParam(paramIndex++, value);
-			return *this;
-		}
+        template<class T>
+        Format &operator<<(const T &val) {
+            Formatter<T> formatter;
+            std::string value = formatter.format(val);
+            insertParam(paramIndex++, value);
+            return *this;
+        }
 
-		operator std::string() const
-		{
-			return format;
-		}
+        operator std::string() const {
+            return format;
+        }
 
-	private:
-		void insertParam(Size index, const std::string& value);
-		bool getPlaceholder(Size index, Placeholder& placeholder);
-	};
+    private:
+        void insertParam(Size index, const std::string &value);
+
+        bool getPlaceholder(Size index, Placeholder &placeholder);
+    };
 }
 
 #endif

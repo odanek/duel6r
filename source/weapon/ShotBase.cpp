@@ -27,24 +27,19 @@
 
 #include "ShotBase.h"
 
-namespace Duel6
-{
-	ShotBase::ShotBase(const Weapon& weapon, Player& player)
-		: weapon(weapon), player(player)
-	{}
+namespace Duel6 {
+    ShotBase::ShotBase(const Weapon &weapon, Player &player)
+            : weapon(weapon), player(player) {}
 
-	Player& ShotBase::getPlayer()
-	{
-		return player;
-	}
+    Player &ShotBase::getPlayer() {
+        return player;
+    }
 
-	const Player& ShotBase::getPlayer() const
-	{
-		return player;
-	}
+    const Player &ShotBase::getPlayer() const {
+        return player;
+    }
 
-	const Weapon& ShotBase::getWeapon() const
-	{
-		return weapon;
-	}
+    const Weapon &ShotBase::getWeapon() const {
+        return weapon;
+    }
 }

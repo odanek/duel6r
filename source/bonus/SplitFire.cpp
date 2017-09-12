@@ -29,36 +29,28 @@
 #include "../World.h"
 #include "SplitFire.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		SplitFire::SplitFire(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        SplitFire::SplitFire(Texture texture)
+                : texture(texture) {}
 
-		Texture SplitFire::getTexture() const
-		{
-			return texture;
-		}
+        Texture SplitFire::getTexture() const {
+            return texture;
+        }
 
-		bool SplitFire::isOneTime() const
-		{
-			return false;
-		}
+        bool SplitFire::isOneTime() const {
+            return false;
+        }
 
-		bool SplitFire::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool SplitFire::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void SplitFire::onApply(Player& player, World& world, Int32 duration) const
-		{
-			world.getMessageQueue().add(player, Format("Splitfire for {0} seconds") << duration);
-		}
+        void SplitFire::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Splitfire for {0} seconds") << duration);
+        }
 
-		void SplitFire::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void SplitFire::onExpire(Player &player, World &world) const {
+        }
+    }
 }

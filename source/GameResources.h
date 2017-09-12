@@ -33,69 +33,58 @@
 #include "Block.h"
 #include "AppService.h"
 
-namespace Duel6
-{
-	class GameResources
-	{
-	private:
-		Block::Meta blockMeta;
-		Sound::Sample gameOverSound;
-		Sound::Sample roundStartSound;
-		TextureList blockTextures;
-		TextureList bcgTextures;
-		TextureList explosionTextures;
-		TextureList bonusTextures;
-		TextureList elevatorTextures;
-		std::unordered_map<Size, TextureList> fireTextures;
+namespace Duel6 {
+    class GameResources {
+    private:
+        Block::Meta blockMeta;
+        Sound::Sample gameOverSound;
+        Sound::Sample roundStartSound;
+        TextureList blockTextures;
+        TextureList bcgTextures;
+        TextureList explosionTextures;
+        TextureList bonusTextures;
+        TextureList elevatorTextures;
+        std::unordered_map<Size, TextureList> fireTextures;
 
-	public:
-		GameResources(AppService& appService);
+    public:
+        GameResources(AppService &appService);
 
-		const Block::Meta& getBlockMeta() const
-		{
-			return blockMeta;
-		}
+        const Block::Meta &getBlockMeta() const {
+            return blockMeta;
+        }
 
-		const Sound::Sample& getGameOverSound() const
-		{
-			return gameOverSound;
-		}
+        const Sound::Sample &getGameOverSound() const {
+            return gameOverSound;
+        }
 
-		const Sound::Sample& getRoundStartSound() const
-		{
-			return roundStartSound;
-		}
+        const Sound::Sample &getRoundStartSound() const {
+            return roundStartSound;
+        }
 
-		const TextureList& getBlockTextures() const
-		{
-			return blockTextures;
-		}
+        const TextureList &getBlockTextures() const {
+            return blockTextures;
+        }
 
-		const TextureList& getBcgTextures() const
-		{
-			return bcgTextures;
-		}
+        const TextureList &getBcgTextures() const {
+            return bcgTextures;
+        }
 
-		const TextureList& getExplosionTextures() const
-		{
-			return explosionTextures;
-		}
+        const TextureList &getExplosionTextures() const {
+            return explosionTextures;
+        }
 
-		const TextureList& getBonuseTextures() const
-		{
-			return bonusTextures;
-		}
+        const TextureList &getBonuseTextures() const {
+            return bonusTextures;
+        }
 
-		const TextureList& getElevatorTextures() const
-		{
-			return elevatorTextures;
-		}
+        const TextureList &getElevatorTextures() const {
+            return elevatorTextures;
+        }
 
-		const std::unordered_map<Size, TextureList>& getFireTextures() const
-		{
-			return fireTextures;
-		}
-	};
+        const std::unordered_map<Size, TextureList> &getFireTextures() const {
+            return fireTextures;
+        }
+    };
 }
 
 #endif

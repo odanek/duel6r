@@ -30,48 +30,42 @@
 
 #include "Color.h"
 
-namespace Duel6
-{
-	class PlayerSkinColors
-	{
-	public:
-		enum BodyPart
-		{
-			HairTop = 0,
-			HairBottom,
-			BodyOuter,
-			BodyInner,
-			HandOuter,
-			HandInner,
-			Trousers,
-			Shoes,
-			Face
-		};
+namespace Duel6 {
+    class PlayerSkinColors {
+    public:
+        enum BodyPart {
+            HairTop = 0,
+            HairBottom,
+            BodyOuter,
+            BodyInner,
+            HandOuter,
+            HandInner,
+            Trousers,
+            Shoes,
+            Face
+        };
 
-	private:
-		Color color[9];
+    private:
+        Color color[9];
 
-	public:
-		PlayerSkinColors()
-		{}
+    public:
+        PlayerSkinColors() {}
 
-		PlayerSkinColors(const Color& color);
+        explicit PlayerSkinColors(const Color &color);
 
-		PlayerSkinColors& operator=(const PlayerSkinColors& colors);
+        PlayerSkinColors &operator=(const PlayerSkinColors &colors);
 
-		PlayerSkinColors& set(BodyPart bodyPart, const Color& color)
-		{
-			this->color[(int)bodyPart] = color;
-			return *this;
-		}
+        PlayerSkinColors &set(BodyPart bodyPart, const Color &color) {
+            this->color[(int) bodyPart] = color;
+            return *this;
+        }
 
-		const Color& get(BodyPart bodyPart) const
-		{
-			return color[(int)bodyPart];
-		}
+        const Color &get(BodyPart bodyPart) const {
+            return color[(int) bodyPart];
+        }
 
-		static PlayerSkinColors load(const std::string& profileRoot, const std::string& file);
-	};
+        static PlayerSkinColors load(const std::string &profileRoot, const std::string &file);
+    };
 }
 
 #endif

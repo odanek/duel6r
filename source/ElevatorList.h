@@ -33,24 +33,27 @@
 #include "Elevator.h"
 #include "TextureManager.h"
 
-namespace Duel6
-{
-	class Player; // Forward declaration
+namespace Duel6 {
+    class Player; // Forward declaration
 
-	class ElevatorList
-	{
-	private:
-		const TextureList& textures;
-		std::vector<Elevator> elevators;
+    class ElevatorList {
+    private:
+        const TextureList &textures;
+        std::vector<Elevator> elevators;
 
-	public:
-		ElevatorList(const TextureList& textures);
-		void load(const std::string& path, bool mirror);
-		void add(Elevator& elevator);
-		void update(Float32 elapsedTime);
-		void render() const;
-		const Elevator* checkPlayer(Player& player, Float32 speedFactor);
-	};
+    public:
+        ElevatorList(const TextureList &textures);
+
+        void load(const std::string &path, bool mirror);
+
+        void add(Elevator &elevator);
+
+        void update(Float32 elapsedTime);
+
+        void render() const;
+
+        const Elevator *checkPlayer(Player &player, Float32 speedFactor);
+    };
 }
 
 #endif

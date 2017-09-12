@@ -32,53 +32,43 @@
 #include "Type.h"
 #include "Color.h"
 
-namespace Duel6
-{
-	class Image
-	{
-	private:
-		Size dimensions[2];
-		std::vector<Color> data;
+namespace Duel6 {
+    class Image {
+    private:
+        Size dimensions[2];
+        std::vector<Color> data;
 
-	public:
-		Image()
-			: Image(0, 0)
-		{}
+    public:
+        Image() : Image(0, 0) {}
 
-		Image(Size width, Size height)
-		{
-			resize(width, height);
-		}
+        Image(Size width, Size height) {
+            resize(width, height);
+        }
 
-		Image& resize(Size width, Size height)
-		{
-			dimensions[0] = width;
-			dimensions[1] = height;
-			data.clear();
-			data.resize(width * height);
-			return *this;
-		}
+        Image &resize(Size width, Size height) {
+            dimensions[0] = width;
+            dimensions[1] = height;
+            data.clear();
+            data.resize(width * height);
+            return *this;
+        }
 
-		Size getWidth() const
-		{
-			return dimensions[0];
-		}
+        Size getWidth() const {
+            return dimensions[0];
+        }
 
-		Size getHeight() const
-		{
-			return dimensions[1];
-		}
+        Size getHeight() const {
+            return dimensions[1];
+        }
 
-		Color& at(Size index)
-		{
-			return data[index];
-		}
+        Color &at(Size index) {
+            return data[index];
+        }
 
-		const Color& at(Size index) const
-		{
-			return data[index];
-		}
-	};
+        const Color &at(Size index) const {
+            return data[index];
+        }
+    };
 }
 
 #endif

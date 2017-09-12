@@ -27,20 +27,19 @@
 
 #include "Bazooka.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 6.1f, false, true, true, Color(255, 0, 0), 3, 100, 3.28f, "bazooka", "bazooka.wav", "bmbazook.wav", 0.01f, { 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0 }, { 0, 10, 1, 10, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.035f, 0.65f), Vector(0.59f, 0.40f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, Color(255, 0, 0), 3, 100, 3.28f, "bazooka",
+                                               "bazooka.wav", "bmbazook.wav", 0.01f,
+                                               {1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0},
+                                               {0, 10, 1, 10, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.035f, 0.65f), Vector(0.59f, 0.40f));
+    }
 
-	Bazooka::Bazooka(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 1)
-	{}
+    Bazooka::Bazooka(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 1) {}
 
-	Rectangle Bazooka::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle Bazooka::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

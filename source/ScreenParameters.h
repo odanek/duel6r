@@ -30,10 +30,8 @@
 
 #include "Type.h"
 
-namespace Duel6
-{
-    class ScreenParameters
-    {
+namespace Duel6 {
+    class ScreenParameters {
     private:
         Int32 clientWidth;
         Int32 clientHeight;
@@ -42,40 +40,32 @@ namespace Duel6
         bool fullScreen;
 
     public:
-        ScreenParameters()
-        {}
+        ScreenParameters() {}
 
         ScreenParameters(Int32 width, Int32 height, Int32 bpp, Int32 aa, bool fullScreen)
-                : clientWidth(width), clientHeight(height), bitsPerPixel(bpp), aaSamples(aa), fullScreen(fullScreen)
-        {}
+                : clientWidth(width), clientHeight(height), bitsPerPixel(bpp), aaSamples(aa), fullScreen(fullScreen) {}
 
-        Int32 getClientWidth() const
-        {
+        Int32 getClientWidth() const {
             return clientWidth;
         }
 
-        Int32 getClientHeight() const
-        {
+        Int32 getClientHeight() const {
             return clientHeight;
         }
 
-        bool isFullScreen() const
-        {
+        bool isFullScreen() const {
             return fullScreen;
         }
 
-        Int32 getBitsPerPixel() const
-        {
+        Int32 getBitsPerPixel() const {
             return bitsPerPixel;
         }
 
-        Int32 getAntiAlias() const
-        {
+        Int32 getAntiAlias() const {
             return aaSamples;
         }
 
-        Float32 getAspect() const
-        {
+        Float32 getAspect() const {
             return Float32(clientWidth) / Float32(clientHeight);
         }
     };

@@ -34,14 +34,14 @@
 #include "Video.h"
 #include "Texture.h"
 
-namespace Duel6
-{
-	namespace Util
-	{
-		void loadTargaImage(const std::string& path, Image& image);
-		void saveTarga(const std::string& path, const Image& image);
-		std::string saveScreenTga(const Video& video);
-	}
+namespace Duel6 {
+    namespace Util {
+        void loadTargaImage(const std::string &path, Image &image);
+
+        void saveTarga(const std::string &path, const Image &image);
+
+        std::string saveScreenTga(const Video &video);
+    }
 }
 
 #endif

@@ -33,56 +33,59 @@
 #include <vector>
 #include "Type.h"
 
-namespace Duel6
-{
-	class File
-	{
-	public:
-		enum class Seek
-		{
-			Set,
-			Cur,
-			End
-		};
+namespace Duel6 {
+    class File {
+    public:
+        enum class Seek {
+            Set,
+            Cur,
+            End
+        };
 
-		enum class Mode
-		{
-			Binary,
-			Text
-		};
+        enum class Mode {
+            Binary,
+            Text
+        };
 
-		enum class Access
-		{
-			Read,
-			Write,
-			ReadWrite
-		};
+        enum class Access {
+            Read,
+            Write,
+            ReadWrite
+        };
 
-	private:
-		FILE* handle;
+    private:
+        FILE *handle;
 
-	public:
-		File(const std::string& path, Mode mode, Access access);
-		~File()
-		{
-			close();
-		}
+    public:
+        File(const std::string &path, Mode mode, Access access);
 
-		File& open(const std::string& path, Mode mode, Access access);
-		File& close();
+        ~File() {
+            close();
+        }
 
-		File& read(void* ptr, Size size, Size count);
-		File& write(const void* ptr, Size size, Size count);
-		File& seek(long offset, Seek seek);
+        File &open(const std::string &path, Mode mode, Access access);
 
-		bool isEof() const;
+        File &close();
 
-		static Size getSize(const std::string& path);
-		static bool exists(const std::string& path);
-		static void load(const std::string& path, long offset, void* ptr);
-		static void listDirectory(const std::string& path, const std::string& extension, std::vector<std::string>& fileNames);
-		static Size countFiles(const std::string& path, const std::string& extension);
-	};
+        File &read(void *ptr, Size size, Size count);
+
+        File &write(const void *ptr, Size size, Size count);
+
+        File &seek(long offset, Seek seek);
+
+        bool isEof() const;
+
+        static Size getSize(const std::string &path);
+
+        static bool exists(const std::string &path);
+
+        static void load(const std::string &path, long offset, void *ptr);
+
+        static void
+        listDirectory(const std::string &path, const std::string &extension, std::vector<std::string> &fileNames);
+
+        static Size countFiles(const std::string &path, const std::string &extension);
+    };
 }
 
 #endif

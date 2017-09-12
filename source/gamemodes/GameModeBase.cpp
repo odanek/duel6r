@@ -27,27 +27,23 @@
 
 #include "GameModeBase.h"
 
-namespace Duel6
-{
-	Ranking GameModeBase::getRanking(const std::vector<Player>& players) const
-	{
-		std::vector<const Player*> ranking;
-		for (const Player& player : players)
-		{
-			ranking.push_back(&player);
-		}
+namespace Duel6 {
+    Ranking GameModeBase::getRanking(const std::vector<Player> &players) const {
+        std::vector<const Player *> ranking;
+        for (const Player &player : players) {
+            ranking.push_back(&player);
+        }
 
-		std::sort(ranking.begin(), ranking.end(), [](const Player* pl1, const Player* pl2) {
-			return pl1->getPerson().hasHigherScoreThan(pl2->getPerson());
-		});
+        std::sort(ranking.begin(), ranking.end(), [](const Player *pl1, const Player *pl2) {
+            return pl1->getPerson().hasHigherScoreThan(pl2->getPerson());
+        });
 
-		Ranking result;
-		for (auto& player : ranking)
-		{
-			Color color(255, player->isAlive() ? 255 : 0, 0);
-			result.push_back(RankingEntry{player->getPerson().getName(), player->getPerson().getTotalPoints(), color});
-		}
+        Ranking result;
+        for (auto &player : ranking) {
+            Color color(255, player->isAlive() ? 255 : 0, 0);
+            result.push_back(RankingEntry{player->getPerson().getName(), player->getPerson().getTotalPoints(), color});
+        }
 
-		return result;
-	}
+        return result;
+    }
 }

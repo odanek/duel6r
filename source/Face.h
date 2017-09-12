@@ -31,49 +31,41 @@
 #include "Type.h"
 #include "Block.h"
 
-namespace Duel6
-{
-	class Face
-	{
-	private:
-		const Block* block;
-		Size currentAnimationFrame;
-		bool hidden;
+namespace Duel6 {
+    class Face {
+    private:
+        const Block *block;
+        Size currentAnimationFrame;
+        bool hidden;
 
-	public:
-		Face(const Block& block)
-			: block(&block), currentAnimationFrame(0), hidden(false)
-		{
-		}
+    public:
+        Face(const Block &block)
+                : block(&block), currentAnimationFrame(0), hidden(false) {
+        }
 
-		const Block& getBlock() const
-		{
-			return *block;
-		}
+        const Block &getBlock() const {
+            return *block;
+        }
 
-		Uint32 getCurrentTexture() const
-		{
-			return hidden ? 0 : block->getTextures()[currentAnimationFrame];
-		}
+        Uint32 getCurrentTexture() const {
+            return hidden ? 0 : block->getTextures()[currentAnimationFrame];
+        }
 
-		/** Next animation frame. */
-		Face& nextFrame()
-		{
-			if (++currentAnimationFrame >= block->getAnimationFrames())
-			{
-				currentAnimationFrame = 0;
-			}
+        /** Next animation frame. */
+        Face &nextFrame() {
+            if (++currentAnimationFrame >= block->getAnimationFrames()) {
+                currentAnimationFrame = 0;
+            }
 
-			return *this;
-		}
+            return *this;
+        }
 
-		/** Makes the face disappear. */
-		Face& hide()
-		{
-			hidden = true;
-			return *this;
-		}
-	};
+        /** Makes the face disappear. */
+        Face &hide() {
+            hidden = true;
+            return *this;
+        }
+    };
 }
 
 #endif

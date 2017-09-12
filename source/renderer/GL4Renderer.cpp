@@ -27,18 +27,17 @@
 
 #include "GL4Renderer.h"
 
-namespace Duel6
-{
+namespace Duel6 {
     static float points[15];
 
-    static const char* colorVertexShader =
+    static const char *colorVertexShader =
             "#version 430\n"
                     "uniform mat4 mvp;"
                     "in vec3 vp;"
                     "void main() {"
                     "  gl_Position = mvp * vec4(vp, 1.0);"
                     "}";
-    static const char* textureVertexShader =
+    static const char *textureVertexShader =
             "#version 430\n"
                     "uniform mat4 mvp;"
                     "layout(location = 0) in vec3 vp;"
@@ -50,14 +49,14 @@ namespace Duel6
                     "}";
 
 
-    static const char* colorFragmentShader =
+    static const char *colorFragmentShader =
             "#version 430\n"
                     "uniform vec4 color;"
                     "out vec4 result;"
                     "void main() {"
                     "  result = color;"
                     "}";
-    static const char* textureFragmentShader =
+    static const char *textureFragmentShader =
             "#version 430\n"
                     "in vec2 uv;"
                     "out vec4 result;"
@@ -67,11 +66,9 @@ namespace Duel6
                     "}";
 
     GL4Renderer::GL4Renderer()
-        : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY)
-    {}
+            : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
 
-    void GL4Renderer::initialize()
-    {
+    void GL4Renderer::initialize() {
 #ifdef D6_GLEW
         glewInit();
 #endif
@@ -91,7 +88,7 @@ namespace Duel6
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (const GLvoid *)(9 * sizeof(Float32)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (const GLvoid *) (9 * sizeof(Float32)));
 
         GLuint cvs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(cvs, 1, &colorVertexShader, nullptr);
@@ -120,26 +117,25 @@ namespace Duel6
         glActiveTexture(GL_TEXTURE0);
     }
 
-    Renderer::Info GL4Renderer::getInfo()
-    {
+    Renderer::Info GL4Renderer::getInfo() {
         Info info;
-        info.vendor = (const char *)glGetString(GL_VENDOR);
-        info.renderer = (const char *)glGetString(GL_RENDERER);
-        info.version = (const char *)glGetString(GL_VERSION);
+        info.vendor = (const char *) glGetString(GL_VENDOR);
+        info.renderer = (const char *) glGetString(GL_RENDERER);
+        info.version = (const char *) glGetString(GL_VERSION);
 
         GLint numExtensions;
         glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
 
         for (Int32 i = 0; i < numExtensions; i++) {
-            std::string name = (const char *)glGetStringi(GL_EXTENSIONS, i);
+            std::string name = (const char *) glGetStringi(GL_EXTENSIONS, i);
             info.extensions.push_back(name);
         }
 
         return info;
     }
 
-    Texture GL4Renderer::createTexture(Int32 width, Int32 height, void* data, Int32 alignment, TextureFilter filtering, bool clamp)
-    {
+    Texture GL4Renderer::createTexture(Int32 width, Int32 height, void *data, Int32 alignment, TextureFilter filtering,
+                                       bool clamp) {
         GLuint textureId;
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D, textureId);
@@ -157,86 +153,70 @@ namespace Duel6
         return Texture(textureId);
     }
 
-    void GL4Renderer::setTextureFilter(const Texture &texture, TextureFilter filter)
-    {
+    void GL4Renderer::setTextureFilter(const Texture &texture, TextureFilter filter) {
         glBindTexture(GL_TEXTURE_2D, texture.getId());
         GLint filterValue = filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterValue);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterValue);
     }
 
-    void GL4Renderer::freeTexture(Texture texture)
-    {
+    void GL4Renderer::freeTexture(Texture texture) {
         GLuint id = texture.getId();
         glDeleteTextures(1, &id);
     }
 
-    void GL4Renderer::readScreenData(Int32 width, Int32 height, Image& image)
-    {
+    void GL4Renderer::readScreenData(Int32 width, Int32 height, Image &image) {
         glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
     }
 
-    void GL4Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height)
-    {
+    void GL4Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height) {
         glViewport(x, y, width, height);
     }
 
-    void GL4Renderer::setProjectionMatrix(const Matrix& m)
-    {
+    void GL4Renderer::setProjectionMatrix(const Matrix &m) {
         projectionMatrix = m;
         mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     }
 
-    Matrix GL4Renderer::getProjectionMatrix() const
-    {
+    Matrix GL4Renderer::getProjectionMatrix() const {
         return projectionMatrix;
     }
 
-    void GL4Renderer::setViewMatrix(const Matrix& m)
-    {
+    void GL4Renderer::setViewMatrix(const Matrix &m) {
         viewMatrix = m;
         mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     }
 
-    Matrix GL4Renderer::getViewMatrix() const
-    {
+    Matrix GL4Renderer::getViewMatrix() const {
         return viewMatrix;
     }
 
-    void GL4Renderer::setModelMatrix(const Matrix& m)
-    {
+    void GL4Renderer::setModelMatrix(const Matrix &m) {
         modelMatrix = m;
         mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     }
 
-    Matrix GL4Renderer::getModelMatrix() const
-    {
+    Matrix GL4Renderer::getModelMatrix() const {
         return modelMatrix;
     }
 
-    void GL4Renderer::enableFaceCulling(bool enable)
-    {
+    void GL4Renderer::enableFaceCulling(bool enable) {
         enableOption(GL_CULL_FACE, enable);
     }
 
-    void GL4Renderer::enableWireframe(bool enable)
-    {
+    void GL4Renderer::enableWireframe(bool enable) {
     }
 
-    void GL4Renderer::enableDepthTest(bool enable)
-    {
+    void GL4Renderer::enableDepthTest(bool enable) {
         enableOption(GL_DEPTH_TEST, enable);
     }
 
-    void GL4Renderer::enableDepthWrite(bool enable)
-    {
+    void GL4Renderer::enableDepthWrite(bool enable) {
         glDepthMask(GLboolean(enable ? GL_TRUE : GL_FALSE));
     }
 
-    void GL4Renderer::setBlendFunc(Renderer::BlendFunc func)
-    {
-        switch (func)
-        {
+    void GL4Renderer::setBlendFunc(Renderer::BlendFunc func) {
+        switch (func) {
             case BlendFunc::None:
                 glDisable(GL_BLEND);
                 break;
@@ -251,32 +231,30 @@ namespace Duel6
         }
     }
 
-    void GL4Renderer::clearBuffers()
-    {
+    void GL4Renderer::clearBuffers() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void GL4Renderer::triangle(const Vector& p1, const Vector& p2, const Vector& p3, const Color& color)
-    {
+    void GL4Renderer::triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) {
         glUseProgram(colorTriangleProgram);
 
         glUniformMatrix4fv(glGetUniformLocation(colorTriangleProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
-        Float32 points[] = { p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z};
+        Float32 points[] = {p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z};
         glBufferSubData(GL_ARRAY_BUFFER, 0, 9 * sizeof(Float32), points);
 
-        Float32 colorData[] = { color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() / 255.0f};
+        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                               color.getAlpha() / 255.0f};
         GLint location = glGetUniformLocation(colorTriangleProgram, "color");
         glUniform4fv(location, 1, colorData);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
-    void GL4Renderer::triangle(const Vector& p1, const Vector& t1,
-                               const Vector& p2, const Vector& t2,
-                               const Vector& p3, const Vector& t3,
-                               const Material& material)
-    {
+    void GL4Renderer::triangle(const Vector &p1, const Vector &t1,
+                               const Vector &p2, const Vector &t2,
+                               const Vector &p3, const Vector &t3,
+                               const Material &material) {
         glUseProgram(textureTriangleProgram);
 
         glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
@@ -284,14 +262,13 @@ namespace Duel6
 
         glUniformMatrix4fv(glGetUniformLocation(textureTriangleProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
-        Float32 points[] = { p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z, t1.x, t1.y, t2.x, t2.y, t3.x, t3.y };
+        Float32 points[] = {p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z, t1.x, t1.y, t2.x, t2.y, t3.x, t3.y};
         glBufferSubData(GL_ARRAY_BUFFER, 0, 15 * sizeof(Float32), points);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
-    void GL4Renderer::quadXY(const Vector &position, const Vector &size, const Color &color)
-    {
+    void GL4Renderer::quadXY(const Vector &position, const Vector &size, const Color &color) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector p3(position.x + size.x, position.y + size.y, position.z);
         Vector p4(position.x + size.x, position.y, position.z);
@@ -302,8 +279,7 @@ namespace Duel6
 
     void GL4Renderer::quadXY(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Material& material)
-    {
+                             const Material &material) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
         Vector p3(position.x + size.x, position.y + size.y, position.z);
@@ -315,8 +291,7 @@ namespace Duel6
         triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
-    void GL4Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color)
-    {
+    void GL4Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color) {
         Vector p2(position.x + size.x, position.y, position.z);
         Vector p3(position.x + size.x, position.y, position.z + size.z);
         Vector p4(position.x, position.y, position.z + size.z);
@@ -327,8 +302,7 @@ namespace Duel6
 
     void GL4Renderer::quadXZ(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Material& material)
-    {
+                             const Material &material) {
         Vector p2(position.x + size.x, position.y, position.z);
         Vector t2(texturePosition.x + textureSize.x, texturePosition.y);
         Vector p3(position.x + size.x, position.y, position.z + size.z);
@@ -340,8 +314,7 @@ namespace Duel6
         triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
-    void GL4Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color)
-    {
+    void GL4Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector p3(position.x, position.y + size.y, position.z + size.z);
         Vector p4(position.x, position.y, position.z + size.z);
@@ -352,8 +325,7 @@ namespace Duel6
 
     void GL4Renderer::quadYZ(const Vector &position, const Vector &size,
                              const Vector &texturePosition, const Vector &textureSize,
-                             const Material& material)
-    {
+                             const Material &material) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
         Vector p3(position.x, position.y + size.y, position.z + size.z);
@@ -365,16 +337,13 @@ namespace Duel6
         triangle(position, texturePosition, p3, t3, p4, t4, material);
     }
 
-    void GL4Renderer::point(const Vector &position, Float32 size, const Color &color)
-    {
+    void GL4Renderer::point(const Vector &position, Float32 size, const Color &color) {
     }
 
-    void GL4Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color)
-    {
+    void GL4Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
     }
 
-    void GL4Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color)
-    {
+    void GL4Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color) {
         Vector p2(position.x, position.y + size.y);
         Vector p3(position.x + size.x, position.y + size.y);
         Vector p4(position.x + size.x, position.y);
@@ -385,14 +354,10 @@ namespace Duel6
         line(p4, position, width, color);
     }
 
-    void GL4Renderer::enableOption(GLenum option, bool enable)
-    {
-        if (enable)
-        {
+    void GL4Renderer::enableOption(GLenum option, bool enable) {
+        if (enable) {
             glEnable(option);
-        }
-        else
-        {
+        } else {
             glDisable(option);
         }
     }

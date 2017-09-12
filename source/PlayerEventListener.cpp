@@ -28,65 +28,53 @@
 #include "PlayerEventListener.h"
 #include "Weapon.h"
 
-namespace Duel6
-{
-	bool PlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit)
-	{
-		if (!player.is(shootingPlayer))
-		{
-			shootingPlayer.getPerson().addDamageCaused(std::min((Int32) amount, (Int32)player.getLife()));
-		}
-		player.addLife(-amount);
-		return true;
-	}
+namespace Duel6 {
+    bool PlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot,
+                                             bool directHit) {
+        if (!player.is(shootingPlayer)) {
+            shootingPlayer.getPerson().addDamageCaused(std::min((Int32) amount, (Int32) player.getLife()));
+        }
+        player.addLife(-amount);
+        return true;
+    }
 
-	bool PlayerEventListener::onDamageByEnv(Player &player, Float32 amount)
-	{
-		player.addLife(-amount);
-		return true;
-	}
+    bool PlayerEventListener::onDamageByEnv(Player &player, Float32 amount) {
+        player.addLife(-amount);
+        return true;
+    }
 
-	void PlayerEventListener::onKillByPlayer(Player& player, Player& killer, Shot &shot, bool suicide)
-	{
-		if (suicide)
-		{
-			messageQueue.add(killer, Format("killed also [{0}]") << player.getPerson().getName());
-			if (gameSettings.getScreenMode() == ScreenMode::SplitScreen)
-			{
-				messageQueue.add(player, Format("killed by suicide of [{0}]") << killer.getPerson().getName());
-			}
-			killer.getPerson().addPenalties(1);
-		}
-		else
-		{
-			messageQueue.add(killer, Format("killed [{0}]") << player.getPerson().getName());
-			if (gameSettings.getScreenMode() == ScreenMode::SplitScreen)
-			{
-				messageQueue.add(player, Format("killed by [{0}]") << killer.getPerson().getName());
-			}
-			killer.getPerson().addKills(1);
-			killer.addRoundKills(1);
-		}
-	}
+    void PlayerEventListener::onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide) {
+        if (suicide) {
+            messageQueue.add(killer, Format("killed also [{0}]") << player.getPerson().getName());
+            if (gameSettings.getScreenMode() == ScreenMode::SplitScreen) {
+                messageQueue.add(player, Format("killed by suicide of [{0}]") << killer.getPerson().getName());
+            }
+            killer.getPerson().addPenalties(1);
+        } else {
+            messageQueue.add(killer, Format("killed [{0}]") << player.getPerson().getName());
+            if (gameSettings.getScreenMode() == ScreenMode::SplitScreen) {
+                messageQueue.add(player, Format("killed by [{0}]") << killer.getPerson().getName());
+            }
+            killer.getPerson().addKills(1);
+            killer.addRoundKills(1);
+        }
+    }
 
 
-	void PlayerEventListener::onKillByEnv(Player &player)
-	{
-		//TODO: Change of behavior - when killed by bonus, player gets a penalty point!
-		//TODO: Fix by providing enviroment type
-		player.getPerson().addPenalties(1);
-		messageQueue.add(player, "You are dead");
-	}
+    void PlayerEventListener::onKillByEnv(Player &player) {
+        //TODO: Change of behavior - when killed by bonus, player gets a penalty point!
+        //TODO: Fix by providing enviroment type
+        player.getPerson().addPenalties(1);
+        messageQueue.add(player, "You are dead");
+    }
 
-	void PlayerEventListener::onSuicide(Player &player, Size otherKilledPlayers)
-	{
-		player.getPerson().addPenalties(1);
-		messageQueue.add(player, "Committed suicide");
-	}
+    void PlayerEventListener::onSuicide(Player &player, Size otherKilledPlayers) {
+        player.getPerson().addPenalties(1);
+        messageQueue.add(player, "Committed suicide");
+    }
 
-	void PlayerEventListener::onRoundWin(Player &player)
-	{
-		messageQueue.add(player, "You won the round");
-		player.getPerson().addWins(1);
-	}
+    void PlayerEventListener::onRoundWin(Player &player) {
+        messageQueue.add(player, "You won the round");
+        player.getPerson().addWins(1);
+    }
 }

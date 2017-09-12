@@ -32,16 +32,14 @@
 #include <vector>
 #include "Color.h"
 
-namespace Duel6
-{
-	struct RankingEntry
-	{
-		std::string name;
-		Int32 points;
-		Color color;
-	};
+namespace Duel6 {
+    struct RankingEntry {
+        std::string name;
+        Int32 points;
+        Color color;
+    };
 
-	typedef std::vector<RankingEntry> Ranking;
+    typedef std::vector<RankingEntry> Ranking;
 }
 
 #endif
