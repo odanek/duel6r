@@ -33,11 +33,13 @@
 
 static void reportError(const std::string &err) {
     fprintf(stderr, "Error occured: %s\n", err.c_str());
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", err.c_str(), NULL);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", err.c_str(), nullptr);
 }
 
 int main(int argc, char **argv) {
     try {
+        SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");   // Fixes GDB crashing on Mix_OpenAudio
+
         Duel6::Application app;
         app.setup(argc, argv);
         app.run();
