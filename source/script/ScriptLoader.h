@@ -28,6 +28,8 @@
 #ifndef DUEL6_SCRIPT_SCRIPTLOADER_H
 #define DUEL6_SCRIPT_SCRIPTLOADER_H
 
+#include <vector>
+#include <memory>
 #include "LevelScript.h"
 #include "PlayerScript.h"
 
@@ -38,6 +40,7 @@ namespace Duel6::Script {
         typedef std::vector<std::unique_ptr<PlayerScript>> PlayerScriptList;
 
     public:
+        virtual ~ScriptLoader() = default;
         virtual LevelScriptList loadLevelScripts() = 0;
         virtual PlayerScriptList loadPlayerScripts() = 0;
     };

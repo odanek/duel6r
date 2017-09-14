@@ -31,6 +31,7 @@
 #include "ScriptLoader.h"
 #include "LevelScript.h"
 #include "PlayerScript.h"
+#include "../console/console.h"
 
 namespace Duel6::Script {
     class ScriptManager {
@@ -38,9 +39,12 @@ namespace Duel6::Script {
         std::vector<std::unique_ptr<ScriptLoader>> loaders;
 
     public:
+        ScriptManager();
+
         void registerLoaders();
 
         ScriptLoader::LevelScriptList loadLevelScripts();
+
         ScriptLoader::PlayerScriptList loadPlayerScripts();
     };
 }

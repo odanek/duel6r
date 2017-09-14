@@ -28,10 +28,14 @@
 #include "ScriptManager.h"
 
 #ifdef D6_SCRIPTING_LUA
+
 #include "lua/LuaScriptLoader.h"
+
 #endif
 
 namespace Duel6::Script {
+    ScriptManager::ScriptManager() {}
+
     void ScriptManager::registerLoaders() {
 #ifdef D6_SCRIPTING_LUA
         loaders.push_back(std::make_unique<LuaScriptLoader>());
@@ -41,9 +45,9 @@ namespace Duel6::Script {
     ScriptLoader::LevelScriptList ScriptManager::loadLevelScripts() {
         ScriptLoader::LevelScriptList result;
 
-        for (auto& loader : loaders) {
+        for (auto &loader : loaders) {
             auto loaderScripts = loader->loadLevelScripts();
-            for (auto& script : loaderScripts) {
+            for (auto &script : loaderScripts) {
                 result.push_back(std::move(script));
             }
         }
@@ -54,9 +58,9 @@ namespace Duel6::Script {
     ScriptLoader::PlayerScriptList ScriptManager::loadPlayerScripts() {
         ScriptLoader::PlayerScriptList result;
 
-        for (auto& loader : loaders) {
+        for (auto &loader : loaders) {
             auto loaderScripts = loader->loadPlayerScripts();
-            for (auto& script : loaderScripts) {
+            for (auto &script : loaderScripts) {
                 result.push_back(std::move(script));
             }
         }

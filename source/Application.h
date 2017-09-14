@@ -34,6 +34,7 @@
 #include "Menu.h"
 #include "Game.h"
 #include "Video.h"
+#include "script/ScriptManager.h"
 
 namespace Duel6 {
     class Application {
@@ -44,6 +45,7 @@ namespace Duel6 {
         Video video;
         Input input;
         Sound sound;
+        Script::ScriptManager scriptManager;
         AppService service;
         Menu menu;
         GameSettings gameSettings;

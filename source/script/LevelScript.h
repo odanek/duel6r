@@ -29,13 +29,12 @@
 #define DUEL6_SCRIPT_LEVELSCRIPT_H
 
 #include "Script.h"
-#include "../World.h"
 
 namespace Duel6::Script {
     class LevelScript : public Script {
-        virtual void roundStart(World &world) = 0;
+        virtual void roundStart() = 0;
 
-        virtual void roundUpdate(World &world) = 0;
+        virtual void roundUpdate() = 0;
     };
 }
 

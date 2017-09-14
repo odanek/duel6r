@@ -35,7 +35,7 @@
 
 namespace Duel6 {
     namespace {
-        static const Float64 updateTime = 1.0 / D6_UPDATE_FREQUENCY;
+        const Float64 updateTime = 1.0 / D6_UPDATE_FREQUENCY;
     }
 
     namespace {
@@ -71,7 +71,7 @@ namespace Duel6 {
 
     Application::Application()
             : console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
-              service(font, console, textureManager, video, input, sound),
+              service(font, console, textureManager, video, input, sound, scriptManager),
               menu(service), requestClose(false) {}
 
     Application::~Application() {
@@ -209,6 +209,8 @@ namespace Duel6 {
         for (Weapon weapon : Weapon::values()) {
             gameSettings.enableWeapon(weapon, true);
         }
+
+        scriptManager.registerLoaders();
 
         // Execute config script and command line arguments
         console.printLine("\n===Config===");
