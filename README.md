@@ -10,7 +10,7 @@ The very first version of the game has been developed in **2002** by [Ondrej Dan
 ## Technical overview
 
 The game is written using the following technologies:
-- C++ with C++11 and C++14 features slowly making it into the sources
+- C++ with C++11, C++14, C++17 features slowly making it into the sources
 - [SDL 2](www.libsdl.org)
 - OpenGL (currently the game is built on top of a very legacy OpenGL version 1)
 - [CMake](www.cmake.org)
@@ -20,8 +20,8 @@ There is a **builtin quake-style console** that can be used to modify game aspec
 ## Supported platforms
 
 The game has been tested on the following platforms:
-- **MS Windows** with Visual Studio 2013 and MinGW 64 compilers
-- **Linux** with GCC 4.9 compiler
+- **MS Windows** with Visual Studio 2017 and MinGW 64 compilers
+- **Linux** with GCC 7.1 compiler
 - **Mac OS X** with LLVM/Clang compiler
 
 ## Customization
