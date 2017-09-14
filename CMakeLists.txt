@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.2)
 #  Duel 6 Reloaded
 #
 #  Copyright (C) 2010   Ondrej Danek <ondrej.danek@gmail.com>
-# 
+#
 #############################################################################
 
 # project name
@@ -35,7 +35,7 @@ endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # visual studio
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")    
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
 endif(MSVC)
 
@@ -63,13 +63,14 @@ endif(MINGW)
 # platform-independent debug macro
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
-# Renderer switch
-set(D6R_RENDERER "gl1")
+# Switches
+set(D6R_RENDERER "gl1")  # Renderer: gl1/gl4/es2
+set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
 #########################################################################
 #
 # Duel 6 Reloaded
-#  
+#
 #########################################################################
 
 ########################
@@ -216,7 +217,7 @@ set(D6R_SOURCES
     source/console/coninput.cpp
     source/console/console.cpp
     source/console/console.h
-    source/console/convar.cpp    
+    source/console/convar.cpp
     source/console/ConsoleException.h
 
 	source/json/JsonException.h
@@ -333,7 +334,14 @@ set(D6R_SOURCES
 
 	source/renderer/Renderer.h
 
-    source/PlayerEventListener.h 
+    source/script/Script.h
+    source/script/LevelScript.h
+    source/script/PlayerScript.h
+    source/script/ScriptLoader.h
+    source/script/ScriptManager.h
+    source/script/ScriptManager.cpp
+
+    source/PlayerEventListener.h
     source/PlayerEventListener.cpp
     )
 
@@ -351,6 +359,18 @@ if(D6R_RENDERER STREQUAL "es2")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
 	endif(WIN32)
 endif(D6R_RENDERER STREQUAL "es2")
+
+if (D6R_WITH_LUA)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_SCRIPTING_LUA")
+	set(D6R_SOURCES ${D6R_SOURCES}
+		source/script/lua/LuaPlayerScript.h
+		source/script/lua/LuaPlayerScript.cpp
+		source/script/lua/LuaLevelScript.h
+		source/script/lua/LuaLevelScript.cpp
+		source/script/lua/LuaScriptLoader.h
+		source/script/lua/LuaScriptLoader.cpp
+	)
+endif(D6R_WITH_LUA)
 
 if(WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)
@@ -413,6 +433,15 @@ if(D6R_WITH_GLEW)
 	find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
 	include_directories(${HEADERS_GLEW})
 endif(D6R_WITH_GLEW)
+
+# LUA
+if (D6R_WITH_LUA)
+	find_library(LIB_LUA lua DOC "Path to LUA library")
+	target_link_libraries(${D6R_APP_NAME} ${LIB_LUA})
+	find_path(HEADERS_LUA lua.hpp DOC "Path to LUA headers")
+	include_directories(${HEADERS_LUA})
+endif(D6R_WITH_LUA)
+
 
 ########################
 #  Install application
