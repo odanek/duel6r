@@ -120,9 +120,10 @@ namespace Duel6
 		void showMessage(const std::string& message);
 		void detectControls(Size playerIndex);
 		void play();
+		void playPlayersSound(const std::string& name);
 		void loadPersonProfiles(const std::string& path);
 		void loadPersonData(const std::string& filePath);
-		PersonProfile& getPersonProfile(const std::string& name, Size index);
+		PersonProfile& getPersonProfile(const std::string& name);
 		void cleanPersonData();
 		void addPerson();
 		void deletePerson();
