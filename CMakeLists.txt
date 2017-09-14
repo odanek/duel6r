@@ -374,7 +374,7 @@ endif(APPLE)
 
 # install binary files
 install(TARGETS ${D6R_APP_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-#install(DIRECTORY resources/data DESTINATION data)
-#install(DIRECTORY resources/levels DESTINATION levels)
-#install(DIRECTORY resources/sound DESTINATION sound)
-#install(DIRECTORY resources/textures DESTINATION textures)
+install(DIRECTORY resources/data DESTINATION data)
+install(DIRECTORY resources/levels DESTINATION levels)
+install(DIRECTORY resources/sound DESTINATION sound)
+install(DIRECTORY resources/textures DESTINATION textures)
