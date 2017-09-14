@@ -34,25 +34,27 @@
 #include "Shot.h"
 #include "Orientation.h"
 
-namespace Duel6
-{
-	class World;
+namespace Duel6 {
+    class World;
 
-	class ShotList
-	{
-	private:
-		typedef std::unique_ptr<Shot> ShotPointer;
+    class ShotList {
+    private:
+        typedef std::unique_ptr<Shot> ShotPointer;
 
-	private:
-		std::list<ShotPointer> shots;
+    private:
+        std::list<ShotPointer> shots;
 
-	public:
-		ShotList();
-		void addShot(ShotPointer&& shot);
-		void update(World& world, Float32 elapsedTime);
-		void forEach(std::function<bool(const Shot&)> handler) const;
-		void forEach(std::function<bool(Shot&)> handler);
-	};
+    public:
+        ShotList();
+
+        void addShot(ShotPointer &&shot);
+
+        void update(World &world, Float32 elapsedTime);
+
+        void forEach(std::function<bool(const Shot &)> handler) const;
+
+        void forEach(std::function<bool(Shot &)> handler);
+    };
 }
 
 #endif

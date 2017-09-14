@@ -30,16 +30,14 @@
 
 #include "../LegacyWeapon.h"
 
-namespace Duel6
-{
-	class Lightning : public LegacyWeapon
-	{
-	public:
-		Lightning(Sound& sound, TextureManager& textureManager);
+namespace Duel6 {
+    class Lightning : public LegacyWeapon {
+    public:
+        Lightning(Sound &sound, TextureManager &textureManager);
 
-	public:
-		Rectangle getShotCollisionRectangle() const override;
-	};
+    public:
+        Rectangle getShotCollisionRectangle() const override;
+    };
 }
 
 #endif

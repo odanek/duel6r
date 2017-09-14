@@ -25,133 +25,99 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
+#include "../Video.h"
 #include "Spinner.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		Spinner::Spinner(Desktop& desk)
-			: Control(desk)
-		{
-			now = -1;
+namespace Duel6 {
+    namespace Gui {
+        Spinner::Spinner(Desktop &desk)
+                : Control(desk) {
+            now = -1;
 
-			left = new Button(desk);
-			left->setCaption(" ");
-			right = new Button(desk);
-			right->setCaption(" ");
-		}
+            left = new Button(desk);
+            left->setCaption(" ");
+            right = new Button(desk);
+            right->setCaption(" ");
+        }
 
-		Spinner::~Spinner()
-		{
-			clear();
-		}
+        Spinner::~Spinner() {
+            clear();
+        }
 
-		void Spinner::clear()
-		{
-			items.clear();
-			now = -1;
-		}
+        void Spinner::clear() {
+            items.clear();
+            now = -1;
+        }
 
-		Int32 Spinner::currentItem()
-		{
-			return now;
-		}
+        Int32 Spinner::currentItem() {
+            return now;
+        }
 
-		void Spinner::setCurrent(Int32 n)
-		{
-			now = n;
-		}
+        void Spinner::setCurrent(Int32 n) {
+            now = n;
+        }
 
-		void Spinner::removeItem(Int32 n)
-		{
-			if (n < 0 || n >= (Int32)items.size())
-				return;
+        void Spinner::removeItem(Int32 n) {
+            if (n < 0 || n >= (Int32) items.size())
+                return;
 
-			items.erase(items.begin() + n);
-			if (now >= (Int32)items.size())
-				now = Int32(items.size()) - 1;
-		}
+            items.erase(items.begin() + n);
+            if (now >= (Int32) items.size())
+                now = Int32(items.size()) - 1;
+        }
 
-		void Spinner::addItem(const std::string& item)
-		{
-			items.push_back(item);
-			if (items.size() == 1)
-			{
-				now = 0;
-			}
-		}
+        void Spinner::addItem(const std::string &item) {
+            items.push_back(item);
+            if (items.size() == 1) {
+                now = 0;
+            }
+        }
 
-		void Spinner::setPosition(Int32 X, Int32 Y, Int32 W, Int32 H)
-		{
-			left->setPosition(X, Y - 1, 18, 18);
-			right->setPosition(X + W - 18, Y - 1, 18, 18);
-			width = W;
-			x = X;
-			y = Y;
-		}
+        void Spinner::setPosition(Int32 X, Int32 Y, Int32 W, Int32 H) {
+            left->setPosition(X, Y - 1, 18, 18);
+            right->setPosition(X + W - 18, Y - 1, 18, 18);
+            width = W;
+            x = X;
+            y = Y;
+        }
 
-		void Spinner::update(Float32 elapsedTime)
-		{
-			if (!left->isPressed() && !right->isPressed())
-			{
-				repeatWait = 0.0f;
-			}
-			else
-			{
-				if (repeatWait > 0.0f)
-				{
-					repeatWait -= elapsedTime;
-				}
-				else
-				{
-					if (left->isPressed() && now > 0)
-					{
-						repeatWait = 0.3f;
-						now--;
-					}
-					if (right->isPressed() && now + 1 < (Int32)items.size())
-					{
-						repeatWait = 0.3f;
-						now++;
-					}
-				}
-			}
-		}
+        void Spinner::update(Float32 elapsedTime) {
+            if (!left->isPressed() && !right->isPressed()) {
+                repeatWait = 0.0f;
+            } else {
+                if (repeatWait > 0.0f) {
+                    repeatWait -= elapsedTime;
+                } else {
+                    if (left->isPressed() && now > 0) {
+                        repeatWait = 0.3f;
+                        now--;
+                    }
+                    if (right->isPressed() && now + 1 < (Int32) items.size()) {
+                        repeatWait = 0.3f;
+                        now++;
+                    }
+                }
+            }
+        }
 
-		void Spinner::draw(const Font& font) const
-		{
-			int     px, py;
+        void Spinner::draw(const Font &font) const {
+            int px, py;
 
-			drawFrame(x + 20, y, width - 40, 18, true);
-			glBegin(GL_QUADS);
-			glColor3ub(255, 255, 255);
-			glVertex2i(x + 22, y - 1);
-			glVertex2i(x + width - 21, y - 1);
-			glVertex2i(x + width - 21, y - 16);
-			glVertex2i(x + 22, y - 16);
-			glEnd();
+            drawFrame(x + 20, y, width - 40, 18, true);
+            globRenderer->quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
 
-			glBegin(GL_TRIANGLES);
-			px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
-			py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
-			glColor3ub(0, 0, 0);
-			glVertex2i(px + 2, py);
-			glVertex2i(px + 2, py - 7);
-			glVertex2i(px - 2, py - 4);
+            px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
+            py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
+            globRenderer->triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);
 
-			px = right->getX() + 7 + (right->isPressed() ? 1 : 0);
-			py = right->getY() - 4 - (right->isPressed() ? 1 : 0);
-			glVertex2i(px - 1, py);
-			glVertex2i(px - 1, py - 7);
-			glVertex2i(px + 3, py - 4);
-			glEnd();
+            px = right->getX() + 7 + (right->isPressed() ? 1 : 0);
+            py = right->getY() - 4 - (right->isPressed() ? 1 : 0);
+            globRenderer->triangle(Vector(px - 1, py), Vector(px - 1, py - 7), Vector(px + 3, py - 4), Color::BLACK);
 
-			if (items.empty())
-				return;
+            if (items.empty())
+                return;
 
-			font.print(x + 25, y - 15, Color(0), items[now]);
-		}
-	}
+            font.print(x + 25, y - 15, Color(0), items[now]);
+        }
+    }
 }

@@ -32,193 +32,166 @@
 #include "GameMode.h"
 #include "Weapon.h"
 
-namespace Duel6
-{
-	Round::Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background)
-		: game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background),
-		  suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
-		  winner(false)
-	{
-		preparePlayers();
-		game.getMode().initializeRound(game, players, world);
-	}
+namespace Duel6 {
+    Round::Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror,
+                 Size background)
+            : game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background),
+              suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
+              winner(false) {
+        preparePlayers();
+        game.getMode().initializeRound(game, players, world);
+    }
 
-	void Round::splitScreenView(Player& player, Int32 x, Int32 y)
-	{
-		const Video& video = game.getAppService().getVideo();
-		PlayerView view(x, y, video.getScreen().getClientWidth() / 2 - 4, video.getScreen().getClientHeight() / 2 - 4);
-		player.setView(view);
-	}
+    void Round::splitScreenView(Player &player, Int32 x, Int32 y) {
+        const Video &video = game.getAppService().getVideo();
+        PlayerView view(x, y, video.getScreen().getClientWidth() / 2 - 4, video.getScreen().getClientHeight() / 2 - 4);
+        player.setView(view);
+    }
 
-	void Round::setPlayerViews()
-	{
-		const Video& video = game.getAppService().getVideo();
-		std::vector<Player>& players = world.getPlayers();
+    void Round::setPlayerViews() {
+        const Video &video = game.getAppService().getVideo();
+        std::vector<Player> &players = world.getPlayers();
 
-		for (Player& player : players)
-		{
-			player.prepareCam(video, game.getSettings().getScreenMode(), game.getSettings().getScreenZoom(), world.getLevel().getWidth(), world.getLevel().getHeight());
-		}
+        for (Player &player : players) {
+            player.prepareCam(video, game.getSettings().getScreenMode(), game.getSettings().getScreenZoom(),
+                              world.getLevel().getWidth(), world.getLevel().getHeight());
+        }
 
-		if (game.getSettings().getScreenMode() == ScreenMode::FullScreen)
-		{
-			for (Player& player : players)
-			{
-				player.setView(PlayerView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight()));
-			}
+        if (game.getSettings().getScreenMode() == ScreenMode::FullScreen) {
+            for (Player &player : players) {
+                player.setView(
+                        PlayerView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight()));
+            }
 
-			return;
-		}
-		else
-		{
-			if (players.size() == 2)
-			{
-				splitScreenView(players[0], video.getScreen().getClientWidth() / 4 + 2, 2);
-				splitScreenView(players[1], video.getScreen().getClientWidth() / 4 + 2, video.getScreen().getClientHeight() / 2 + 2);
-			}
+            return;
+        } else {
+            if (players.size() == 2) {
+                splitScreenView(players[0], video.getScreen().getClientWidth() / 4 + 2, 2);
+                splitScreenView(players[1], video.getScreen().getClientWidth() / 4 + 2,
+                                video.getScreen().getClientHeight() / 2 + 2);
+            }
 
-			if (players.size() == 3)
-			{
-				splitScreenView(players[0], 2, 2);
-				splitScreenView(players[1], video.getScreen().getClientWidth() / 2 + 2, 2);
-				splitScreenView(players[2], video.getScreen().getClientWidth() / 4 + 2, video.getScreen().getClientHeight() / 2 + 2);
-			}
+            if (players.size() == 3) {
+                splitScreenView(players[0], 2, 2);
+                splitScreenView(players[1], video.getScreen().getClientWidth() / 2 + 2, 2);
+                splitScreenView(players[2], video.getScreen().getClientWidth() / 4 + 2,
+                                video.getScreen().getClientHeight() / 2 + 2);
+            }
 
-			if (players.size() == 4)
-			{
-				splitScreenView(players[0], 2, 2);
-				splitScreenView(players[1], video.getScreen().getClientWidth() / 2 + 2, 2);
-				splitScreenView(players[2], 2, video.getScreen().getClientHeight() / 2 + 2);
-				splitScreenView(players[3], video.getScreen().getClientWidth() / 2 + 2, video.getScreen().getClientHeight() / 2 + 2);
-			}
-		}
-	}
+            if (players.size() == 4) {
+                splitScreenView(players[0], 2, 2);
+                splitScreenView(players[1], video.getScreen().getClientWidth() / 2 + 2, 2);
+                splitScreenView(players[2], 2, video.getScreen().getClientHeight() / 2 + 2);
+                splitScreenView(players[3], video.getScreen().getClientWidth() / 2 + 2,
+                                video.getScreen().getClientHeight() / 2 + 2);
+            }
+        }
+    }
 
-	void Round::preparePlayers()
-	{
-		game.getAppService().getConsole().printLine("...Preparing players");
-		Level::StartingPositionList startingPositions;
-		world.getLevel().findStartingPositions(startingPositions);
+    void Round::preparePlayers() {
+        game.getAppService().getConsole().printLine("...Preparing players");
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
 
-		auto& players = world.getPlayers();
-		Size playerIndex = 0;
-	    for (Player& player : players)
-		{
-			auto& ammoRange = game.getSettings().getAmmoRange();
-			Int32 ammo = ammoRange.first + rand() % (ammoRange.second - ammoRange.first + 1);
-			Level::StartingPosition position = startingPositions.back();
-			player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
-			startingPositions.pop_back();
-			playerIndex++;
-		}
+        auto &players = world.getPlayers();
+        Size playerIndex = 0;
+        for (Player &player : players) {
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second + 1);
+            Level::StartingPosition position = startingPositions.back();
+            player.startRound(world, position.first, position.second, ammo,
+                              Weapon::getRandomEnabled(game.getSettings()));
+            startingPositions.pop_back();
+            playerIndex++;
+        }
 
-		setPlayerViews();
-	}
+        setPlayerViews();
+    }
 
-	void Round::checkWinner()
-	{
-        std::vector<Player>& allPlayers = world.getPlayers();
+    void Round::checkWinner() {
+        std::vector<Player> &allPlayers = world.getPlayers();
 
         alivePlayers.clear();
 
         // todo: rewrite to copy_if if it is possible to do it that way without billion lines of compile errors:-)
-        for (Player& player : allPlayers)
-        {
-            if (player.isAlive())
-            {
+        for (Player &player : allPlayers) {
+            if (player.isAlive()) {
                 alivePlayers.push_back(&player);
             }
         }
-        if (alivePlayers.size() == 2 && allPlayers.size() > 2)
-        {
+        if (alivePlayers.size() == 2 && allPlayers.size() > 2) {
             suddenDeathMode = true;
         }
 
-		if (game.getMode().checkRoundOver(world, alivePlayers))
-		{
-			winner = true;
-			gameOverWait = D6_GAME_OVER_WAIT;
+        if (game.getMode().checkRoundOver(world, alivePlayers)) {
+            winner = true;
+            gameOverWait = D6_GAME_OVER_WAIT;
 
-			game.getResources().getGameOverSound().play();
-		}
-	}
+            game.getResources().getGameOverSound().play();
+        }
+    }
 
-	void Round::update(Float32 elapsedTime)
-	{
-		// Check if there's a winner
-		if (!hasWinner())
-		{
-			checkWinner();
-		}
-		else
-		{
-			gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
-			if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT))
-			{
-				return;
-			}
-		}
+    void Round::update(Float32 elapsedTime) {
+        // Check if there's a winner
+        if (!hasWinner()) {
+            checkWinner();
+        } else {
+            gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
+            if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
+                return;
+            }
+        }
 
-		for (Player& player : world.getPlayers())
-		{
-			player.update(world, game.getSettings().getScreenMode(), elapsedTime);
-			if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost())
-			{
-				player.makeGhost();
-			}
-		}
+        for (Player &player : world.getPlayers()) {
+            player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+            if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
+                player.makeGhost();
+            }
+        }
 
-		world.update(elapsedTime);
+        world.update(elapsedTime);
 
-		if (suddenDeathMode)
-		{
-			waterFillWait += elapsedTime;
-			if(waterFillWait > D6_RAISE_WATER_WAIT)
-			{
-				waterFillWait = 0;
-				world.raiseWater();
-			}
-		}
+        if (suddenDeathMode) {
+            waterFillWait += elapsedTime;
+            if (waterFillWait > D6_RAISE_WATER_WAIT) {
+                waterFillWait = 0;
+                world.raiseWater();
+            }
+        }
 
-		showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
-	}
+        showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
+    }
 
-	void Round::keyEvent(const KeyPressEvent& event)
-	{
-		// Switch between fullscreen and split screen mode
-		if (event.getCode() == SDLK_F2 && world.getPlayers().size() < 5)
-		{
-			switchScreenMode();
-		}
+    void Round::keyEvent(const KeyPressEvent &event) {
+        // Switch between fullscreen and split screen mode
+        if (event.getCode() == SDLK_F2 && world.getPlayers().size() < 5) {
+            switchScreenMode();
+        }
 
-		// Turn on/off player statistics
-		if (event.getCode() == SDLK_F4)
-		{
-			game.getSettings().setShowRanking(!game.getSettings().isShowRanking());
-		}
+        // Turn on/off player statistics
+        if (event.getCode() == SDLK_F4) {
+            game.getSettings().setShowRanking(!game.getSettings().isShowRanking());
+        }
 
-		// Save screenshot
-		if (event.getCode() == SDLK_F10)
-		{
-			std::string name = Util::saveScreenTga(game.getAppService().getVideo());
-			game.getAppService().getConsole().printLine(Format("Screenshot saved to {0}") << name);
-		}
-	}
+        // Save screenshot
+        if (event.getCode() == SDLK_F10) {
+            std::string name = Util::saveScreenTga(game.getAppService().getVideo());
+            game.getAppService().getConsole().printLine(Format("Screenshot saved to {0}") << name);
+        }
+    }
 
-	void Round::switchScreenMode()
-	{
-		GameSettings& settings = game.getSettings();
-		settings.setScreenMode((settings.getScreenMode() == ScreenMode::FullScreen) ? ScreenMode::SplitScreen : ScreenMode::FullScreen);
-		setPlayerViews();
-	}
+    void Round::switchScreenMode() {
+        GameSettings &settings = game.getSettings();
+        settings.setScreenMode((settings.getScreenMode() == ScreenMode::FullScreen) ? ScreenMode::SplitScreen
+                                                                                    : ScreenMode::FullScreen);
+        setPlayerViews();
+    }
 
-	bool Round::isOver() const
-	{
-		return hasWinner() && gameOverWait <= 0;
-	}
+    bool Round::isOver() const {
+        return hasWinner() && gameOverWait <= 0;
+    }
 
-	bool Round::isLast() const
-	{
-		return game.getSettings().isRoundLimit() && roundNumber + 1 == game.getSettings().getMaxRounds();
-	}
+    bool Round::isLast() const {
+        return game.getSettings().isRoundLimit() && roundNumber + 1 == game.getSettings().getMaxRounds();
+    }
 }

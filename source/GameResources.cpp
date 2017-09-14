@@ -25,54 +25,48 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "GameResources.h"
 #include "Defines.h"
 #include "Fire.h"
 #include "Weapon.h"
 #include "Bonus.h"
 
-namespace Duel6
-{
-	GameResources::GameResources(AppService& appService)
-	{
-		Sound& sound = appService.getSound();
-		Console& console = appService.getConsole();
-		TextureManager& textureManager = appService.getTextureManager();
+namespace Duel6 {
+    GameResources::GameResources(AppService &appService) {
+        Sound &sound = appService.getSound();
+        Console &console = appService.getConsole();
+        TextureManager &textureManager = appService.getTextureManager();
 
-		console.printLine("\n===Initializing game resources===");
-		console.printLine("\n...Weapon initialization");
-		Weapon::initialize(sound, textureManager);
-		console.printLine("...Building water-list");
-		Water::initialize(sound, appService.getTextureManager());
-		console.printLine("...Loading game sounds");
-		roundStartSound = sound.loadSample("sound/game/round-start.wav");
-		gameOverSound = sound.loadSample("sound/game/game-over.wav");
-		console.printLine(Format("...Loading block meta data: {0}") << D6_FILE_BLOCK_META);
-		blockMeta = Block::loadMeta(D6_FILE_BLOCK_META);
-		console.printLine(Format("...Loading block textures: {0}") << D6_TEXTURE_BLOCK_PATH);
-		blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, TextureFilter::LINEAR, true);
-		console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
-		bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, TextureFilter::LINEAR, true);
-		console.printLine(Format("...Loading explosion textures: {0}") << D6_TEXTURE_EXPL_PATH);
-		explosionTextures = textureManager.load(D6_TEXTURE_EXPL_PATH, TextureFilter::NEAREST, true);
-		console.printLine(Format("...Loading bonus textures: {0}") << D6_TEXTURE_EXPL_PATH);
-		bonusTextures = textureManager.load(D6_TEXTURE_BONUS_PATH, TextureFilter::LINEAR, true);
-		console.printLine(Format("...Loading elevator textures: {0}") << D6_TEXTURE_ELEVATOR_PATH);
-		elevatorTextures = textureManager.load(D6_TEXTURE_ELEVATOR_PATH, TextureFilter::LINEAR, true);
+        console.printLine("\n===Initializing game resources===");
+        console.printLine("\n...Weapon initialization");
+        Weapon::initialize(sound, textureManager);
+        console.printLine("...Building water-list");
+        Water::initialize(sound, appService.getTextureManager());
+        console.printLine("...Loading game sounds");
+        roundStartSound = sound.loadSample("sound/game/round-start.wav");
+        gameOverSound = sound.loadSample("sound/game/game-over.wav");
+        console.printLine(Format("...Loading block meta data: {0}") << D6_FILE_BLOCK_META);
+        blockMeta = Block::loadMeta(D6_FILE_BLOCK_META);
+        console.printLine(Format("...Loading block textures: {0}") << D6_TEXTURE_BLOCK_PATH);
+        blockTextures = textureManager.load(D6_TEXTURE_BLOCK_PATH, TextureFilter::LINEAR, true);
+        console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
+        bcgTextures = textureManager.load(D6_TEXTURE_BCG_PATH, TextureFilter::LINEAR, true);
+        console.printLine(Format("...Loading explosion textures: {0}") << D6_TEXTURE_EXPL_PATH);
+        explosionTextures = textureManager.load(D6_TEXTURE_EXPL_PATH, TextureFilter::NEAREST, true);
+        console.printLine(Format("...Loading bonus textures: {0}") << D6_TEXTURE_EXPL_PATH);
+        bonusTextures = textureManager.load(D6_TEXTURE_BONUS_PATH, TextureFilter::LINEAR, true);
+        console.printLine(Format("...Loading elevator textures: {0}") << D6_TEXTURE_ELEVATOR_PATH);
+        elevatorTextures = textureManager.load(D6_TEXTURE_ELEVATOR_PATH, TextureFilter::LINEAR, true);
 
-		console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
-		for (const FireType& fireType : FireType::values())
-		{
-			TextureList texture = textureManager.load(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(), TextureFilter::LINEAR, true);
-			fireTextures[fireType.getId()] = texture;
+        console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
+        for (const FireType &fireType : FireType::values()) {
+            TextureList texture = textureManager.load(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(),
+                                                      TextureFilter::LINEAR, true);
+            fireTextures[fireType.getId()] = texture;
+            globRenderer->setTextureFilter(texture.at(2), TextureFilter::NEAREST);
+        }
 
-			glBindTexture(GL_TEXTURE_2D, texture.at(2).getId());
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		}
-
-		console.printLine("\n...Bonus initialization");
-		BonusType::initialize(bonusTextures);
-	}
+        console.printLine("\n...Bonus initialization");
+        BonusType::initialize(bonusTextures);
+    }
 }

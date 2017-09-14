@@ -30,62 +30,60 @@
 
 #include "Control.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class Button
-			: public Control
-		{
-		public:
-			typedef std::function<void(Button& button, bool pressed)> PressCallback;
-			typedef std::function<void(Button& button)> ClickCallback;
+namespace Duel6 {
+    namespace Gui {
+        class Button : public Control {
+        public:
+            typedef std::function<void(Button &button, bool pressed)> PressCallback;
+            typedef std::function<void(Button &button)> ClickCallback;
 
-		private:
-			std::vector<PressCallback> pressListeners;
-			std::vector<ClickCallback> clickListeners;
-			Int32 width, height;
-			bool pressed;
-			std::string caption;
+        private:
+            std::vector<PressCallback> pressListeners;
+            std::vector<ClickCallback> clickListeners;
+            Int32 width, height;
+            bool pressed;
+            std::string caption;
 
-		public:
-			Button(Desktop& desk);
-			~Button();
-			void setCaption(const std::string& caption);
-			void setPosition(int X, int Y, int W, int H);
+        public:
+            explicit Button(Desktop &desk);
 
-			bool isPressed() const
-			{
-				return pressed;
-			}
+            ~Button();
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Button;
-			}
+            void setCaption(const std::string &caption);
 
-			Button& onPress(PressCallback listener)
-			{
-				pressListeners.push_back(listener);
-				return *this;
-			}
+            void setPosition(int X, int Y, int W, int H);
 
-			Button& onClick(ClickCallback listener)
-			{
-				clickListeners.push_back(listener);
-				return *this;
-			}
+            bool isPressed() const {
+                return pressed;
+            }
 
-		protected:
-			void draw(const Font& font) const override;
-			void mouseButtonEvent(const MouseButtonEvent& event) override;
-			void mouseMotionEvent(const MouseMotionEvent& event) override;
+            Control::Type getType() const override {
+                return Control::Type::Button;
+            }
 
-		private:
-			void firePressListeners(bool pressed);
-			void fireClickListeners();
-		};
-	}
+            Button &onPress(PressCallback listener) {
+                pressListeners.push_back(listener);
+                return *this;
+            }
+
+            Button &onClick(ClickCallback listener) {
+                clickListeners.push_back(listener);
+                return *this;
+            }
+
+        protected:
+            void draw(const Font &font) const override;
+
+            void mouseButtonEvent(const MouseButtonEvent &event) override;
+
+            void mouseMotionEvent(const MouseMotionEvent &event) override;
+
+        private:
+            void firePressListeners(bool pressed);
+
+            void fireClickListeners();
+        };
+    }
 }
 
 #endif

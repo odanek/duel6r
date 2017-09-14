@@ -32,32 +32,27 @@
 #include <vector>
 #include "Type.h"
 
-namespace Duel6
-{
-	class LevelList
-	{
-	private:
-		std::string directory;
-		std::vector<std::string> fileNames;
+namespace Duel6 {
+    class LevelList {
+    private:
+        std::string directory;
+        std::vector<std::string> fileNames;
 
-	public:
-		void initialize(const std::string& directoryName, const std::string& fileExtension);
-		
-		Size getLength()
-		{ 
-			return fileNames.size();
-		}
+    public:
+        void initialize(const std::string &directoryName, const std::string &fileExtension);
 
-		const std::string& getFileName(Size index) const
-		{ 
-			return fileNames[index]; 
-		}
+        Size getLength() {
+            return fileNames.size();
+        }
 
-		std::string getPath(Size index) const
-		{ 
-			return directory + getFileName(index); 
-		}
-	};
+        const std::string &getFileName(Size index) const {
+            return fileNames[index];
+        }
+
+        std::string getPath(Size index) const {
+            return directory + getFileName(index);
+        }
+    };
 }
 
 #endif

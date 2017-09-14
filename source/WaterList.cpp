@@ -28,39 +28,31 @@
 #include "Math.h"
 #include "WaterList.h"
 
-namespace Duel6
-{
-	WaterList::WaterList()
-		: phase(0.0f)
-	{}
+namespace Duel6 {
+    WaterList::WaterList()
+            : phase(0.0f) {}
 
-	void WaterList::build(FaceList& waterFaces, Float32 waveHeight)
-	{
-		this->waveHeight = waveHeight;
-		vertexes.clear();
-		for (Vertex& vertex : waterFaces.getVertexes())
-		{
-			if (vertex.getFlag() == Vertex::Flag::Flow)
-			{
-				vertexes.push_back(WaterVertex(vertex, waveHeight));
-			}
-		}
-	}
+    void WaterList::build(FaceList &waterFaces, Float32 waveHeight) {
+        this->waveHeight = waveHeight;
+        vertexes.clear();
+        for (Vertex &vertex : waterFaces.getVertexes()) {
+            if (vertex.getFlag() == Vertex::Flag::Flow) {
+                vertexes.push_back(WaterVertex(vertex, waveHeight));
+            }
+        }
+    }
 
-	void WaterList::update(Float32 elapsedTime)
-	{
-		phase += 122 * elapsedTime;
-		while (phase >= 360)
-		{
-			phase -= 360;
-		}
+    void WaterList::update(Float32 elapsedTime) {
+        phase += 122 * elapsedTime;
+        while (phase >= 360) {
+            phase -= 360;
+        }
 
-		for (WaterVertex& wv : vertexes)
-		{
-			Vertex& vertex = wv.getVertex();
-			Float32 vertexPhase = phase + 60.0f * vertex.x;
-			Float32 height = Math::angleSin(vertexPhase) * waveHeight;
-			vertex.y = wv.getY() + height;
-		}
-	}
+        for (WaterVertex &wv : vertexes) {
+            Vertex &vertex = wv.getVertex();
+            Float32 vertexPhase = phase + 60.0f * vertex.x;
+            Float32 height = Math::degSin(vertexPhase) * waveHeight;
+            vertex.y = wv.getY() + height;
+        }
+    }
 }

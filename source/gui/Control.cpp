@@ -25,59 +25,36 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Control.h"
 #include "Desktop.h"
+#include "../Video.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		namespace
-		{
-			Color frameLightColor(235, 235, 235), frameDarkColor(0, 0, 0);
-		}
+namespace Duel6 {
+    namespace Gui {
+        namespace {
+            Color frameLightColor(235, 235, 235), frameDarkColor(0, 0, 0);
+        }
 
-		Control::Control(Desktop& desk)
-		{
-			desk.addControl(this);
-		}
+        Control::Control(Desktop &desk) {
+            desk.addControl(this);
+        }
 
-		void Control::drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p)
-		{
-			w--;
-			h--;
+        void Control::drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p) {
+            w--;
+            h--;
 
-			glBegin(GL_LINES);
-			if (p)
-			{
-				glColor3ub(frameDarkColor.getRed(), frameDarkColor.getGreen(), frameDarkColor.getBlue());
-			}
-			else
-			{
-				glColor3ub(frameLightColor.getRed(), frameLightColor.getGreen(), frameLightColor.getBlue());;
-			}
+            const Color &topColor = p ? frameDarkColor : frameLightColor;
+            const Color &bottomColor = p ? frameLightColor : frameDarkColor;
 
-			glVertex2i(x, y); glVertex2i(x, y - h);
-			glVertex2i(x + 1, y); glVertex2i(x + 1, y - h + 1);
-			glVertex2i(x, y); glVertex2i(x + w, y);
-			glVertex2i(x, y - 1); glVertex2i(x + w - 1, y - 1);
+            globRenderer->line(Vector(x, y), Vector(x, y - h), 1.0f, topColor);
+            globRenderer->line(Vector(x + 1, y), Vector(x + 1, y - h + 1), 1.0f, topColor);
+            globRenderer->line(Vector(x, y), Vector(x + w, y), 1.0f, topColor);
+            globRenderer->line(Vector(x, y - 1), Vector(x + w - 1, y - 1), 1.0f, topColor);
 
-			if (p)
-			{
-				glColor3ub(frameLightColor.getRed(), frameLightColor.getGreen(), frameLightColor.getBlue());;
-			}
-			else
-			{
-				glColor3ub(frameDarkColor.getRed(), frameDarkColor.getGreen(), frameDarkColor.getBlue());
-			}
-
-
-			glVertex2i(x + w, y - h); glVertex2i(x + w, y);
-			glVertex2i(x + w - 1, y - h); glVertex2i(x + w - 1, y - 1);
-			glVertex2i(x + w, y - h); glVertex2i(x, y - h);
-			glVertex2i(x + w, y - h + 1); glVertex2i(x + 1, y - h + 1);
-			glEnd();
-		}
-	}
+            globRenderer->line(Vector(x + w, y - h), Vector(x + w, y), 1.0f, bottomColor);
+            globRenderer->line(Vector(x + w - 1, y - h), Vector(x + w - 1, y - 1), 1.0f, bottomColor);
+            globRenderer->line(Vector(x + w, y - h), Vector(x, y - h), 1.0f, bottomColor);
+            globRenderer->line(Vector(x + w, y - h + 1), Vector(x + 1, y - h + 1), 1.0f, bottomColor);
+        }
+    }
 }

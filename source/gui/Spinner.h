@@ -31,41 +31,44 @@
 #include "Control.h"
 #include "Button.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class Spinner
-			: public Control
-		{
-		private:
-			Button *left, *right;
-			Int32 width, now;
-			std::vector<std::string> items;
-			Float32 repeatWait;
+namespace Duel6 {
+    namespace Gui {
+        class Spinner
+                : public Control {
+        private:
+            Button *left, *right;
+            Int32 width, now;
+            std::vector<std::string> items;
+            Float32 repeatWait;
 
-		public:
-			Spinner(Desktop& desk);
-			~Spinner();
+        public:
+            Spinner(Desktop &desk);
 
-			void setPosition(Int32 X, Int32 Y, Int32 W, Int32 H);
-			void addItem(const std::string& item);
-			void removeItem(Int32 n);
-			void setCurrent(Int32 n);
-			Int32 currentItem();
-			void clear();
+            ~Spinner();
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Switchbox;
-			}
+            void setPosition(Int32 X, Int32 Y, Int32 W, Int32 H);
 
-		protected:
-			void update(Float32 elapsedTime) override;
-			void draw(const Font& font) const override;
-		};
+            void addItem(const std::string &item);
 
-	}
+            void removeItem(Int32 n);
+
+            void setCurrent(Int32 n);
+
+            Int32 currentItem();
+
+            void clear();
+
+            Control::Type getType() const override {
+                return Control::Type::Switchbox;
+            }
+
+        protected:
+            void update(Float32 elapsedTime) override;
+
+            void draw(const Font &font) const override;
+        };
+
+    }
 }
 
 #endif

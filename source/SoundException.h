@@ -30,16 +30,12 @@
 
 #include "Exception.h"
 
-namespace Duel6
-{
-	class SoundException
-		: public Exception
-	{
-	public:
-		SoundException(const std::string& file, Int32 line, const std::string& message)
-			: Exception(file, line, message)
-		{}
-	};
+namespace Duel6 {
+    class SoundException : public Exception {
+    public:
+        SoundException(const std::string &file, Int32 line, const std::string &message)
+                : Exception(file, line, message) {}
+    };
 }
 
 #endif

@@ -26,140 +26,110 @@
 */
 
 #include "Sprite.h"
+#include "Video.h"
 
-namespace Duel6
-{
-	Sprite::Sprite()
-	{
-		frame = 0;
-		delay = 0;
-		speed = 1;
-		looping = AnimationLooping::RepeatForever;
-		orientation = Orientation::Left;
-		visible = true;
-		noDepth = false;
-		finished = false;
-		size = Vector(1.0f, 1.0f);
-		grow = 0;
-		alpha = 1.0f;
-		zRotation = 0;
-	}
+namespace Duel6 {
+    Sprite::Sprite() {
+        frame = 0;
+        delay = 0;
+        speed = 1;
+        looping = AnimationLooping::RepeatForever;
+        orientation = Orientation::Left;
+        visible = true;
+        noDepth = false;
+        finished = false;
+        size = Vector(1.0f, 1.0f);
+        grow = 0;
+        alpha = 1.0f;
+        zRotation = 0;
+    }
 
-	Sprite::Sprite(const Int16* animation, const TextureList& textures)
-		: Sprite()
-	{
-		this->animation = animation;
-		this->textures = textures;
-	}
+    Sprite::Sprite(const Int16 *animation, const TextureList &textures)
+            : Sprite() {
+        this->animation = animation;
+        this->textures = textures;
+    }
 
-	Sprite& Sprite::setAnimation(const Int16* animation)
-	{
-		if (this->animation != animation)
-		{
-			this->animation = animation;
-			delay = 0.0f;
-			frame = 0;
-			finished = false;
-		}
+    Sprite &Sprite::setAnimation(const Int16 *animation) {
+        if (this->animation != animation) {
+            this->animation = animation;
+            delay = 0.0f;
+            frame = 0;
+            finished = false;
+        }
 
-		return *this;
-	}
+        return *this;
+    }
 
-	Sprite& Sprite::setDraw(bool draw)
-	{
-		visible = draw;
-		return *this;
-	}
+    Sprite &Sprite::setDraw(bool draw) {
+        visible = draw;
+        return *this;
+    }
 
-	Sprite& Sprite::setNoDepth(bool depth)
-	{
-		noDepth = depth;
-		return *this;
-	}
+    Sprite &Sprite::setNoDepth(bool depth) {
+        noDepth = depth;
+        return *this;
+    }
 
-	void Sprite::update(float elapsedTime)
-	{
-		delay += elapsedTime;
-		if (delay >= animation[frame + 1] * speed)
-		{
-			frame += 2;
-			delay = 0;
-			if (animation[frame] == -1)
-			{
-				finished = true;
+    void Sprite::update(float elapsedTime) {
+        delay += elapsedTime;
+        if (delay >= animation[frame + 1] * speed) {
+            frame += 2;
+            delay = 0;
+            if (animation[frame] == -1) {
+                finished = true;
 
-				if (looping == AnimationLooping::RepeatForever)
-				{
-					frame = 0;
-				}
-				else if (looping == AnimationLooping::OnceAndStop)
-				{
-					frame -= 2;
-				}
-			}
-		}
+                if (looping == AnimationLooping::RepeatForever) {
+                    frame = 0;
+                } else if (looping == AnimationLooping::OnceAndStop) {
+                    frame -= 2;
+                }
+            }
+        }
 
-		if (grow > 0)
-		{
-			Vector growStep = Vector(grow, grow) * elapsedTime;
-			position -= growStep;
-			size += 2 * growStep;
-		}
-	}
+        if (grow > 0) {
+            Vector growStep = Vector(grow, grow) * elapsedTime;
+            position -= growStep;
+            size += 2 * growStep;
+        }
+    }
 
-	void Sprite::render() const
-	{
-		if (!visible)
-		{
-			return;
-		}
+    void Sprite::render() const {
+        if (!visible) {
+            return;
+        }
 
-		if (isNoDepth())
-		{
-			glDisable(GL_DEPTH_TEST);
-		}
+        if (isNoDepth()) {
+            globRenderer->enableDepthTest(false);
+        }
 
-		GLfloat cur_col[4];
-		glGetFloatv(GL_CURRENT_COLOR, cur_col);
+        Int32 textureIndex = animation[frame];
+        Texture texture = textures.at(textureIndex);
+        Material material(texture, Color(255, 255, 255, Uint8(255 * alpha)), !isTransparent());
 
-		glColor4f(cur_col[0], cur_col[1], cur_col[2], alpha);
+        bool rotated = zRotation != 0.0;
+        if (rotated) {
+            Vector translate = position + rotationCentre;
 
-		Int32 textureIndex = animation[frame];
-		glBindTexture(GL_TEXTURE_2D, textures.at(textureIndex).getId());
+            Matrix shift = Matrix::translate(-translate);
+            Matrix rotate = Matrix::rotate(zRotation, Vector::UNIT_Z);
+            Matrix unshift = Matrix::translate(translate);
 
-		float leftSide = (orientation == Orientation::Left) ? 0.0f : 1.0f;
+            globRenderer->setModelMatrix(unshift * rotate * shift);
+        }
 
-		if (zRotation != 0.0)
-		{
-			Vector translate = position + rotationCentre;
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glTranslatef(translate.x, translate.y, 0);
-			glRotatef(zRotation, 0, 0, 1);
-			glTranslatef(-translate.x, -translate.y, 0);
-		}
+        bool reversed = (orientation == Orientation::Right);
+        Vector texturePos = Vector(reversed ? 1.0f : 0.0f, 1.0f);
+        Vector textureSize = Vector(reversed ? -1.0f : 1.0f, -1.0f);
 
-		glBegin(GL_QUADS);
-			glTexCoord2f(leftSide, 0.0f);
-			glVertex3f(position.x, position.y + size.y, z);;
-			glTexCoord2f(1.0f - leftSide, 0.0f);
-			glVertex3f(position.x + size.x, position.y + size.y, z);;
-			glTexCoord2f(1.0f - leftSide, 1.0f);
-			glVertex3f(position.x + size.x, position.y, z);
-			glTexCoord2f(leftSide, 1.0f);
-			glVertex3f(position.x, position.y, z);
-		glEnd();
+        globRenderer->quadXY(Vector(position.x, position.y, z), size, texturePos, textureSize, material);
 
-		if (zRotation != 0.0)
-		{
-			glPopMatrix();
-		}
+        if (rotated) {
+            globRenderer->setModelMatrix(Matrix::IDENTITY);
+        }
 
-		glColor4f(cur_col[0], cur_col[1], cur_col[2], 1.0f);
-
-		if (isNoDepth())
-		{
-			glEnable(GL_DEPTH_TEST);
-		}
-	}
+        if (isNoDepth()) {
+            globRenderer->enableDepthTest(true);
+        }
+    }
 }

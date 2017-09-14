@@ -31,17 +31,14 @@
 #include "../Type.h"
 #include "../PlayerEventListener.h"
 
-namespace Duel6
-{
-    class PredatorPlayerEventListener : public PlayerEventListener
-    {
-	private:
-		Player& predator;
+namespace Duel6 {
+    class PredatorPlayerEventListener : public PlayerEventListener {
+    private:
+        Player &predator;
 
     public:
-        PredatorPlayerEventListener(InfoMessageQueue& messageQueue, const GameSettings& gameSettings, Player& predator)
-                : PlayerEventListener(messageQueue, gameSettings), predator(predator)
-        {}
+        PredatorPlayerEventListener(InfoMessageQueue &messageQueue, const GameSettings &gameSettings, Player &predator)
+                : PlayerEventListener(messageQueue, gameSettings), predator(predator) {}
 
         bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit);
     };

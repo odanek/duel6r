@@ -27,7 +27,6 @@
 
 #include "WorldCollision.h"
 
-namespace Duel6
-{
+namespace Duel6 {
 
 }

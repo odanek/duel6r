@@ -25,180 +25,181 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
-#include "mylib/mymath.h"
 #include "VideoException.h"
 #include "Video.h"
 
-namespace Duel6
-{
-	void Video::screenUpdate(Console& console, const Font& font)
-	{
-		renderConsole(console, font);
-		swapBuffers();
-	}
-
-	void Video::renderConsole(Console& console, const Font& font)
-	{
-		if (console.isActive())
-		{
-			console.render(screen.getClientWidth(), screen.getClientHeight(), font);
-		}
-	}
-
-	void Video::swapBuffers()
-	{
-		SDL_GL_SwapWindow(window);
-		calculateFps();
-	}
-
-	void Video::calculateFps()
-	{
-		static Uint32 curTime = 0, lastTime = 0, frameCounter = 0;
-		curTime = SDL_GetTicks();
-
-		if (curTime - lastTime >= 1000)
-		{
-			fps = frameCounter * 1000 / float(curTime - lastTime);
-			lastTime = curTime;
-			frameCounter = 0;
-		}
-		frameCounter++;
-	}
-
-	void Video::initialize(const std::string& name, const std::string& icon, Console& console)
-	{
-		console.printLine("\n===Video initialization===");
-
-		// Get current video mode
-		SDL_DisplayMode currentVideoMode;		
-		if (SDL_GetCurrentDisplayMode(0, &currentVideoMode))
-		{
-			D6_THROW(VideoException, std::string("Unable to determine current video mode: ") + SDL_GetError());
-		}
-
-		// Set graphics mode
-		view = ViewParameters(0.1f, 100.0f, 45.0f);
-
-#ifdef D6_DEBUG
-		// Running fullscren makes switching to debugger problematic with SDL (focus is captured)
-		screen = ScreenParameters(1280, 900, 32, 0, false);
-#else
-		screen = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 0, true);
+#if defined(D6_RENDERER_GL1)
+#include "renderer/GL1Renderer.h"
+#elif defined(D6_RENDERER_GLES2)
+#include "renderer/GLES2Renderer.h"
 #endif
 
-		window = createWindow(name, icon, screen, console);
-		glContext = createContext(screen, console);
-		SDL_ShowCursor(SDL_DISABLE);
-		setMode(Mode::Orthogonal);
-	}
+namespace Duel6 {
+    Renderer *globRenderer = nullptr; // TODO: Remove
 
-	SDL_Window* Video::createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console)
-	{
-		Uint32 flags = 0;
-		
-		flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_GRABBED;
-		if (params.isFullScreen())
-		{
-			flags |= SDL_WINDOW_FULLSCREEN;
-		}
+    Video::~Video() {
+        if (globRenderer != nullptr) {
+            delete globRenderer;
+            globRenderer = nullptr;
+        }
 
-		console.printLine(Format("...Creating SDL window: {0}x{1}") << params.getClientWidth() << params.getClientHeight());
-		SDL_Window* sdlWin = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, params.getClientWidth(), params.getClientHeight(), flags);
-		if (sdlWin == nullptr)
-		{
-			D6_THROW(VideoException, std::string("Unable to create application window: ") + SDL_GetError());
-		}
+        SDL_GL_DeleteContext(glContext);
+        SDL_DestroyWindow(window);
+    }
 
-		SDL_SetWindowTitle(sdlWin, name.c_str());
-		SDL_SetWindowIcon(sdlWin, SDL_LoadBMP(icon.c_str()));
+    void Video::screenUpdate(Console &console, const Font &font) {
+        renderConsole(console, font);
+        swapBuffers();
+    }
 
-		return sdlWin;
-	}
+    void Video::renderConsole(Console &console, const Font &font) {
+        if (console.isActive()) {
+            console.render(screen.getClientWidth(), screen.getClientHeight(), font);
+        }
+    }
 
-	SDL_GLContext Video::createContext(const ScreenParameters& params, Console& console)
-	{
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    void Video::swapBuffers() {
+        SDL_GL_SwapWindow(window);
+        calculateFps();
+    }
 
-		SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, params.getBitsPerPixel());
-		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+    void Video::calculateFps() {
+        static Uint32 curTime = 0, lastTime = 0, frameCounter = 0;
+        curTime = SDL_GetTicks();
 
-		if (params.getAntiAlias() > 0)
-		{
-			console.printLine(Format("...Anti-aliasing: {0}x") << params.getAntiAlias());
-			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, params.getAntiAlias());
-		}
+        if (curTime - lastTime >= 1000) {
+            fps = frameCounter * 1000 / float(curTime - lastTime);
+            lastTime = curTime;
+            frameCounter = 0;
+        }
+        frameCounter++;
+    }
 
-		console.printLine("...Creating OpenGL context");
-		console.printLine(Format("...Bits per-pixel: {0}") << params.getBitsPerPixel());
-		SDL_GLContext glc = SDL_GL_CreateContext(window);
-		if (glc == nullptr)
-		{
-			D6_THROW(VideoException, std::string("Unable to OpenGL context: ") + SDL_GetError());
-		}
+    void Video::initialize(const std::string &name, const std::string &icon, Console &console) {
+        console.printLine("\n===Video initialization===");
 
-		// Retrieve final video parameters
-		int val[7];		
-		SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &val[0]);
-		SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &val[1]);
-		SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &val[2]);
-		SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &val[3]);
-		SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &val[4]);
-		SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &val[5]);
-		SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &val[6]);
+        // Get current video mode
+        SDL_DisplayMode currentVideoMode;
+        if (SDL_GetCurrentDisplayMode(0, &currentVideoMode)) {
+            D6_THROW(VideoException, std::string("Unable to determine current video mode: ") + SDL_GetError());
+        }
 
-		console.printLine(Format("...RGB ({0}, {1}, {2})") << val[0] << val[1] << val[2]);
-		console.printLine(Format("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})") << val[3] << val[4] << val[5] << val[6]);
+        // Set graphics mode
+        view = ViewParameters(0.1f, 100.0f, 45.0f);
 
-		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-		glCullFace(GL_FRONT);
+#ifdef D6_DEBUG
+        // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
+        screen = ScreenParameters(1280, 900, 32, 0, false);
+#else
+        screen = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 0, true);
+#endif
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        window = createWindow(name, icon, screen, console);
+        glContext = createContext(screen, console);
+        globRenderer = createRenderer();
 
-		return glc;
-	}
+        setMode(Mode::Orthogonal);
 
-	void Video::setMode(Mode mode) const
-	{
-		if (mode == Mode::Perspective)
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
+        SDL_ShowCursor(SDL_DISABLE);
+    }
 
-			//gluPerspective (g_vid.gl_fov, g_vid.gl_aspect, g_vid.gl_nearclip, g_vid.gl_farclip);        
-			float fovy = MM_D2R(view.getFieldOfView()) / 2;
-			float f = cos(fovy) / sin(fovy);
+    SDL_Window *Video::createWindow(const std::string &name, const std::string &icon, const ScreenParameters &params,
+                                    Console &console) {
+        Uint32 flags = 0;
 
-			mat4_c<mval_t> p(0.0f);
-			p(0, 0) = f / screen.getAspect();
-			p(1, 1) = f;
-			p(2, 2) = (view.getNearClip() + view.getFarClip()) / (view.getNearClip() - view.getFarClip());
-			p(3, 2) = (2 * view.getNearClip() * view.getFarClip()) / (view.getNearClip() - view.getFarClip());
-			p(2, 3) = -1;
-			glMultMatrixf(&p(0, 0));
+        flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_GRABBED;
+        if (params.isFullScreen()) {
+            flags |= SDL_WINDOW_FULLSCREEN;
+        }
 
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
+        console.printLine(
+                Format("...Creating SDL window: {0}x{1}") << params.getClientWidth() << params.getClientHeight());
+        SDL_Window *sdlWin = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                              params.getClientWidth(), params.getClientHeight(), flags);
+        if (sdlWin == nullptr) {
+            D6_THROW(VideoException, std::string("Unable to create application window: ") + SDL_GetError());
+        }
 
-			glEnable(GL_TEXTURE_2D);
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
-		}
-		else
-		{
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glOrtho(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
+        SDL_SetWindowTitle(sdlWin, name.c_str());
+        SDL_SetWindowIcon(sdlWin, SDL_LoadBMP(icon.c_str()));
 
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_DEPTH_TEST);
-		}
-	}
+        return sdlWin;
+    }
+
+    SDL_GLContext Video::createContext(const ScreenParameters &params, Console &console) {
+#if defined(D6_RENDERER_GL1)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+#elif defined(D6_RENDERER_GLES2)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
+
+//      OpenGL 4.3
+//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+        SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, params.getBitsPerPixel());
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+        if (params.getAntiAlias() > 0) {
+            console.printLine(Format("...Anti-aliasing: {0}x") << params.getAntiAlias());
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, params.getAntiAlias());
+        }
+
+        console.printLine("...Creating OpenGL context");
+        console.printLine(Format("...Bits per-pixel: {0}") << params.getBitsPerPixel());
+        SDL_GLContext glc = SDL_GL_CreateContext(window);
+        if (glc == nullptr) {
+            D6_THROW(VideoException, std::string("Unable to OpenGL context: ") + SDL_GetError());
+        }
+
+        // Retrieve final video parameters
+        int val[7];
+        SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &val[0]);
+        SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &val[1]);
+        SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &val[2]);
+        SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &val[3]);
+        SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &val[4]);
+        SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &val[5]);
+        SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &val[6]);
+
+        console.printLine(Format("...RGB ({0}, {1}, {2})") << val[0] << val[1] << val[2]);
+        console.printLine(
+                Format("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})") << val[3] << val[4]
+                                                                                             << val[5] << val[6]);
+
+        return glc;
+    }
+
+    Renderer *Video::createRenderer() {
+#if defined(D6_RENDERER_GL1)
+        Renderer *renderer = new GL1Renderer();
+#elif defined(D6_RENDERER_GLES2)
+        Renderer* renderer = new GLES2Renderer();
+#endif
+        renderer->initialize();
+        return renderer;
+    }
+
+    void Video::setMode(Mode mode) const {
+        if (mode == Mode::Perspective) {
+            Matrix projection = Matrix::perspective(view.getFieldOfView(), screen.getAspect(), view.getNearClip(),
+                                                    view.getFarClip());
+            globRenderer->setProjectionMatrix(projection);
+            globRenderer->setViewMatrix(Matrix::IDENTITY);
+            globRenderer->setModelMatrix(Matrix::IDENTITY);
+            globRenderer->enableDepthTest(true);
+        } else {
+            Matrix projection = Matrix::orthographic(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
+            globRenderer->setProjectionMatrix(projection);
+            globRenderer->setViewMatrix(Matrix::IDENTITY);
+            globRenderer->setModelMatrix(Matrix::IDENTITY);
+            globRenderer->enableDepthTest(false);
+        }
+    }
 }

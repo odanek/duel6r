@@ -31,131 +31,63 @@
 #include <SDL2/SDL.h>
 #include "console/console.h"
 #include "Type.h"
+#include "ScreenParameters.h"
+#include "ViewParameters.h"
 
-namespace Duel6
-{
-	class Video
-	{
-	public:
-		class ScreenParameters
-		{
-		private:
-			Uint32 clientWidth;
-			Uint32 clientHeight;
-			Uint32 bitsPerPixel;
-			Uint32 aaSamples;
-			bool fullScreen;
+#include "renderer/Renderer.h" // TODO: Remove
 
-		public:
-			ScreenParameters()
-			{}
+namespace Duel6 {
+    extern Renderer *globRenderer;  // TODO: Glob fix
 
-			ScreenParameters(Uint32 width, Uint32 height, Uint32 bpp, Uint32 aa, bool fullScreen)
-				: clientWidth(width), clientHeight(height), bitsPerPixel(bpp), aaSamples(aa), fullScreen(fullScreen)
-			{}
+    class Video {
+    public:
+        enum class Mode {
+            Orthogonal,
+            Perspective
+        };
 
-			Uint32 getClientWidth() const
-			{
-				return clientWidth;
-			}
+    private:
+        SDL_Window *window;
+        SDL_GLContext glContext;
+        Float32 fps;
+        ScreenParameters screen;
+        ViewParameters view;
 
-			Uint32 getClientHeight() const
-			{
-				return clientHeight;
-			}
+    public:
+        ~Video();
 
-			bool isFullScreen() const
-			{
-				return fullScreen;
-			}
+        void initialize(const std::string &name, const std::string &icon, Console &console);
 
-			Uint32 getBitsPerPixel() const
-			{
-				return bitsPerPixel;
-			}
+        void screenUpdate(Console &console, const Font &font);
 
-			Uint32 getAntiAlias() const
-			{
-				return aaSamples;
-			}
+        const ScreenParameters &getScreen() const {
+            return screen;
+        }
 
-			Float32 getAspect() const
-			{
-				return Float32(clientWidth) / Float32(clientHeight);
-			}
-		};
+        const ViewParameters &getView() const {
+            return view;
+        }
 
-		class ViewParameters
-		{
-		private:
-			Float32 nearClip;
-			Float32 farClip;
-			Float32 fov;
+        Float32 getFps() const {
+            return fps;
+        }
 
-		public:
-			ViewParameters()
-			{}
+        void setMode(Mode mode) const;
 
-			ViewParameters(Float32 nearClip, Float32 farClip, Float32 fov)
-				: nearClip(nearClip), farClip(farClip), fov(fov)
-			{}
+    private:
+        void renderConsole(Console &console, const Font &font);
 
-			Float32 getNearClip() const
-			{
-				return nearClip;
-			}
+        void swapBuffers();
 
-			Float32 getFarClip() const
-			{
-				return farClip;
-			}
+        void calculateFps();
 
-			Float32 getFieldOfView() const
-			{
-				return fov;
-			}
-		};
+        SDL_Window *createWindow(const std::string &name, const std::string &icon, const ScreenParameters &params,
+                                 Console &console);
 
-		enum class Mode
-		{
-			Orthogonal,
-			Perspective
-		};
+        SDL_GLContext createContext(const ScreenParameters &params, Console &console);
 
-	private:
-		SDL_Window *window;
-		SDL_GLContext glContext;
-		Float32 fps;		
-		ScreenParameters screen;
-		ViewParameters view;
-
-	public:
-		void initialize(const std::string& name, const std::string& icon, Console& console);
-		void screenUpdate(Console& console, const Font& font);
-		void setMode(Mode mode) const;
-
-		const ScreenParameters& getScreen() const
-		{
-			return screen;
-		}
-
-		const ViewParameters& getView() const
-		{
-			return view;
-		}
-
-		Float32 getFps() const
-		{
-			return fps;
-		}
-
-	private:
-		void renderConsole(Console& console, const Font& font);
-		void swapBuffers();
-		void calculateFps();
-		SDL_Window* createWindow(const std::string& name, const std::string& icon, const ScreenParameters& params, Console& console);
-		SDL_GLContext createContext(const ScreenParameters& params, Console& console);
-	};
+        Renderer *createRenderer();
+    };
 }
 
 #endif

@@ -29,91 +29,76 @@
 #define DUEL6_TEXTURE_H
 
 #include <vector>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 
-namespace Duel6
-{
-	class TextureManager;
+namespace Duel6 {
+    class TextureManager;
 
-	class Texture
-	{
-	private:
-		GLuint id;
+    class Texture {
+    private:
+        Uint32 id;
 
-	public:
-		Texture()
-			: id(0)
-		{}
+    public:
+        Texture()
+                : id(0) {}
 
-		explicit Texture(GLuint id)
-			: id(id)
-		{}
+        explicit Texture(Uint32 id)
+                : id(id) {}
 
-		GLuint getId() const
-		{
-			return id;
-		}
+        Uint32 getId() const {
+            return id;
+        }
 
-		bool operator==(const Texture& texture) const
-		{
-			return id == texture.id;
-		}
+        bool operator==(const Texture &texture) const {
+            return id == texture.id;
+        }
 
-		bool operator!=(const Texture& texture) const
-		{
-			return id != texture.id;
-		}
-	};
+        bool operator!=(const Texture &texture) const {
+            return id != texture.id;
+        }
+    };
 
-	class TextureList
-	{
-	public:
-		typedef std::vector<Texture> TextureArray;
+    class TextureList {
+    public:
+        typedef std::vector<Texture> TextureArray;
 
-	private:
-		friend class TextureManager;
-		Int32 key;
-		const TextureArray* textures;
+    private:
+        friend class TextureManager;
 
-	private:
-		TextureList(Int32 key, const TextureArray& textures)
-			: key(key), textures(&textures)
-		{}
+        Int32 key;
+        const TextureArray *textures;
 
-	public:
-		TextureList()
-			: key(-1), textures(nullptr)
-		{}
+    private:
+        TextureList(Int32 key, const TextureArray &textures)
+                : key(key), textures(&textures) {}
 
-		const TextureArray& getTextures() const
-		{
-			return *textures;
-		}
+    public:
+        TextureList()
+                : key(-1), textures(nullptr) {}
 
-		const Texture& at(Size index) const
-		{
-			return (*textures)[index];
-		}
+        const TextureArray &getTextures() const {
+            return *textures;
+        }
 
-	private:
-		Int32 getKey() const
-		{
-			return key;
-		}
+        const Texture &at(Size index) const {
+            return (*textures)[index];
+        }
 
-		void release()
-		{
-			key = -1;
-			textures = nullptr;
-		}
-	};
+    private:
+        Int32 getKey() const {
+            return key;
+        }
 
-	enum class TextureFilter
-	{
-		NEAREST,
-		LINEAR
-	};
+        void release() {
+            key = -1;
+            textures = nullptr;
+        }
+    };
+
+    enum class TextureFilter {
+        NEAREST,
+        LINEAR
+    };
 }
 
 #endif

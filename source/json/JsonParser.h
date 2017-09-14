@@ -31,33 +31,42 @@
 #include "../Type.h"
 #include "JsonValue.h"
 
-namespace Duel6
-{
-	namespace Json
-	{
-		class Parser
-		{
-		public:
-			Value parse(const std::string& fileName) const;
+namespace Duel6 {
+    namespace Json {
+        class Parser {
+        public:
+            Value parse(const std::string &fileName) const;
 
-		private:
-			Uint8 peekNextCharacter(File& file) const;
-			void readExpected(File& file, const std::string& expected) const;
-			void readExpected(File& file, char expected) const;
-			void readWhitespaceAndExpected(File& file, char expected) const;
-			std::string readUntil(File& file, const std::unordered_set<Uint8>& sentinels) const;
-			std::string readWhile(File& file, const std::unordered_set<Uint8>& allowed) const;
-			Value::Type determineValueType(Uint8 firstByte) const;
+        private:
+            Uint8 peekNextCharacter(File &file) const;
 
-			Value parseValue(File& file) const;
-			Value parseNull(File& file) const;
-			Value parseObject(File& file) const;
-			Value parseArray(File& file) const;
-			Value parseNumber(File& file) const;
-			Value parseString(File& file) const;
-			Value parseBoolean(File& file) const;
-		};
-	}
+            void readExpected(File &file, const std::string &expected) const;
+
+            void readExpected(File &file, char expected) const;
+
+            void readWhitespaceAndExpected(File &file, char expected) const;
+
+            std::string readUntil(File &file, const std::unordered_set<Uint8> &sentinels) const;
+
+            std::string readWhile(File &file, const std::unordered_set<Uint8> &allowed) const;
+
+            Value::Type determineValueType(Uint8 firstByte) const;
+
+            Value parseValue(File &file) const;
+
+            Value parseNull(File &file) const;
+
+            Value parseObject(File &file) const;
+
+            Value parseArray(File &file) const;
+
+            Value parseNumber(File &file) const;
+
+            Value parseString(File &file) const;
+
+            Value parseBoolean(File &file) const;
+        };
+    }
 }
 
 

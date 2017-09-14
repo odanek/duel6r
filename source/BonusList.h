@@ -38,30 +38,34 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 
-namespace Duel6
-{
-	class BonusList
-	{
-	private:
-		const GameSettings& settings;
-		Texture randomTexture;
-		World& world;
-		std::list<Bonus> bonuses;
-		std::list<LyingWeapon> weapons;
+namespace Duel6 {
+    class BonusList {
+    private:
+        const GameSettings &settings;
+        Texture randomTexture;
+        World &world;
+        std::list<Bonus> bonuses;
+        std::list<LyingWeapon> weapons;
 
-	private:
-		static const Int32 RANDOM_BONUS_FREQUENCY = 6;
-		static const Int32 MAX_BONUS_ATTEMPTS = 50;
-		bool isValidPosition(const Int32 x, const Int32 y, bool weapon);
+    private:
+        static const Int32 RANDOM_BONUS_FREQUENCY = 6;
+        static const Int32 MAX_BONUS_ATTEMPTS = 50;
 
-	public:
-		BonusList(const GameSettings& settings, const GameResources& resources, World& world);
-		void addRandomBonus();
-		void render() const;
-		void addPlayerGun(Player& player, const Vector& position);
-		void checkBonus(Player& player);
-		void checkWeapon(Player& player);
-	};
+        bool isValidPosition(const Int32 x, const Int32 y, bool weapon);
+
+    public:
+        BonusList(const GameSettings &settings, const GameResources &resources, World &world);
+
+        void addRandomBonus();
+
+        void render() const;
+
+        void addPlayerGun(Player &player, const Vector &position);
+
+        void checkBonus(Player &player);
+
+        void checkWeapon(Player &player);
+    };
 
 }
 

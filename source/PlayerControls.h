@@ -33,156 +33,135 @@
 #include "Type.h"
 #include "Input.h"
 
-namespace Duel6
-{
-	class Control
-	{
-	public:
-		virtual ~Control()
-		{}
-		virtual bool isPressed() const = 0;
-	};
+namespace Duel6 {
+    class Control {
+    public:
+        virtual ~Control() {}
 
-	class KeyboardButton
-		: public Control
-	{
-	private:
-		const Input& input;
-		SDL_Keycode keyCode;
+        virtual bool isPressed() const = 0;
+    };
 
-	public:
-		KeyboardButton(const Input& input, SDL_Keycode keyCode)
-			: input(input), keyCode(keyCode)
-		{}
+    class KeyboardButton
+            : public Control {
+    private:
+        const Input &input;
+        SDL_Keycode keyCode;
 
-		bool isPressed() const override;
-	};
+    public:
+        KeyboardButton(const Input &input, SDL_Keycode keyCode)
+                : input(input), keyCode(keyCode) {}
 
-	class JoypadAxis
-		: public Control
-	{
-	public:
-		enum class Axis
-		{
-			Horizontal,
-			Vertical
-		};
+        bool isPressed() const override;
+    };
 
-		enum class Direction
-		{
-			Left,
-			Right
-		};
+    class JoypadAxis
+            : public Control {
+    public:
+        enum class Axis {
+            Horizontal,
+            Vertical
+        };
 
-	private:
-		const Input& input;
-		Size joypadIndex;
-		Axis axis;
-		Direction direction;
+        enum class Direction {
+            Left,
+            Right
+        };
 
-	public:
-		JoypadAxis(const Input& input, Size joypadIndex, Axis axis, Direction direction)
-			: input(input), joypadIndex(joypadIndex), axis(axis), direction(direction)
-		{}
+    private:
+        const Input &input;
+        Size joypadIndex;
+        Axis axis;
+        Direction direction;
 
-		bool isPressed() const override;
-	};
+    public:
+        JoypadAxis(const Input &input, Size joypadIndex, Axis axis, Direction direction)
+                : input(input), joypadIndex(joypadIndex), axis(axis), direction(direction) {}
 
-	class JoypadButton
-		: public Control
-	{
-	private:
-		const Input& input;
-		Size joypadIndex;
-		Size button;
+        bool isPressed() const override;
+    };
 
-	public:
-		JoypadButton(const Input& input, Size joypadIndex, Size button)
-			: input(input), joypadIndex(joypadIndex), button(button)
-		{}
+    class JoypadButton
+            : public Control {
+    private:
+        const Input &input;
+        Size joypadIndex;
+        Size button;
 
-		bool isPressed() const override;
-	};
+    public:
+        JoypadButton(const Input &input, Size joypadIndex, Size button)
+                : input(input), joypadIndex(joypadIndex), button(button) {}
 
-	class PlayerControls
-	{
-	private:
-		std::string description;
-		std::unique_ptr<Control> left;
-		std::unique_ptr<Control> right;
-		std::unique_ptr<Control> up;
-		std::unique_ptr<Control> down;
-		std::unique_ptr<Control> shoot;
-		std::unique_ptr<Control> pick;
-		std::unique_ptr<Control> status;
+        bool isPressed() const override;
+    };
 
-	public:
-		PlayerControls(const std::string& description, Control* left, Control* right, Control* up, Control* down, Control* shoot, Control* pick, Control* status)
-			: description(description), left(left), right(right), up(up), down(down), shoot(shoot), pick(pick), status(status)
-		{}
+    class PlayerControls {
+    private:
+        std::string description;
+        std::unique_ptr<Control> left;
+        std::unique_ptr<Control> right;
+        std::unique_ptr<Control> up;
+        std::unique_ptr<Control> down;
+        std::unique_ptr<Control> shoot;
+        std::unique_ptr<Control> pick;
+        std::unique_ptr<Control> status;
 
-		const std::string& getDescription() const
-		{
-			return description;
-		}
+    public:
+        PlayerControls(const std::string &description, Control *left, Control *right, Control *up, Control *down,
+                       Control *shoot, Control *pick, Control *status)
+                : description(description), left(left), right(right), up(up), down(down), shoot(shoot), pick(pick),
+                  status(status) {}
 
-		const Control& getLeft() const
-		{
-			return *left;
-		}
+        const std::string &getDescription() const {
+            return description;
+        }
 
-		const Control& getRight() const
-		{
-			return *right;
-		}
+        const Control &getLeft() const {
+            return *left;
+        }
 
-		const Control& getUp() const
-		{
-			return *up;
-		}
+        const Control &getRight() const {
+            return *right;
+        }
 
-		const Control& getDown() const
-		{
-			return *down;
-		}
+        const Control &getUp() const {
+            return *up;
+        }
 
-		const Control& getShoot() const
-		{
-			return *shoot;
-		}
+        const Control &getDown() const {
+            return *down;
+        }
 
-		const Control& getPick() const
-		{
-			return *pick;
-		}
+        const Control &getShoot() const {
+            return *shoot;
+        }
 
-		const Control& getStatus() const
-		{
-			return *status;
-		}
-	};
+        const Control &getPick() const {
+            return *pick;
+        }
 
-	class PlayerControlsManager
-	{
-	private:
-		static std::vector<std::unique_ptr<PlayerControls>> controls;
-		const Input& input;
+        const Control &getStatus() const {
+            return *status;
+        }
+    };
 
-	public:
-		PlayerControlsManager(const Input& input);
-		
-		Size getSize() const
-		{
-			return controls.size();
-		}
+    class PlayerControlsManager {
+    private:
+        static std::vector<std::unique_ptr<PlayerControls>> controls;
+        const Input &input;
 
-		Size getNumAvailable() const;
+    public:
+        PlayerControlsManager(const Input &input);
 
-		const PlayerControls& get(Size index) const
-		{
-			return *controls[index];
-		}
-	};
+        Size getSize() const {
+            return controls.size();
+        }
+
+        Size getNumAvailable() const;
+
+        const PlayerControls &get(Size index) const {
+            return *controls[index];
+        }
+    };
 }
 
 #endif

@@ -32,177 +32,162 @@
 #include "Math.h"
 #include "Type.h"
 
-namespace Duel6
-{
-	class Vector
-	{
-	public:
-		Float32 x;
-		Float32 y;
+namespace Duel6 {
+    class Vector {
+    public:
+        Float32 x;
+        Float32 y;
+        Float32 z;
 
-	public:
-		Vector()
-		{}
+    public:
+        static const Vector ZERO;
+        static const Vector ONE;
+        static const Vector UNIT_X;
+        static const Vector UNIT_Y;
+        static const Vector UNIT_Z;
 
-		explicit Vector(Float32 val)
-			: x(val), y(val)
-		{}
+    public:
+        Vector()
+                : x(0), y(0), z(0) {}
 
-		Vector(Float32 x, Float32 y)
-			: x(x), y(y)
-		{}
+        Vector(const Vector &v) = default;
 
-		Vector(Int32 x, Int32 y)
-			: x(Float32(x)), y(Float32(y))
-		{}
+        Vector &operator=(const Vector &v) = default;
 
-		Vector(const Vector& v)
-			: x(v.x), y(v.y)
-		{}
+        Vector(Float32 x, Float32 y, Float32 z = 0)
+                : x(x), y(y), z(z) {}
 
-		Vector& operator=(const Vector& v)
-		{
-			x = v.x;
-			y = v.y;
-			return *this;
-		}
+        Vector(Int32 x, Int32 y, Int32 z = 0)
+                : x(Float32(x)), y(Float32(y)), z(Float32(z)) {}
 
-		Vector& set(Float32 x, Float32 y)
-		{
-			this->x = x;
-			this->y = y;
-			return *this;
-		}
+        Vector &set(Float32 x, Float32 y, Float32 z = 0) {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+            return *this;
+        }
 
-		Vector& setX(Float32 x)
-		{
-			this->x = x;
-			return *this;
-		}
+        Vector &setX(Float32 x) {
+            this->x = x;
+            return *this;
+        }
 
-		Vector& setY(Float32 y)
-		{
-			this->y = y;
-			return *this;
-		}
+        Vector &setY(Float32 y) {
+            this->y = y;
+            return *this;
+        }
 
-		Vector operator+(const Vector& v) const
-		{
-			return Vector(x + v.x, y + v.y);
-		}
+        Vector &setZ(Float32 z) {
+            this->z = z;
+            return *this;
+        }
 
-		Vector& operator+=(const Vector& v)
-		{
-			x += v.x;
-			y += v.y;
-			return *this;
-		}
+        Vector operator+(const Vector &v) const {
+            return Vector(x + v.x, y + v.y, z + v.z);
+        }
 
-		Vector operator-(const Vector& v) const
-		{
-			return Vector(x - v.x, y - v.y);
-		}
+        Vector &operator+=(const Vector &v) {
+            x += v.x;
+            y += v.y;
+            z += v.z;
+            return *this;
+        }
 
-		Vector operator-() const
-		{
-			return Vector(-x, -y);
-		}
+        Vector operator-(const Vector &v) const {
+            return Vector(x - v.x, y - v.y, z - v.z);
+        }
 
-		Vector& operator-=(const Vector& v)
-		{
-			x -= v.x;
-			y -= v.y;
-			return *this;
-		}
+        Vector operator-() const {
+            return Vector(-x, -y, -z);
+        }
 
-		Vector operator*(Float32 val) const
-		{
-			return Vector(x * val, y * val);
-		}
+        Vector &operator-=(const Vector &v) {
+            x -= v.x;
+            y -= v.y;
+            z -= v.z;
+            return *this;
+        }
 
-		Vector& operator*=(Float32 val)
-		{
-			x *= val;
-			y *= val;
-			return *this;
-		}
+        Vector operator*(Float32 val) const {
+            return Vector(x * val, y * val, z * val);
+        }
 
-		Vector operator*(const Vector& v) const
-		{
-			return Vector(x * v.x, y * v.y);
-		}
+        Vector &operator*=(Float32 val) {
+            x *= val;
+            y *= val;
+            z *= val;
+            return *this;
+        }
 
-		Vector& operator*=(const Vector& v)
-		{
-			x *= v.x;
-			y *= v.y;
-			return *this;
-		}
+        Vector operator*(const Vector &v) const {
+            return Vector(x * v.x, y * v.y, z * v.z);
+        }
 
-		Vector operator/(Float32 val) const
-		{
-			return Vector(x / val, y / val);
-		}
+        Vector &operator*=(const Vector &v) {
+            x *= v.x;
+            y *= v.y;
+            z *= v.z;
+            return *this;
+        }
 
-		Vector& operator/=(Float32 val)
-		{
-			x /= val;
-			y /= val;
-			return *this;
-		}
+        Vector operator/(Float32 val) const {
+            return Vector(x / val, y / val, z / val);
+        }
 
-		Vector& operator/=(const Vector& v)
-		{
-			x /= v.x;
-			y /= v.y;
-			return *this;
-		}
+        Vector &operator/=(Float32 val) {
+            x /= val;
+            y /= val;
+            z /= val;
+            return *this;
+        }
 
-		Float32 dot(const Vector& v) const
-		{
-			return x * v.x + y * v.y;
-		}
+        Vector &operator/=(const Vector &v) {
+            x /= v.x;
+            y /= v.y;
+            z /= v.z;
+            return *this;
+        }
 
-		Float32 length() const
-		{
-			return Math::norm(x, y);
-		}
+        Float32 dot(const Vector &v) const {
+            return x * v.x + y * v.y + z * v.z;
+        }
 
-		Vector abs() const
-		{
-			return Vector(std::abs(x), std::abs(y));
-		}
+        Vector cross(const Vector &v) const {
+            return Vector(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
+        }
 
-		Vector unit() const
-		{
-			return (*this) / length();
-		}
+        Float32 length() const {
+            return Math::norm(x, y, z);
+        }
 
-		Float32 angle() const
-		{
-			return Math::radiansToAngle(atan2(y, x));
-		}
+        Vector abs() const {
+            return Vector(std::abs(x), std::abs(y), std::abs(z));
+        }
 
-		static Vector direction(Float32 angle)
-		{
-			return Vector(cosf(Math::angleToRadians(angle)), sinf(Math::angleToRadians(angle)));
-		}
+        Vector unit() const {
+            return (*this) / length();
+        }
 
-		static Vector min(const Vector& left, const Vector& right)
-		{
-			return Vector(std::min(left.x, right.x), std::min(left.y, right.y));
-		}
+        Float32 angle() const {
+            return Math::radiansToAngle(std::atan2(y, x));
+        }
 
-		static Vector max(const Vector& left, const Vector& right)
-		{
-			return Vector(std::max(left.x, right.x), std::max(left.y, right.y));
-		}
-	};
+        static Vector direction(Float32 angle) {
+            return Vector(cosf(Math::angleToRadians(angle)), sinf(Math::angleToRadians(angle)));
+        }
 
-	inline Vector operator*(Float32 val, const Vector& vec)
-	{
-		return Vector(val * vec.x, val * vec.y);
-	}
+        static Vector min(const Vector &left, const Vector &right) {
+            return Vector(std::min(left.x, right.x), std::min(left.y, right.y), std::min(left.z, right.z));
+        }
+
+        static Vector max(const Vector &left, const Vector &right) {
+            return Vector(std::max(left.x, right.x), std::max(left.y, right.y), std::max(left.z, right.z));
+        }
+    };
+
+    inline Vector operator*(Float32 val, const Vector &vec) {
+        return Vector(val * vec.x, val * vec.y, val * vec.z);
+    }
 }
 
 #endif

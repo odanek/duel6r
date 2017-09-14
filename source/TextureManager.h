@@ -31,56 +31,59 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Color.h"
 #include "Image.h"
 #include "Texture.h"
 
-#define D6_TEXTURE_EXTENSION	".tga"
+#define D6_TEXTURE_EXTENSION     ".tga"
 
-#define D6_TEXTURE_MAN_PATH     "textures/man/"
-#define D6_TEXTURE_BCG_PATH		"textures/backgrounds/"
-#define D6_TEXTURE_EXPL_PATH	"textures/explosion/"
-#define D6_TEXTURE_MENU_PATH	"textures/menu/"
-#define D6_TEXTURE_BLOCK_PATH	"textures/blocks/"
-#define D6_TEXTURE_WATER_PATH	"textures/water/"
+#define D6_TEXTURE_MAN_PATH      "textures/man/"
+#define D6_TEXTURE_BCG_PATH      "textures/backgrounds/"
+#define D6_TEXTURE_EXPL_PATH     "textures/explosion/"
+#define D6_TEXTURE_MENU_PATH     "textures/menu/"
+#define D6_TEXTURE_BLOCK_PATH    "textures/blocks/"
+#define D6_TEXTURE_WATER_PATH    "textures/water/"
 #define D6_TEXTURE_ELEVATOR_PATH "textures/elevator/"
-#define D6_TEXTURE_BONUS_PATH	"textures/bonus/"
-#define D6_TEXTURE_FIRE_PATH	"textures/fire/"
-#define D6_TEXTURE_WPN_PATH		"textures/weapon/"
+#define D6_TEXTURE_BONUS_PATH    "textures/bonus/"
+#define D6_TEXTURE_FIRE_PATH     "textures/fire/"
+#define D6_TEXTURE_WPN_PATH      "textures/weapon/"
 
-namespace Duel6
-{
-	class TextureManager
-	{
-	public:
-		typedef std::vector<Texture> TextureArray;
-		typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
+namespace Duel6 {
+    class TextureManager {
+    public:
+        typedef std::vector<Texture> TextureArray;
+        typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
-	private:
-		Int32 nextId;
-		std::string textureFileExtension;
-		std::unordered_map<Int32, std::unique_ptr<TextureArray>> textureMap;
+    private:
+        Int32 nextId;
+        std::string textureFileExtension;
+        std::unordered_map<Int32, std::unique_ptr<TextureArray>> textureMap;
 
-	public:
-		TextureManager(const std::string& fileExtension);
-		~TextureManager();
+    public:
+        explicit TextureManager(const std::string &fileExtension);
 
-		Size size() { return textureMap.size(); }
-		void dispose(TextureList& textures);
-		void disposeAll();
+        ~TextureManager();
 
-		const TextureList load(const std::string& path, TextureFilter filtering, bool clamp);
-		const TextureList load(const std::string& path, TextureFilter filtering, bool clamp, const SubstitutionTable& substitutionTable);
+        Size size() { return textureMap.size(); }
 
-	private:
-		void dispose(const Int32 key);
+        void dispose(TextureList &textures);
 
-	private:
-		void releaseTextureIds(const TextureArray& list);
-		void substituteColors(Image& image, const SubstitutionTable& substitutionTable);
-	};
+        void disposeAll();
+
+        const TextureList load(const std::string &path, TextureFilter filtering, bool clamp);
+
+        const TextureList
+        load(const std::string &path, TextureFilter filtering, bool clamp, const SubstitutionTable &substitutionTable);
+
+    private:
+        void dispose(const Int32 key);
+
+    private:
+        void releaseTextureIds(const TextureArray &list);
+
+        void substituteColors(Image &image, const SubstitutionTable &substitutionTable);
+    };
 }
 
 #endif

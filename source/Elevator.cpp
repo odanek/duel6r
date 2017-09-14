@@ -25,112 +25,73 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Elevator.h"
 #include "Math.h"
+#include "Video.h"
 
 #define D6_ELEV_SPEED 1.83f
 
-namespace Duel6
-{
-	void Elevator::start()
-	{
-		position = controlPoints[0].getLocation();
-		section = 0;
-		forward = true;
-		startSection();
-	}
+namespace Duel6 {
+    void Elevator::start() {
+        position = controlPoints[0].getLocation();
+        section = 0;
+        forward = true;
+        startSection();
+    }
 
-	void Elevator::update(Float32 elapsedTime)
-	{
-		if (travelled >= distance * D6_ELEV_SPEED)
-		{
-			nextSection();
-		}
+    void Elevator::update(Float32 elapsedTime) {
+        if (travelled >= distance * D6_ELEV_SPEED) {
+            nextSection();
+        }
 
-		accelerate = 1.0f;
-		position += accelerate * velocity * elapsedTime;
-		travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
-	}
+        accelerate = 1.0f;
+        position += accelerate * velocity * elapsedTime;
+        travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
+    }
 
-	void Elevator::render() const
-	{
-		Float32 X = position.x, Y = position.y;
+    void Elevator::render(const Texture &texture) const {
+        Float32 X = position.x, Y = position.y - 0.3f;
+        Material material = Material::makeTexture(texture);
 
-		// Front
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.7f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.7f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.7f);
+        // Front
+        globRenderer->quadXY(Vector(X, Y, 0.7f), Vector(1.0f, 0.3f), Vector::ZERO, Vector(1, 1), material);
 
 #ifdef D6_RENDER_BACKS
-		// Back
-		glTexCoord2f (0.0f, 0.0f); glVertex3f (X + 1.0f, Y, 0.3f);
-		glTexCoord2f (1.0f, 0.0f); glVertex3f (X, Y, 0.3f);
-		glTexCoord2f (1.0f, 1.0f); glVertex3f (X, Y - 0.3f, 0.3f);
-		glTexCoord2f (0.0f, 1.0f); glVertex3f (X + 1.0f, Y - 0.3f, 0.3f);
+        globRenderer->quadXY(Vector(X + 1.0f, Y, 0.7f), Vector(-1.0f, 0.3f), Vector::ZERO, Vector(1, 1), material);
 #endif
-		// Left
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.3f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X, Y, 0.7f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.7f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.3f);
+        globRenderer->quadYZ(Vector(X, Y, 0.3f), Vector(0.0f, 0.3f, 0.4f), Vector::ZERO, Vector(1, 1), material);
+        globRenderer->quadYZ(Vector(X + 1.0f, Y, 0.7f), Vector(0.0f, 0.3f, -0.4f), Vector::ZERO, Vector(1, 1),
+                             material);
 
-		// Right
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.7f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.3f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.3f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
+        globRenderer->quadXZ(Vector(X, Y + 0.3f, 0.3f), Vector(1.0f, 0.0f, 0.4f), Vector::ZERO, Vector(1, 1), material);
+        globRenderer->quadXZ(Vector(X, Y, 0.7f), Vector(1.0f, 0.0f, -0.4f), Vector::ZERO, Vector(1, 1), material);
+    }
 
-		// Top
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y, 0.3f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y, 0.3f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y, 0.7f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y, 0.7f);
+    void Elevator::nextSection() {
+        if (forward) {
+            if (section + 2 == controlPoints.size()) {
+                forward = false;
+            } else {
+                ++section;
+            }
+        } else {
+            if (section == 0) {
+                forward = true;
+            } else {
+                --section;
+            }
+        }
 
-		// Base
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(X, Y - 0.3f, 0.7f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.7f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(X + 1.0f, Y - 0.3f, 0.3f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(X, Y - 0.3f, 0.3f);
-	}
+        startSection();
+    }
 
-	void Elevator::nextSection()
-	{
-		if (forward)
-		{
-			if (section + 2 == controlPoints.size())
-			{
-				forward = false;
-			}
-			else
-			{
-				++section;
-			}
-		}
-		else
-		{
-			if (section == 0)
-			{
-				forward = true;
-			}
-			else
-			{
-				--section;
-			}
-		}
-
-		startSection();
-	}
-
-	void Elevator::startSection()
-	{
-		ControlPoint& left = controlPoints[forward ? section : section + 1];
-		ControlPoint& right = controlPoints[forward ? section + 1 : section];
-		accelerate = 0;
-		Vector dir = right.getLocation() - left.getLocation();
-		distance = dir.length() / D6_ELEV_SPEED;
-		travelled = 0;
-		velocity = dir / distance;
-	}
+    void Elevator::startSection() {
+        ControlPoint &left = controlPoints[forward ? section : section + 1];
+        ControlPoint &right = controlPoints[forward ? section + 1 : section];
+        accelerate = 0;
+        Vector dir = right.getLocation() - left.getLocation();
+        distance = dir.length() / D6_ELEV_SPEED;
+        travelled = 0;
+        velocity = dir / distance;
+    }
 }

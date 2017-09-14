@@ -27,20 +27,18 @@
 
 #include "StopperGun.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 7.93f, true, false, false, Color(0, 0, 0), 0, 10, 0.9f, "stopper gun", "spunt.wav", "", 0, { 0, 5, 1, 5, 1, 5, 2, 5, 2, 5, 0, 5, 0, 5, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.33f, 0.71f), Vector(0.23f, 0.20f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {7.93f, true, false, false, Color(0, 0, 0), 0, 10, 0.9f, "stopper gun",
+                                               "spunt.wav", "", 0, {0, 5, 1, 5, 1, 5, 2, 5, 2, 5, 0, 5, 0, 5, -1, 0},
+                                               {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.33f, 0.71f), Vector(0.23f, 0.20f));
+    }
 
-	StopperGun::StopperGun(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 15)
-	{}
+    StopperGun::StopperGun(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 15) {}
 
-	Rectangle StopperGun::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle StopperGun::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

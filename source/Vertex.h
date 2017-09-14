@@ -30,47 +30,41 @@
 
 #include "Type.h"
 
-namespace Duel6
-{
-	class Vertex
-	{
-	public:
-		enum class Flag
-		{
-			None,
-			Flow
-		};
+namespace Duel6 {
+    class Vertex {
+    public:
+        enum class Flag {
+            None,
+            Flow
+        };
 
-	private:
-		Flag flag;
+    private:
+        Flag flag;
 
-	public:
-		Float32 x;
-		Float32 y;
-		Float32 z;
-		Float32 u;
-		Float32 v;
+    public:
+        Float32 x;
+        Float32 y;
+        Float32 z;
+        Float32 u;
+        Float32 v;
 
-	public:
-		Vertex(Size order, Float32 x, Float32 y, Float32 z, Flag flag = Flag::None)
-		{
-			this->x = x;
-			this->y = y;
-			this->z = z;
-			u = (order == 0 || order == 3) ? 0.0f : 0.99f;
-			v = (order == 0 || order == 1) ? 0.0f : 0.99f;
-			this->flag = flag;
-		}
+    public:
+        Vertex(Size order, Float32 x, Float32 y, Float32 z, Flag flag = Flag::None) {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+            u = (order == 0 || order == 3) ? 0.0f : 0.99f;
+            v = (order == 0 || order == 1) ? 0.0f : 0.99f;
+            this->flag = flag;
+        }
 
-		Vertex(Size order, Int32 x, Int32 y, Int32 z, Flag flag = Flag::None)
-			: Vertex(order, Float32(x), Float32(y), Float32(z), flag)
-		{}
+        Vertex(Size order, Int32 x, Int32 y, Int32 z, Flag flag = Flag::None)
+                : Vertex(order, Float32(x), Float32(y), Float32(z), flag) {}
 
-		Flag getFlag() const
-		{
-			return flag;
-		}
-	};
+        Flag getFlag() const {
+            return flag;
+        }
+    };
 }
 
 #endif

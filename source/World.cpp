@@ -29,51 +29,47 @@
 #include "Game.h"
 #include "Weapon.h"
 
-namespace Duel6
-{
-	World::World(Game& game, const std::string& levelPath, bool mirror, Size background)
-		: gameSettings(game.getSettings()), players(game.getPlayers()), level(levelPath, mirror, game.getResources().getBlockMeta()),
-		  levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
-		  explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
-		  background(background), bonusList(game.getSettings(), game.getResources(), *this),
-		  elevatorList(game.getResources().getElevatorTextures())
-	{
-		Console& console = game.getAppService().getConsole();
-		console.printLine(Format("...Width   : {0}") << level.getWidth());
-		console.printLine(Format("...Height  : {0}") << level.getHeight());
-		console.printLine("...Preparing faces");
-		levelRenderData.generateFaces();
-		console.printLine(Format("...Walls   : {0}") << levelRenderData.getWalls().getFaces().size());
-		console.printLine(Format("...Sprites : {0}") << levelRenderData.getSprites().getFaces().size());
-		console.printLine(Format("...Water   : {0}") << levelRenderData.getWater().getFaces().size());
+namespace Duel6 {
+    World::World(Game &game, const std::string &levelPath, bool mirror, Size background)
+            : gameSettings(game.getSettings()), players(game.getPlayers()),
+              level(levelPath, mirror, game.getResources().getBlockMeta()),
+              levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
+              explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
+              background(background), bonusList(game.getSettings(), game.getResources(), *this),
+              elevatorList(game.getResources().getElevatorTextures()) {
+        Console &console = game.getAppService().getConsole();
+        console.printLine(Format("...Width   : {0}") << level.getWidth());
+        console.printLine(Format("...Height  : {0}") << level.getHeight());
+        console.printLine("...Preparing faces");
+        levelRenderData.generateFaces();
+        console.printLine(Format("...Walls   : {0}") << levelRenderData.getWalls().getFaces().size());
+        console.printLine(Format("...Sprites : {0}") << levelRenderData.getSprites().getFaces().size());
+        console.printLine(Format("...Water   : {0}") << levelRenderData.getWater().getFaces().size());
 
-		console.printLine("...Level initialization");
-		console.printLine("...Loading elevators");
-		elevatorList.load(levelPath, mirror);
-		fireList.find(levelRenderData.getSprites());
-	}
+        console.printLine("...Level initialization");
+        console.printLine("...Loading elevators");
+        elevatorList.load(levelPath, mirror);
+        fireList.find(levelRenderData.getSprites());
+    }
 
-	void World::update(Float32 elapsedTime)
-	{
-		spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
-		explosionList.update(elapsedTime);
-		levelRenderData.update(elapsedTime);
-		shotList.update(*this, elapsedTime);
-		elevatorList.update(elapsedTime);
-		messageQueue.update(elapsedTime);
+    void World::update(Float32 elapsedTime) {
+        spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
+        explosionList.update(elapsedTime);
+        levelRenderData.update(elapsedTime);
+        shotList.update(*this, elapsedTime);
+        elevatorList.update(elapsedTime);
+        messageQueue.update(elapsedTime);
 
-		// Add new bonuses
-		int mod = 3.0f / elapsedTime;
+        // Add new bonuses
+        Int32 mod = Int32(3.0f / elapsedTime);
 
-		if (mod != 0 && rand() % mod == 0)
-		{
-			bonusList.addRandomBonus();
-		}
-	}
+        if (mod != 0 && Math::random(mod) == 0) {
+            bonusList.addRandomBonus();
+        }
+    }
 
-	void World::raiseWater()
-	{
-		level.raiseWater();
-		levelRenderData.generateWater();
-	}
+    void World::raiseWater() {
+        level.raiseWater();
+        levelRenderData.generateWater();
+    }
 }

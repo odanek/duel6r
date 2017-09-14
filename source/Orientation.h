@@ -28,15 +28,13 @@
 #ifndef DUEL6_ORIENTATION_H
 #define DUEL6_ORIENTATION_H
 
-namespace Duel6
-{
-	enum class Orientation
-	{
-		Left,
-		Right,
-		Up,
-		Down
-	};
+namespace Duel6 {
+    enum class Orientation {
+        Left,
+        Right,
+        Up,
+        Down
+    };
 }
 
 #endif

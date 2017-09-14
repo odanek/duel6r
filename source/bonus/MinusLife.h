@@ -30,24 +30,26 @@
 
 #include "../Bonus.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		class MinusLife : public BonusTypeImpl
-		{
-		private:
-			Texture texture;
+namespace Duel6 {
+    namespace Bonuses {
+        class MinusLife : public BonusTypeImpl {
+        private:
+            Texture texture;
 
-		public:
-			MinusLife(Texture texture);
-			Texture getTexture() const override;
-			bool isOneTime() const override;
-			bool isApplicable(Player& player, World& world) const override;
-			void onApply(Player& player, World& world, Int32 duration) const override;
-			void onExpire(Player& player, World& world) const override;
-		};
-	}
+        public:
+            explicit MinusLife(Texture texture);
+
+            Texture getTexture() const override;
+
+            bool isOneTime() const override;
+
+            bool isApplicable(Player &player, World &world) const override;
+
+            void onApply(Player &player, World &world, Int32 duration) const override;
+
+            void onExpire(Player &player, World &world) const override;
+        };
+    }
 }
 
 #endif

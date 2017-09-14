@@ -32,214 +32,176 @@
 #include <string>
 #include "Type.h"
 
-namespace Duel6
-{
-	class SysEvent
-	{
-	public:
-		enum class MouseButton
-		{
-			NONE = 0x00,
-			LEFT = SDL_BUTTON_LMASK,
-			MIDDLE = SDL_BUTTON_MMASK,
-			RIGHT = SDL_BUTTON_RMASK
-		};
+namespace Duel6 {
+    class SysEvent {
+    public:
+        enum class MouseButton {
+            NONE = 0x00,
+            LEFT = SDL_BUTTON_LMASK,
+            MIDDLE = SDL_BUTTON_MMASK,
+            RIGHT = SDL_BUTTON_RMASK
+        };
 
-		enum class ButtonState
-		{
-			PRESSED,
-			RELEASED
-		};
+        enum class ButtonState {
+            PRESSED,
+            RELEASED
+        };
 
-		enum class KeyModifier
-		{
-			ALT = KMOD_ALT,
-			CTRL = KMOD_CTRL,
-			SHIFT = KMOD_SHIFT
-		};
+        enum class KeyModifier {
+            ALT = KMOD_ALT,
+            CTRL = KMOD_CTRL,
+            SHIFT = KMOD_SHIFT
+        };
 
-	public:
-		virtual ~SysEvent() {}
-	};
+    public:
+        virtual ~SysEvent() {}
+    };
 
-	class MouseEvent : public SysEvent
-	{
-	protected:
-		Int32 x;
-		Int32 y;
+    class MouseEvent : public SysEvent {
+    protected:
+        Int32 x;
+        Int32 y;
 
-	public:
-		MouseEvent(Int32 x, Int32 y)
-			: x(x), y(y)
-		{}
+    public:
+        MouseEvent(Int32 x, Int32 y)
+                : x(x), y(y) {}
 
-		Int32 getX() const
-		{
-			return x;
-		}
+        Int32 getX() const {
+            return x;
+        }
 
-		Int32 getY() const
-		{
-			return y;
-		}
-	};
+        Int32 getY() const {
+            return y;
+        }
+    };
 
-	class MouseButtonEvent : public MouseEvent
-	{
-	private:
-		MouseButton button;
-		ButtonState state;
-		bool doubleClick;
+    class MouseButtonEvent : public MouseEvent {
+    private:
+        MouseButton button;
+        ButtonState state;
+        bool doubleClick;
 
-	public:
-		MouseButtonEvent(Int32 x, Int32 y, MouseButton button, ButtonState state, bool doubleClick)
-			: MouseEvent(x, y), button(button), state(state), doubleClick(doubleClick)
-		{}
+    public:
+        MouseButtonEvent(Int32 x, Int32 y, MouseButton button, ButtonState state, bool doubleClick)
+                : MouseEvent(x, y), button(button), state(state), doubleClick(doubleClick) {}
 
-		const MouseButton& getButton() const
-		{
-			return button;
-		}
+        const MouseButton &getButton() const {
+            return button;
+        }
 
-		bool isPressed() const
-		{
-			return state == ButtonState::PRESSED;
-		}
+        bool isPressed() const {
+            return state == ButtonState::PRESSED;
+        }
 
-		bool isDoubleClick() const
-		{
-			return doubleClick;
-		}
+        bool isDoubleClick() const {
+            return doubleClick;
+        }
 
-		MouseButtonEvent translate(Int32 tx, Int32 ty) const
-		{
-			return MouseButtonEvent(x + tx, y + ty, button, state, doubleClick);
-		}
-	};
+        MouseButtonEvent translate(Int32 tx, Int32 ty) const {
+            return MouseButtonEvent(x + tx, y + ty, button, state, doubleClick);
+        }
+    };
 
-	class MouseMotionEvent : public MouseEvent
-	{
-	private:
-		Int32 xDiff;
-		Int32 yDiff;
-		Uint32 buttonState;
+    class MouseMotionEvent : public MouseEvent {
+    private:
+        Int32 xDiff;
+        Int32 yDiff;
+        Uint32 buttonState;
 
-	public:
-		MouseMotionEvent(Int32 x, Int32 y, Int32 xDiff, Int32 yDiff, Uint32 buttonState)
-			: MouseEvent(x, y), xDiff(xDiff), yDiff(yDiff), buttonState(buttonState)
-		{}
+    public:
+        MouseMotionEvent(Int32 x, Int32 y, Int32 xDiff, Int32 yDiff, Uint32 buttonState)
+                : MouseEvent(x, y), xDiff(xDiff), yDiff(yDiff), buttonState(buttonState) {}
 
-		Int32 getXDiff() const
-		{
-			return xDiff;
-		}
+        Int32 getXDiff() const {
+            return xDiff;
+        }
 
-		Int32 getYDiff() const
-		{
-			return yDiff;
-		}
+        Int32 getYDiff() const {
+            return yDiff;
+        }
 
-		bool isPressed(MouseButton button) const
-		{
-			return (buttonState & (Uint32)button) == (Uint32)button;
-		}
+        bool isPressed(MouseButton button) const {
+            return (buttonState & (Uint32) button) == (Uint32) button;
+        }
 
-		MouseMotionEvent translate(Int32 tx, Int32 ty) const
-		{
-			return MouseMotionEvent(x + tx, y + ty, xDiff, yDiff, buttonState);
-		}
-	};
+        MouseMotionEvent translate(Int32 tx, Int32 ty) const {
+            return MouseMotionEvent(x + tx, y + ty, xDiff, yDiff, buttonState);
+        }
+    };
 
-	class MouseWheelEvent : public MouseEvent
-	{
-	private:
-		Int32 amountX;
-		Int32 amountY;
+    class MouseWheelEvent : public MouseEvent {
+    private:
+        Int32 amountX;
+        Int32 amountY;
 
-	public:
-		MouseWheelEvent(Int32 x, Int32 y, Int32 amountX, Int32 amountY)
-		: MouseEvent(x, y), amountX(amountX), amountY(amountY)
-		{}
+    public:
+        MouseWheelEvent(Int32 x, Int32 y, Int32 amountX, Int32 amountY)
+                : MouseEvent(x, y), amountX(amountX), amountY(amountY) {}
 
-		Int32 getAmountX() const
-		{
-			return amountX;
-		}
+        Int32 getAmountX() const {
+            return amountX;
+        }
 
-		Int32 getAmountY() const
-		{
-			return amountY;
-		}
-	};
+        Int32 getAmountY() const {
+            return amountY;
+        }
+    };
 
-	class KeyPressEvent : public SysEvent
-	{
-	private:
-		SDL_Keycode code;
-		ButtonState state;
-		Uint16 modifiers;
+    class KeyPressEvent : public SysEvent {
+    private:
+        SDL_Keycode code;
+        ButtonState state;
+        Uint16 modifiers;
 
-	public:
-		KeyPressEvent(SDL_Keycode code, const ButtonState& state, Uint16 modifiers)
-			: code(code), state(state), modifiers(modifiers)
-		{}
+    public:
+        KeyPressEvent(SDL_Keycode code, const ButtonState &state, Uint16 modifiers)
+                : code(code), state(state), modifiers(modifiers) {}
 
-		SDL_Keycode getCode() const
-		{
-			return code;
-		}
+        SDL_Keycode getCode() const {
+            return code;
+        }
 
-		ButtonState getState() const
-		{
-			return state;
-		}
+        ButtonState getState() const {
+            return state;
+        }
 
-		bool isPressed() const
-		{
-			return state == ButtonState::PRESSED;
-		}
+        bool isPressed() const {
+            return state == ButtonState::PRESSED;
+        }
 
-		Uint16 getModifiers() const
-		{
-			return modifiers;
-		}
+        Uint16 getModifiers() const {
+            return modifiers;
+        }
 
-		bool hasModifier(KeyModifier modifier) const
-		{
-			return (modifiers & (Uint16)modifier) != 0;
-		}
+        bool hasModifier(KeyModifier modifier) const {
+            return (modifiers & (Uint16) modifier) != 0;
+        }
 
-		bool withShift() const
-		{
-			return hasModifier(KeyModifier::SHIFT);
-		}
+        bool withShift() const {
+            return hasModifier(KeyModifier::SHIFT);
+        }
 
-		bool withAlt() const
-		{
-			return hasModifier(KeyModifier::ALT);
-		}
+        bool withAlt() const {
+            return hasModifier(KeyModifier::ALT);
+        }
 
-		bool withCtrl() const
-		{
-			return hasModifier(KeyModifier::CTRL);
-		}
-	};
+        bool withCtrl() const {
+            return hasModifier(KeyModifier::CTRL);
+        }
+    };
 
-	class TextInputEvent : public SysEvent
-	{
-	private:
-		const std::string& text;
+    class TextInputEvent : public SysEvent {
+    private:
+        const std::string &text;
 
-	public:
-		TextInputEvent(const std::string& text)
-			: text(text)
-		{}
+    public:
+        TextInputEvent(const std::string &text)
+                : text(text) {}
 
-		const std::string& getText() const
-		{
-			return text;
-		}
-	};
+        const std::string &getText() const {
+            return text;
+        }
+    };
 }
 
 #endif

@@ -30,166 +30,127 @@
 #include "json/JsonParser.h"
 #include "GameException.h"
 
-namespace Duel6
-{
-	Level::Level(const std::string& path, bool mirror, const Block::Meta& blockMeta)
-		: blockMeta(blockMeta)
-	{
-		load(path, mirror);
-	}
+namespace Duel6 {
+    Level::Level(const std::string &path, bool mirror, const Block::Meta &blockMeta)
+            : blockMeta(blockMeta) {
+        load(path, mirror);
+    }
 
-	void Level::load(const std::string& path, bool mirror)
-	{
-		levelData.clear();
-		Json::Parser parser;
-		Json::Value root = parser.parse(path);
+    void Level::load(const std::string &path, bool mirror) {
+        levelData.clear();
+        Json::Parser parser;
+        Json::Value root = parser.parse(path);
 
-		width = root.get("width").asInt();
-		height = root.get("height").asInt();
+        width = root.get("width").asInt();
+        height = root.get("height").asInt();
 
-		Int32 blockCount = width * height;
-		Json::Value blocks = root.get("blocks");
-		levelData.resize(blockCount);
-		for (Size i = 0; i < blocks.getLength(); i++)
-		{
-			levelData[i] = Uint16(blocks.get(i).asInt());
-		}
+        Int32 blockCount = width * height;
+        Json::Value blocks = root.get("blocks");
+        levelData.resize(blockCount);
+        for (Size i = 0; i < blocks.getLength(); i++) {
+            levelData[i] = Uint16(blocks.get(i).asInt());
+        }
 
-		if (mirror)
-		{
-			mirrorLevelData();
-		}
-		waterBlock = findWaterType();
-		waterLevel = findWaterLevel(waterBlock);
-	}
+        if (mirror) {
+            mirrorLevelData();
+        }
+        waterBlock = findWaterType();
+        waterLevel = findWaterLevel(waterBlock);
+    }
 
-	void Level::mirrorLevelData()
-	{
-		for (Int32 y = 0; y < height; y++)
-		{
-			for (Int32 x = 0; x < width / 2; x++)
-			{
-				std::swap(levelData[y * width + x], levelData[y * width + width - 1 - x]);
-			}
-		}
-	}
+    void Level::mirrorLevelData() {
+        for (Int32 y = 0; y < height; y++) {
+            for (Int32 x = 0; x < width / 2; x++) {
+                std::swap(levelData[y * width + x], levelData[y * width + width - 1 - x]);
+            }
+        }
+    }
 
-	void Level::raiseWater()
-	{
-		if(waterLevel < getHeight() - 1)
-		{
-			waterLevel++;
-			for(Int32 x = 0; x < getWidth(); x++)
-			{
-				if(!isWall(x, waterLevel, false))
-				{
-					setBlock(waterBlock, x, waterLevel);
-				}
-			}
-		}
-	}
+    void Level::raiseWater() {
+        if (waterLevel < getHeight() - 1) {
+            waterLevel++;
+            for (Int32 x = 0; x < getWidth(); x++) {
+                if (!isWall(x, waterLevel, false)) {
+                    setBlock(waterBlock, x, waterLevel);
+                }
+            }
+        }
+    }
 
-	Uint16 Level::findWaterType() const
-	{
-		for (Int32 y = 0; y < getHeight(); y++)
-		{
-			for (Int32 x = 0; x < getWidth(); x++)
-			{
-				if (isWater(x, y))
-				{
-					return getBlock(x, y);
-				}
-			}
-		}
+    Uint16 Level::findWaterType() const {
+        for (Int32 y = 0; y < getHeight(); y++) {
+            for (Int32 x = 0; x < getWidth(); x++) {
+                if (isWater(x, y)) {
+                    return getBlock(x, y);
+                }
+            }
+        }
 
-		static Uint16 waterBlocks[] = { 4, 16, 33 };
-		return waterBlocks[rand() % 3];
-	}
+        static Uint16 waterBlocks[] = {4, 16, 33};
+        return waterBlocks[Math::random(3)];
+    }
 
-	Int32 Level::findWaterLevel(Uint16 waterBlock) const
-	{
-		for (Int32 level = 0; level < getHeight(); level++)
-		{
-			for (Int32 x = 0; x < getWidth(); x++)
-			{
-				if (!isWall(x, level, true) && getBlock(x, level) != waterBlock)
-				{
-					return level - 1;
-				}
-			}
-		}
+    Int32 Level::findWaterLevel(Uint16 waterBlock) const {
+        for (Int32 level = 0; level < getHeight(); level++) {
+            for (Int32 x = 0; x < getWidth(); x++) {
+                if (!isWall(x, level, true) && getBlock(x, level) != waterBlock) {
+                    return level - 1;
+                }
+            }
+        }
 
-		return getHeight() - 1;
-	}
+        return getHeight() - 1;
+    }
 
-	Water Level::getWaterType(Int32 x, Int32 y) const
-	{
-		if (isWater(x, y))
-		{
-			Uint16 block = getBlock(x, y);
-			if (block == 4)
-			{
-				return Water::BLUE;
-			}
-			else if (block == 16)
-			{
-				return Water::RED;
-			}
-			else if (block == 33)
-			{
-				return Water::GREEN;
-			}
-		}
+    Water Level::getWaterType(Int32 x, Int32 y) const {
+        if (isWater(x, y)) {
+            Uint16 block = getBlock(x, y);
+            if (block == 4) {
+                return Water::BLUE;
+            } else if (block == 16) {
+                return Water::RED;
+            } else if (block == 33) {
+                return Water::GREEN;
+            }
+        }
 
-		return Water::NONE;
-	}
+        return Water::NONE;
+    }
 
-	bool Level::isPossibleStartingPosition(Int32 x, Int32 y)
-	{
-		if (isWall(x, y, true) || isWater(x, y))
-		{
-			return false;
-		}
+    bool Level::isPossibleStartingPosition(Int32 x, Int32 y) {
+        if (isWall(x, y, true) || isWater(x, y)) {
+            return false;
+        }
 
-		return isWall(x, y - 1, true);
-	}
+        return isWall(x, y - 1, true);
+    }
 
-	void Level::findStartingPositions(StartingPositionList& startingPositions)
-	{
-		for (Int32 y = 0; y < getHeight(); y++)
-		{
-			for (Int32 x = 0; x < getWidth(); x++)
-			{
-				if (isPossibleStartingPosition(x, y))
-				{
-					startingPositions.push_back(std::make_pair(x, y));
-				}
-			}
-		}
+    void Level::findStartingPositions(StartingPositionList &startingPositions) {
+        for (Int32 y = 0; y < getHeight(); y++) {
+            for (Int32 x = 0; x < getWidth(); x++) {
+                if (isPossibleStartingPosition(x, y)) {
+                    startingPositions.push_back(std::make_pair(x, y));
+                }
+            }
+        }
 
-		if (startingPositions.empty())
-		{
-			findTopmostNonWallPositions(startingPositions);
-			if (startingPositions.empty())
-			{
-				D6_THROW(GameException, "No acceptable starting positions found in this level");
-			}
-		}
+        if (startingPositions.empty()) {
+            findTopmostNonWallPositions(startingPositions);
+            if (startingPositions.empty()) {
+                D6_THROW(GameException, "No acceptable starting positions found in this level");
+            }
+        }
 
-		std::random_shuffle(startingPositions.begin(), startingPositions.end());
-	}
+        std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
+    }
 
-	void Level::findTopmostNonWallPositions(StartingPositionList& startingPositions)
-	{
-		for (Int32 y = getHeight() - 1; y >= 0 && startingPositions.empty(); y--)
-		{
-			for (Int32 x = 0; x < getWidth(); x++)
-			{
-				if (!isWall(x, y, true))
-				{
-					startingPositions.push_back(std::make_pair(x, y));
-				}
-			}
-		}
-	}
+    void Level::findTopmostNonWallPositions(StartingPositionList &startingPositions) {
+        for (Int32 y = getHeight() - 1; y >= 0 && startingPositions.empty(); y--) {
+            for (Int32 x = 0; x < getWidth(); x++) {
+                if (!isWall(x, y, true)) {
+                    startingPositions.push_back(std::make_pair(x, y));
+                }
+            }
+        }
+    }
 }

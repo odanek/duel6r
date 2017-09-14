@@ -30,32 +30,31 @@
 
 #include "Control.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class Label
-			: public Control
-		{
-		private:
-			Int32 width, height;
-			std::string text;
+namespace Duel6 {
+    namespace Gui {
+        class Label
+                : public Control {
+        private:
+            Int32 width, height;
+            std::string text;
 
-		public:
-			Label(Desktop& desk);
-			~Label();
-			void setCaption(const std::string& caption);
-			void setPosition(int X, int Y, int W, int H);
+        public:
+            Label(Desktop &desk);
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Label;
-			}
+            ~Label();
 
-		protected:
-			void draw(const Font& font) const override;
-		};
-	}
+            void setCaption(const std::string &caption);
+
+            void setPosition(int X, int Y, int W, int H);
+
+            Control::Type getType() const override {
+                return Control::Type::Label;
+            }
+
+        protected:
+            void draw(const Font &font) const override;
+        };
+    }
 }
 
 #endif

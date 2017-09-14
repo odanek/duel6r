@@ -31,39 +31,34 @@
 #include <vector>
 #include "Sound.h"
 
-namespace Duel6
-{
-	class PlayerSounds
-	{
-	public:
-		enum class Type
-		{
-			GotHit,
-			WasKilled,
-			HitOther,
-			KilledOther,
-			Suicide,
-			Drowned,
-			PickedBonus
-		};
+namespace Duel6 {
+    class PlayerSounds {
+    public:
+        enum class Type {
+            GotHit,
+            WasKilled,
+            HitOther,
+            KilledOther,
+            Suicide,
+            Drowned,
+            PickedBonus
+        };
 
-	private:		
-		std::vector<Sound::Sample> sounds[7];
+    private:
+        std::vector<Sound::Sample> sounds[7];
 
-	private:
-		PlayerSounds()
-		{}
+    private:
+        PlayerSounds() {}
 
-	public:
-		const Sound::Sample& getRandomSample(Type type) const;
+    public:
+        const Sound::Sample &getRandomSample(Type type) const;
 
-		const std::vector<Sound::Sample>& getSamples(Type type) const
-		{
-			return sounds[Int32(type)];
-		}
+        const std::vector<Sound::Sample> &getSamples(Type type) const {
+            return sounds[Int32(type)];
+        }
 
-		static PlayerSounds load(Sound& sound, const std::string& profilePath, const std::string& file);
-	};
+        static PlayerSounds load(Sound &sound, const std::string &profilePath, const std::string &file);
+    };
 }
 
 #endif

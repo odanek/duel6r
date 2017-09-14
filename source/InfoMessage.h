@@ -31,53 +31,44 @@
 #include <string>
 #include "Player.h"
 
-namespace Duel6
-{
-	class InfoMessage
-	{
-	public:
-		const Player* player;
-		std::string text;
-		Float32 remainingTime;
+namespace Duel6 {
+    class InfoMessage {
+    public:
+        const Player *player;
+        std::string text;
+        Float32 remainingTime;
 
-	public:
-		InfoMessage(const Player& player, const std::string& text, Float32 duration)
-			: player(&player), text(text), remainingTime(duration)
-		{}
+    public:
+        InfoMessage(const Player &player, const std::string &text, Float32 duration)
+                : player(&player), text(text), remainingTime(duration) {}
 
-		InfoMessage(const InfoMessage& msg)
-			: player(msg.player), text(msg.text), remainingTime(msg.remainingTime)
-		{}
+        InfoMessage(const InfoMessage &msg)
+                : player(msg.player), text(msg.text), remainingTime(msg.remainingTime) {}
 
-		InfoMessage& operator=(const InfoMessage& msg)
-		{
-			player = msg.player;
-			text = msg.text;
-			remainingTime = msg.remainingTime;
-			return *this;
-		}
+        InfoMessage &operator=(const InfoMessage &msg) {
+            player = msg.player;
+            text = msg.text;
+            remainingTime = msg.remainingTime;
+            return *this;
+        }
 
-		const Player& getPlayer() const
-		{
-			return *player;
-		}
+        const Player &getPlayer() const {
+            return *player;
+        }
 
-		const std::string& getText() const
-		{
-			return text;
-		}
+        const std::string &getText() const {
+            return text;
+        }
 
-		Float32 getRemainingTime() const
-		{
-			return remainingTime;
-		}
+        Float32 getRemainingTime() const {
+            return remainingTime;
+        }
 
-		InfoMessage& updateRemainingTime(Float32 elapsedTime)
-		{
-			remainingTime -= elapsedTime;
-			return *this;
-		}
-	};
+        InfoMessage &updateRemainingTime(Float32 elapsedTime) {
+            remainingTime -= elapsedTime;
+            return *this;
+        }
+    };
 }
 
 #endif

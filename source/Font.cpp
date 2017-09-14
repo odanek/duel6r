@@ -25,203 +25,142 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Sablona aplikace
-Popis: Prace s fonty, psani na obrazovku
-*/
-
 #include <list>
 #include <unordered_map>
-#include <SDL2/SDL_opengl.h>
 #include "console/console.h"
 #include "Font.h"
 #include "FontException.h"
+#include "Video.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		class LruFontCache
-		{
-		private:
-			static const Size MAX_ENTRIES = 100;
+namespace Duel6 {
+    namespace {
+        class LruFontCache {
+        private:
+            static const Size MAX_ENTRIES = 100;
 
-			struct Entry
-			{
-				std::string text;
-				Texture texture;
-			};
-			typedef std::list<Entry> EntryList;
-			typedef std::unordered_map<std::string, EntryList::iterator> EntryMap;
+            struct Entry {
+                std::string text;
+                Texture texture;
+            };
+            typedef std::list<Entry> EntryList;
+            typedef std::unordered_map<std::string, EntryList::iterator> EntryMap;
 
-		private:
-			mutable EntryList entryList;
-			mutable EntryMap entryMap;
+        private:
+            mutable EntryList entryList;
+            mutable EntryMap entryMap;
 
-		public:
-			LruFontCache()
-			{}
+        public:
+            LruFontCache() {}
 
-			~LruFontCache()
-			{}
+            ~LruFontCache() {}
 
-			bool has(const std::string& text) const
-			{
-				return entryMap.find(text) != entryMap.end();
-			}
+            bool has(const std::string &text) const {
+                return entryMap.find(text) != entryMap.end();
+            }
 
-			Texture get(const std::string& text) const
-			{
-				auto iter = entryMap.find(text);
-				Entry entry = *iter->second;
-				entryList.erase(iter->second);
-				entryList.push_front(entry);
-				iter->second = entryList.begin();
-				return entry.texture;
-			}
+            Texture get(const std::string &text) const {
+                auto iter = entryMap.find(text);
+                Entry entry = *iter->second;
+                entryList.erase(iter->second);
+                entryList.push_front(entry);
+                iter->second = entryList.begin();
+                return entry.texture;
+            }
 
-			void add(const std::string& text, Texture texture)
-			{
-				entryList.push_front(Entry{text, texture});
-				entryMap.insert(std::make_pair(text, entryList.begin()));
-				if (entryList.size() > MAX_ENTRIES)
-				{
-					Entry lastEntry = entryList.back();
-					entryList.pop_back();
-					entryMap.erase(lastEntry.text);
-					GLuint textureId = lastEntry.texture.getId();
-					glDeleteTextures(1, &textureId);
-				}
-			}
+            void add(const std::string &text, Texture texture) {
+                entryList.push_front(Entry{text, texture});
+                entryMap.insert(std::make_pair(text, entryList.begin()));
+                if (entryList.size() > MAX_ENTRIES) {
+                    Entry lastEntry = entryList.back();
+                    entryList.pop_back();
+                    entryMap.erase(lastEntry.text);
+                    globRenderer->freeTexture(lastEntry.texture);
+                }
+            }
 
-			void empty()
-			{
-				for (const Entry& entry : entryList)
-				{
-					GLuint textureId = entry.texture.getId();
-					glDeleteTextures(1, &textureId);
-				}
-				entryList.clear();
-				entryMap.clear();
-			}
-		};
+            void empty() {
+                for (const Entry &entry : entryList) {
+                    globRenderer->freeTexture(entry.texture);
+                }
+                entryList.clear();
+                entryMap.clear();
+            }
+        };
 
-		LruFontCache fontCache;
-	}
+        LruFontCache fontCache;
+    }
 
-	Font::Font()
-		: font(nullptr)
-	{}
+    Font::Font()
+            : font(nullptr) {}
 
-	Font::~Font()
-	{
-		dispose();
-	}
+    Font::~Font() {
+        dispose();
+    }
 
-	void Font::load(const std::string& fontFile, Console& console)
-	{
-		dispose();
-		console.printLine(Format("...loading font: {0}") << fontFile);
-		font = TTF_OpenFont(fontFile.c_str(), 32);
-		if (font == NULL)
-		{
-			D6_THROW(FontException, Format("Unable to load font {0} due to error: {1}") << fontFile << TTF_GetError());
-		}
-	}
+    void Font::load(const std::string &fontFile, Console &console) {
+        dispose();
+        console.printLine(Format("...loading font: {0}") << fontFile);
+        font = TTF_OpenFont(fontFile.c_str(), 32);
+        if (font == nullptr) {
+            D6_THROW(FontException, Format("Unable to load font {0} due to error: {1}") << fontFile << TTF_GetError());
+        }
+    }
 
-	void Font::dispose()
-	{
-		fontCache.empty();
-		if (font != nullptr)
-		{
-			TTF_CloseFont(font);
-			font = nullptr;
-		}
-	}
+    void Font::dispose() {
+        fontCache.empty();
+        if (font != nullptr) {
+            TTF_CloseFont(font);
+            font = nullptr;
+        }
+    }
 
-	Float32 Font::getTextWidth(const std::string& str, Float32 height) const
-	{
-		return str.size() * (height / 2.0f);
-	}
+    Float32 Font::getTextWidth(const std::string &str, Float32 height) const {
+        return str.size() * (height / 2.0f);
+    }
 
-	Int32 Font::getTextWidth(const std::string& str, Int32 height) const
-	{
-		return Int32(str.size() * height) / 2;
-	}
+    Int32 Font::getTextWidth(const std::string &str, Int32 height) const {
+        return Int32(str.size() * height) / 2;
+    }
 
-	void Font::print(Int32 x, Int32 y, const Color& color, const std::string& str) const
-	{
-		print(Float32(x), Float32(y), 0.0f, color, str, Float32(getCharHeight()));
-	}
+    void Font::print(Int32 x, Int32 y, const Color &color, const std::string &str) const {
+        print(Float32(x), Float32(y), 0.0f, color, str, Float32(getCharHeight()));
+    }
 
-	void Font::print(Float32 x, Float32 y, Float32 z, const Color& color, const std::string& str, Float32 height) const
-	{
-		if (str.length() < 1)
-		{
-			return;
-		}
+    void
+    Font::print(Float32 x, Float32 y, Float32 z, const Color &color, const std::string &str, Float32 height) const {
+        if (str.length() < 1) {
+            return;
+        }
 
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, getTexture(str).getId());
+        Texture texture = getTexture(str);
+        Material material = Material::makeColoredTexture(texture, color);
+        Float32 width = getTextWidth(str, height);
 
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
+        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), material);
+        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+    }
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Texture Font::getTexture(const std::string &text) const {
+        if (fontCache.has(text)) {
+            return fontCache.get(text);
+        }
+        Texture texture = renderText(text);
+        fontCache.add(text, texture);
+        return texture;
+    }
 
-		glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+    Texture Font::renderText(const std::string &text) const {
+        SDL_Surface *image = TTF_RenderText_Blended(font, text.c_str(), SDL_Color{255, 255, 255, 255});
 
-		Float32 width = getTextWidth(str, height);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(x, y, z);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(x, y + height, z);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(x + width, y + height, z);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(x + width, y, z);
-		glEnd();
+        SDL_LockSurface(image);
 
-		glDisable(GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_TEXTURE_2D);
-	}
+        Texture texture = globRenderer->createTexture(image->w, image->h, image->pixels, 4, TextureFilter::LINEAR,
+                                                      true);
 
-	Texture Font::getTexture(const std::string& text) const
-	{
-		if (fontCache.has(text))
-		{
-			return fontCache.get(text);
-		}
-		Texture texture = renderText(text);
-		fontCache.add(text, texture);
-		return texture;
-	}
+        SDL_UnlockSurface(image);
+        SDL_FreeSurface(image);
 
-	Texture Font::renderText(const std::string& text) const
-	{
-		SDL_Surface* image = TTF_RenderText_Blended(font, text.c_str(), SDL_Color{255, 255, 255, 255});
-
-		SDL_LockSurface(image);
-
-		GLuint texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// Clamp texture coordinates
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		SDL_UnlockSurface(image);
-		SDL_FreeSurface(image);
-
-		return Texture(texture);
-	}
+        return texture;
+    }
 }

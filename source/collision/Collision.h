@@ -32,11 +32,9 @@
 #include "../Vector.h"
 #include "../Rectangle.h"
 
-namespace Duel6
-{
-    namespace Collision
-    {
-        bool rectangles(const Rectangle& r1, const Rectangle& r2);
+namespace Duel6 {
+    namespace Collision {
+        bool rectangles(const Rectangle &r1, const Rectangle &r2);
     }
 }
 

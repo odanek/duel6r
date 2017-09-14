@@ -28,41 +28,35 @@
 #include "json/JsonParser.h"
 #include "PlayerSkinColors.h"
 
-namespace Duel6
-{
-	PlayerSkinColors::PlayerSkinColors(const Color& color)
-	{
-		for (Size i = 0; i < 9; i++)
-		{
-			this->color[i] = color;
-		}
-	}
+namespace Duel6 {
+    PlayerSkinColors::PlayerSkinColors(const Color &color) {
+        for (Size i = 0; i < 9; i++) {
+            this->color[i] = color;
+        }
+    }
 
-	PlayerSkinColors& PlayerSkinColors::operator=(const PlayerSkinColors& colors)
-	{
-		for (Size i = 0; i < 9; i++)
-		{
-			this->color[i] = colors.color[i];
-		}
-		return *this;
-	}
+    PlayerSkinColors &PlayerSkinColors::operator=(const PlayerSkinColors &colors) {
+        for (Size i = 0; i < 9; i++) {
+            this->color[i] = colors.color[i];
+        }
+        return *this;
+    }
 
 
-	PlayerSkinColors PlayerSkinColors::load(const std::string& profileRoot, const std::string& file)
-	{
-		Json::Parser parser;
-		Json::Value root = parser.parse(profileRoot + file);
+    PlayerSkinColors PlayerSkinColors::load(const std::string &profileRoot, const std::string &file) {
+        Json::Parser parser;
+        Json::Value root = parser.parse(profileRoot + file);
 
-		PlayerSkinColors colors;
-		colors.set(PlayerSkinColors::HairTop, Color::fromString(root.get("hairTop").asString()));
-		colors.set(PlayerSkinColors::HairBottom, Color::fromString(root.get("hairBottom").asString()));
-		colors.set(PlayerSkinColors::BodyInner, Color::fromString(root.get("bodyInner").asString()));
-		colors.set(PlayerSkinColors::BodyOuter, Color::fromString(root.get("bodyOuter").asString()));
-		colors.set(PlayerSkinColors::HandInner, Color::fromString(root.get("handInner").asString()));
-		colors.set(PlayerSkinColors::HandOuter, Color::fromString(root.get("handOuter").asString()));
-		colors.set(PlayerSkinColors::Trousers, Color::fromString(root.get("trousers").asString()));
-		colors.set(PlayerSkinColors::Shoes, Color::fromString(root.get("shoes").asString()));
-		colors.set(PlayerSkinColors::Face, Color::fromString(root.get("face").asString()));
-		return colors;
-	}
+        PlayerSkinColors colors;
+        colors.set(PlayerSkinColors::HairTop, Color::fromString(root.get("hairTop").asString()));
+        colors.set(PlayerSkinColors::HairBottom, Color::fromString(root.get("hairBottom").asString()));
+        colors.set(PlayerSkinColors::BodyInner, Color::fromString(root.get("bodyInner").asString()));
+        colors.set(PlayerSkinColors::BodyOuter, Color::fromString(root.get("bodyOuter").asString()));
+        colors.set(PlayerSkinColors::HandInner, Color::fromString(root.get("handInner").asString()));
+        colors.set(PlayerSkinColors::HandOuter, Color::fromString(root.get("handOuter").asString()));
+        colors.set(PlayerSkinColors::Trousers, Color::fromString(root.get("trousers").asString()));
+        colors.set(PlayerSkinColors::Shoes, Color::fromString(root.get("shoes").asString()));
+        colors.set(PlayerSkinColors::Face, Color::fromString(root.get("face").asString()));
+        return colors;
+    }
 }

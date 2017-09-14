@@ -35,34 +35,29 @@
 #include "console/console.h"
 #include "Type.h"
 
-namespace Duel6
-{
-	class Input
-	{
-	private:
-		std::unordered_set<SDL_Keycode> pressedKeys;
-		std::vector<SDL_Joystick*> joypads;
+namespace Duel6 {
+    class Input {
+    private:
+        std::unordered_set<SDL_Keycode> pressedKeys;
+        std::vector<SDL_Joystick *> joypads;
 
-	public:
-		void setPressed(SDL_Keycode keyCode, bool pressed);
+    public:
+        void setPressed(SDL_Keycode keyCode, bool pressed);
 
-		bool isPressed(SDL_Keycode keyCode) const
-		{
-			return pressedKeys.find(keyCode) != pressedKeys.end();
-		}
+        bool isPressed(SDL_Keycode keyCode) const {
+            return pressedKeys.find(keyCode) != pressedKeys.end();
+        }
 
-		Size getNumJoypads() const
-		{
-			return joypads.size();
-		}
+        Size getNumJoypads() const {
+            return joypads.size();
+        }
 
-		SDL_Joystick* getJoypad(Size index) const
-		{
-			return joypads[index];
-		}
+        SDL_Joystick *getJoypad(Size index) const {
+            return joypads[index];
+        }
 
-		void joyScan(Console& console);
-	};
+        void joyScan(Console &console);
+    };
 }
 
 #endif

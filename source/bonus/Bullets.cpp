@@ -25,43 +25,35 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "../Player.h"
 #include "../World.h"
 #include "Bullets.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		Bullets::Bullets(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        Bullets::Bullets(Texture texture)
+                : texture(texture) {}
 
-		Texture Bullets::getTexture() const
-		{
-			return texture;
-		}
+        Texture Bullets::getTexture() const {
+            return texture;
+        }
 
-		bool Bullets::isOneTime() const
-		{
-			return true;
-		}
+        bool Bullets::isOneTime() const {
+            return true;
+        }
 
-		bool Bullets::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool Bullets::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void Bullets::onApply(Player& player, World& world, Int32 duration) const
-		{
-			Int32 bullets = 5 + rand() % 12;
-			player.pickAmmo(bullets);
-			world.getMessageQueue().add(player, Format("Bullets +{0}") << bullets);
-		}
+        void Bullets::onApply(Player &player, World &world, Int32 duration) const {
+            Int32 bullets = 5 + Math::random(12);
+            player.pickAmmo(bullets);
+            world.getMessageQueue().add(player, Format("Bullets +{0}") << bullets);
+        }
 
-		void Bullets::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void Bullets::onExpire(Player &player, World &world) const {
+        }
+    }
 }

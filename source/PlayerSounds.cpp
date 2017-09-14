@@ -31,91 +31,82 @@
 #include "Defines.h"
 #include "EnumClassHash.h"
 #include "PlayerSounds.h"
+#include "Math.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		std::unordered_map<PlayerSounds::Type, std::string, EnumClassHash<PlayerSounds::Type>> defaultSounds = {
-			{ PlayerSounds::Type::GotHit, "hit.wav" },
-			{ PlayerSounds::Type::WasKilled, "death.wav" },
-			{ PlayerSounds::Type::Suicide, "death.wav" },
-			{ PlayerSounds::Type::Drowned, "death.wav" },
-			{ PlayerSounds::Type::PickedBonus, "pick-bonus.wav" }
-		};
+namespace Duel6 {
+    namespace {
+        std::unordered_map<PlayerSounds::Type, std::string, EnumClassHash<PlayerSounds::Type>> defaultSounds = {
+                {PlayerSounds::Type::GotHit,      "hit.wav"},
+                {PlayerSounds::Type::WasKilled,   "death.wav"},
+                {PlayerSounds::Type::Suicide,     "death.wav"},
+                {PlayerSounds::Type::Drowned,     "death.wav"},
+                {PlayerSounds::Type::PickedBonus, "pick-bonus.wav"}
+        };
 
-		Sound::Sample emptySample;
-		std::unordered_map<PlayerSounds::Type, Sound::Sample, EnumClassHash<PlayerSounds::Type>> defaultSamples;
+        Sound::Sample emptySample;
+        std::unordered_map<PlayerSounds::Type, Sound::Sample, EnumClassHash<PlayerSounds::Type>> defaultSamples;
 
-		Sound::Sample loadDefaultSound(Sound& sound, PlayerSounds::Type type)
-		{
-			auto soundFile = defaultSounds.find(type);
-			if (soundFile == defaultSounds.end())
-			{
-				return emptySample;
-			}
+        Sound::Sample loadDefaultSound(Sound &sound, PlayerSounds::Type type) {
+            auto soundFile = defaultSounds.find(type);
+            if (soundFile == defaultSounds.end()) {
+                return emptySample;
+            }
 
-			auto sample = defaultSamples.find(type);
-			if (sample == defaultSamples.end())
-			{
-				Sound::Sample defaultSample = sound.loadSample(D6_FILE_PLAYER_SOUNDS + soundFile->second);
-				defaultSamples.insert(std::make_pair(type, defaultSample));
-				return defaultSample;
-			}
+            auto sample = defaultSamples.find(type);
+            if (sample == defaultSamples.end()) {
+                Sound::Sample defaultSample = sound.loadSample(D6_FILE_PLAYER_SOUNDS + soundFile->second);
+                defaultSamples.insert(std::make_pair(type, defaultSample));
+                return defaultSample;
+            }
 
-			return sample->second;
-		}
+            return sample->second;
+        }
 
-		Sound::Sample loadSound(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, Json::Value value)
-		{
-			if (value.getType() == Json::Value::Type::Null)
-			{
-				return loadDefaultSound(sound, type);
-			}
+        Sound::Sample
+        loadSound(Sound &sound, const std::string &profileRoot, PlayerSounds::Type type, Json::Value value) {
+            if (value.getType() == Json::Value::Type::Null) {
+                return loadDefaultSound(sound, type);
+            }
 
-			return sound.loadSample(profileRoot + value.asString());
-		}
+            return sound.loadSample(profileRoot + value.asString());
+        }
 
-		std::vector<Sound::Sample> loadSounds(Sound& sound, const std::string& profileRoot, PlayerSounds::Type type, Json::Value value)
-		{
-			std::vector<Sound::Sample> samples;
+        std::vector<Sound::Sample>
+        loadSounds(Sound &sound, const std::string &profileRoot, PlayerSounds::Type type, Json::Value value) {
+            std::vector<Sound::Sample> samples;
 
-			if (value.getType() == Json::Value::Type::Array)
-			{
-				for (Size i = 0; i < value.getLength(); i++)
-				{
-					samples.push_back(loadSound(sound, profileRoot, type, value.get(i)));
-				}
-			}
-			else
-			{
-				samples.push_back(loadSound(sound, profileRoot, type, value));
-			}
+            if (value.getType() == Json::Value::Type::Array) {
+                for (Size i = 0; i < value.getLength(); i++) {
+                    samples.push_back(loadSound(sound, profileRoot, type, value.get(i)));
+                }
+            } else {
+                samples.push_back(loadSound(sound, profileRoot, type, value));
+            }
 
-			return samples;
-		}
-	}
+            return samples;
+        }
+    }
 
-	const Sound::Sample& PlayerSounds::getRandomSample(Type type) const
-	{
-		const std::vector<Sound::Sample>& samples = sounds[(Int32)type];
-		Size which = rand() % samples.size();
-		return samples[which];
-	}
+    const Sound::Sample &PlayerSounds::getRandomSample(Type type) const {
+        const std::vector<Sound::Sample> &samples = sounds[(Int32) type];
+        Size which = (Size) Math::random(Int32(samples.size()));
+        return samples[which];
+    }
 
-	PlayerSounds PlayerSounds::load(Sound& sound, const std::string& profilePath, const std::string& file)
-	{
-		Json::Parser parser;
-		Json::Value root = parser.parse(profilePath + file);
+    PlayerSounds PlayerSounds::load(Sound &sound, const std::string &profilePath, const std::string &file) {
+        Json::Parser parser;
+        Json::Value root = parser.parse(profilePath + file);
 
-		PlayerSounds sounds;
-		sounds.sounds[(Int32)Type::GotHit] = loadSounds(sound, profilePath, Type::GotHit, root.get("gotHit"));
-		sounds.sounds[(Int32)Type::WasKilled] = loadSounds(sound, profilePath, Type::WasKilled, root.get("wasKilled"));
-		sounds.sounds[(Int32)Type::HitOther] = loadSounds(sound, profilePath, Type::HitOther, root.get("hitOther"));
-		sounds.sounds[(Int32)Type::KilledOther] = loadSounds(sound, profilePath, Type::KilledOther, root.get("killedOther"));
-		sounds.sounds[(Int32)Type::Suicide] = loadSounds(sound, profilePath, Type::Suicide, root.get("suicide"));
-		sounds.sounds[(Int32)Type::Drowned] = loadSounds(sound, profilePath, Type::Drowned, root.get("drowned"));
-		sounds.sounds[(Int32)Type::PickedBonus] = loadSounds(sound, profilePath, Type::PickedBonus, root.get("pickedBonus"));
-		return sounds;
-	}
+        PlayerSounds sounds;
+        sounds.sounds[(Int32) Type::GotHit] = loadSounds(sound, profilePath, Type::GotHit, root.get("gotHit"));
+        sounds.sounds[(Int32) Type::WasKilled] = loadSounds(sound, profilePath, Type::WasKilled, root.get("wasKilled"));
+        sounds.sounds[(Int32) Type::HitOther] = loadSounds(sound, profilePath, Type::HitOther, root.get("hitOther"));
+        sounds.sounds[(Int32) Type::KilledOther] = loadSounds(sound, profilePath, Type::KilledOther,
+                                                              root.get("killedOther"));
+        sounds.sounds[(Int32) Type::Suicide] = loadSounds(sound, profilePath, Type::Suicide, root.get("suicide"));
+        sounds.sounds[(Int32) Type::Drowned] = loadSounds(sound, profilePath, Type::Drowned, root.get("drowned"));
+        sounds.sounds[(Int32) Type::PickedBonus] = loadSounds(sound, profilePath, Type::PickedBonus,
+                                                              root.get("pickedBonus"));
+        return sounds;
+    }
 }

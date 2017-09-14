@@ -34,85 +34,80 @@
 #include "Block.h"
 #include "Water.h"
 
-namespace Duel6
-{
-	class Level
-	{
-	public:
-		typedef std::pair<Int32, Int32> StartingPosition;
-		typedef std::vector<StartingPosition> StartingPositionList;
+namespace Duel6 {
+    class Level {
+    public:
+        typedef std::pair<Int32, Int32> StartingPosition;
+        typedef std::vector<StartingPosition> StartingPositionList;
 
-	private:
-		const Block::Meta& blockMeta;
-		Int32 width;
-		Int32 height;
-		std::vector<Uint16> levelData;
-		Uint16 waterBlock;
-		Int32 waterLevel;
+    private:
+        const Block::Meta &blockMeta;
+        Int32 width;
+        Int32 height;
+        std::vector<Uint16> levelData;
+        Uint16 waterBlock;
+        Int32 waterLevel;
 
-	public:
-		Level(const std::string& path, bool mirror, const Block::Meta& blockMeta);
+    public:
+        Level(const std::string &path, bool mirror, const Block::Meta &blockMeta);
 
-		Int32 getWidth() const
-		{
-			return width;
-		}
+        Int32 getWidth() const {
+            return width;
+        }
 
-		Int32 getHeight() const
-		{
-			return height;
-		}
+        Int32 getHeight() const {
+            return height;
+        }
 
-		bool isWater(Int32 x, Int32 y) const
-		{
-			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Water) : false;
-		}
+        bool isWater(Int32 x, Int32 y) const {
+            return isInside(x, y) ? getBlockMeta(x, y).is(Block::Water) : false;
+        }
 
-		bool isWall(Int32 x, Int32 y, bool outside) const
-		{
-			return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
-		}
+        bool isWall(Int32 x, Int32 y, bool outside) const {
+            return isInside(x, y) ? getBlockMeta(x, y).is(Block::Wall) : outside;
+        }
 
-		bool isWall(Float32 x, Float32 y, bool outside) const
-		{
-			Int32 ix = (Int32)floorf(x);
-			Int32 iy = (Int32)floorf(y);
-			return isWall(ix, iy, outside);
-		}
+        bool isWall(Float32 x, Float32 y, bool outside) const {
+            Int32 ix = (Int32) floorf(x);
+            Int32 iy = (Int32) floorf(y);
+            return isWall(ix, iy, outside);
+        }
 
-		const Block& getBlockMeta(Int32 x, Int32 y) const
-		{
-			return blockMeta[getBlock(x, y)];
-		}
+        const Block &getBlockMeta(Int32 x, Int32 y) const {
+            return blockMeta[getBlock(x, y)];
+        }
 
-		Water getWaterType(Int32 x, Int32 y) const;
-		void raiseWater();
-		void findStartingPositions(StartingPositionList& startingPositions);
-		void findTopmostNonWallPositions(StartingPositionList& startingPositions);
+        Water getWaterType(Int32 x, Int32 y) const;
 
-	private:
-		void load(const std::string& path, bool mirror);
-		void mirrorLevelData();
-		bool isPossibleStartingPosition(Int32 x, Int32 y);
+        void raiseWater();
 
-		bool isInside(Int32 x, Int32 y) const
-		{
-			return (x >= 0 && x < width && y >= 0 && y < height);
-		}
+        void findStartingPositions(StartingPositionList &startingPositions);
 
-		Uint16 getBlock(Int32 x, Int32 y) const
-		{
-			return levelData[(height - y - 1) * width + x];
-		}
+        void findTopmostNonWallPositions(StartingPositionList &startingPositions);
 
-		void setBlock(Uint16 block, Int32 x, Int32 y)
-		{
-			levelData[(height - y - 1) * width + x] = block;
-		}
+    private:
+        void load(const std::string &path, bool mirror);
 
-		Uint16 findWaterType() const;
-		Int32 findWaterLevel(Uint16 waterBlock) const;
-	};
+        void mirrorLevelData();
+
+        bool isPossibleStartingPosition(Int32 x, Int32 y);
+
+        bool isInside(Int32 x, Int32 y) const {
+            return (x >= 0 && x < width && y >= 0 && y < height);
+        }
+
+        Uint16 getBlock(Int32 x, Int32 y) const {
+            return levelData[(height - y - 1) * width + x];
+        }
+
+        void setBlock(Uint16 block, Int32 x, Int32 y) {
+            levelData[(height - y - 1) * width + x] = block;
+        }
+
+        Uint16 findWaterType() const;
+
+        Int32 findWaterLevel(Uint16 waterBlock) const;
+    };
 }
 
 #endif

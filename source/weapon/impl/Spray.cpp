@@ -27,20 +27,18 @@
 
 #include "Spray.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 4.88f, false, false, false, Color(0, 0, 0), 0, 20, 0.66f, "spray", "spray.wav", "", 0, { 0, 8, 1, 8, 0, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0 }, { 0, 5, 1, 5, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.20f, 0.75f), Vector(0.35f, 0.23f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {4.88f, false, false, false, Color(0, 0, 0), 0, 20, 0.66f, "spray",
+                                               "spray.wav", "", 0, {0, 8, 1, 8, 0, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0},
+                                               {0, 5, 1, 5, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.20f, 0.75f), Vector(0.35f, 0.23f));
+    }
 
-	Spray::Spray(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 13)
-	{}
+    Spray::Spray(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 13) {}
 
-	Rectangle Spray::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle Spray::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

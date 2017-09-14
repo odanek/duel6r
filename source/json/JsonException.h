@@ -30,16 +30,12 @@
 
 #include "../Exception.h"
 
-namespace Duel6
-{
-	class JsonException
-		: public Exception
-	{
-	public:
-		JsonException(const std::string& file, Int32 line, const std::string& message)
-			: Exception(file, line, message)
-		{}
-	};
+namespace Duel6 {
+    class JsonException : public Exception {
+    public:
+        JsonException(const std::string &file, Int32 line, const std::string &message)
+                : Exception(file, line, message) {}
+    };
 }
 
 #endif

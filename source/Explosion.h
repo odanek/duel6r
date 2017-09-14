@@ -35,29 +35,29 @@
 #include "Vector.h"
 #include "GameResources.h"
 
-namespace Duel6
-{
-	struct Explosion
-	{
-		Vector centre;
-		Float32 now;
-		Float32 max;
-		Color color;
-	};
+namespace Duel6 {
+    struct Explosion {
+        Vector centre;
+        Float32 now;
+        Float32 max;
+        Color color;
+    };
 
-	class ExplosionList
-	{
-	private:
-		TextureList textures;
-		std::list<Explosion> explosions;
-		Float32 speed;
+    class ExplosionList {
+    private:
+        TextureList textures;
+        std::list<Explosion> explosions;
+        Float32 speed;
 
-	public:
-		ExplosionList(const GameResources& resources, Float32 speed);
-		void update(Float32 elapsedTime);
-		void render() const;
-		void add(const Vector& centre, Float32 startSize, Float32 maxSize, const Color& color);
-	};
+    public:
+        ExplosionList(const GameResources &resources, Float32 speed);
+
+        void update(Float32 elapsedTime);
+
+        void render() const;
+
+        void add(const Vector &centre, Float32 startSize, Float32 maxSize, const Color &color);
+    };
 }
 
 #endif

@@ -31,36 +31,32 @@
 #include <list>
 #include "Sprite.h"
 
-namespace Duel6
-{
-	class SpriteList
-	{
-	public:
-		typedef std::list<Sprite>::iterator Iterator;
+namespace Duel6 {
+    class SpriteList {
+    public:
+        typedef std::list<Sprite>::iterator Iterator;
 
-	private:
-		std::list<Sprite> sprites;
+    private:
+        std::list<Sprite> sprites;
 
-	public:
-		Iterator addSprite(const Sprite& sprite);
+    public:
+        Iterator addSprite(const Sprite &sprite);
 
-		void removeSprite(Iterator iterator)
-		{
-			sprites.erase(iterator);
-		}
+        void removeSprite(Iterator iterator) {
+            sprites.erase(iterator);
+        }
 
-		void clear()
-		{
-			sprites.clear();
-		}
+        void clear() {
+            sprites.clear();
+        }
 
-		void update(Float32 elapsedTime);
+        void update(Float32 elapsedTime);
 
-		void render() const;
+        void render() const;
 
-	private:
-		void renderTransparent(bool transparent) const;
-	};
+    private:
+        void renderTransparent(bool transparent) const;
+    };
 }
 
 #endif

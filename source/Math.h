@@ -28,73 +28,93 @@
 #ifndef DUEL6_MATH_H
 #define DUEL6_MATH_H
 
+#include <random>
 #include <string>
 #include <cstdlib>
 #include <cmath>
 #include "Type.h"
 
-namespace Duel6
-{
-	class Math
-	{
-	public:
-		static const Float64 Pi;
+namespace Duel6 {
+    class Math {
+    public:
+        static const Float64 Pi;
+        static std::random_device randomDevice;
+        static std::default_random_engine randomEngine;
 
-	public:
-        template <class T>
-		static T radianSin(T angle)
-		{
-			return std::sin(angle);
-		}
+    public:
+        template<class T>
+        static T radianSin(T angle) {
+            return std::sin(angle);
+        }
 
-        template <class T>
-        static T angleSin(T angle)
-        {
+        template<class T>
+        static T radianCos(T angle) {
+            return std::cos(angle);
+        }
+
+        template<class T>
+        static T radianTan(T angle) {
+            return std::tan(angle);
+        }
+
+        template<class T>
+        static T degSin(T angle) {
             return radianSin(angleToRadians(angle));
         }
 
-		template <class T>
-		static T sqr(T val)
-		{
-			return val * val;
-		}
+        template<class T>
+        static T degCos(T angle) {
+            return radianCos(angleToRadians(angle));
+        }
 
-		template <class T>
-		static T norm(T x, T y)
-		{
-			return std::sqrt(sqr(x) + sqr(y));
-		}
+        template<class T>
+        static T degTan(T angle) {
+            return radianTan(angleToRadians(angle));
+        }
 
-		template <class T>
-		static T distance(T x1, T y1, T x2, T y2)
-		{
-			return norm(x1 - x2, y1 - y2);
-		}
+        template<class T>
+        static T sqr(T val) {
+            return val * val;
+        }
 
-		template <class T>
-		static Int32 sign(T val)
-		{
-			return val < 0 ? -1 : (val > 0 ? 1 : 0);
-		}
+        template<class T>
+        static T norm(T x, T y, T z = 0) {
+            return std::sqrt(sqr(x) + sqr(y) + sqr(z));
+        }
 
-		template <class T>
-		static T angleToRadians(T angle)
-		{
-			return T(angle * Pi / 180.0);
-		}
+        template<class T>
+        static T distance(T x1, T y1, T x2, T y2, T z1 = 0, T z2 = 0) {
+            return norm(x1 - x2, y1 - y2, z1 - z2);
+        }
 
-		template <class T>
-		static T radiansToAngle(T radians)
-		{
-			return T(radians * 180.0 / Pi);
-		}
+        template<class T>
+        static Int32 sign(T val) {
+            return val < 0 ? -1 : (val > 0 ? 1 : 0);
+        }
 
-		static Float32 angleDiff(Float32 left, Float32 right)
-		{
-			Float32 diff = std::abs(left - right);
-			return std::min(diff, 360.0f - diff);
-		}
-	};
+        template<class T>
+        static T angleToRadians(T angle) {
+            return T(angle * Pi / 180.0);
+        }
+
+        template<class T>
+        static T radiansToAngle(T radians) {
+            return T(radians * 180.0 / Pi);
+        }
+
+        static Float32 angleDiff(Float32 left, Float32 right) {
+            Float32 diff = std::abs(left - right);
+            return std::min(diff, 360.0f - diff);
+        }
+
+        static Int32 random(Int32 max);
+
+        static Int32 random(Int32 min, Int32 max);
+
+        static Float32 random(Float32 min, Float32 max);
+
+        static Float64 random(Float64 min, Float64 max);
+    };
 }
 
 #endif

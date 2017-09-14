@@ -35,41 +35,48 @@
 #include "Game.h"
 #include "Video.h"
 
-namespace Duel6
-{
-	class Application
-	{
-	private:
-		Font font;
-		Console console;
-		TextureManager textureManager;
-		Video video;
-		Input input;
-		Sound sound;
-		AppService service;
-		Menu menu;
-		GameSettings gameSettings;
-		std::unique_ptr<GameResources> gameResources;
-		std::unique_ptr<Game> game;
-		bool requestClose;
+namespace Duel6 {
+    class Application {
+    private:
+        Font font;
+        Console console;
+        TextureManager textureManager;
+        Video video;
+        Input input;
+        Sound sound;
+        AppService service;
+        Menu menu;
+        GameSettings gameSettings;
+        std::unique_ptr<GameResources> gameResources;
+        std::unique_ptr<Game> game;
+        bool requestClose;
 
-	public:
-		Application();
-		~Application();
+    public:
+        Application();
 
-		void setup(Int32 argc, char** argv);
-		void run();
-		void tearDown();
+        ~Application();
 
-	private:
-		void processEvents(Context& context);
-		void textInputEvent(Context& context, const TextInputEvent& event);
-		void keyEvent(Context& context, const KeyPressEvent& event);
-		void mouseButtonEvent(Context& context, const MouseButtonEvent& event);
-		void mouseMotionEvent(Context& context, const MouseMotionEvent& event);
-		void mouseWheelEvent(Context& context, const MouseWheelEvent& event);
-		void syncUpdateAndRender(Context& context);
-	};
+        void setup(Int32 argc, char **argv);
+
+        void run();
+
+        void tearDown();
+
+    private:
+        void processEvents(Context &context);
+
+        void textInputEvent(Context &context, const TextInputEvent &event);
+
+        void keyEvent(Context &context, const KeyPressEvent &event);
+
+        void mouseButtonEvent(Context &context, const MouseButtonEvent &event);
+
+        void mouseMotionEvent(Context &context, const MouseMotionEvent &event);
+
+        void mouseWheelEvent(Context &context, const MouseWheelEvent &event);
+
+        void syncUpdateAndRender(Context &context);
+    };
 }
 
 #endif

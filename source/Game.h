@@ -32,186 +32,172 @@
 #include <vector>
 #include <queue>
 #include <string>
-#include <algorithm> 
+#include <algorithm>
 #include "Type.h"
 #include "ScreenMode.h"
 #include "Context.h"
 #include "World.h"
 #include "Player.h"
-#include "Render.h"
+#include "WorldRenderer.h"
 #include "Water.h"
 #include "AppService.h"
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "Round.h"
 
-namespace Duel6
-{
-	class GameMode;
-	class Menu;
+namespace Duel6 {
+    class GameMode;
 
-	class Game
-		: public Context
-	{
-	public:
-		class PlayerDefinition
-		{
-		private:
-			Person& person;
-			PlayerSkinColors colors;
-			const PlayerSounds& sounds;
-			const PlayerControls& controls;
+    class Menu;
 
-		public:
-			PlayerDefinition(Person& person, const PlayerSkinColors& colors, const PlayerSounds& sounds, const PlayerControls& controls)
-				: person(person), colors(colors), sounds(sounds), controls(controls)
-			{}
+    class Game : public Context {
+    public:
+        class PlayerDefinition {
+        private:
+            Person &person;
+            PlayerSkinColors colors;
+            const PlayerSounds &sounds;
+            const PlayerControls &controls;
 
-			Person& getPerson() const
-			{
-				return person;
-			}
+        public:
+            PlayerDefinition(Person &person, const PlayerSkinColors &colors, const PlayerSounds &sounds,
+                             const PlayerControls &controls)
+                    : person(person), colors(colors), sounds(sounds), controls(controls) {}
 
-			PlayerSkinColors& getColors()
-			{
-				return colors;
-			}
+            Person &getPerson() const {
+                return person;
+            }
 
-			const PlayerSkinColors& getColors() const
-			{
-				return colors;
-			}
+            PlayerSkinColors &getColors() {
+                return colors;
+            }
 
-			const PlayerSounds& getSounds() const
-			{
-				return sounds;
-			}
+            const PlayerSkinColors &getColors() const {
+                return colors;
+            }
 
-			const PlayerControls& getControls() const
-			{
-				return controls;
-			}
-		};
+            const PlayerSounds &getSounds() const {
+                return sounds;
+            }
 
-	private:
-		AppService& appService;
-		GameResources& resources;
-		GameSettings& settings;
-		GameMode* gameMode;
-		std::unique_ptr<Round> round;
-		Renderer renderer;
-		const Menu* menu;
+            const PlayerControls &getControls() const {
+                return controls;
+            }
+        };
 
-		std::vector<std::string> levels;
-		std::vector<Size> backgrounds;
-		Int32 playedRounds;
+    private:
+        AppService &appService;
+        GameResources &resources;
+        GameSettings &settings;
+        GameMode *gameMode;
+        std::unique_ptr<Round> round;
+        WorldRenderer worldRenderer;
+        const Menu *menu;
 
-		std::vector<Player> players;
-		std::vector<PlayerSkin> skins;
+        std::vector<std::string> levels;
+        std::vector<Size> backgrounds;
+        Int32 playedRounds;
 
-	public:
-		Game(AppService& appService, GameResources& resources, GameSettings& settings);
+        std::vector<Player> players;
+        std::vector<PlayerSkin> skins;
 
-		void start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode);
-		void keyEvent(const KeyPressEvent& event) override;
-		void textInputEvent(const TextInputEvent& event) override;
-		void mouseButtonEvent(const MouseButtonEvent& event) override;
-		void mouseMotionEvent(const MouseMotionEvent& event) override;
-		void mouseWheelEvent(const MouseWheelEvent& event) override;
-		void update(Float32 elapsedTime) override;
-		void render() const override;
+    public:
+        Game(AppService &appService, GameResources &resources, GameSettings &settings);
 
-		AppService& getAppService() const
-		{
-			return appService;
-		}
+        void start(const std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
+                   const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode);
 
-		std::vector<Player>& getPlayers()
-		{
-			return players;
-		}
+        void keyEvent(const KeyPressEvent &event) override;
 
-		const std::vector<Player>& getPlayers() const
-		{
-			return players;
-		}
+        void textInputEvent(const TextInputEvent &event) override;
 
-		GameResources& getResources()
-		{
-			return resources;
-		}
+        void mouseButtonEvent(const MouseButtonEvent &event) override;
 
-		const GameResources& getResources() const
-		{
-			return resources;
-		}
+        void mouseMotionEvent(const MouseMotionEvent &event) override;
 
-		GameSettings& getSettings()
-		{
-			return settings;
-		}
+        void mouseWheelEvent(const MouseWheelEvent &event) override;
 
-		const GameSettings& getSettings() const
-		{
-			return settings;
-		}
+        void update(Float32 elapsedTime) override;
 
-		Round& getRound()
-		{
-			return *round;
-		}
+        void render() const override;
 
-		const Round& getRound() const
-		{
-			return *round;
-		}
+        AppService &getAppService() const {
+            return appService;
+        }
 
-		Int32 getPlayedRounds() const
-		{
-			return playedRounds;
-		}
+        std::vector<Player> &getPlayers() {
+            return players;
+        }
 
-		void setPlayedRounds(Int32 playedRounds)
-		{
-			this->playedRounds = playedRounds;
-		}
+        const std::vector<Player> &getPlayers() const {
+            return players;
+        }
 
-        bool isOver() const
-		{
-			return getRound().isLast() && getRound().isOver();
-		}
+        GameResources &getResources() {
+            return resources;
+        }
 
-		Renderer& getRenderer()
-		{
-			return renderer;
-		}
+        const GameResources &getResources() const {
+            return resources;
+        }
 
-		GameMode& getMode()
-		{
-			return *gameMode;
-		}
+        GameSettings &getSettings() {
+            return settings;
+        }
 
-		const GameMode& getMode() const
-		{
-			return *gameMode;
-		}
+        const GameSettings &getSettings() const {
+            return settings;
+        }
 
-		const Renderer& getRenderer() const
-		{
-			return renderer;
-		}
+        Round &getRound() {
+            return *round;
+        }
 
-		void setMenuReference(const Menu* menu)
-		{
-			this->menu = menu;
-		}
+        const Round &getRound() const {
+            return *round;
+        }
 
-	private:
-		void beforeStart(Context* prevContext) override;
-		void beforeClose(Context* nextContext) override;
-		void nextRound();
-		void endRound();
-	};	
+        Int32 getPlayedRounds() const {
+            return playedRounds;
+        }
+
+        void setPlayedRounds(Int32 playedRounds) {
+            this->playedRounds = playedRounds;
+        }
+
+        bool isOver() const {
+            return getRound().isLast() && getRound().isOver();
+        }
+
+        WorldRenderer &getWorldRenderer() {
+            return worldRenderer;
+        }
+
+        const WorldRenderer &getWorldRenderer() const {
+            return worldRenderer;
+        }
+
+        GameMode &getMode() {
+            return *gameMode;
+        }
+
+        const GameMode &getMode() const {
+            return *gameMode;
+        }
+
+        void setMenuReference(const Menu *menu) {
+            this->menu = menu;
+        }
+
+    private:
+        void beforeStart(Context *prevContext) override;
+
+        void beforeClose(Context *nextContext) override;
+
+        void nextRound();
+
+        void endRound();
+    };
 }
 
 #endif

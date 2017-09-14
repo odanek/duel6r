@@ -37,142 +37,119 @@
 #include "BonusList.h"
 #include "ElevatorList.h"
 
-namespace Duel6
-{
-	class Game;
+namespace Duel6 {
+    class Game;
 
-	class World
-	{
-	private:
-		const GameSettings& gameSettings;
-		std::vector<Player>& players;
-		Level level;
-		LevelRenderData levelRenderData;
-		InfoMessageQueue messageQueue;
-		SpriteList spriteList;
-		ShotList shotList;
-		ExplosionList explosionList;
-		FireList fireList;
-		Size background;
-		BonusList bonusList;
-		ElevatorList elevatorList;
+    class World {
+    private:
+        const GameSettings &gameSettings;
+        std::vector<Player> &players;
+        Level level;
+        LevelRenderData levelRenderData;
+        InfoMessageQueue messageQueue;
+        SpriteList spriteList;
+        ShotList shotList;
+        ExplosionList explosionList;
+        FireList fireList;
+        Size background;
+        BonusList bonusList;
+        ElevatorList elevatorList;
 
-	public:
-		World(Game& game, const std::string& levelPath, bool mirror, Size background);
+    public:
+        World(Game &game, const std::string &levelPath, bool mirror, Size background);
 
-		void update(Float32 elapsedTime);
-		void raiseWater();
+        void update(Float32 elapsedTime);
 
-		const GameSettings& getGameSettings() const
-		{
-			return gameSettings;
-		}
+        void raiseWater();
 
-		std::vector<Player>& getPlayers()
-		{
-			return players;
-		}
+        const GameSettings &getGameSettings() const {
+            return gameSettings;
+        }
 
-		const std::vector<Player>& getPlayers() const
-		{
-			return players;
-		}
+        std::vector<Player> &getPlayers() {
+            return players;
+        }
 
-		Level& getLevel()
-		{
-			return level;
-		}
+        const std::vector<Player> &getPlayers() const {
+            return players;
+        }
 
-		const Level& getLevel() const
-		{
-			return level;
-		}
+        Level &getLevel() {
+            return level;
+        }
 
-		LevelRenderData& getLevelRenderData()
-		{
-			return levelRenderData;
-		}
+        const Level &getLevel() const {
+            return level;
+        }
 
-		const LevelRenderData& getLevelRenderData() const
-		{
-			return levelRenderData;
-		}
+        LevelRenderData &getLevelRenderData() {
+            return levelRenderData;
+        }
 
-		InfoMessageQueue& getMessageQueue()
-		{
-			return messageQueue;
-		}
+        const LevelRenderData &getLevelRenderData() const {
+            return levelRenderData;
+        }
 
-		const InfoMessageQueue& getMessageQueue() const
-		{
-			return messageQueue;
-		}
+        InfoMessageQueue &getMessageQueue() {
+            return messageQueue;
+        }
 
-		SpriteList& getSpriteList()
-		{
-			return spriteList;
-		}
+        const InfoMessageQueue &getMessageQueue() const {
+            return messageQueue;
+        }
 
-		const SpriteList& getSpriteList() const
-		{
-			return spriteList;
-		}
+        SpriteList &getSpriteList() {
+            return spriteList;
+        }
 
-		ShotList& getShotList()
-		{
-			return shotList;
-		}
+        const SpriteList &getSpriteList() const {
+            return spriteList;
+        }
 
-		const ShotList& getShotList() const
-		{
-			return shotList;
-		}
+        ShotList &getShotList() {
+            return shotList;
+        }
 
-		ExplosionList& getExplosionList()
-		{
-			return explosionList;
-		}
+        const ShotList &getShotList() const {
+            return shotList;
+        }
 
-		const ExplosionList& getExplosionList() const
-		{
-			return explosionList;
-		}
+        ExplosionList &getExplosionList() {
+            return explosionList;
+        }
 
-		FireList& getFireList()
-		{
-			return fireList;
-		}
+        const ExplosionList &getExplosionList() const {
+            return explosionList;
+        }
 
-		const FireList& getFireList() const
-		{
-			return fireList;
-		}
+        FireList &getFireList() {
+            return fireList;
+        }
 
-		Size getBackground() const
-		{
-			return background;
-		}
+        const FireList &getFireList() const {
+            return fireList;
+        }
 
-		BonusList& getBonusList()
-		{
-			return bonusList;
-		}
+        Size getBackground() const {
+            return background;
+        }
 
-		const BonusList& getBonusList() const
-		{
-			return bonusList;
-		}
+        BonusList &getBonusList() {
+            return bonusList;
+        }
 
-		ElevatorList& getElevatorList()
-		{
-			return elevatorList;
-		}
+        const BonusList &getBonusList() const {
+            return bonusList;
+        }
 
-		const ElevatorList& getElevatorList() const
-		{
-			return elevatorList;
-		}
-	};
+        ElevatorList &getElevatorList() {
+            return elevatorList;
+        }
+
+        const ElevatorList &getElevatorList() const {
+            return elevatorList;
+        }
+    };
 }
 
 #endif

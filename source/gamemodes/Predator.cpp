@@ -27,57 +27,45 @@
 
 #include "Predator.h"
 
-namespace Duel6
-{
-	void Predator::initializeRound(Game& game, std::vector<Player>& players, World& world)
-	{
-		Size predatorIndex = rand() % world.getPlayers().size();
-		predator = &players[predatorIndex];
+namespace Duel6 {
+    void Predator::initializeRound(Game &game, std::vector<Player> &players, World &world) {
+        Size predatorIndex = Math::random(world.getPlayers().size());
+        predator = &players[predatorIndex];
 
-		eventListener = std::make_unique<PredatorPlayerEventListener>(world.getMessageQueue(), game.getSettings(), *predator);
+        eventListener = std::make_unique<PredatorPlayerEventListener>(world.getMessageQueue(), game.getSettings(),
+                                                                      *predator);
 
-		for (auto& player : players)
-		{
-			player.setEventListener(*eventListener);
-			if (&player == predator)
-			{
-				player.setBodyAlpha(0.1f);
-			}
-			else
-			{
-				player.setBodyAlpha(1.0f);
-				player.pickAmmo(10);
-			}
-		}
-	}
+        for (auto &player : players) {
+            player.setEventListener(*eventListener);
+            if (&player == predator) {
+                player.setBodyAlpha(0.1f);
+            } else {
+                player.setBodyAlpha(1.0f);
+                player.pickAmmo(10);
+            }
+        }
+    }
 
-	bool Predator::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
-	{
-		if (alivePlayers.empty())
-		{
-			for (const Player& player : world.getPlayers())
-			{
-				world.getMessageQueue().add(player, "End of round - no winner");
-			}
-			return true;
-		}
+    bool Predator::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {
+        if (alivePlayers.empty()) {
+            for (const Player &player : world.getPlayers()) {
+                world.getMessageQueue().add(player, "End of round - no winner");
+            }
+            return true;
+        }
 
-		if (!predator->isAlive())
-		{
-			for(Player* player : alivePlayers)
-			{
-				world.getMessageQueue().add(*player, Format("Marines won!"));
-				player->getPerson().addWins(1);
-			}
-			return true;
-		}
-		else if (alivePlayers.size() == 1)
-		{
-			world.getMessageQueue().add(*predator, Format("Predator won!"));
-			predator->getPerson().addWins(1);
-			return true;
-		}
+        if (!predator->isAlive()) {
+            for (Player *player : alivePlayers) {
+                world.getMessageQueue().add(*player, Format("Marines won!"));
+                player->getPerson().addWins(1);
+            }
+            return true;
+        } else if (alivePlayers.size() == 1) {
+            world.getMessageQueue().add(*predator, Format("Predator won!"));
+            predator->getPerson().addWins(1);
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

@@ -30,20 +30,20 @@
 
 #include "../LegacyShot.h"
 
-namespace Duel6
-{
-	class ShitThrowerShot : public LegacyShot
-	{
-	private:
-		PlayerSkin& brownSkin;
+namespace Duel6 {
+    class ShitThrowerShot : public LegacyShot {
+    private:
+        PlayerSkin &brownSkin;
 
-	public:
-		ShitThrowerShot(Player& player, const LegacyWeapon& weapon, Orientation shotOrientation, SpriteList::Iterator sprite, PlayerSkin& brownSkin);
-		void onHitPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) override;
+    public:
+        ShitThrowerShot(Player &player, const LegacyWeapon &weapon, Orientation shotOrientation,
+                        SpriteList::Iterator sprite, PlayerSkin &brownSkin);
 
-	protected:
-		void onExplode(const Vector& centre, Float32 range, World& world) override;
-	};
+        void onHitPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) override;
+
+    protected:
+        void onExplode(const Vector &centre, Float32 range, World &world) override;
+    };
 }
 
 

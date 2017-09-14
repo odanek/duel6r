@@ -27,50 +27,42 @@
 
 #include "PersonList.h"
 
-namespace Duel6
-{
-	Person& PersonList::getByName(const std::string& name)
-	{
-		auto iter = std::find_if(persons.begin(), persons.end(), [&name](const Person& person) {
-			return person.getName() == name;
-		});
-		return *iter;
-	}
+namespace Duel6 {
+    Person &PersonList::getByName(const std::string &name) {
+        auto iter = std::find_if(persons.begin(), persons.end(), [&name](const Person &person) {
+            return person.getName() == name;
+        });
+        return *iter;
+    }
 
-	bool PersonList::contains(const std::string& name) const
-	{
-		auto iter = std::find_if(persons.cbegin(), persons.cend(), [&name](const Person& person) {
-			return person.getName() == name;
-		});
-		return iter != persons.end();
-	}
+    bool PersonList::contains(const std::string &name) const {
+        auto iter = std::find_if(persons.cbegin(), persons.cend(), [&name](const Person &person) {
+            return person.getName() == name;
+        });
+        return iter != persons.end();
+    }
 
-	Json::Value PersonList::toJson() const
-	{
-		Json::Value json = Json::Value::makeArray();
-		for (const Person& person : persons)
-		{
-			json.add(person.toJson());
-		}
+    Json::Value PersonList::toJson() const {
+        Json::Value json = Json::Value::makeArray();
+        for (const Person &person : persons) {
+            json.add(person.toJson());
+        }
 
-		return json;
-	}
+        return json;
+    }
 
-	void PersonList::fromJson(const Json::Value& json)
-	{
-		persons.clear();
-		for (Size i = 0; i < json.getLength(); i++)
-		{
-			persons.push_back(Person::fromJson(json.get(i)));
-		}
-	}
+    void PersonList::fromJson(const Json::Value &json) {
+        persons.clear();
+        for (Size i = 0; i < json.getLength(); i++) {
+            persons.push_back(Person::fromJson(json.get(i)));
+        }
+    }
 
-	PersonList& PersonList::remove(const std::string& name)
-	{
-		auto iter = std::find_if(persons.cbegin(), persons.cend(), [&name](const Person& person) {
-			return person.getName() == name;
-		});
-		persons.erase(iter);
-		return *this;
-	}
+    PersonList &PersonList::remove(const std::string &name) {
+        auto iter = std::find_if(persons.cbegin(), persons.cend(), [&name](const Person &person) {
+            return person.getName() == name;
+        });
+        persons.erase(iter);
+        return *this;
+    }
 }

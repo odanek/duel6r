@@ -37,79 +37,80 @@
 #include "LegacyWeapon.h"
 #include "ShotBase.h"
 
-namespace Duel6
-{
-	class LegacyShot : public ShotBase
-	{
-	private:
-		const LegacyWeapon::Definition& definition;
-		const LegacyWeapon::WeaponTextures& textures;
-		const LegacyWeapon::WeaponSamples& samples;
-		Rectangle collisionRect;
-		Orientation orientation;
-		Vector position;
-		Vector velocity;
-		SpriteList::Iterator sprite;
-		bool powerful;
-		Shot* hitByOtherShot;
+namespace Duel6 {
+    class LegacyShot : public ShotBase {
+    private:
+        const LegacyWeapon::Definition &definition;
+        const LegacyWeapon::WeaponTextures &textures;
+        const LegacyWeapon::WeaponSamples &samples;
+        Rectangle collisionRect;
+        Orientation orientation;
+        Vector position;
+        Vector velocity;
+        SpriteList::Iterator sprite;
+        bool powerful;
+        Shot *hitByOtherShot;
 
-	public:
-		LegacyShot(Player& player, const LegacyWeapon& weapon, Orientation orientation, SpriteList::Iterator sprite, const Rectangle& collisionRect);
+    public:
+        LegacyShot(Player &player, const LegacyWeapon &weapon, Orientation orientation, SpriteList::Iterator sprite,
+                   const Rectangle &collisionRect);
 
-		bool update(Float32 elapsedTime, World& world) override;
-		Rectangle getCollisionRect() const override
-		{
-			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
-		}
-		bool requestCollision(const ShotHit& hit) override;
+        bool update(Float32 elapsedTime, World &world) override;
 
-		void onHitPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) override;
-		void onKillPlayer(Player& player, bool directHit, const Vector& hitPoint, World& world) override;
+        Rectangle getCollisionRect() const override {
+            return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+        }
 
-	protected:
-		virtual void onExplode(const Vector& centre, Float32 range, World& world);
+        bool requestCollision(const ShotHit &hit) override;
 
-		const Vector& getPosition() const
-		{
-			return position;
-		}
+        void onHitPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) override;
 
-		Vector getDimensions() const
-		{
-			return collisionRect.getSize();
-		}
+        void onKillPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) override;
 
-		Vector getCentre() const
-		{
-			return getCollisionRect().getCentre();
-		}
+    protected:
+        virtual void onExplode(const Vector &centre, Float32 range, World &world);
 
-		Vector getSpritePosition() const
-		{
-			if (orientation == Orientation::Left)
-			{
-				return getPosition() - collisionRect.left;
-			}
-			else
-			{
-				return Vector(getPosition().x + collisionRect.right.x - 1.0f, getPosition().y - collisionRect.left.y);
-			}
-		}
+        const Vector &getPosition() const {
+            return position;
+        }
 
-		void move(Float32 elapsedTime);
+        Vector getDimensions() const {
+            return collisionRect.getSize();
+        }
 
-		Float32 getExplosionRange() const;
-		Float32 getExplosionPower() const;
+        Vector getCentre() const {
+            return getCollisionRect().getCentre();
+        }
 
-		ShotHit evaluateShotHit(World& world);
-		ShotHit checkPlayerCollision(std::vector<Player>& players);
-		ShotHit checkWorldCollision(const Level& level);
-		ShotHit checkShotCollision(ShotList& shotList, ShotCollisionSetting collisionSetting);
-		void explode(ShotHit hit, World& world);
-		void addPlayerExplosion(Player& player, World& world);
-		void addPlayerBlood(const Player& player, const Vector& point, World& world);
+        Vector getSpritePosition() const {
+            if (orientation == Orientation::Left) {
+                return getPosition() - collisionRect.left;
+            } else {
+                return Vector(getPosition().x + collisionRect.right.x - 1.0f, getPosition().y - collisionRect.left.y);
+            }
+        }
 
-	};
+        void move(Float32 elapsedTime);
+
+        Float32 getExplosionRange() const;
+
+        Float32 getExplosionPower() const;
+
+        ShotHit evaluateShotHit(World &world);
+
+        ShotHit checkPlayerCollision(std::vector<Player> &players);
+
+        ShotHit checkWorldCollision(const Level &level);
+
+        ShotHit checkShotCollision(ShotList &shotList, ShotCollisionSetting collisionSetting);
+
+        void explode(ShotHit hit, World &world);
+
+        void addPlayerExplosion(Player &player, World &world);
+
+        void addPlayerBlood(const Player &player, const Vector &point, World &world);
+
+    };
 }
 
 #endif

@@ -26,144 +26,125 @@
 */
 
 #include "Sound.h"
-#include "Render.h"
+#include "WorldRenderer.h"
 #include "Game.h"
 #include "Menu.h"
 #include "GameMode.h"
 
-namespace Duel6
-{
-	Game::Game(AppService& appService, GameResources& resources, GameSettings& settings)
-		: appService(appService), resources(resources), settings(settings), renderer(appService, *this), playedRounds(0)
-	{}
+namespace Duel6 {
+    Game::Game(AppService &appService, GameResources &resources, GameSettings &settings)
+            : appService(appService), resources(resources), settings(settings), worldRenderer(appService, *this),
+              playedRounds(0) {}
 
-	void Game::beforeStart(Context* prevContext)
-	{
-		SDL_ShowCursor(SDL_DISABLE);
-	}
+    void Game::beforeStart(Context *prevContext) {
+        SDL_ShowCursor(SDL_DISABLE);
+    }
 
-	void Game::beforeClose(Context* nextContext)
-	{
-		endRound();
-	}
+    void Game::beforeClose(Context *nextContext) {
+        endRound();
+    }
 
-	void Game::render() const
-	{
-		renderer.render();
-	}
+    void Game::render() const {
+        worldRenderer.render();
+    }
 
-	void Game::update(Float32 elapsedTime)
-	{
-		if (getRound().isOver())
-		{
-			if (!getRound().isLast())
-			{
-				nextRound();
-			}
-		}
-		else
-		{
-			getRound().update(elapsedTime);
-		}
-	}
+    void Game::update(Float32 elapsedTime) {
+        if (getRound().isOver()) {
+            if (!getRound().isLast()) {
+                nextRound();
+            }
+        } else {
+            getRound().update(elapsedTime);
+        }
+    }
 
-	void Game::keyEvent(const KeyPressEvent& event)
-	{
-		if (event.getCode() == SDLK_ESCAPE && (isOver() || event.withShift()))
-		{
-			close();
-			return;
-		}
+    void Game::keyEvent(const KeyPressEvent &event) {
+        if (event.getCode() == SDLK_ESCAPE && (isOver() || event.withShift())) {
+            close();
+            return;
+        }
 
-		if (!getRound().isLast())
-		{
-			if (event.getCode() == SDLK_F1 && (getRound().hasWinner() || event.withShift()))
-			{
-				nextRound();
-				return;
-			}
+        if (!getRound().isLast()) {
+            if (event.getCode() == SDLK_F1 && (getRound().hasWinner() || event.withShift())) {
+                nextRound();
+                return;
+            }
 
-			if (getRound().hasWinner() && ((D6_GAME_OVER_WAIT - getRound().getRemainingGameOverWait()) > 3.0f))
-			{
-				nextRound();
-				return;
-			}
-		}
+            if (getRound().hasWinner() && ((D6_GAME_OVER_WAIT - getRound().getRemainingGameOverWait()) > 3.0f)) {
+                nextRound();
+                return;
+            }
+        }
 
-		getRound().keyEvent(event);
-	}
+        getRound().keyEvent(event);
+    }
 
-	void Game::textInputEvent(const TextInputEvent& event)
-	{}
+    void Game::textInputEvent(const TextInputEvent &event) {}
 
-	void Game::mouseButtonEvent(const MouseButtonEvent& event)
-	{}
+    void Game::mouseButtonEvent(const MouseButtonEvent &event) {}
 
-	void Game::mouseMotionEvent(const MouseMotionEvent& event)
-	{}
+    void Game::mouseMotionEvent(const MouseMotionEvent &event) {}
 
-	void Game::mouseWheelEvent(const MouseWheelEvent& event)
-	{}
+    void Game::mouseWheelEvent(const MouseWheelEvent &event) {}
 
-	void Game::start(const std::vector<PlayerDefinition>& playerDefinitions, const std::vector<std::string>& levels, const std::vector<Size>& backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode& gameMode)
-	{
-		Console& console = appService.getConsole();
-		console.printLine("\n=== Starting new game ===");
-		console.printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
-		TextureManager& textureManager = appService.getTextureManager();
-		players.clear();
+    void Game::start(const std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
+                     const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom,
+                     GameMode &gameMode) {
+        Console &console = appService.getConsole();
+        console.printLine("\n=== Starting new game ===");
+        console.printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
+        TextureManager &textureManager = appService.getTextureManager();
+        players.clear();
 
-		for (auto& skin : skins)
-		{
-			textureManager.dispose(skin.getTextureList());
-		}
-		skins.clear();
+        for (auto &skin : skins) {
+            textureManager.dispose(skin.getTextureList());
+        }
+        skins.clear();
 
-		Size playerIndex = 0;
-		for (const PlayerDefinition& playerDef : playerDefinitions)
-		{
-			console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-			skins.push_back(PlayerSkin(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
-			players.push_back(Player(playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls()));
-			playerIndex++;
-		}
+        Size playerIndex = 0;
+        for (const PlayerDefinition &playerDef : playerDefinitions) {
+            console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
+            skins.push_back(PlayerSkin(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager));
+            players.push_back(
+                    Player(playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls()));
+            playerIndex++;
+        }
 
-		this->levels = levels;
-		this->backgrounds = backgrounds;
-		this->gameMode = &gameMode;
-		settings.setScreenMode(screenMode);
-		settings.setScreenZoom(screenZoom);
-		gameMode.initializeGame(*this, players);
-		nextRound();
-	}
+        this->levels = levels;
+        std::shuffle(this->levels.begin(), this->levels.end(), Math::randomEngine);
 
-	void Game::nextRound()
-	{
-		if (playedRounds != 0)
-		{
-			endRound();
-			menu->savePersonData();
-		}
+        this->backgrounds = backgrounds;
+        this->gameMode = &gameMode;
+        settings.setScreenMode(screenMode);
+        settings.setScreenZoom(screenZoom);
+        gameMode.initializeGame(*this, players);
+        nextRound();
+    }
 
-        Int32 level = rand() % Int32(levels.size());
-		const std::string levelPath = levels[level];
-		bool mirror = rand() % 2 == 0;
-		Size background = backgrounds[rand() % backgrounds.size()];
+    void Game::nextRound() {
+        if (playedRounds != 0) {
+            endRound();
+            menu->savePersonData();
+        }
 
-		Console& console = appService.getConsole();
-		console.printLine(Format("\n===Loading level {0}===") << levelPath);
-		console.printLine(Format("...Parameters: mirror: {0}, background: {1}") << mirror << background);
-		round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror, background);
+        bool shuffle = settings.getLevelSelectionMode() == LevelSelectionMode::Shuffle;
+        Int32 level = shuffle ? playedRounds % Int32(levels.size()) : Math::random(Int32(levels.size()));
+        const std::string levelPath = levels[level];
+        bool mirror = Math::random(2) == 0;
+        Size background = backgrounds[Math::random(Int32(backgrounds.size()))];
 
-		playedRounds++;
-		resources.getRoundStartSound().play();
-	}
+        Console &console = appService.getConsole();
+        console.printLine(Format("\n===Loading level {0}===") << levelPath);
+        console.printLine(Format("...Parameters: mirror: {0}, background: {1}") << mirror << background);
+        round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror, background);
 
-	void Game::endRound()
-	{
-		for (Player& player : players)
-		{
-			player.endRound();
-		}
-	}
+        playedRounds++;
+        resources.getRoundStartSound().play();
+    }
+
+    void Game::endRound() {
+        for (Player &player : players) {
+            player.endRound();
+        }
+    }
 }

@@ -25,9 +25,71 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Projekt: Knihovna mylib
-Popis: Zakladni matematicke procedury
-*/
+#include "Camera.h"
+#include "Math.h"
 
-#include "mymath.h"
+namespace Duel6 {
+    Camera::Camera()
+            : position(Vector::ZERO), front(Vector::UNIT_Z), up(Vector::UNIT_Y), side(Vector::UNIT_X),
+              yaw(0), pitch(0), roll(0) {}
+
+    Vector Camera::getPosition() const {
+        return position;
+    }
+
+    void Camera::setPosition(const Vector &position) {
+        this->position = position;
+    }
+
+    Vector Camera::getFront() const {
+        return front;
+    }
+
+    Vector Camera::getUp() const {
+        return up;
+    }
+
+    Vector Camera::getSide() const {
+        return side;
+    }
+
+    Float32 Camera::getYaw() const {
+        return yaw;
+    }
+
+    Float32 Camera::getPitch() const {
+        return pitch;
+    }
+
+    Float32 Camera::getRoll() const {
+        return roll;
+    }
+
+    void Camera::rotate(Float32 yaw, Float32 pitch, Float32 roll) {
+        this->yaw += yaw;
+        this->pitch += pitch;
+        this->roll += roll;
+        update();
+    }
+
+    void Camera::update() {
+        Float32 a = Math::degSin(pitch);
+        Float32 b = Math::degCos(pitch);
+        Float32 c = Math::degSin(yaw);
+        Float32 d = Math::degCos(yaw);
+        Float32 e = Math::degSin(roll);
+        Float32 f = Math::degCos(roll);
+
+        front.x = c * b;
+        front.y = -a;
+        front.z = b * d;
+
+        side.x = d * f + c * a * e;
+        side.y = e * b;
+        side.z = c * e + d * a * f;;
+
+        up.x = -d * e + c * a * f;
+        up.y = f * b;
+        up.z = c * e + d * a * f;
+    }
+}

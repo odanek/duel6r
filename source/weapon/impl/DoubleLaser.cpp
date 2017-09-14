@@ -27,20 +27,19 @@
 
 #include "DoubleLaser.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 12.2f, true, true, true, Color(255, 255, 0), 2, 80, 3.44f, "double laser", "laser.wav", "bmbazook.wav", 0.005f, { 1, 10, 0, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.12f, 0.68f), Vector(0.39f, 0.28f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {12.2f, true, true, true, Color(255, 255, 0), 2, 80, 3.44f,
+                                               "double laser", "laser.wav", "bmbazook.wav", 0.005f,
+                                               {1, 10, 0, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}, {0, 50, -1, 0},
+                                               {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.12f, 0.68f), Vector(0.39f, 0.28f));
+    }
 
-	DoubleLaser::DoubleLaser(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 11)
-	{}
+    DoubleLaser::DoubleLaser(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 11) {}
 
-	Rectangle DoubleLaser::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle DoubleLaser::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

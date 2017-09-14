@@ -33,28 +33,40 @@
 #include "Game.h"
 #include "Sound.h"
 
-namespace Duel6
-{
-	class ConsoleCommands
-	{
-	private:
-		static void maxRounds(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
-		static void volume(Console& console, const Console::Arguments& args, Sound& sound);
-		static void toggleRenderMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
-		static void toggleShowFps(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
-		static void musicOnOff(Console& console, const Console::Arguments& args, Menu& menu);
-		static void joyScan(Console& console, const Console::Arguments& args, Menu& menu);
-		static void loadSkin(Console& console, const Console::Arguments& args, Menu& menu);
-		static void enableWeapon(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
-		static void ammoRange(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
-		static void openGLInfo(Console& console, const Console::Arguments& args);
-		static void vsync(Console& console, const Console::Arguments& args);
-		static void ghostMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
-		static void shotCollision(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
+namespace Duel6 {
+    class ConsoleCommands {
+    private:
+        static void maxRounds(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
 
-	public:
-		static void registerCommands(Console& console, AppService& appService, Menu& menu, GameSettings& gameSettings);
-	};
+        static void volume(Console &console, const Console::Arguments &args, Sound &sound);
+
+        static void toggleRenderMode(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
+        static void toggleShowFps(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
+        static void musicOnOff(Console &console, const Console::Arguments &args, Menu &menu);
+
+        static void joyScan(Console &console, const Console::Arguments &args, Menu &menu);
+
+        static void loadSkin(Console &console, const Console::Arguments &args, Menu &menu);
+
+        static void enableWeapon(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
+        static void ammoRange(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
+        static void openGLInfo(Console &console, const Console::Arguments &args);
+
+        static void vsync(Console &console, const Console::Arguments &args);
+
+        static void ghostMode(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
+        static void levelSelectionMode(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
+        static void shotCollision(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
+    public:
+        static void registerCommands(Console &console, AppService &appService, Menu &menu, GameSettings &gameSettings);
+    };
 }
 
 #endif

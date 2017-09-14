@@ -27,51 +27,47 @@
 
 #include "Person.h"
 
-namespace Duel6
-{
-	Person& Person::reset()
-	{
-		shots = 0;
-		hits = 0;
-		kills = 0;
-		wins = 0;
-		games = 0;
-		penalties = 0;
-		timeAlive = 0;
-		totalGameTime = 0;
-		totalDamage = 0;
-		return *this;
-	}
+namespace Duel6 {
+    Person &Person::reset() {
+        shots = 0;
+        hits = 0;
+        kills = 0;
+        wins = 0;
+        games = 0;
+        penalties = 0;
+        timeAlive = 0;
+        totalGameTime = 0;
+        totalDamage = 0;
+        return *this;
+    }
 
-	Json::Value Person::toJson() const
-	{
-		Json::Value json = Json::Value::makeObject();
-		json.set("name", Json::Value::makeString(getName()));
-		json.set("shots", Json::Value::makeNumber(shots));
-		json.set("hits", Json::Value::makeNumber(hits));
-		json.set("kills", Json::Value::makeNumber(kills));
-		json.set("wins", Json::Value::makeNumber(wins));
-		json.set("penalties", Json::Value::makeNumber(penalties));
-		json.set("games", Json::Value::makeNumber(games));
-		json.set("timeAlive", Json::Value::makeNumber(timeAlive));
-		json.set("totalGameTime", Json::Value::makeNumber(totalGameTime));
-		json.set("totalDamage", Json::Value::makeNumber(totalDamage));
-		return json;
-	}
+    Json::Value Person::toJson() const {
+        Json::Value json = Json::Value::makeObject();
+        json.set("name", Json::Value::makeString(getName()));
+        json.set("shots", Json::Value::makeNumber(shots));
+        json.set("hits", Json::Value::makeNumber(hits));
+        json.set("kills", Json::Value::makeNumber(kills));
+        json.set("wins", Json::Value::makeNumber(wins));
+        json.set("penalties", Json::Value::makeNumber(penalties));
+        json.set("games", Json::Value::makeNumber(games));
+        json.set("timeAlive", Json::Value::makeNumber(timeAlive));
+        json.set("totalGameTime", Json::Value::makeNumber(totalGameTime));
+        json.set("totalDamage", Json::Value::makeNumber(totalDamage));
+        return json;
+    }
 
-	Person Person::fromJson(const Json::Value& json)
-	{
-		Person person;
-		person.name = json.get("name").asString();
-		person.shots = json.get("shots").asInt();
-		person.hits = json.get("hits").asInt();
-		person.kills = json.get("kills").asInt();
-		person.wins = json.get("wins").asInt();
-		person.penalties = json.get("penalties").asInt();
-		person.games = json.get("games").asInt();
-		person.timeAlive = json.get("timeAlive").asInt();
-		person.totalGameTime = json.get("totalGameTime").asInt();
-		person.totalDamage = json.getOrDefault("totalDamage", Json::Value::makeNumber(0)).asInt();
-		return person;
-	}
+    Person Person::fromJson(const Json::Value &json) {
+        Person person;
+        person.name = json.get("name").asString();
+        person.shots = json.get("shots").asInt();
+        person.hits = json.get("hits").asInt();
+        person.kills = json.get("kills").asInt();
+        person.wins = json.get("wins").asInt();
+        person.penalties = json.get("penalties").asInt();
+        person.games = json.get("games").asInt();
+        person.timeAlive = json.get("timeAlive").asInt();
+        person.totalGameTime = json.get("totalGameTime").asInt();
+        person.totalDamage = json.getOrDefault("totalDamage", Json::Value::makeNumber(0)).asInt();
+        return person;
+    }
 }

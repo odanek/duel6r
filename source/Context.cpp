@@ -27,7 +27,6 @@
 
 #include "Context.h"
 
-namespace Duel6
-{
-	std::stack<Context*> Context::contextStack;
+namespace Duel6 {
+    std::stack<Context *> Context::contextStack;
 }

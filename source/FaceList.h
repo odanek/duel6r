@@ -33,61 +33,53 @@
 #include "Face.h"
 #include "TextureManager.h"
 
-namespace Duel6
-{
-	class FaceList
-	{
-	private:
-		std::vector<Vertex> vertexes;
-		std::vector<Face> faces;
+namespace Duel6 {
+    class FaceList {
+    private:
+        std::vector<Vertex> vertexes;
+        std::vector<Face> faces;
 
-	public:
-		FaceList()
-		{}
+    public:
+        FaceList() {}
 
-		FaceList& clear()
-		{
-			vertexes.clear();
-			faces.clear();
-			return *this;
-		}
+        FaceList &clear() {
+            vertexes.clear();
+            faces.clear();
+            return *this;
+        }
 
-		FaceList& addVertex(const Vertex& vertex)
-		{
-			vertexes.push_back(vertex);
-			return *this;
-		}
+        FaceList &addVertex(const Vertex &vertex) {
+            vertexes.push_back(vertex);
+            return *this;
+        }
 
-		FaceList& addFace(const Face& face)
-		{
-			faces.push_back(face);
-			return *this;
-		}
+        FaceList &addFace(const Face &face) {
+            faces.push_back(face);
+            return *this;
+        }
 
-		std::vector<Vertex>& getVertexes()
-		{
-			return vertexes;
-		}
+        std::vector<Vertex> &getVertexes() {
+            return vertexes;
+        }
 
-		const std::vector<Vertex>& getVertexes() const
-		{
-			return vertexes;
-		}
+        const std::vector<Vertex> &getVertexes() const {
+            return vertexes;
+        }
 
-		std::vector<Face>& getFaces()
-		{
-			return faces;
-		}
+        std::vector<Face> &getFaces() {
+            return faces;
+        }
 
-		const std::vector<Face>& getFaces() const
-		{
-			return faces;
-		}
+        const std::vector<Face> &getFaces() const {
+            return faces;
+        }
 
-		void optimize();
-		void render(const TextureList& textures) const;
-		void nextFrame();
-	};
+        void optimize();
+
+        void render(const TextureList &textures, bool masked) const;
+
+        void nextFrame();
+    };
 }
 
 #endif

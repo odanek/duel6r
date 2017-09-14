@@ -33,65 +33,64 @@
 #include "WaterList.h"
 #include "Level.h"
 
-namespace Duel6
-{
-	class LevelRenderData
-	{
-	private:
-		const Level& level;
-		FaceList walls;
-		FaceList sprites;
-		FaceList water;
-		Float32 animationSpeed;
-		Float32 animWait;
-		Float32 waveHeight;
-		WaterList floatingVertexes;
+namespace Duel6 {
+    class LevelRenderData {
+    private:
+        const Level &level;
+        FaceList walls;
+        FaceList sprites;
+        FaceList water;
+        Float32 animationSpeed;
+        Float32 animWait;
+        Float32 waveHeight;
+        WaterList floatingVertexes;
 
-	public:
-		LevelRenderData(const Level& level, Float32 animationSpeed, Float32 waveHeight);
+    public:
+        LevelRenderData(const Level &level, Float32 animationSpeed, Float32 waveHeight);
 
-		void generateFaces();
-		void generateWater();
-		void update(Float32 elapsedTime);
+        void generateFaces();
 
-		FaceList& getWalls()
-		{
-			return walls;
-		}
+        void generateWater();
 
-		const FaceList& getWalls() const
-		{
-			return walls;
-		}
+        void update(Float32 elapsedTime);
 
-		FaceList& getSprites()
-		{
-			return sprites;
-		}
+        FaceList &getWalls() {
+            return walls;
+        }
 
-		const FaceList& getSprites() const
-		{
-			return sprites;
-		}
+        const FaceList &getWalls() const {
+            return walls;
+        }
 
-		FaceList& getWater()
-		{
-			return water;
-		}
+        FaceList &getSprites() {
+            return sprites;
+        }
 
-		const FaceList& getWater() const
-		{
-			return water;
-		}
+        const FaceList &getSprites() const {
+            return sprites;
+        }
 
-	private:
-		void addWallFaces();
-		void addSpriteFaces();
-		void addWaterFaces();
-		void addWall(const Block& block, Int32 x, Int32 y);
-		void addWater(const Block& block, Int32 x, Int32 y);
-		void addSprite(FaceList& faceList, const Block& block, Int32 x, Int32 y, Float32 z);
-	};
+        FaceList &getWater() {
+            return water;
+        }
+
+        const FaceList &getWater() const {
+            return water;
+        }
+
+    private:
+        void addWallFaces();
+
+        void addSpriteFaces();
+
+        void addWaterFaces();
+
+        void addWall(const Block &block, Int32 x, Int32 y);
+
+        void addWater(const Block &block, Int32 x, Int32 y);
+
+        void addSprite(FaceList &faceList, const Block &block, Int32 x, Int32 y, Float32 z);
+    };
 }
 
 

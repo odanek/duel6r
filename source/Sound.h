@@ -31,69 +31,82 @@
 #include <string>
 #include <vector>
 #include <SDL2/SDL.h>
+
 #if defined(__APPLE__)
-	#include <SDL2_mixer/SDL_mixer.h>
+#include <SDL2_mixer/SDL_mixer.h>
 #else
-	#include <SDL2/SDL_mixer.h>
+
+#include <SDL2/SDL_mixer.h>
+
 #endif
+
 #include "Type.h"
 #include "console/console.h"
 
-namespace Duel6
-{
-	class Sound
-	{
-	public:
-		class Sample
-		{
-		private:
-			friend class Sound;
-			Sound* sound;
-			Mix_Chunk* chunk;
+namespace Duel6 {
+    class Sound {
+    public:
+        class Sample {
+        private:
+            friend class Sound;
 
-		private:
-			Sample(Sound* sound, Mix_Chunk* chunk);
+            Sound *sound;
+            Mix_Chunk *chunk;
 
-		public:
-			Sample();
-			void play() const;
-		};
+        private:
+            Sample(Sound *sound, Mix_Chunk *chunk);
 
-		class Track
-		{			
-		private:
-			friend class Sound;
-			Sound* sound;
-			Mix_Music* module;
+        public:
+            Sample();
 
-		private:			
-			Track(Sound* sound, Mix_Music* module);
+            ~Sample();
 
-		public:
-			Track();
-			void play(bool loop) const;
-		};
+            void play() const;
+        };
 
-	private:
-		Console& console;
-		Int32 channels;
-		bool playing;
-		std::vector<Mix_Music*> modules;
-		std::vector<Mix_Chunk*> samples;
+        class Track {
+        private:
+            friend class Sound;
 
-	public:
-		Sound(Int32 channels, Console& console);
-		~Sound();
+            Sound *sound;
+            Mix_Music *module;
 
-		Track loadModule(const std::string& fileName);
-		Sample loadSample(const std::string& fileName);
-		void volume(Int32 volume);
-		void stopMusic();
+        private:
+            Track(Sound *sound, Mix_Music *module);
 
-	private:
-		void startMusic(Mix_Music* music, bool loop);
-		void playSample(Mix_Chunk* chunk);
-	};
+        public:
+            Track();
+
+            ~Track();
+
+            void play(bool loop) const;
+        };
+
+    private:
+        Console &console;
+        Int32 channels;
+        bool playing;
+        std::vector<Mix_Music *> modules;
+        std::vector<Mix_Chunk *> samples;
+
+    public:
+        Sound(Int32 channels, Console &console);
+
+        ~Sound();
+
+        Track loadModule(const std::string &fileName);
+
+        Sample loadSample(const std::string &fileName);
+
+        void volume(Int32 volume);
+
+        void stopMusic();
+
+    private:
+        void startMusic(Mix_Music *music, bool loop);
+
+        void playSample(Mix_Chunk *chunk);
+    };
 }
 
 #endif

@@ -33,65 +33,66 @@
 #include "../Shot.h"
 #include "../SpriteList.h"
 
-namespace Duel6
-{
-	class LegacyShot;
+namespace Duel6 {
+    class LegacyShot;
 
-	class LegacyWeapon : public WeaponBase
-	{
-	public:
-		struct Definition
-		{
-			Float32 bulletSpeed;
-			bool blood;
-			bool explodes;
-			bool collides;
-			Color explosionColor;
-			Int32 boom;
-			Int32 power;
-			Float32 reloadSpeed;
-			std::string name;
-			std::string shotSound;
-			std::string boomSound;
-			Float32 expGrow;
-			Int16 animation[16];
-			Int16 shotAnimation[18];
-			Int16 boomAnimation[14];
-		};
+    class LegacyWeapon : public WeaponBase {
+    public:
+        struct Definition {
+            Float32 bulletSpeed;
+            bool blood;
+            bool explodes;
+            bool collides;
+            Color explosionColor;
+            Int32 boom;
+            Int32 power;
+            Float32 reloadSpeed;
+            std::string name;
+            std::string shotSound;
+            std::string boomSound;
+            Float32 expGrow;
+            Int16 animation[16];
+            Int16 shotAnimation[18];
+            Int16 boomAnimation[14];
+        };
 
-		struct WeaponTextures
-		{
-			TextureList boom;
-			TextureList gun;
-			TextureList shot;
-		};
+        struct WeaponTextures {
+            TextureList boom;
+            TextureList gun;
+            TextureList shot;
+        };
 
-		struct WeaponSamples
-		{
-			Sound::Sample shot;
-			Sound::Sample boom;
-		};
+        struct WeaponSamples {
+            Sound::Sample shot;
+            Sound::Sample boom;
+        };
 
-	protected:
-		const Definition& definition;
-		WeaponTextures textures;
-		WeaponSamples samples;
+    protected:
+        const Definition &definition;
+        WeaponTextures textures;
+        WeaponSamples samples;
 
-	public:
-		LegacyWeapon(Sound& sound, TextureManager& textureManager, const Definition& definition, Size index);
+    public:
+        LegacyWeapon(Sound &sound, TextureManager &textureManager, const Definition &definition, Size index);
 
-		void shoot(Player& player, Orientation orientation, World& world) const override;
-		Sprite& makeSprite(Sprite& sprite) const override;
-		Texture getBonusTexture() const override;
+        void shoot(Player &player, Orientation orientation, World &world) const override;
 
-		const Definition& getDefinition() const;
-		const WeaponTextures& getTextures() const;
-		const WeaponSamples& getSamples() const;
+        Sprite &makeSprite(Sprite &sprite) const override;
 
-	protected:
-		virtual std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const;
-		virtual Rectangle getShotCollisionRectangle() const = 0;
-	};
+        Texture getBonusTexture() const override;
+
+        const Definition &getDefinition() const;
+
+        const WeaponTextures &getTextures() const;
+
+        const WeaponSamples &getSamples() const;
+
+    protected:
+        virtual std::unique_ptr<Shot>
+        makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const;
+
+        virtual Rectangle getShotCollisionRectangle() const = 0;
+    };
 }
 
 #endif
