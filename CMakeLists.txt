@@ -11,8 +11,6 @@ cmake_minimum_required(VERSION 3.2)
 # project name
 project(Duel6r)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
 #########################################################################
 # Platform detection
 #########################################################################
