@@ -45,7 +45,7 @@ namespace Duel6::Script {
 
         ScriptLoader::LevelScriptList loadLevelScripts();
 
-        ScriptLoader::PlayerScriptList loadPlayerScripts();
+        ScriptLoader::PlayerScriptList loadPlayerScripts(const std::string &directory);
     };
 }
 

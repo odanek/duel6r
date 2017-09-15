@@ -36,7 +36,7 @@ namespace Duel6::Script {
     class LuaScriptLoader : public ScriptLoader {
     public:
         LevelScriptList loadLevelScripts() override;
-        PlayerScriptList loadPlayerScripts() override;
+        PlayerScriptList loadPlayerScripts(const std::string &directory) override;
     };
 }
 

@@ -144,7 +144,7 @@ namespace Duel6 {
                 console.printLine(Format("No profile found for name: {0}") << name);
                 return;
             }
-            PlayerSkinColors &colors = profile->second.getSkinColors();
+            PlayerSkinColors &colors = profile->second->getSkinColors();
 
             for (Size i = 0; i < 9; i++) {
                 colors.set((PlayerSkinColors::BodyPart) i, Color::fromString(args.get(i + 2)));
@@ -155,7 +155,7 @@ namespace Duel6 {
             name = args.get(1);
             auto profile = profileMap.find(name);
             if (profile != profileMap.end()) {
-                PlayerSkinColors &colors = profile->second.getSkinColors();
+                PlayerSkinColors &colors = profile->second->getSkinColors();
                 console.print(Format("Skin \"{0}\":\n") << name);
                 for (Size i = 0; i < 9; i++) {
                     const Color &color = colors.get((PlayerSkinColors::BodyPart) i);

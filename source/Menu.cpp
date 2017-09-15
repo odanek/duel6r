@@ -628,14 +628,18 @@ namespace Duel6 {
         File::listDirectory(path, "", profileDirs);
         for (auto &profileName : profileDirs) {
             std::string profilePath = Format("{0}/{1}/") << path << profileName;
-            personProfiles.insert(std::make_pair(profileName, PersonProfile(sound, profilePath)));
+            auto profile = std::make_unique<PersonProfile>(profilePath);
+            profile->loadSounds(sound);
+            profile->loadSkinColors();
+            profile->loadScripts(appService.getScriptManager());
+            personProfiles.insert(std::make_pair(profileName, std::move(profile)));
         }
     }
 
     PersonProfile *Menu::getPersonProfile(const std::string &name) {
         auto profile = personProfiles.find(name);
         if (profile != personProfiles.end()) {
-            return &profile->second;
+            return profile->second.get();
         }
 
         return nullptr;

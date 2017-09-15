@@ -47,10 +47,9 @@ namespace Duel6 {
     private:
         std::vector<Sound::Sample> sounds[7];
 
-    private:
-        PlayerSounds() {}
-
     public:
+        PlayerSounds();
+
         const Sound::Sample &getRandomSample(Type type) const;
 
         const std::vector<Sound::Sample> &getSamples(Type type) const {

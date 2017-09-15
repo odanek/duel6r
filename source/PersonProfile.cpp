@@ -29,7 +29,18 @@
 #include "PersonProfile.h"
 
 namespace Duel6 {
-    PersonProfile::PersonProfile(Sound &sound, const std::string &profileRoot)
-            : skinColors(PlayerSkinColors::load(profileRoot, D6_FILE_PROFILE_SKIN)),
-              sounds(PlayerSounds::load(sound, profileRoot, D6_FILE_PROFILE_SOUNDS)) {}
+    PersonProfile::PersonProfile(const std::string &profileRoot)
+            : profileRoot(profileRoot) {}
+
+    void PersonProfile::loadSounds(Sound &sound) {
+        sounds = PlayerSounds::load(sound, profileRoot, D6_FILE_PROFILE_SOUNDS);
+    }
+
+    void PersonProfile::loadSkinColors() {
+        skinColors = PlayerSkinColors::load(profileRoot, D6_FILE_PROFILE_SKIN);
+    }
+
+    void PersonProfile::loadScripts(Script::ScriptManager& scriptManager) {
+        scripts = scriptManager.loadPlayerScripts(profileRoot);
+    }
 }

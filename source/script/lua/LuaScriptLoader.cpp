@@ -32,7 +32,7 @@ namespace Duel6::Script {
         return {};
     }
 
-    ScriptLoader::PlayerScriptList LuaScriptLoader::loadPlayerScripts() {
+    ScriptLoader::PlayerScriptList LuaScriptLoader::loadPlayerScripts(const std::string& directory) {
         return {};
     }
 }

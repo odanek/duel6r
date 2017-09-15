@@ -62,7 +62,7 @@ namespace Duel6 {
         std::vector<std::unique_ptr<GameMode>> gameModes;
         Gui::Desktop gui;
         PlayerControlsManager controlsManager;
-        std::unordered_map<std::string, PersonProfile> personProfiles;
+        std::unordered_map<std::string, std::unique_ptr<PersonProfile>> personProfiles;
         PlayerSounds defaultPlayerSounds;
         LevelList levelList;
         PersonList persons;
@@ -108,7 +108,7 @@ namespace Duel6 {
 
         void enableMusic(bool enable);
 
-        std::unordered_map<std::string, PersonProfile> &getPersonProfiles() {
+        std::unordered_map<std::string, std::unique_ptr<PersonProfile>> &getPersonProfiles() {
             return personProfiles;
         }
 

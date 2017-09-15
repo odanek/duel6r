@@ -42,7 +42,7 @@ namespace Duel6::Script {
     public:
         virtual ~ScriptLoader() = default;
         virtual LevelScriptList loadLevelScripts() = 0;
-        virtual PlayerScriptList loadPlayerScripts() = 0;
+        virtual PlayerScriptList loadPlayerScripts(const std::string &directory) = 0;
     };
 }
 
