@@ -82,8 +82,8 @@ namespace Duel6 {
 
         ~Menu() = default;
 
-        void setGameReference(Game *game) {
-            this->game = game;
+        void setGameReference(Game &game) {
+            this->game = &game;
         }
 
         void initialize();

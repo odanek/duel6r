@@ -624,8 +624,7 @@ namespace Duel6 {
     void Menu::loadPersonProfiles(const std::string &path) {
         appService.getConsole().printLine("\n===Person profile initialization===");
 
-        std::vector<std::string> profileDirs;
-        File::listDirectory(path, "", profileDirs);
+        std::vector<std::string> profileDirs = File::listDirectory(path, "");
         for (auto &profileName : profileDirs) {
             std::string profilePath = Format("{0}/{1}/") << path << profileName;
             auto profile = std::make_unique<PersonProfile>(profilePath);

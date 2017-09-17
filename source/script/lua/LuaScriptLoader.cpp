@@ -26,13 +26,17 @@
 */
 
 #include "LuaScriptLoader.h"
+#include "../../File.h"
 
 namespace Duel6::Script {
-    ScriptLoader::LevelScriptList LuaScriptLoader::loadLevelScripts() {
-        return {};
+    LuaScriptLoader::LuaScriptLoader(ScriptContext &context)
+            : context(context) {}
+
+    std::unique_ptr<LevelScript> LuaScriptLoader::loadLevelScript() {
+        return nullptr;
     }
 
-    ScriptLoader::PlayerScriptList LuaScriptLoader::loadPlayerScripts(const std::string& directory) {
-        return {};
+    std::unique_ptr<PlayerScript> LuaScriptLoader::loadPlayerScript(const std::string& directory) {
+        return nullptr;
     }
 }

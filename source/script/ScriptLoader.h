@@ -36,13 +36,9 @@
 namespace Duel6::Script {
     class ScriptLoader {
     public:
-        typedef std::vector<std::unique_ptr<LevelScript>> LevelScriptList;
-        typedef std::vector<std::unique_ptr<PlayerScript>> PlayerScriptList;
-
-    public:
         virtual ~ScriptLoader() = default;
-        virtual LevelScriptList loadLevelScripts() = 0;
-        virtual PlayerScriptList loadPlayerScripts(const std::string &directory) = 0;
+        virtual std::unique_ptr<LevelScript> loadLevelScript() = 0;
+        virtual std::unique_ptr<PlayerScript> loadPlayerScript(const std::string &directory) = 0;
     };
 }
 

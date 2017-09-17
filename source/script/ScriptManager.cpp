@@ -28,26 +28,26 @@
 #include "ScriptManager.h"
 
 #ifdef D6_SCRIPTING_LUA
-
 #include "lua/LuaScriptLoader.h"
-
 #endif
 
 namespace Duel6::Script {
-    ScriptManager::ScriptManager() {}
+    ScriptManager::ScriptManager(ScriptContext &context)
+            : context(context) {}
 
     void ScriptManager::registerLoaders() {
 #ifdef D6_SCRIPTING_LUA
-        loaders.push_back(std::make_unique<LuaScriptLoader>());
+        auto luaLoader = std::make_unique<LuaScriptLoader>(context);
+        loaders.push_back(std::move(luaLoader));
 #endif
     }
 
-    ScriptLoader::LevelScriptList ScriptManager::loadLevelScripts() {
-        ScriptLoader::LevelScriptList result;
+    ScriptManager::LevelScriptList ScriptManager::loadLevelScripts() {
+        LevelScriptList result;
 
         for (auto &loader : loaders) {
-            auto loaderScripts = loader->loadLevelScripts();
-            for (auto &script : loaderScripts) {
+            auto script = loader->loadLevelScript();
+            if (script) {
                 result.push_back(std::move(script));
             }
         }
@@ -55,12 +55,12 @@ namespace Duel6::Script {
         return result;
     }
 
-    ScriptLoader::PlayerScriptList ScriptManager::loadPlayerScripts(const std::string &directory) {
-        ScriptLoader::PlayerScriptList result;
+    ScriptManager::PlayerScriptList ScriptManager::loadPlayerScripts(const std::string &directory) {
+        PlayerScriptList result;
 
         for (auto &loader : loaders) {
-            auto loaderScripts = loader->loadPlayerScripts(directory);
-            for (auto &script : loaderScripts) {
+            auto script = loader->loadPlayerScript(directory);
+            if (script) {
                 result.push_back(std::move(script));
             }
         }

@@ -29,9 +29,23 @@
 #define DUEL6_SCRIPT_LUA_PLAYERSCRIPT_H
 
 #include "../PlayerScript.h"
+#include "../../GameSettings.h"
+#include "../ScriptContext.h"
 
 namespace Duel6::Script {
     class LuaPlayerScript : public PlayerScript {
+    private:
+        ScriptContext &context;
+
+    public:
+        explicit LuaPlayerScript(ScriptContext &context);
+
+    private:
+        void roundStart(Player &player, RoundScriptContext &roundContext) override;
+
+        void roundUpdate(Player &player, RoundScriptContext &roundContext) override;
+
+        void roundEnd(Player &player, RoundScriptContext &roundContext) override;
     };
 }
 

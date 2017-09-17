@@ -39,7 +39,7 @@ namespace Duel6 {
         std::string profileRoot;
         PlayerSkinColors skinColors;
         PlayerSounds sounds;
-        Script::ScriptLoader::PlayerScriptList scripts;
+        Script::ScriptManager::PlayerScriptList scripts;
 
     public:
         explicit PersonProfile(const std::string &profileRoot);
@@ -62,7 +62,7 @@ namespace Duel6 {
             return sounds;
         }
 
-        Script::ScriptLoader::PlayerScriptList& getScripts() {
+        Script::ScriptManager::PlayerScriptList& getScripts() {
             return scripts;
         }
     };

@@ -31,21 +31,26 @@
 #include "ScriptLoader.h"
 #include "LevelScript.h"
 #include "PlayerScript.h"
-#include "../console/console.h"
+#include "ScriptContext.h"
 
 namespace Duel6::Script {
     class ScriptManager {
+    public:
+        typedef std::vector<std::unique_ptr<LevelScript>> LevelScriptList;
+        typedef std::vector<std::unique_ptr<PlayerScript>> PlayerScriptList;
+
     private:
+        ScriptContext context;
         std::vector<std::unique_ptr<ScriptLoader>> loaders;
 
     public:
-        ScriptManager();
+        explicit ScriptManager(ScriptContext &context);
 
         void registerLoaders();
 
-        ScriptLoader::LevelScriptList loadLevelScripts();
+        LevelScriptList loadLevelScripts();
 
-        ScriptLoader::PlayerScriptList loadPlayerScripts(const std::string &directory);
+        PlayerScriptList loadPlayerScripts(const std::string &directory);
     };
 }
 

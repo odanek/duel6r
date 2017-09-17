@@ -156,9 +156,8 @@ namespace Duel6 {
         return false;
     }
 
-    void
-    File::listDirectory(const std::string &path, const std::string &extension, std::vector<std::string> &fileNames) {
-        fileNames.clear();
+    std::vector<std::string> File::listDirectory(const std::string &path, const std::string &extension) {
+        std::vector<std::string> fileNames;
 
         DIR *handle = opendir(path.c_str());
         if (handle == nullptr) {
@@ -177,6 +176,8 @@ namespace Duel6 {
         }
 
         closedir(handle);
+
+        return fileNames;
     }
 
     Size File::countFiles(const std::string &path, const std::string &extension) {

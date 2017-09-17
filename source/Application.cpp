@@ -71,8 +71,9 @@ namespace Duel6 {
 
     Application::Application()
             : console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
+              scriptContext(console, sound, gameSettings), scriptManager(scriptContext),
               service(font, console, textureManager, video, input, sound, scriptManager),
-              menu(service), requestClose(false) {}
+              menu(service), game(service, gameResources, gameSettings), requestClose(false) {}
 
     Application::~Application() {
         tearDown();
@@ -94,7 +95,7 @@ namespace Duel6 {
                 console.toggle();
                 if (console.isActive()) {
                     SDL_StartTextInput();
-                } else if (context.is(*game)) {
+                } else if (context.is(game)) {
                     SDL_StopTextInput();
                 }
             }
@@ -201,10 +202,9 @@ namespace Duel6 {
         video.initialize(APP_NAME, APP_FILE_ICON, console);
         menu.initialize();
 
-        gameResources = std::make_unique<GameResources>(service);
-        game = std::make_unique<Game>(service, *gameResources, gameSettings);
-        menu.setGameReference(game.get());
-        game->setMenuReference(&menu);
+        gameResources.load(service);
+        menu.setGameReference(game);
+        game.setMenuReference(&menu);
 
         for (Weapon weapon : Weapon::values()) {
             gameSettings.enableWeapon(weapon, true);

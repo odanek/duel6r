@@ -28,4 +28,18 @@
 #include "LuaPlayerScript.h"
 
 namespace Duel6::Script {
+    LuaPlayerScript::LuaPlayerScript(ScriptContext &context)
+            : context(context) {}
+
+    void LuaPlayerScript::roundStart(Player &player, RoundScriptContext &roundContext) {
+
+    }
+
+    void LuaPlayerScript::roundUpdate(Player &player, RoundScriptContext &roundContext) {
+
+    }
+
+    void LuaPlayerScript::roundEnd(Player &player, RoundScriptContext &roundContext) {
+
+    }
 }

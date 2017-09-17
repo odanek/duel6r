@@ -29,11 +29,17 @@
 #define DUEL6_SCRIPT_PLAYERSCRIPT_H
 
 #include "Script.h"
+#include "RoundScriptContext.h"
+
+namespace Duel6 {
+    class Player;
+}
 
 namespace Duel6::Script {
     class PlayerScript : public Script {
-        virtual void roundStart() = 0;
-        virtual void roundUpdate() = 0;
+        virtual void roundStart(Player &player, RoundScriptContext &roundContext) = 0;
+        virtual void roundUpdate(Player &player, RoundScriptContext &roundContext) = 0;
+        virtual void roundEnd(Player &player, RoundScriptContext &roundContext) = 0;
     };
 }
 

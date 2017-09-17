@@ -25,24 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SCRIPT_LUA_SCRIPTLOADER_H
-#define DUEL6_SCRIPT_LUA_SCRIPTLOADER_H
+#ifndef DUEL6_SCRIPT_SCRIPTCONTEXT_H
+#define DUEL6_SCRIPT_SCRIPTCONTEXT_H
 
-#include "LuaPlayerScript.h"
-#include "LuaLevelScript.h"
-#include "../ScriptLoader.h"
-#include "../ScriptContext.h"
+#include "../console/console.h"
+#include "../Sound.h"
+#include "../GameSettings.h"
 
 namespace Duel6::Script {
-    class LuaScriptLoader : public ScriptLoader {
+    class ScriptContext {
     private:
-        ScriptContext &context;
+        Console &console;
+        Sound &sound;
+        GameSettings& settings;
 
     public:
-        explicit LuaScriptLoader(ScriptContext &context);
-
-        std::unique_ptr<LevelScript> loadLevelScript() override;
-        std::unique_ptr<PlayerScript> loadPlayerScript(const std::string &directory) override;
+        ScriptContext(Console &console, Sound &sound, GameSettings& settings)
+                : console(console), sound(sound), settings(settings) {}
     };
 }
 

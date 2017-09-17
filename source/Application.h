@@ -45,12 +45,13 @@ namespace Duel6 {
         Video video;
         Input input;
         Sound sound;
+        GameSettings gameSettings;
+        GameResources gameResources;
+        Script::ScriptContext scriptContext;
         Script::ScriptManager scriptManager;
         AppService service;
         Menu menu;
-        GameSettings gameSettings;
-        std::unique_ptr<GameResources> gameResources;
-        std::unique_ptr<Game> game;
+        Game game;
         bool requestClose;
 
     public:

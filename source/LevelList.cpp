@@ -31,6 +31,6 @@
 namespace Duel6 {
     void LevelList::initialize(const std::string &directoryName, const std::string &fileExtension) {
         directory = directoryName;
-        File::listDirectory(directoryName, fileExtension, fileNames);
+        fileNames = File::listDirectory(directoryName, fileExtension);
     }
 }

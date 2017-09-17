@@ -45,8 +45,7 @@ namespace Duel6 {
 
     const TextureList TextureManager::load(const std::string &path, TextureFilter filtering, bool clamp,
                                            const SubstitutionTable &substitutionTable) {
-        std::vector<std::string> textureFiles;
-        File::listDirectory(path, textureFileExtension, textureFiles);
+        std::vector<std::string> textureFiles = File::listDirectory(path, textureFileExtension);
         std::sort(textureFiles.begin(), textureFiles.end());
 
         Int32 listId = nextId++;

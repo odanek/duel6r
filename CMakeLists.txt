@@ -335,8 +335,10 @@ set(D6R_SOURCES
 	source/renderer/Renderer.h
 
     source/script/Script.h
+    source/script/ScriptContext.h
     source/script/LevelScript.h
     source/script/PlayerScript.h
+    source/script/RoundScriptContext.h
     source/script/ScriptLoader.h
     source/script/ScriptManager.h
     source/script/ScriptManager.cpp

@@ -32,7 +32,7 @@
 #include "Bonus.h"
 
 namespace Duel6 {
-    GameResources::GameResources(AppService &appService) {
+    void GameResources::load(AppService &appService) {
         Sound &sound = appService.getSound();
         Console &console = appService.getConsole();
         TextureManager &textureManager = appService.getTextureManager();

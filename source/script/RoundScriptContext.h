@@ -25,24 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SCRIPT_LUA_SCRIPTLOADER_H
-#define DUEL6_SCRIPT_LUA_SCRIPTLOADER_H
+#ifndef DUEL6_SCRIPT_ROUNDSCRIPTCONTEXT_H
+#define DUEL6_SCRIPT_ROUNDSCRIPTCONTEXT_H
 
-#include "LuaPlayerScript.h"
-#include "LuaLevelScript.h"
-#include "../ScriptLoader.h"
-#include "../ScriptContext.h"
+namespace Duel6 {
+    class World;
+}
 
 namespace Duel6::Script {
-    class LuaScriptLoader : public ScriptLoader {
+    class RoundScriptContext {
     private:
-        ScriptContext &context;
+        World &world;
 
     public:
-        explicit LuaScriptLoader(ScriptContext &context);
-
-        std::unique_ptr<LevelScript> loadLevelScript() override;
-        std::unique_ptr<PlayerScript> loadPlayerScript(const std::string &directory) override;
+        explicit RoundScriptContext(World &world)
+                : world(world) {}
     };
 }
 
