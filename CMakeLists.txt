@@ -336,6 +336,7 @@ set(D6R_SOURCES
 
     source/script/Script.h
     source/script/ScriptContext.h
+    source/script/ScriptException.h
     source/script/LevelScript.h
     source/script/PlayerScript.h
     source/script/RoundScriptContext.h

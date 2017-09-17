@@ -31,16 +31,25 @@
 #include "../PlayerScript.h"
 #include "../../GameSettings.h"
 #include "../ScriptContext.h"
+#include "lua.hpp"
 
 namespace Duel6::Script {
     class LuaPlayerScript : public PlayerScript {
     private:
+        std::string path;
         ScriptContext &context;
+        lua_State *state;
 
     public:
-        explicit LuaPlayerScript(ScriptContext &context);
+        LuaPlayerScript(const std::string &path, ScriptContext &context);
+
+        ~LuaPlayerScript();
+
+        void load();
 
     private:
+        void registerGlobalContext();
+
         void roundStart(Player &player, RoundScriptContext &roundContext) override;
 
         void roundUpdate(Player &player, RoundScriptContext &roundContext) override;

@@ -200,7 +200,6 @@ namespace Duel6 {
         font.load(D6_FILE_TTF_FONT, console);
 
         video.initialize(APP_NAME, APP_FILE_ICON, console);
-        menu.initialize();
 
         gameResources.load(service);
         menu.setGameReference(game);
@@ -211,6 +210,7 @@ namespace Duel6 {
         }
 
         scriptManager.registerLoaders();
+        menu.initialize();
 
         // Execute config script and command line arguments
         console.printLine("\n===Config===");

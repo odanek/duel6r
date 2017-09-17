@@ -25,33 +25,17 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "LuaScriptLoader.h"
-#include "../../File.h"
-#include "../ScriptException.h"
+#ifndef DUEL6_SCRIPT_SCRIPTEXCEPTION_H
+#define DUEL6_SCRIPT_SCRIPTEXCEPTION_H
 
-namespace Duel6::Script {
-    LuaScriptLoader::LuaScriptLoader(ScriptContext &context)
-            : context(context) {}
+#include "../Exception.h"
 
-    std::unique_ptr<LevelScript> LuaScriptLoader::loadLevelScript() {
-        return nullptr;
-    }
-
-    std::unique_ptr<PlayerScript> LuaScriptLoader::loadPlayerScript(const std::string& directory) {
-        std::string path = directory + "script.lua";
-        if (!File::exists(path)) {
-            return nullptr;
-        }
-
-        context.getConsole().printLine(Format("Loading player script: {0}") << path);
-        try {
-            auto script = std::make_unique<LuaPlayerScript>(path, context);
-            script->load();
-            return script;
-        } catch (ScriptException &e) {
-            context.getConsole().printLine(e.getMessage());
-        }
-
-        return nullptr;
-    }
+namespace Duel6 {
+    class ScriptException : public Exception {
+    public:
+        ScriptException(const std::string &file, Int32 line, const std::string &message)
+                : Exception(file, line, message) {}
+    };
 }
+
+#endif

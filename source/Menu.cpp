@@ -633,6 +633,8 @@ namespace Duel6 {
             profile->loadScripts(appService.getScriptManager());
             personProfiles.insert(std::make_pair(profileName, std::move(profile)));
         }
+
+        appService.getConsole().printLine("");
     }
 
     PersonProfile *Menu::getPersonProfile(const std::string &name) {

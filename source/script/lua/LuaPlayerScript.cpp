@@ -26,10 +26,46 @@
 */
 
 #include "LuaPlayerScript.h"
+#include "../ScriptException.h"
 
 namespace Duel6::Script {
-    LuaPlayerScript::LuaPlayerScript(ScriptContext &context)
-            : context(context) {}
+    namespace {
+        int consolePrint(lua_State *L) {
+            const char *str = luaL_checkstring(L, 1);
+            auto *console = (Console *) lua_touserdata(L, lua_upvalueindex(1));
+            console->printLine(Format("Script says: {0}") << str);
+            return 0;
+        }
+    }
+
+    LuaPlayerScript::LuaPlayerScript(const std::string &path, ScriptContext &context)
+            : path(path), context(context), state(luaL_newstate()) {
+    }
+
+    LuaPlayerScript::~LuaPlayerScript() {
+        lua_close(state);
+    }
+
+    void LuaPlayerScript::load() {
+        luaL_openlibs(state);
+
+        int status = luaL_loadfile(state, path.c_str());
+        if (status) {
+            std::string message = Format("Couldn't load script: {0}: {1}") << path << lua_tostring(state, -1);
+            lua_close(state);
+            D6_THROW(ScriptException, message);
+        }
+
+        registerGlobalContext();
+
+        lua_pcall(state, 0, LUA_MULTRET, 0);
+    }
+
+    void LuaPlayerScript::registerGlobalContext() {
+        lua_pushlightuserdata(state, &context.getConsole());
+        lua_pushcclosure(state, consolePrint, 1);
+        lua_setglobal(state, "consolePrint");
+    }
 
     void LuaPlayerScript::roundStart(Player &player, RoundScriptContext &roundContext) {
 
