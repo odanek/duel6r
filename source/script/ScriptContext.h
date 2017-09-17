@@ -37,11 +37,23 @@ namespace Duel6::Script {
     private:
         Console &console;
         Sound &sound;
-        GameSettings& settings;
+        GameSettings &settings;
 
     public:
-        ScriptContext(Console &console, Sound &sound, GameSettings& settings)
+        ScriptContext(Console &console, Sound &sound, GameSettings &settings)
                 : console(console), sound(sound), settings(settings) {}
+
+        Console &getConsole() {
+            return console;
+        }
+
+        Sound &getSound() {
+            return sound;
+        }
+
+        GameSettings &getSettings() {
+            return settings;
+        }
     };
 }
 

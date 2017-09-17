@@ -40,6 +40,10 @@ namespace Duel6::Script {
     public:
         explicit RoundScriptContext(World &world)
                 : world(world) {}
+
+        World &getWorld() {
+            return world;
+        }
     };
 }
 

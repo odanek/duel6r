@@ -29,12 +29,15 @@
 #define DUEL6_SCRIPT_LEVELSCRIPT_H
 
 #include "Script.h"
+#include "RoundScriptContext.h"
 
 namespace Duel6::Script {
     class LevelScript : public Script {
-        virtual void roundStart() = 0;
+        virtual void roundStart(RoundScriptContext &roundContext) = 0;
 
-        virtual void roundUpdate() = 0;
+        virtual void roundUpdate(RoundScriptContext &roundContext) = 0;
+
+        virtual void roundEnd(RoundScriptContext &roundContext) = 0;
     };
 }
 
