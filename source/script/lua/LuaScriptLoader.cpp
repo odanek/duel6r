@@ -37,7 +37,8 @@ namespace Duel6::Script {
         return nullptr;
     }
 
-    std::unique_ptr<PlayerScript> LuaScriptLoader::loadPlayerScript(const std::string& directory) {
+    std::unique_ptr<PlayerScript>
+    LuaScriptLoader::loadPlayerScript(const std::string &name, const std::string &directory) {
         std::string path = directory + "script.lua";
         if (!File::exists(path)) {
             return nullptr;

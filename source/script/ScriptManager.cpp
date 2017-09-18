@@ -28,7 +28,9 @@
 #include "ScriptManager.h"
 
 #ifdef D6_SCRIPTING_LUA
+
 #include "lua/LuaScriptLoader.h"
+
 #endif
 
 namespace Duel6::Script {
@@ -55,11 +57,12 @@ namespace Duel6::Script {
         return result;
     }
 
-    ScriptManager::PlayerScriptList ScriptManager::loadPlayerScripts(const std::string &directory) {
+    ScriptManager::PlayerScriptList
+    ScriptManager::loadPlayerScripts(const std::string &name, const std::string &directory) {
         PlayerScriptList result;
 
         for (auto &loader : loaders) {
-            auto script = loader->loadPlayerScript(directory);
+            auto script = loader->loadPlayerScript(name, directory);
             if (script) {
                 result.push_back(std::move(script));
             }

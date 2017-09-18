@@ -42,7 +42,8 @@ namespace Duel6::Script {
         explicit LuaScriptLoader(ScriptContext &context);
 
         std::unique_ptr<LevelScript> loadLevelScript() override;
-        std::unique_ptr<PlayerScript> loadPlayerScript(const std::string &directory) override;
+
+        std::unique_ptr<PlayerScript> loadPlayerScript(const std::string &name, const std::string &directory) override;
     };
 }
 

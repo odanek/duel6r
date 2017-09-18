@@ -62,9 +62,16 @@ namespace Duel6::Script {
     }
 
     void LuaPlayerScript::registerGlobalContext() {
+        registerConsoleType();
+    }
+
+    void LuaPlayerScript::registerConsoleType() {
+        lua_newtable(state);
+        lua_pushliteral(state, "print");
         lua_pushlightuserdata(state, &context.getConsole());
         lua_pushcclosure(state, consolePrint, 1);
-        lua_setglobal(state, "consolePrint");
+        lua_rawset(state, -3);
+        lua_setglobal(state, "console");
     }
 
     void LuaPlayerScript::roundStart(Player &player, RoundScriptContext &roundContext) {

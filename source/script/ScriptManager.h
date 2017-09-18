@@ -50,7 +50,7 @@ namespace Duel6::Script {
 
         LevelScriptList loadLevelScripts();
 
-        PlayerScriptList loadPlayerScripts(const std::string &directory);
+        PlayerScriptList loadPlayerScripts(const std::string &name, const std::string &directory);
     };
 }
 

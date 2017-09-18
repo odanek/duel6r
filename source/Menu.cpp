@@ -627,7 +627,7 @@ namespace Duel6 {
         std::vector<std::string> profileDirs = File::listDirectory(path, "");
         for (auto &profileName : profileDirs) {
             std::string profilePath = Format("{0}/{1}/") << path << profileName;
-            auto profile = std::make_unique<PersonProfile>(profilePath);
+            auto profile = std::make_unique<PersonProfile>(profileName, profilePath);
             profile->loadSounds(sound);
             profile->loadSkinColors();
             profile->loadScripts(appService.getScriptManager());

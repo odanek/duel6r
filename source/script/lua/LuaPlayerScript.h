@@ -49,6 +49,7 @@ namespace Duel6::Script {
 
     private:
         void registerGlobalContext();
+        void registerConsoleType();
 
         void roundStart(Player &player, RoundScriptContext &roundContext) override;
 
