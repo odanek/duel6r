@@ -59,4 +59,18 @@ namespace Duel6 {
         colors.set(PlayerSkinColors::Face, Color::fromString(root.get("face").asString()));
         return colors;
     }
+
+    PlayerSkinColors PlayerSkinColors::makeRandom() {
+        PlayerSkinColors colors;
+        colors.set(PlayerSkinColors::HairTop, Color::random());
+        colors.set(PlayerSkinColors::HairBottom, Color::random());
+        colors.set(PlayerSkinColors::BodyInner, Color::random());
+        colors.set(PlayerSkinColors::BodyOuter, Color::random());
+        colors.set(PlayerSkinColors::HandInner, Color::random());
+        colors.set(PlayerSkinColors::HandOuter, Color::random());
+        colors.set(PlayerSkinColors::Trousers, Color::random());
+        colors.set(PlayerSkinColors::Shoes, Color::random());
+        colors.set(PlayerSkinColors::Face, Color::random());
+        return colors;
+    }
 }

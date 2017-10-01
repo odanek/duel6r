@@ -158,6 +158,8 @@ namespace Duel6 {
             return Color(hexToNum(colStr.substr(0, 2)), hexToNum(colStr.substr(2, 2)), hexToNum(colStr.substr(4, 2)));
         }
 
+        static Color random();
+
     private:
         static Int32 hexToNum(const std::string &hexStr) {
             return hexToNum(hexStr[0]) * 16 + hexToNum(hexStr[1]);

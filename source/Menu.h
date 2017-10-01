@@ -63,6 +63,7 @@ namespace Duel6 {
         Gui::Desktop gui;
         PlayerControlsManager controlsManager;
         std::unordered_map<std::string, PersonProfile> personProfiles;
+        PlayerSounds defaultPlayerSounds;
         LevelList levelList;
         PersonList persons;
         Gui::Button *button[7];
@@ -130,7 +131,7 @@ namespace Duel6 {
 
         void loadPersonData(const std::string &filePath);
 
-        PersonProfile &getPersonProfile(const std::string &name);
+        PersonProfile *getPersonProfile(const std::string &name);
 
         void cleanPersonData();
 

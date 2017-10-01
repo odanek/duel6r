@@ -109,4 +109,16 @@ namespace Duel6 {
                                                               root.get("pickedBonus"));
         return sounds;
     }
+
+    PlayerSounds PlayerSounds::makeDefault(Sound &sound) {
+        PlayerSounds sounds;
+        sounds.sounds[(Int32) Type::GotHit].push_back(loadDefaultSound(sound, Type::GotHit));
+        sounds.sounds[(Int32) Type::WasKilled].push_back(loadDefaultSound(sound, Type::WasKilled));
+        sounds.sounds[(Int32) Type::HitOther].push_back(loadDefaultSound(sound, Type::HitOther));
+        sounds.sounds[(Int32) Type::KilledOther].push_back(loadDefaultSound(sound, Type::KilledOther));
+        sounds.sounds[(Int32) Type::Suicide].push_back(loadDefaultSound(sound, Type::Suicide));
+        sounds.sounds[(Int32) Type::Drowned].push_back(loadDefaultSound(sound, Type::Drowned));
+        sounds.sounds[(Int32) Type::PickedBonus].push_back(loadDefaultSound(sound, Type::PickedBonus));
+        return sounds;
+    }
 }

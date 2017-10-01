@@ -58,6 +58,7 @@ namespace Duel6 {
         }
 
         static PlayerSounds load(Sound &sound, const std::string &profilePath, const std::string &file);
+        static PlayerSounds makeDefault(Sound &sound);
     };
 }
 

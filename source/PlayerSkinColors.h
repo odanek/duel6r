@@ -49,7 +49,7 @@ namespace Duel6 {
         Color color[9];
 
     public:
-        PlayerSkinColors() {}
+        PlayerSkinColors() = default;
 
         explicit PlayerSkinColors(const Color &color);
 
@@ -65,6 +65,7 @@ namespace Duel6 {
         }
 
         static PlayerSkinColors load(const std::string &profileRoot, const std::string &file);
+        static PlayerSkinColors makeRandom();
     };
 }
 

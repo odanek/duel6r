@@ -49,7 +49,8 @@
 namespace Duel6 {
     Menu::Menu(AppService &appService)
             : appService(appService), font(appService.getFont()), video(appService.getVideo()),
-              sound(appService.getSound()), controlsManager(appService.getInput()), playMusic(false) {}
+              sound(appService.getSound()), controlsManager(appService.getInput()),
+              defaultPlayerSounds(PlayerSounds::makeDefault(sound)), playMusic(false) {}
 
     void Menu::loadPersonData(const std::string &filePath) {
         if (!File::exists(filePath)) {
@@ -416,8 +417,10 @@ namespace Duel6 {
 
     void Menu::playPlayersSound(const std::string &name) {
         Person &person = persons.getByName(name);
-        auto &profile = getPersonProfile(person.getName());
-        profile.getSounds().getRandomSample(PlayerSounds::Type::GotHit).play();
+        auto profile = getPersonProfile(person.getName());
+        if (profile) {
+            profile->getSounds().getRandomSample(PlayerSounds::Type::GotHit).play();
+        }
     }
 
     void Menu::play() {
@@ -449,14 +452,14 @@ namespace Duel6 {
 
         GameMode &selectedMode = *gameModes[gameModeSwitch->currentItem()];
 
-        // Persons, colors, controls
         std::vector<Game::PlayerDefinition> playerDefinitions;
         for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++) {
             Person &person = persons.getByName(listbox[CUR_PLAYERS_LIST]->getItem(i));
-            auto &profile = getPersonProfile(person.getName());
+            auto profile = getPersonProfile(person.getName());
             const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentItem());
-            playerDefinitions.push_back(
-                    Game::PlayerDefinition(person, profile.getSkinColors(), profile.getSounds(), controls));
+            PlayerSkinColors colors = profile ? profile->getSkinColors() : PlayerSkinColors::makeRandom();
+            const PlayerSounds &sounds = profile ? profile->getSounds() : defaultPlayerSounds;
+            playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls));
         }
         selectedMode.initializePlayers(playerDefinitions);
 
@@ -627,14 +630,13 @@ namespace Duel6 {
         }
     }
 
-    PersonProfile &Menu::getPersonProfile(const std::string &name) {
+    PersonProfile *Menu::getPersonProfile(const std::string &name) {
         auto profile = personProfiles.find(name);
         if (profile != personProfiles.end()) {
-            return profile->second;
+            return &profile->second;
         }
 
-        std::string defaultProfileName = Format("default_{0}") << (rand() % listbox[CUR_PLAYERS_LIST]->size());
-        return personProfiles.at(defaultProfileName);
+        return nullptr;
     }
 
     void Menu::consumeInputEvents() {
