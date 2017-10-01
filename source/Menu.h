@@ -77,10 +77,9 @@ namespace Duel6 {
         bool playMusic;
 
     public:
-        Menu(AppService &appService);
+        explicit Menu(AppService &appService);
 
-        ~Menu() {
-        }
+        ~Menu() = default;
 
         void setGameReference(Game *game) {
             this->game = game;
@@ -125,8 +124,9 @@ namespace Duel6 {
 
         void play();
 
-        void playPlayersSound(const std::string& name);
-		void loadPersonProfiles(const std::string &path);
+        void playPlayersSound(const std::string &name);
+
+        void loadPersonProfiles(const std::string &path);
 
         void loadPersonData(const std::string &filePath);
 
@@ -147,6 +147,8 @@ namespace Duel6 {
         bool question(const std::string &question);
 
         bool deleteQuestion();
+
+        void consumeInputEvents();
     };
 }
 

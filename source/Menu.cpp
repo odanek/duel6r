@@ -342,6 +342,7 @@ namespace Duel6 {
         showMessage(question);
         SDL_Event event;
         bool answer;
+
         while (true) {
             if (SDL_PollEvent(&event)) {
                 if (event.type == SDL_KEYDOWN) {
@@ -356,10 +357,7 @@ namespace Duel6 {
             }
         }
 
-        while (SDL_PollEvent(&event)) {
-            // Eat all remaining keyboard events;
-        }
-
+        consumeInputEvents();
         return answer;
     }
 
@@ -375,11 +373,10 @@ namespace Duel6 {
         savePersonData();
     }
 
-	void Menu::detectControls(Size playerIndex){
-
-		render();
-		const std::string& name = listbox[CUR_PLAYERS_LIST]->getItem(playerIndex) ;
-		showMessage("Player " + name + ": Press any control");playPlayersSound(name);
+    void Menu::detectControls(Size playerIndex) {
+        const std::string &name = listbox[CUR_PLAYERS_LIST]->getItem(playerIndex);
+        showMessage("Player " + name + ": Press any control");
+        playPlayersSound(name);
 
         SDL_Event event;
         SDL_Keysym key;
@@ -414,33 +411,26 @@ namespace Duel6 {
             }
         }
 
-        while (SDL_PollEvent(&event)) {
-            // Eat all remaining keyboard events;
-        }
+        consumeInputEvents();
     }
 
-	void Menu::playPlayersSound(const std::string& name)
-    {
-        Person& person = persons.getByName(name);
-        auto& profile = getPersonProfile(person.getName());
+    void Menu::playPlayersSound(const std::string &name) {
+        Person &person = persons.getByName(name);
+        auto &profile = getPersonProfile(person.getName());
         profile.getSounds().getRandomSample(PlayerSounds::Type::GotHit).play();
-    }void Menu::play(){
+    }
 
-		if (listbox[CUR_PLAYERS_LIST]->size() < 2){
-
-			showMessage("Can't play alone ...");
-			SDL_Event event;
-			while (true){
-
-				if (SDL_PollEvent(&event))
-				{
-					break;
-				}
-			}
-
-            while (SDL_PollEvent(&event)) {
-                // Eat all remaining keyboard events;
+    void Menu::play() {
+        if (listbox[CUR_PLAYERS_LIST]->size() < 2) {
+            showMessage("Can't play alone ...");
+            SDL_Event event;
+            while (true) {
+                if (SDL_PollEvent(&event)) {
+                    break;
+                }
             }
+
+            consumeInputEvents();
             return;
         }
 
@@ -645,5 +635,12 @@ namespace Duel6 {
 
         std::string defaultProfileName = Format("default_{0}") << (rand() % listbox[CUR_PLAYERS_LIST]->size());
         return personProfiles.at(defaultProfileName);
+    }
+
+    void Menu::consumeInputEvents() {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            // Eat all remaining keyboard events;
+        }
     }
 }
