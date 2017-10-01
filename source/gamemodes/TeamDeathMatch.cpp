@@ -89,7 +89,9 @@ namespace Duel6 {
             const Team *playerTeam = teamMap.at(&player);
             if (playerTeam == lastAliveTeam) {
                 world.getMessageQueue().add(player, Format("Team {0} won!") << lastAliveTeam->name);
-                player.getPerson().addWins(1);
+                if (player.isAlive()) {
+                    player.getPerson().addWins(1);
+                }
             }
         }
 
