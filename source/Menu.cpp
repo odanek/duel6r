@@ -375,9 +375,11 @@ namespace Duel6 {
         savePersonData();
     }
 
-    void Menu::detectControls(Size playerIndex) {
-        render();
-        showMessage("Player " + listbox[CUR_PLAYERS_LIST]->getItem(playerIndex) + ": Press any control");
+	void Menu::detectControls(Size playerIndex){
+
+		render();
+		const std::string& name = listbox[CUR_PLAYERS_LIST]->getItem(playerIndex) ;
+		showMessage("Player " + name + ": Press any control");playPlayersSound(name);
 
         SDL_Event event;
         SDL_Keysym key;
@@ -417,15 +419,24 @@ namespace Duel6 {
         }
     }
 
-    void Menu::play() {
-        if (listbox[CUR_PLAYERS_LIST]->size() < 2) {
-            showMessage("Can't play alone ...");
-            SDL_Event event;
-            while (true) {
-                if (SDL_PollEvent(&event)) {
-                    break;
-                }
-            }
+	void Menu::playPlayersSound(const std::string& name)
+    {
+        Person& person = persons.getByName(name);
+        auto& profile = getPersonProfile(person.getName());
+        profile.getSounds().getRandomSample(PlayerSounds::Type::GotHit).play();
+    }void Menu::play(){
+
+		if (listbox[CUR_PLAYERS_LIST]->size() < 2){
+
+			showMessage("Can't play alone ...");
+			SDL_Event event;
+			while (true){
+
+				if (SDL_PollEvent(&event))
+				{
+					break;
+				}
+			}
 
             while (SDL_PollEvent(&event)) {
                 // Eat all remaining keyboard events;
@@ -452,7 +463,7 @@ namespace Duel6 {
         std::vector<Game::PlayerDefinition> playerDefinitions;
         for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++) {
             Person &person = persons.getByName(listbox[CUR_PLAYERS_LIST]->getItem(i));
-            auto &profile = getPersonProfile(person.getName(), i);
+            auto &profile = getPersonProfile(person.getName());
             const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentItem());
             playerDefinitions.push_back(
                     Game::PlayerDefinition(person, profile.getSkinColors(), profile.getSounds(), controls));
@@ -626,13 +637,13 @@ namespace Duel6 {
         }
     }
 
-    PersonProfile &Menu::getPersonProfile(const std::string &name, Size index) {
+    PersonProfile &Menu::getPersonProfile(const std::string &name) {
         auto profile = personProfiles.find(name);
         if (profile != personProfiles.end()) {
             return profile->second;
         }
 
-        std::string defaultProfileName = Format("default_{0}") << index;
+        std::string defaultProfileName = Format("default_{0}") << (rand() % listbox[CUR_PLAYERS_LIST]->size());
         return personProfiles.at(defaultProfileName);
     }
 }

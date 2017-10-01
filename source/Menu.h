@@ -125,11 +125,12 @@ namespace Duel6 {
 
         void play();
 
-        void loadPersonProfiles(const std::string &path);
+        void playPlayersSound(const std::string& name);
+		void loadPersonProfiles(const std::string &path);
 
         void loadPersonData(const std::string &filePath);
 
-        PersonProfile &getPersonProfile(const std::string &name, Size index);
+        PersonProfile &getPersonProfile(const std::string &name);
 
         void cleanPersonData();
 
