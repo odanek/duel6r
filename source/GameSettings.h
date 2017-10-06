@@ -59,6 +59,8 @@ namespace Duel6
 		bool ghostMode;
 		ShotCollisionSetting shotCollision;
 		EnabledWeapons enabledWeapons;
+		Uint8 maxFps;
+		Uint8 maxGFps; ///tickrate
 
 	public:
 		GameSettings();
@@ -166,7 +168,21 @@ namespace Duel6
 			this->showRanking = showRanking;
 			return *this;
 		}
+        Uint8 getFps(){
+            return this->maxFps ;
+        }
+		GameSettings& setFps(Uint8 fps){
+		    this->maxFps = fps;
+		    return *this;
+		}
+		Uint8 getGFps(){
+            return this->maxGFps ;
+        }
 
+		GameSettings& setGFps(Uint8 gfps){
+            this->maxGFps = gfps;
+            return *this;
+        }
 		GameSettings& enableWeapon(const Weapon& weapon, bool enable);
 		bool isWeaponEnabled(const Weapon& weapon) const;
 		const EnabledWeapons& getEnabledWeapons() const;

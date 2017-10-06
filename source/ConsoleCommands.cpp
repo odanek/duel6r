@@ -131,6 +131,41 @@ namespace Duel6
 		}
 	}
 
+    void ConsoleCommands::fps(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
+    {
+        if (args.length() == 2){
+            auto value = args.get(1);
+            int parsedValue;
+            std::istringstream iss;
+            iss.str(value);
+            iss >> parsedValue;
+            if (iss.bad() || parsedValue < 10 || parsedValue > 255) {
+                console.printLine(Format("Max FPS: {0}  [10-255]") << gameSettings.getFps());
+            }else{
+                gameSettings.setFps(parsedValue);
+            }
+        } else {
+            console.printLine(Format("Max FPS: {0}") << gameSettings.getFps());
+        }
+    }
+
+    void ConsoleCommands::gfps(Console& console, const Console::Arguments& args, GameSettings& gameSettings)
+    {
+        if (args.length() == 2) {
+            auto value = args.get(1);
+            int parsedValue;
+            std::istringstream iss;
+            iss.str(value);
+            iss >> parsedValue;
+            if (iss.bad() || parsedValue < 10 || parsedValue > 255) {
+                console.printLine(Format(" GFPS: {0}  [10-255]") << gameSettings.getGFps());
+            } else {
+                gameSettings.setGFps(std::stoi(args.get(1)));
+            }
+        } else {
+            console.printLine(Format(" GFPS: {0}") << gameSettings.getGFps());
+        }
+    }
 	void ConsoleCommands::musicOnOff(Console& console, const Console::Arguments& args, Menu& menu)
 	{
 		if (args.length() == 2)
@@ -331,5 +366,12 @@ namespace Duel6
 		console.registerCommand("start_ammo_range", [&gameSettings](Console& con, const Console::Arguments& args) {
 			ammoRange(con, args, gameSettings);
 		});
+        console.registerCommand("gfps", [&gameSettings](Console& con, const Console::Arguments& args) {
+            gfps(con, args, gameSettings);
+        });
+        console.registerCommand("fps", [&gameSettings](Console& con, const Console::Arguments& args) {
+            fps(con, args, gameSettings);
+        });
+
 	}
 }

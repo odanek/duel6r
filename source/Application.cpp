@@ -33,11 +33,14 @@
 #include "ConsoleCommands.h"
 #include "Application.h"
 #include "FontException.h"
+#include <iostream>
 namespace Duel6
 {
     namespace
     {
+#define FPS 800;
         static const Float64 updateTime = 1.0 / D6_UPDATE_FREQUENCY;
+        static const Float64 fpsDuration = 1.0 / FPS;
     }
 
 	namespace
@@ -183,21 +186,30 @@ namespace Duel6
 
 	void Application::syncUpdateAndRender(Context& context)
 	{
-			static Uint32 curTime = 0;
+        Float64 updateTime = 1.0 / gameSettings.getGFps();
+        Float64 fpsDuration = 1.0 / gameSettings.getFps();
+        static Float64 freq = SDL_GetPerformanceFrequency();
+        updateTime = updateTime < 0.0001 ? 0.0001 : updateTime;
+        fpsDuration = fpsDuration < 0.0001 ? 0.0001 : fpsDuration;
+		static Uint64 curTime = SDL_GetPerformanceCounter();
         static Float64 accumulatedTime = 0.0f;
-        Uint32 lastTime = curTime;
+        static Float64 accumulatedFrameTime = 0.0f;
+        Uint64 lastTime = curTime;
 
         context.render();
         video.screenUpdate(console, font);
+        curTime = SDL_GetPerformanceCounter();
+        Float64 elapsedTime = ((curTime - lastTime)) / freq;
 
-		curTime = SDL_GetTicks();
-        Float64 elapsedTime = (curTime - lastTime)* 0.001f;
         accumulatedTime += elapsedTime;
+        accumulatedFrameTime += elapsedTime;
+
 
         while (accumulatedTime > updateTime)
         {
             context.update(Float32(updateTime));
             accumulatedTime -= updateTime;
+
         }
 	}
 

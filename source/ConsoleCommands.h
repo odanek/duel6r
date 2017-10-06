@@ -50,6 +50,8 @@ namespace Duel6
 		static void openGLInfo(Console& console, const Console::Arguments& args);
 		static void ghostMode(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
 		static void shotCollision(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
+		static void gfps(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
+		static void fps(Console& console, const Console::Arguments& args, GameSettings& gameSettings);
 
 	public:
 		static void registerCommands(Console& console, AppService& appService, Menu& menu, GameSettings& gameSettings);
