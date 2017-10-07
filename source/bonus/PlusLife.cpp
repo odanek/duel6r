@@ -29,38 +29,30 @@
 #include "../World.h"
 #include "PlusLife.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		PlusLife::PlusLife(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        PlusLife::PlusLife(Texture texture)
+                : texture(texture) {}
 
-		Texture PlusLife::getTexture() const
-		{
-			return texture;
-		}
+        Texture PlusLife::getTexture() const {
+            return texture;
+        }
 
-		bool PlusLife::isOneTime() const
-		{
-			return true;
-		}
+        bool PlusLife::isOneTime() const {
+            return true;
+        }
 
-		bool PlusLife::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool PlusLife::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void PlusLife::onApply(Player& player, World& world, Int32 duration) const
-		{
-			Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
-			player.addLife(Float32(hit));
-			world.getMessageQueue().add(player, Format("Life +{0}") << hit);
-		}
+        void PlusLife::onApply(Player &player, World &world, Int32 duration) const {
+            Int32 hit = (Int32(D6_MAX_LIFE) / 7) + Math::random(Int32(D6_MAX_LIFE) / 2);
+            player.addLife(Float32(hit));
+            world.getMessageQueue().add(player, Format("Life +{0}") << hit);
+        }
 
-		void PlusLife::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void PlusLife::onExpire(Player &player, World &world) const {
+        }
+    }
 }

@@ -30,44 +30,36 @@
 
 #include "Vector.h"
 
-namespace Duel6
-{
-    class Rectangle
-    {
+namespace Duel6 {
+    class Rectangle {
     public:
         Vector left;
         Vector right;
 
     private:
-        Rectangle(const Vector& left, const Vector& right)
-                : left(left), right(right)
-        {}
+        Rectangle(const Vector &left, const Vector &right)
+                : left(left), right(right) {}
 
     public:
-        Vector getCentre() const
-        {
+        Vector getCentre() const {
             return (left + right) / 2.0f;
         }
 
-        Vector getSize() const
-        {
+        Vector getSize() const {
             return right - left;
         }
 
-        static Rectangle fromCornerAndSize(const Vector &leftCorner, const Vector &size)
-        {
+        static Rectangle fromCornerAndSize(const Vector &leftCorner, const Vector &size) {
             return Rectangle(leftCorner, leftCorner + size);
         }
 
-        static Rectangle fromCorners(const Vector &leftCorner, const Vector &rightCorner)
-        {
+        static Rectangle fromCorners(const Vector &leftCorner, const Vector &rightCorner) {
             return Rectangle(leftCorner, rightCorner);
         }
 
-		static Rectangle empty()
-		{
-			return Rectangle(Vector(0, 0), Vector(0, 0));
-		}
+        static Rectangle empty() {
+            return Rectangle(Vector(0, 0), Vector(0, 0));
+        }
     };
 }
 

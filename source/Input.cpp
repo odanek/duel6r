@@ -29,43 +29,32 @@
 #include "Format.h"
 #include "Input.h"
 
-namespace Duel6
-{
-	void Input::setPressed(SDL_Keycode keyCode, bool pressed)
-	{
-		if (pressed)
-		{
-			pressedKeys.insert(keyCode);
-		}
-		else
-		{
-			pressedKeys.erase(keyCode);
-		}
-	}
+namespace Duel6 {
+    void Input::setPressed(SDL_Keycode keyCode, bool pressed) {
+        if (pressed) {
+            pressedKeys.insert(keyCode);
+        } else {
+            pressedKeys.erase(keyCode);
+        }
+    }
 
-	void Input::joyScan(Console& console)
-	{
-		joypads.clear();
+    void Input::joyScan(Console &console) {
+        joypads.clear();
 
-		if (SDL_WasInit(SDL_INIT_JOYSTICK))
-		{
-			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		}
-		
-		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
-		{
-			console.print("...Unable to initialize joypad sub-system");
-		}
-		else
-		{
-			int joysticks = SDL_NumJoysticks();
-			console.print(Format("...Found {0} joypads\n") << joysticks);
+        if (SDL_WasInit(SDL_INIT_JOYSTICK)) {
+            SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+        }
 
-			for (int i = 0; i < joysticks; i++)
-			{
-				joypads.push_back(SDL_JoystickOpen(i));
-				console.print(Format("... * {0}\n") << SDL_JoystickName(joypads[i]));
-			}
-		}
-	}
+        if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
+            console.print("...Unable to initialize joypad sub-system");
+        } else {
+            int joysticks = SDL_NumJoysticks();
+            console.print(Format("...Found {0} joypads\n") << joysticks);
+
+            for (int i = 0; i < joysticks; i++) {
+                joypads.push_back(SDL_JoystickOpen(i));
+                console.print(Format("... * {0}\n") << SDL_JoystickName(joypads[i]));
+            }
+        }
+    }
 }

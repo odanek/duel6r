@@ -35,66 +35,82 @@
 #include "../File.h"
 #include "JsonException.h"
 
-namespace Duel6
-{
-	namespace Json
-	{
-		class ValueImpl;
+namespace Duel6 {
+    namespace Json {
+        class ValueImpl;
 
-		class Value
-		{
-		public:
-			enum class Type
-			{
-				Null,
-				Object,
-				Array,
-				Number,
-				String,
-				Boolean
-			};
+        class Value {
+        public:
+            enum class Type {
+                Null,
+                Object,
+                Array,
+                Number,
+                String,
+                Boolean
+            };
 
-		private:
-			std::shared_ptr<ValueImpl> value;
+        private:
+            std::shared_ptr<ValueImpl> value;
 
-		private:
-			Value(std::shared_ptr<ValueImpl> value);
+        private:
+            Value(std::shared_ptr<ValueImpl> value);
 
-		public:
-			Value();
-			Value(const Value& value);
-			Value& operator=(const Value& value);
+        public:
+            Value();
 
-			Type getType() const;
+            Value(const Value &value);
 
-			Value get(const std::string& propertyName);
-			const Value get(const std::string& propertyName) const;
-			Value getOrDefault(const std::string& propertyName, Value defaultValue);
-			const Value getOrDefault(const std::string& propertyName, const Value defaultValue) const;
-			Value& set(const std::string& propertyName, Value value);
-			std::vector<std::string> getPropertyNames() const;
+            Value &operator=(const Value &value);
 
-			Value get(const Size index);
-			const Value get(const Size index) const;
-			Value& set(const Size index, Value value);
-			Value& add(Value value);
+            Type getType() const;
 
-			Size getLength() const;
-			std::string asString() const;
-			Int32 asInt() const;
-			Float64 asDouble() const;
-			bool asBoolean() const;
+            Value get(const std::string &propertyName);
 
-		public:
-			static Value makeString(const std::string& val);
-			static Value makeNumber(Int32 val);
-			static Value makeNumber(Float64 val);
-			static Value makeBoolean(bool val);
-			static Value makeArray();
-			static Value makeObject();
-			static Value makeNull();
-		};
-	}
+            const Value get(const std::string &propertyName) const;
+
+            Value getOrDefault(const std::string &propertyName, Value defaultValue);
+
+            const Value getOrDefault(const std::string &propertyName, const Value defaultValue) const;
+
+            Value &set(const std::string &propertyName, Value value);
+
+            std::vector<std::string> getPropertyNames() const;
+
+            Value get(const Size index);
+
+            const Value get(const Size index) const;
+
+            Value &set(const Size index, Value value);
+
+            Value &add(Value value);
+
+            Size getLength() const;
+
+            std::string asString() const;
+
+            Int32 asInt() const;
+
+            Float64 asDouble() const;
+
+            bool asBoolean() const;
+
+        public:
+            static Value makeString(const std::string &val);
+
+            static Value makeNumber(Int32 val);
+
+            static Value makeNumber(Float64 val);
+
+            static Value makeBoolean(bool val);
+
+            static Value makeArray();
+
+            static Value makeObject();
+
+            static Value makeNull();
+        };
+    }
 }
 
 #endif

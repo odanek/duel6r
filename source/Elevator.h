@@ -31,75 +31,70 @@
 #include <vector>
 #include "Type.h"
 #include "Vector.h"
+#include "Texture.h"
 
-namespace Duel6
-{
-	class Elevator
-	{
-	public:
-		class ControlPoint
-		{
-		private:
-			Vector location;
+namespace Duel6 {
+    class Elevator {
+    public:
+        class ControlPoint {
+        private:
+            Vector location;
 
-		public:
-			ControlPoint(Float32 x, Float32 y)
-				: location(x, y)
-			{}
+        public:
+            ControlPoint(Float32 x, Float32 y)
+                    : location(x, y) {}
 
-			ControlPoint(Int32 x, Int32 y)
-				: location(Float32(x), Float32(y))
-			{}
+            ControlPoint(Int32 x, Int32 y)
+                    : location(Float32(x), Float32(y)) {}
 
-			const Vector& getLocation() const
-			{
-				return location;
-			};
-		};
+            const Vector &getLocation() const {
+                return location;
+            };
+        };
 
-	private:
-		std::vector<ControlPoint> controlPoints;
-		Size section;
-		bool forward;
-		Float32 distance;
-		Float32 travelled;
-		Float32 accelerate;
-		Vector position;
-		Vector velocity;
+    private:
+        std::vector<ControlPoint> controlPoints;
+        Size section;
+        bool forward;
+        Float32 distance;
+        Float32 travelled;
+        Float32 accelerate;
+        Vector position;
+        Vector velocity;
 
-	public:
-		Elevator& addControlPoint(const ControlPoint& point)
-		{
-			controlPoints.push_back(point);
-			return *this;
-		}
-		
-		void start();
-		void update(Float32 elapsedTime);
-		void render() const;
+    public:
+        Elevator &addControlPoint(const ControlPoint &point) {
+            controlPoints.push_back(point);
+            return *this;
+        }
 
-		const Vector& getPosition() const
-		{
-			return position;
-		}
+        void start();
 
-		const Vector getAcceleratedVelocity() const
-		{
-			return velocity * accelerate;
-		}
+        void update(Float32 elapsedTime);
 
-		const Vector& getVelocity() const
-		{
-			return velocity;
-		}
-		Float32 getAccelerate() const
-		{
-			return accelerate;
-		}
-	private:
-		void nextSection();
-		void startSection();
-	};
+        void render(const Texture &texture) const;
+
+        const Vector &getPosition() const {
+            return position;
+        }
+
+        const Vector getAcceleratedVelocity() const {
+            return velocity * accelerate;
+        }
+
+        const Vector &getVelocity() const {
+            return velocity;
+        }
+
+        Float32 getAccelerate() const {
+            return accelerate;
+        }
+
+    private:
+        void nextSection();
+
+        void startSection();
+    };
 }
 
 #endif

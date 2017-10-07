@@ -24,168 +24,118 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-#include <SDL2/SDL_opengl.h>
+#include "../Video.h"
 #include <algorithm>
 #include "Slider.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		namespace
-		{
-			Color bcgColor(192, 192, 192);
-		}
+namespace Duel6 {
+    namespace Gui {
+        namespace {
+            Color bcgColor(192, 192, 192);
+        }
 
-		Slider::Slider(Desktop& desk)
-			: Control(desk)
-		{
-			up = new Button(desk);
-			up->setCaption(" ");
-			down = new Button(desk);
-			down->setCaption(" ");
-			pos = nullptr;
-		}
+        Slider::Slider(Desktop &desk)
+                : Control(desk) {
+            up = new Button(desk);
+            up->setCaption(" ");
+            down = new Button(desk);
+            down->setCaption(" ");
+            pos = nullptr;
+        }
 
-		void Slider::setPosition(int X, int Y, int H)
-		{
-			up->setPosition(X, Y, 16, 16);
-			down->setPosition(X, Y - H + 16, 16, 16);
-			x = X;
-			y = Y - 17;
-			height = H - 32;
-		}
+        void Slider::setPosition(int X, int Y, int H) {
+            up->setPosition(X, Y, 16, 16);
+            down->setPosition(X, Y - H + 16, 16, 16);
+            x = X;
+            y = Y - 17;
+            height = H - 32;
+        }
 
-		void Slider::connect(Slider::Position* to)
-		{
-			pos = to;
-		}
+        void Slider::connect(Slider::Position *to) {
+            pos = to;
+        }
 
-		void Slider::update(Float32 elapsedTime)
-		{
-			if (!up->isPressed() && !down->isPressed())
-			{
-				repeatWait = 0;
-			}
-			else
-			{
-				if (repeatWait <= 0.0f)
-				{
-					if (up->isPressed() && pos->start > 0)
-					{
-						pos->start--;
-						repeatWait = 0.1f;
-					}
-					if (down->isPressed() && pos->start < pos->items - pos->showCount)
-					{
-						pos->start++;
-						repeatWait = 0.1f;
-					}
-				}
-				else
-				{
-					repeatWait -= elapsedTime;
-				}
-			}
-		}
+        void Slider::update(Float32 elapsedTime) {
+            if (!up->isPressed() && !down->isPressed()) {
+                repeatWait = 0;
+            } else {
+                if (repeatWait <= 0.0f) {
+                    if (up->isPressed() && pos->start > 0) {
+                        pos->start--;
+                        repeatWait = 0.1f;
+                    }
+                    if (down->isPressed() && pos->start < pos->items - pos->showCount) {
+                        pos->start++;
+                        repeatWait = 0.1f;
+                    }
+                } else {
+                    repeatWait -= elapsedTime;
+                }
+            }
+        }
 
-		void Slider::mouseButtonEvent(const MouseButtonEvent& event)
-		{
-			if (Control::mouseIn(event, x, y, 16, height) && event.getButton() == SysEvent::MouseButton::LEFT && event.isPressed())
-			{
-				scroll(event.getY());
-			}
-		}
+        void Slider::mouseButtonEvent(const MouseButtonEvent &event) {
+            if (Control::mouseIn(event, x, y, 16, height) && event.getButton() == SysEvent::MouseButton::LEFT &&
+                event.isPressed()) {
+                scroll(event.getY());
+            }
+        }
 
-		void Slider::mouseMotionEvent(const MouseMotionEvent& event)
-		{
-			if (Control::mouseIn(event, x, y, 16, height) && event.isPressed(SysEvent::MouseButton::LEFT))
-			{
-				scroll(event.getY());
-			}
-		}
+        void Slider::mouseMotionEvent(const MouseMotionEvent &event) {
+            if (Control::mouseIn(event, x, y, 16, height) && event.isPressed(SysEvent::MouseButton::LEFT)) {
+                scroll(event.getY());
+            }
+        }
 
-		void Slider::scroll(Int32 mouseY)
-		{
-			Int32 oldStart = pos->start;
+        void Slider::scroll(Int32 mouseY) {
+            Int32 oldStart = pos->start;
 
-			Int32 offset = y - getSliderHeight() / 2 - mouseY;
-			pos->start = offset * pos->items / height;
+            Int32 offset = y - getSliderHeight() / 2 - mouseY;
+            pos->start = offset * pos->items / height;
 
-			if (pos->start > pos->items - pos->showCount)
-			{
-				pos->start = pos->items - pos->showCount;
-			}
-			if (pos->start < 0)
-			{
-				pos->start = 0;
-			}
+            if (pos->start > pos->items - pos->showCount) {
+                pos->start = pos->items - pos->showCount;
+            }
+            if (pos->start < 0) {
+                pos->start = 0;
+            }
 
-			if (pos->start != oldStart)
-			{
-				// EventType::Change;
-			}
-		}
+            if (pos->start != oldStart) {
+                // EventType::Change;
+            }
+        }
 
-		void Slider::draw(const Font& font) const
-		{
-			int px, py, h = getSliderHeight(), s = 0;
+        void Slider::draw(const Font &font) const {
+            int px, py, h = getSliderHeight(), s = 0;
 
-			px = up->getX() + 7 + (up->isPressed() ? 1 : 0);
-			py = up->getY() - 4 - (up->isPressed() ? 1 : 0);
-			glBegin(GL_TRIANGLES);
-			glColor3ub(0, 0, 0);
-			glVertex2i(px, py);
-			glVertex2i(px + 3, py - 6);
-			glVertex2i(px - 3, py - 6);
-			glEnd();
+            px = up->getX() + 7 + (up->isPressed() ? 1 : 0);
+            py = up->getY() - 4 - (up->isPressed() ? 1 : 0);
+            globRenderer->triangle(Vector(px, py), Vector(px + 2, py - 6), Vector(px - 3, py - 6), Color::BLACK);
 
-			px = down->getX() + 7 + (down->isPressed() ? 1 : 0);
-			py = down->getY() - 4 + (down->isPressed() ? 1 : 0);
-			glBegin(GL_TRIANGLES);
-			glColor3ub(0, 0, 0);
-			glVertex2i(px - 3, py);
-			glVertex2i(px + 3, py);
-			glVertex2i(px, py - 6);
-			glEnd();
 
-			glBegin(GL_QUADS);
-			glColor3ub(230, 230, 230);
-			glVertex2i(x, y);
-			glVertex2i(x + 15, y);
-			glVertex2i(x + 15, y - height + 1);
-			glVertex2i(x, y - height + 1);
-			glEnd();
+            px = down->getX() + 7 + (down->isPressed() ? 1 : 0);
+            py = down->getY() - 4 + (down->isPressed() ? 1 : 0);
+            globRenderer->triangle(Vector(px - 3, py), Vector(px + 3, py), Vector(px, py - 6), Color::BLACK);
 
-			if (pos->items > 0)
-			{
-				s = pos->start * height / pos->items;
-				if (s > height - h)
-					s = height - h;
-			}
+            globRenderer->quadXY(Vector(x, y - height + 1), Vector(15, height - 1), Color(230, 230, 230));
 
-			glBegin(GL_QUADS);
-			glColor3ub(bcgColor.getRed(), bcgColor.getGreen(), bcgColor.getBlue());
-			glVertex2i(x, y - s);
-			glVertex2i(x + 15, y - s);
-			glVertex2i(x + 15, y - s - h + 1);
-			glVertex2i(x, y - s - h + 1);
-			glEnd();
+            if (pos->items > 0) {
+                s = pos->start * height / pos->items;
+                if (s > height - h)
+                    s = height - h;
+            }
 
-			drawFrame(x, y - s, 16, h, false);
-		}
+            globRenderer->quadXY(Vector(x, y - s - h + 1), Vector(15, h - 1), bcgColor);
 
-		Int32 Slider::getSliderHeight() const
-		{
-			if (pos->items > 0)
-			{
-				return std::max(std::min(pos->showCount * height / pos->items, height), 5);
-			}
-			else
-			{
-				return height;
-			}
-		}
-	}
+            drawFrame(x, y - s, 16, h, false);
+        }
+
+        Int32 Slider::getSliderHeight() const {
+            if (pos->items > 0) {
+                return std::max(std::min(pos->showCount * height / pos->items, height), 5);
+            } else {
+                return height;
+            }
+        }
+    }
 }

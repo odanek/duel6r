@@ -27,19 +27,15 @@
 
 #include "WeaponBase.h"
 
-namespace Duel6
-{
-	WeaponBase::WeaponBase(const std::string& name, Float32 reloadInterval)
-		: name(name), reloadInterval(reloadInterval)
-	{}
+namespace Duel6 {
+    WeaponBase::WeaponBase(const std::string &name, Float32 reloadInterval)
+            : name(name), reloadInterval(reloadInterval) {}
 
-	std::string WeaponBase::getName() const
-	{
-		return name;
-	}
+    std::string WeaponBase::getName() const {
+        return name;
+    }
 
-	Float32 WeaponBase::getReloadInterval() const
-	{
-		return reloadInterval;
-	}
+    Float32 WeaponBase::getReloadInterval() const {
+        return reloadInterval;
+    }
 }

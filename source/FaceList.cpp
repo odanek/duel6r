@@ -25,73 +25,60 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "FaceList.h"
+#include "Video.h"
 
-namespace Duel6
-{
-	void FaceList::optimize()
-	{
-		for (Size i = 0; i < faces.size(); i++)
-		{
-			Uint32 curTexture = faces[i].getCurrentTexture();
-			Size curFace = i + 1;
+namespace Duel6 {
+    void FaceList::optimize() {
+        for (Size i = 0; i < faces.size(); i++) {
+            Uint32 curTexture = faces[i].getCurrentTexture();
+            Size curFace = i + 1;
 
-			for (Size j = i + 1; j < faces.size(); j++)
-			{
-				if (faces[j].getCurrentTexture() == curTexture && j != curFace)
-				{
-					std::swap(faces[curFace], faces[j]);
+            for (Size j = i + 1; j < faces.size(); j++) {
+                if (faces[j].getCurrentTexture() == curTexture && j != curFace) {
+                    std::swap(faces[curFace], faces[j]);
 
-					for (Size k = 0; k < 4; k++)
-					{
-						std::swap(vertexes[curFace * 4 + k], vertexes[j * 4 + k]);
-					}
+                    for (Size k = 0; k < 4; k++) {
+                        std::swap(vertexes[curFace * 4 + k], vertexes[j * 4 + k]);
+                    }
 
-					curFace++;
-				}
-			}
-		}
-	}
+                    curFace++;
+                }
+            }
+        }
+    }
 
-	void FaceList::render(const TextureList& textures) const
-	{
-		if (faces.empty())
-		{
-			return;
-		}
+    void FaceList::render(const TextureList &textures, bool masked) const {
+        if (faces.empty()) {
+            return;
+        }
 
-		Texture curTexture = textures.at(faces[0].getCurrentTexture());
-		Size first = 0, count = 0;
+        const Vertex *vertex = &vertexes[0];
 
-		glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &vertexes[0].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertexes[0].u);
+        for (const Face &face : faces) {
+            const Texture &texture = textures.at(face.getCurrentTexture());
+            Material material(texture, Color::WHITE, masked);
 
-		for (const Face& face : faces)
-		{
-			if (textures.at(face.getCurrentTexture()) != curTexture)
-			{
-				glBindTexture(GL_TEXTURE_2D, curTexture.getId());
-				glDrawArrays(GL_QUADS, (GLint)first, (GLsizei)count);
-				curTexture = textures.at(face.getCurrentTexture());
-				first += count;
-				count = 4;
-			}
-			else
-			{
-				count += 4;
-			}
-		}
+            const Vertex &v1 = vertex[0];
+            const Vertex &v2 = vertex[1];
+            const Vertex &v3 = vertex[2];
+            const Vertex &v4 = vertex[3];
 
-		glBindTexture(GL_TEXTURE_2D, curTexture.getId());
-		glDrawArrays(GL_QUADS, (GLint)first, (GLsizei)count);
-	}
+            globRenderer->triangle(Vector(v1.x, v1.y, v1.z), Vector(v1.u, v1.v),
+                                   Vector(v2.x, v2.y, v2.z), Vector(v2.u, v2.v),
+                                   Vector(v3.x, v3.y, v3.z), Vector(v3.u, v3.v), material);
 
-	void FaceList::nextFrame()
-	{
-		for (Face& face : faces)
-		{
-			face.nextFrame();
-		}
-	}
+            globRenderer->triangle(Vector(v1.x, v1.y, v1.z), Vector(v1.u, v1.v),
+                                   Vector(v3.x, v3.y, v3.z), Vector(v3.u, v3.v),
+                                   Vector(v4.x, v4.y, v4.z), Vector(v4.u, v4.v), material);
+
+            vertex += 4;
+        }
+    }
+
+    void FaceList::nextFrame() {
+        for (Face &face : faces) {
+            face.nextFrame();
+        }
+    }
 }

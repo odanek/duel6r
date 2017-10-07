@@ -25,101 +25,91 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Player.h"
 #include "ElevatorList.h"
 #include "json/JsonParser.h"
 
-namespace Duel6
-{
-	ElevatorList::ElevatorList(const TextureList& textures)
-		: textures(textures)
-	{}
+namespace Duel6 {
+    ElevatorList::ElevatorList(const TextureList &textures)
+            : textures(textures) {}
 
-	void ElevatorList::add(Elevator& elevator)
-	{
-		elevators.push_back(elevator);
-		elevators.back().start();
-	}
+    void ElevatorList::add(Elevator &elevator) {
+        elevators.push_back(elevator);
+        elevators.back().start();
+    }
 
-	void ElevatorList::load(const std::string& path, bool mirror)
-	{
-		Json::Parser parser;
-		Json::Value root = parser.parse(path);
+    void ElevatorList::load(const std::string &path, bool mirror) {
+        Json::Parser parser;
+        Json::Value root = parser.parse(path);
 
-		Int32 width = root.get("width").asInt();
-		Int32 height = root.get("height").asInt();
+        Int32 width = root.get("width").asInt();
+        Int32 height = root.get("height").asInt();
 
-		Size elevators = root.get("elevators").getLength();
-		for (Size i = 0; i < elevators; i++) {
-			Elevator elevator;
-			Json::Value points = root.get("elevators").get(i).get("controlPoints");
-			for (Size j = 0; j < points.getLength(); j++) {
-				Int32 x = points.get(j).get("x").asInt();
-				Int32 y = points.get(j).get("y").asInt();
-				elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y));
-			}
-			add(elevator);
-		}
-	}
+        Size elevators = root.get("elevators").getLength();
+        for (Size i = 0; i < elevators; i++) {
+            Elevator elevator;
+            Json::Value points = root.get("elevators").get(i).get("controlPoints");
+            for (Size j = 0; j < points.getLength(); j++) {
+                Int32 x = points.get(j).get("x").asInt();
+                Int32 y = points.get(j).get("y").asInt();
+                elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y));
+            }
+            add(elevator);
+        }
+    }
 
-	void ElevatorList::update(Float32 elapsedTime)
-	{
-		for (Elevator& elevator : elevators)
-		{
-			elevator.update(elapsedTime);
-		}
-	}
+    void ElevatorList::update(Float32 elapsedTime) {
+        for (Elevator &elevator : elevators) {
+            elevator.update(elapsedTime);
+        }
+    }
 
-	void ElevatorList::render() const
-	{
-		glBindTexture(GL_TEXTURE_2D, textures.at(0).getId());
-		glBegin(GL_QUADS);
+    void ElevatorList::render() const {
+        globRenderer->enableFaceCulling(true);
 
-		for (const Elevator& elevator : elevators)
-		{
-			elevator.render();
-		}
+        const Texture &texture = textures.at(0);
+        for (const Elevator &elevator : elevators) {
+            elevator.render(texture);
+        }
 
-		glEnd();
-	}
+        globRenderer->enableFaceCulling(false);
+    }
 
-	const Elevator* ElevatorList::checkPlayer(Player& player, Float32 speedFactor)
-	{
-		const Float32 distanceThreshold = 0.05f;
-		Rectangle playerRect = player.getCollisionRect();
-		Float32 cX = playerRect.getCentre().x;
-		Vector playerVelocity = player.getVelocity();
-		Float32 playerVerticalStep = playerVelocity.y * speedFactor;
+    const Elevator *ElevatorList::checkPlayer(Player &player, Float32 speedFactor) {
+        const Float32 distanceThreshold = 0.05f;
+        Rectangle playerRect = player.getCollisionRect();
+        Float32 cX = playerRect.getCentre().x;
+        Vector playerVelocity = player.getVelocity();
+        Float32 playerVerticalStep = playerVelocity.y * speedFactor;
 
-		for (const Elevator& elevator : elevators)
-		{
-			const Vector& pos = elevator.getPosition();
-			const Vector& acceleratedVelocity = elevator.getAcceleratedVelocity();
+        for (const Elevator &elevator : elevators) {
+            const Vector &pos = elevator.getPosition();
+            const Vector &acceleratedVelocity = elevator.getAcceleratedVelocity();
 
-			if (elevator.getVelocity().y < 0 && playerVelocity.y > 0)
-			{
-				continue;
-			}
+            if (elevator.getVelocity().y < 0 && playerVelocity.y > 0) {
+                continue;
+            }
 
-			Float32 elevatorVerticalStep = acceleratedVelocity.y * speedFactor;
-			if (cX >= pos.x && cX <= pos.x + 1.0f)  // TODO: Coord
-			{
-				bool before_below = playerRect.left.y <= pos.y - distanceThreshold - elevatorVerticalStep;
-				bool before_above = playerRect.left.y >= pos.y - elevatorVerticalStep + distanceThreshold;
-				bool before_inside = playerRect.left.y >= pos.y - distanceThreshold - elevatorVerticalStep && playerRect.left.y - playerVerticalStep <= pos.y - elevatorVerticalStep + distanceThreshold;
-				bool after_above = playerRect.left.y + 2 * playerVerticalStep >= pos.y + distanceThreshold;
-				bool after_below = playerRect.left.y + playerVerticalStep <= pos.y - distanceThreshold;
-				bool after_inside = playerRect.left.y + playerVerticalStep >= pos.y - distanceThreshold && playerRect.left.y + playerVerticalStep <= pos.y + distanceThreshold;
+            Float32 elevatorVerticalStep = acceleratedVelocity.y * speedFactor;
+            if (cX >= pos.x && cX <= pos.x + 1.0f)  // TODO: Coord
+            {
+                bool before_below = playerRect.left.y <= pos.y - distanceThreshold - elevatorVerticalStep;
+                bool before_above = playerRect.left.y >= pos.y - elevatorVerticalStep + distanceThreshold;
+                bool before_inside = playerRect.left.y >= pos.y - distanceThreshold - elevatorVerticalStep &&
+                                     playerRect.left.y - playerVerticalStep <=
+                                     pos.y - elevatorVerticalStep + distanceThreshold;
+                bool after_above = playerRect.left.y + 2 * playerVerticalStep >= pos.y + distanceThreshold;
+                bool after_below = playerRect.left.y + playerVerticalStep <= pos.y - distanceThreshold;
+                bool after_inside = playerRect.left.y + playerVerticalStep >= pos.y - distanceThreshold &&
+                                    playerRect.left.y + playerVerticalStep <= pos.y + distanceThreshold;
 
-				if ((before_below && after_inside && !after_above)
-						|| (before_above && (after_below || after_inside))
-						|| (before_inside && (after_below || after_inside )))
-				{
-					return &elevator;
-				}
-			}
-		}
-		return nullptr;
-	}
+                if ((before_below && after_inside && !after_above)
+                    || (before_above && (after_below || after_inside))
+                    || (before_inside && (after_below || after_inside))) {
+                    return &elevator;
+                }
+            }
+        }
+        return nullptr;
+    }
 }

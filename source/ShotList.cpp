@@ -30,53 +30,39 @@
 #include "Weapon.h"
 #include "Player.h"
 
-namespace Duel6
-{
-	ShotList::ShotList()
-	{}
+namespace Duel6 {
+    ShotList::ShotList() {}
 
-	void ShotList::addShot(ShotPointer&& shot)
-	{
-		shots.push_back(std::forward<ShotPointer>(shot));
-	}
+    void ShotList::addShot(ShotPointer &&shot) {
+        shots.push_back(std::forward<ShotPointer>(shot));
+    }
 
-	void ShotList::update(World& world, Float32 elapsedTime)
-	{
-		auto iter = shots.begin();
+    void ShotList::update(World &world, Float32 elapsedTime) {
+        auto iter = shots.begin();
 
-		while (iter != shots.end())
-		{
-			Shot& shot = *iter->get();
-			if (!shot.update(elapsedTime, world))
-			{
-				iter = shots.erase(iter);
-			}
-			else
-			{
-				++iter;
-			}
-		}
-	}
+        while (iter != shots.end()) {
+            Shot &shot = *iter->get();
+            if (!shot.update(elapsedTime, world)) {
+                iter = shots.erase(iter);
+            } else {
+                ++iter;
+            }
+        }
+    }
 
-	void ShotList::forEach(std::function<bool(const Shot&)> handler) const
-	{
-		for (auto& shotPointer : shots)
-		{
-			if (!handler(*shotPointer))
-			{
-				break;
-			}
-		}
-	}
+    void ShotList::forEach(std::function<bool(const Shot &)> handler) const {
+        for (auto &shotPointer : shots) {
+            if (!handler(*shotPointer)) {
+                break;
+            }
+        }
+    }
 
-	void ShotList::forEach(std::function<bool(Shot&)> handler)
-	{
-		for (auto& shotPointer : shots)
-		{
-			if (!handler(*shotPointer))
-			{
-				break;
-			}
-		}
-	}
+    void ShotList::forEach(std::function<bool(Shot &)> handler) {
+        for (auto &shotPointer : shots) {
+            if (!handler(*shotPointer)) {
+                break;
+            }
+        }
+    }
 }

@@ -36,90 +36,79 @@
 #include "SpriteList.h"
 #include "GameResources.h"
 
-namespace Duel6
-{
-	class FireType
-	{
-	public:
-		static const FireType CONIFEROUS_TREE;
-		static const FireType BROAD_LEAVED_TREE;
+namespace Duel6 {
+    class FireType {
+    public:
+        static const FireType CONIFEROUS_TREE;
+        static const FireType BROAD_LEAVED_TREE;
 
-	private:
-		static const std::vector<FireType> types;
-		Size id;
-		Size block;
+    private:
+        static const std::vector<FireType> types;
+        Size id;
+        Size block;
 
-	private:
-		FireType(Size id, Size block)
-			: id(id), block(block)
-		{}
+    private:
+        FireType(Size id, Size block)
+                : id(id), block(block) {}
 
-	public:
-		static const std::vector<FireType>& values()
-		{
-			return types;
-		}
+    public:
+        static const std::vector<FireType> &values() {
+            return types;
+        }
 
-		Size getId() const
-		{
-			return id;
-		}
+        Size getId() const {
+            return id;
+        }
 
-		Size getBlock() const
-		{
-			return block;
-		}
-	};
+        Size getBlock() const {
+            return block;
+        }
+    };
 
-	class Fire
-	{
-	private:
-		const FireType& type;
-		Face& face;
-		Vector position;
-		bool burned;
+    class Fire {
+    private:
+        const FireType &type;
+        Face &face;
+        Vector position;
+        bool burned;
 
-	public:
-		Fire(const FireType& type, Face& face, const Vector& position);
+    public:
+        Fire(const FireType &type, Face &face, const Vector &position);
 
-		const FireType& getType() const
-		{
-			return type;
-		}
+        const FireType &getType() const {
+            return type;
+        }
 
-		const Vector& getPosition() const
-		{
-			return position;
-		}
+        const Vector &getPosition() const {
+            return position;
+        }
 
-		Face& getFace() const
-		{
-			return face;
-		}
+        Face &getFace() const {
+            return face;
+        }
 
-		bool isBurned() const
-		{
-			return burned;
-		}
+        bool isBurned() const {
+            return burned;
+        }
 
-		void setBurned(bool burned)
-		{
-			this->burned = burned;
-		}
-	};
+        void setBurned(bool burned) {
+            this->burned = burned;
+        }
+    };
 
-	class FireList
-	{
-	private:
-		SpriteList& spriteList;
-		const std::unordered_map<Size, TextureList>& textures;
-		std::vector<Fire> fires;
+    class FireList {
+    private:
+        SpriteList &spriteList;
+        const std::unordered_map<Size, TextureList> &textures;
+        std::vector<Fire> fires;
 
-	public:
-		FireList(const GameResources& resources, SpriteList& spriteList);
-		void find(FaceList& sprites);
-		void check(const Vector& explCentre, Float32 d);
-	};
+    public:
+        FireList(const GameResources &resources, SpriteList &spriteList);
+
+        void find(FaceList &sprites);
+
+        void check(const Vector &explCentre, Float32 d);
+    };
 }
 
 #endif

@@ -34,42 +34,46 @@
 #include "TextureManager.h"
 #include "Vector.h"
 
-namespace Duel6
-{
-	class WaterImpl;
-	class Player;
-	class World;
+namespace Duel6 {
+    class WaterImpl;
 
-	class Water final
-	{
-	private:
-		typedef std::unique_ptr<WaterImpl> WaterImplPtr;
+    class Player;
 
-	public:
-		static const Water NONE;
-		static const Water BLUE;
-		static const Water RED;
-		static const Water GREEN;
+    class World;
 
-	private:
-		mutable WaterImpl* impl;
-		static std::vector<Water> types;
-		static std::vector<WaterImplPtr> implementations;
+    class Water final {
+    private:
+        typedef std::unique_ptr<WaterImpl> WaterImplPtr;
 
-		void assign(WaterImplPtr&& impl) const;
+    public:
+        static const Water NONE;
+        static const Water BLUE;
+        static const Water RED;
+        static const Water GREEN;
 
-	public:
-		Water();
+    private:
+        mutable WaterImpl *impl;
+        static std::vector<Water> types;
+        static std::vector<WaterImplPtr> implementations;
 
-		void onEnter(Player& player, const Vector& location, World& world);
-		void onUnder(Player& player, Float32 elapsedTime);
-		bool operator==(const Water& water) const;
-		bool operator!=(const Water& water) const;
+        void assign(WaterImplPtr &&impl) const;
 
-	public:
-		static const std::vector<Water>& values();
-		static void initialize(Sound& sound, TextureManager& textureManager);
-	};
+    public:
+        Water();
+
+        void onEnter(Player &player, const Vector &location, World &world);
+
+        void onUnder(Player &player, Float32 elapsedTime);
+
+        bool operator==(const Water &water) const;
+
+        bool operator!=(const Water &water) const;
+
+    public:
+        static const std::vector<Water> &values();
+
+        static void initialize(Sound &sound, TextureManager &textureManager);
+    };
 }
 
 #endif

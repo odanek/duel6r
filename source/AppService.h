@@ -35,59 +35,50 @@
 #include "Video.h"
 #include "script/ScriptManager.h"
 
-namespace Duel6
-{
-	class AppService
-	{
-	private:
-		Font& font;
-		Console& console;
-		TextureManager& textureManager;
-		Video& video;
-		Input& input;
-		Sound& sound;
-		ScriptManager& scriptManager;
+namespace Duel6 {
+    class AppService {
+    private:
+        Font &font;
+        Console &console;
+        TextureManager &textureManager;
+        Video &video;
+        Input &input;
+        Sound &sound;
+        ScriptManager& scriptManager;
 
-	public:
-		AppService(Font& font, Console& console, TextureManager& textureManager, Video& video, Input& input, Sound& sound, ScriptManager & scriptManager)
-			: font(font), console(console), textureManager(textureManager), video(video), input(input), sound(sound), scriptManager(scriptManager)
-		{}
+    public:
+        AppService(Font &font, Console &console, TextureManager &textureManager, Video &video, Input &input, Sound &sound, ScriptManager &scriptManager)
+            : font(font), console(console), textureManager(textureManager), video(video), input(input), sound(sound), scriptManager(scriptManager)
+        {}
 
-		Font& getFont()
-		{
-			return font;
-		}
+        Font &getFont() {
+            return font;
+        }
 
-		Console& getConsole()
-		{
-			return console;
-		}
+        Console &getConsole() {
+            return console;
+        }
 
-		TextureManager& getTextureManager()
-		{
-			return textureManager;
-		}
+        TextureManager &getTextureManager() {
+            return textureManager;
+        }
 
-		Video& getVideo()
-		{
-			return video;
-		}
+        Video &getVideo() {
+            return video;
+        }
 
-		Input& getInput()
-		{
-			return input;
-		}
+        Input &getInput() {
+            return input;
+        }
 
-		Sound& getSound()
-		{
-			return sound;
-		}
+        Sound &getSound() {
+            return sound;
+        }
 
-		ScriptManager& getScriptManager()
-		{
-			return scriptManager;
-		}
-	};
+        ScriptManager &getScriptManager() {
+            return scriptManager;
+        }
+    };
 }
 
 #endif

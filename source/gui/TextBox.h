@@ -31,36 +31,37 @@
 #include <string>
 #include "Control.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class Textbox
-			: public Control
-		{
-		private:
-			Int32 max, width;
-			std::string text;
-			std::string allowedCharacters;
+namespace Duel6 {
+    namespace Gui {
+        class Textbox
+                : public Control {
+        private:
+            Int32 max, width;
+            std::string text;
+            std::string allowedCharacters;
 
-		public:
-			Textbox(Desktop& desk);
-			~Textbox();
-			void setPosition(int X, int Y, int W, int M, const std::string& allowed);
-			const std::string& getText() const;
-			void flush();
+        public:
+            Textbox(Desktop &desk);
 
-			void draw(const Font& font) const override;
+            ~Textbox();
 
-			void textInputEvent(const TextInputEvent& event) override;
-			void keyEvent(const KeyPressEvent& event) override;
+            void setPosition(int X, int Y, int W, int M, const std::string &allowed);
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Textbox;
-			}
-		};
-	}
+            const std::string &getText() const;
+
+            void flush();
+
+            void draw(const Font &font) const override;
+
+            void textInputEvent(const TextInputEvent &event) override;
+
+            void keyEvent(const KeyPressEvent &event) override;
+
+            Control::Type getType() const override {
+                return Control::Type::Textbox;
+            }
+        };
+    }
 }
 
 #endif

@@ -49,109 +49,97 @@
 #include "weapon/impl/Sling.h"
 #include "weapon/impl/StopperGun.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		class NoneWeapon : public WeaponImpl
-		{
-		public:
-			std::string getName() const { return ""; }
-			Float32 getReloadInterval() const { return 0.0f; }
-			void shoot(Player& player, Orientation orientation, World& world) const {}
-			Sprite& makeSprite(Sprite& sprite) const { return sprite; }
-			Texture getBonusTexture() const { return Texture(); }
-		};
+namespace Duel6 {
+    namespace {
+        class NoneWeapon : public WeaponImpl {
+        public:
+            std::string getName() const { return ""; }
 
-		NoneWeapon NO_WEAPON;
-	}
+            Float32 getReloadInterval() const { return 0.0f; }
 
-	std::vector<Weapon::WeaponImplPtr> Weapon::implementations;
-	std::vector<Weapon> Weapon::weapons;
+            void shoot(Player &player, Orientation orientation, World &world) const {}
 
-	Weapon::Weapon()
-		: impl(&NO_WEAPON)
-	{}
+            Sprite &makeSprite(Sprite &sprite) const { return sprite; }
 
-	Weapon::Weapon(WeaponImpl *impl)
-		: impl(impl)
-	{}
+            Texture getBonusTexture() const { return Texture(); }
+        };
 
-	Weapon Weapon::add(WeaponImplPtr&& impl)
-	{
-		Weapon weapon(impl.get());
-		implementations.push_back(std::forward<WeaponImplPtr>(impl));
-		weapons.push_back(weapon);
-		return weapon;
-	}
+        NoneWeapon NO_WEAPON;
+    }
 
-	std::string Weapon::getName() const
-	{
-		return impl->getName();
-	}
+    std::vector<Weapon::WeaponImplPtr> Weapon::implementations;
+    std::vector<Weapon> Weapon::weapons;
 
-	Float32 Weapon::getReloadInterval() const
-	{
-		return impl->getReloadInterval();
-	}
+    Weapon::Weapon()
+            : impl(&NO_WEAPON) {}
 
-	void Weapon::shoot(Player& player, Orientation orientation, World& world) const
-	{
-		impl->shoot(player, orientation, world);
-	}
+    Weapon::Weapon(WeaponImpl *impl)
+            : impl(impl) {}
 
-	Sprite& Weapon::makeSprite(Sprite& sprite) const
-	{
-		return impl->makeSprite(sprite);
-	}
+    Weapon Weapon::add(WeaponImplPtr &&impl) {
+        Weapon weapon(impl.get());
+        implementations.push_back(std::forward<WeaponImplPtr>(impl));
+        weapons.push_back(weapon);
+        return weapon;
+    }
 
-	Texture Weapon::getBonusTexture() const
-	{
-		return impl->getBonusTexture();
-	}
+    std::string Weapon::getName() const {
+        return impl->getName();
+    }
 
-	bool Weapon::operator==(const Weapon& weapon) const
-	{
-		return impl == weapon.impl;
-	}
+    Float32 Weapon::getReloadInterval() const {
+        return impl->getReloadInterval();
+    }
 
-	bool Weapon::operator!=(const Weapon& weapon) const
-	{
-		return impl != weapon.impl;
-	}
+    void Weapon::shoot(Player &player, Orientation orientation, World &world) const {
+        impl->shoot(player, orientation, world);
+    }
 
-	void Weapon::initialize(Sound& sound, TextureManager& textureManager)
-	{
-		add(std::make_unique<Pistol>(sound, textureManager));
-		add(std::make_unique<Bazooka>(sound, textureManager));
-		add(std::make_unique<Lightning>(sound, textureManager));
-		add(std::make_unique<Shotgun>(sound, textureManager));
-		add(std::make_unique<Plasma>(sound, textureManager));
-		add(std::make_unique<Laser>(sound, textureManager));
-		add(std::make_unique<MachineGun>(sound, textureManager));
-		add(std::make_unique<Triton>(sound, textureManager));
-		add(std::make_unique<Uzi>(sound, textureManager));
-		add(std::make_unique<Bow>(sound, textureManager));
-		add(std::make_unique<Slime>(sound, textureManager));
-		add(std::make_unique<DoubleLaser>(sound, textureManager));
-		add(std::make_unique<KissOfDeath>(sound, textureManager));
-		add(std::make_unique<Spray>(sound, textureManager));
-		add(std::make_unique<Sling>(sound, textureManager));
-		add(std::make_unique<StopperGun>(sound, textureManager));
-		add(std::make_unique<ShitThrower>(sound, textureManager));
-	}
+    Sprite &Weapon::makeSprite(Sprite &sprite) const {
+        return impl->makeSprite(sprite);
+    }
 
-	const std::vector<Weapon>& Weapon::values()
-	{
-		return weapons;
-	}
+    Texture Weapon::getBonusTexture() const {
+        return impl->getBonusTexture();
+    }
 
-	const Weapon& Weapon::getRandomEnabled(const GameSettings& settings)
-	{
-		auto& enabledWeapons = settings.getEnabledWeapons();
-		Size randomIndex = rand() % enabledWeapons.size();
-		auto randomWeapon = enabledWeapons.cbegin();
-		std::advance(randomWeapon, randomIndex);
-		return *randomWeapon;
-	}
+    bool Weapon::operator==(const Weapon &weapon) const {
+        return impl == weapon.impl;
+    }
+
+    bool Weapon::operator!=(const Weapon &weapon) const {
+        return impl != weapon.impl;
+    }
+
+    void Weapon::initialize(Sound &sound, TextureManager &textureManager) {
+        add(std::make_unique<Pistol>(sound, textureManager));
+        add(std::make_unique<Bazooka>(sound, textureManager));
+        add(std::make_unique<Lightning>(sound, textureManager));
+        add(std::make_unique<Shotgun>(sound, textureManager));
+        add(std::make_unique<Plasma>(sound, textureManager));
+        add(std::make_unique<Laser>(sound, textureManager));
+        add(std::make_unique<MachineGun>(sound, textureManager));
+        add(std::make_unique<Triton>(sound, textureManager));
+        add(std::make_unique<Uzi>(sound, textureManager));
+        add(std::make_unique<Bow>(sound, textureManager));
+        add(std::make_unique<Slime>(sound, textureManager));
+        add(std::make_unique<DoubleLaser>(sound, textureManager));
+        add(std::make_unique<KissOfDeath>(sound, textureManager));
+        add(std::make_unique<Spray>(sound, textureManager));
+        add(std::make_unique<Sling>(sound, textureManager));
+        add(std::make_unique<StopperGun>(sound, textureManager));
+        add(std::make_unique<ShitThrower>(sound, textureManager));
+    }
+
+    const std::vector<Weapon> &Weapon::values() {
+        return weapons;
+    }
+
+    const Weapon &Weapon::getRandomEnabled(const GameSettings &settings) {
+        auto &enabledWeapons = settings.getEnabledWeapons();
+        Size randomIndex = Math::random(enabledWeapons.size());
+        auto randomWeapon = enabledWeapons.cbegin();
+        std::advance(randomWeapon, randomIndex);
+        return *randomWeapon;
+    }
 }

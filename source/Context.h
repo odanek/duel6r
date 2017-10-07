@@ -33,94 +33,86 @@
 #include "Type.h"
 #include "SysEvent.h"
 
-namespace Duel6
-{
-	class Context
-	{
-	private:
-		static std::stack<Context*> contextStack;
-		bool closed;
+namespace Duel6 {
+    class Context {
+    private:
+        static std::stack<Context *> contextStack;
+        bool closed;
 
-	public:
-		virtual ~Context()
-		{}
+    public:
+        virtual ~Context() {}
 
-		static bool exists()
-		{
-			return !contextStack.empty();
-		}
+        static bool exists() {
+            return !contextStack.empty();
+        }
 
-		static Context& getCurrent()
-		{
-			return *getTopContext();
-		}
+        static Context &getCurrent() {
+            return *getTopContext();
+        }
 
-		virtual bool isCurrent() const final
-		{
-			return (this == getTopContext());
-		}
+        virtual bool isCurrent() const final {
+            return (this == getTopContext());
+        }
 
-		virtual bool is(const Context& context) const final
-		{
-			return (this == &context);
-		}
+        virtual bool is(const Context &context) const final {
+            return (this == &context);
+        }
 
-		virtual void keyEvent(const KeyPressEvent& event) = 0;
-		virtual void textInputEvent(const TextInputEvent& event) = 0;
-		virtual void mouseButtonEvent(const MouseButtonEvent& event) = 0;
-		virtual void mouseMotionEvent(const MouseMotionEvent& event) = 0;
-		virtual void mouseWheelEvent(const MouseWheelEvent& event) = 0;
-		virtual void update(Float32 elapsedTime) = 0;
-		virtual void render() const = 0;
+        virtual void keyEvent(const KeyPressEvent &event) = 0;
 
-		virtual bool isClosed() const final
-		{
-			return closed;
-		}
+        virtual void textInputEvent(const TextInputEvent &event) = 0;
 
-		static void push(Context& context)
-		{
-			Context* lastContext = getTopContext();
-			if (lastContext != nullptr)
-			{
-				lastContext->beforeClose(&context);
-			}
+        virtual void mouseButtonEvent(const MouseButtonEvent &event) = 0;
 
-			contextStack.push(&context);
-			context.closed = false;
-			context.beforeStart(lastContext);
-		}
+        virtual void mouseMotionEvent(const MouseMotionEvent &event) = 0;
 
-		static void pop()
-		{			
-			if (exists())
-			{
-				Context& currentContext = getCurrent();
-				contextStack.pop();
-				Context* prevContext = getTopContext();
-				currentContext.beforeClose(prevContext);
+        virtual void mouseWheelEvent(const MouseWheelEvent &event) = 0;
 
-				if (prevContext != nullptr)
-				{
-					prevContext->beforeStart(&currentContext);
-				}
-			}
-		}
+        virtual void update(Float32 elapsedTime) = 0;
 
-	protected:
-		virtual void close() final
-		{
-			closed = true;
-		}
+        virtual void render() const = 0;
 
-		virtual void beforeStart(Context* prevContext) = 0;
-		virtual void beforeClose(Context* nextContext) = 0;
+        virtual bool isClosed() const final {
+            return closed;
+        }
 
-		static Context* getTopContext()
-		{
-			return (contextStack.size() > 0) ? contextStack.top() : nullptr;
-		}
-	};
+        static void push(Context &context) {
+            Context *lastContext = getTopContext();
+            if (lastContext != nullptr) {
+                lastContext->beforeClose(&context);
+            }
+
+            contextStack.push(&context);
+            context.closed = false;
+            context.beforeStart(lastContext);
+        }
+
+        static void pop() {
+            if (exists()) {
+                Context &currentContext = getCurrent();
+                contextStack.pop();
+                Context *prevContext = getTopContext();
+                currentContext.beforeClose(prevContext);
+
+                if (prevContext != nullptr) {
+                    prevContext->beforeStart(&currentContext);
+                }
+            }
+        }
+
+    protected:
+        virtual void close() final {
+            closed = true;
+        }
+
+        virtual void beforeStart(Context *prevContext) = 0;
+
+        virtual void beforeClose(Context *nextContext) = 0;
+
+        static Context *getTopContext() {
+            return (contextStack.size() > 0) ? contextStack.top() : nullptr;
+        }
+    };
 }
 
 #endif

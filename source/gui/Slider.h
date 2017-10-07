@@ -31,49 +31,49 @@
 #include "Control.h"
 #include "Button.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class Slider
-			: public Control
-		{
-		public:
-			struct Position
-			{
-				Int32 items;
-				Int32 start;
-				Int32 showCount;
-			};
+namespace Duel6 {
+    namespace Gui {
+        class Slider
+                : public Control {
+        public:
+            struct Position {
+                Int32 items;
+                Int32 start;
+                Int32 showCount;
+            };
 
-		private:
-			Position *pos;
-			Button *up, *down;
-			Int32 height;
-			Float32 repeatWait;
+        private:
+            Position *pos;
+            Button *up, *down;
+            Int32 height;
+            Float32 repeatWait;
 
-		public:
-			Slider(Desktop& desk);
-			void setPosition(int X, int Y, int H);
-			void connect(Position *to);
+        public:
+            Slider(Desktop &desk);
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Slider;
-			}
+            void setPosition(int X, int Y, int H);
 
-		protected:
-			void draw(const Font& font) const override;
-			void update(Float32 elpasedTime) override;
+            void connect(Position *to);
 
-			void mouseButtonEvent(const MouseButtonEvent& event) override;
-			void mouseMotionEvent(const MouseMotionEvent& event) override;
+            Control::Type getType() const override {
+                return Control::Type::Slider;
+            }
 
-		protected:
-			Int32 getSliderHeight() const;
-			void scroll(Int32 mouseY);
-		};
-	}
+        protected:
+            void draw(const Font &font) const override;
+
+            void update(Float32 elpasedTime) override;
+
+            void mouseButtonEvent(const MouseButtonEvent &event) override;
+
+            void mouseMotionEvent(const MouseMotionEvent &event) override;
+
+        protected:
+            Int32 getSliderHeight() const;
+
+            void scroll(Int32 mouseY);
+        };
+    }
 }
 
 #endif

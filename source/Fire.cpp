@@ -25,68 +25,55 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Math.h"
 #include "Fire.h"
 
-namespace Duel6
-{
-	const FireType FireType::CONIFEROUS_TREE(0, 7);
-	const FireType FireType::BROAD_LEAVED_TREE(1, 8);
-	const std::vector<FireType> FireType::types = { CONIFEROUS_TREE, BROAD_LEAVED_TREE };
+namespace Duel6 {
+    const FireType FireType::CONIFEROUS_TREE(0, 7);
+    const FireType FireType::BROAD_LEAVED_TREE(1, 8);
+    const std::vector<FireType> FireType::types = {CONIFEROUS_TREE, BROAD_LEAVED_TREE};
 
-	namespace
-	{
-		Int16 fireAnimation[20] = { 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0 };
-	}
+    namespace {
+        Int16 fireAnimation[20] = {0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0};
+    }
 
-	Fire::Fire(const FireType& type, Face& face, const Vector& position)
-		: type(type), face(face), position(position), burned(false)
-	{}
+    Fire::Fire(const FireType &type, Face &face, const Vector &position)
+            : type(type), face(face), position(position), burned(false) {}
 
-	FireList::FireList(const GameResources& resources, SpriteList& spriteList)
-		: spriteList(spriteList), textures(resources.getFireTextures())
-	{}
+    FireList::FireList(const GameResources &resources, SpriteList &spriteList)
+            : spriteList(spriteList), textures(resources.getFireTextures()) {}
 
-	void FireList::find(FaceList& sprites)
-	{
-		Size faceIndex = 0;
-		for (Face& face : sprites.getFaces())
-		{
-			for (const FireType& type : FireType::values())
-			{
-				if (face.getBlock().getIndex() == type.getBlock())
-				{
-					const Vertex& vertex = sprites.getVertexes()[faceIndex << 2];
-					Vector position(vertex.x, vertex.y - 1.0f);
-					fires.push_back(Fire(type, face, position));
-				}
-			}
+    void FireList::find(FaceList &sprites) {
+        Size faceIndex = 0;
+        for (Face &face : sprites.getFaces()) {
+            for (const FireType &type : FireType::values()) {
+                if (face.getBlock().getIndex() == type.getBlock()) {
+                    const Vertex &vertex = sprites.getVertexes()[faceIndex << 2];
+                    Vector position(vertex.x, vertex.y - 1.0f);
+                    fires.push_back(Fire(type, face, position));
+                }
+            }
 
-			faceIndex++;
-		}
-	}
+            faceIndex++;
+        }
+    }
 
-	void FireList::check(const Vector& explCentre, Float32 d)
-	{
-		for (Fire& fire : fires)
-		{
-			if (!fire.isBurned())
-			{
-				Vector fireCentre = fire.getPosition() + Vector(0.5f, 0.5f);
-				Float32 distance = (explCentre - fireCentre).length();
+    void FireList::check(const Vector &explCentre, Float32 d) {
+        for (Fire &fire : fires) {
+            if (!fire.isBurned()) {
+                Vector fireCentre = fire.getPosition() + Vector(0.5f, 0.5f);
+                Float32 distance = (explCentre - fireCentre).length();
 
-				if (distance < d)
-				{
-					fire.setBurned(true);
-					fire.getFace().hide();
+                if (distance < d) {
+                    fire.setBurned(true);
+                    fire.getFace().hide();
 
-					Sprite fireSprite(fireAnimation, textures.at(fire.getType().getId()));
-					fireSprite.setPosition(fire.getPosition(), 0.75f)
-						.setLooping(AnimationLooping::OnceAndStop);
-					spriteList.addSprite(fireSprite);
-				}
-			}
-		}
-	}
+                    Sprite fireSprite(fireAnimation, textures.at(fire.getType().getId()));
+                    fireSprite.setPosition(fire.getPosition(), 0.75f)
+                            .setLooping(AnimationLooping::OnceAndStop);
+                    spriteList.addSprite(fireSprite);
+                }
+            }
+        }
+    }
 }

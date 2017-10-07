@@ -27,36 +27,27 @@
 
 #include "DeathMatch.h"
 
-namespace Duel6
-{
-	void DeathMatch::initializeRound(Game& game, std::vector<Player>& players, World& world)
-	{
-		eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
-		for (auto& player : players)
-		{
-			player.setEventListener(*eventListener);
-		}
-	}
+namespace Duel6 {
+    void DeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
+        eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
+        for (auto &player : players) {
+            player.setEventListener(*eventListener);
+        }
+    }
 
-	bool DeathMatch::checkRoundOver(World& world, const std::vector<Player*>& alivePlayers)
-	{
-		if (alivePlayers.size() == 1)
-		{
-			for (Player *player : alivePlayers)
-			{
-				world.getMessageQueue().add(*player, "You have won!");
-				player->getPerson().addWins(1);
-			}
-			return true;
-		}
-		else if (alivePlayers.empty())
-		{
-			for (const Player& player : world.getPlayers())
-			{
-				world.getMessageQueue().add(player, "End of round - no winner");
-			}
-			return true;
-		}
-		return false;
-	}
+    bool DeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {
+        if (alivePlayers.size() == 1) {
+            for (Player *player : alivePlayers) {
+                world.getMessageQueue().add(*player, "You have won!");
+                player->getPerson().addWins(1);
+            }
+            return true;
+        } else if (alivePlayers.empty()) {
+            for (const Player &player : world.getPlayers()) {
+                world.getMessageQueue().add(player, "End of round - no winner");
+            }
+            return true;
+        }
+        return false;
+    }
 }

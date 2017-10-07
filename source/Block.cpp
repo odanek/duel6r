@@ -31,50 +31,46 @@
 #include "DataException.h"
 #include "json/JsonParser.h"
 
-namespace Duel6
-{
-	Block::Type Block::determineType(const std::string& kind)
-	{
-		static std::array<std::string, 9> typeNames = {{
-			"EMPTY_SPACE",
-			"WALL",
-			"WATER",
-			"FRONT_SPRITE",
-			"BACK_SPRITE",
-			"FRONT_AND_BACK_SPRITE",
-			"FRONT4_SPRITE",
-			"BACK4_SPRITE",
-			"WATERFALL"
-		}};
+namespace Duel6 {
+    Block::Type Block::determineType(const std::string &kind) {
+        static std::string typeNames[9] = {
+                "EMPTY_SPACE",
+                "WALL",
+                "WATER",
+                "FRONT_SPRITE",
+                "BACK_SPRITE",
+                "FRONT_AND_BACK_SPRITE",
+                "FRONT4_SPRITE",
+                "BACK4_SPRITE",
+                "WATERFALL"
+        };
 
-		auto typeIter = std::find(typeNames.begin(), typeNames.end(), kind);
-		if (typeIter == typeNames.end())
-		{
-			D6_THROW(DataException, std::string("Unknown block type: ") + kind);
-		}
+        auto typeBegin = std::begin(typeNames);
+        auto typeEnd = std::end(typeNames);
+        auto typeIter = std::find(typeBegin, typeEnd, kind);
+        if (typeIter == typeEnd) {
+            D6_THROW(DataException, std::string("Unknown block type: ") + kind);
+        }
 
-		return (Block::Type)(typeIter - typeNames.begin());
-	}
+        return (Block::Type) (typeIter - typeBegin);
+    }
 
-	Block::Meta Block::loadMeta(const std::string& path)
-	{
-		Block::Meta meta;
-		Json::Parser parser;
-		Json::Value root = parser.parse(path);
+    Block::Meta Block::loadMeta(const std::string &path) {
+        Block::Meta meta;
+        Json::Parser parser;
+        Json::Value root = parser.parse(path);
 
-		for (Size i = 0; i < root.getLength(); i++)
-		{
-			Json::Value block = root.get(i);
-			Block::Type type = determineType(block.get("kind").asString());
-			Json::Value animations = block.get("animations");
-			std::vector<Int32> textures;
-			for (Size j = 0; j < animations.getLength(); j++)
-			{
-				textures.push_back(animations.get(j).asInt());
-			}
-			meta.push_back(Block(meta.size(), type, std::move(textures)));
-		}
+        for (Size i = 0; i < root.getLength(); i++) {
+            Json::Value block = root.get(i);
+            Block::Type type = determineType(block.get("kind").asString());
+            Json::Value animations = block.get("animations");
+            std::vector<Int32> textures;
+            for (Size j = 0; j < animations.getLength(); j++) {
+                textures.push_back(animations.get(j).asInt());
+            }
+            meta.push_back(Block(meta.size(), type, std::move(textures)));
+        }
 
-		return meta;
-	}
+        return meta;
+    }
 }

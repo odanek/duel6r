@@ -28,14 +28,11 @@
 #ifndef DUEL6_ENUMCLASSHASH_H
 #define DUEL6_ENUMCLASSHASH_H
 
-namespace Duel6
-{
-    template <class T>
-    struct EnumClassHash
-    {
-        std::size_t operator()(const T& val) const
-        {
-			std::hash<Size> standardHash;
+namespace Duel6 {
+    template<class T>
+    struct EnumClassHash {
+        std::size_t operator()(const T &val) const {
+            std::hash<Size> standardHash;
             return standardHash(Size(val));
         }
     };

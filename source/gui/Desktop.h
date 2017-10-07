@@ -32,36 +32,40 @@
 #include "../SysEvent.h"
 #include "Control.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class Desktop
-		{
-		private:
-			Int32 screenWidth;
-			Int32 screenHeight;
-			Int32 trX; // x translation
-			Int32 trY; // y translation
-			std::vector<std::unique_ptr<Control>> controls;
+namespace Duel6 {
+    namespace Gui {
+        class Desktop {
+        private:
+            Int32 screenWidth;
+            Int32 screenHeight;
+            Int32 trX; // x translation
+            Int32 trY; // y translation
+            std::vector<std::unique_ptr<Control>> controls;
 
-		public:
-			Desktop();
-			~Desktop();
+        public:
+            Desktop();
 
-			void screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY);
-			void update(Float32 elpasedTime);
-			void draw(const Font& font) const;
+            ~Desktop();
 
-			void keyEvent(const KeyPressEvent& event);
-			void textInputEvent(const TextInputEvent& event);
-			void mouseButtonEvent(const MouseButtonEvent& event);
-			void mouseMotionEvent(const MouseMotionEvent& event);
-			void mouseWheelEvent(const MouseWheelEvent& event);
+            void screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY);
 
-			void addControl(Control* control);
-		};
-	}
+            void update(Float32 elpasedTime);
+
+            void draw(const Font &font) const;
+
+            void keyEvent(const KeyPressEvent &event);
+
+            void textInputEvent(const TextInputEvent &event);
+
+            void mouseButtonEvent(const MouseButtonEvent &event);
+
+            void mouseMotionEvent(const MouseMotionEvent &event);
+
+            void mouseWheelEvent(const MouseWheelEvent &event);
+
+            void addControl(Control *control);
+        };
+    }
 }
 
 #endif

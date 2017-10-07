@@ -30,16 +30,12 @@
 
 #include "Exception.h"
 
-namespace Duel6
-{
-	class GameException
-		: public Exception
-	{
-	public:
-		GameException(const std::string& file, Int32 line, const std::string& message)
-			: Exception(file, line, message)
-		{}
-	};
+namespace Duel6 {
+    class GameException : public Exception {
+    public:
+        GameException(const std::string &file, Int32 line, const std::string &message)
+                : Exception(file, line, message) {}
+    };
 }
 
 #endif

@@ -34,66 +34,66 @@
 #include "World.h"
 #include "SysEvent.h"
 
-namespace Duel6
-{
-	class Game;
+namespace Duel6 {
+    class Game;
 
-	class Round
-	{
-	private:
-		Game& game;
-		Int32 roundNumber;
-		World world;
-		bool suddenDeathMode;
-		Float32 waterFillWait;
-		Float32 showYouAreHere;
-		Float32 gameOverWait;
-		bool winner;
-		std::vector<Player*> alivePlayers;
-		LevelScript & levelScript;
-		GlobalScript & globalScript;
-		Uint32 frame;
-	public:
-		Round(Game& game, Int32 roundNumber, std::vector<Player>& players, const std::string& levelPath, bool mirror, Size background, LevelScript & levelScript, GlobalScript & globalScript);
+    class Round {
+    private:
+        Game &game;
+        Int32 roundNumber;
+        World world;
+        bool suddenDeathMode;
+        Float32 waterFillWait;
+        Float32 showYouAreHere;
+        Float32 gameOverWait;
+        bool winner;
+        std::vector<Player *> alivePlayers;
+        LevelScript &levelScript;
+        GlobalScript &globalScript;
+        Uint32 frame;
+    public:
+        Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror,
+              Size background, LevelScript &levelScript, GlobalScript &globalScript);
 
-		void update(Float32 elapsedTime);
-		void keyEvent(const KeyPressEvent& event);
+        void update(Float32 elapsedTime);
 
-		const World& getWorld() const
-		{
-			return world;
-		}
+        void keyEvent(const KeyPressEvent &event);
 
-		bool hasWinner() const
-		{
-			return winner;
-		}
+        const World &getWorld() const {
+            return world;
+        }
 
-		Float32 getRemainingYouAreHere() const
-		{
-			return showYouAreHere;
-		}
+        bool hasWinner() const {
+            return winner;
+        }
 
-		Float32 getRemainingGameOverWait() const
-		{
-			return gameOverWait;
-		}
+        Float32 getRemainingYouAreHere() const {
+            return showYouAreHere;
+        }
 
-		Int32 getRoundNumber() const
-		{
-			return roundNumber;
-		}
+        Float32 getRemainingGameOverWait() const {
+            return gameOverWait;
+        }
 
-		bool isOver() const;
-		bool isLast() const;
+        Int32 getRoundNumber() const {
+            return roundNumber;
+        }
 
-	private:
-		void preparePlayers();
-		void checkWinner();
-		void setPlayerViews();
-		void splitScreenView(Player& player, Int32 x, Int32 y);
-		void switchScreenMode();
-	};
+        bool isOver() const;
+
+        bool isLast() const;
+
+    private:
+        void preparePlayers();
+
+        void checkWinner();
+
+        void setPlayerViews();
+
+        void splitScreenView(Player &player, Int32 x, Int32 y);
+
+        void switchScreenMode();
+    };
 }
 
 #endif

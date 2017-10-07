@@ -31,20 +31,20 @@
 #include "../../PlayerSkin.h"
 #include "../LegacyWeapon.h"
 
-namespace Duel6
-{
-	class ShitThrower : public LegacyWeapon
-	{
-	private:
-		std::unique_ptr<PlayerSkin> brownSkin;
+namespace Duel6 {
+    class ShitThrower : public LegacyWeapon {
+    private:
+        std::unique_ptr<PlayerSkin> brownSkin;
 
-	public:
-		ShitThrower(Sound& sound, TextureManager& textureManager);
+    public:
+        ShitThrower(Sound &sound, TextureManager &textureManager);
 
-	protected:
-		std::unique_ptr<Shot> makeShot(Player& player, Orientation orientation, SpriteList::Iterator spriteIterator) const override;
-		Rectangle getShotCollisionRectangle() const override;
-	};
+    protected:
+        std::unique_ptr<Shot>
+        makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const override;
+
+        Rectangle getShotCollisionRectangle() const override;
+    };
 }
 
 

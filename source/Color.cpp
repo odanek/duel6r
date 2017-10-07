@@ -25,16 +25,20 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Math.h"
 #include "Color.h"
 
-namespace Duel6
-{
-	const Color Color::BLACK(0, 0, 0);
-	const Color Color::WHITE(255, 255, 255);
-	const Color Color::RED(255, 0, 0);
-	const Color Color::GREEN(0, 255, 0);
-	const Color Color::BLUE(0, 0, 255);
-	const Color Color::CYAN(0, 255, 255);
-	const Color Color::MAGENTA(255, 0, 255);
-	const Color Color::YELLOW(255, 255, 0);
+namespace Duel6 {
+    const Color Color::BLACK(0, 0, 0);
+    const Color Color::WHITE(255, 255, 255);
+    const Color Color::RED(255, 0, 0);
+    const Color Color::GREEN(0, 255, 0);
+    const Color Color::BLUE(0, 0, 255);
+    const Color Color::CYAN(0, 255, 255);
+    const Color Color::MAGENTA(255, 0, 255);
+    const Color Color::YELLOW(255, 255, 0);
+
+    Color Color::random() {
+        return Color(Uint8(Math::random(0, 256)), Uint8(Math::random(0, 256)), Uint8(Math::random(0, 256)));
+    }
 }

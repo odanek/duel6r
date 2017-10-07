@@ -25,46 +25,32 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include "Label.h"
+#include "../Video.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		Label::Label(Desktop& desk)
-			: Control(desk)
-		{
-		}
+namespace Duel6 {
+    namespace Gui {
+        Label::Label(Desktop &desk)
+                : Control(desk) {
+        }
 
-		Label::~Label()
-		{
-		}
+        Label::~Label() {
+        }
 
-		void Label::setPosition(int X, int Y, int W, int H)
-		{
-			x = X;
-			y = Y;
-			width = W;
-			height = H;
-		}
+        void Label::setPosition(int X, int Y, int W, int H) {
+            x = X;
+            y = Y;
+            width = W;
+            height = H;
+        }
 
-		void Label::setCaption(const std::string& caption)
-		{
-			text = caption;
-		}
+        void Label::setCaption(const std::string &caption) {
+            text = caption;
+        }
 
-		void Label::draw(const Font& font) const
-		{
-			glBegin(GL_QUADS);
-			glColor3ub(170, 170, 170);
-			glVertex2i(x, y);
-			glVertex2i(x + width - 1, y);
-			glVertex2i(x + width - 1, y - height + 1);
-			glVertex2i(x, y - height + 1);
-			glEnd();
-
-			font.print(x, y - 15, Color(0), text);
-		}
-	}
+        void Label::draw(const Font &font) const {
+            globRenderer->quadXY(Vector(x, y - height + 1), Vector(width - 1, height - 1), Color(170, 170, 170));
+            font.print(x, y - 15, Color(0), text);
+        }
+    }
 }

@@ -29,41 +29,32 @@
 #include "../World.h"
 #include "MinusLife.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		MinusLife::MinusLife(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        MinusLife::MinusLife(Texture texture)
+                : texture(texture) {}
 
-		Texture MinusLife::getTexture() const
-		{
-			return texture;
-		}
+        Texture MinusLife::getTexture() const {
+            return texture;
+        }
 
-		bool MinusLife::isOneTime() const
-		{
-			return true;
-		}
+        bool MinusLife::isOneTime() const {
+            return true;
+        }
 
-		bool MinusLife::isApplicable(Player& player, World& world) const
-		{
-			return !player.isInvulnerable();
-		}
+        bool MinusLife::isApplicable(Player &player, World &world) const {
+            return !player.isInvulnerable();
+        }
 
-		void MinusLife::onApply(Player& player, World& world, Int32 duration) const
-		{
-			Int32 hit = (Int32(D6_MAX_LIFE) / 7) + rand() % (Int32(D6_MAX_LIFE) / 2);
-			if (player.hit(Float32(hit)))
-			{
-				player.playSound(PlayerSounds::Type::WasKilled);
-			}
-			world.getMessageQueue().add(player, Format("Life -{0}") << hit);
-		}
+        void MinusLife::onApply(Player &player, World &world, Int32 duration) const {
+            Int32 hit = (Int32(D6_MAX_LIFE) / 7) + Math::random(Int32(D6_MAX_LIFE) / 2);
+            if (player.hit(Float32(hit))) {
+                player.playSound(PlayerSounds::Type::WasKilled);
+            }
+            world.getMessageQueue().add(player, Format("Life -{0}") << hit);
+        }
 
-		void MinusLife::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void MinusLife::onExpire(Player &player, World &world) const {
+        }
+    }
 }

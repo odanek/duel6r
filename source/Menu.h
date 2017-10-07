@@ -30,7 +30,6 @@
 
 #include <vector>
 #include <unordered_map>
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "Context.h"
 #include "LevelList.h"
@@ -49,89 +48,109 @@
 #include "gui/Spinner.h"
 #include "GameMode.h"
 
-namespace Duel6
-{
-	class Game; // Forward, TODO: Remove
+namespace Duel6 {
+    class Game; // Forward, TODO: Remove
 
-	class Menu
-		: public Context
-	{
-	private:
-		AppService& appService;
-		Font& font;
-		Video& video;
-		Sound& sound;
-		Game* game;
-		std::vector<std::unique_ptr<GameMode>> gameModes;
-		Gui::Desktop gui;
-		PlayerControlsManager controlsManager;
-		std::unordered_map<std::string, PersonProfile> personProfiles;
-		LevelList levelList;
-		PersonList persons;
-		Gui::Button* button[7];
-		Gui::ListBox* listbox[7];
-		Gui::Label* label[8];
-		Gui::Spinner* controlSwitch[D6_MAX_PLAYERS];
-		Gui::Textbox* textbox;
-		Gui::Spinner* gameModeSwitch;
-		Size backgroundCount;
-		TextureList menuBannerTexture;
-		Sound::Track menuTrack;
-		bool playMusic;
+    class Menu
+            : public Context {
+    private:
+        AppService &appService;
+        Font &font;
+        Video &video;
+        Sound &sound;
+        Game *game;
+        std::vector<std::unique_ptr<GameMode>> gameModes;
+        Gui::Desktop gui;
+        PlayerControlsManager controlsManager;
+        std::unordered_map<std::string, PersonProfile> personProfiles;
+        PlayerSounds defaultPlayerSounds;
+        LevelList levelList;
+        PersonList persons;
+        Gui::Button *button[7];
+        Gui::ListBox *listbox[7];
+        Gui::Label *label[8];
+        Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
+        Gui::Textbox *textbox;
+        Gui::Spinner *gameModeSwitch;
+        Size backgroundCount;
+        TextureList menuBannerTexture;
+        Sound::Track menuTrack;
+        bool playMusic;
 
-	public:
-		Menu(AppService& appService);
+    public:
+        explicit Menu(AppService &appService);
 
-		~Menu()
-		{
-		}
+        ~Menu() = default;
 
-		void setGameReference(Game* game)
-		{
-			this->game = game;
-		}
+        void setGameReference(Game *game) {
+            this->game = game;
+        }
 
-		void initialize();		
+        void initialize();
 
-		void joyRescan();
+        void joyRescan();
 
-		void savePersonData() const;
+        void savePersonData() const;
 
-		void keyEvent(const KeyPressEvent& event) override;
-		void textInputEvent(const TextInputEvent& event) override;
-		void mouseButtonEvent(const MouseButtonEvent& event) override;
-		void mouseMotionEvent(const MouseMotionEvent& event) override;
-		void mouseWheelEvent(const MouseWheelEvent& event) override;
-		void update(Float32 elapsedTime) override;
-		void render() const override;
+        void keyEvent(const KeyPressEvent &event) override;
 
-		void enableMusic(bool enable);
+        void textInputEvent(const TextInputEvent &event) override;
 
-		std::unordered_map<std::string, PersonProfile>& getPersonProfiles()
-		{
-			return personProfiles;
-		}
+        void mouseButtonEvent(const MouseButtonEvent &event) override;
 
-	private:
-		void beforeStart(Context* prevContext) override;
-		void beforeClose(Context* nextContext) override;
+        void mouseMotionEvent(const MouseMotionEvent &event) override;
 
-		void initializeGameModes();
-		void showMessage(const std::string& message);
-		void detectControls(Size playerIndex);
-		void play();
-		void loadPersonProfiles(const std::string& path);
-		void loadPersonData(const std::string& filePath);
-		PersonProfile& getPersonProfile(const std::string& name, Size index);
-		void cleanPersonData();
-		void addPerson();
-		void deletePerson();
-		void addPlayer(Int32 index);
-		void removePlayer(Int32 c);
-		void rebuildTable();
-		bool question(const std::string& question);
-		bool deleteQuestion();
-	};
+        void mouseWheelEvent(const MouseWheelEvent &event) override;
+
+        void update(Float32 elapsedTime) override;
+
+        void render() const override;
+
+        void enableMusic(bool enable);
+
+        std::unordered_map<std::string, PersonProfile> &getPersonProfiles() {
+            return personProfiles;
+        }
+
+    private:
+        void beforeStart(Context *prevContext) override;
+
+        void beforeClose(Context *nextContext) override;
+
+        void initializeGameModes();
+
+        void showMessage(const std::string &message);
+
+        void detectControls(Size playerIndex);
+
+        void play();
+
+        void playPlayersSound(const std::string &name);
+
+        void loadPersonProfiles(const std::string &path);
+
+        void loadPersonData(const std::string &filePath);
+
+        PersonProfile *getPersonProfile(const std::string &name);
+
+        void cleanPersonData();
+
+        void addPerson();
+
+        void deletePerson();
+
+        void addPlayer(Int32 index);
+
+        void removePlayer(Int32 c);
+
+        void rebuildTable();
+
+        bool question(const std::string &question);
+
+        bool deleteQuestion();
+
+        void consumeInputEvents();
+    };
 }
 
 #endif

@@ -32,178 +32,138 @@
 #include "File.h"
 #include "IoException.h"
 
-namespace Duel6
-{
-	namespace Util
-	{
-		Texture createTexture(const Image& image, TextureFilter filtering, bool clamp)
-		{
-			GLuint textureId;
-			glGenTextures(1, &textureId);
-			glBindTexture(GL_TEXTURE_2D, textureId);
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, (GLsizei)image.getWidth(), (GLsizei)image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+namespace Duel6 {
+    namespace Util {
+        static void readTgaColor(File &file, Color &color) {
+            Uint8 colBytes[3];
+            file.read(colBytes, 1, 3);
+            color.set(colBytes[2], colBytes[1], colBytes[0],
+                      (colBytes[0] == 0 && colBytes[1] == 0 && colBytes[2] == 0) ? 0 : 255);
+        }
 
-			GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+        static void writeTgaColor(File &file, const Color &color) {
+            Uint8 colBytes[3] = {color.getBlue(), color.getGreen(), color.getRed()};
+            file.write(colBytes, 1, 3);
+        }
 
-			// Clamp texture coordinates
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        void loadTargaImage(const std::string &path, Image &image) {
+            File file(path, File::Mode::Binary, File::Access::Read);
 
-			return Texture(textureId);
-		}
+            // Header
+            Uint16 header[9];
+            file.read(header, 2, 9);
 
-		static void readTgaColor(File& file, Color& color)
-		{
-			Uint8 colBytes[3];
-			file.read(colBytes, 1, 3);
-			color.set(colBytes[2], colBytes[1], colBytes[0], (colBytes[0] == 0 && colBytes[1] == 0 && colBytes[2] == 0) ? 0 : 255);
-		}
+            // Data
+            image.resize(header[6], header[7]);
+            Color color, *output = &image.at(0);
+            Size remainingData = header[6] * header[7];
+            Uint8 chunkLength, packet;
 
-		static void writeTgaColor(File& file, const Color& color)
-		{
-			Uint8 colBytes[3] = { color.getBlue(), color.getGreen(), color.getRed() };
-			file.write(colBytes, 1, 3);
-		}
+            while (remainingData > 0) {
+                file.read(&packet, 1, 1);
 
-		void loadTargaImage(const std::string& path, Image& image)
-		{
-			File file(path, File::Mode::Binary, File::Access::Read);
+                if (packet >= 0x80) {
+                    // RLE chunk
+                    chunkLength = packet - 0x7f;
 
-			// Header
-			Uint16 header[9];
-			file.read(header, 2, 9);
+                    readTgaColor(file, color);
+                    for (Size i = 0; i < chunkLength; ++i) {
+                        *output++ = color;
+                    }
+                } else {
+                    // Raw chunk
+                    chunkLength = packet + 1;
 
-			// Data
-			image.resize(header[6], header[7]);
-			Color color, *output = &image.at(0);
-			Size remainingData = header[6] * header[7];
-			Uint8 chunkLength, packet;
+                    for (Size i = 0; i < chunkLength; ++i) {
+                        readTgaColor(file, color);
+                        *output++ = color;
+                    }
+                }
 
-			while (remainingData > 0)
-			{
-				file.read(&packet, 1, 1);
+                remainingData -= chunkLength;
+            }
 
-				if (packet >= 0x80) 
-				{
-					// RLE chunk
-					chunkLength = packet - 0x7f;
-										
-					readTgaColor(file, color);
-					for (Size i = 0; i < chunkLength; ++i)
-					{
-						*output++ = color;
-					}
-				}
-				else
-				{
-					// Raw chunk
-					chunkLength = packet + 1;
+            if (!(header[8] & 0x2000)) // Flip image vertically
+            {
+                for (Size y = 0; y < image.getHeight() / 2; y++) {
+                    Color *row1 = &image.at(y * image.getWidth());
+                    Color *row2 = &image.at((image.getHeight() - 1 - y) * image.getWidth());
 
-					for (Size i = 0; i < chunkLength; ++i)
-					{
-						readTgaColor(file, color);
-						*output++ = color;
-					}					
-				}
+                    for (Size x = 0; x < image.getWidth(); x++, row1++, row2++) {
+                        Color tmp = *row1;
+                        *row1 = *row2;
+                        *row2 = tmp;
+                    }
+                }
+            }
+        }
 
-				remainingData -= chunkLength;
-			}
+        void saveTarga(const std::string &path, const Image &image) {
+            File file(path, File::Mode::Binary, File::Access::Write);
 
-			if (!(header[8] & 0x2000)) // Flip image vertically
-			{
-				for (Size y = 0; y < image.getHeight() / 2; y++)
-				{
-					Color* row1 = &image.at(y * image.getWidth());
-					Color* row2 = &image.at((image.getHeight() - 1 - y) * image.getWidth());
+            // Header
+            Uint16 header[9] = {0, 10, 0, 0, 0, 0, (Uint16) image.getWidth(), (Uint16) image.getHeight(),
+                                0x18};  // 0x2018
+            file.write(header, 2, 9);
 
-					for (Size x = 0; x < image.getWidth(); x++, row1++, row2++)
-					{
-						Color tmp = *row1;
-						*row1 = *row2;
-						*row2 = tmp;
-					}
-				}
-			}
-		}
+            // Data
+            Size remainingData = image.getWidth() * image.getHeight();
+            const Color *data = &image.at(0);
+            Uint8 chunkLength;
+            while (remainingData > 0) {
+                if (remainingData > 1 && data[0] == data[1]) {
+                    // RLE chunk
+                    chunkLength = 2;
+                    while (chunkLength < 128 && chunkLength < remainingData && data[0] == data[chunkLength]) {
+                        ++chunkLength;
+                    }
 
-		void saveTarga(const std::string& path, const Image& image)
-		{
-			File file(path, File::Mode::Binary, File::Access::Write);
+                    Uint8 packet = 0x80 + (chunkLength - 1);
+                    file.write(&packet, 1, 1);
+                    writeTgaColor(file, data[0]);
+                } else {
+                    // Raw chunk
+                    chunkLength = 1;
+                    while (chunkLength < 128 && chunkLength < remainingData &&
+                           data[chunkLength - 1] != data[chunkLength]) {
+                        ++chunkLength;
+                    }
 
-			// Header
-			Uint16 header[9] = { 0, 10, 0, 0, 0, 0, (Uint16)image.getWidth(), (Uint16)image.getHeight(), 0x18 };  // 0x2018
-			file.write(header, 2, 9);
+                    Uint8 packet = chunkLength - 1;
+                    file.write(&packet, 1, 1);
+                    for (Size i = 0; i < chunkLength; ++i) {
+                        writeTgaColor(file, data[i]);
+                    }
+                }
 
-			// Data
-			Size remainingData = image.getWidth() * image.getHeight();
-			const Color* data = &image.at(0);
-			Uint8 chunkLength;
-			while (remainingData > 0)
-			{
-				if (remainingData > 1 && data[0] == data[1]) 
-				{
-					// RLE chunk
-					chunkLength = 2;
-					while (chunkLength < 128 && chunkLength < remainingData && data[0] == data[chunkLength])
-					{
-						++chunkLength;
-					}
+                data += chunkLength;
+                remainingData -= chunkLength;
+            }
+        }
 
-					Uint8 packet = 0x80 + (chunkLength - 1);
-					file.write(&packet, 1, 1);
-					writeTgaColor(file, data[0]);
-				}
-				else
-				{
-					// Raw chunk
-					chunkLength = 1;
-					while (chunkLength < 128 && chunkLength < remainingData && data[chunkLength - 1] != data[chunkLength])
-					{
-						++chunkLength;
-					}
+        std::string saveScreenTga(const Video &video) {
+            Int32 num = 0;
+            std::string name;
 
-					Uint8 packet = chunkLength - 1;
-					file.write(&packet, 1, 1);
-					for (Size i = 0; i < chunkLength; ++i)
-					{
-						writeTgaColor(file, data[i]);
-					}
-				}
+            // Vyhledani cisla pod ktere ukladat
+            while (num < 1000) {
+                num++;
+                name = Format("screenshot_{0}.tga") << num;
+                if (!File::exists(name)) {
+                    break;
+                }
+            }
 
-				data += chunkLength;
-				remainingData -= chunkLength;
-			}
-		}
+            // Maximalne 1000 screenshotu
+            if (num >= 1000) {
+                D6_THROW(IoException, "Maximum number of 1000 screenshots reached");
+            }
 
-		std::string saveScreenTga(const Video& video)
-		{
-			Int32 num = 0;
-			std::string name;
-
-			// Vyhledani cisla pod ktere ukladat
-			while (num < 1000)
-			{
-				num++;
-				name = Format("screenshot_{0}.tga") << num;
-				if (!File::exists(name))
-				{
-					break;
-				}
-			}
-
-			// Maximalne 1000 screenshotu
-			if (num >= 1000)
-			{
-				D6_THROW(IoException, "Maximum number of 1000 screenshots reached");
-			}
-
-			Image image(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
-			glReadPixels(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
-			saveTarga(name, image);
-			return name;
-		}
-	}
+            Image image(video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
+            globRenderer->readScreenData(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
+                                         image);
+            saveTarga(name, image);
+            return name;
+        }
+    }
 }

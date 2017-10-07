@@ -32,35 +32,33 @@
 #include "TeamDeathMatchPlayerEventListener.h"
 #include "Team.h"
 
-namespace Duel6
-{
-    class TeamDeathMatch : public GameModeBase
-    {
+namespace Duel6 {
+    class TeamDeathMatch : public GameModeBase {
 
     private:
         Size teamsCount;
         bool friendlyFire;
         std::unique_ptr<PlayerEventListener> eventListener;
-		TeamMap teamMap;
+        TeamMap teamMap;
 
     public:
         TeamDeathMatch(Size teamsCount, bool friendlyFire)
-			: teamsCount(teamsCount), friendlyFire(friendlyFire)
-        {}
+                : teamsCount(teamsCount), friendlyFire(friendlyFire) {}
 
-        std::string getName() const override
-        {
+        std::string getName() const override {
             return Format("Team deathmatch ({0} teams, FF: {1})") << teamsCount << (friendlyFire ? "on" : "off");
         }
 
-		void initializePlayers(std::vector<Game::PlayerDefinition>& definitions) override;
-		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
+        void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) override;
 
-        bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) override;
-		Ranking getRanking(const std::vector<Player>& players) const override;
+        void initializeRound(Game &game, std::vector<Player> &players, World &world) override;
 
-	private:
-		const Team& getPlayerTeam(Size playerIndex);
+        bool checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) override;
+
+        Ranking getRanking(const std::vector<Player> &players) const override;
+
+    private:
+        const Team &getPlayerTeam(Size playerIndex);
     };
 
 }

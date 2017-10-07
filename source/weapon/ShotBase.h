@@ -30,21 +30,21 @@
 
 #include "../Shot.h"
 
-namespace Duel6
-{
-	class ShotBase : public Shot
-	{
-	protected:
-		const Weapon& weapon;
-		Player& player;
+namespace Duel6 {
+    class ShotBase : public Shot {
+    protected:
+        const Weapon &weapon;
+        Player &player;
 
-	public:
-		ShotBase(const Weapon& weapon, Player& player);
+    public:
+        ShotBase(const Weapon &weapon, Player &player);
 
-		Player& getPlayer() override;
-		const Player& getPlayer() const override;
-		const Weapon& getWeapon() const override;
-	};
+        Player &getPlayer() override;
+
+        const Player &getPlayer() const override;
+
+        const Weapon &getWeapon() const override;
+    };
 }
 
 #endif

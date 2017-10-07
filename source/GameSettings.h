@@ -34,159 +34,154 @@
 #include "ScreenMode.h"
 #include "Weapon.h"
 
-namespace Duel6
-{
-	enum class ShotCollisionSetting
-	{
-		None,
-		Large,
-		All
-	};
+namespace Duel6 {
+    enum class ShotCollisionSetting {
+        None,
+        Large,
+        All
+    };
 
-	class GameSettings
-	{
-	public:
-		typedef std::unordered_set<Weapon, Weapon::Hash> EnabledWeapons;
+    enum class LevelSelectionMode {
+        Random,
+        Shuffle
+    };
 
-	private:
-		std::pair<Int32, Int32> ammoRange;
-		Int32 maxRounds;
-		ScreenMode screenMode;
-		Int32 screenZoom;
-		bool wireframe;
-		bool showFps;
-		bool showRanking;
-		bool ghostMode;
-		ShotCollisionSetting shotCollision;
-		EnabledWeapons enabledWeapons;
-		Uint8 maxFps;
-		Uint8 maxGFps; ///tickrate
+    class GameSettings {
+    public:
+        typedef std::unordered_set<Weapon, Weapon::Hash> EnabledWeapons;
 
-	public:
-		GameSettings();
+    private:
+        std::pair<Int32, Int32> ammoRange;
+        Int32 maxRounds;
+        ScreenMode screenMode;
+        Int32 screenZoom;
+        bool wireframe;
+        bool showFps;
+        bool showRanking;
+        bool ghostMode;
+        ShotCollisionSetting shotCollision;
+        EnabledWeapons enabledWeapons;
+        LevelSelectionMode levelSelectionMode;
 
-		ScreenMode getScreenMode() const
-		{
-			return screenMode;
-		}
+    public:
+        GameSettings();
 
-		GameSettings& setScreenMode(const ScreenMode& screenMode)
-		{
-			this->screenMode = screenMode;
-			return *this;
-		}
+        ScreenMode getScreenMode() const {
+            return screenMode;
+        }
 
-		Int32 getScreenZoom() const
-		{
-			return screenZoom;
-		}
+        GameSettings &setScreenMode(const ScreenMode &screenMode) {
+            this->screenMode = screenMode;
+            return *this;
+        }
 
-		GameSettings& setScreenZoom(Int32 screenZoom)
-		{
-			this->screenZoom = screenZoom;
-			return *this;
-		}
+        Int32 getScreenZoom() const {
+            return screenZoom;
+        }
+        Uint8 maxFps;
+        Uint8 maxGFps; ///tickrate
 
-		const std::pair<Int32, Int32>& getAmmoRange() const
-		{
-			return ammoRange;
-		}
+        GameSettings &setScreenZoom(Int32 screenZoom) {
+            this->screenZoom = screenZoom;
+            return *this;
+        }
 
-		GameSettings& setAmmoRange(const std::pair<Int32, Int32>& range)
-		{
-			ammoRange = range;
-			return *this;
-		}
+        const std::pair<Int32, Int32> &getAmmoRange() const {
+            return ammoRange;
+        }
 
-		Int32 getMaxRounds() const
-		{
-			return maxRounds;
-		}
+        GameSettings &setAmmoRange(const std::pair<Int32, Int32> &range) {
+            ammoRange = range;
+            return *this;
+        }
 
-		bool isRoundLimit() const
-		{
-			return maxRounds > 0;
-		}
+        Int32 getMaxRounds() const {
+            return maxRounds;
+        }
 
-		GameSettings& setMaxRounds(Int32 maxRounds)
-		{
-			this->maxRounds = maxRounds;
-			return *this;
-		}
+        bool isRoundLimit() const {
+            return maxRounds > 0;
+        }
 
-		GameSettings& setGhostEnabled(bool enabled)
-		{
-			ghostMode = enabled;
-			return *this;
-		}
+        GameSettings &setMaxRounds(Int32 maxRounds) {
+            this->maxRounds = maxRounds;
+            return *this;
+        }
 
-		bool isGhostEnabled()
-		{
-			return this->ghostMode;
-		}
+        GameSettings &setGhostEnabled(bool enabled) {
+            ghostMode = enabled;
+            return *this;
+        }
 
-		GameSettings& setShotCollision(ShotCollisionSetting value)
-		{
-			shotCollision = value;
-			return *this;
-		}
+        bool isGhostEnabled() {
+            return this->ghostMode;
+        }
 
-		ShotCollisionSetting getShotCollision() const
-		{
-			return shotCollision;
-		}
+        GameSettings &setShotCollision(ShotCollisionSetting value) {
+            shotCollision = value;
+            return *this;
+        }
 
-		bool isWireframe() const
-		{
-			return wireframe;
-		}
+        ShotCollisionSetting getShotCollision() const {
+            return shotCollision;
+        }
 
-		GameSettings& setWireframe(bool wireframe)
-		{
-			this->wireframe = wireframe;
-			return *this;
-		}
+        bool isWireframe() const {
+            return wireframe;
+        }
 
-		bool isShowFps() const
-		{
-			return showFps;
-		}
+        GameSettings &setWireframe(bool wireframe) {
+            this->wireframe = wireframe;
+            return *this;
+        }
 
-		GameSettings& setShowFps(bool showFps)
-		{
-			this->showFps = showFps;
-			return *this;
-		}
+        bool isShowFps() const {
+            return showFps;
+        }
 
-		bool isShowRanking() const
-		{
-			return showRanking;
-		}
+        GameSettings &setShowFps(bool showFps) {
+            this->showFps = showFps;
+            return *this;
+        }
 
-		GameSettings& setShowRanking(bool showRanking)
-		{
-			this->showRanking = showRanking;
-			return *this;
-		}
-        Uint8 getFps(){
+        bool isShowRanking() const {
+            return showRanking;
+        }
+
+        GameSettings &setShowRanking(bool showRanking) {
+            this->showRanking = showRanking;
+            return *this;
+        }
+
+        LevelSelectionMode getLevelSelectionMode() const {
+            return levelSelectionMode;
+        }
+
+        GameSettings &setLevelSelectionMode(LevelSelectionMode mode) {
+            levelSelectionMode = mode;
+            return *this;
+        }
+
+        GameSettings &enableWeapon(const Weapon &weapon, bool enable);
+
+        bool isWeaponEnabled(const Weapon &weapon) const;
+        Uint8 getFps() {
             return this->maxFps ;
         }
-		GameSettings& setFps(Uint8 fps){
-		    this->maxFps = fps;
-		    return *this;
-		}
-		Uint8 getGFps(){
+        GameSettings &setFps(Uint8 fps) {
+            this->maxFps = fps;
+            return *this;
+        }
+        Uint8 getGFps() {
             return this->maxGFps ;
         }
 
-		GameSettings& setGFps(Uint8 gfps){
+        GameSettings &setGFps(Uint8 gfps) {
             this->maxGFps = gfps;
             return *this;
         }
-		GameSettings& enableWeapon(const Weapon& weapon, bool enable);
-		bool isWeaponEnabled(const Weapon& weapon) const;
-		const EnabledWeapons& getEnabledWeapons() const;
-	};
+        const EnabledWeapons &getEnabledWeapons() const;
+    };
 }
 
 

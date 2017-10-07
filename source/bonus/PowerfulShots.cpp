@@ -29,36 +29,28 @@
 #include "../World.h"
 #include "PowerfulShots.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		PowerfulShots::PowerfulShots(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        PowerfulShots::PowerfulShots(Texture texture)
+                : texture(texture) {}
 
-		Texture PowerfulShots::getTexture() const
-		{
-			return texture;
-		}
+        Texture PowerfulShots::getTexture() const {
+            return texture;
+        }
 
-		bool PowerfulShots::isOneTime() const
-		{
-			return false;
-		}
+        bool PowerfulShots::isOneTime() const {
+            return false;
+        }
 
-		bool PowerfulShots::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool PowerfulShots::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void PowerfulShots::onApply(Player& player, World& world, Int32 duration) const
-		{
-			world.getMessageQueue().add(player, Format("Powerful shots for {0} seconds") << duration);
-		}
+        void PowerfulShots::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Powerful shots for {0} seconds") << duration);
+        }
 
-		void PowerfulShots::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void PowerfulShots::onExpire(Player &player, World &world) const {
+        }
+    }
 }

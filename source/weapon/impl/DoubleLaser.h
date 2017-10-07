@@ -30,16 +30,14 @@
 
 #include "../LegacyWeapon.h"
 
-namespace Duel6
-{
-	class DoubleLaser : public LegacyWeapon
-	{
-	public:
-		DoubleLaser(Sound& sound, TextureManager& textureManager);
+namespace Duel6 {
+    class DoubleLaser : public LegacyWeapon {
+    public:
+        DoubleLaser(Sound &sound, TextureManager &textureManager);
 
-	public:
-		Rectangle getShotCollisionRectangle() const override;
-	};
+    public:
+        Rectangle getShotCollisionRectangle() const override;
+    };
 }
 
 #endif

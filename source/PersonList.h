@@ -34,56 +34,49 @@
 #include "Person.h"
 #include "File.h"
 
-namespace Duel6
-{
-	class PersonList
-	{
-	private:
-		std::vector<Person> persons;
+namespace Duel6 {
+    class PersonList {
+    private:
+        std::vector<Person> persons;
 
-	public:
-		PersonList()
-		{}
+    public:
+        PersonList() {}
 
-		Size getLength() const
-		{
-			return persons.size();
-		}
+        Size getLength() const {
+            return persons.size();
+        }
 
-		bool isEmpty() const
-		{
-			return persons.empty();
-		}
+        bool isEmpty() const {
+            return persons.empty();
+        }
 
-		Person& get(Size index)
-		{
-			return persons[index];
-		}
+        Person &get(Size index) {
+            return persons[index];
+        }
 
-		Person& getByName(const std::string& name);
-		bool contains(const std::string& name) const;
+        Person &getByName(const std::string &name);
 
-		std::vector<Person>& list()
-		{
-			return persons;
-		}
+        bool contains(const std::string &name) const;
 
-		const std::vector<Person>& list() const
-		{
-			return persons;
-		}
+        std::vector<Person> &list() {
+            return persons;
+        }
 
-		PersonList& add(const Person& person)
-		{
-			persons.push_back(person);
-			return *this;
-		}
+        const std::vector<Person> &list() const {
+            return persons;
+        }
 
-		PersonList& remove(const std::string& name);
+        PersonList &add(const Person &person) {
+            persons.push_back(person);
+            return *this;
+        }
 
-		Json::Value toJson() const;
-		void fromJson(const Json::Value& json);
-	};
+        PersonList &remove(const std::string &name);
+
+        Json::Value toJson() const;
+
+        void fromJson(const Json::Value &json);
+    };
 }
 
 #endif

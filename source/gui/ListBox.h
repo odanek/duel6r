@@ -32,66 +32,72 @@
 #include "Control.h"
 #include "Slider.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		class ListBox
-			: public Control
-		{
-		public:
-			typedef std::function<void (ListBox& listBox, Int32 index, const std::string& item)> ClickCallback;
+namespace Duel6 {
+    namespace Gui {
+        class ListBox
+                : public Control {
+        public:
+            typedef std::function<void(ListBox &listBox, Int32 index, const std::string &item)> ClickCallback;
 
-		private:
-			std::vector<ClickCallback> selectListeners;
-			std::vector<ClickCallback> doubleClickListeners;
-			bool scrollBar;
-			Slider *slider;
-			Int32 width;
-			Int32 height;
-			Int32 selected;
-			Int32 itemHeight;
-			std::vector<std::string> items;
-			Slider::Position listPos;
+        private:
+            std::vector<ClickCallback> selectListeners;
+            std::vector<ClickCallback> doubleClickListeners;
+            bool scrollBar;
+            Slider *slider;
+            Int32 width;
+            Int32 height;
+            Int32 selected;
+            Int32 itemHeight;
+            std::vector<std::string> items;
+            Slider::Position listPos;
 
-		public:
-			ListBox(Desktop& desk, bool sb);
-			~ListBox();
+        public:
+            ListBox(Desktop &desk, bool sb);
 
-			ListBox& setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
-			ListBox& addItem(const std::string& item);
-			ListBox& removeItem(Int32 index);
-			ListBox& removeItem(const std::string& item);
-			ListBox& selectItem(Int32 index);
-			ListBox& scrollToView(Int32 index);
-			const std::string& getItem(Size index) const;
-			Int32 selectedIndex() const;
-			const std::string& selectedItem() const;
-			Size size() const;
-			ListBox& clear();
+            ~ListBox();
 
-			Control::Type getType() const override
-			{
-				return Control::Type::Listbox;
-			}
+            ListBox &setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
 
-			ListBox& onItemSelected(ClickCallback listener)
-			{
-				selectListeners.push_back(listener);
-				return*this;
-			}
+            ListBox &addItem(const std::string &item);
 
-			ListBox& onDoubleClick(ClickCallback listener)
-			{
-				doubleClickListeners.push_back(listener);
-				return*this;
-			}
+            ListBox &removeItem(Int32 index);
 
-		protected:
-			void mouseButtonEvent(const MouseButtonEvent& event) override;
-			void draw(const Font& font) const override;
-		};
-	}
+            ListBox &removeItem(const std::string &item);
+
+            ListBox &selectItem(Int32 index);
+
+            ListBox &scrollToView(Int32 index);
+
+            const std::string &getItem(Size index) const;
+
+            Int32 selectedIndex() const;
+
+            const std::string &selectedItem() const;
+
+            Size size() const;
+
+            ListBox &clear();
+
+            Control::Type getType() const override {
+                return Control::Type::Listbox;
+            }
+
+            ListBox &onItemSelected(ClickCallback listener) {
+                selectListeners.push_back(listener);
+                return *this;
+            }
+
+            ListBox &onDoubleClick(ClickCallback listener) {
+                doubleClickListeners.push_back(listener);
+                return *this;
+            }
+
+        protected:
+            void mouseButtonEvent(const MouseButtonEvent &event) override;
+
+            void draw(const Font &font) const override;
+        };
+    }
 }
 
 #endif

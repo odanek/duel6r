@@ -28,158 +28,153 @@
 #ifndef DUEL6_BONUS_H
 #define DUEL6_BONUS_H
 
-#include <SDL2/SDL_opengl.h>
 #include "Type.h"
 #include "TextureManager.h"
 #include "Vector.h"
 #include "Rectangle.h"
 #include "Weapon.h"
 
-namespace Duel6
-{
-	class Player;
-	class World;
+namespace Duel6 {
+    class Player;
 
-	class BonusTypeImpl
-	{
-	public:
-		virtual Texture getTexture() const = 0;
-		virtual bool isOneTime() const = 0;
-		virtual bool isApplicable(Player& player, World& world) const = 0;
-		virtual void onApply(Player& player, World& world, Int32 duration) const = 0;
-		virtual void onExpire(Player& player, World& world) const = 0;
-	};
+    class World;
 
-	class BonusType final
-	{
-	private:
-		typedef std::unique_ptr<BonusTypeImpl> BonusTypeImplPtr;
+    class BonusTypeImpl {
+    public:
+        virtual Texture getTexture() const = 0;
 
-	public:
-		static const BonusType NONE;
-		static const BonusType PLUS_LIFE;
-		static const BonusType MINUS_LIFE;
-		static const BonusType FULL_LIFE;
-		static const BonusType FAST_RELOAD;
-		static const BonusType POWERFUL_SHOTS;
-		static const BonusType INVULNERABILITY;
-		static const BonusType BULLETS;
-		static const BonusType FAST_MOVEMENT;
-		static const BonusType INVISIBILITY;
-		static const BonusType SPLIT_FIRE;
-		static const BonusType VAMPIRE_SHOTS;
+        virtual bool isOneTime() const = 0;
 
-	private:
-		mutable BonusTypeImpl* impl;
-		void assign(BonusTypeImplPtr&& impl) const;
+        virtual bool isApplicable(Player &player, World &world) const = 0;
 
-	private:
-		static std::vector<BonusType> types;
-		static std::vector<BonusTypeImplPtr> implementations;
+        virtual void onApply(Player &player, World &world, Int32 duration) const = 0;
 
-	public:
-		BonusType();
-		BonusType(const BonusType& bonusType);
+        virtual void onExpire(Player &player, World &world) const = 0;
+    };
 
-		Texture getTexture() const;
-		bool isOneTime() const;
-		bool isApplicable(Player& player, World& world) const;
-		void onApply(Player& player, World& world, Int32 duration) const;
-		void onExpire(Player& player, World& world) const;
+    class BonusType final {
+    private:
+        typedef std::unique_ptr<BonusTypeImpl> BonusTypeImplPtr;
 
-		bool operator==(const BonusType& bonus) const;
-		bool operator!=(const BonusType& bonus) const;
+    public:
+        static const BonusType NONE;
+        static const BonusType PLUS_LIFE;
+        static const BonusType MINUS_LIFE;
+        static const BonusType FULL_LIFE;
+        static const BonusType FAST_RELOAD;
+        static const BonusType POWERFUL_SHOTS;
+        static const BonusType INVULNERABILITY;
+        static const BonusType BULLETS;
+        static const BonusType FAST_MOVEMENT;
+        static const BonusType INVISIBILITY;
+        static const BonusType SPLIT_FIRE;
+        static const BonusType VAMPIRE_SHOTS;
 
-	public:
-		static const std::vector<BonusType>& values();
-		static void initialize(const TextureList& textures);
-	};
+    private:
+        mutable BonusTypeImpl *impl;
 
-	class Bonus
-	{
-	private:
-		BonusType bonus;
-		Int32 duration;
-		Vector position;
-		Texture texture;
+        void assign(BonusTypeImplPtr &&impl) const;
 
-	public:
-		Bonus(BonusType type, Int32 duration, const Vector& position, Texture texture);
+    private:
+        static std::vector<BonusType> types;
+        static std::vector<BonusTypeImplPtr> implementations;
 
-		void render() const;
+    public:
+        BonusType();
 
-		const BonusType& getType() const
-		{
-			return bonus;
-		}
+        BonusType(const BonusType &bonusType);
 
-		Int32 getDuration() const
-		{
-			return duration;
-		}
+        Texture getTexture() const;
 
-		const Vector& getPosition() const
-		{
-			return position;
-		}
+        bool isOneTime() const;
 
-		Vector getDimensions() const
-		{
-			return Vector(0.6f, 0.6f);
-		}
+        bool isApplicable(Player &player, World &world) const;
 
-		Rectangle getCollisionRect() const
-		{
-			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
-		}
+        void onApply(Player &player, World &world, Int32 duration) const;
 
-		Vector getSpritePosition() const
-		{
-			return position - Vector(0.2f, 0.2f);
-		}
-	};
+        void onExpire(Player &player, World &world) const;
 
-	class LyingWeapon
-	{
-		Weapon weapon;
-		Vector position;
-		Int32 bullets;
+        bool operator==(const BonusType &bonus) const;
 
-	public:
-		LyingWeapon(Weapon weapon, Int32 bullets, const Vector& position);
+        bool operator!=(const BonusType &bonus) const;
 
-		void render() const;
+    public:
+        static const std::vector<BonusType> &values();
 
-		const Weapon& getWeapon() const
-		{
-			return weapon;
-		}
+        static void initialize(const TextureList &textures);
+    };
 
-		Int32 getBullets() const
-		{
-			return bullets;
-		}
+    class Bonus {
+    private:
+        BonusType bonus;
+        Int32 duration;
+        Vector position;
+        Texture texture;
 
-		const Vector& getPosition() const
-		{
-			return position;
-		}
+    public:
+        Bonus(BonusType type, Int32 duration, const Vector &position, Texture texture);
 
-		Vector getDimensions() const
-		{
-			return Vector(1.0f, 1.0f);
-		}
+        void render() const;
 
-		Rectangle getCollisionRect() const
-		{
-			return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
-		}
+        const BonusType &getType() const {
+            return bonus;
+        }
 
-		Vector getSpritePosition() const
-		{
-			return position;
-		}
-	};
+        Int32 getDuration() const {
+            return duration;
+        }
+
+        const Vector &getPosition() const {
+            return position;
+        }
+
+        Vector getDimensions() const {
+            return Vector(0.6f, 0.6f);
+        }
+
+        Rectangle getCollisionRect() const {
+            return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+        }
+
+        Vector getSpritePosition() const {
+            return position - Vector(0.2f, 0.2f);
+        }
+    };
+
+    class LyingWeapon {
+        Weapon weapon;
+        Vector position;
+        Int32 bullets;
+
+    public:
+        LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position);
+
+        void render() const;
+
+        const Weapon &getWeapon() const {
+            return weapon;
+        }
+
+        Int32 getBullets() const {
+            return bullets;
+        }
+
+        const Vector &getPosition() const {
+            return position;
+        }
+
+        Vector getDimensions() const {
+            return Vector(1.0f, 1.0f);
+        }
+
+        Rectangle getCollisionRect() const {
+            return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+        }
+
+        Vector getSpritePosition() const {
+            return position;
+        }
+    };
 }
 
 #endif

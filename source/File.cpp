@@ -31,199 +31,173 @@
 #include "File.h"
 #include "Format.h"
 
-namespace Duel6
-{
-	File::File(const std::string& path, Mode mode, Access access)
-		: handle(nullptr)
-	{
-		open(path, mode, access);
-	}
+namespace Duel6 {
+    File::File(const std::string &path, Mode mode, Access access)
+            : handle(nullptr) {
+        open(path, mode, access);
+    }
 
-	File& File::open(const std::string& path, Mode mode, Access access)
-	{
-		close();
-		std::string fileMode = Format("{0}{1}") << (access == Access::Read ? 'r' : 'w') << (mode == Mode::Text ? 't' : 'b');
-		handle = fopen(path.c_str(), fileMode.c_str());
-		if (handle == nullptr)
-		{
-			D6_THROW(IoException, "Unable to open file: " + path);
-		}
+    File &File::open(const std::string &path, Mode mode, Access access) {
+        close();
+        std::string fileMode =
+                Format("{0}{1}") << (access == Access::Read ? 'r' : 'w') << (mode == Mode::Text ? 't' : 'b');
+        handle = fopen(path.c_str(), fileMode.c_str());
+        if (handle == nullptr) {
+            D6_THROW(IoException, "Unable to open file: " + path);
+        }
 
-		return *this;
-	}
+        return *this;
+    }
 
-	File& File::close()
-	{
-		if (handle != nullptr)
-		{
-			fclose(handle);
-			handle = nullptr;
-		}
+    File &File::close() {
+        if (handle != nullptr) {
+            fclose(handle);
+            handle = nullptr;
+        }
 
-		return *this;
-	}
+        return *this;
+    }
 
-	File& File::read(void* ptr, Size size, Size count)
-	{
-		if (handle == nullptr)
-		{
-			D6_THROW(IoException, "Reading from a closed stream");
-		}
+    File &File::read(void *ptr, Size size, Size count) {
+        if (handle == nullptr) {
+            D6_THROW(IoException, "Reading from a closed stream");
+        }
 
-		if (fread(ptr, size, count, handle) != count)
-		{
-			D6_THROW(IoException, "Insufficient data in input stream");
-		}
+        if (fread(ptr, size, count, handle) != count) {
+            D6_THROW(IoException, "Insufficient data in input stream");
+        }
 
-		return *this;
-	}
+        return *this;
+    }
 
-	File& File::write(const void* ptr, Size size, Size count)
-	{
-		if (handle == nullptr)
-		{
-			D6_THROW(IoException, "Writing to a closed stream");
-		}
+    File &File::write(const void *ptr, Size size, Size count) {
+        if (handle == nullptr) {
+            D6_THROW(IoException, "Writing to a closed stream");
+        }
 
-		if (fwrite(ptr, size, count, handle) != count)
-		{
-			D6_THROW(IoException, "Not all data was correctly written");
-		}
+        if (fwrite(ptr, size, count, handle) != count) {
+            D6_THROW(IoException, "Not all data was correctly written");
+        }
 
-		return *this;
-	}
-		
-	File& File::seek(long offset, Seek seek)
-	{
-		if (handle == nullptr)
-		{
-			D6_THROW(IoException, "Trying to seek in a closed stream");
-		}
+        return *this;
+    }
 
-		int origin;
-		switch (seek)
-		{
-		case Seek::Set: origin = SEEK_SET; break;
-		case Seek::End: origin = SEEK_END; break;
-		default: origin = SEEK_CUR; break;
-		}
+    File &File::seek(long offset, Seek seek) {
+        if (handle == nullptr) {
+            D6_THROW(IoException, "Trying to seek in a closed stream");
+        }
 
-		if (fseek(handle, offset, origin))
-		{
-			D6_THROW(IoException, "Seek operation failed");
-		}
+        int origin;
+        switch (seek) {
+            case Seek::Set:
+                origin = SEEK_SET;
+                break;
+            case Seek::End:
+                origin = SEEK_END;
+                break;
+            default:
+                origin = SEEK_CUR;
+                break;
+        }
 
-		return *this;
-	}
+        if (fseek(handle, offset, origin)) {
+            D6_THROW(IoException, "Seek operation failed");
+        }
 
-	bool File::isEof() const
-	{
-		if (handle == nullptr)
-		{
-			D6_THROW(IoException, "Querying closed stream for end of file");
-		}
+        return *this;
+    }
 
-		return (feof(handle) != 0);
-	}
+    bool File::isEof() const {
+        if (handle == nullptr) {
+            D6_THROW(IoException, "Querying closed stream for end of file");
+        }
 
-	Size File::getSize(const std::string& path)
-	{
-		FILE* f = fopen(path.c_str(), "rb");
-		if (f == nullptr)
-		{
-			return 0;
-		}
+        return (feof(handle) != 0);
+    }
 
-		if (fseek(f, 0, SEEK_END))
-		{
-			D6_THROW(IoException, "Unable to rewind to the end of a stream");
-		}
-		Size length = (Size)ftell(f);
-		fclose(f);
+    Size File::getSize(const std::string &path) {
+        FILE *f = fopen(path.c_str(), "rb");
+        if (f == nullptr) {
+            return 0;
+        }
 
-		return length;
-	}
+        if (fseek(f, 0, SEEK_END)) {
+            D6_THROW(IoException, "Unable to rewind to the end of a stream");
+        }
+        Size length = (Size) ftell(f);
+        fclose(f);
 
-	bool File::exists(const std::string& path)
-	{
-		FILE* f = fopen(path.c_str(), "rb");
-		if (f != nullptr)
-		{
-			fclose(f);
-			return true;
-		}
-		return false;
-		
-	}
+        return length;
+    }
 
-	void File::load(const std::string& path, long offset, void* ptr)
-	{	
-		Size length = getSize(path) - offset;
-		File file(path, File::Mode::Binary, File::Access::Read);
-		file.seek(offset, Seek::Set);
-		file.read(ptr, 1, length);
-		file.close();
-	}
+    bool File::exists(const std::string &path) {
+        FILE *f = fopen(path.c_str(), "rb");
+        if (f != nullptr) {
+            fclose(f);
+            return true;
+        }
+        return false;
 
-	static bool nameEndsWith(const std::string& name, const std::string& suffix)
-	{
-		if (name.length() >= suffix.length())
-		{
-			return (name.compare(name.length() - suffix.length(), suffix.length(), suffix) == 0);
-		}
+    }
 
-		return false;
-	}
+    void File::load(const std::string &path, long offset, void *ptr) {
+        Size length = getSize(path) - offset;
+        File file(path, File::Mode::Binary, File::Access::Read);
+        file.seek(offset, Seek::Set);
+        file.read(ptr, 1, length);
+        file.close();
+    }
 
-	void File::listDirectory(const std::string& path, const std::string& extension, std::vector<std::string>& fileNames)
-	{
-		fileNames.clear();
+    static bool nameEndsWith(const std::string &name, const std::string &suffix) {
+        if (name.length() >= suffix.length()) {
+            return (name.compare(name.length() - suffix.length(), suffix.length(), suffix) == 0);
+        }
 
-		DIR* handle = opendir(path.c_str());
-		if (handle == nullptr)
-		{
-			D6_THROW(IoException, "Invalid directory specified: " + path);
-		}
+        return false;
+    }
 
-		struct dirent* ff = readdir(handle);
+    void
+    File::listDirectory(const std::string &path, const std::string &extension, std::vector<std::string> &fileNames) {
+        fileNames.clear();
 
-		while (ff != nullptr)
-		{
-			bool pseudoDir = (!strcmp(ff->d_name, ".") || !strcmp(ff->d_name, ".."));
-			if (!pseudoDir && nameEndsWith(ff->d_name, extension))
-			{
-				fileNames.push_back(ff->d_name);
-			}
+        DIR *handle = opendir(path.c_str());
+        if (handle == nullptr) {
+            D6_THROW(IoException, "Invalid directory specified: " + path);
+        }
 
-			ff = readdir(handle);
-		}
+        struct dirent *ff = readdir(handle);
 
-		closedir(handle);
-	}
+        while (ff != nullptr) {
+            bool pseudoDir = (!strcmp(ff->d_name, ".") || !strcmp(ff->d_name, ".."));
+            if (!pseudoDir && nameEndsWith(ff->d_name, extension)) {
+                fileNames.push_back(ff->d_name);
+            }
 
-	Size File::countFiles(const std::string& path, const std::string& extension)
-	{
-		DIR* handle = opendir(path.c_str());
-		if (handle == nullptr)
-		{
-			D6_THROW(IoException, "Invalid directory specified: " + path);
-		}
+            ff = readdir(handle);
+        }
 
-		Size count = 0;
-		struct dirent* ff = readdir(handle);
+        closedir(handle);
+    }
 
-		while (ff != nullptr)
-		{
-			bool pseudoDir = (!strcmp(ff->d_name, ".") || !strcmp(ff->d_name, ".."));
-			if (!pseudoDir && nameEndsWith(ff->d_name, extension))
-			{
-				++count;
-			}
+    Size File::countFiles(const std::string &path, const std::string &extension) {
+        DIR *handle = opendir(path.c_str());
+        if (handle == nullptr) {
+            D6_THROW(IoException, "Invalid directory specified: " + path);
+        }
 
-			ff = readdir(handle);
-		}
+        Size count = 0;
+        struct dirent *ff = readdir(handle);
 
-		closedir(handle);
-		return count;
-	}
+        while (ff != nullptr) {
+            bool pseudoDir = (!strcmp(ff->d_name, ".") || !strcmp(ff->d_name, ".."));
+            if (!pseudoDir && nameEndsWith(ff->d_name, extension)) {
+                ++count;
+            }
+
+            ff = readdir(handle);
+        }
+
+        closedir(handle);
+        return count;
+    }
 }

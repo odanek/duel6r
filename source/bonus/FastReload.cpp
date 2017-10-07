@@ -29,36 +29,28 @@
 #include "../World.h"
 #include "FastReload.h"
 
-namespace Duel6
-{
-	namespace Bonuses
-	{
-		FastReload::FastReload(Texture texture)
-			: texture(texture)
-		{}
+namespace Duel6 {
+    namespace Bonuses {
+        FastReload::FastReload(Texture texture)
+                : texture(texture) {}
 
-		Texture FastReload::getTexture() const
-		{
-			return texture;
-		}
+        Texture FastReload::getTexture() const {
+            return texture;
+        }
 
-		bool FastReload::isOneTime() const
-		{
-			return false;
-		}
+        bool FastReload::isOneTime() const {
+            return false;
+        }
 
-		bool FastReload::isApplicable(Player& player, World& world) const
-		{
-			return true;
-		}
+        bool FastReload::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-		void FastReload::onApply(Player& player, World& world, Int32 duration) const
-		{
-			world.getMessageQueue().add(player, Format("Fast reload for {0} seconds") << duration);
-		}
+        void FastReload::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Fast reload for {0} seconds") << duration);
+        }
 
-		void FastReload::onExpire(Player& player, World& world) const
-		{
-		}
-	}
+        void FastReload::onExpire(Player &player, World &world) const {
+        }
+    }
 }

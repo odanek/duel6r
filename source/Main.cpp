@@ -31,35 +31,31 @@
 #include "Exception.h"
 #include "Application.h"
 
-static void reportError(const std::string& err)
-{
-	fprintf(stderr, "Error occured: %s\n", err.c_str());
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", err.c_str(), NULL);
+static void reportError(const std::string &err) {
+    fprintf(stderr, "Error occured: %s\n", err.c_str());
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", err.c_str(), nullptr);
 }
 
-int main(int argc, char** argv)
-{
-	try
-	{
-		Duel6::Application app;
-		app.setup(argc, argv);
-		app.run();
-		app.tearDown();
-		return 0;
-	}
-	catch (const Duel6::Exception& e)
-	{
-		std::string msg = e.getMessage() + "\nAt: " + e.getFile() + ": " + std::to_string(e.getLine());
-		reportError(msg);
-	}
-	catch (const std::exception& e)
-	{
-		reportError(e.what());
-	}
-	catch (...)
-	{
-		reportError("Unexpected error");
-	}
+int main(int argc, char **argv) {
+    try {
+        SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");   // Fixes GDB crashing on Mix_OpenAudio
 
-	return 1;
+        Duel6::Application app;
+        app.setup(argc, argv);
+        app.run();
+        app.tearDown();
+        return 0;
+    }
+    catch (const Duel6::Exception &e) {
+        std::string msg = e.getMessage() + "\nAt: " + e.getFile() + ": " + std::to_string(e.getLine());
+        reportError(msg);
+    }
+    catch (const std::exception &e) {
+        reportError(e.what());
+    }
+    catch (...) {
+        reportError("Unexpected error");
+    }
+
+    return 1;
 }

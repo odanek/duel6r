@@ -25,79 +25,59 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_keycode.h>
 #include "TextBox.h"
+#include "../Video.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		Textbox::Textbox(Desktop& desk)
-				: Control(desk)
-		{
-		}
+namespace Duel6 {
+    namespace Gui {
+        Textbox::Textbox(Desktop &desk)
+                : Control(desk) {
+        }
 
-		Textbox::~Textbox()
-		{
-		}
+        Textbox::~Textbox() {
+        }
 
-		void Textbox::setPosition(int X, int Y, int W, int M, const std::string& allowed)
-		{
-			x = X + 2;
-			y = Y - 2;
-			max = M;
-			width = W;
+        void Textbox::setPosition(int X, int Y, int W, int M, const std::string &allowed) {
+            x = X + 2;
+            y = Y - 2;
+            max = M;
+            width = W;
 
-			allowedCharacters = allowed;
-			text.clear();
-		}
+            allowedCharacters = allowed;
+            text.clear();
+        }
 
-		void Textbox::keyEvent(const KeyPressEvent& event)
-		{
-			if (!text.empty() && event.getCode() == SDLK_BACKSPACE)
-			{
-				text.pop_back();
-			}
-		}
+        void Textbox::keyEvent(const KeyPressEvent &event) {
+            if (!text.empty() && event.getCode() == SDLK_BACKSPACE) {
+                text.pop_back();
+            }
+        }
 
-		void Textbox::textInputEvent(const TextInputEvent& event)
-		{
-			const std::string& newText = event.getText();
-			for (auto iter = newText.cbegin(); iter != newText.cend(); ++iter)
-			{
-				char letter = *iter;
-				if ((int)text.length() < max && allowedCharacters.find(letter) != std::string::npos)
-				{
-					text.push_back(letter);
-				}
-			}
-		}
+        void Textbox::textInputEvent(const TextInputEvent &event) {
+            const std::string &newText = event.getText();
+            for (auto iter = newText.cbegin(); iter != newText.cend(); ++iter) {
+                char letter = *iter;
+                if ((int) text.length() < max && allowedCharacters.find(letter) != std::string::npos) {
+                    text.push_back(letter);
+                }
+            }
+        }
 
-		const std::string& Textbox::getText() const
-		{
-			return text;
-		}
+        const std::string &Textbox::getText() const {
+            return text;
+        }
 
-		void Textbox::flush()
-		{
-			text.clear();
-		}
+        void Textbox::flush() {
+            text.clear();
+        }
 
-		void Textbox::draw(const Font& font) const
-		{
-			int     w = (width << 3) + 8;
+        void Textbox::draw(const Font &font) const {
+            int w = (width << 3) + 8;
 
-			drawFrame(x - 2, y + 2, w + 4, 22, true);
-			glBegin(GL_QUADS);
-			glColor3ub(255, 255, 255);
-			glVertex2i(x, y);
-			glVertex2i(x + w, y);
-			glVertex2i(x + w, y - 17);
-			glVertex2i(x, y - 17);
-			glEnd();
-
-			font.print(x, y - 16, Color(0), text + "_");
-		}
-	}
+            drawFrame(x - 2, y + 2, w + 4, 22, true);
+            globRenderer->quadXY(Vector(x, y - 17), Vector(w, 17), Color::WHITE);
+            font.print(x, y - 16, Color(0), text + "_");
+        }
+    }
 }

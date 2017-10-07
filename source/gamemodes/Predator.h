@@ -31,8 +31,7 @@
 #include "GameModeBase.h"
 #include "PredatorPlayerEventListener.h"
 
-namespace Duel6
-{
+namespace Duel6 {
 
     /**
      * PLOT:
@@ -44,21 +43,20 @@ namespace Duel6
      *
      * Others: - shotguns
      */
-    class Predator : public GameModeBase
-    {
+    class Predator : public GameModeBase {
 
     private:
-        Player* predator;
+        Player *predator;
         std::unique_ptr<PlayerEventListener> eventListener;
 
     public:
-        std::string getName() const override
-        {
+        std::string getName() const override {
             return "Predator";
         }
 
-		void initializeRound(Game& game, std::vector<Player>& players, World& world) override;
-		bool checkRoundOver(World& world, const std::vector<Player*>& alivePlayers) override;
+        void initializeRound(Game &game, std::vector<Player> &players, World &world) override;
+
+        bool checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) override;
     };
 }
 #endif

@@ -28,17 +28,15 @@
 #ifndef DUEL6_ANIMATIONLOOPING_H
 #define DUEL6_ANIMATIONLOOPING_H
 
-namespace Duel6
-{
-	enum class AnimationLooping
-	{
-		/** Repeat animation forever. */
-		RepeatForever,
-		/** Play animation once and then stop on the last frame. */
-		OnceAndStop,
-		/** Play animation once and then delete the sprite. */
-		OnceAndRemove
-	};
+namespace Duel6 {
+    enum class AnimationLooping {
+                /** Repeat animation forever. */
+                RepeatForever,
+                /** Play animation once and then stop on the last frame. */
+                OnceAndStop,
+                /** Play animation once and then delete the sprite. */
+                OnceAndRemove
+    };
 }
 
 #endif

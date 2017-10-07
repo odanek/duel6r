@@ -27,20 +27,18 @@
 
 #include "Plasma.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 12.2f, true, false, false, Color(0, 0, 0), 0, 25, 0.33f, "plasma", "plasma.wav", "", 0, { 1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.28f, 0.70f), Vector(0.38f, 0.23f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {12.2f, true, false, false, Color(0, 0, 0), 0, 25, 0.33f, "plasma",
+                                               "plasma.wav", "", 0, {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
+                                               {0, 50, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.28f, 0.70f), Vector(0.38f, 0.23f));
+    }
 
-	Plasma::Plasma(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 4)
-	{}
+    Plasma::Plasma(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 4) {}
 
-	Rectangle Plasma::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle Plasma::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

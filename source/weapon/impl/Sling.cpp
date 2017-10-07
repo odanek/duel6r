@@ -27,20 +27,18 @@
 
 #include "Sling.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 6.71f, true, false, false, Color(0, 0, 0), 0, 15, 0.82f, "sling", "prak.wav", "", 0, { 0, 5, 1, 5, 0, 5, 2, 5, 0, 5, 0, 5, 0, 5, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.34f, 0.73f), Vector(0.21f, 0.18f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {6.71f, true, false, false, Color(0, 0, 0), 0, 15, 0.82f, "sling",
+                                               "prak.wav", "", 0, {0, 5, 1, 5, 0, 5, 2, 5, 0, 5, 0, 5, 0, 5, -1, 0},
+                                               {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.34f, 0.73f), Vector(0.21f, 0.18f));
+    }
 
-	Sling::Sling(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 14)
-	{}
+    Sling::Sling(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 14) {}
 
-	Rectangle Sling::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle Sling::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

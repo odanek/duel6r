@@ -26,108 +26,79 @@
 */
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 #include "Desktop.h"
+#include "../Video.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		namespace
-		{
-			Color bcgColor(192, 192, 192);
-		}
+namespace Duel6 {
+    namespace Gui {
+        namespace {
+            Color bcgColor(192, 192, 192);
+        }
 
-		Desktop::Desktop()
-		{
-		}
+        Desktop::Desktop() {
+        }
 
-		Desktop::~Desktop()
-		{
-		}
+        Desktop::~Desktop() {
+        }
 
-		void Desktop::addControl(Control* control)
-		{
-			controls.push_back(std::unique_ptr<Control>(control));
-		}
+        void Desktop::addControl(Control *control) {
+            controls.push_back(std::unique_ptr<Control>(control));
+        }
 
-		void Desktop::screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY)
-		{
-			screenWidth = scrWidth;
-			screenHeight = scrHeight;
-			this->trX = trX;
-			this->trY = trY;
-		}
+        void Desktop::screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY) {
+            screenWidth = scrWidth;
+            screenHeight = scrHeight;
+            this->trX = trX;
+            this->trY = trY;
+        }
 
-		void Desktop::update(Float32 elapsedTime)
-		{
-			for (auto& control : controls)
-			{
-				control->update(elapsedTime);
-			}
-		}
+        void Desktop::update(Float32 elapsedTime) {
+            for (auto &control : controls) {
+                control->update(elapsedTime);
+            }
+        }
 
-		void Desktop::draw(const Font& font) const
-		{
-			glBegin(GL_QUADS);
-			glColor3ub(bcgColor.getRed(), bcgColor.getGreen(), bcgColor.getBlue());
-			glVertex2i(0, 0);
-			glVertex2i(screenWidth, 0);
-			glVertex2i(screenWidth, screenHeight);
-			glVertex2i(0, screenHeight);
-			glEnd();
+        void Desktop::draw(const Font &font) const {
+            globRenderer->quadXY(Vector(0, 0), Vector(screenWidth, screenHeight), bcgColor);
+            globRenderer->setViewMatrix(Matrix::translate(Float32(trX), Float32(trY), 0));
 
-			glPushMatrix();
-			glTranslatef((GLfloat)trX, (GLfloat)trY, 0);
+            for (auto &control : controls) {
+                control->draw(font);
+            }
 
-			for (auto& control : controls)
-			{
-				control->draw(font);
-			}
+            globRenderer->setViewMatrix(Matrix::IDENTITY);
+        }
 
-			glPopMatrix();
-		}
+        void Desktop::keyEvent(const KeyPressEvent &event) {
+            for (auto &control : controls) {
+                control->keyEvent(event);
+            }
+        }
 
-		void Desktop::keyEvent(const KeyPressEvent& event)
-		{
-			for (auto& control : controls)
-			{
-				control->keyEvent(event);
-			}
-		}
+        void Desktop::textInputEvent(const TextInputEvent &event) {
+            for (auto &control : controls) {
+                control->textInputEvent(event);
+            }
+        }
 
-		void Desktop::textInputEvent(const TextInputEvent& event)
-		{
-			for (auto& control : controls)
-			{
-				control->textInputEvent(event);
-			}
-		}
+        void Desktop::mouseButtonEvent(const MouseButtonEvent &event) {
+            MouseButtonEvent translatedEvent = event.translate(-trX, -trY);
+            for (auto &control : controls) {
+                control->mouseButtonEvent(translatedEvent);
+            }
+        }
 
-		void Desktop::mouseButtonEvent(const MouseButtonEvent& event)
-		{
-			MouseButtonEvent translatedEvent = event.translate(-trX, -trY);
-			for (auto& control : controls)
-			{
-				control->mouseButtonEvent(translatedEvent);
-			}
-		}
+        void Desktop::mouseMotionEvent(const MouseMotionEvent &event) {
+            MouseMotionEvent translatedEvent = event.translate(-trX, -trY);
+            for (auto &control : controls) {
+                control->mouseMotionEvent(translatedEvent);
+            }
+        }
 
-		void Desktop::mouseMotionEvent(const MouseMotionEvent& event)
-		{
-			MouseMotionEvent translatedEvent = event.translate(-trX, -trY);
-			for (auto& control : controls)
-			{
-				control->mouseMotionEvent(translatedEvent);
-			}
-		}
-
-		void Desktop::mouseWheelEvent(const MouseWheelEvent& event)
-		{
-			for (auto& control : controls)
-			{
-				control->mouseWheelEvent(event);
-			}
-		}
-	}
+        void Desktop::mouseWheelEvent(const MouseWheelEvent &event) {
+            for (auto &control : controls) {
+                control->mouseWheelEvent(event);
+            }
+        }
+    }
 }

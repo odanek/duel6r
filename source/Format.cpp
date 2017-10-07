@@ -28,72 +28,62 @@
 #include "Format.h"
 #include "FormatException.h"
 
-namespace Duel6
-{
-	void Format::insertParam(Size index, const std::string& value)
-	{
-		Placeholder placeholder;
-		while (getPlaceholder(index, placeholder))
-		{
-			if (!placeholder.hasWidth || value.length() >= (size_t)std::abs(placeholder.width)) // No padding
-			{
-				format.replace(placeholder.offset, placeholder.length, value);
-			}
-			else if (placeholder.width > 0) // Right align
-			{
-				std::string paddedValue = std::string(placeholder.width - value.length(), placeholder.paddingCharacter) + value;
-				format.replace(placeholder.offset, placeholder.length, paddedValue);
-			}
-			else // Left align
-			{
-				std::string paddedValue = value + std::string(-placeholder.width - value.length(), placeholder.paddingCharacter);
-				format.replace(placeholder.offset, placeholder.length, paddedValue);
-			}
-		}
-	}
+namespace Duel6 {
+    void Format::insertParam(Size index, const std::string &value) {
+        Placeholder placeholder;
+        while (getPlaceholder(index, placeholder)) {
+            if (!placeholder.hasWidth || value.length() >= (size_t) std::abs(placeholder.width)) // No padding
+            {
+                format.replace(placeholder.offset, placeholder.length, value);
+            } else if (placeholder.width > 0) // Right align
+            {
+                std::string paddedValue =
+                        std::string(placeholder.width - value.length(), placeholder.paddingCharacter) + value;
+                format.replace(placeholder.offset, placeholder.length, paddedValue);
+            } else // Left align
+            {
+                std::string paddedValue =
+                        value + std::string(-placeholder.width - value.length(), placeholder.paddingCharacter);
+                format.replace(placeholder.offset, placeholder.length, paddedValue);
+            }
+        }
+    }
 
-	bool Format::getPlaceholder(Size index, Placeholder& placeholder)
-	{
-		std::string prefix = '{' + std::to_string(index);
-		size_t start = format.find(prefix + '}');
+    bool Format::getPlaceholder(Size index, Placeholder &placeholder) {
+        std::string prefix = '{' + std::to_string(index);
+        size_t start = format.find(prefix + '}');
 
-		if (start != std::string::npos)
-		{
-			placeholder.offset = start;
-			placeholder.length = prefix.size() + 1;
-			placeholder.hasWidth = false;
-			return true;
-		}
+        if (start != std::string::npos) {
+            placeholder.offset = start;
+            placeholder.length = prefix.size() + 1;
+            placeholder.hasWidth = false;
+            return true;
+        }
 
-		start = format.find(prefix + ',');
-		if (start == std::string::npos)
-		{
-			return false;
-		}
+        start = format.find(prefix + ',');
+        if (start == std::string::npos) {
+            return false;
+        }
 
-		size_t end = format.find('}', start + prefix.length());
-		if (end == std::string::npos)
-		{
-			D6_THROW(FormatException, "Unclosed parameter placeholder in: " + format);
-		}
+        size_t end = format.find('}', start + prefix.length());
+        if (end == std::string::npos) {
+            D6_THROW(FormatException, "Unclosed parameter placeholder in: " + format);
+        }
 
-		placeholder.offset = start;
-		placeholder.length = end - start + 1;
-		placeholder.hasWidth = true;
+        placeholder.offset = start;
+        placeholder.length = end - start + 1;
+        placeholder.hasWidth = true;
 
-		size_t widthStart = start + prefix.length() + 1;
-		std::string widthSpec = format.substr(widthStart, end - widthStart);
-		size_t padDelimitPos = widthSpec.find('|');
-		if (padDelimitPos != std::string::npos && padDelimitPos + 2 == widthSpec.length())
-		{
-			placeholder.paddingCharacter = format[end - 1];
-			widthSpec = widthSpec.substr(0, padDelimitPos);
-		}
-		else
-		{
-			placeholder.paddingCharacter = ' ';
-		}
-		placeholder.width = std::stoi(widthSpec);
-		return true;
-	}
+        size_t widthStart = start + prefix.length() + 1;
+        std::string widthSpec = format.substr(widthStart, end - widthStart);
+        size_t padDelimitPos = widthSpec.find('|');
+        if (padDelimitPos != std::string::npos && padDelimitPos + 2 == widthSpec.length()) {
+            placeholder.paddingCharacter = format[end - 1];
+            widthSpec = widthSpec.substr(0, padDelimitPos);
+        } else {
+            placeholder.paddingCharacter = ' ';
+        }
+        placeholder.width = std::stoi(widthSpec);
+        return true;
+    }
 }

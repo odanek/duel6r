@@ -27,87 +27,68 @@
 
 #include "Button.h"
 
-namespace Duel6
-{
-	namespace Gui
-	{
-		Button::Button(Desktop& desk)
-			: Control(desk)
-		{
-			pressed = false;
-		}
+namespace Duel6 {
+    namespace Gui {
+        Button::Button(Desktop &desk)
+                : Control(desk) {
+            pressed = false;
+        }
 
-		Button::~Button()
-		{
-		}
+        Button::~Button() {
+        }
 
-		void Button::setCaption(const std::string& caption)
-		{
-			this->caption = caption;
-		}
+        void Button::setCaption(const std::string &caption) {
+            this->caption = caption;
+        }
 
-		void Button::setPosition(int X, int Y, int W, int H)
-		{
-			x = X;
-			y = Y;
-			width = W;
-			height = H;
-		}
+        void Button::setPosition(int X, int Y, int W, int H) {
+            x = X;
+            y = Y;
+            width = W;
+            height = H;
+        }
 
-		void Button::mouseButtonEvent(const MouseButtonEvent& event)
-		{
-			if (Control::mouseIn(event, x, y, width, height))
-			{
-				if (event.getButton() == SysEvent::MouseButton::LEFT)
-				{
-					if (!pressed && event.isPressed())
-					{
-						pressed = true;
-						firePressListeners(true);
-					}
-					else if (pressed && !event.isPressed())
-					{
-						pressed = false;
-						fireClickListeners();
-						firePressListeners(false);
-					}
-				}
-			}
-		}
+        void Button::mouseButtonEvent(const MouseButtonEvent &event) {
+            if (Control::mouseIn(event, x, y, width, height)) {
+                if (event.getButton() == SysEvent::MouseButton::LEFT) {
+                    if (!pressed && event.isPressed()) {
+                        pressed = true;
+                        firePressListeners(true);
+                    } else if (pressed && !event.isPressed()) {
+                        pressed = false;
+                        fireClickListeners();
+                        firePressListeners(false);
+                    }
+                }
+            }
+        }
 
-		void Button::mouseMotionEvent(const MouseMotionEvent& event)
-		{
-			if (!Control::mouseIn(event, x, y, width, height) && pressed)
-			{
-				pressed = false;
-				firePressListeners(false);
-			}
-		}
+        void Button::mouseMotionEvent(const MouseMotionEvent &event) {
+            if (!Control::mouseIn(event, x, y, width, height) && pressed) {
+                pressed = false;
+                firePressListeners(false);
+            }
+        }
 
-		void Button::draw(const Font& font) const
-		{
-			Int32 px, py;
+        void Button::draw(const Font &font) const {
+            Int32 px, py;
 
-			drawFrame(x, y, width, height, pressed);
-			px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
-			py = y - (height >> 1) - 7 - pressed;
-			font.print(px, py, Color(0), caption);
-		}
+            drawFrame(x, y, width, height, pressed);
+            px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
+            py = y - (height >> 1) - 7 - pressed;
+            font.print(px, py, Color(0), caption);
+        }
 
-		void Button::firePressListeners(bool pressed)
-		{
-			for (auto& listener : pressListeners)
-			{
-				listener(*this, pressed);
-			}
-		}
+        void Button::firePressListeners(bool pressed) {
+            for (auto &listener : pressListeners) {
+                listener(*this, pressed);
+            }
+        }
 
-		void Button::fireClickListeners()
-		{
-			for (auto& listener : clickListeners)
-			{
-				listener(*this);
-			}
-		}
-	}
+        void Button::fireClickListeners() {
+            for (auto &listener : clickListeners) {
+                listener(*this);
+            }
+        }
+    }
 }

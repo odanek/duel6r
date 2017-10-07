@@ -32,70 +32,60 @@
 #include <string>
 #include "Type.h"
 
-namespace Duel6
-{
-	class Block
-	{
-	public:
-		typedef std::vector<Block> Meta;
+namespace Duel6 {
+    class Block {
+    public:
+        typedef std::vector<Block> Meta;
 
-		enum Type
-		{
-			EmptySpace = 0,
-			Wall,
-			Water,
-			FrontSprite,
-			BackSprite,
-			FrontAndBackSprite,
-			Front4Sprite,
-			Back4Sprite,
-			Waterfall
-		};
+        enum Type {
+            EmptySpace = 0,
+            Wall,
+            Water,
+            FrontSprite,
+            BackSprite,
+            FrontAndBackSprite,
+            Front4Sprite,
+            Back4Sprite,
+            Waterfall
+        };
 
-	private:
-		Size index;
-		Type type;
-		std::vector<Int32> textures;
+    private:
+        Size index;
+        Type type;
+        std::vector<Int32> textures;
 
-	public:
-		Block(Size index, Type type, const std::vector<Int32>& textures)
-			: index(index), type(type), textures(textures)
-		{}
+    public:
+        Block(Size index, Type type, const std::vector<Int32> &textures)
+                : index(index), type(type), textures(textures) {}
 
-		Block(Size index, Type type, std::vector<Int32>&& textures)
-			: index(index), type(type), textures(textures)
-		{}
+        Block(Size index, Type type, std::vector<Int32> &&textures)
+                : index(index), type(type), textures(textures) {}
 
-		Size getIndex() const
-		{
-			return index;
-		}
+        Size getIndex() const {
+            return index;
+        }
 
-		Type getType() const
-		{
-			return type;
-		}
+        Type getType() const {
+            return type;
+        }
 
-		const std::vector<Int32>& getTextures() const
-		{
-			return textures;
-		}
+        const std::vector<Int32> &getTextures() const {
+            return textures;
+        }
 
-		Size getAnimationFrames() const
-		{
-			return textures.size();
-		}
+        Size getAnimationFrames() const {
+            return textures.size();
+        }
 
-		bool is(Type type) const
-		{
-			return (this->type == type);
-		}
+        bool is(Type type) const {
+            return (this->type == type);
+        }
 
-		static Meta loadMeta(const std::string& path);
+        static Meta loadMeta(const std::string &path);
 
-	private:
-		static Type determineType(const std::string& kind);
-	};
+    private:
+        static Type determineType(const std::string &kind);
+    };
 }
 
 #endif

@@ -34,26 +34,22 @@
 #include "Color.h"
 #include "console/console.h"
 
-namespace Duel6
-{
-	class PlayerSkin
-	{
-	private:
-		TextureList textures;
+namespace Duel6 {
+    class PlayerSkin {
+    private:
+        TextureList textures;
 
-	public:
-		PlayerSkin(const std::string& texturePath, const PlayerSkinColors& colors, TextureManager& textureManager);
+    public:
+        PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors, TextureManager &textureManager);
 
-		TextureList& getTextureList()
-		{
-			return textures;
-		}
+        TextureList &getTextureList() {
+            return textures;
+        }
 
-		const TextureList& getTextureList() const
-		{
-			return textures;
-		}
-	};
+        const TextureList &getTextureList() const {
+            return textures;
+        }
+    };
 }
 
 #endif

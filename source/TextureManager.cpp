@@ -30,90 +30,75 @@
 #include "Util.h"
 #include "File.h"
 
-namespace Duel6
-{
-	TextureManager::TextureManager(const std::string& fileExtension)
-		: nextId(0), textureFileExtension(fileExtension)
-	{}
+namespace Duel6 {
+    TextureManager::TextureManager(const std::string &fileExtension)
+            : nextId(0), textureFileExtension(fileExtension) {}
 
-	TextureManager::~TextureManager()
-	{
-		disposeAll();
-	}
+    TextureManager::~TextureManager() {
+        disposeAll();
+    }
 
-	const TextureList TextureManager::load(const std::string& path, TextureFilter filtering, bool clamp)
-	{
-		SubstitutionTable emptySubstitutionTable;
-		return load(path, filtering, clamp, emptySubstitutionTable);
-	}
+    const TextureList TextureManager::load(const std::string &path, TextureFilter filtering, bool clamp) {
+        SubstitutionTable emptySubstitutionTable;
+        return load(path, filtering, clamp, emptySubstitutionTable);
+    }
 
-	const TextureList TextureManager::load(const std::string& path, TextureFilter filtering, bool clamp, const SubstitutionTable& substitutionTable)
-	{
-		std::vector<std::string> textureFiles;
-		File::listDirectory(path, textureFileExtension, textureFiles);
-		std::sort(textureFiles.begin(), textureFiles.end());
+    const TextureList TextureManager::load(const std::string &path, TextureFilter filtering, bool clamp,
+                                           const SubstitutionTable &substitutionTable) {
+        std::vector<std::string> textureFiles;
+        File::listDirectory(path, textureFileExtension, textureFiles);
+        std::sort(textureFiles.begin(), textureFiles.end());
 
-		Int32 listId = nextId++;
-		textureMap.insert(std::make_pair(listId, std::make_unique<TextureArray>()));
-		TextureArray& list = *textureMap.at(listId);
+        Int32 listId = nextId++;
+        textureMap.insert(std::make_pair(listId, std::make_unique<TextureArray>()));
+        TextureArray &list = *textureMap.at(listId);
 
-		for (std::string& file : textureFiles)
-		{
-			Image image;
-			Util::loadTargaImage(path + file, image);
-			substituteColors(image, substitutionTable);
-			Texture texture = Util::createTexture(image, filtering, clamp);
-			list.push_back(texture);
-		}
+        for (std::string &file : textureFiles) {
+            Image image;
+            Util::loadTargaImage(path + file, image);
+            substituteColors(image, substitutionTable);
+            Texture texture = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
+                                                          filtering, clamp);
+            list.push_back(texture);
+        }
 
-		return TextureList(listId, list);
-	}
+        return TextureList(listId, list);
+    }
 
-	void TextureManager::dispose(TextureList& list)
-	{
-		dispose(list.getKey());
-		list.release();
-	}
+    void TextureManager::dispose(TextureList &list) {
+        dispose(list.getKey());
+        list.release();
+    }
 
-	void TextureManager::dispose(const Int32 key)
-	{
-		auto entry = textureMap.find(key);
-		if (entry != textureMap.end())
-		{
-			releaseTextureIds(*(entry->second));
-			textureMap.erase(key);
-		}
-	}
+    void TextureManager::dispose(const Int32 key) {
+        auto entry = textureMap.find(key);
+        if (entry != textureMap.end()) {
+            releaseTextureIds(*(entry->second));
+            textureMap.erase(key);
+        }
+    }
 
-	void TextureManager::disposeAll()
-	{
-		for (auto& entry : textureMap)
-		{
-			releaseTextureIds(*(entry.second));
-		}
-		textureMap.clear();
-	}
+    void TextureManager::disposeAll() {
+        for (auto &entry : textureMap) {
+            releaseTextureIds(*(entry.second));
+        }
+        textureMap.clear();
+    }
 
-	void TextureManager::releaseTextureIds(const TextureArray& list)
-	{
-		for (const Texture& texture : list)
-		{
-			GLuint id = texture.getId();
-			glDeleteTextures(1, &id);
-		}
-	}
+    void TextureManager::releaseTextureIds(const TextureArray &list) {
+        for (const Texture &texture : list) {
+            globRenderer->freeTexture(texture);
+        }
+    }
 
-	void TextureManager::substituteColors(Image& image, const SubstitutionTable& substitutionTable)
-	{
-		Size imgSize = image.getWidth() * image.getHeight();
-		for (Size i = 0; i < imgSize; ++i)
-		{
-			Color& color = image.at(i);
-			auto substituteColor = substitutionTable.find(color);
-			if (substituteColor != substitutionTable.end())
-			{
-				color = substituteColor->second;
-			}
-		}
-	}
+    void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {
+        Size imgSize = image.getWidth() * image.getHeight();
+        for (Size i = 0; i < imgSize; ++i) {
+            Color &color = image.at(i);
+            auto substituteColor = substitutionTable.find(color);
+            if (substituteColor != substitutionTable.end()) {
+                color = substituteColor->second;
+            }
+        }
+    }
 }

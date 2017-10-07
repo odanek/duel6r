@@ -27,20 +27,18 @@
 
 #include "Laser.h"
 
-namespace Duel6
-{
-	namespace
-	{
-		LegacyWeapon::Definition DEFINITION = { 15.25f, true, false, false, Color(0, 0, 0), 0, 35, 0.25f, "laser", "laser.wav", "", 0, { 1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0 }, { 0, 50, -1, 0 }, { 0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
-		const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.185f, 0.76f), Vector(0.40f, 0.11f));
-	}
+namespace Duel6 {
+    namespace {
+        LegacyWeapon::Definition DEFINITION = {15.25f, true, false, false, Color(0, 0, 0), 0, 35, 0.25f, "laser",
+                                               "laser.wav", "", 0, {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
+                                               {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.185f, 0.76f), Vector(0.40f, 0.11f));
+    }
 
-	Laser::Laser(Sound& sound, TextureManager& textureManager)
-		: LegacyWeapon(sound, textureManager, DEFINITION, 5)
-	{}
+    Laser::Laser(Sound &sound, TextureManager &textureManager)
+            : LegacyWeapon(sound, textureManager, DEFINITION, 5) {}
 
-	Rectangle Laser::getShotCollisionRectangle() const
-	{
-		return SHOT_COLLISION_RECT;
-	}
+    Rectangle Laser::getShotCollisionRectangle() const {
+        return SHOT_COLLISION_RECT;
+    }
 }

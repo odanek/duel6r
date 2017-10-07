@@ -30,16 +30,14 @@
 
 #include "../LegacyWeapon.h"
 
-namespace Duel6
-{
-	class Spray : public LegacyWeapon
-	{
-	public:
-		Spray(Sound& sound, TextureManager& textureManager);
+namespace Duel6 {
+    class Spray : public LegacyWeapon {
+    public:
+        Spray(Sound &sound, TextureManager &textureManager);
 
-	public:
-		Rectangle getShotCollisionRectangle() const override;
-	};
+    public:
+        Rectangle getShotCollisionRectangle() const override;
+    };
 }
 
 #endif

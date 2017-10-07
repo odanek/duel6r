@@ -12,6 +12,24 @@ cmake_minimum_required(VERSION 3.2)
 project(Duel6r)
 
 #########################################################################
+# Platform detection
+#########################################################################
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+	EXEC_PROGRAM(cat ARGS "/proc/cpuinfo" OUTPUT_VARIABLE CPUINFO)
+
+	STRING(REGEX REPLACE "^.*(arm).*$" "\\1" ARM_THERE ${CPUINFO})
+	STRING(COMPARE EQUAL "arm" "${ARM_THERE}" ARM_TRUE)
+	if(ARM_TRUE)
+		set(D6R_PLATFORM "arm")
+	else(ARM_TRUE)
+		set(D6R_PLATFORM "x86")
+	endif(ARM_TRUE)
+else(CMAKE_SYSTEM_NAME MATCHES "Linux")
+	set(D6R_PLATFORM "x86")
+endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+#########################################################################
 # Compiler flags
 #########################################################################
 
@@ -23,7 +41,14 @@ endif(MSVC)
 
 # gnu compiler or clang
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -mfpmath=sse -msse2 -std=c++14")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
+	if(D6R_PLATFORM STREQUAL "x86")
+
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
+	elseif(D6R_PLATFORM STREQUAL "arm")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfloat-abi=hard -mlittle-endian -munaligned-access")
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=cortex-a53  -mfpu=neon-fp-armv8")
+	endif(D6R_PLATFORM STREQUAL "x86")
 endif(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 # MinGW
@@ -32,7 +57,10 @@ if(MINGW)
 endif(MINGW)
 
 # platform-independent debug macro
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG -ggdb3 -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
+
+# Renderer switch
+set(D6R_RENDERER "gl1")
 
 #########################################################################
 #
@@ -73,6 +101,8 @@ set(D6R_SOURCES
     source/Bonus.cpp
     source/BonusList.h
     source/BonusList.cpp
+    source/Camera.h
+    source/Camera.cpp
     source/Color.h
     source/Color.cpp
     source/ConsoleCommands.h
@@ -125,8 +155,11 @@ set(D6R_SOURCES
     source/LevelRenderData.h
     source/LevelRenderData.cpp
     source/Main.cpp
+    source/Material.h
     source/Math.h
     source/Math.cpp
+    source/Matrix.h
+    source/Matrix.cpp
     source/Menu.h
     source/Menu.cpp
     source/msdir.c
@@ -150,11 +183,12 @@ set(D6R_SOURCES
 	source/PlayerSounds.cpp
     source/Ranking.h
 	source/Rectangle.h
-    source/Render.h
-    source/Render.cpp
+    source/WorldRenderer.h
+    source/WorldRenderer.cpp
     source/Round.h
     source/Round.cpp
     source/ScreenMode.h
+    source/ScreenParameters.h
     source/Shot.h
     source/ShotList.h
     source/ShotList.cpp
@@ -173,10 +207,12 @@ set(D6R_SOURCES
     source/Util.h
     source/Util.cpp
     source/Vector.h
+    source/Vector.cpp
     source/Vertex.h
     source/Video.h
     source/Video.cpp
     source/VideoException.h
+    source/ViewParameters.h
 	source/Water.cpp
 	source/Water.h
     source/WaterList.h
@@ -185,12 +221,7 @@ set(D6R_SOURCES
     source/Weapon.cpp
     source/World.h
     source/World.cpp
-    
-    source/mylib/mycam.cpp
-    source/mylib/mycam.h
-    source/mylib/mymath.cpp
-    source/mylib/mymath.h
-        
+
     source/console/conarg.cpp
     source/console/concmd.cpp
     source/console/condraw.cpp
@@ -298,23 +329,41 @@ set(D6R_SOURCES
 	source/collision/WorldCollision.cpp
 	source/collision/WorldCollision.h
 
+    source/gamemodes/GameModeBase.h
+    source/gamemodes/GameModeBase.cpp
+    source/gamemodes/TeamDeathMatchPlayerEventListener.h
+    source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
+    source/gamemodes/PredatorPlayerEventListener.h
+    source/gamemodes/PredatorPlayerEventListener.cpp
     source/gamemodes/DeathMatch.h
     source/gamemodes/DeathMatch.cpp
+    source/gamemodes/Team.h
     source/gamemodes/TeamDeathMatch.h
     source/gamemodes/TeamDeathMatch.cpp
     source/gamemodes/Predator.cpp
     source/gamemodes/Predator.h
-    
+
+    source/renderer/Renderer.h
+
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
-    source/gamemodes/GameModeBase.h
-    source/gamemodes/GameModeBase.cpp
-	source/gamemodes/TeamDeathMatchPlayerEventListener.h
-	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
-	source/gamemodes/PredatorPlayerEventListener.h
-	source/gamemodes/PredatorPlayerEventListener.cpp
-
     )
+
+if(D6R_RENDERER STREQUAL "gl1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")
+	set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL1Renderer.h source/renderer/GL1Renderer.cpp)
+endif(D6R_RENDERER STREQUAL "gl1")
+
+if(D6R_RENDERER STREQUAL "es2")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES2")
+	set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
+
+	if(WIN32)
+		set(D6R_WITH_GLEW ON)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
+	endif(WIN32)
+endif(D6R_RENDERER STREQUAL "es2")
+
 if(WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)
 endif(WIN32)
@@ -327,6 +376,10 @@ set(D6R_APP_NAME "duel6r" CACHE STRING "Filename of the application.")
 set(D6R_APP_DEBUG_NAME "duel6rd" CACHE STRING "Filename of the debug version of the application.")
 add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
 set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 4.0.1 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
+
+add_custom_command(TARGET ${D6R_APP_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/resources/ $<TARGET_FILE_DIR:${D6R_APP_NAME}>)
 
 #########################################################################
 # External dependencies
@@ -364,6 +417,14 @@ else(APPLE) # MSVC, GCC or MINGW
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
 endif(APPLE)
+
+# GLEW
+if(D6R_WITH_GLEW)
+	find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
+	target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
+	find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
+	include_directories(${HEADERS_GLEW})
+endif(D6R_WITH_GLEW)
 
 ########################
 #  Dependencies
@@ -431,3 +492,7 @@ target_link_libraries(${D6R_APP_NAME} angelscript_addons)
 
 # install binary files
 install(TARGETS ${D6R_APP_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(DIRECTORY resources/data DESTINATION data)
+install(DIRECTORY resources/levels DESTINATION levels)
+install(DIRECTORY resources/sound DESTINATION sound)
+install(DIRECTORY resources/textures DESTINATION textures)
