@@ -38,8 +38,9 @@ static void reportError(const std::string &err) {
 
 int main(int argc, char **argv) {
     try {
+#ifdef D6__WINDOWS__
         SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");   // Fixes GDB crashing on Mix_OpenAudio
-
+#endif
         Duel6::Application app;
         app.setup(argc, argv);
         app.run();
