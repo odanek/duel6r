@@ -97,7 +97,7 @@ namespace Duel6 {
         Size playerIndex = 0;
         for (Player &player : players) {
             auto &ammoRange = game.getSettings().getAmmoRange();
-            Int32 ammo = Math::random(ammoRange.first, ammoRange.second + 1);
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
             Level::StartingPosition position = startingPositions.back();
             player.startRound(world, position.first, position.second, ammo,
                               Weapon::getRandomEnabled(game.getSettings()));

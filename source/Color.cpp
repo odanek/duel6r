@@ -29,6 +29,16 @@
 #include "Color.h"
 
 namespace Duel6 {
+    namespace {
+        Uint8 hexToNum(char hex) {
+            return hex >= 'a' ? Uint8(hex - 'a' + 10) : Uint8(hex - '0');
+        }
+
+        Uint8 hexToNum(const std::string &hexStr) {
+            return hexToNum(hexStr[0]) * Uint8(16) + hexToNum(hexStr[1]);
+        }
+    }
+
     const Color Color::BLACK(0, 0, 0);
     const Color Color::WHITE(255, 255, 255);
     const Color Color::RED(255, 0, 0);
@@ -38,7 +48,21 @@ namespace Duel6 {
     const Color Color::MAGENTA(255, 0, 255);
     const Color Color::YELLOW(255, 255, 0);
 
+    Color Color::scale(Float32 ratio) const {
+        Uint8 red = std::min(Uint8(255), Uint8(color[0] * ratio));
+        Uint8 green = std::min(Uint8(255), Uint8(color[1] * ratio));
+        Uint8 blue = std::min(Uint8(255), Uint8(color[2] * ratio));
+        return Color(red, green, blue);
+    }
+
+    Color Color::fromString(const std::string &colStr) {
+        Uint8 red = hexToNum(colStr.substr(0, 2));
+        Uint8 green = hexToNum(colStr.substr(2, 2));
+        Uint8 blue = hexToNum(colStr.substr(4, 2));
+        return Color(red, green, blue);
+    }
+
     Color Color::random() {
-        return Color(Uint8(Math::random(0, 256)), Uint8(Math::random(0, 256)), Uint8(Math::random(0, 256)));
+        return Color(Uint8(Math::random(0, 255)), Uint8(Math::random(0, 255)), Uint8(Math::random(0, 255)));
     }
 }

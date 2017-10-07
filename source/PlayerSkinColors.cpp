@@ -27,8 +27,26 @@
 
 #include "json/JsonParser.h"
 #include "PlayerSkinColors.h"
+#include "Math.h"
 
 namespace Duel6 {
+    namespace {
+        static Color hairColors[] = {
+                Color(255, 255, 0),
+                Color(106, 72, 0),
+                Color(51, 0, 0),
+                Color(240, 0, 0),
+                Color(0, 187, 0),
+                Color(106, 72, 80)
+        };
+
+        static Color faceColors[] = {
+                Color(255, 145, 172),
+                Color(255, 216, 116),
+                Color(153, 0, 0)
+        };
+    }
+
     PlayerSkinColors::PlayerSkinColors(const Color &color) {
         for (Size i = 0; i < 9; i++) {
             this->color[i] = color;
@@ -61,16 +79,20 @@ namespace Duel6 {
     }
 
     PlayerSkinColors PlayerSkinColors::makeRandom() {
+        const Color& hair = hairColors[Math::random(6)];
+        const Color& face = faceColors[Math::random(3)];
+        Color body = Color::random();
+
         PlayerSkinColors colors;
-        colors.set(PlayerSkinColors::HairTop, Color::random());
-        colors.set(PlayerSkinColors::HairBottom, Color::random());
-        colors.set(PlayerSkinColors::BodyInner, Color::random());
-        colors.set(PlayerSkinColors::BodyOuter, Color::random());
-        colors.set(PlayerSkinColors::HandInner, Color::random());
-        colors.set(PlayerSkinColors::HandOuter, Color::random());
+        colors.set(PlayerSkinColors::HairTop, hair);
+        colors.set(PlayerSkinColors::HairBottom, hair.scale(0.5));
+        colors.set(PlayerSkinColors::BodyInner, body);
+        colors.set(PlayerSkinColors::BodyOuter, body.scale(0.5));
+        colors.set(PlayerSkinColors::HandInner, body);
+        colors.set(PlayerSkinColors::HandOuter, body.scale(0.5));
         colors.set(PlayerSkinColors::Trousers, Color::random());
         colors.set(PlayerSkinColors::Shoes, Color::random());
-        colors.set(PlayerSkinColors::Face, Color::random());
+        colors.set(PlayerSkinColors::Face, face);
         return colors;
     }
 }

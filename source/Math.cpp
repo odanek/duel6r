@@ -35,11 +35,11 @@ namespace Duel6 {
     const Float64 Math::Pi = 3.14159265358979323846;
 
     Int32 Math::random(Int32 max) {
-        return random(0, max);
+        return random(0, max - 1);
     }
 
     Int32 Math::random(Int32 min, Int32 max) {
-        std::uniform_int_distribution<> uniformDistribution(min, max - 1);
+        std::uniform_int_distribution<> uniformDistribution(min, max);
         return uniformDistribution(randomEngine);
     }
 

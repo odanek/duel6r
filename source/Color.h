@@ -154,20 +154,11 @@ namespace Duel6 {
             return *this;
         }
 
-        static Color fromString(const std::string &colStr) {
-            return Color(hexToNum(colStr.substr(0, 2)), hexToNum(colStr.substr(2, 2)), hexToNum(colStr.substr(4, 2)));
-        }
+        Color scale(Float32 ratio) const;
+
+        static Color fromString(const std::string &colStr);
 
         static Color random();
-
-    private:
-        static Int32 hexToNum(const std::string &hexStr) {
-            return hexToNum(hexStr[0]) * 16 + hexToNum(hexStr[1]);
-        }
-
-        static Int32 hexToNum(char hex) {
-            return hex >= 'a' ? hex - 'a' + 10 : hex - '0';
-        }
     };
 
     class ColorHash {
