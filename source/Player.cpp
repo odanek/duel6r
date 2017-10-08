@@ -831,7 +831,7 @@ namespace Duel6 {
 
         if (suicide) {
             playSound(PlayerSounds::Type::Suicide);
-            eventListener->onSuicide(*this, playersKilled.size() - 1);
+            eventListener->onSuicide(*this, playersKilled);
         } else if (!playersKilled.empty()) {
             playSound(PlayerSounds::Type::KilledOther);
         }

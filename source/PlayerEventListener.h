@@ -28,6 +28,10 @@
 #ifndef DUEL6_PLAYEREVENTLISTENER_H
 #define DUEL6_PLAYEREVENTLISTENER_H
 
+#include <map>
+#include <set>
+#include <memory>
+
 #include "InfoMessageQueue.h"
 #include "GameSettings.h"
 #include "Player.h"
@@ -35,13 +39,25 @@
 
 namespace Duel6 {
     class PlayerEventListener {
+
     protected:
         InfoMessageQueue &messageQueue;
         const GameSettings &gameSettings;
 
+        std::map<const Player *, std::set<Player *>> attackers;
+
+        virtual void addKillMessage(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide);
+
+        virtual void addSuicideMessage(Player &player, const std::set<Player *> &assistants, std::vector<Player *> &playersKilled);
+
+        virtual void onAssistedSuicide(Player &player, const std::set<Player *> &assistants);
+
+        virtual void onAssistedKill(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide);
+
+        virtual void onKill(Player &player, Player &killer, Shot &shot, bool suicide);
     public:
         PlayerEventListener(InfoMessageQueue &messageQueue, const GameSettings &gameSettings)
-                : messageQueue(messageQueue), gameSettings(gameSettings) {}
+                : messageQueue(messageQueue), gameSettings(gameSettings), attackers() {}
 
         virtual ~PlayerEventListener() {}
 
@@ -57,12 +73,12 @@ namespace Duel6 {
          */
         virtual bool onDamageByEnv(Player &player, Float32 amount);
 
-        virtual void onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide);
+        virtual void onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide) final;
 
         //TODO: Environment type (eg. water, lava, bonus)
         virtual void onKillByEnv(Player &player);
 
-        virtual void onSuicide(Player &player, Size otherKilledPlayers);
+        virtual void onSuicide(Player &player, std::vector<Player *> &playersKilled);
 
         virtual void onRoundWin(Player &player);
     };

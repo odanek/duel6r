@@ -41,15 +41,82 @@ namespace Duel6 {
         return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
     }
 
-    void TeamDeathMatchPlayerEventListener::onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide) {
+    void TeamDeathMatchPlayerEventListener::onKill(Player &player, Player &killer, Shot &shot, bool suicide) {
         const Team *playerTeam = teamMap.at(&player);
         const Team *killerTeam = teamMap.at(&killer);
 
         if (!suicide && playerTeam == killerTeam) {
-            messageQueue.add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
             killer.getPerson().addPenalties(1);
         } else {
-            PlayerEventListener::onKillByPlayer(player, killer, shot, suicide);
+            PlayerEventListener::onKill(player, killer, shot, suicide);
         }
+    }
+    void TeamDeathMatchPlayerEventListener::onAssistedSuicide(Player &player, const std::set<Player *> &assistants) {
+        const Team *playerTeam = teamMap.at(&player);
+        for (auto assistant : assistants) {
+            if(teamMap.at(assistant) != playerTeam){
+                assistant->getPerson().addAssistances(1);
+            }
+        }
+    }
+    void TeamDeathMatchPlayerEventListener::onAssistedKill(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) {
+        const Team *playerTeam = teamMap.at(&killed);
+        const Team *killerTeam = teamMap.at(&killer);
+
+        if (playerTeam != killerTeam) {
+            //No assistance points for kamikazed kills
+            if(suicide){
+                return;
+            }
+            for (auto assistant : assistants) {
+                const Team *assistantTeam = teamMap.at(assistant);
+                if (killerTeam == assistantTeam) {
+                    assistant->getPerson().addAssistances(1);
+                }
+            }
+        } else {
+            for (auto assistant : assistants) {
+                const Team *assistantTeam = teamMap.at(assistant);
+                if (killerTeam != assistantTeam) {
+                    assistant->getPerson().addAssistances(1);
+                }
+            }
+        }
+    }
+
+    void TeamDeathMatchPlayerEventListener::addKillMessage(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) {
+        if (suicide) {
+            return PlayerEventListener::addKillMessage(killed, killer, assistants, suicide);
+        }
+        const Team *playerTeam = teamMap.at(&killed);
+        const Team *killerTeam = teamMap.at(&killer);
+
+        std::string assistedByMessage = "";
+        std::string killedMessage = "killed";
+
+        std::set<Player *> filteredAssistants;
+
+        std::function<bool (Player *)> predicate =([&](Player * value) {return killerTeam == teamMap.at(value);});
+
+        if (playerTeam == killerTeam) {
+            killedMessage = "killed teammate";
+            predicate = ([&](Player * value) {return killerTeam != teamMap.at(value);});;
+        }
+        //filter assistants by predicate
+        std::copy_if(assistants.begin(), assistants.end(), std::inserter(filteredAssistants, filteredAssistants.end()), predicate);
+
+        if (filteredAssistants.size() > 0) {
+            bool first = true;
+            for (auto assistant : filteredAssistants) {
+                if (first) {
+                    assistedByMessage = ", assisted by: ";
+                    first = false;
+                } else {
+                    assistedByMessage += ", ";
+                }
+                assistedByMessage += assistant->getPerson().getName();
+            }
+        }
+        messageQueue.add(killer, Format("{0} [{1}]{2}") << killedMessage << killed.getPerson().getName() << assistedByMessage);
     }
 }
