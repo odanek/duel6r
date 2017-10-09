@@ -34,7 +34,7 @@ namespace Duel6 {
                            SpriteList::Iterator sprite, const Rectangle &collisionRect)
             : ShotBase(player.getWeapon(), player), definition(weapon.getDefinition()), textures(weapon.getTextures()),
               samples(weapon.getSamples()), collisionRect(collisionRect), orientation(orientation), sprite(sprite),
-              hitByOtherShot(nullptr) {
+              shotHit({false, nullptr, nullptr}) {
         const Vector dim = getDimensions();
         const Rectangle playerRect = player.getCollisionRect();
         if (orientation == Orientation::Left) {
@@ -66,10 +66,12 @@ namespace Duel6 {
     bool LegacyShot::update(Float32 elapsedTime, World &world) {
         move(elapsedTime);
 
-        ShotHit hit = evaluateShotHit(world);
+        if(!shotHit.hit){
+            shotHit = evaluateShotHit(world);
+        }
 
-        if (hit.hit) {
-            explode(hit, world);
+        if (shotHit.hit) {
+            explode(world);
 
             Sprite boom(definition.boomAnimation, textures.boom);
             boom.setPosition(getCentre() - Vector(0.5f, 0.5f), 0.6f)
@@ -91,15 +93,15 @@ namespace Duel6 {
         return true;
     }
 
-    bool LegacyShot::requestCollision(const ShotHit &hit) {
-        if (hit.shot != nullptr) {
-            hitByOtherShot = hit.shot;
+    bool LegacyShot::requestCollision(Shot &otherShot) {
+        if (Collision::rectangles(this->getCollisionRect(), otherShot.getCollisionRect())) {
+            shotHit = {true, nullptr, &otherShot};
             return true;
         }
         return false;
     }
 
-    void LegacyShot::explode(ShotHit hit, World &world) {
+    void LegacyShot::explode( World &world) {
         std::vector<Player *> killedPlayers;
         std::vector<Player *> hittedPlayers;
 
@@ -112,10 +114,12 @@ namespace Duel6 {
         onExplode(shotCentre, range, world);
 
         for (Player &player : world.getPlayers()) {
-            bool directHit = (hit.player != nullptr && player.is(*hit.player));
+            bool directHit = (shotHit.player != nullptr && player.is(*shotHit.player));
             Vector playerCentre = player.getCentre();
             Float32 dist = directHit ? 0 : (playerCentre - shotCentre).length();
+            if (directHit) {
 
+            }
             if (directHit || dist < range) {
                 hittedPlayers.push_back(&player);
                 if (player.hitByShot(directHit ? power : ((range - dist) * power) / range, *this, directHit,
@@ -153,10 +157,6 @@ namespace Duel6 {
     }
 
     ShotHit LegacyShot::evaluateShotHit(World &world) {
-        if (hitByOtherShot != nullptr) {
-            return {true, nullptr, hitByOtherShot};
-        }
-
         ShotHit hit = checkPlayerCollision(world.getPlayers());
         if (!hit.hit) {
             hit = checkWorldCollision(world.getLevel());
@@ -204,14 +204,11 @@ namespace Duel6 {
         if (collisionSetting == ShotCollisionSetting::All ||
             (collisionSetting == ShotCollisionSetting::Large && definition.collides)) {
             shotList.forEach([this, &hit](Shot &otherShot) -> bool {
-                if (this != &otherShot &&
-                    Collision::rectangles(this->getCollisionRect(), otherShot.getCollisionRect())) {
-                    if (otherShot.requestCollision({true, nullptr, this})) {
+                if (this != &otherShot && otherShot.requestCollision(*this)) {
                         hit.hit = true;
                         hit.shot = &otherShot;
                         return false;
                     }
-                }
                 return true;
             });
         }
@@ -228,5 +225,9 @@ namespace Duel6 {
         world.getExplosionList().add(
                 Vector(rect.left.x + (0.3f + (Math::random(40)) * 0.01f) * rect.getSize().x, point.y), 0.2f, 0.5f,
                 Color::RED);
+    }
+
+    ShotHit LegacyShot::getShotHit() {
+        return shotHit;
     }
 }

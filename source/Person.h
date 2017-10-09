@@ -48,11 +48,12 @@ namespace Duel6 {
         Int32 timeAlive;
         Int32 totalGameTime;
         Int32 totalDamage;
+        Int32 assistedDamage;
 
     public:
         Person()
                 : shots(0), hits(0), kills(0), assistances(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0),
-                  totalDamage(0) {}
+                  totalDamage(0), assistedDamage(0) {}
 
         explicit Person(const std::string &name)
                 : Person() {
@@ -115,6 +116,10 @@ namespace Duel6 {
             return totalDamage;
         }
 
+        Int32 getAssistedDamage() const {
+            return assistedDamage;
+        }
+
         Person &addShots(Int32 shots) {
             this->shots += shots;
             return *this;
@@ -160,6 +165,10 @@ namespace Duel6 {
 
         void addDamageCaused(Int32 damageCaused) {
             this->totalDamage += damageCaused;
+        }
+
+        void addAssistedDamage(Int32 damageCaused) {
+            this->assistedDamage += damageCaused;
         }
 
         bool hasHigherScoreThan(const Person &person) const {

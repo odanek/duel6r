@@ -49,7 +49,7 @@ namespace Duel6 {
         Vector velocity;
         SpriteList::Iterator sprite;
         bool powerful;
-        Shot *hitByOtherShot;
+        ShotHit shotHit;
 
     public:
         LegacyShot(Player &player, const LegacyWeapon &weapon, Orientation orientation, SpriteList::Iterator sprite,
@@ -61,11 +61,13 @@ namespace Duel6 {
             return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
         }
 
-        bool requestCollision(const ShotHit &hit) override;
+        bool requestCollision(Shot &shot) override;
 
         void onHitPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) override;
 
         void onKillPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) override;
+
+        ShotHit getShotHit() override;
 
     protected:
         virtual void onExplode(const Vector &centre, Float32 range, World &world);
@@ -104,7 +106,7 @@ namespace Duel6 {
 
         ShotHit checkShotCollision(ShotList &shotList, ShotCollisionSetting collisionSetting);
 
-        void explode(ShotHit hit, World &world);
+        void explode(World &world);
 
         void addPlayerExplosion(Player &player, World &world);
 

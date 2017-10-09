@@ -32,8 +32,24 @@ namespace Duel6 {
     bool PlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot,
                                              bool directHit) {
         if (!player.is(shootingPlayer)) {
-            shootingPlayer.getPerson().addDamageCaused(std::min((Int32) amount, (Int32) player.getLife()));
-            attackers[&player].insert(&shootingPlayer);
+            Int32 causedDamage = std::min((Int32) amount, (Int32) player.getLife());
+            shootingPlayer.getPerson().addDamageCaused(causedDamage);
+            attackers[&player][&shootingPlayer].hits++;
+            attackers[&player][&shootingPlayer].totalDamage += causedDamage;
+            attackers[&player][&shootingPlayer].player = &shootingPlayer;
+            ShotHit hit = shot.getShotHit();
+            if(hit.player != nullptr && !player.is(*hit.player)) {
+                // Player detonating the missile gets the assistance
+                attackers[&player][hit.player].hits++;
+                attackers[&player][hit.player].totalDamage += causedDamage;
+                attackers[&player][hit.player].player = hit.player;
+            }
+            if(hit.shot != nullptr && !player.is(hit.shot->getPlayer())) {
+                // Player shooting down a missile gets the  assistance
+                attackers[&player][&hit.shot->getPlayer()].hits++;
+                attackers[&player][&hit.shot->getPlayer()].totalDamage += causedDamage;
+                attackers[&player][&hit.shot->getPlayer()].player = &hit.shot->getPlayer();
+            }
         }
         player.addLife(-amount);
         return true;
@@ -46,12 +62,16 @@ namespace Duel6 {
 
     void PlayerEventListener::onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide) {
         onKill(player, killer, shot, suicide);
+
         auto assistants = attackers[&player];
         assistants.erase(&killer);
-        if(assistants.size() > 0){
-            onAssistedKill(player, killer, assistants, suicide);
+
+        auto qualifiedAssistances = getQualifiedAssistances(assistants);
+
+        if(qualifiedAssistances.size() > 0){
+            onAssistedKill(player, killer, qualifiedAssistances, suicide);
         }
-        addKillMessage(player, killer, assistants, suicide);
+        addKillMessage(player, killer, qualifiedAssistances, suicide);
     }
 
     void PlayerEventListener::onKill(Player &player, Player &killer, Shot &shot, bool suicide){
@@ -68,21 +88,22 @@ namespace Duel6 {
             killer.addRoundKills(1);
         }
     }
-    void PlayerEventListener::addKillMessage(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) {
+
+    void PlayerEventListener::addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
         if (suicide) {
             //handled by addSuicideMessage()
         } else {
             std::string assistedByMessage = "";
-            if (assistants.size() > 0) {
+            if (assistances.size() > 0) {
                 assistedByMessage = ", assisted by: ";
                 bool first = true;
-                for (auto assistant : assistants) {
+                for (auto assistance : assistances) {
                     if (first) {
                         first = false;
                     } else {
                         assistedByMessage += ", ";
                     }
-                    assistedByMessage += assistant->getPerson().getName();
+                    assistedByMessage += assistance.player->getPerson().getName();
                 }
             }
             messageQueue.add(killer, Format("killed [{0}]{1}") << killed.getPerson().getName() << assistedByMessage);
@@ -99,26 +120,29 @@ namespace Duel6 {
     void PlayerEventListener::onSuicide(Player &player, std::vector<Player *> &playersKilled) {
         player.getPerson().addPenalties(1);
 
-        auto assistants = attackers[&player];
-        onAssistedSuicide(player, assistants);
-        addSuicideMessage(player, assistants, playersKilled);
+        auto qualifiedAssistances = getQualifiedAssistances(attackers[&player]);
+
+        onAssistedSuicide(player, qualifiedAssistances);
+        addSuicideMessage(player, qualifiedAssistances, playersKilled);
     }
 
-    void PlayerEventListener::addSuicideMessage(Player &player, const std::set<Player *> &assistants, std::vector<Player *> &playersKilled) {
+    void PlayerEventListener::addSuicideMessage(Player &player, const AssistanceList &assistances, std::vector<Player *> &playersKilled) {
         std::string assistedMessage = "";
         std::string killedAlsoMessage = "";
-        if (assistants.size() > 0) {
+
+        if (assistances.size() > 0) {
             bool first = true;
-            for (auto assistant : assistants) {
+            for (auto assistance : assistances) {
                 if (first) {
                     first = false;
                     assistedMessage = ", assisted by: ";
                 } else {
                     assistedMessage += ", ";
                 }
-                assistedMessage += assistant->getPerson().getName();
+                assistedMessage += assistance.player->getPerson().getName();
             }
         }
+
         bool first = true;
         for (auto killed: playersKilled){
             if(killed != &player){
@@ -134,9 +158,9 @@ namespace Duel6 {
         messageQueue.add(player, Format("Commited suicide{0}{1}") << assistedMessage << killedAlsoMessage);
     }
 
-    void PlayerEventListener::onAssistedSuicide(Player &player, const std::set<Player *> &assistants) {
-        for (auto assistant : assistants) {
-            assistant->getPerson().addAssistances(1);
+    void PlayerEventListener::onAssistedSuicide(Player &player, const AssistanceList &assistances) {
+        for (auto assistance : assistances) {
+            assistance.confirm();
         }
     }
 
@@ -145,9 +169,19 @@ namespace Duel6 {
         player.getPerson().addWins(1);
     }
 
-    void PlayerEventListener::onAssistedKill(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) {
-        for (auto assistant : assistants) {
-            assistant->getPerson().addAssistances(1);
+    void PlayerEventListener::onAssistedKill(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
+        for (auto assistance : assistances) {
+            assistance.confirm();
         }
+    }
+
+    PlayerEventListener::AssistanceList PlayerEventListener::getQualifiedAssistances(const AssistantsMap &assistants) {
+        AssistanceList qualifiedAssistances;
+        for(auto assistant : assistants) {
+            if(assistant.second.totalDamage > D6_MAX_LIFE * 0.4) {
+                qualifiedAssistances.push_back(assistant.second);
+            }
+        }
+        return qualifiedAssistances;
     }
 }

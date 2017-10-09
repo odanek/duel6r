@@ -51,15 +51,17 @@ namespace Duel6 {
             PlayerEventListener::onKill(player, killer, shot, suicide);
         }
     }
-    void TeamDeathMatchPlayerEventListener::onAssistedSuicide(Player &player, const std::set<Player *> &assistants) {
+
+    void TeamDeathMatchPlayerEventListener::onAssistedSuicide(Player &player, const AssistanceList &assistances) {
         const Team *playerTeam = teamMap.at(&player);
-        for (auto assistant : assistants) {
-            if(teamMap.at(assistant) != playerTeam){
-                assistant->getPerson().addAssistances(1);
+        for (auto assistance : assistances) {
+            if(teamMap.at(assistance.player) != playerTeam){
+                assistance.confirm();
             }
         }
     }
-    void TeamDeathMatchPlayerEventListener::onAssistedKill(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) {
+
+    void TeamDeathMatchPlayerEventListener::onAssistedKill(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
         const Team *playerTeam = teamMap.at(&killed);
         const Team *killerTeam = teamMap.at(&killer);
 
@@ -68,25 +70,25 @@ namespace Duel6 {
             if(suicide){
                 return;
             }
-            for (auto assistant : assistants) {
-                const Team *assistantTeam = teamMap.at(assistant);
+            for (auto assistance : assistances) {
+                const Team *assistantTeam = teamMap.at(assistance.player);
                 if (killerTeam == assistantTeam) {
-                    assistant->getPerson().addAssistances(1);
+                    assistance.confirm();
                 }
             }
         } else {
-            for (auto assistant : assistants) {
-                const Team *assistantTeam = teamMap.at(assistant);
+            for (auto assistance : assistances) {
+                const Team *assistantTeam = teamMap.at(assistance.player);
                 if (killerTeam != assistantTeam) {
-                    assistant->getPerson().addAssistances(1);
+                    assistance.confirm();
                 }
             }
         }
     }
 
-    void TeamDeathMatchPlayerEventListener::addKillMessage(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) {
+    void TeamDeathMatchPlayerEventListener::addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
         if (suicide) {
-            return PlayerEventListener::addKillMessage(killed, killer, assistants, suicide);
+            return PlayerEventListener::addKillMessage(killed, killer, assistances, suicide);
         }
         const Team *playerTeam = teamMap.at(&killed);
         const Team *killerTeam = teamMap.at(&killer);
@@ -94,27 +96,27 @@ namespace Duel6 {
         std::string assistedByMessage = "";
         std::string killedMessage = "killed";
 
-        std::set<Player *> filteredAssistants;
+        AssistanceList filteredAssistances;
 
-        std::function<bool (Player *)> predicate =([&](Player * value) {return killerTeam == teamMap.at(value);});
+        std::function<bool (Assistance)> predicate =([&](Assistance assistance) {return killerTeam == teamMap.at(assistance.player);});
 
         if (playerTeam == killerTeam) {
             killedMessage = "killed teammate";
-            predicate = ([&](Player * value) {return killerTeam != teamMap.at(value);});;
+            predicate = ([&](Assistance assistance) {return killerTeam != teamMap.at(assistance.player);});;
         }
         //filter assistants by predicate
-        std::copy_if(assistants.begin(), assistants.end(), std::inserter(filteredAssistants, filteredAssistants.end()), predicate);
+        std::copy_if(assistances.begin(), assistances.end(), std::inserter(filteredAssistances, filteredAssistances.end()), predicate);
 
-        if (filteredAssistants.size() > 0) {
+        if (filteredAssistances.size() > 0) {
             bool first = true;
-            for (auto assistant : filteredAssistants) {
+            for (auto assistance : filteredAssistances) {
                 if (first) {
                     assistedByMessage = ", assisted by: ";
                     first = false;
                 } else {
                     assistedByMessage += ", ";
                 }
-                assistedByMessage += assistant->getPerson().getName();
+                assistedByMessage += assistance.player->getPerson().getName();
             }
         }
         messageQueue.add(killer, Format("{0} [{1}]{2}") << killedMessage << killed.getPerson().getName() << assistedByMessage);

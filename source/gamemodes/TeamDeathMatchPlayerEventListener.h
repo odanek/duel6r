@@ -39,11 +39,11 @@ namespace Duel6 {
         const TeamMap &teamMap;
 
     protected:
-        void addKillMessage(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) override;
+        void addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) override;
 
-        void onAssistedKill(Player &killed, Player &killer, const std::set<Player *> &assistants, bool suicide) override;
+        void onAssistedKill(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) override;
 
-        void onAssistedSuicide(Player &player, const std::set<Player *> &assistants) override;
+        void onAssistedSuicide(Player &player, const AssistanceList &assistances) override;
 
         void onKill(Player &player, Player &killer, Shot &shot, bool suicice) override;
     public:
