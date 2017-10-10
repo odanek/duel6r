@@ -33,6 +33,7 @@
 #include "Input.h"
 #include "TextureManager.h"
 #include "Video.h"
+#include "script/ScriptManager.h"
 
 namespace Duel6 {
     class AppService {
@@ -43,12 +44,12 @@ namespace Duel6 {
         Video &video;
         Input &input;
         Sound &sound;
+        ScriptManager& scriptManager;
 
     public:
-        AppService(Font &font, Console &console, TextureManager &textureManager, Video &video, Input &input,
-                   Sound &sound)
-                : font(font), console(console), textureManager(textureManager), video(video), input(input),
-                  sound(sound) {}
+        AppService(Font &font, Console &console, TextureManager &textureManager, Video &video, Input &input, Sound &sound, ScriptManager &scriptManager)
+            : font(font), console(console), textureManager(textureManager), video(video), input(input), sound(sound), scriptManager(scriptManager)
+        {}
 
         Font &getFont() {
             return font;
@@ -72,6 +73,10 @@ namespace Duel6 {
 
         Sound &getSound() {
             return sound;
+        }
+
+        ScriptManager &getScriptManager() {
+            return scriptManager;
         }
     };
 }

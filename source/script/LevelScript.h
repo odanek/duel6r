@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006, Ondrej Danek (www.ondrej-danek.net)
+* Copyright (c) 2017, Frantisek Veverka
 * All rights reserved.
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -9,7 +9,7 @@
 *     * Redistributions in binary form must reproduce the above copyright
 *       notice, this list of conditions and the following disclaimer in the
 *       documentation and/or other materials provided with the distribution.
-*     * Neither the name of Ondrej Danek nor the
+*     * Neither the name of Frantisek Veverka nor the
 *       names of its contributors may be used to endorse or promote products
 *       derived from this software without specific prior written permission.
 *
@@ -24,30 +24,56 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#pragma once
 
-#include "GameSettings.h"
+#include <angelscript.h>
+#include "Script.h"
+#include "Function.h"
+#include "../Level.h"
 
-namespace Duel6 {
-    GameSettings::GameSettings()
-            : ammoRange(15, 15), maxRounds(0), screenMode(ScreenMode::FullScreen),
-              screenZoom(13), wireframe(false), showFps(false), showRanking(true),
-              ghostMode(false), shotCollision(ShotCollisionSetting::None), maxFps(60), maxGFps(60),
-              levelSelectionMode(LevelSelectionMode::Random) {}
+namespace Duel6{
 
-    GameSettings &GameSettings::enableWeapon(const Weapon &weapon, bool enable) {
-        if (enable) {
-            enabledWeapons.insert(weapon);
-        } else {
-            enabledWeapons.erase(weapon);
-        }
-        return *this;
-    }
+class Level;
+class Round;
 
-    bool GameSettings::isWeaponEnabled(const Weapon &weapon) const {
-        return enabledWeapons.find(weapon) != enabledWeapons.end();
-    }
+// draft
+class LevelScript : public Script{
+public:
 
-    const GameSettings::EnabledWeapons &GameSettings::getEnabledWeapons() const {
-        return enabledWeapons;
-    }
+	constexpr static const char * SIGNATURE_MAP_LOADED = "void mapLoaded(Level@)";
+	constexpr static const char * SIGNATURE_PLAYER_THINK = "void playerThink(Player@, uint& in)";
+	constexpr static const char * SIGNATURE_ROUND_UPDATE = "void roundUpdate(Round@, float, uint)";
+	constexpr static const char * SIGNATURE_ROUND_START = "void roundStart(Round@)";
+
+	LevelScript(asIScriptModule * module, asIScriptContext * ctx);
+
+	/**
+	 * Called on map load in Level::load()
+	 */
+	void mapLoaded(Level & level);
+
+	/**
+	 * Called on each player per game tick in Round::update()
+	 */
+	void playerThink(Player & player, unsigned int id);
+	/**
+	 * Called on each game tick in Round::update()
+	 * @param Round
+	 * @param elapsedTime
+	 * @param frame - current tick number
+	 */
+	void roundUpdate(Round & round, float elapsedTime, Uint32 frame);
+
+	/**
+	 * Called on round start
+	 * @param Round
+	 */
+	void roundStart(Round & round);
+
+private:
+	Function mapLoadedFn;
+	Function playerThinkFn;
+	Function roundUpdateFn;
+	Function roundStartFn;
+};
 }

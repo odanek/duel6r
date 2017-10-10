@@ -93,7 +93,8 @@ namespace Duel6 {
         std::unique_ptr<Round> round;
         WorldRenderer worldRenderer;
         const Menu *menu;
-
+        LevelScript * levelScript;
+        GlobalScript * globalScript;
         std::vector<std::string> levels;
         std::vector<Size> backgrounds;
         Int32 playedRounds;

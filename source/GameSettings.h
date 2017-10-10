@@ -78,6 +78,8 @@ namespace Duel6 {
         Int32 getScreenZoom() const {
             return screenZoom;
         }
+        Uint8 maxFps;
+        Uint8 maxGFps; ///tickrate
 
         GameSettings &setScreenZoom(Int32 screenZoom) {
             this->screenZoom = screenZoom;
@@ -163,7 +165,21 @@ namespace Duel6 {
         GameSettings &enableWeapon(const Weapon &weapon, bool enable);
 
         bool isWeaponEnabled(const Weapon &weapon) const;
+        Uint8 getFps() {
+            return this->maxFps ;
+        }
+        GameSettings &setFps(Uint8 fps) {
+            this->maxFps = fps;
+            return *this;
+        }
+        Uint8 getGFps() {
+            return this->maxGFps ;
+        }
 
+        GameSettings &setGFps(Uint8 gfps) {
+            this->maxGFps = gfps;
+            return *this;
+        }
         const EnabledWeapons &getEnabledWeapons() const;
     };
 }

@@ -33,8 +33,11 @@
 #include <vector>
 #include "Block.h"
 #include "Water.h"
+#include "script/LevelScript.h"
+#include "script/GlobalScript.h"
 
 namespace Duel6 {
+    class LevelScript;
     class Level {
     public:
         typedef std::pair<Int32, Int32> StartingPosition;
@@ -47,9 +50,11 @@ namespace Duel6 {
         std::vector<Uint16> levelData;
         Uint16 waterBlock;
         Int32 waterLevel;
+        LevelScript * levelScript;
+        GlobalScript * globalScript;
 
     public:
-        Level(const std::string &path, bool mirror, const Block::Meta &blockMeta);
+        Level(const std::string &path, bool mirror, const Block::Meta &blockMeta, LevelScript &levelScript, GlobalScript &globalScript);
 
         Int32 getWidth() const {
             return width;
@@ -85,6 +90,10 @@ namespace Duel6 {
 
         void findTopmostNonWallPositions(StartingPositionList &startingPositions);
 
+        void setBlock(Uint16 block, Int32 x, Int32 y) {
+            levelData[(height - y - 1) * width + x] = block;
+        }
+
     private:
         void load(const std::string &path, bool mirror);
 
@@ -100,9 +109,6 @@ namespace Duel6 {
             return levelData[(height - y - 1) * width + x];
         }
 
-        void setBlock(Uint16 block, Int32 x, Int32 y) {
-            levelData[(height - y - 1) * width + x] = block;
-        }
 
         Uint16 findWaterType() const;
 

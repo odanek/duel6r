@@ -78,7 +78,23 @@ set(D6R_RENDERER "gl1")
 
 # set the list of source files
 set(D6R_SOURCES
+	source/script/Function.cpp
+	source/script/Function.h
+	source/script/Script.cpp
+	source/script/Script.h
+	source/script/LevelScript.cpp
+	source/script/LevelScript.h
+	source/script/GlobalScript.cpp
+	source/script/GlobalScript.h
+	source/script/PlayerScript.cpp
+	source/script/PlayerScript.h
 
+	source/script/ScriptManager.cpp
+	source/script/ScriptManager.h
+	
+	source/ai/PathSegment.h
+	source/ai/PathSegment.cpp
+	
     source/AnimationLooping.h
     source/Application.h
     source/Application.cpp
@@ -89,8 +105,8 @@ set(D6R_SOURCES
     source/Bonus.cpp
     source/BonusList.h
     source/BonusList.cpp
-	source/Camera.h
-	source/Camera.cpp
+    source/Camera.h
+    source/Camera.cpp
     source/Color.h
     source/Color.cpp
     source/ConsoleCommands.h
@@ -143,11 +159,11 @@ set(D6R_SOURCES
     source/LevelRenderData.h
     source/LevelRenderData.cpp
     source/Main.cpp
-	source/Material.h
+    source/Material.h
     source/Math.h
     source/Math.cpp
-	source/Matrix.h
-	source/Matrix.cpp
+    source/Matrix.h
+    source/Matrix.cpp
     source/Menu.h
     source/Menu.cpp
     source/msdir.c
@@ -171,12 +187,12 @@ set(D6R_SOURCES
 	source/PlayerSounds.cpp
     source/Ranking.h
 	source/Rectangle.h
-	source/WorldRenderer.h
-	source/WorldRenderer.cpp
+    source/WorldRenderer.h
+    source/WorldRenderer.cpp
     source/Round.h
     source/Round.cpp
     source/ScreenMode.h
-	source/ScreenParameters.h
+    source/ScreenParameters.h
     source/Shot.h
     source/ShotList.h
     source/ShotList.cpp
@@ -200,7 +216,7 @@ set(D6R_SOURCES
     source/Video.h
     source/Video.cpp
     source/VideoException.h
-	source/ViewParameters.h
+    source/ViewParameters.h
 	source/Water.cpp
 	source/Water.h
     source/WaterList.h
@@ -210,7 +226,7 @@ set(D6R_SOURCES
     source/World.h
     source/World.cpp
 
-	source/console/conarg.cpp
+    source/console/conarg.cpp
     source/console/concmd.cpp
     source/console/condraw.cpp
     source/console/coninput.cpp
@@ -317,12 +333,12 @@ set(D6R_SOURCES
 	source/collision/WorldCollision.cpp
 	source/collision/WorldCollision.h
 
-	source/gamemodes/GameModeBase.h
-	source/gamemodes/GameModeBase.cpp
-	source/gamemodes/TeamDeathMatchPlayerEventListener.h
-	source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
-	source/gamemodes/PredatorPlayerEventListener.h
-	source/gamemodes/PredatorPlayerEventListener.cpp
+    source/gamemodes/GameModeBase.h
+    source/gamemodes/GameModeBase.cpp
+    source/gamemodes/TeamDeathMatchPlayerEventListener.h
+    source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
+    source/gamemodes/PredatorPlayerEventListener.h
+    source/gamemodes/PredatorPlayerEventListener.cpp
     source/gamemodes/DeathMatch.h
     source/gamemodes/DeathMatch.cpp
     source/gamemodes/Team.h
@@ -331,7 +347,7 @@ set(D6R_SOURCES
     source/gamemodes/Predator.cpp
     source/gamemodes/Predator.h
 
-	source/renderer/Renderer.h
+    source/renderer/Renderer.h
 
     source/PlayerEventListener.h 
     source/PlayerEventListener.cpp
@@ -413,6 +429,66 @@ if(D6R_WITH_GLEW)
 	find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
 	include_directories(${HEADERS_GLEW})
 endif(D6R_WITH_GLEW)
+
+########################
+#  Dependencies
+########################
+include(ExternalProject)
+set(DEPSDIR ${CMAKE_SOURCE_DIR}/deps)
+set(ANGELSCRIPT_VERSION 2.31.2)
+ExternalProject_Add(angelscript
+	PREFIX "_"
+	GIT_REPOSITORY https://github.com/fanick1/angelscript
+	GIT_TAG origin/tags/${ANGELSCRIPT_VERSION}
+	CONFIGURE_COMMAND ${CMAKE_COMMAND} -DLIBRARY_OUTPUT_PATH=${DEPSDIR}/angelscript/lib ../angelscript/sdk/angelscript/projects/cmake
+	UPDATE_COMMAND ""
+	INSTALL_COMMAND ""
+	BUILD_COMMAND make -j 8
+	STEP_TARGETS angelscript_copy angelscript
+)
+ExternalProject_Get_Property(angelscript SOURCE_DIR)
+message(STATUS "Source directory of angelscript ${SOURCE_DIR}")
+
+add_library(angelscript_lib STATIC IMPORTED)
+set_target_properties(angelscript_lib PROPERTIES IMPORTED_LOCATION ${DEPSDIR}/angelscript/lib/${CMAKE_STATIC_LIBRARY_PREFIX}angelscript${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_custom_command(OUTPUT ${DEPSDIR}/angelscript/include
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/angelscript/include ${DEPSDIR}/angelscript/include
+)
+include_directories(${DEPSDIR}/angelscript/include)
+target_link_libraries(${D6R_APP_NAME} angelscript_lib)
+
+########################
+#  Angelscript 
+########################
+find_package(Threads REQUIRED)
+target_link_libraries(${D6R_APP_NAME} Threads::Threads)
+set(AS_ADDON_DIR
+	${DEPSDIR}/angelscript/include/angelscript/add_on
+)
+	
+set(ANGELSCRIPT_ADDONS_SOURCES 
+	${AS_ADDON_DIR}/scriptstdstring/scriptstdstring_utils.cpp
+	${AS_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
+	${AS_ADDON_DIR}/scriptstdstring/scriptstdstring.h
+	${AS_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
+	${AS_ADDON_DIR}/scriptbuilder/scriptbuilder.h
+	${AS_ADDON_DIR}/scriptarray/scriptarray.cpp
+	${AS_ADDON_DIR}/scriptarray/scriptarray.h
+	${AS_ADDON_DIR}/scriptgrid/scriptgrid.cpp
+	${AS_ADDON_DIR}/scriptgrid/scriptgrid.h
+	${AS_ADDON_DIR}/scriptdictionary/scriptdictionary.cpp
+	${AS_ADDON_DIR}/scriptdictionary/scriptdictionary.h
+
+) 
+
+add_custom_command(OUTPUT ${ANGELSCRIPT_ADDONS_SOURCES}
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_DIR}/sdk/add_on  ${DEPSDIR}/angelscript/include/angelscript/add_on # don't ask
+)
+
+add_library(angelscript_addons ${ANGELSCRIPT_ADDONS_SOURCES})
+add_dependencies(angelscript_addons angelscript)
+target_link_libraries(${D6R_APP_NAME} angelscript_addons)
 
 ########################
 #  Install application

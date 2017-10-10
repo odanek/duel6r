@@ -48,10 +48,12 @@ namespace Duel6 {
         Float32 gameOverWait;
         bool winner;
         std::vector<Player *> alivePlayers;
-
+        LevelScript &levelScript;
+        GlobalScript &globalScript;
+        Uint32 frame;
     public:
         Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror,
-              Size background);
+              Size background, LevelScript &levelScript, GlobalScript &globalScript);
 
         void update(Float32 elapsedTime);
 

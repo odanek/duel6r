@@ -32,13 +32,15 @@
 #include "GameMode.h"
 #include "Weapon.h"
 
-namespace Duel6 {
-    Round::Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror,
-                 Size background)
-            : game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background),
-              suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
-              winner(false) {
+namespace Duel6
+{
+    Round::Round(Game& game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror, Size background, LevelScript &levelScript, GlobalScript &globalScript)
+        : game(game), roundNumber(roundNumber), world(game, levelPath, mirror, background, levelScript, globalScript),
+          suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
+          winner(false), levelScript(levelScript), globalScript(globalScript), frame(0) {
         preparePlayers();
+        globalScript.roundStart(*this);
+        levelScript.roundStart(*this);
         game.getMode().initializeRound(game, players, world);
     }
 
@@ -141,12 +143,21 @@ namespace Duel6 {
                 return;
             }
         }
+        globalScript.roundUpdate(*this, elapsedTime, frame);
+        levelScript.roundUpdate(*this, elapsedTime, frame);
 
+        unsigned int playerId = 0;
         for (Player &player : world.getPlayers()) {
+            player.updateControls();
+
+            globalScript.playerThink(player, playerId);
+            levelScript.playerThink(player, playerId);
+
             player.update(world, game.getSettings().getScreenMode(), elapsedTime);
             if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
                 player.makeGhost();
             }
+            playerId ++;
         }
 
         world.update(elapsedTime);
@@ -160,6 +171,7 @@ namespace Duel6 {
         }
 
         showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
+        frame++;
     }
 
     void Round::keyEvent(const KeyPressEvent &event) {

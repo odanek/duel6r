@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006, Ondrej Danek (www.ondrej-danek.net)
+* Copyright (c) 2017, Frantisek Veverka
 * All rights reserved.
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -9,7 +9,7 @@
 *     * Redistributions in binary form must reproduce the above copyright
 *       notice, this list of conditions and the following disclaimer in the
 *       documentation and/or other materials provided with the distribution.
-*     * Neither the name of Ondrej Danek nor the
+*     * Neither the name of Frantisek Veverka nor the
 *       names of its contributors may be used to endorse or promote products
 *       derived from this software without specific prior written permission.
 *
@@ -24,30 +24,32 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#pragma once
+#include "../Type.h"
 
-#include "GameSettings.h"
 
-namespace Duel6 {
-    GameSettings::GameSettings()
-            : ammoRange(15, 15), maxRounds(0), screenMode(ScreenMode::FullScreen),
-              screenZoom(13), wireframe(false), showFps(false), showRanking(true),
-              ghostMode(false), shotCollision(ShotCollisionSetting::None), maxFps(60), maxGFps(60),
-              levelSelectionMode(LevelSelectionMode::Random) {}
+namespace Duel6{
 
-    GameSettings &GameSettings::enableWeapon(const Weapon &weapon, bool enable) {
-        if (enable) {
-            enabledWeapons.insert(weapon);
-        } else {
-            enabledWeapons.erase(weapon);
-        }
-        return *this;
-    }
+class PathSegment{
+public:
+	Uint32 id = 0;
+	Uint32 l = 0;
+	Uint32 r = 0;
 
-    bool GameSettings::isWeaponEnabled(const Weapon &weapon) const {
-        return enabledWeapons.find(weapon) != enabledWeapons.end();
-    }
+	Int32 y = 0;
 
-    const GameSettings::EnabledWeapons &GameSettings::getEnabledWeapons() const {
-        return enabledWeapons;
-    }
+	PathSegment(){}
+
+	PathSegment(Uint32 id, Uint32 l, Uint32 r, Int32 y): id(id), l(l), r(r), y(y){}
+
+	// TODO extract scripting-related support functionality
+	// For scripting
+	static PathSegment* factory();
+	static PathSegment* factory(Uint32 id, Uint32 l, Uint32 r, Int32 y);
+	static void constructor(Uint32 id, Uint32 l, Uint32 r, Int32 y, void * self);
+	void addRef();
+	void release();
+private:
+	unsigned int refCounter = 1;
+};
 }

@@ -44,6 +44,7 @@ namespace Duel6 {
         Video video;
         Input input;
         Sound sound;
+        ScriptManager scriptManager;
         AppService service;
         Menu menu;
         GameSettings gameSettings;

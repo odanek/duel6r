@@ -31,8 +31,8 @@
 #include "GameException.h"
 
 namespace Duel6 {
-    Level::Level(const std::string &path, bool mirror, const Block::Meta &blockMeta)
-            : blockMeta(blockMeta) {
+    Level::Level(const std::string &path, bool mirror, const Block::Meta &blockMeta, LevelScript &levelScript, GlobalScript &globalScript)
+    : blockMeta(blockMeta), levelScript(&levelScript), globalScript(&globalScript) {
         load(path, mirror);
     }
 
@@ -56,6 +56,10 @@ namespace Duel6 {
         }
         waterBlock = findWaterType();
         waterLevel = findWaterLevel(waterBlock);
+
+        //Call the script
+        globalScript->mapLoaded(*this);
+        levelScript->mapLoaded(*this);
     }
 
     void Level::mirrorLevelData() {

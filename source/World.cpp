@@ -30,9 +30,9 @@
 #include "Weapon.h"
 
 namespace Duel6 {
-    World::World(Game &game, const std::string &levelPath, bool mirror, Size background)
+    World::World(Game &game, const std::string &levelPath, bool mirror, Size background, LevelScript &levelScript, GlobalScript &globalScript)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
-              level(levelPath, mirror, game.getResources().getBlockMeta()),
+              level(levelPath, mirror, game.getResources().getBlockMeta(), levelScript, globalScript),
               levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               background(background), bonusList(game.getSettings(), game.getResources(), *this),
@@ -50,6 +50,11 @@ namespace Duel6 {
         console.printLine("...Loading elevators");
         elevatorList.load(levelPath, mirror);
         fireList.find(levelRenderData.getSprites());
+    }
+
+    void World::setLevelBlock(Uint16 block, Int32 x, Int32 y) {
+        level.setBlock(block, x, y);
+        levelRenderData.generateFaces();
     }
 
     void World::update(Float32 elapsedTime) {
