@@ -63,11 +63,13 @@ namespace Duel6 {
 
         virtual Rectangle getCollisionRect() const = 0;
 
-        virtual bool requestCollision(const ShotHit &hit) = 0;
+        virtual bool requestCollision(Shot &shot) = 0;
 
         virtual void onHitPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) = 0;
 
         virtual void onKillPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) = 0;
+
+        virtual ShotHit getShotHit() = 0;
     };
 }
 

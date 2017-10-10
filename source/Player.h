@@ -261,7 +261,6 @@ namespace Duel6 {
             Water headUnderWater;
             Water feetInWater;
         };
-
     private:
         Person &person;
         PlayerSkin skin;

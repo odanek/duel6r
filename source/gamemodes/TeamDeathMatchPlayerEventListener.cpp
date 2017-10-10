@@ -41,15 +41,84 @@ namespace Duel6 {
         return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
     }
 
-    void TeamDeathMatchPlayerEventListener::onKillByPlayer(Player &player, Player &killer, Shot &shot, bool suicide) {
+    void TeamDeathMatchPlayerEventListener::onKill(Player &player, Player &killer, Shot &shot, bool suicide) {
         const Team *playerTeam = teamMap.at(&player);
         const Team *killerTeam = teamMap.at(&killer);
 
         if (!suicide && playerTeam == killerTeam) {
-            messageQueue.add(killer, Format("Killed teammate [{0}]") << player.getPerson().getName());
             killer.getPerson().addPenalties(1);
         } else {
-            PlayerEventListener::onKillByPlayer(player, killer, shot, suicide);
+            PlayerEventListener::onKill(player, killer, shot, suicide);
         }
+    }
+
+    void TeamDeathMatchPlayerEventListener::onAssistedSuicide(Player &player, const AssistanceList &assistances) {
+        const Team *playerTeam = teamMap.at(&player);
+        for (auto assistance : assistances) {
+            if(teamMap.at(assistance.player) != playerTeam){
+                assistance.confirm();
+            }
+        }
+    }
+
+    void TeamDeathMatchPlayerEventListener::onAssistedKill(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
+        const Team *playerTeam = teamMap.at(&killed);
+        const Team *killerTeam = teamMap.at(&killer);
+
+        if (playerTeam != killerTeam) {
+            //No assistance points for kamikazed kills
+            if(suicide){
+                return;
+            }
+            for (auto assistance : assistances) {
+                const Team *assistantTeam = teamMap.at(assistance.player);
+                if (killerTeam == assistantTeam) {
+                    assistance.confirm();
+                }
+            }
+        } else {
+            for (auto assistance : assistances) {
+                const Team *assistantTeam = teamMap.at(assistance.player);
+                if (killerTeam != assistantTeam) {
+                    assistance.confirm();
+                }
+            }
+        }
+    }
+
+    void TeamDeathMatchPlayerEventListener::addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
+        if (suicide) {
+            return PlayerEventListener::addKillMessage(killed, killer, assistances, suicide);
+        }
+        const Team *playerTeam = teamMap.at(&killed);
+        const Team *killerTeam = teamMap.at(&killer);
+
+        std::string assistedByMessage = "";
+        std::string killedMessage = "killed";
+
+        AssistanceList filteredAssistances;
+
+        std::function<bool (Assistance)> predicate =([&](Assistance assistance) {return killerTeam == teamMap.at(assistance.player);});
+
+        if (playerTeam == killerTeam) {
+            killedMessage = "killed teammate";
+            predicate = ([&](Assistance assistance) {return killerTeam != teamMap.at(assistance.player);});;
+        }
+        //filter assistants by predicate
+        std::copy_if(assistances.begin(), assistances.end(), std::inserter(filteredAssistances, filteredAssistances.end()), predicate);
+
+        if (filteredAssistances.size() > 0) {
+            bool first = true;
+            for (auto assistance : filteredAssistances) {
+                if (first) {
+                    assistedByMessage = ", assisted by: ";
+                    first = false;
+                } else {
+                    assistedByMessage += ", ";
+                }
+                assistedByMessage += assistance.player->getPerson().getName();
+            }
+        }
+        messageQueue.add(killer, Format("{0} [{1}]{2}") << killedMessage << killed.getPerson().getName() << assistedByMessage);
     }
 }
