@@ -52,7 +52,7 @@
 
 #define D6_LEVEL_EXTENSION       ".json"
 
-#define D6_UPDATE_FREQUENCY      200
+#define D6_UPDATE_FREQUENCY      90
 
 #define D6_SPRITE_SPEED_COEF     61
 
