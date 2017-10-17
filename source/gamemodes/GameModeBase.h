@@ -40,6 +40,8 @@ namespace Duel6 {
         void initializeRound(Game &game, std::vector<Player> &players, World &world) {}
 
         Ranking getRanking(const std::vector<Player> &players) const;
+
+        bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
     };
 }
 
