@@ -71,24 +71,46 @@ namespace Duel6 {
         Int32 maxNameLength = 0;
 
         for (const auto &rankingEntry : ranking) {
-            maxNameLength = std::max(maxNameLength, Int32(5 + rankingEntry.name.size()));
+            maxNameLength = std::max(maxNameLength, Int32(rankingEntry.maxNameLength));
         }
+        maxNameLength += 6;
 
         const PlayerView &view = game.getPlayers().front().getView();
         int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
         int posY = view.getY() + view.getHeight() - 20;
+        Color bgcolor;
 
-        for (const auto &rankingEntry : ranking) {
+        auto renderRankingEntry = [&](const RankingEntry &rankingEntry, int paddingLeft = 0) {
             globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-            globRenderer->quadXY(Vector(posX, posY + 1), Vector(8 * maxNameLength, 14), Color(0, 0, 255, 178));
+            Float32 charHeight = font.getCharHeight();
+            Color fontColor(rankingEntry.color);
+            if(rankingEntry.isSuperEntry()) {
+                fontColor = Color::BLACK;
+                bgcolor = rankingEntry.color.withAlpha(178);
+                charHeight += 2.0f;
+            }
+            globRenderer->quadXY(Vector(posX, posY + 1), Vector(8 * maxNameLength, 16), bgcolor);
             globRenderer->setBlendFunc(Renderer::BlendFunc::None);
 
-            Color fontColor(rankingEntry.color);
-            font.print(posX, posY, fontColor, rankingEntry.name);
-            font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << rankingEntry.points);
 
+            font.print(posX + paddingLeft, posY, 0.0f, fontColor, rankingEntry.name, charHeight);
+            font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << rankingEntry.points);
+            if(rankingEntry.isSuperEntry()) {
+                // little hack to have team boxes nicely colored, this value gets reused in later iteration,
+                // it's not nice, but it works
+                bgcolor = rankingEntry.color.scale(0.2f).withAlpha(178);
+            }
             posY -= 16;
+        };
+
+        for (const auto &rankingEntry : ranking) {
+            bgcolor = Color(0, 0, 255, 178);
+            renderRankingEntry(rankingEntry);
+            for (const auto &nestedRankingEntry : rankingEntry.entries) {
+                renderRankingEntry(nestedRankingEntry, 5);
+            }
         }
+
     }
 
     void WorldRenderer::roundOverSummary() const {

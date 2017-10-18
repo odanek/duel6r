@@ -31,14 +31,30 @@
 #include <string>
 #include <vector>
 #include "Color.h"
+#include "Type.h"
 
 namespace Duel6 {
     struct RankingEntry {
         std::string name;
         Int32 points;
         Color color;
-    };
+        std::vector<RankingEntry> entries;
+        Size maxNameLength;
 
+        RankingEntry(std::string name, Int32 points, Color color) :
+                name(name), points(points), color(color), maxNameLength(name.length()) {}
+
+        void addSubEntry(RankingEntry && subEntry) {
+            entries.emplace_back(subEntry);
+            if(subEntry.maxNameLength > maxNameLength) {
+                maxNameLength = subEntry.maxNameLength;
+            }
+        }
+
+        bool isSuperEntry() const {
+            return entries.size() > 0;
+        }
+    };
     typedef std::vector<RankingEntry> Ranking;
 }
 

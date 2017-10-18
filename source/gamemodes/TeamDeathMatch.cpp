@@ -100,7 +100,7 @@ namespace Duel6 {
 
     Ranking TeamDeathMatch::getRanking(const std::vector<Player> &players) const {
         Ranking ranking;
-
+        ranking.reserve(teamsCount);
         Size index = 0;
         for (const auto &player : players) {
             Size teamIndex = index % teamsCount;
@@ -110,6 +110,8 @@ namespace Duel6 {
             } else {
                 ranking.push_back(RankingEntry{team.name, player.getPerson().getTotalPoints(), team.color});
             }
+            Color color(255, player.isAlive() ? 255 : 0, 0);
+            ranking[teamIndex].addSubEntry(RankingEntry(player.getPerson().getName(), player.getPerson().getTotalPoints(), color));
             index++;
         }
 
@@ -117,6 +119,11 @@ namespace Duel6 {
             return left.points > right.points;
         });
 
+        for (auto & entry : ranking) {
+            std::sort(entry.entries.begin(), entry.entries.end(), [](const RankingEntry &left, const RankingEntry &right) {
+                return left.points > right.points;
+            });
+        }
         return ranking;
     }
 
