@@ -119,4 +119,23 @@ namespace Duel6 {
 
         return ranking;
     }
+
+    bool TeamDeathMatch::checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const {
+        std::vector<Uint32> teamCounts(teamsCount, 0);
+        Size index = 0;
+        for(auto const &player: world.getPlayers()) {
+            Size teamIndex = index % teamsCount;
+            if(player.isAlive()) {
+                teamCounts[teamIndex]++;
+            }
+            index++;
+        }
+        for(auto count: teamCounts){
+            if(count < 2) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

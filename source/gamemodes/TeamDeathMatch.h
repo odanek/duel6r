@@ -57,6 +57,8 @@ namespace Duel6 {
 
         Ranking getRanking(const std::vector<Player> &players) const override;
 
+        bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
+
     private:
         const Team &getPlayerTeam(Size playerIndex);
     };

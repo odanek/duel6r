@@ -119,7 +119,8 @@ namespace Duel6 {
                 alivePlayers.push_back(&player);
             }
         }
-        if (alivePlayers.size() == 2 && allPlayers.size() > 2) {
+
+        if (!suddenDeathMode && game.getMode().checkForSuddenDeathMode(world, alivePlayers)) {
             suddenDeathMode = true;
         }
 
