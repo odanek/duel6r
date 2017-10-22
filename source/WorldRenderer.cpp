@@ -68,49 +68,33 @@ namespace Duel6 {
 
     void WorldRenderer::playerRankings() const {
         Ranking ranking = game.getMode().getRanking(game.getPlayers());
-        Int32 maxNameLength = 0;
-
-        for (const auto &rankingEntry : ranking) {
-            maxNameLength = std::max(maxNameLength, Int32(rankingEntry.maxNameLength));
-        }
-        maxNameLength += 6;
+        Int32 maxNameLength = ranking.getMaxLength() + 6;
 
         const PlayerView &view = game.getPlayers().front().getView();
-        int posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
-        int posY = view.getY() + view.getHeight() - 20;
+        Int32 posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
+        Int32 posY = view.getY() + view.getHeight() - 20;
         Color bgcolor;
 
-        auto renderRankingEntry = [&](const RankingEntry &rankingEntry, int paddingLeft = 0) {
-            globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-            Float32 charHeight = font.getCharHeight();
-            Color fontColor(rankingEntry.color);
-            if(rankingEntry.isSuperEntry()) {
-                fontColor = Color::BLACK;
-                bgcolor = rankingEntry.color.withAlpha(178);
-                charHeight += 2.0f;
-            }
-            globRenderer->quadXY(Vector(posX, posY + 1), Vector(8 * maxNameLength, 16), bgcolor);
-            globRenderer->setBlendFunc(Renderer::BlendFunc::None);
-
-
-            font.print(posX + paddingLeft, posY, 0.0f, fontColor, rankingEntry.name, charHeight);
-            font.print(posX + 8 * (maxNameLength - 5), posY, fontColor, Format("|{0,4}") << rankingEntry.points);
-            if(rankingEntry.isSuperEntry()) {
-                // little hack to have team boxes nicely colored, this value gets reused in later iteration,
-                // it's not nice, but it works
-                bgcolor = rankingEntry.color.scale(0.2f).withAlpha(178);
-            }
-            posY -= 16;
-        };
-
-        for (const auto &rankingEntry : ranking) {
-            bgcolor = Color(0, 0, 255, 178);
-            renderRankingEntry(rankingEntry);
-            for (const auto &nestedRankingEntry : rankingEntry.entries) {
-                renderRankingEntry(nestedRankingEntry, 5);
+        for (const auto &entry : ranking.entries) {
+            posY = renderRankingEntry(entry, posX, posY, maxNameLength);
+            for (const auto &nestedRankingEntry : entry.entries) {
+                posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxNameLength);
             }
         }
+    }
 
+    Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength) const {
+        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        Float32 charHeight = font.getCharHeight();
+        Color fontColor(entry.fontColor);
+        globRenderer->quadXY(Vector(posX, posY + 1), Vector(8 * maxLength, 16), entry.bcgColor);
+
+        Int32 paddingLeft = entry.isSuperEntry() ? 0 : 5;
+        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        font.print(posX + paddingLeft, posY, 0.0f, fontColor, entry.name, charHeight);
+        font.print(posX + 8 * (maxLength - 5), posY, fontColor, Format("|{0,4}") << entry.points);
+
+        return posY - 16;
     }
 
     void WorldRenderer::roundOverSummary() const {
@@ -157,9 +141,9 @@ namespace Duel6 {
         int ladderY = y + height - 50;
 
         Ranking ranking = game.getMode().getRanking(game.getPlayers());
-        for (const auto &rankingEntry : ranking) {
-            font.print(x + 10, ladderY - 16 * count, fontColor, rankingEntry.name);
-            font.print(x + width - 40, ladderY - 16 * count, fontColor, Format("{0,4}") << rankingEntry.points);
+        for (const auto &entry : ranking.entries) {
+            font.print(x + 10, ladderY - 16 * count, fontColor, entry.name);
+            font.print(x + width - 40, ladderY - 16 * count, fontColor, Format("{0,4}") << entry.points);
             count++;
         }
     }

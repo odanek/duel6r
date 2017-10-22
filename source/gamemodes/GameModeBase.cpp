@@ -40,8 +40,9 @@ namespace Duel6 {
 
         Ranking result;
         for (auto &player : ranking) {
-            Color color(255, player->isAlive() ? 255 : 0, 0);
-            result.push_back(RankingEntry{player->getPerson().getName(), player->getPerson().getTotalPoints(), color});
+            Color fontColor(255, player->isAlive() ? 255 : 0, 0);
+            Color bcgColor = Color(0, 0, 255, 178);;
+            result.entries.push_back(Ranking::Entry{player->getPerson().getName(), player->getPerson().getTotalPoints(), fontColor, bcgColor});
         }
 
         return result;

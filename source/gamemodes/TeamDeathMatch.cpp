@@ -35,6 +35,10 @@ namespace Duel6 {
                 {"Charlie", Color(255, 255, 0)},
                 {"Delta",   Color(255, 0, 255)}
         };
+
+        bool rankingComparator(const Ranking::Entry &left, const Ranking::Entry &right) {
+            return left.points > right.points;
+        }
     }
 
     const Team &TeamDeathMatch::getPlayerTeam(Size playerIndex) {
@@ -100,45 +104,48 @@ namespace Duel6 {
 
     Ranking TeamDeathMatch::getRanking(const std::vector<Player> &players) const {
         Ranking ranking;
-        ranking.reserve(teamsCount);
-        Size index = 0;
+
+        for (Size teamIndex = 0; teamIndex < teamsCount; teamIndex++) {
+            const Team &team = TEAMS[teamIndex];
+            Color bcgColor = team.color.withAlpha(178);
+            ranking.entries.push_back(Ranking::Entry{team.name, 0, Color::BLACK, bcgColor});
+        }
+
+        Int32 index = 0;
         for (const auto &player : players) {
             Size teamIndex = index % teamsCount;
-            const Team &team = TEAMS[teamIndex];
-            if (teamIndex < ranking.size()) {
-                ranking[teamIndex].points += player.getPerson().getTotalPoints();
-            } else {
-                ranking.push_back(RankingEntry{team.name, player.getPerson().getTotalPoints(), team.color});
-            }
-            Color color(255, player.isAlive() ? 255 : 0, 0);
-            ranking[teamIndex].addSubEntry(RankingEntry(player.getPerson().getName(), player.getPerson().getTotalPoints(), color));
+            Ranking::Entry &teamEntry = ranking.entries[teamIndex];
+
+            teamEntry.points += player.getPerson().getTotalPoints();
+            Color fontColor(255, player.isAlive() ? 255 : 0, 0);
+            Color bcgColor = teamEntry.bcgColor.scale(0.2f);
+
+            Ranking::Entry entry(player.getPerson().getName(), player.getPerson().getTotalPoints(), fontColor,
+                                 bcgColor);
+            teamEntry.addSubEntry(entry);
             index++;
         }
 
-        std::sort(ranking.begin(), ranking.end(), [](const RankingEntry &left, const RankingEntry &right) {
-            return left.points > right.points;
-        });
-
-        for (auto & entry : ranking) {
-            std::sort(entry.entries.begin(), entry.entries.end(), [](const RankingEntry &left, const RankingEntry &right) {
-                return left.points > right.points;
-            });
+        std::sort(ranking.entries.begin(), ranking.entries.end(), rankingComparator);
+        for (auto &entry : ranking.entries) {
+            std::sort(entry.entries.begin(), entry.entries.end(), rankingComparator);
         }
+
         return ranking;
     }
 
     bool TeamDeathMatch::checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const {
         std::vector<Uint32> teamCounts(teamsCount, 0);
         Size index = 0;
-        for(auto const &player: world.getPlayers()) {
+        for (auto const &player: world.getPlayers()) {
             Size teamIndex = index % teamsCount;
-            if(player.isAlive()) {
+            if (player.isAlive()) {
                 teamCounts[teamIndex]++;
             }
             index++;
         }
-        for(auto count: teamCounts){
-            if(count < 2) {
+        for (auto count: teamCounts) {
+            if (count < 2) {
                 return true;
             }
         }

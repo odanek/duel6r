@@ -89,7 +89,7 @@ namespace Duel6 {
         this->gunSprite = world.getSpriteList().addSprite(gunSprite);
 
         flags = FlagHasGun;
-        orientation = Orientation::Left;
+        orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
         timeToReload = 0;
         life = D6_MAX_LIFE;
         air = D6_MAX_AIR;

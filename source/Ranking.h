@@ -34,28 +34,46 @@
 #include "Type.h"
 
 namespace Duel6 {
-    struct RankingEntry {
-        std::string name;
-        Int32 points;
-        Color color;
-        std::vector<RankingEntry> entries;
-        Size maxNameLength;
+    class Ranking {
+    public:
+        class Entry {
+        public:
+            std::string name;
+            Int32 points;
+            Color fontColor;
+            Color bcgColor;
+            std::vector<Entry> entries;
 
-        RankingEntry(std::string name, Int32 points, Color color) :
-                name(name), points(points), color(color), maxNameLength(name.length()) {}
+        public:
+            Entry(const std::string &name, Int32 points, const Color &fontColor, const Color &bcgColor)
+                    : name(name), points(points), fontColor(fontColor), bcgColor(bcgColor), entries() {}
 
-        void addSubEntry(RankingEntry && subEntry) {
-            entries.emplace_back(subEntry);
-            if(subEntry.maxNameLength > maxNameLength) {
-                maxNameLength = subEntry.maxNameLength;
+            void addSubEntry(const Entry &subEntry) {
+                entries.push_back(subEntry);
             }
-        }
 
-        bool isSuperEntry() const {
-            return entries.size() > 0;
+            bool isSuperEntry() const {
+                return entries.size() > 0;
+            }
+        };
+
+    public:
+        std::vector<Entry> entries;
+
+    public:
+        Ranking() = default;
+
+        Int32 getMaxLength() {
+            Int32 maxLength = 0;
+            for (auto &entry : entries) {
+                maxLength = std::max(maxLength, Int32(entry.name.size()));
+                for (auto &subEntry : entry.entries) {
+                    maxLength = std::max(maxLength, Int32(subEntry.name.size()));
+                }
+            }
+            return maxLength;
         }
     };
-    typedef std::vector<RankingEntry> Ranking;
 }
 
 #endif

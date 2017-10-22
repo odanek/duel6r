@@ -37,6 +37,7 @@
 #include "GameResources.h"
 #include "FaceList.h"
 #include "ShotList.h"
+#include "Ranking.h"
 
 namespace Duel6 {
     class Game;
@@ -73,6 +74,8 @@ namespace Duel6 {
         void background(Texture texture) const;
 
         void playerRankings() const;
+
+        Int32 renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength) const;
 
         void roundOverSummary() const;
 
