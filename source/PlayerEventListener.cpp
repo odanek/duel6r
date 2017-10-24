@@ -38,17 +38,19 @@ namespace Duel6 {
             attackers[&player][&shootingPlayer].totalDamage += causedDamage;
             attackers[&player][&shootingPlayer].player = &shootingPlayer;
             ShotHit hit = shot.getShotHit();
-            if(hit.player != nullptr && !player.is(*hit.player)) {
+            if (hit.collidingPlayer != nullptr && !player.is(*hit.collidingPlayer)) {
                 // Player detonating the missile gets the assistance
-                attackers[&player][hit.player].hits++;
-                attackers[&player][hit.player].totalDamage += causedDamage;
-                attackers[&player][hit.player].player = hit.player;
+                auto &entry = attackers[&player][hit.collidingPlayer];
+                entry.hits++;
+                entry.totalDamage += causedDamage;
+                entry.player = hit.collidingPlayer;
             }
-            if(hit.shot != nullptr && !player.is(hit.shot->getPlayer())) {
-                // Player shooting down a missile gets the  assistance
-                attackers[&player][&hit.shot->getPlayer()].hits++;
-                attackers[&player][&hit.shot->getPlayer()].totalDamage += causedDamage;
-                attackers[&player][&hit.shot->getPlayer()].player = &hit.shot->getPlayer();
+            if (hit.collidingShotPlayer != nullptr && !player.is(*hit.collidingShotPlayer)) {
+                // Player shooting down a missile gets the assistance
+                auto &entry = attackers[&player][hit.collidingShotPlayer];
+                entry.hits++;
+                entry.totalDamage += causedDamage;
+                entry.player = hit.collidingShotPlayer;
             }
         }
         player.addLife(-amount);
@@ -68,13 +70,13 @@ namespace Duel6 {
 
         auto qualifiedAssistances = getQualifiedAssistances(assistants);
 
-        if(qualifiedAssistances.size() > 0){
+        if (qualifiedAssistances.size() > 0) {
             onAssistedKill(player, killer, qualifiedAssistances, suicide);
         }
         addKillMessage(player, killer, qualifiedAssistances, suicide);
     }
 
-    void PlayerEventListener::onKill(Player &player, Player &killer, Shot &shot, bool suicide){
+    void PlayerEventListener::onKill(Player &player, Player &killer, Shot &shot, bool suicide) {
         if (suicide) {
             if (gameSettings.getScreenMode() == ScreenMode::SplitScreen) {
                 messageQueue.add(player, Format("killed by suicide of [{0}]") << killer.getPerson().getName());
@@ -89,7 +91,8 @@ namespace Duel6 {
         }
     }
 
-    void PlayerEventListener::addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
+    void PlayerEventListener::addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances,
+                                             bool suicide) {
         if (suicide) {
             //handled by addSuicideMessage()
         } else {
@@ -126,7 +129,8 @@ namespace Duel6 {
         addSuicideMessage(player, qualifiedAssistances, playersKilled);
     }
 
-    void PlayerEventListener::addSuicideMessage(Player &player, const AssistanceList &assistances, std::vector<Player *> &playersKilled) {
+    void PlayerEventListener::addSuicideMessage(Player &player, const AssistanceList &assistances,
+                                                std::vector<Player *> &playersKilled) {
         std::string assistedMessage = "";
         std::string killedAlsoMessage = "";
 
@@ -144,8 +148,8 @@ namespace Duel6 {
         }
 
         bool first = true;
-        for (auto killed: playersKilled){
-            if(killed != &player){
+        for (auto killed: playersKilled) {
+            if (killed != &player) {
                 if (first) {
                     first = false;
                     killedAlsoMessage = ", killed also: ";
@@ -169,7 +173,8 @@ namespace Duel6 {
         player.getPerson().addWins(1);
     }
 
-    void PlayerEventListener::onAssistedKill(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
+    void PlayerEventListener::onAssistedKill(Player &killed, Player &killer, const AssistanceList &assistances,
+                                             bool suicide) {
         for (auto assistance : assistances) {
             assistance.confirm();
         }
@@ -177,8 +182,8 @@ namespace Duel6 {
 
     PlayerEventListener::AssistanceList PlayerEventListener::getQualifiedAssistances(const AssistantsMap &assistants) {
         AssistanceList qualifiedAssistances;
-        for(auto assistant : assistants) {
-            if(assistant.second.totalDamage > D6_MAX_LIFE * 0.4) {
+        for (auto assistant : assistants) {
+            if (assistant.second.totalDamage > D6_MAX_LIFE * 0.4) {
                 qualifiedAssistances.push_back(assistant.second);
             }
         }

@@ -377,6 +377,8 @@ namespace Duel6 {
     }
 
     void Menu::detectControls(Size playerIndex) {
+        render();
+
         const std::string &name = listbox[CUR_PLAYERS_LIST]->getItem(playerIndex);
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);

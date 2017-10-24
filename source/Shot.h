@@ -45,8 +45,8 @@ namespace Duel6 {
 
     struct ShotHit {
         bool hit; // TODO: Remove and use C++17 std::optional
-        Player *player;
-        Shot *shot;
+        Player *collidingPlayer;
+        Player *collidingShotPlayer;
     };
 
     class Shot {
