@@ -29,17 +29,17 @@
 
 namespace Duel6 {
     namespace {
-        std::vector<Team> TEAMS = {
-                {"Alpha",   Color(255, 0, 0)},
-                {"Bravo",   Color(0, 255, 0)},
-                {"Charlie", Color(255, 255, 0)},
-                {"Delta",   Color(255, 0, 255)}
-        };
-
         bool rankingComparator(const Ranking::Entry &left, const Ranking::Entry &right) {
             return left.points > right.points;
         }
     }
+
+    std::vector<Team> TEAMS = {
+            {"Alpha",   Color(255, 0, 0)},
+            {"Bravo",   Color(0, 255, 0)},
+            {"Charlie", Color(255, 255, 0)},
+            {"Delta",   Color(255, 0, 255)}
+    };
 
     const Team &TeamDeathMatch::getPlayerTeam(Size playerIndex) {
         Size playerTeam = playerIndex % teamsCount;

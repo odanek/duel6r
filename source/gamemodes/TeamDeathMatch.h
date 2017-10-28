@@ -34,7 +34,6 @@
 
 namespace Duel6 {
     class TeamDeathMatch : public GameModeBase {
-
     private:
         Size teamsCount;
         bool friendlyFire;

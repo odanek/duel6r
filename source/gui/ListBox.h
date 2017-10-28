@@ -37,11 +37,18 @@ namespace Duel6 {
         class ListBox
                 : public Control {
         public:
-            typedef std::function<void(ListBox &listBox, Int32 index, const std::string &item)> ClickCallback;
+            struct ItemColor {
+                Color font;
+                Color background;
+            };
+
+            typedef std::function<void(Int32 index, const std::string &item)> ClickCallback;
+            typedef std::function<ItemColor(Int32 index, const std::string& label)> ColorizeCallback;
 
         private:
             std::vector<ClickCallback> selectListeners;
             std::vector<ClickCallback> doubleClickListeners;
+            ColorizeCallback colorizeCallback;
             bool scrollBar;
             Slider *slider;
             Int32 width;
@@ -91,6 +98,13 @@ namespace Duel6 {
                 doubleClickListeners.push_back(listener);
                 return *this;
             }
+
+            ListBox &onColorize(ColorizeCallback callback) {
+                colorizeCallback = callback;
+                return *this;
+            }
+
+            static ItemColor defaultColorize(Int32 index, const std::string& label);
 
         protected:
             void mouseButtonEvent(const MouseButtonEvent &event) override;

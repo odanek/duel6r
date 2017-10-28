@@ -41,5 +41,6 @@ namespace Duel6 {
     };
 
     typedef std::unordered_map<const Player *, const Team *> TeamMap;
+    extern std::vector<Team> TEAMS;
 }
 #endif

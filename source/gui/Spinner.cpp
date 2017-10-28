@@ -32,7 +32,7 @@ namespace Duel6 {
     namespace Gui {
         Spinner::Spinner(Desktop &desk)
                 : Control(desk) {
-            now = -1;
+            selectedIndex = -1;
 
             left = new Button(desk);
             left->setCaption(" ");
@@ -46,30 +46,39 @@ namespace Duel6 {
 
         void Spinner::clear() {
             items.clear();
-            now = -1;
+            setCurrent(-1);
         }
 
         Int32 Spinner::currentItem() {
-            return now;
+            return selectedIndex;
         }
 
-        void Spinner::setCurrent(Int32 n) {
-            now = n;
+        void Spinner::setCurrent(Int32 index) {
+            Int32 itemCount = items.size();
+            if ((index >= 0 && index < itemCount) || (index == -1 && itemCount == 0)) {
+                selectedIndex = index;
+                for (auto &listener : toggleListeners) {
+                    listener(selectedIndex);
+                }
+            }
         }
 
         void Spinner::removeItem(Int32 n) {
-            if (n < 0 || n >= (Int32) items.size())
+            Int32 itemCount = items.size();
+            if (n < 0 || n >= itemCount)
                 return;
 
             items.erase(items.begin() + n);
-            if (now >= (Int32) items.size())
-                now = Int32(items.size()) - 1;
+            itemCount--;
+
+            if (selectedIndex >= itemCount)
+                setCurrent(itemCount - 1);
         }
 
         void Spinner::addItem(const std::string &item) {
             items.push_back(item);
             if (items.size() == 1) {
-                now = 0;
+                setCurrent(0);
             }
         }
 
@@ -88,26 +97,24 @@ namespace Duel6 {
                 if (repeatWait > 0.0f) {
                     repeatWait -= elapsedTime;
                 } else {
-                    if (left->isPressed() && now > 0) {
+                    if (left->isPressed()) {
                         repeatWait = 0.3f;
-                        now--;
+                        setCurrent(selectedIndex - 1);
                     }
-                    if (right->isPressed() && now + 1 < (Int32) items.size()) {
+                    if (right->isPressed()) {
                         repeatWait = 0.3f;
-                        now++;
+                        setCurrent(selectedIndex + 1);
                     }
                 }
             }
         }
 
         void Spinner::draw(const Font &font) const {
-            int px, py;
-
             drawFrame(x + 20, y, width - 40, 18, true);
             globRenderer->quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
 
-            px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
-            py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
+            Int32 px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
+            Int32 py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
             globRenderer->triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);
 
             px = right->getX() + 7 + (right->isPressed() ? 1 : 0);
@@ -117,7 +124,7 @@ namespace Duel6 {
             if (items.empty())
                 return;
 
-            font.print(x + 25, y - 15, Color(0), items[now]);
+            font.print(x + 25, y - 15, Color::BLACK, items[selectedIndex]);
         }
     }
 }

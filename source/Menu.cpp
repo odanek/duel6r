@@ -99,13 +99,13 @@ namespace Duel6 {
 
         listbox[ALL_PLAYER_LIST] = new Gui::ListBox(gui, true);
         listbox[ALL_PLAYER_LIST]->setPosition(10, 539, 20, 15, 18);
-        listbox[ALL_PLAYER_LIST]->onDoubleClick([this](Gui::ListBox &listBox, Int32 index, const std::string &item) {
+        listbox[ALL_PLAYER_LIST]->onDoubleClick([this](Int32 index, const std::string &item) {
             addPlayer(index);
         });
 
         listbox[CUR_PLAYERS_LIST] = new Gui::ListBox(gui, false);
         listbox[CUR_PLAYERS_LIST]->setPosition(200, 541, 20, D6_MAX_PLAYERS, 18);
-        listbox[CUR_PLAYERS_LIST]->onDoubleClick([this](Gui::ListBox &listBox, Int32 index, const std::string &item) {
+        listbox[CUR_PLAYERS_LIST]->onDoubleClick([this](Int32 index, const std::string &item) {
             removePlayer(index);
         });
 
@@ -119,6 +119,7 @@ namespace Duel6 {
         listbox[5]->setPosition(654, 541, 19, 2, 16);
         listbox[5]->addItem("Fullscreen");
         listbox[5]->addItem("Split screen");
+        listbox[5]->selectItem(0);
 
         listbox[6] = new Gui::ListBox(gui, true);
         listbox[6]->setPosition(520, 541, 13, 7, 16);
@@ -214,7 +215,7 @@ namespace Duel6 {
         textbox = new Gui::Textbox(gui);
         textbox->setPosition(370, 252, 14, 10, D6_ALL_CHR);
 
-        // Switchbox - volba ovladani
+        // Player controls
         for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
             controlSwitch[i] = new Gui::Spinner(gui);
             controlSwitch[i]->setPosition(370, 539 - Int32(i) * 18, 120, 0);
@@ -245,6 +246,16 @@ namespace Duel6 {
             gameModeSwitch->addItem(gameMode->getName());
         }
         gameModeSwitch->setPosition(10, 0, 330, 20);
+        gameModeSwitch->onToggled([this](Int32 selectedIndex) {
+            if (selectedIndex < 2) {
+                listbox[CUR_PLAYERS_LIST]->onColorize(Gui::ListBox::defaultColorize);
+            } else {
+                Int32 teamCount = 1 + selectedIndex / 2;
+                listbox[CUR_PLAYERS_LIST]->onColorize([teamCount](Int32 index, const std::string& label) {
+                    return Gui::ListBox::ItemColor{Color::BLACK, TEAMS[index % teamCount].color};
+                });
+            }
+        });
 
         joyRescan();
 
@@ -255,11 +266,13 @@ namespace Duel6 {
         for (Size i = 0; i < levelList.getLength(); i++) {
             listbox[3]->addItem(levelList.getFileName(i).substr(0, levelList.getFileName(i).rfind(".")));
         }
+        listbox[3]->selectItem(0);
 
         listbox[4]->addItem("Random");
         for (Size i = 0; i < backgroundCount; i++) {
             listbox[4]->addItem(std::to_string(i + 1));
         }
+        listbox[4]->selectItem(0);
 
         for (Int32 i = 5; i < 21; i++) {
             listbox[6]->addItem(std::to_string(i));
