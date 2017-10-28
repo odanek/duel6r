@@ -32,7 +32,7 @@
 #include "Type.h"
 #include "Color.h"
 #include "TextureManager.h"
-#include "Vector.h"
+#include "math/Vector.h"
 #include "GameResources.h"
 
 namespace Duel6 {

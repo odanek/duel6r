@@ -28,7 +28,7 @@
 #ifndef DUEL6_RECTANGLE_H
 #define DUEL6_RECTANGLE_H
 
-#include "Vector.h"
+#include "math/Vector.h"
 
 namespace Duel6 {
     class Rectangle {

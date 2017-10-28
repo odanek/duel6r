@@ -29,7 +29,7 @@
 #define DUEL6_SHOT_H
 
 #include "Type.h"
-#include "Vector.h"
+#include "math/Vector.h"
 #include "Rectangle.h"
 
 namespace Duel6 {

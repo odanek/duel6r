@@ -26,7 +26,7 @@
 */
 
 #include "Elevator.h"
-#include "Math.h"
+#include "math/Math.h"
 #include "Video.h"
 
 #define D6_ELEV_SPEED 1.83f

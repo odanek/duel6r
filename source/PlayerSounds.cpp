@@ -31,7 +31,7 @@
 #include "Defines.h"
 #include "EnumClassHash.h"
 #include "PlayerSounds.h"
-#include "Math.h"
+#include "math/Math.h"
 
 namespace Duel6 {
     namespace {

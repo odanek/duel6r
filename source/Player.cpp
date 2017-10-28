@@ -36,7 +36,7 @@
 #include "Weapon.h"
 #include "ElevatorList.h"
 #include "Explosion.h"
-#include "Math.h"
+#include "math/Math.h"
 #include "Video.h"
 #include "PlayerEventListener.h"
 

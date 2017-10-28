@@ -30,7 +30,7 @@
 
 #include <vector>
 #include "Type.h"
-#include "Vector.h"
+#include "math/Vector.h"
 #include "Texture.h"
 
 namespace Duel6 {

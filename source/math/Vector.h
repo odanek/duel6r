@@ -25,12 +25,12 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_VECTOR_H
-#define DUEL6_VECTOR_H
+#ifndef DUEL6_MATH_VECTOR_H
+#define DUEL6_MATH_VECTOR_H
 
 #include <algorithm>
 #include "Math.h"
-#include "Type.h"
+#include "../Type.h"
 
 namespace Duel6 {
     class Vector {

@@ -29,7 +29,7 @@
 #define DUEL6_LEGACYSHOT_H
 
 #include "../Weapon.h"
-#include "../Vector.h"
+#include "../math/Vector.h"
 #include "../SpriteList.h"
 #include "../Player.h"
 #include "../ShotList.h"

@@ -84,8 +84,8 @@ set(D6R_SOURCES
     source/Bonus.cpp
     source/BonusList.h
     source/BonusList.cpp
-	source/Camera.h
-	source/Camera.cpp
+        source/math/Camera.h
+        source/math/Camera.cpp
     source/Color.h
     source/Color.cpp
     source/ConsoleCommands.h
@@ -139,10 +139,10 @@ set(D6R_SOURCES
     source/LevelRenderData.cpp
     source/Main.cpp
 	source/Material.h
-    source/Math.h
-    source/Math.cpp
-	source/Matrix.h
-	source/Matrix.cpp
+		source/math/Math.h
+		source/math/Math.cpp
+		source/math/Matrix.h
+		source/math/Matrix.cpp
     source/Menu.h
     source/Menu.cpp
     source/msdir.c
@@ -189,8 +189,8 @@ set(D6R_SOURCES
     source/Type.h
     source/Util.h
     source/Util.cpp
-    source/Vector.h
-    source/Vector.cpp
+		source/math/Vector.h
+		source/math/Vector.cpp
     source/Vertex.h
     source/Video.h
     source/Video.cpp

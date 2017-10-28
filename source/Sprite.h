@@ -33,7 +33,7 @@
 #include "AnimationLooping.h"
 #include "Orientation.h"
 #include "TextureManager.h"
-#include "Vector.h"
+#include "math/Vector.h"
 
 namespace Duel6 {
     class Sprite {

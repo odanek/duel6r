@@ -25,14 +25,14 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_MATH_H
-#define DUEL6_MATH_H
+#ifndef DUEL6_MATH_MATH_H
+#define DUEL6_MATH_MATH_H
 
 #include <random>
 #include <string>
 #include <cstdlib>
 #include <cmath>
-#include "Type.h"
+#include "../Type.h"
 
 namespace Duel6 {
     class Math {

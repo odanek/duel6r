@@ -75,7 +75,7 @@ namespace Duel6 {
 
         // Allocate channels
         channels = Mix_AllocateChannels(channels);
-        console.print(Format("...Frequency: {0}\n...Channels: {0}\n") << MIX_DEFAULT_FREQUENCY << channels);
+        console.print(Format("...Frequency: {0}\n...Channels: {1}\n") << MIX_DEFAULT_FREQUENCY << channels);
     }
 
     Sound::~Sound() {

@@ -27,7 +27,7 @@
 
 #include "json/JsonParser.h"
 #include "PlayerSkinColors.h"
-#include "Math.h"
+#include "math/Math.h"
 
 namespace Duel6 {
     namespace {

@@ -29,8 +29,8 @@
 #define DUEL6_RENDERER_RENDERER_H
 
 #include <vector>
-#include "../Vector.h"
-#include "../Matrix.h"
+#include "../math/Vector.h"
+#include "../math/Matrix.h"
 #include "../Color.h"
 #include "../Texture.h"
 #include "../Image.h"
