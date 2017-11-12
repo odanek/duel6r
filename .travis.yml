@@ -1,17 +1,16 @@
 language: cpp
 dist: trusty
 compiler:
-- clang
+- gcc
 before_install:
-- yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
-- yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+- sudo add-apt-repository -y ppa:zoogie/sdl2-snapshots
+- sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 - sudo apt-get update -qq
 install:
-- sudo apt-get install -qq clang++-4.0
+- sudo apt-get install -qq g++-6
 - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
 before_script:
-- export CC=gcc-4.9
-- export CXX="clang++-4.0"
 - mkdir build
 - cd build
 - cmake ..
