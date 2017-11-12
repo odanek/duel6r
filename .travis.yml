@@ -1,37 +1,29 @@
 language: cpp
-
+dist: trusty
 compiler:
 - gcc
-
 before_install:
 - yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
 - yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-- yes | sudo add-apt-repository ppa:george-edison55/precise-backports
 - sudo apt-get update -qq
-- yes | sudo apt-get remove cmake
-
 install:
+- sudo apt-get install -qq gcc-4.9 gcc-4.9-base g++-4.9 cpp-4.9
 - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
-  gcc-4.9 gcc-4.9-base g++-4.9 cpp-4.9 cmake cmake-data
-
 before_script:
-  - mkdir build
-  - cd build
-  - export CC=gcc-4.9
-  - export CXX=g++-4.9
-  - cmake ..
-
+- export CC=gcc-4.9
+- export CXX=g++-4.9
+- mkdir build
+- cd build
+- cmake ..
 script: make
-
 notifications:
   email: false
-
+before_deploy: "zip -r duel-nightly duel6r ../resources/*"
 deploy:
-  edge: true
   provider: releases
   api_key:
-    secure: COsSLl24EFW0JslRk/LjdeakLyXrMFyawECDXOe5wYa96Jp4Xs49AowR6YS/jvFjwDcoNdHf3LCC8q+xGMB5E03XsVZw3lr0AZmtITwsl84AfJ8oDGfMX+dXaucyL+IPAGQXeJyP6pgYEoR+wAjWVj1xZ63ocXkR96YyCPbd4zKPfU8MGkGGoAfHg7dIIApg//bLdCm8m6jJlgEC9Ie6eYyWLpCDWDiB7he54llOpmVG8NoEiAfPDHZreDdCZhiU1vLlgWbpRcx1KOypAedpnd94ydpW6veZn/n8pi1rvUawWaIoI0zrY1ovMpLUR5QQvFmeQjZ3iOC0ZCRKWjo5iceVRUIbL3g5mMuHs5Pj+Wis1Lu9UngJLE11dg3lNBlCX4xs0zwCANzTgFSz/88CJH9XcGnVRi6WdbYegah59YoVTfddI5s4kGsu4baOVfOsN/T+2FsJHarGb1fVCayfRS8x/tdz9kgMncEFCmdMI5ZT/XRAfm6ogI72EQKy8X3a7aA0+52xnclgjCOOa0zfIB3898ftUXl9p2SNoIszXtn0RDkLptn9lBjsVXqOilvCaxAh61duc4jDNtQRUVxOinvQtx6EpXqktlb3FM4Mv5Hhn95F4+VxismgJEiWYxVAGeAjGk1hAeResaUbLH5XQfMdNIMuBREgbONMBOT4BKA=
-  file: "build/duel6r"
+    secure: eY/cYZeoK2oibIUI4yPtG3LeRgolXysnelDCEYboX21TTN2nc9SdrwtYrUlwiIdZB1WEiac1E/Ialc/h869ipM8LLSO/XOR5bJCggS8Wl9KdET+zTSHuRLwMyLaNqPP85iNlwgQQGbsd4osffH0KWuZxPDMmiVwPwyN2EjBI421MUBxuj5ln48wN7/q29NYXNF+cTEWn1/9v0JtIzmWwOWMXB1jOHDRUr50jIvdKB84MNGi14gBTB9WPD7dHFRZSbvhOIEwhM5J1pBU5XPAy4lsVHR7IrOHlxU8r3GUkqdh4isymhSPWjmwn3sIRXjXZ1s87rVM2HCrE/2S3oDmghCAyjXg6AIp5oOagUbTEu+k6WAprRn33KYNjwgKxCK8udgTjR1XRs/kpwUgXYKPYJld5jZIud260azvTnoy87PWmPlGrVgP9EYfwXKF1PrDNRr5sybHEdhBxMKFg2zyHF1QG4guBwziNvHJwHpmFftlh+3I1055f3uIsnxYEmiK4xmydMndEmoZW7Yd7G8Rh+FHQbSBN7z4nxgqI4IdxF3X4+g4p1cgPKaij31yXxV//bOPmFWc3x21gci13uzxKaWS1iW1HCo8Kv6BO4V273HhxV/wiOFLiHBVu25yo/zalpEwhIRM71OP18PIO0GLtaWmGxlREsZnd7rA7+MVXjx8=
+  skip_cleanup: true
+  file: "duel-nightly.zip"
   on:
     tags: true
-    all_branches: true
