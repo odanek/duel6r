@@ -143,6 +143,8 @@ namespace Duel6 {
 
         void removePlayer(Int32 c);
 
+        void updatePlayerCount();
+
         void rebuildTable();
 
         bool question(const std::string &question);
