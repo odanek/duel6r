@@ -48,8 +48,8 @@ namespace Duel6 {
             return pressedKeys.find(keyCode) != pressedKeys.end();
         }
 
-        Size getNumJoypads() const {
-            return joypads.size();
+        Int32 getNumJoypads() const {
+            return Int32(joypads.size());
         }
 
         SDL_Joystick *getJoypad(Size index) const {

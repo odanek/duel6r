@@ -66,9 +66,13 @@ namespace Duel6 {
         PlayerSounds defaultPlayerSounds;
         LevelList levelList;
         PersonList persons;
-        Gui::Button *button[7];
-        Gui::ListBox *listbox[7];
-        Gui::Label *label[8];
+        Gui::ListBox *personListBox;
+        Gui::ListBox *playerListBox;
+        Gui::ListBox *scoreListBox;
+        Gui::ListBox *levelListBox;
+        Gui::ListBox *bcgListBox;
+        Gui::ListBox *screenModeListBox;
+        Gui::ListBox *zoomListBox;
         Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
         Gui::Textbox *textbox;
         Gui::Spinner *gameModeSwitch;

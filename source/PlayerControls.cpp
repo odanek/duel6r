@@ -36,83 +36,74 @@ namespace Duel6 {
     }
 
     bool JoypadAxis::isPressed() const {
-        if (joypadIndex < input.getNumJoypads()) {
-            Int16 axisPosition = SDL_JoystickGetAxis(input.getJoypad(joypadIndex), (axis == Axis::Horizontal) ? 0 : 1);
-            return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
-
-        }
-        return false;
+        Int16 axisPosition = SDL_JoystickGetAxis(joypad, (axis == Axis::Horizontal) ? 0 : 1);
+        return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
     }
 
     bool JoypadButton::isPressed() const {
-        return (joypadIndex < input.getNumJoypads() &&
-                SDL_JoystickGetButton(input.getJoypad(joypadIndex), (int) button) == 1);
+        return (SDL_JoystickGetButton(joypad, (int) button) == 1);
+    }
+
+    std::unique_ptr<PlayerControls>
+    PlayerControls::keyboardControls(const std::string &name, const Input &input, SDL_Keycode left, SDL_Keycode right,
+                                     SDL_Keycode up, SDL_Keycode down, SDL_Keycode shoot, SDL_Keycode pick,
+                                     SDL_Keycode status) {
+        auto cleft = new KeyboardButton(input, left);
+        auto cright = new KeyboardButton(input, right);
+        auto cup = new KeyboardButton(input, up);
+        auto cdown = new KeyboardButton(input, down);
+        auto cshoot = new KeyboardButton(input, shoot);
+        auto cpick = new KeyboardButton(input, pick);
+        auto cstatus = new KeyboardButton(input, status);
+        auto controls = std::make_unique<PlayerControls>(name, cleft, cright, cup, cdown, cshoot, cpick, cstatus);
+        return controls;
+    }
+
+    std::unique_ptr<PlayerControls>
+    PlayerControls::joypadControls(const std::string &name, const Input &input, SDL_Joystick *joypad) {
+        auto left = new JoypadAxis(input, joypad, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left);
+        auto right = new JoypadAxis(input, joypad, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right);
+        auto up = new JoypadButton(input, joypad, 0);
+        auto down = new JoypadAxis(input, joypad, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right);
+        auto shoot = new JoypadButton(input, joypad, 1);
+        auto pick = new JoypadButton(input, joypad, 2);
+        auto status = new JoypadButton(input, joypad, 3);
+        auto controls = std::make_unique<PlayerControls>(name, left, right, up, down, shoot, pick, status);
+        return controls;
     }
 
     PlayerControlsManager::PlayerControlsManager(const Input &input)
             : input(input) {
         controls.push_back(
-                std::make_unique<PlayerControls>("Keys 1",
-                                                 new KeyboardButton(input, SDLK_LEFT),
-                                                 new KeyboardButton(input, SDLK_RIGHT),
-                                                 new KeyboardButton(input, SDLK_UP),
-                                                 new KeyboardButton(input, SDLK_DOWN),
-                                                 new KeyboardButton(input, SDLK_RCTRL),
-                                                 new KeyboardButton(input, SDLK_RSHIFT),
-                                                 new KeyboardButton(input, SDLK_RETURN)
-                ));
+                PlayerControls::keyboardControls("K1: Arrows", input, SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN,
+                                                 SDLK_RCTRL,
+                                                 SDLK_RSHIFT, SDLK_RETURN));
         controls.push_back(
-                std::make_unique<PlayerControls>("Keys 2",
-                                                 new KeyboardButton(input, SDLK_a),
-                                                 new KeyboardButton(input, SDLK_d),
-                                                 new KeyboardButton(input, SDLK_w),
-                                                 new KeyboardButton(input, SDLK_s),
-                                                 new KeyboardButton(input, SDLK_q),
-                                                 new KeyboardButton(input, SDLK_e),
-                                                 new KeyboardButton(input, SDLK_TAB)
-                ));
+                PlayerControls::keyboardControls("K2: WSAD", input, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_q,
+                                                 SDLK_e, SDLK_TAB));
         controls.push_back(
-                std::make_unique<PlayerControls>("Keys 3",
-                                                 new KeyboardButton(input, SDLK_j),
-                                                 new KeyboardButton(input, SDLK_l),
-                                                 new KeyboardButton(input, SDLK_i),
-                                                 new KeyboardButton(input, SDLK_k),
-                                                 new KeyboardButton(input, SDLK_y),
-                                                 new KeyboardButton(input, SDLK_h),
-                                                 new KeyboardButton(input, SDLK_u)
-                ));
+                PlayerControls::keyboardControls("K3: IKJL", input, SDLK_j, SDLK_l, SDLK_i, SDLK_k, SDLK_y,
+                                                 SDLK_h, SDLK_u));
         controls.push_back(
-                std::make_unique<PlayerControls>("Keys 4",
-                                                 new KeyboardButton(input, SDLK_KP_1),
-                                                 new KeyboardButton(input, SDLK_KP_3),
-                                                 new KeyboardButton(input, SDLK_KP_5),
-                                                 new KeyboardButton(input, SDLK_KP_2),
-                                                 new KeyboardButton(input, SDLK_KP_0),
-                                                 new KeyboardButton(input, SDLK_KP_PERIOD),
-                                                 new KeyboardButton(input, SDLK_KP_ENTER)
-                ));
+                PlayerControls::keyboardControls("K4: 5213", input, SDLK_KP_1, SDLK_KP_3, SDLK_KP_5, SDLK_KP_2,
+                                                 SDLK_KP_0,
+                                                 SDLK_KP_PERIOD, SDLK_KP_ENTER));
+    }
 
-        for (Int32 i = 0; i < 10; i++) {
-            controls.push_back(
-                    std::make_unique<PlayerControls>(Format("Joypad {0}") << i + 1,
-                                                     new JoypadAxis(input, i,
-                                                                    JoypadAxis::Axis::Horizontal,
-                                                                    JoypadAxis::Direction::Left),
-                                                     new JoypadAxis(input, i,
-                                                                    JoypadAxis::Axis::Horizontal,
-                                                                    JoypadAxis::Direction::Right),
-                                                     new JoypadButton(input, i, 0),
-                                                     new JoypadAxis(input, i,
-                                                                    JoypadAxis::Axis::Vertical,
-                                                                    JoypadAxis::Direction::Right),
-                                                     new JoypadButton(input, i, 1),
-                                                     new JoypadButton(input, i, 2),
-                                                     new JoypadButton(input, i, 3)
-                    ));
+    void PlayerControlsManager::detectJoypads() {
+        controls.resize(4);
+        for (Int32 i = 0; i < input.getNumJoypads(); i++) {
+            auto joypad = input.getJoypad(i);
+            auto name = SDL_JoystickName(joypad);
+            std::string label = Format("J{0}: {1}") << (i + 1) << name;
+            if (label.size() > 18) {
+                label.resize(18);
+            }
+            controls.push_back(PlayerControls::joypadControls(label, input, joypad));
         }
     }
 
     Size PlayerControlsManager::getNumAvailable() const {
-        return 4 + input.getNumJoypads();
+        return controls.size();
     }
 }

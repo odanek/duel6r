@@ -43,8 +43,6 @@
 #include "gamemodes/Predator.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
-#define ALL_PLAYER_LIST 1
-#define CUR_PLAYERS_LIST 2
 
 namespace Duel6 {
     Menu::Menu(AppService &appService)
@@ -62,21 +60,22 @@ namespace Duel6 {
         persons.fromJson(json.get("persons"));
 
         for (const Person &person : persons.list()) {
-            listbox[ALL_PLAYER_LIST]->addItem(person.getName());
+            personListBox->addItem(person.getName());
         }
 
         Json::Value playing = json.get("playing");
         for (Size i = 0; i < playing.getLength(); i++) {
             std::string name = playing.get(i).asString();
-            listbox[CUR_PLAYERS_LIST]->addItem(name);
-            listbox[ALL_PLAYER_LIST]->removeItem(name);
+            playerListBox->addItem(name);
+            personListBox->removeItem(name);
         }
     }
 
     void Menu::joyRescan() {
         appService.getInput().joyScan(appService.getConsole());
-        Size controls = controlsManager.getNumAvailable();
+        controlsManager.detectJoypads();
 
+        Size controls = controlsManager.getNumAvailable();
         for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
             Gui::Spinner *control = controlSwitch[i];
             control->clear();
@@ -94,123 +93,123 @@ namespace Duel6 {
         gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
                        (video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 700) / 2);
 
-        listbox[0] = new Gui::ListBox(gui, true);
-        listbox[0]->setPosition(10, 199, 97, 12, 16);
+        scoreListBox = new Gui::ListBox(gui, true);
+        scoreListBox->setPosition(10, 199, 97, 12, 16);
 
-        listbox[ALL_PLAYER_LIST] = new Gui::ListBox(gui, true);
-        listbox[ALL_PLAYER_LIST]->setPosition(10, 539, 20, 15, 18);
-        listbox[ALL_PLAYER_LIST]->onDoubleClick([this](Int32 index, const std::string &item) {
+        personListBox = new Gui::ListBox(gui, true);
+        personListBox->setPosition(10, 539, 20, 15, 18);
+        personListBox->onDoubleClick([this](Int32 index, const std::string &item) {
             addPlayer(index);
         });
 
-        listbox[CUR_PLAYERS_LIST] = new Gui::ListBox(gui, false);
-        listbox[CUR_PLAYERS_LIST]->setPosition(200, 541, 20, D6_MAX_PLAYERS, 18);
-        listbox[CUR_PLAYERS_LIST]->onDoubleClick([this](Int32 index, const std::string &item) {
+        playerListBox = new Gui::ListBox(gui, false);
+        playerListBox->setPosition(200, 541, 15, D6_MAX_PLAYERS, 18);
+        playerListBox->onDoubleClick([this](Int32 index, const std::string &item) {
             removePlayer(index);
         });
 
-        listbox[3] = new Gui::ListBox(gui, true);
-        listbox[3]->setPosition(654, 475, 17, 15, 16);
+        levelListBox = new Gui::ListBox(gui, true);
+        levelListBox->setPosition(654, 475, 17, 15, 16);
 
-        listbox[4] = new Gui::ListBox(gui, true);
-        listbox[4]->setPosition(520, 399, 13, 10, 16);
+        bcgListBox = new Gui::ListBox(gui, true);
+        bcgListBox->setPosition(552, 399, 9, 10, 16);
 
-        listbox[5] = new Gui::ListBox(gui, false);
-        listbox[5]->setPosition(654, 541, 19, 2, 16);
-        listbox[5]->addItem("Fullscreen");
-        listbox[5]->addItem("Split screen");
-        listbox[5]->selectItem(0);
+        screenModeListBox = new Gui::ListBox(gui, false);
+        screenModeListBox->setPosition(654, 541, 19, 2, 16);
+        screenModeListBox->addItem("Fullscreen");
+        screenModeListBox->addItem("Split screen");
+        screenModeListBox->selectItem(0);
 
-        listbox[6] = new Gui::ListBox(gui, true);
-        listbox[6]->setPosition(520, 541, 13, 7, 16);
+        zoomListBox = new Gui::ListBox(gui, true);
+        zoomListBox->setPosition(552, 541, 9, 7, 16);
 
         loadPersonProfiles(D6_FILE_PROFILES);
         loadPersonData(D6_FILE_PHIST);
 
-        button[0] = new Gui::Button(gui);
-        button[0]->setPosition(200, 253, 80, 25);
-        button[0]->setCaption(">>");
-        button[0]->onClick([this](Gui::Button &) {
-            addPlayer(listbox[ALL_PLAYER_LIST]->selectedIndex());
+        auto addPlayerButton = new Gui::Button(gui);
+        addPlayerButton->setPosition(200, 253, 80, 25);
+        addPlayerButton->setCaption(">>");
+        addPlayerButton->onClick([this](Gui::Button &) {
+            addPlayer(personListBox->selectedIndex());
         });
 
-        button[1] = new Gui::Button(gui);
-        button[1]->setPosition(105, 253, 85, 25);
-        button[1]->setCaption("<<");
-        button[1]->onClick([this](Gui::Button &) {
-            removePlayer(listbox[CUR_PLAYERS_LIST]->selectedIndex());
+        auto removePlayerButton = new Gui::Button(gui);
+        removePlayerButton->setPosition(105, 253, 85, 25);
+        removePlayerButton->setCaption("<<");
+        removePlayerButton->onClick([this](Gui::Button &) {
+            removePlayer(playerListBox->selectedIndex());
         });
 
-        button[2] = new Gui::Button(gui);
-        button[2]->setPosition(10, 253, 90, 25);
-        button[2]->setCaption("Remove");
-        button[2]->onClick([this](Gui::Button &) {
+        auto removePersonButton = new Gui::Button(gui);
+        removePersonButton->setPosition(10, 253, 90, 25);
+        removePersonButton->setCaption("Remove");
+        removePersonButton->onClick([this](Gui::Button &) {
             deletePerson();
             rebuildTable();
         });
 
-        button[3] = new Gui::Button(gui);
-        button[3]->setPosition(284, 253, 80, 25);
-        button[3]->setCaption("Add");
-        button[3]->onClick([this](Gui::Button &) {
+        auto addPersonButton = new Gui::Button(gui);
+        addPersonButton->setPosition(284, 253, 80, 25);
+        addPersonButton->setCaption("Add");
+        addPersonButton->onClick([this](Gui::Button &) {
             addPerson();
         });
 
-        button[4] = new Gui::Button(gui);
-        button[4]->setPosition(350, 0, 150, 50);
-        button[4]->setCaption("Play (F1)");
-        button[4]->onClick([this](Gui::Button &) {
+        auto playButton = new Gui::Button(gui);
+        playButton->setPosition(350, 0, 150, 50);
+        playButton->setCaption("Play (F1)");
+        playButton->onClick([this](Gui::Button &) {
             play();
         });
 
-        button[6] = new Gui::Button(gui);
-        button[6]->setPosition(505, 0, 150, 50);
-        button[6]->setCaption("Clear (F3)");
-        button[6]->onClick([this](Gui::Button &) {
+        auto clearButton = new Gui::Button(gui);
+        clearButton->setPosition(505, 0, 150, 50);
+        clearButton->setCaption("Clear (F3)");
+        clearButton->onClick([this](Gui::Button &) {
             if (deleteQuestion()) {
                 cleanPersonData();
             }
         });
 
-        button[5] = new Gui::Button(gui);
-        button[5]->setPosition(660, 0, 150, 50);
-        button[5]->setCaption("Quit (ESC)");
-        button[5]->onClick([this](Gui::Button &) {
+        auto quitButton = new Gui::Button(gui);
+        quitButton->setPosition(660, 0, 150, 50);
+        quitButton->setCaption("Quit (ESC)");
+        quitButton->onClick([this](Gui::Button &) {
             close();
         });
 
-        label[0] = new Gui::Label(gui);
-        label[0]->setPosition(10, 219, 800, 18);
-        label[0]->setCaption(
+        auto scoreLabel = new Gui::Label(gui);
+        scoreLabel->setPosition(10, 219, 800, 18);
+        scoreLabel->setCaption(
                 "    Name   | Games | Wins | Shots | Acc. | Kills | Assists | Pen | PTS | Alive | Damage  | Time");
 
-        label[1] = new Gui::Label(gui);
-        label[1]->setPosition(520, 418, 125, 18);
-        label[1]->setCaption("Background");
+        auto bcgLabel = new Gui::Label(gui);
+        bcgLabel->setPosition(552, 418, 93, 18);
+        bcgLabel->setCaption("Background");
 
-        label[2] = new Gui::Label(gui);
-        label[2]->setPosition(654, 494, 155, 18);
-        label[2]->setCaption("Level");
+        auto levelLabel = new Gui::Label(gui);
+        levelLabel->setPosition(654, 494, 155, 18);
+        levelLabel->setCaption("Level");
 
-        label[3] = new Gui::Label(gui);
-        label[3]->setPosition(654, 560, 155, 18);
-        label[3]->setCaption("Screen mode");
+        auto screenModeLabel = new Gui::Label(gui);
+        screenModeLabel->setPosition(654, 560, 155, 18);
+        screenModeLabel->setCaption("Screen mode");
 
-        label[4] = new Gui::Label(gui);
-        label[4]->setPosition(520, 560, 125, 18);
-        label[4]->setCaption("Zoom");
+        auto zoomLabel = new Gui::Label(gui);
+        zoomLabel->setPosition(552, 560, 93, 18);
+        zoomLabel->setCaption("Zoom");
 
-        label[5] = new Gui::Label(gui);
-        label[5]->setPosition(10, 560, 181, 18);
-        label[5]->setCaption("Persons");
+        auto personsLabel = new Gui::Label(gui);
+        personsLabel->setPosition(10, 560, 181, 18);
+        personsLabel->setCaption("Persons");
 
-        label[6] = new Gui::Label(gui);
-        label[6]->setPosition(200, 560, 165, 18);
-        label[6]->setCaption("Players");
+        auto playersLabel = new Gui::Label(gui);
+        playersLabel->setPosition(200, 560, 125, 18);
+        playersLabel->setCaption("Players");
 
-        label[7] = new Gui::Label(gui);
-        label[7]->setPosition(370, 560, 120, 18);
-        label[7]->setCaption("Controller");
+        auto controllerLabel = new Gui::Label(gui);
+        controllerLabel->setPosition(330, 560, 192, 18);
+        controllerLabel->setCaption("Controller");
 
         textbox = new Gui::Textbox(gui);
         textbox->setPosition(370, 252, 14, 10, D6_ALL_CHR);
@@ -218,11 +217,11 @@ namespace Duel6 {
         // Player controls
         for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
             controlSwitch[i] = new Gui::Spinner(gui);
-            controlSwitch[i]->setPosition(370, 539 - Int32(i) * 18, 120, 0);
+            controlSwitch[i]->setPosition(330, 539 - Int32(i) * 18, 192, 0);
 
             Gui::Button *button = new Gui::Button(gui);
             button->setCaption("D");
-            button->setPosition(494, 537 - Int32(i) * 18, 17, 17);
+            button->setPosition(526, 537 - Int32(i) * 18, 17, 17);
             button->onClick([this, i](Gui::Button &) {
                 detectControls(i);
             });
@@ -231,10 +230,10 @@ namespace Duel6 {
         // Button to detect all user's controllers in a batch
         Gui::Button *button = new Gui::Button(gui);
         button->setCaption("D");
-        button->setPosition(490, 558, 24, 17);
+        button->setPosition(522, 558, 24, 17);
         button->onClick([this](Gui::Button &) {
             joyRescan();
-            Size curPlayersCount = listbox[CUR_PLAYERS_LIST]->size();
+            Size curPlayersCount = playerListBox->size();
             for (Size j = 0; j < curPlayersCount; j++) {
                 detectControls(j);
             }
@@ -248,10 +247,10 @@ namespace Duel6 {
         gameModeSwitch->setPosition(10, 0, 330, 20);
         gameModeSwitch->onToggled([this](Int32 selectedIndex) {
             if (selectedIndex < 2) {
-                listbox[CUR_PLAYERS_LIST]->onColorize(Gui::ListBox::defaultColorize);
+                playerListBox->onColorize(Gui::ListBox::defaultColorize);
             } else {
                 Int32 teamCount = 1 + selectedIndex / 2;
-                listbox[CUR_PLAYERS_LIST]->onColorize([teamCount](Int32 index, const std::string& label) {
+                playerListBox->onColorize([teamCount](Int32 index, const std::string& label) {
                     return Gui::ListBox::ItemColor{Color::BLACK, TEAMS[index % teamCount].color};
                 });
             }
@@ -262,22 +261,22 @@ namespace Duel6 {
         backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
-        listbox[3]->addItem("Random");
+        levelListBox->addItem("Random");
         for (Size i = 0; i < levelList.getLength(); i++) {
-            listbox[3]->addItem(levelList.getFileName(i).substr(0, levelList.getFileName(i).rfind(".")));
+            levelListBox->addItem(levelList.getFileName(i).substr(0, levelList.getFileName(i).rfind(".")));
         }
-        listbox[3]->selectItem(0);
+        levelListBox->selectItem(0);
 
-        listbox[4]->addItem("Random");
+        bcgListBox->addItem("Random");
         for (Size i = 0; i < backgroundCount; i++) {
-            listbox[4]->addItem(std::to_string(i + 1));
+            bcgListBox->addItem(std::to_string(i + 1));
         }
-        listbox[4]->selectItem(0);
+        bcgListBox->selectItem(0);
 
         for (Int32 i = 5; i < 21; i++) {
-            listbox[6]->addItem(std::to_string(i));
+            zoomListBox->addItem(std::to_string(i));
         }
-        listbox[6]->selectItem(8).scrollToView(8);
+        zoomListBox->selectItem(8).scrollToView(8);
 
         menuTrack = sound.loadModule("sound/undead.xm");
     }
@@ -298,8 +297,8 @@ namespace Duel6 {
         json.set("persons", persons.toJson());
 
         Json::Value playing = Json::Value::makeArray();
-        for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++) {
-            playing.add(Json::Value::makeString(listbox[CUR_PLAYERS_LIST]->getItem(i)));
+        for (Size i = 0; i < playerListBox->size(); i++) {
+            playing.add(Json::Value::makeString(playerListBox->getItem(i)));
         }
         json.set("playing", playing);
 
@@ -308,7 +307,7 @@ namespace Duel6 {
     }
 
     void Menu::rebuildTable() {
-        listbox[0]->clear();
+        scoreListBox->clear();
         if (persons.isEmpty())
             return;
 
@@ -338,7 +337,7 @@ namespace Duel6 {
                             << person->getTotalDamage()
                             << (person->getTotalGameTime() + 30) / 60
                             << person->getAssistedDamage();
-            listbox[0]->addItem(personStat);
+            scoreListBox->addItem(personStat);
         }
     }
 
@@ -392,7 +391,7 @@ namespace Duel6 {
     void Menu::detectControls(Size playerIndex) {
         render();
 
-        const std::string &name = listbox[CUR_PLAYERS_LIST]->getItem(playerIndex);
+        const std::string &name = playerListBox->getItem(playerIndex);
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);
 
@@ -441,7 +440,7 @@ namespace Duel6 {
     }
 
     void Menu::play() {
-        if (listbox[CUR_PLAYERS_LIST]->size() < 2) {
+        if (playerListBox->size() < 2) {
             showMessage("Can't play alone ...");
             SDL_Event event;
             while (true) {
@@ -470,8 +469,8 @@ namespace Duel6 {
         GameMode &selectedMode = *gameModes[gameModeSwitch->currentItem()];
 
         std::vector<Game::PlayerDefinition> playerDefinitions;
-        for (Size i = 0; i < listbox[CUR_PLAYERS_LIST]->size(); i++) {
-            Person &person = persons.getByName(listbox[CUR_PLAYERS_LIST]->getItem(i));
+        for (Size i = 0; i < playerListBox->size(); i++) {
+            Person &person = persons.getByName(playerListBox->getItem(i));
             auto profile = getPersonProfile(person.getName());
             const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentItem());
             PlayerSkinColors colors = profile ? profile->getSkinColors() : PlayerSkinColors::makeRandom();
@@ -482,28 +481,28 @@ namespace Duel6 {
 
         // Levels
         std::vector<std::string> levels;
-        if (!listbox[3]->selectedIndex()) {
+        if (!levelListBox->selectedIndex()) {
             for (Size i = 0; i < levelList.getLength(); ++i) {
                 levels.push_back(levelList.getPath(i));
             }
         } else {
-            levels.push_back(levelList.getPath(listbox[3]->selectedIndex() - 1));
+            levels.push_back(levelList.getPath(levelListBox->selectedIndex() - 1));
         }
 
         // Game backgrounds
         std::vector<Size> backgrounds;
-        if (!listbox[4]->selectedIndex()) {
+        if (!bcgListBox->selectedIndex()) {
             for (Size i = 0; i < backgroundCount; i++) {
                 backgrounds.push_back(i);
             }
         } else {
-            backgrounds.push_back(listbox[4]->selectedIndex() - 1);
+            backgrounds.push_back(bcgListBox->selectedIndex() - 1);
         }
 
         // Screen
-        ScreenMode screenMode = (listbox[CUR_PLAYERS_LIST]->size() > 4 || listbox[5]->selectedIndex() == 0)
+        ScreenMode screenMode = (playerListBox->size() > 4 || screenModeListBox->selectedIndex() == 0)
                                 ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
-        Int32 screenZoom = listbox[6]->selectedIndex() + 5;
+        Int32 screenZoom = zoomListBox->selectedIndex() + 5;
 
         // Start
         Context::push(*game);
@@ -511,18 +510,18 @@ namespace Duel6 {
     }
 
     void Menu::addPlayer(Int32 index) {
-        if (index != -1 && listbox[CUR_PLAYERS_LIST]->size() < D6_MAX_PLAYERS) {
-            const std::string &name = listbox[ALL_PLAYER_LIST]->getItem(index);
-            listbox[CUR_PLAYERS_LIST]->addItem(name);
-            listbox[ALL_PLAYER_LIST]->removeItem(index);
+        if (index != -1 && playerListBox->size() < D6_MAX_PLAYERS) {
+            const std::string &name = personListBox->getItem(index);
+            playerListBox->addItem(name);
+            personListBox->removeItem(index);
         }
     }
 
     void Menu::removePlayer(Int32 index) {
         if (index != -1) {
-            const std::string &playerName = listbox[CUR_PLAYERS_LIST]->getItem(index);
-            listbox[ALL_PLAYER_LIST]->addItem(playerName);
-            listbox[CUR_PLAYERS_LIST]->removeItem(index);
+            const std::string &playerName = playerListBox->getItem(index);
+            personListBox->addItem(playerName);
+            playerListBox->removeItem(index);
         }
     }
 
@@ -531,21 +530,21 @@ namespace Duel6 {
 
         if (!personName.empty() && !persons.contains(personName)) {
             persons.add(Person(personName));
-            listbox[ALL_PLAYER_LIST]->addItem(personName);
+            personListBox->addItem(personName);
             rebuildTable();
             textbox->flush();
         }
     }
 
     void Menu::deletePerson() {
-        Int32 index = listbox[ALL_PLAYER_LIST]->selectedIndex();
+        Int32 index = personListBox->selectedIndex();
         if (index != -1) {
             if (!deleteQuestion())
                 return;
 
-            const std::string &playerName = listbox[ALL_PLAYER_LIST]->selectedItem();
+            const std::string &playerName = personListBox->selectedItem();
             persons.remove(playerName);
-            listbox[ALL_PLAYER_LIST]->removeItem(playerName);
+            personListBox->removeItem(playerName);
         }
     }
 
