@@ -30,6 +30,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include "../Color.h"
 
 namespace Duel6 {

@@ -76,6 +76,7 @@ namespace Duel6 {
         Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
         Gui::Textbox *textbox;
         Gui::Spinner *gameModeSwitch;
+        Gui::Label *playersLabel;
         Size backgroundCount;
         TextureList menuBannerTexture;
         Sound::Track menuTrack;
@@ -146,6 +147,8 @@ namespace Duel6 {
         void addPlayer(Int32 index);
 
         void removePlayer(Int32 c);
+
+        void updatePlayerCount();
 
         void rebuildTable();
 

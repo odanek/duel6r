@@ -203,9 +203,10 @@ namespace Duel6 {
         personsLabel->setPosition(10, 560, 181, 18);
         personsLabel->setCaption("Persons");
 
-        auto playersLabel = new Gui::Label(gui);
+        playersLabel = new Gui::Label(gui);
         playersLabel->setPosition(200, 560, 125, 18);
-        playersLabel->setCaption("Players");
+
+        updatePlayerCount();
 
         auto controllerLabel = new Gui::Label(gui);
         controllerLabel->setPosition(330, 560, 192, 18);
@@ -515,6 +516,7 @@ namespace Duel6 {
             playerListBox->addItem(name);
             personListBox->removeItem(index);
         }
+        updatePlayerCount();
     }
 
     void Menu::removePlayer(Int32 index) {
@@ -523,6 +525,11 @@ namespace Duel6 {
             personListBox->addItem(playerName);
             playerListBox->removeItem(index);
         }
+        updatePlayerCount();
+    }
+
+    void Menu::updatePlayerCount() {
+        playersLabel->setCaption(Format("Players {0,7}") << playerListBox->size());
     }
 
     void Menu::addPerson() {
