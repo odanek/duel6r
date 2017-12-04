@@ -95,13 +95,13 @@ namespace Duel6 {
                                                  SDLK_r,
                                                  SDLK_4, SDLK_5));
         controls.push_back(
-                PlayerControls::keyboardControls("K4: /879", input, SDLK_KP_7, SDLK_KP_9, SDLK_KP_DIVIDE, SDLK_KP_8,
+                PlayerControls::keyboardControls("K6: /879", input, SDLK_KP_7, SDLK_KP_9, SDLK_KP_DIVIDE, SDLK_KP_8,
                                                  SDLK_PAGEDOWN,
                                                  SDLK_PAGEUP, SDLK_END));
     }
 
     void PlayerControlsManager::detectJoypads() {
-        controls.resize(4);
+        controls.resize(6);
         for (Int32 i = 0; i < input.getNumJoypads(); i++) {
             auto joypad = input.getJoypad(i);
             auto name = SDL_JoystickName(joypad);
