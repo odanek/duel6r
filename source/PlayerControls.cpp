@@ -80,14 +80,22 @@ namespace Duel6 {
                                                  SDLK_RSHIFT, SDLK_RETURN));
         controls.push_back(
                 PlayerControls::keyboardControls("K2: WSAD", input, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_q,
-                                                 SDLK_e, SDLK_TAB));
+                                                 SDLK_1, SDLK_2));
         controls.push_back(
-                PlayerControls::keyboardControls("K3: IKJL", input, SDLK_j, SDLK_l, SDLK_i, SDLK_k, SDLK_y,
-                                                 SDLK_h, SDLK_u));
+                PlayerControls::keyboardControls("K3: IKJL", input, SDLK_j, SDLK_l, SDLK_i, SDLK_k, SDLK_u,
+                                                 SDLK_7, SDLK_8));
         controls.push_back(
                 PlayerControls::keyboardControls("K4: 5213", input, SDLK_KP_1, SDLK_KP_3, SDLK_KP_5, SDLK_KP_2,
                                                  SDLK_KP_0,
                                                  SDLK_KP_PERIOD, SDLK_KP_ENTER));
+		controls.push_back(
+				PlayerControls::keyboardControls("K5: TGFH", input, SDLK_f, SDLK_h, SDLK_t, SDLK_g,
+												 SDLK_r,
+												 SDLK_4, SDLK_5));
+        controls.push_back(
+                PlayerControls::keyboardControls("K4: /879", input, SDLK_KP_7, SDLK_KP_9, SDLK_KP_DIVIDE, SDLK_KP_8,
+                                                 SDLK_PAGEDOWN,
+                                                 SDLK_PAGEUP, SDLK_END));
     }
 
     void PlayerControlsManager::detectJoypads() {
