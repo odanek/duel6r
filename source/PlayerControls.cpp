@@ -77,17 +77,25 @@ namespace Duel6 {
         controls.push_back(
                 PlayerControls::keyboardControls("K1: Arrows", input, SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN,
                                                  SDLK_RCTRL,
-                                                 SDLK_RSHIFT, SDLK_RETURN));
+                                                 SDLK_RSHIFT, SDLK_APPLICATION));
         controls.push_back(
                 PlayerControls::keyboardControls("K2: WSAD", input, SDLK_a, SDLK_d, SDLK_w, SDLK_s, SDLK_q,
-                                                 SDLK_e, SDLK_TAB));
+                                                 SDLK_1, SDLK_2));
         controls.push_back(
-                PlayerControls::keyboardControls("K3: IKJL", input, SDLK_j, SDLK_l, SDLK_i, SDLK_k, SDLK_y,
-                                                 SDLK_h, SDLK_u));
+                PlayerControls::keyboardControls("K3: IKJL", input, SDLK_j, SDLK_l, SDLK_i, SDLK_k, SDLK_u,
+                                                 SDLK_7, SDLK_8));
         controls.push_back(
                 PlayerControls::keyboardControls("K4: 5213", input, SDLK_KP_1, SDLK_KP_3, SDLK_KP_5, SDLK_KP_2,
                                                  SDLK_KP_0,
                                                  SDLK_KP_PERIOD, SDLK_KP_ENTER));
+        controls.push_back(
+                PlayerControls::keyboardControls("K5: TGFH", input, SDLK_f, SDLK_h, SDLK_t, SDLK_g,
+                                                 SDLK_r,
+                                                 SDLK_4, SDLK_5));
+        controls.push_back(
+                PlayerControls::keyboardControls("K6: [';ENTER", input, SDLK_SEMICOLON, SDLK_RETURN, SDLK_LEFTBRACKET, SDLK_QUOTE,
+                                                 SDLK_p,
+                                                 SDLK_0, SDLK_MINUS));
     }
 
     void PlayerControlsManager::detectJoypads() {
