@@ -59,6 +59,10 @@ namespace Duel6 {
             return height;
         }
 
+        bool isEmpty(Int32 x, Int32 y) const {
+            return isInside(x, y) ? getBlockMeta(x, y).is(Block::EmptySpace) : false;
+        }
+
         bool isWater(Int32 x, Int32 y) const {
             return isInside(x, y) ? getBlockMeta(x, y).is(Block::Water) : false;
         }

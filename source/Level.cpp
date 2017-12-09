@@ -118,11 +118,7 @@ namespace Duel6 {
     }
 
     bool Level::isPossibleStartingPosition(Int32 x, Int32 y) {
-        if (isWall(x, y, true) || isWater(x, y)) {
-            return false;
-        }
-
-        return isWall(x, y - 1, true);
+        return isEmpty(x, y) && isWall(x, y - 1, true);
     }
 
     void Level::findStartingPositions(StartingPositionList &startingPositions) {
