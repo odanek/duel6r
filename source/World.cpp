@@ -30,12 +30,12 @@
 #include "Weapon.h"
 
 namespace Duel6 {
-    World::World(Game &game, const std::string &levelPath, bool mirror, Size background)
+    World::World(Game &game, const std::string &levelPath, bool mirror)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
-              level(levelPath, mirror, game.getResources().getBlockMeta()),
+              level(game, levelPath, mirror),
               levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
-              background(background), bonusList(game.getSettings(), game.getResources(), *this),
+              bonusList(game.getSettings(), game.getResources(), *this),
               elevatorList(game.getResources().getElevatorTextures()) {
         Console &console = game.getAppService().getConsole();
         console.printLine(Format("...Width   : {0}") << level.getWidth());

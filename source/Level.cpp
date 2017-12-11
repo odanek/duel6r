@@ -26,13 +26,15 @@
 */
 
 #include <queue>
+#include "Game.h"
 #include "Level.h"
 #include "json/JsonParser.h"
 #include "GameException.h"
 
 namespace Duel6 {
-    Level::Level(const std::string &path, bool mirror, const Block::Meta &blockMeta)
-            : blockMeta(blockMeta) {
+    Level::Level(Game &game, const std::string &path, bool mirror)
+            : blockMeta(game.getResources().getBlockMeta()),
+              backgrounds(game.getBackgrounds()) {
         load(path, mirror);
     }
 
@@ -43,6 +45,15 @@ namespace Duel6 {
 
         width = root.get("width").asInt();
         height = root.get("height").asInt();
+
+        Size randomBackground = backgrounds[Math::random(backgrounds.size())];
+        Size customBackground = root.getOrDefault("background", Json::Value::makeNumber(Int32(randomBackground))).asInt();
+
+        if (std::find(backgrounds.begin(), backgrounds.end(), customBackground) != backgrounds.end()) {
+            background = customBackground;
+        } else {
+            background = randomBackground;
+        }
 
         Int32 blockCount = width * height;
         Json::Value blocks = root.get("blocks");
