@@ -35,6 +35,8 @@
 #include "Water.h"
 
 namespace Duel6 {
+    class Game;
+
     class Level {
     public:
         typedef std::pair<Int32, Int32> StartingPosition;
@@ -42,14 +44,16 @@ namespace Duel6 {
 
     private:
         const Block::Meta &blockMeta;
+        const std::vector<Size> &backgrounds;
         Int32 width;
         Int32 height;
+        Size background;
         std::vector<Uint16> levelData;
         Uint16 waterBlock;
         Int32 waterLevel;
 
     public:
-        Level(const std::string &path, bool mirror, const Block::Meta &blockMeta);
+        Level(Game &game, const std::string &path, bool mirror);
 
         Int32 getWidth() const {
             return width;
@@ -57,6 +61,10 @@ namespace Duel6 {
 
         Int32 getHeight() const {
             return height;
+        }
+
+        Size getBackground() const {
+            return background;
         }
 
         bool isEmpty(Int32 x, Int32 y) const {

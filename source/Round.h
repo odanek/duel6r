@@ -50,8 +50,7 @@ namespace Duel6 {
         std::vector<Player *> alivePlayers;
 
     public:
-        Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror,
-              Size background);
+        Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror);
 
         void update(Float32 elapsedTime);
 

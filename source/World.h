@@ -51,12 +51,11 @@ namespace Duel6 {
         ShotList shotList;
         ExplosionList explosionList;
         FireList fireList;
-        Size background;
         BonusList bonusList;
         ElevatorList elevatorList;
 
     public:
-        World(Game &game, const std::string &levelPath, bool mirror, Size background);
+        World(Game &game, const std::string &levelPath, bool mirror);
 
         void update(Float32 elapsedTime);
 
@@ -131,7 +130,7 @@ namespace Duel6 {
         }
 
         Size getBackground() const {
-            return background;
+            return level.getBackground();
         }
 
         BonusList &getBonusList() {
