@@ -190,9 +190,16 @@ namespace Duel6 {
         personsLabel->setCaption("Persons");
 
         playersLabel = new Gui::Label(gui);
-        playersLabel->setPosition(200, 560, 125, 18);
+        playersLabel->setPosition(200, 560, 105, 18);
 
         updatePlayerCount();
+
+        Gui::Button *shuffleButton = new Gui::Button(gui);
+        shuffleButton->setCaption("S");
+        shuffleButton->setPosition(307, 560, 17, 17);
+        shuffleButton->onClick([this](Gui::Button &) {
+            shufflePlayers();
+        });
 
         auto controllerLabel = new Gui::Label(gui);
         controllerLabel->setPosition(330, 560, 192, 18);
@@ -217,7 +224,7 @@ namespace Duel6 {
         // Button to detect all user's controllers in a batch
         Gui::Button *button = new Gui::Button(gui);
         button->setCaption("D");
-        button->setPosition(522, 558, 24, 17);
+        button->setPosition(526, 558, 17, 17);
         button->onClick([this](Gui::Button &) {
             joyRescan();
             Size curPlayersCount = playerListBox->size();
@@ -500,7 +507,7 @@ namespace Duel6 {
     }
 
     void Menu::updatePlayerCount() {
-        playersLabel->setCaption(Format("Players {0,7}") << playerListBox->size());
+        playersLabel->setCaption(Format("Players {0,5}") << playerListBox->size());
     }
 
     void Menu::addPerson() {
@@ -637,6 +644,19 @@ namespace Duel6 {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             // Eat all remaining keyboard events;
+        }
+    }
+
+    void Menu::shufflePlayers() {
+        std::vector<std::string> players;
+        for (Size i = 0; i < playerListBox->size(); i++) {
+            players.push_back(playerListBox->getItem(i));
+        }
+
+        std::shuffle(players.begin(), players.end(), Math::randomEngine);
+        playerListBox->clear();
+        for (std::string &player : players) {
+            playerListBox->addItem(player);
         }
     }
 }

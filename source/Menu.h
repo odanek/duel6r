@@ -155,6 +155,8 @@ namespace Duel6 {
         bool deleteQuestion();
 
         void consumeInputEvents();
+
+        void shufflePlayers();
     };
 }
 
