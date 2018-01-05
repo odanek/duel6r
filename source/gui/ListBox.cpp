@@ -171,7 +171,7 @@ namespace Duel6 {
                 Color bcgColor = (index == selected) ? highlightColor : colors.background;
 
                 globRenderer->quadXY(Vector(x, Y - (itemHeight - 1)), Vector(width - 1, itemHeight - 1), bcgColor);
-                font.print(x, Y - shift, fontColor, label);
+                font.print(x, Y - shift, fontColor, label.substr(0, size_t(width) / 8));
             }
         }
 
