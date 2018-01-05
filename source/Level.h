@@ -44,16 +44,15 @@ namespace Duel6 {
 
     private:
         const Block::Meta &blockMeta;
-        const std::vector<Size> &backgrounds;
         Int32 width;
         Int32 height;
-        Size background;
+        std::string background;
         std::vector<Uint16> levelData;
         Uint16 waterBlock;
         Int32 waterLevel;
 
     public:
-        Level(Game &game, const std::string &path, bool mirror);
+        Level(const std::string &path, bool mirror, const Block::Meta &blockMeta);
 
         Int32 getWidth() const {
             return width;
@@ -63,7 +62,7 @@ namespace Duel6 {
             return height;
         }
 
-        Size getBackground() const {
+        std::string getBackground() const {
             return background;
         }
 

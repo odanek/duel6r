@@ -45,6 +45,7 @@ namespace Duel6 {
         const GameSettings &gameSettings;
         std::vector<Player> &players;
         Level level;
+        std::string background;
         LevelRenderData levelRenderData;
         InfoMessageQueue messageQueue;
         SpriteList spriteList;
@@ -129,8 +130,8 @@ namespace Duel6 {
             return fireList;
         }
 
-        Size getBackground() const {
-            return level.getBackground();
+        std::string getBackground() const {
+            return background;
         }
 
         BonusList &getBonusList() {
@@ -148,6 +149,9 @@ namespace Duel6 {
         const ElevatorList &getElevatorList() const {
             return elevatorList;
         }
+
+    private:
+        std::string findBackground(const GameResources::BackgroundList &backgrounds);
     };
 }
 

@@ -32,7 +32,7 @@
 namespace Duel6 {
     World::World(Game &game, const std::string &levelPath, bool mirror)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
-              level(game, levelPath, mirror),
+              level(levelPath, mirror, game.getResources().getBlockMeta()),
               levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game.getResources(), *this),
@@ -50,6 +50,7 @@ namespace Duel6 {
         console.printLine("...Loading elevators");
         elevatorList.load(levelPath, mirror);
         fireList.find(levelRenderData.getSprites());
+        background = findBackground(game.getResources().getBcgTextures());
     }
 
     void World::update(Float32 elapsedTime) {
@@ -71,5 +72,23 @@ namespace Duel6 {
     void World::raiseWater() {
         level.raiseWater();
         levelRenderData.generateWater();
+    }
+
+    std::string World::findBackground(const GameResources::BackgroundList &backgrounds) {
+        const std::string &levelBackground = level.getBackground();
+        auto &bcgDict = backgrounds.getTextures();
+        if (levelBackground.size() && bcgDict.find(levelBackground) != bcgDict.end()) {
+            return levelBackground;
+        }
+
+        std::vector<std::string> bcgNames;
+        bcgNames.reserve(bcgDict.size());
+        
+        for (auto &entry : bcgDict) {
+            bcgNames.push_back(entry.first);
+        }
+
+        Int32 bcgIndex = Math::random(Int32(bcgNames.size()));
+        return bcgNames[bcgIndex];
     }
 }

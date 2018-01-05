@@ -32,63 +32,75 @@
 
 namespace Duel6 {
     TextureManager::TextureManager(const std::string &fileExtension)
-            : nextId(0), textureFileExtension(fileExtension) {}
+            : nextKey(1), textureFileExtension(fileExtension) {}
 
     TextureManager::~TextureManager() {
         disposeAll();
     }
 
-    const TextureList TextureManager::load(const std::string &path, TextureFilter filtering, bool clamp) {
+    const TextureList TextureManager::loadList(const std::string &path, TextureFilter filtering, bool clamp) {
         SubstitutionTable emptySubstitutionTable;
-        return load(path, filtering, clamp, emptySubstitutionTable);
+        return loadList(path, filtering, clamp, emptySubstitutionTable);
     }
 
-    const TextureList TextureManager::load(const std::string &path, TextureFilter filtering, bool clamp,
+    const TextureList TextureManager::loadList(const std::string &path, TextureFilter filtering, bool clamp,
                                            const SubstitutionTable &substitutionTable) {
         std::vector<std::string> textureFiles;
         File::listDirectory(path, textureFileExtension, textureFiles);
         std::sort(textureFiles.begin(), textureFiles.end());
 
-        Int32 listId = nextId++;
-        textureMap.insert(std::make_pair(listId, std::make_unique<TextureArray>()));
-        TextureArray &list = *textureMap.at(listId);
-
+        TextureList list;
         for (std::string &file : textureFiles) {
             Image image;
+            Texture::Key textureKey = nextKey++;
             Util::loadTargaImage(path + file, image);
             substituteColors(image, substitutionTable);
-            Texture texture = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
+            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
                                                           filtering, clamp);
-            list.push_back(texture);
+            list.textures.push_back(Texture(textureKey, textureId));
         }
 
-        return TextureList(listId, list);
+        return list;
+    }
+
+    const TextureDictionary TextureManager::loadDict(const std::string &path, TextureFilter filtering, bool clamp) {
+        std::vector<std::string> textureFiles;
+        File::listDirectory(path, textureFileExtension, textureFiles);
+
+        TextureDictionary dict;
+        for (std::string &file : textureFiles) {
+            Image image;
+            Texture::Key textureKey = nextKey++;
+            Util::loadTargaImage(path + file, image);
+            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
+                                                                filtering, clamp);
+            dict.textures[file] = Texture(textureKey, textureId);
+        }
+
+        return dict;
+    }
+
+    void TextureManager::dispose(Texture &texture) {
+        auto key = texture.getKey();
+        auto keyIterator = textureKeys.find(key);
+        if (key != 0 && keyIterator != textureKeys.end()) {
+            globRenderer->freeTexture(keyIterator->second);
+            texture.id = 0;
+        }
     }
 
     void TextureManager::dispose(TextureList &list) {
-        dispose(list.getKey());
-        list.release();
-    }
-
-    void TextureManager::dispose(const Int32 key) {
-        auto entry = textureMap.find(key);
-        if (entry != textureMap.end()) {
-            releaseTextureIds(*(entry->second));
-            textureMap.erase(key);
+        for (Texture &texture : list.textures) {
+            dispose(texture);
         }
+        list.textures.clear();
     }
 
     void TextureManager::disposeAll() {
-        for (auto &entry : textureMap) {
-            releaseTextureIds(*(entry.second));
+        for (auto &entry : textureKeys) {
+            globRenderer->freeTexture(entry.second);
         }
-        textureMap.clear();
-    }
-
-    void TextureManager::releaseTextureIds(const TextureArray &list) {
-        for (const Texture &texture : list) {
-            globRenderer->freeTexture(texture);
-        }
+        textureKeys.clear();
     }
 
     void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {

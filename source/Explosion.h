@@ -45,7 +45,7 @@ namespace Duel6 {
 
     class ExplosionList {
     private:
-        TextureList textures;
+        const TextureList &textures;
         std::list<Explosion> explosions;
         Float32 speed;
 

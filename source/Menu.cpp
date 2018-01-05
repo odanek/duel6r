@@ -88,7 +88,7 @@ namespace Duel6 {
 
     void Menu::initialize() {
         appService.getConsole().printLine("\n===Menu initialization===");
-        menuBannerTexture = appService.getTextureManager().load(D6_TEXTURE_MENU_PATH, TextureFilter::LINEAR, true);
+        menuBannerTexture = appService.getTextureManager().loadList(D6_TEXTURE_MENU_PATH, TextureFilter::LINEAR, true);
         appService.getConsole().printLine("...Starting GUI library");
         gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
                        (video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 700) / 2);
@@ -111,17 +111,11 @@ namespace Duel6 {
         levelListBox = new Gui::ListBox(gui, true);
         levelListBox->setPosition(654, 475, 17, 15, 16);
 
-        bcgListBox = new Gui::ListBox(gui, true);
-        bcgListBox->setPosition(552, 399, 9, 10, 16);
-
         screenModeListBox = new Gui::ListBox(gui, false);
         screenModeListBox->setPosition(654, 541, 19, 2, 16);
         screenModeListBox->addItem("Fullscreen");
         screenModeListBox->addItem("Split screen");
         screenModeListBox->selectItem(0);
-
-        zoomListBox = new Gui::ListBox(gui, true);
-        zoomListBox->setPosition(552, 541, 9, 7, 16);
 
         loadPersonProfiles(D6_FILE_PROFILES);
         loadPersonData(D6_FILE_PHIST);
@@ -183,10 +177,6 @@ namespace Duel6 {
         scoreLabel->setCaption(
                 "    Name   | Games | Wins | Shots | Acc. | Kills | Assists | Pen | PTS | Alive | Damage  | Time");
 
-        auto bcgLabel = new Gui::Label(gui);
-        bcgLabel->setPosition(552, 418, 93, 18);
-        bcgLabel->setCaption("Background");
-
         auto levelLabel = new Gui::Label(gui);
         levelLabel->setPosition(654, 494, 155, 18);
         levelLabel->setCaption("Level");
@@ -194,10 +184,6 @@ namespace Duel6 {
         auto screenModeLabel = new Gui::Label(gui);
         screenModeLabel->setPosition(654, 560, 155, 18);
         screenModeLabel->setCaption("Screen mode");
-
-        auto zoomLabel = new Gui::Label(gui);
-        zoomLabel->setPosition(552, 560, 93, 18);
-        zoomLabel->setCaption("Zoom");
 
         auto personsLabel = new Gui::Label(gui);
         personsLabel->setPosition(10, 560, 181, 18);
@@ -267,17 +253,6 @@ namespace Duel6 {
             levelListBox->addItem(levelList.getFileName(i).substr(0, levelList.getFileName(i).rfind(".")));
         }
         levelListBox->selectItem(0);
-
-        bcgListBox->addItem("Random");
-        for (Size i = 0; i < backgroundCount; i++) {
-            bcgListBox->addItem(std::to_string(i + 1));
-        }
-        bcgListBox->selectItem(0);
-
-        for (Int32 i = 5; i < 21; i++) {
-            zoomListBox->addItem(std::to_string(i));
-        }
-        zoomListBox->selectItem(8).scrollToView(8);
 
         menuTrack = sound.loadModule("sound/undead.xm");
     }
@@ -492,18 +467,14 @@ namespace Duel6 {
 
         // Game backgrounds
         std::vector<Size> backgrounds;
-        if (!bcgListBox->selectedIndex()) {
-            for (Size i = 0; i < backgroundCount; i++) {
-                backgrounds.push_back(i);
-            }
-        } else {
-            backgrounds.push_back(bcgListBox->selectedIndex() - 1);
+        for (Size i = 0; i < backgroundCount; i++) {
+            backgrounds.push_back(i);
         }
 
         // Screen
         ScreenMode screenMode = (playerListBox->size() > 4 || screenModeListBox->selectedIndex() == 0)
                                 ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
-        Int32 screenZoom = zoomListBox->selectedIndex() + 5;
+        Int32 screenZoom = 13;
 
         // Start
         Context::push(*game);

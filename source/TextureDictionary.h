@@ -25,67 +25,30 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMERESOURCES_H
-#define DUEL6_GAMERESOURCES_H
+#ifndef DUEL6_TEXTUREDICTIONARY_H
+#define DUEL6_TEXTUREDICTIONARY_H
 
 #include <unordered_map>
-#include "Water.h"
-#include "Block.h"
-#include "AppService.h"
+#include "Texture.h"
 
 namespace Duel6 {
-    class GameResources {
+    class TextureManager;
+
+    class TextureDictionary {
     public:
-        typedef TextureDictionary BackgroundList;
+        typedef std::unordered_map<std::string, Texture> Container;
 
     private:
-        Block::Meta blockMeta;
-        Sound::Sample gameOverSound;
-        Sound::Sample roundStartSound;
-        TextureList blockTextures;
-        BackgroundList bcgTextures;
-        TextureList explosionTextures;
-        TextureList bonusTextures;
-        TextureList elevatorTextures;
-        std::unordered_map<Size, TextureList> fireTextures;
+        friend class TextureManager;
+        Container textures;
 
     public:
-        explicit GameResources(AppService &appService);
-
-        const Block::Meta &getBlockMeta() const {
-            return blockMeta;
+        const Container &getTextures() const {
+            return textures;
         }
 
-        const Sound::Sample &getGameOverSound() const {
-            return gameOverSound;
-        }
-
-        const Sound::Sample &getRoundStartSound() const {
-            return roundStartSound;
-        }
-
-        const TextureList &getBlockTextures() const {
-            return blockTextures;
-        }
-
-        const BackgroundList &getBcgTextures() const {
-            return bcgTextures;
-        }
-
-        const TextureList &getExplosionTextures() const {
-            return explosionTextures;
-        }
-
-        const TextureList &getBonusTextures() const {
-            return bonusTextures;
-        }
-
-        const TextureList &getElevatorTextures() const {
-            return elevatorTextures;
-        }
-
-        const std::unordered_map<Size, TextureList> &getFireTextures() const {
-            return fireTextures;
+        const Texture &at(const std::string &key) const {
+            return textures.at(key);
         }
     };
 }

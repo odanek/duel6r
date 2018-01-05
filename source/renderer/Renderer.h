@@ -59,12 +59,12 @@ namespace Duel6 {
 
         virtual Info getInfo() = 0;
 
-        virtual Texture createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
+        virtual Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
                                       TextureFilter filtering, bool clamp) = 0;
 
-        virtual void setTextureFilter(const Texture &texture, TextureFilter filter) = 0;
+        virtual void setTextureFilter(Texture::Id textureId, TextureFilter filter) = 0;
 
-        virtual void freeTexture(Texture texture) = 0;
+        virtual void freeTexture(Texture::Id textureId) = 0;
 
         virtual void readScreenData(Int32 width, Int32 height, Image &image) = 0;
 

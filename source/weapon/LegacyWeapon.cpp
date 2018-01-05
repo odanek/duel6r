@@ -40,9 +40,9 @@ namespace Duel6 {
         const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << index;
         auto filterType = NEAREST_FILTER_BOOM.find(index) != NEAREST_FILTER_BOOM.end() ? TextureFilter::NEAREST
                                                                                        : TextureFilter::LINEAR;
-        textures.boom = textureManager.load(Format("{0}/boom/") << wpnPath, filterType, true);
-        textures.gun = textureManager.load(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
-        textures.shot = textureManager.load(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
+        textures.boom = textureManager.loadList(Format("{0}/boom/") << wpnPath, filterType, true);
+        textures.gun = textureManager.loadList(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
+        textures.shot = textureManager.loadList(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
 
         if (!definition.shotSound.empty()) {
             samples.shot = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.shotSound);
