@@ -33,13 +33,13 @@
 namespace Duel6 {
     class GameModeBase : public GameMode {
     public:
-        void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) {}
+        void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) override {}
 
-        void initializeGame(Game &game, std::vector<Player> &players) {}
+        void initializeGame(Game &game, std::vector<Player> &players) override {}
 
-        void initializeRound(Game &game, std::vector<Player> &players, World &world) {}
+        void initializeRound(Game &game, std::vector<Player> &players, World &world) override {}
 
-        Ranking getRanking(const std::vector<Player> &players) const;
+        Ranking getRanking(const std::vector<Player> &players) const override;
 
         bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
     };
