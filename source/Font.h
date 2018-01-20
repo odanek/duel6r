@@ -33,7 +33,11 @@
 #if defined(__APPLE__)
 #include <SDL2_ttf/SDL_ttf.h>
 #else
+#ifdef __EMSCRIPTEN__
+#include <SDL_ttf.h>
+#else
 #include <SDL2/SDL_ttf.h>
+#endif
 #endif
 
 #include "Type.h"

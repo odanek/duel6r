@@ -31,6 +31,15 @@
 #include "Exception.h"
 #include "Application.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+
+Duel6::Application *globApp;
+void main_loop() {
+	globApp->run();
+}
+#endif
+
 static void reportError(const std::string &err) {
     fprintf(stderr, "Error occured: %s\n", err.c_str());
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", err.c_str(), nullptr);
@@ -40,8 +49,13 @@ int main(int argc, char **argv) {
     try {
         Duel6::Application app;
         app.setup(argc, argv);
-        app.run();
+#ifdef __EMSCRIPTEN__
+	    globApp = &app;
+	    emscripten_set_main_loop(main_loop, 0, 1);
+#else
+	    app.run();
         app.tearDown();
+#endif
         return 0;
     }
     catch (const Duel6::Exception &e) {

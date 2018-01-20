@@ -28,6 +28,32 @@
 #ifndef DUEL6_SOUND_H
 #define DUEL6_SOUND_H
 
+#ifdef __EMSCRIPTEN__
+
+    class Sound {
+    public:
+        class Sample {
+        public:
+            Sample() {}
+            void play() const {}
+        };
+
+        class Track {
+        public:
+            Track() {}
+            void play(bool loop) const {}
+        };
+
+    public:
+        Sound(Int32 channels, Console &console) {}
+        Track loadModule(const std::string &fileName) { return Track(); }
+        Sample loadSample(const std::string &fileName) { return Sample(); }
+        void volume(Int32 volume) {}
+        void stopMusic() {}
+    };
+
+#else
+
 #include <string>
 #include <vector>
 #include <SDL2/SDL.h>
@@ -109,4 +135,5 @@ namespace Duel6 {
     };
 }
 
+#endif
 #endif

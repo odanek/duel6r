@@ -29,6 +29,8 @@
 #include "SoundException.h"
 #include "Sound.h"
 
+#ifndef __EMSCRIPTEN__
+
 namespace Duel6 {
     Sound::Sample::Sample(Sound *sound, Mix_Chunk *chunk)
             : sound(sound), chunk(chunk) {}
@@ -153,3 +155,5 @@ namespace Duel6 {
         Mix_Volume(-1, volume);
     }
 }
+
+#endif

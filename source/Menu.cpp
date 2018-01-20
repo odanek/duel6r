@@ -425,6 +425,7 @@ namespace Duel6 {
     void Menu::play() {
         if (playerListBox->size() < 2) {
             showMessage("Can't play alone ...");
+#ifndef __EMSCRIPTEN__
             SDL_Event event;
             while (true) {
                 if (SDL_PollEvent(&event)) {
@@ -433,9 +434,11 @@ namespace Duel6 {
             }
 
             consumeInputEvents();
+#endif
             return;
         }
 
+#ifndef __EMSCRIPTEN__
         if (game->getSettings().isRoundLimit() && game->getPlayedRounds() > 0 &&
             game->getPlayedRounds() < game->getSettings().getMaxRounds()) {
             if (!question("Resume previous game? (Y/N)")) {
@@ -448,6 +451,7 @@ namespace Duel6 {
                 game->setPlayedRounds(0);
             }
         }
+#endif
 
         GameMode &selectedMode = *gameModes[gameModeSwitch->currentItem()];
 

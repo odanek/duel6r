@@ -185,12 +185,14 @@ namespace Duel6 {
         SDL_GetVersion(&sdlVersion);
         console.printLine(
                 Format("SDL version: {0}.{1}.{2}") << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
+#ifndef __EMSCRIPTEN__
         const SDL_version *mixVersion = Mix_Linked_Version();
         console.printLine(Format("SDL_mixer version: {0}.{1}.{2}") << mixVersion->major << mixVersion->minor
                                                                    << mixVersion->patch);
         const SDL_version *ttfVersion = TTF_Linked_Version();
         console.printLine(
                 Format("SDL_ttf version: {0}.{1}.{2}") << ttfVersion->major << ttfVersion->minor << ttfVersion->patch);
+#endif
 
         Console::registerBasicCommands(console);
         ConsoleCommands::registerCommands(console, service, menu, gameSettings);
@@ -217,12 +219,16 @@ namespace Duel6 {
         for (int i = 1; i < argc; i++) {
             console.exec(argv[i]);
         }
+
+        Context::push(menu);
     }
 
     void Application::run() {
+#ifndef __EMSCRIPTEN__
         Context::push(menu);
 
         while (Context::exists() && !requestClose) {
+#endif
             Context &context = Context::getCurrent();
             processEvents(context);
             syncUpdateAndRender(context);
@@ -230,12 +236,14 @@ namespace Duel6 {
             if (context.isClosed()) {
                 Context::pop();
             }
+#ifndef __EMSCRIPTEN__
         }
 
         while (Context::exists()) // Pop all contexts (if any) to execute all beforeClose logic
         {
             Context::pop();
         }
+#endif
     }
 
     void Application::tearDown() {

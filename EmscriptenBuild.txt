@@ -1,0 +1,2 @@
+emcc source/*.cpp source/*/*.cpp source/*/*/*.cpp -o duel6.bc -std=c++1z -s USE_SDL=2 -s USE_SDL_TTF=2 -D D6_RENDERER_GLES2 -O2
+emcc duel6.bc -o duel6.html -s USE_SDL=2 -s USE_SDL_TTF=2 -O2 --preload-file ./resources@/ -s FULL_ES2=1 
