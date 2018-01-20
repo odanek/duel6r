@@ -36,6 +36,7 @@
 
 #ifdef __EMSCRIPTEN__
 
+namespace Duel6 {
     class Sound {
     public:
         class Sample {
@@ -57,6 +58,7 @@
         void volume(Int32 volume) {}
         void stopMusic() {}
     };
+}
 
 #else
 
