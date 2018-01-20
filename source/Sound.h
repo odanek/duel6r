@@ -28,6 +28,12 @@
 #ifndef DUEL6_SOUND_H
 #define DUEL6_SOUND_H
 
+#include <string>
+#include <vector>
+#include <SDL2/SDL.h>
+#include "Type.h"
+#include "console/console.h"
+
 #ifdef __EMSCRIPTEN__
 
     class Sound {
@@ -54,10 +60,6 @@
 
 #else
 
-#include <string>
-#include <vector>
-#include <SDL2/SDL.h>
-
 #if defined(__APPLE__)
 #include <SDL2_mixer/SDL_mixer.h>
 #else
@@ -65,9 +67,6 @@
 #include <SDL2/SDL_mixer.h>
 
 #endif
-
-#include "Type.h"
-#include "console/console.h"
 
 namespace Duel6 {
     class Sound {
