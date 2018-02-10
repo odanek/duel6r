@@ -32,6 +32,7 @@ namespace Duel6 {
         game.getAppService().getConsole().printLine("...Preparing base players");
         Level::StartingPositionList startingPositions;
         world.getLevel().findStartingPositions(startingPositions);
+        std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
 
         Size playerIndex = 0;
         for (Player &player : players) {

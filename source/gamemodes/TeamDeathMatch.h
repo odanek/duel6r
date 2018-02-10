@@ -61,7 +61,7 @@ namespace Duel6 {
         bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
 
     private:
-        const Team &getPlayerTeam(Size playerIndex);
+        const Team &getPlayerTeam(Size playerIndex) const;
     };
 
 }

@@ -41,7 +41,7 @@ namespace Duel6 {
             {"Delta",   Color(255, 0, 255)}
     };
 
-    const Team &TeamDeathMatch::getPlayerTeam(Size playerIndex) {
+    const Team &TeamDeathMatch::getPlayerTeam(Size playerIndex) const {
         Size playerTeam = playerIndex % teamsCount;
         return TEAMS[playerTeam];
     }
@@ -66,9 +66,22 @@ namespace Duel6 {
         for (Player &player : players) {
             auto &ammoRange = game.getSettings().getAmmoRange();
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
-            Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];
-            player.startRound(world, position.first, position.second, ammo,
-                              Weapon::getRandomEnabled(game.getSettings()));
+
+            Size playerTeam = playerIndex % teamsCount;
+            bool direction = (playerTeam % 2) > 0;
+
+            game.getAppService().getConsole().printLine(Format("{2} Playerteam {0} direction {1}") << playerTeam << direction << player.getPerson().getName());
+
+            Size playerTeamIndex = playerIndex / teamsCount;
+            long index = playerTeamIndex % startingPositions.size();
+            if(direction) {
+                index = startingPositions.size() - index - 1;
+            }
+
+            game.getAppService().getConsole().printLine(Format("Teamindex {0} index {1}") << playerTeamIndex << index);
+
+            Level::StartingPosition position = startingPositions[index];
+            player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
             playerIndex++;
         }
     }
