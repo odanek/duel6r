@@ -48,6 +48,8 @@ namespace Duel6 {
 
         virtual void initializeRound(Game &game, std::vector<Player> &players, World &world) = 0;
 
+        virtual void initializePlayerPositions(Game &game, std::vector<Player> &players, World &world) const = 0;
+
         virtual bool checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) = 0;
 
         virtual bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const  = 0;

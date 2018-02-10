@@ -57,6 +57,22 @@ namespace Duel6 {
         }
     }
 
+    void TeamDeathMatch::initializePlayerPositions(Game &game, std::vector<Player> &players, World &world) const {
+        game.getAppService().getConsole().printLine("...Preparing team players");
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
+
+        Size playerIndex = 0;
+        for (Player &player : players) {
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
+            Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];
+            player.startRound(world, position.first, position.second, ammo,
+                              Weapon::getRandomEnabled(game.getSettings()));
+            playerIndex++;
+        }
+    }
+
     void TeamDeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
         teamMap.clear();
         Size index = 0;
