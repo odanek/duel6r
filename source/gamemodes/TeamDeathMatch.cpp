@@ -41,7 +41,7 @@ namespace Duel6 {
             {"Delta",   Color(255, 0, 255)}
     };
 
-    const Team &TeamDeathMatch::getPlayerTeam(Size playerIndex) {
+    const Team &TeamDeathMatch::getPlayerTeam(Size playerIndex) const {
         Size playerTeam = playerIndex % teamsCount;
         return TEAMS[playerTeam];
     }
@@ -54,6 +54,33 @@ namespace Duel6 {
             colors.set(PlayerSkinColors::Trousers, team.color);
             colors.set(PlayerSkinColors::HairTop, team.color);
             index++;
+        }
+    }
+
+    void TeamDeathMatch::initializePlayerPositions(Game &game, std::vector<Player> &players, World &world) const {
+        game.getAppService().getConsole().printLine("...Preparing team players");
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
+
+        Int32 layerSpan = startingPositions.size() / teamsCount;
+        Int32 midpoint = layerSpan / 2;
+
+        Size playerIndex = 0;
+        for (Player &player : players) {
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
+
+            Size playerTeam = playerIndex % teamsCount;
+            long playerTeamIndex = playerIndex / teamsCount;
+
+            bool direction = (Math::random(2) % 2) > 0;
+
+            long lowerBound = layerSpan*playerTeam;
+            long index = lowerBound + midpoint + (direction ? playerTeamIndex : -playerTeamIndex) % midpoint;
+
+            Level::StartingPosition position = startingPositions[index];
+            player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
+            playerIndex++;
         }
     }
 

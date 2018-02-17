@@ -138,8 +138,6 @@ namespace Duel6 {
                 D6_THROW(GameException, "No acceptable starting positions found in this level");
             }
         }
-
-        std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
     }
 
     void Level::findTopmostNonWallPositions(StartingPositionList &startingPositions) {

@@ -54,12 +54,14 @@ namespace Duel6 {
 
         bool checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) override;
 
+        void initializePlayerPositions(Game &game, std::vector<Player> &players, World &world) const override;
+
         Ranking getRanking(const std::vector<Player> &players) const override;
 
         bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
 
     private:
-        const Team &getPlayerTeam(Size playerIndex);
+        const Team &getPlayerTeam(Size playerIndex) const;
     };
 
 }
