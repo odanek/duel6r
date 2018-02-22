@@ -65,12 +65,13 @@ namespace Duel6 {
         Int32 layerSpan = startingPositions.size() / teamsCount;
         Int32 midpoint = (layerSpan > 1) ? layerSpan / 2 : 1;
 
+        Int32 randomizer = (Math::random(100) % teamsCount);
         Size playerIndex = 0;
         for (Player &player : players) {
             auto &ammoRange = game.getSettings().getAmmoRange();
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
 
-            Size playerTeam = playerIndex % teamsCount;
+            Size playerTeam = (playerIndex + randomizer) % teamsCount;
             Size playerTeamIndex = playerIndex / teamsCount;
 
             bool direction = (Math::random(2) % 2) > 0;
