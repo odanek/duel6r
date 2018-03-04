@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef D6_RENDERER_GL1
 #ifndef DUEL6_RENDERER_GL1RENDERER_H
 #define DUEL6_RENDERER_GL1RENDERER_H
 
@@ -46,12 +47,12 @@ namespace Duel6 {
 
         Info getInfo() override;
 
-        Texture createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
+        Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
                               TextureFilter filtering, bool clamp) override;
 
-        void setTextureFilter(const Texture &texture, TextureFilter filter) override;
+        void setTextureFilter(Texture::Id textureId, TextureFilter filter) override;
 
-        void freeTexture(Texture texture) override;
+        void freeTexture(Texture::Id textureId) override;
 
         void readScreenData(Int32 width, Int32 height, Image &image) override;
 
@@ -114,4 +115,5 @@ namespace Duel6 {
     };
 }
 
+#endif
 #endif

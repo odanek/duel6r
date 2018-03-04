@@ -66,12 +66,15 @@ namespace Duel6 {
         PlayerSounds defaultPlayerSounds;
         LevelList levelList;
         PersonList persons;
-        Gui::Button *button[7];
-        Gui::ListBox *listbox[7];
-        Gui::Label *label[8];
+        Gui::ListBox *personListBox;
+        Gui::ListBox *playerListBox;
+        Gui::ListBox *scoreListBox;
+        Gui::ListBox *levelListBox;
+        Gui::ListBox *screenModeListBox;
         Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
         Gui::Textbox *textbox;
         Gui::Spinner *gameModeSwitch;
+        Gui::Label *playersLabel;
         Size backgroundCount;
         TextureList menuBannerTexture;
         Sound::Track menuTrack;
@@ -143,6 +146,8 @@ namespace Duel6 {
 
         void removePlayer(Int32 c);
 
+        void updatePlayerCount();
+
         void rebuildTable();
 
         bool question(const std::string &question);
@@ -150,6 +155,8 @@ namespace Duel6 {
         bool deleteQuestion();
 
         void consumeInputEvents();
+
+        void shufflePlayers();
     };
 }
 

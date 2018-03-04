@@ -35,12 +35,15 @@
 
 namespace Duel6 {
     class GameResources {
+    public:
+        typedef TextureDictionary BackgroundList;
+
     private:
         Block::Meta blockMeta;
         Sound::Sample gameOverSound;
         Sound::Sample roundStartSound;
         TextureList blockTextures;
-        TextureList bcgTextures;
+        BackgroundList bcgTextures;
         TextureList explosionTextures;
         TextureList bonusTextures;
         TextureList elevatorTextures;
@@ -65,7 +68,7 @@ namespace Duel6 {
             return blockTextures;
         }
 
-        const TextureList &getBcgTextures() const {
+        const BackgroundList &getBcgTextures() const {
             return bcgTextures;
         }
 
@@ -73,7 +76,7 @@ namespace Duel6 {
             return explosionTextures;
         }
 
-        const TextureList &getBonuseTextures() const {
+        const TextureList &getBonusTextures() const {
             return bonusTextures;
         }
 

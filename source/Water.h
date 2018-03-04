@@ -32,7 +32,7 @@
 #include <memory>
 #include "Sound.h"
 #include "TextureManager.h"
-#include "Vector.h"
+#include "math/Vector.h"
 
 namespace Duel6 {
     class WaterImpl;

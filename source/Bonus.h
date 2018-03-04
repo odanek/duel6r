@@ -30,7 +30,7 @@
 
 #include "Type.h"
 #include "TextureManager.h"
-#include "Vector.h"
+#include "math/Vector.h"
 #include "Rectangle.h"
 #include "Weapon.h"
 

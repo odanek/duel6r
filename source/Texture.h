@@ -28,70 +28,42 @@
 #ifndef DUEL6_TEXTURE_H
 #define DUEL6_TEXTURE_H
 
-#include <vector>
 #include "Type.h"
 
 namespace Duel6 {
     class TextureManager;
 
     class Texture {
-    private:
-        Uint32 id;
-
     public:
-        Texture()
-                : id(0) {}
-
-        explicit Texture(Uint32 id)
-                : id(id) {}
-
-        Uint32 getId() const {
-            return id;
-        }
-
-        bool operator==(const Texture &texture) const {
-            return id == texture.id;
-        }
-
-        bool operator!=(const Texture &texture) const {
-            return id != texture.id;
-        }
-    };
-
-    class TextureList {
-    public:
-        typedef std::vector<Texture> TextureArray;
+        typedef Uint32 Key;
+        typedef Uint32 Id;
 
     private:
         friend class TextureManager;
-
-        Int32 key;
-        const TextureArray *textures;
-
-    private:
-        TextureList(Int32 key, const TextureArray &textures)
-                : key(key), textures(&textures) {}
+        Key key;
+        Id id;
 
     public:
-        TextureList()
-                : key(-1), textures(nullptr) {}
+        Texture()
+                : key(0), id(0) {}
 
-        const TextureArray &getTextures() const {
-            return *textures;
+        Texture(Key key, Id id)
+                : key(key), id(id) {}
+
+        Id getId() const {
+            return id;
         }
 
-        const Texture &at(Size index) const {
-            return (*textures)[index];
-        }
-
-    private:
-        Int32 getKey() const {
+        Key getKey() const {
             return key;
         }
 
-        void release() {
-            key = -1;
-            textures = nullptr;
+        bool operator==(const Texture &texture) const {
+            return key == texture.key;
+        }
+
+        bool operator!=(const Texture &texture) const {
+            return key != texture.key;
         }
     };
 

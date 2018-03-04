@@ -74,13 +74,13 @@ namespace Duel6 {
                     Entry lastEntry = entryList.back();
                     entryList.pop_back();
                     entryMap.erase(lastEntry.text);
-                    globRenderer->freeTexture(lastEntry.texture);
+                    globRenderer->freeTexture(lastEntry.texture.getId());
                 }
             }
 
             void empty() {
                 for (const Entry &entry : entryList) {
-                    globRenderer->freeTexture(entry.texture);
+                    globRenderer->freeTexture(entry.texture.getId());
                 }
                 entryList.clear();
                 entryMap.clear();
@@ -155,12 +155,12 @@ namespace Duel6 {
 
         SDL_LockSurface(image);
 
-        Texture texture = globRenderer->createTexture(image->w, image->h, image->pixels, 4, TextureFilter::LINEAR,
+        Texture::Id textureId = globRenderer->createTexture(image->w, image->h, image->pixels, 4, TextureFilter::LINEAR,
                                                       true);
 
         SDL_UnlockSurface(image);
         SDL_FreeSurface(image);
 
-        return texture;
+        return Texture(0, textureId);
     }
 }

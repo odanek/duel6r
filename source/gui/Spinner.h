@@ -35,9 +35,14 @@ namespace Duel6 {
     namespace Gui {
         class Spinner
                 : public Control {
+        public:
+            typedef std::function<void(Int32 selectedIndex)> ToggleCallback;
+
         private:
+            std::vector<ToggleCallback> toggleListeners;
             Button *left, *right;
-            Int32 width, now;
+            Int32 selectedIndex;
+            Int32 width;
             std::vector<std::string> items;
             Float32 repeatWait;
 
@@ -52,7 +57,7 @@ namespace Duel6 {
 
             void removeItem(Int32 n);
 
-            void setCurrent(Int32 n);
+            void setCurrent(Int32 index);
 
             Int32 currentItem();
 
@@ -60,6 +65,11 @@ namespace Duel6 {
 
             Control::Type getType() const override {
                 return Control::Type::Switchbox;
+            }
+
+            Spinner &onToggled(ToggleCallback listener) {
+                toggleListeners.push_back(listener);
+                return *this;
             }
 
         protected:

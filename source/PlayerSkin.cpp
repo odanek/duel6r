@@ -42,6 +42,6 @@ namespace Duel6 {
         substTable[Color(180, 182, 0)] = colors.get(PlayerSkinColors::Shoes);
         substTable[Color(255, 145, 172)] = colors.get(PlayerSkinColors::Face);
 
-        textures = textureManager.load(texturePath, TextureFilter::NEAREST, true, substTable);
+        textures = textureManager.loadList(texturePath, TextureFilter::NEAREST, true, substTable);
     }
 }

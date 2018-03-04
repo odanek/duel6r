@@ -131,12 +131,11 @@ namespace Duel6 {
         Int32 level = shuffle ? playedRounds % Int32(levels.size()) : Math::random(Int32(levels.size()));
         const std::string levelPath = levels[level];
         bool mirror = Math::random(2) == 0;
-        Size background = backgrounds[Math::random(Int32(backgrounds.size()))];
 
         Console &console = appService.getConsole();
         console.printLine(Format("\n===Loading level {0}===") << levelPath);
-        console.printLine(Format("...Parameters: mirror: {0}, background: {1}") << mirror << background);
-        round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror, background);
+        console.printLine(Format("...Parameters: mirror: {0}") << mirror);
+        round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror);
 
         playedRounds++;
         resources.getRoundStartSound().play();

@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Math.h"
+#include "math/Math.h"
 #include "Sound.h"
 #include "BonusList.h"
 #include "World.h"
@@ -33,7 +33,7 @@
 
 namespace Duel6 {
     BonusList::BonusList(const GameSettings &settings, const GameResources &resources, World &world)
-            : settings(settings), randomTexture(resources.getBonuseTextures().at(0)), world(world) {}
+            : settings(settings), randomTexture(resources.getBonusTextures().at(0)), world(world) {}
 
     void BonusList::render() const {
         for (const Bonus &bonus : bonuses) {

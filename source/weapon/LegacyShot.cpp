@@ -95,7 +95,7 @@ namespace Duel6 {
 
     bool LegacyShot::requestCollision(Shot &otherShot) {
         if (Collision::rectangles(this->getCollisionRect(), otherShot.getCollisionRect())) {
-            shotHit = {true, nullptr, &otherShot};
+            shotHit = {true, nullptr, &otherShot.getPlayer()};
             return true;
         }
         return false;
@@ -114,7 +114,7 @@ namespace Duel6 {
         onExplode(shotCentre, range, world);
 
         for (Player &player : world.getPlayers()) {
-            bool directHit = (shotHit.player != nullptr && player.is(*shotHit.player));
+            bool directHit = (shotHit.collidingPlayer != nullptr && player.is(*shotHit.collidingPlayer));
             Vector playerCentre = player.getCentre();
             Float32 dist = directHit ? 0 : (playerCentre - shotCentre).length();
             if (directHit) {
@@ -206,7 +206,7 @@ namespace Duel6 {
             shotList.forEach([this, &hit](Shot &otherShot) -> bool {
                 if (this != &otherShot && otherShot.requestCollision(*this)) {
                         hit.hit = true;
-                        hit.shot = &otherShot;
+                        hit.collidingShotPlayer = &otherShot.getPlayer();
                         return false;
                     }
                 return true;

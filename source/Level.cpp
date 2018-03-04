@@ -26,6 +26,7 @@
 */
 
 #include <queue>
+#include "Game.h"
 #include "Level.h"
 #include "json/JsonParser.h"
 #include "GameException.h"
@@ -43,6 +44,7 @@ namespace Duel6 {
 
         width = root.get("width").asInt();
         height = root.get("height").asInt();
+        background = root.getOrDefault("background", Json::Value::makeString("")).asString();
 
         Int32 blockCount = width * height;
         Json::Value blocks = root.get("blocks");
@@ -118,11 +120,7 @@ namespace Duel6 {
     }
 
     bool Level::isPossibleStartingPosition(Int32 x, Int32 y) {
-        if (isWall(x, y, true) || isWater(x, y)) {
-            return false;
-        }
-
-        return isWall(x, y - 1, true);
+        return isEmpty(x, y) && isWall(x, y - 1, true);
     }
 
     void Level::findStartingPositions(StartingPositionList &startingPositions) {
@@ -140,8 +138,6 @@ namespace Duel6 {
                 D6_THROW(GameException, "No acceptable starting positions found in this level");
             }
         }
-
-        std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
     }
 
     void Level::findTopmostNonWallPositions(StartingPositionList &startingPositions) {

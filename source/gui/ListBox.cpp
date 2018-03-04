@@ -30,6 +30,10 @@
 #include "../Video.h"
 
 namespace Duel6 {
+    namespace {
+        Color highlightColor(0, 0, 200);
+    }
+
     namespace Gui {
         ListBox::ListBox(Desktop &desk, bool sb)
                 : Control(desk) {
@@ -37,6 +41,7 @@ namespace Duel6 {
             listPos.start = 0;
             selected = -1;
             scrollBar = sb;
+            colorizeCallback = defaultColorize;
             if (sb) {
                 slider = new Slider(desk);
                 slider->connect(&listPos);
@@ -67,7 +72,7 @@ namespace Duel6 {
             if (index != selected) {
                 selected = index;
                 for (auto &listener : selectListeners) {
-                    listener(*this, index, items[index]);
+                    listener(index, items[index]);
                 }
             }
             return *this;
@@ -100,9 +105,6 @@ namespace Duel6 {
         ListBox &ListBox::addItem(const std::string &item) {
             listPos.items++;
             items.push_back(item);
-            if (listPos.items == 1) {
-                selected = 0;
-            }
             return *this;
         }
 
@@ -130,39 +132,51 @@ namespace Duel6 {
         void ListBox::mouseButtonEvent(const MouseButtonEvent &event) {
             if (items.size() > 0 && Control::mouseIn(event, x, y, width, height) &&
                 event.getButton() == SysEvent::MouseButton::LEFT && event.isPressed()) {
-                Int32 itemIndex = std::min(std::max(listPos.start + ((y - event.getY()) / itemHeight), 0),
-                                           listPos.items - 1);
-                selectItem(itemIndex);
-                if (event.isDoubleClick()) {
-                    for (auto &listener : doubleClickListeners) {
-                        listener(*this, itemIndex, items[itemIndex]);
+                Int32 itemIndex = std::max(listPos.start + ((y - event.getY()) / itemHeight), 0);
+
+                if (itemIndex >= listPos.items) {
+                    selectItem(-1);
+                } else {
+                    selectItem(itemIndex);
+                    if (event.isDoubleClick()) {
+                        for (auto &listener : doubleClickListeners) {
+                            listener(itemIndex, items[itemIndex]);
+                        }
                     }
                 }
             }
         }
 
         void ListBox::draw(const Font &font) const {
-            Int32 Y, i, shift;
-
             drawFrame(x - 2, y + 2, width + 4, height + 4, true);
             globRenderer->quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
 
             if (items.empty())
                 return;
 
-            Y = y;
-            shift = 15 + (itemHeight - 16) / 2;
+            Int32 Y = y;
+            Int32 shift = 15 + (itemHeight - 16) / 2;
 
-            for (i = listPos.start; i < listPos.start + listPos.showCount; i++, Y -= itemHeight) {
-                if (i >= listPos.items)
+            Int32 firstIndex = listPos.start;
+            Int32 visibleCount = listPos.showCount;
+
+            for (Int32 index = firstIndex; index < firstIndex + visibleCount; index++, Y -= itemHeight) {
+                if (index >= listPos.items)
                     break;
-                if (i == selected) {
-                    globRenderer->quadXY(Vector(x, Y - (itemHeight - 1)), Vector(width - 1, itemHeight - 1),
-                                         Color(0, 0, 200));
-                }
 
-                font.print(x, Y - shift, (i == selected) ? Color(255) : Color(0), items[i]);
+                const std::string& label = items[index];
+                ItemColor colors = colorizeCallback(index, label);
+
+                Color fontColor = (index == selected) ? Color::WHITE : colors.font;
+                Color bcgColor = (index == selected) ? highlightColor : colors.background;
+
+                globRenderer->quadXY(Vector(x, Y - (itemHeight - 1)), Vector(width - 1, itemHeight - 1), bcgColor);
+                font.print(x, Y - shift, fontColor, label.substr(0, size_t(width) / 8));
             }
+        }
+
+        ListBox::ItemColor ListBox::defaultColorize(Int32 index, const std::string& label) {
+            return {Color::BLACK, Color::WHITE};
         }
     }
 }

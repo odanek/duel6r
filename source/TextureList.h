@@ -25,37 +25,32 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL.h>
-#include "Format.h"
-#include "Input.h"
+#ifndef DUEL6_TEXTURELIST_H
+#define DUEL6_TEXTURELIST_H
+
+#include <vector>
+#include "Texture.h"
 
 namespace Duel6 {
-    void Input::setPressed(SDL_Keycode keyCode, bool pressed) {
-        if (pressed) {
-            pressedKeys.insert(keyCode);
-        } else {
-            pressedKeys.erase(keyCode);
-        }
-    }
+    class TextureManager;
 
-    void Input::joyScan(Console &console) {
-        joypads.clear();
+    class TextureList {
+    public:
+        typedef std::vector<Texture> Container;
 
-        if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-            console.printLine("...Starting joypad sub-system");
-            if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-                console.printLine("...Unable to initialize joypad sub-system");
-                return;
-            }
+    private:
+        friend class TextureManager;
+        Container textures;
+
+    public:
+        const Container &getTextures() const {
+            return textures;
         }
 
-        Int32 joysticks = SDL_NumJoysticks();
-        console.printLine(Format("...Found {0} joypads") << joysticks);
-
-        for (Int32 i = 0; i < joysticks; i++) {
-            auto joypad = SDL_JoystickOpen(i);
-            joypads.push_back(joypad);
-            console.printLine(Format("... * {0}") << SDL_JoystickName(joypad));
+        const Texture &at(Size index) const {
+            return textures[index];
         }
-    }
+    };
 }
+
+#endif

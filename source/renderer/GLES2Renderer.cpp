@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef D6_RENDERER_GLES2
 #include "GLES2Renderer.h"
 
 namespace Duel6 {
@@ -141,7 +142,7 @@ namespace Duel6 {
         return info;
     }
 
-    Texture
+    Texture::Id
     GLES2Renderer::createTexture(Int32 width, Int32 height, void *data, Int32 alignment, TextureFilter filtering,
                                  bool clamp) {
         GLuint textureId;
@@ -158,18 +159,18 @@ namespace Duel6 {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 
-        return Texture(textureId);
+        return textureId;
     }
 
-    void GLES2Renderer::setTextureFilter(const Texture &texture, TextureFilter filter) {
-        glBindTexture(GL_TEXTURE_2D, texture.getId());
+    void GLES2Renderer::setTextureFilter(Texture::Id textureId, TextureFilter filter) {
+        glBindTexture(GL_TEXTURE_2D, textureId);
         GLint filterValue = filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterValue);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterValue);
     }
 
-    void GLES2Renderer::freeTexture(Texture texture) {
-        GLuint id = texture.getId();
+    void GLES2Renderer::freeTexture(Texture::Id textureId) {
+        GLuint id = textureId;
         glDeleteTextures(1, &id);
     }
 
@@ -442,3 +443,5 @@ namespace Duel6 {
         }
     }
 }
+
+#endif

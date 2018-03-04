@@ -25,10 +25,10 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_MATRIX_H
-#define DUEL6_MATRIX_H
+#ifndef DUEL6_MATH_MATRIX_H
+#define DUEL6_MATH_MATRIX_H
 
-#include "Type.h"
+#include "../Type.h"
 #include "Vector.h"
 
 namespace Duel6 {

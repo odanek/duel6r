@@ -31,7 +31,7 @@
 #include <memory>
 #include <string>
 #include <time.h>
-#include "Camera.h"
+#include "math/Camera.h"
 #include "SpriteList.h"
 #include "Person.h"
 #include "PlayerSkin.h"

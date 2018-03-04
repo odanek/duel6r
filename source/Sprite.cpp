@@ -47,7 +47,7 @@ namespace Duel6 {
     Sprite::Sprite(const Int16 *animation, const TextureList &textures)
             : Sprite() {
         this->animation = animation;
-        this->textures = textures;
+        this->textures = &textures;
     }
 
     Sprite &Sprite::setAnimation(const Int16 *animation) {
@@ -104,7 +104,7 @@ namespace Duel6 {
         }
 
         Int32 textureIndex = animation[frame];
-        Texture texture = textures.at(textureIndex);
+        Texture texture = textures->at(textureIndex);
         Material material(texture, Color(255, 255, 255, Uint8(255 * alpha)), !isTransparent());
 
         bool rotated = zRotation != 0.0;

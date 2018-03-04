@@ -25,7 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Math.h"
+#include "math/Math.h"
 #include "Color.h"
 
 namespace Duel6 {

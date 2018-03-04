@@ -125,6 +125,10 @@ namespace Duel6 {
             return appService;
         }
 
+        const std::vector<Size> &getBackgrounds() const {
+            return backgrounds;
+        }
+
         std::vector<Player> &getPlayers() {
             return players;
         }

@@ -69,13 +69,13 @@ namespace Duel6 {
 
     private:
         const Input &input;
-        Size joypadIndex;
+        SDL_Joystick *joypad;
         Axis axis;
         Direction direction;
 
     public:
-        JoypadAxis(const Input &input, Size joypadIndex, Axis axis, Direction direction)
-                : input(input), joypadIndex(joypadIndex), axis(axis), direction(direction) {}
+        JoypadAxis(const Input &input, SDL_Joystick *joypad, Axis axis, Direction direction)
+                : input(input), joypad(joypad), axis(axis), direction(direction) {}
 
         bool isPressed() const override;
     };
@@ -84,12 +84,12 @@ namespace Duel6 {
             : public Control {
     private:
         const Input &input;
-        Size joypadIndex;
+        SDL_Joystick *joypad;
         Size button;
 
     public:
-        JoypadButton(const Input &input, Size joypadIndex, Size button)
-                : input(input), joypadIndex(joypadIndex), button(button) {}
+        JoypadButton(const Input &input, SDL_Joystick *joypad, Size button)
+                : input(input), joypad(joypad), button(button) {}
 
         bool isPressed() const override;
     };
@@ -142,6 +142,12 @@ namespace Duel6 {
         const Control &getStatus() const {
             return *status;
         }
+
+    public:
+        static std::unique_ptr<PlayerControls>
+        keyboardControls(const std::string &name, const Input &input, SDL_Keycode left, SDL_Keycode right, SDL_Keycode up, SDL_Keycode down,
+                         SDL_Keycode shoot, SDL_Keycode pick, SDL_Keycode status);
+        static std::unique_ptr<PlayerControls> joypadControls(const std::string& name, const Input &input, SDL_Joystick *joypad);
     };
 
     class PlayerControlsManager {
@@ -151,6 +157,8 @@ namespace Duel6 {
 
     public:
         PlayerControlsManager(const Input &input);
+
+        void detectJoypads();
 
         Size getSize() const {
             return controls.size();

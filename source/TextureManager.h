@@ -35,6 +35,8 @@
 #include "Color.h"
 #include "Image.h"
 #include "Texture.h"
+#include "TextureList.h"
+#include "TextureDictionary.h"
 
 #define D6_TEXTURE_EXTENSION     ".tga"
 
@@ -56,32 +58,34 @@ namespace Duel6 {
         typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
     private:
-        Int32 nextId;
+        Texture::Key nextKey;
         std::string textureFileExtension;
-        std::unordered_map<Int32, std::unique_ptr<TextureArray>> textureMap;
+        std::unordered_map<Texture::Key, Texture::Id> textureKeys;
 
     public:
         explicit TextureManager(const std::string &fileExtension);
 
         ~TextureManager();
 
-        Size size() { return textureMap.size(); }
+        Size size() {
+            return textureKeys.size();
+        }
+
+        void dispose(Texture &texture);
 
         void dispose(TextureList &textures);
 
         void disposeAll();
 
-        const TextureList load(const std::string &path, TextureFilter filtering, bool clamp);
+        const TextureList loadList(const std::string &path, TextureFilter filtering, bool clamp);
 
         const TextureList
-        load(const std::string &path, TextureFilter filtering, bool clamp, const SubstitutionTable &substitutionTable);
+        loadList(const std::string &path, TextureFilter filtering, bool clamp,
+                 const SubstitutionTable &substitutionTable);
+
+        const TextureDictionary loadDict(const std::string &path, TextureFilter filtering, bool clamp);
 
     private:
-        void dispose(const Int32 key);
-
-    private:
-        void releaseTextureIds(const TextureArray &list);
-
         void substituteColors(Image &image, const SubstitutionTable &substitutionTable);
     };
 }

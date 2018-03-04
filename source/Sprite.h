@@ -33,13 +33,13 @@
 #include "AnimationLooping.h"
 #include "Orientation.h"
 #include "TextureManager.h"
-#include "Vector.h"
+#include "math/Vector.h"
 
 namespace Duel6 {
     class Sprite {
     private:
         const Int16 *animation;    // Source array of animations and delays
-        TextureList textures;   // Texture array
+        const TextureList *textures;   // Texture array
         Size frame;    // Current animation frame
         Float32 delay;    // Delay to next animation frame
         Float32 speed;     // Speed of animation
@@ -79,7 +79,7 @@ namespace Duel6 {
         }
 
         Sprite &setTextures(const TextureList &textures) {
-            this->textures = textures;
+            this->textures = &textures;
             return *this;
         }
 

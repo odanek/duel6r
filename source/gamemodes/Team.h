@@ -30,6 +30,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include "../Color.h"
 
 namespace Duel6 {
@@ -41,5 +42,6 @@ namespace Duel6 {
     };
 
     typedef std::unordered_map<const Player *, const Team *> TeamMap;
+    extern std::vector<Team> TEAMS;
 }
 #endif
