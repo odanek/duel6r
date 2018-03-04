@@ -38,7 +38,9 @@ namespace Duel6 {
 namespace Duel6::Script {
     class PlayerScript : public Script {
         virtual void roundStart(Player &player, RoundScriptContext &roundContext) = 0;
+
         virtual void roundUpdate(Player &player, RoundScriptContext &roundContext) = 0;
+
         virtual void roundEnd(Player &player, RoundScriptContext &roundContext) = 0;
     };
 }
