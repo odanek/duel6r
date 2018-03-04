@@ -41,13 +41,13 @@ namespace Duel6 {
             {"Delta",   Color(255, 0, 255)}
     };
 
-    const Team &TeamDeathMatch::getPlayerTeam(Size playerIndex) const {
-        Size playerTeam = playerIndex % teamsCount;
+    const Team &TeamDeathMatch::getPlayerTeam(Int32 playerIndex) const {
+        Int32 playerTeam = playerIndex % teamsCount;
         return TEAMS[playerTeam];
     }
 
     void TeamDeathMatch::initializePlayers(std::vector<Game::PlayerDefinition> &definitions) {
-        Size index = 0;
+        Int32 index = 0;
         for (auto &definition : definitions) {
             const Team &team = getPlayerTeam(index);
             PlayerSkinColors &colors = definition.getColors();
@@ -62,21 +62,21 @@ namespace Duel6 {
         Level::StartingPositionList startingPositions;
         world.getLevel().findStartingPositions(startingPositions);
 
-        Int32 layerSpan = startingPositions.size() / teamsCount;
+        Int32 layerSpan = Int32(startingPositions.size()) / teamsCount;
         Int32 midpoint = (layerSpan > 1) ? layerSpan / 2 : 1;
 
-        Int32 randomizer = (Math::random(100) % teamsCount);
-        Size playerIndex = 0;
+        Int32 randomizer = Math::random(teamsCount);
+        Int32 playerIndex = 0;
         for (Player &player : players) {
             auto &ammoRange = game.getSettings().getAmmoRange();
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
 
-            Size playerTeam = (playerIndex + randomizer) % teamsCount;
-            Size playerTeamIndex = playerIndex / teamsCount;
+            Int32 playerTeam = (playerIndex + randomizer) % teamsCount;
+            Int32 playerTeamIndex = playerIndex / teamsCount;
 
-            bool direction = (Math::random(2) % 2) > 0;
-            Size lowerBound = layerSpan*playerTeam;
-            Size index = lowerBound + midpoint + (direction ? playerTeamIndex : static_cast<Size>(-playerTeamIndex)) % midpoint;
+            bool direction = Math::random(2) != 0;
+            Int32 lowerBound = layerSpan * playerTeam;
+            Int32 index = lowerBound + midpoint + (direction ? playerTeamIndex : -playerTeamIndex) % midpoint;
 
             Level::StartingPosition position = startingPositions[index];
             player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
@@ -86,7 +86,7 @@ namespace Duel6 {
 
     void TeamDeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
         teamMap.clear();
-        Size index = 0;
+        Int32 index = 0;
         for (auto &player : players) {
             const Team &team = getPlayerTeam(index);
             teamMap.insert(std::make_pair(&player, &team));
@@ -132,7 +132,7 @@ namespace Duel6 {
     Ranking TeamDeathMatch::getRanking(const std::vector<Player> &players) const {
         Ranking ranking;
 
-        for (Size teamIndex = 0; teamIndex < teamsCount; teamIndex++) {
+        for (Int32 teamIndex = 0; teamIndex < teamsCount; teamIndex++) {
             const Team &team = TEAMS[teamIndex];
             Color bcgColor = team.color.withAlpha(178);
             ranking.entries.push_back(Ranking::Entry{team.name, 0, Color::BLACK, bcgColor});
@@ -140,7 +140,7 @@ namespace Duel6 {
 
         Int32 index = 0;
         for (const auto &player : players) {
-            Size teamIndex = index % teamsCount;
+            Int32 teamIndex = index % teamsCount;
             Ranking::Entry &teamEntry = ranking.entries[teamIndex];
 
             teamEntry.points += player.getPerson().getTotalPoints();

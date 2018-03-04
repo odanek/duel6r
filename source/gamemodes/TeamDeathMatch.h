@@ -35,13 +35,13 @@
 namespace Duel6 {
     class TeamDeathMatch : public GameModeBase {
     private:
-        Size teamsCount;
+        Int32 teamsCount;
         bool friendlyFire;
         std::unique_ptr<PlayerEventListener> eventListener;
         TeamMap teamMap;
 
     public:
-        TeamDeathMatch(Size teamsCount, bool friendlyFire)
+        TeamDeathMatch(Int32 teamsCount, bool friendlyFire)
                 : teamsCount(teamsCount), friendlyFire(friendlyFire) {}
 
         std::string getName() const override {
@@ -61,7 +61,7 @@ namespace Duel6 {
         bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
 
     private:
-        const Team &getPlayerTeam(Size playerIndex) const;
+        const Team &getPlayerTeam(Int32 playerIndex) const;
     };
 
 }
