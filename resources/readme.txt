@@ -5,10 +5,7 @@ Popis:
  spoustu vylepseni - podpora joypadu, multiplatformni a odladeny kod,
  oprava spousty drobnych chyb (cervene vystriky vody, vlneni pod kameny,
  pozadi u informativnich zprav a dalsi).
- 
- V souboru data/config.txt je nove mozne zapnout 32 bitove barvy
- (standardne nyni zapnuto), stupen antialiasingu a jazyk aplikace.
- 
+  
  Ke stazeni je windows a linuxova verze, pokud by chtel nekdo hru prelozit
  i pod Max OS X (nemel by to byt problem), necht se mi ozve na mail.
  
@@ -36,6 +33,7 @@ Ovladani:
 		Skrceni         - sipka dolu
 		Strelba         - ctrl
 		Zvednuti zbrane - shift
+		Status          - enter
 
 	Ovladani 2:
 
@@ -44,16 +42,19 @@ Ovladani:
 		Skok            - W
 		Skrceni         - S
 		Strelba         - Q
-		Zvednuti zbrane - E
+		Zvednuti zbrane - 1
+		Status          - 2
 
 	Ovladani 3:
 
-		Pohyb doleva    - H
-		Pohyb doprava   - K
-		Skok            - U
-		Skrceni         - J
-		Strelba         - O
-		Zvednuti zbrane - L
+		Pohyb doleva    - F
+		Pohyb doprava   - H
+		Skok            - T
+		Skrceni         - G
+		Strelba         - R
+		Zvednuti zbrane - 4
+		Status          - 5
+
 
 	Ovladani 4:
 
@@ -61,9 +62,31 @@ Ovladani:
 		Pohyb doleva    - 1
 		Pohyb doprava   - 3
 		Skok            - 5
-		Skrceni         - Enter
+		Skrceni         - 2
 		Strelba         - 0
-		Zvednuti zbrane - Tecka
+		Zvednuti zbrane - tecka
+		Status          - enter
+
+	Ovladani 5:
+
+		Pohyb doleva    - J
+		Pohyb doprava   - L
+		Skok            - I
+		Skrceni         - K
+		Strelba         - U
+		Zvednuti zbrane - 7
+		Status          - 8
+
+	Ovladani 6:
+
+		(na numericke klavesnici)
+		Pohyb doleva    - 7
+		Pohyb doprava   - 9
+		Skok            - /
+		Skrceni         - 8
+		Strelba         - Page Down
+		Zvednuti zbrane - Page Up
+		Status          - End
 
 	 Joypad:
 	        Pohyb           - doleva, doprava
