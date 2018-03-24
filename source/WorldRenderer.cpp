@@ -280,8 +280,9 @@ namespace Duel6 {
 
             const auto &reload = indicators.getReload();
             if (reload.isVisible()) {
-                yOfs += playerIndicator(player, reload, Color::GREEN,
-                                        1.0f - player.getReloadTime() / player.getReloadInterval(), xOfs, yOfs);
+                Float32 interval = player.getReloadInterval();
+                Float32 value = 1.0f - std::min(interval, player.getReloadTime()) / interval;
+                yOfs += playerIndicator(player, reload, Color::GREEN, value, xOfs, yOfs);
             }
 
             const auto &air = indicators.getAir();
