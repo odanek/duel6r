@@ -10,9 +10,9 @@ The very first version of the game has been developed in **2002** by [Ondrej Dan
 ## Technical overview
 
 The game is written using the following technologies:
-- C++ with C++11, C++14, C++17 features slowly making it into the sources
+- C++ with C++11, C++14, C++17 features
 - [SDL 2](www.libsdl.org)
-- OpenGL (currently the game is built on top of a very legacy OpenGL version 1)
+- OpenGL (with a stable OpenGL 1 render backend and experimental OpenGL ES 2 and OpenGL 4 backends)
 - [CMake](www.cmake.org)
 
 There is a **builtin quake-style console** that can be used to modify game aspects at runtime.
@@ -46,6 +46,7 @@ Levels are saved in JSON format and there is an [HTML5 level editor](https://git
 - Team play
 - Computer opponents - AI
 - Network play
+- LUA scripting
 
 ## Contact
 

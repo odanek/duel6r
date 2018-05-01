@@ -37,7 +37,8 @@ namespace Duel6 {
             : game(game), roundNumber(roundNumber), world(game, levelPath, mirror),
               suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
               winner(false) {
-        preparePlayers();
+        game.getMode().initializePlayerPositions(game, players, world);
+        setPlayerViews();
         game.getMode().initializeRound(game, players, world);
     }
 
@@ -85,25 +86,6 @@ namespace Duel6 {
                                 video.getScreen().getClientHeight() / 2 + 2);
             }
         }
-    }
-
-    void Round::preparePlayers() {
-        game.getAppService().getConsole().printLine("...Preparing players");
-        Level::StartingPositionList startingPositions;
-        world.getLevel().findStartingPositions(startingPositions);
-
-        auto &players = world.getPlayers();
-        Size playerIndex = 0;
-        for (Player &player : players) {
-            auto &ammoRange = game.getSettings().getAmmoRange();
-            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
-            Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];
-            player.startRound(world, position.first, position.second, ammo,
-                              Weapon::getRandomEnabled(game.getSettings()));
-            playerIndex++;
-        }
-
-        setPlayerViews();
     }
 
     void Round::checkWinner() {

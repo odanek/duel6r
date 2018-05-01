@@ -81,8 +81,6 @@ namespace Duel6 {
         bool isLast() const;
 
     private:
-        void preparePlayers();
-
         void checkWinner();
 
         void setPlayerViews();
