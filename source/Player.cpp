@@ -217,18 +217,20 @@ namespace Duel6 {
             return;
 
         timeToReload = getReloadInterval();
-
-        indicators.getBullets().show();
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
 
-        ammo--;
+        if (getBonus() != BonusType::INFINITE_AMMO) {
+            indicators.getBullets().show();
+            ammo--;
+        }
+
         gunSprite->setFrame(0);
         getPerson().addShots(1);
         Orientation originalOrientation = getOrientation();
 
         getWeapon().shoot(*this, originalOrientation, *world);
 
-        if (getBonus() == BonusType::SPLIT_FIRE && getAmmo() > 0) {
+        if (getBonus() == BonusType::SPLIT_FIRE) {
             getPerson().addShots(1);
             Orientation secondaryOrientation =
                     originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
