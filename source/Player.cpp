@@ -229,7 +229,6 @@ namespace Duel6 {
         getWeapon().shoot(*this, originalOrientation, *world);
 
         if (getBonus() == BonusType::SPLIT_FIRE && getAmmo() > 0) {
-            ammo--;
             getPerson().addShots(1);
             Orientation secondaryOrientation =
                     originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
