@@ -213,7 +213,7 @@ namespace Duel6 {
     }
 
     void Player::shoot() {
-        if (!getAmmo() || isReloading() || !hasGun())
+        if ((!getAmmo() && getBonus() != BonusType::INFINITE_AMMO) || isReloading() || !hasGun())
             return;
 
         timeToReload = getReloadInterval();
