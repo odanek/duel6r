@@ -54,6 +54,8 @@ namespace Duel6 {
         virtual Sprite &makeSprite(Sprite &sprite) const = 0;
 
         virtual Texture getBonusTexture() const = 0;
+
+        virtual bool isChargeable() const = 0;
     };
 
     class Weapon final {
@@ -95,6 +97,8 @@ namespace Duel6 {
         bool operator==(const Weapon &weapon) const;
 
         bool operator!=(const Weapon &weapon) const;
+
+        bool isChargeable() const;
 
     public:
         static const std::vector<Weapon> &values();

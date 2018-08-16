@@ -29,7 +29,7 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, Color(255, 255, 0), 4, 200, 6.56f, "triton",
+        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, false, Color(255, 255, 0), 4, 200, 6.56f, "triton",
                                                "triton.wav", "bmbazook.wav", 0.04f,
                                                {1, 5, 2, 5, 3, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
                                                {0, 8, 1, 8, 2, 8, 3, 8, 4, 8, 3, 8, 2, 8, 1, 8, -1, 0},

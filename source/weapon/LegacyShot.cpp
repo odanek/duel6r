@@ -34,7 +34,7 @@ namespace Duel6 {
                            SpriteList::Iterator sprite, const Rectangle &collisionRect)
             : ShotBase(player.getWeapon(), player), definition(weapon.getDefinition()), textures(weapon.getTextures()),
               samples(weapon.getSamples()), collisionRect(collisionRect), orientation(orientation), sprite(sprite),
-              shotHit({false, nullptr, nullptr}) {
+              shotHit({false, nullptr, nullptr}), bulletSpeed(weapon.getShotSpeed(player.getChargeLevel())), power(weapon.getShotPower(player.getChargeLevel())) {
         const Vector dim = getDimensions();
         const Rectangle playerRect = player.getCollisionRect();
         if (orientation == Orientation::Left) {
@@ -49,13 +49,13 @@ namespace Duel6 {
     }
 
     void LegacyShot::move(Float32 elapsedTime) {
-        position += velocity * definition.bulletSpeed * elapsedTime;
+        position += velocity * bulletSpeed * elapsedTime;
         sprite->setPosition(getSpritePosition());
     }
 
     Float32 LegacyShot::getExplosionPower() const {
         Float32 coef = (powerful ? 2.0f : 1.0f);
-        return definition.power * coef;
+        return power * coef;
     }
 
     Float32 LegacyShot::getExplosionRange() const {

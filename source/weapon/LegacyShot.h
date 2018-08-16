@@ -50,6 +50,8 @@ namespace Duel6 {
         SpriteList::Iterator sprite;
         bool powerful;
         ShotHit shotHit;
+        Float32 bulletSpeed;
+        Int32 power;
 
     public:
         LegacyShot(Player &player, const LegacyWeapon &weapon, Orientation orientation, SpriteList::Iterator sprite,

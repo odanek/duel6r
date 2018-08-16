@@ -255,6 +255,8 @@ namespace Duel6 {
             FlagGhost = 0x400,
             FlagDoubleJumpDebounce = 0x800,
             FlagDoubleJump = 0x1000,
+            FlagShoot = 0x2000,
+            FlagShootDebounce = 0x4000,
         };
 
         struct WaterState {
@@ -441,7 +443,9 @@ namespace Duel6 {
         Float32 getReloadTime() const {
             return timeToReload;
         }
-
+        Float32 getChargeLevel() const {
+            return 1.0f - timeToReload / getReloadInterval(); // TODO probably will misbehave in case fast reload expires while charging
+        }
         BonusType getBonus() const {
             return bonus;
         }
@@ -471,9 +475,7 @@ namespace Duel6 {
 
         Player &pickWeapon(Weapon weapon, Int32 bullets);
 
-        bool isReloading() {
-            return timeToReload > 0;
-        }
+        bool isReloading();
 
         bool isKneeling() const {
             return hasFlag(FlagKnee);

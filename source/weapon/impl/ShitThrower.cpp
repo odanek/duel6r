@@ -30,7 +30,7 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {5.49f, false, false, true, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower",
+        LegacyWeapon::Definition DEFINITION = {5.49f, false, false, true, false, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower",
                                                "shit.wav", "shit-hit.wav", 0.04f,
                                                {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0},
                                                {0, 10, 1, 10, 2, 10, 1, 10, -1, 0},
