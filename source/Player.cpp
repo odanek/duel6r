@@ -219,11 +219,10 @@ namespace Duel6 {
     }
 
     void Player::shoot() {
-        if (!getAmmo() ||  !hasGun())
+        if ((!getAmmo() && getBonus() != BonusType::INFINITE_AMMO) || !hasGun())
             return;
 
 
-        indicators.getBullets().show();
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
 
         if (isReloading())
@@ -236,15 +235,17 @@ namespace Duel6 {
             }
         }
 
-        ammo--;
+        if (getBonus() != BonusType::INFINITE_AMMO) {
+            indicators.getBullets().show();
+            ammo--;
+        }
         gunSprite->setFrame(0);
         getPerson().addShots(1);
         Orientation originalOrientation = getOrientation();
 
         getWeapon().shoot(*this, originalOrientation, *world);
 
-        if (getBonus() == BonusType::SPLIT_FIRE && getAmmo() > 0) {
-            ammo--;
+        if (getBonus() == BonusType::SPLIT_FIRE) {
             getPerson().addShots(1);
             Orientation secondaryOrientation =
                     originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;

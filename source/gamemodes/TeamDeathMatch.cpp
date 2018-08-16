@@ -63,8 +63,6 @@ namespace Duel6 {
         world.getLevel().findStartingPositions(startingPositions);
 
         Int32 layerSpan = Int32(startingPositions.size()) / teamsCount;
-        Int32 midpoint = (layerSpan > 1) ? layerSpan / 2 : 1;
-
         Int32 randomizer = Math::random(teamsCount);
         Int32 playerIndex = 0;
         for (Player &player : players) {
