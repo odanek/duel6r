@@ -53,14 +53,14 @@ namespace Duel6 {
     }
     Float32 LegacyWeapon::getShotSpeed(Float32 coefficient) const {
         if (isChargeable()) {
-            return (0.5f + coefficient * 0.50f) * definition.bulletSpeed;
+            return coefficient * definition.bulletSpeed;
         } else {
             return definition.bulletSpeed;
         }
     }
     Int32 LegacyWeapon::getShotPower(Float32 coefficient) const {
         if (isChargeable()) {
-            return (0.5f + coefficient * 0.50f) * definition.power;
+            return coefficient * definition.power;
         } else {
             return definition.power;
         }

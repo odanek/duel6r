@@ -90,7 +90,7 @@ namespace Duel6 {
 
         flags = FlagHasGun;
         orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
-        timeToReload = 0;
+        timeToReload = weapon.isChargeable() ? getReloadInterval() : 0;
         life = D6_MAX_LIFE;
         air = D6_MAX_AIR;
         this->ammo = ammo;
