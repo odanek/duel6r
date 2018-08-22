@@ -70,7 +70,7 @@ namespace Duel6 {
             auto instanceID = GameController::toInstanceID(instance);
             console.printLine(Format("Joy attached {0}") << instanceID);
             for(auto & gameController: gameControllers) {
-                if(gameController.getGUID() == GUID) {
+                if(!gameController.isOpen() && gameController.getGUID() == GUID) {
                     gameController.reset(instance);
                     console.printLine(Format("reattaching {0}") << gameController.getName());
                     return;

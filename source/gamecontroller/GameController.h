@@ -32,6 +32,7 @@ public:
     const std::string & getName() const;
     void close();
     void reset(Instance instance);
+    bool isOpen(){ return open;}
     static InstanceID toInstanceID(Instance instance){
         return SDL_JoystickInstanceID(instance);
     }
