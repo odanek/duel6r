@@ -47,7 +47,7 @@
 namespace Duel6 {
     Menu::Menu(AppService &appService)
             : appService(appService), font(appService.getFont()), video(appService.getVideo()),
-              sound(appService.getSound()), controlsManager(appService.getInput()),
+              sound(appService.getSound()), controlsManager(appService.getControlsManager()),
               defaultPlayerSounds(PlayerSounds::makeDefault(sound)), playMusic(false) {}
 
     void Menu::loadPersonData(const std::string &filePath) {
@@ -72,17 +72,14 @@ namespace Duel6 {
     }
 
     void Menu::joyRescan() {
-        appService.getInput().joyScan(appService.getConsole());
         controlsManager.detectJoypads();
 
         Size controls = controlsManager.getNumAvailable();
         for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
             Gui::Spinner *control = controlSwitch[i];
-            control->clear();
             for (Size j = 0; j < controls; j++) {
-                control->addItem(controlsManager.get(j).getDescription());
+                control->addItem(controlsManager.get(j).getDescription(), j);
             }
-            control->setCurrent(Int32(i % controls));
         }
     }
 
@@ -250,7 +247,6 @@ namespace Duel6 {
             }
         });
 
-        joyRescan();
 
         backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
@@ -455,7 +451,7 @@ namespace Duel6 {
         for (Size i = 0; i < playerListBox->size(); i++) {
             Person &person = persons.getByName(playerListBox->getItem(i));
             auto profile = getPersonProfile(person.getName());
-            const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentItem());
+            const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentValue().first);
             PlayerSkinColors colors = profile ? profile->getSkinColors() : PlayerSkinColors::makeRandom();
             const PlayerSounds &sounds = profile ? profile->getSounds() : defaultPlayerSounds;
             playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls));
@@ -534,6 +530,7 @@ namespace Duel6 {
     }
 
     void Menu::beforeStart(Context *prevContext) {
+        joyRescan();
         SDL_ShowCursor(SDL_ENABLE);
         SDL_StartTextInput();
         rebuildTable();
@@ -600,6 +597,14 @@ namespace Duel6 {
 
     void Menu::mouseWheelEvent(const MouseWheelEvent &event) {
         gui.mouseWheelEvent(event);
+    }
+
+    void Menu::joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) {
+        joyRescan();
+    }
+
+    void Menu::joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) {
+        joyRescan();
     }
 
     void Menu::beforeClose(Context *newContext) {

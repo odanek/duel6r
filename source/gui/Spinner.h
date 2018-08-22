@@ -43,7 +43,7 @@ namespace Duel6 {
             Button *left, *right;
             Int32 selectedIndex;
             Int32 width;
-            std::vector<std::string> items;
+            std::vector<std::pair<Int32, std::string> > items;
             Float32 repeatWait;
 
         public:
@@ -53,13 +53,15 @@ namespace Duel6 {
 
             void setPosition(Int32 X, Int32 Y, Int32 W, Int32 H);
 
-            void addItem(const std::string &item);
+            void addItem(const std::string &item, Int32 value = 0, bool skipIfPresent = true);
 
             void removeItem(Int32 n);
 
             void setCurrent(Int32 index);
 
             Int32 currentItem();
+
+            std::pair<Int32, std::string> & currentValue();
 
             void clear();
 

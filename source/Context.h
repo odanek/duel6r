@@ -68,6 +68,10 @@ namespace Duel6 {
 
         virtual void mouseWheelEvent(const MouseWheelEvent &event) = 0;
 
+        virtual void joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) = 0;
+
+        virtual void joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) = 0;
+
         virtual void update(Float32 elapsedTime) = 0;
 
         virtual void render() const = 0;

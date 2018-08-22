@@ -32,6 +32,7 @@
 #include <vector>
 #include "Type.h"
 #include "Input.h"
+#include "gamecontroller/GameController.h"
 
 namespace Duel6 {
     class Control {
@@ -68,14 +69,13 @@ namespace Duel6 {
         };
 
     private:
-        const Input &input;
-        SDL_Joystick *joypad;
+        const GameController & gameController;
         Axis axis;
         Direction direction;
 
     public:
-        JoypadAxis(const Input &input, SDL_Joystick *joypad, Axis axis, Direction direction)
-                : input(input), joypad(joypad), axis(axis), direction(direction) {}
+        JoypadAxis( const GameController & gameController, Axis axis, Direction direction)
+                : gameController(gameController), axis(axis), direction(direction) {}
 
         bool isPressed() const override;
     };
@@ -83,13 +83,12 @@ namespace Duel6 {
     class JoypadButton
             : public Control {
     private:
-        const Input &input;
-        SDL_Joystick *joypad;
+        const GameController & gameController;
         Size button;
 
     public:
-        JoypadButton(const Input &input, SDL_Joystick *joypad, Size button)
-                : input(input), joypad(joypad), button(button) {}
+        JoypadButton(const GameController & gameController, Size button)
+                : gameController(gameController), button(button) {}
 
         bool isPressed() const override;
     };
@@ -147,7 +146,7 @@ namespace Duel6 {
         static std::unique_ptr<PlayerControls>
         keyboardControls(const std::string &name, const Input &input, SDL_Keycode left, SDL_Keycode right, SDL_Keycode up, SDL_Keycode down,
                          SDL_Keycode shoot, SDL_Keycode pick, SDL_Keycode status);
-        static std::unique_ptr<PlayerControls> joypadControls(const std::string& name, const Input &input, SDL_Joystick *joypad);
+        static std::unique_ptr<PlayerControls> joypadControls(const std::string& name, const GameController & gameController);
     };
 
     class PlayerControlsManager {
