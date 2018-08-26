@@ -96,8 +96,9 @@ namespace Duel6 {
         }
 
         void Desktop::mouseWheelEvent(const MouseWheelEvent &event) {
+            MouseWheelEvent translatedEvent = event.translate(-trX, -trY);
             for (auto &control : controls) {
-                control->mouseWheelEvent(event);
+                control->mouseWheelEvent(translatedEvent);
             }
         }
     }
