@@ -61,7 +61,7 @@ namespace Duel6 {
         Game *game;
         std::vector<std::unique_ptr<GameMode>> gameModes;
         Gui::Desktop gui;
-        PlayerControlsManager controlsManager;
+        PlayerControlsManager &controlsManager;
         std::unordered_map<std::string, PersonProfile> personProfiles;
         PlayerSounds defaultPlayerSounds;
         LevelList levelList;
@@ -104,6 +104,10 @@ namespace Duel6 {
         void mouseMotionEvent(const MouseMotionEvent &event) override;
 
         void mouseWheelEvent(const MouseWheelEvent &event) override;
+
+        void joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) override;
+
+        void joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) override;
 
         void update(Float32 elapsedTime) override;
 

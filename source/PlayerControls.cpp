@@ -24,7 +24,7 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include <algorithm>
 #include <SDL2/SDL.h>
 #include "PlayerControls.h"
 
@@ -36,12 +36,12 @@ namespace Duel6 {
     }
 
     bool JoypadAxis::isPressed() const {
-        Int16 axisPosition = SDL_JoystickGetAxis(joypad, (axis == Axis::Horizontal) ? 0 : 1);
+        auto axisPosition = gameController.getAxis((axis == Axis::Horizontal) ? 0 : 1);
         return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
     }
 
     bool JoypadButton::isPressed() const {
-        return (SDL_JoystickGetButton(joypad, (int) button) == 1);
+        return gameController.isPressed(button);
     }
 
     std::unique_ptr<PlayerControls>
@@ -60,14 +60,14 @@ namespace Duel6 {
     }
 
     std::unique_ptr<PlayerControls>
-    PlayerControls::joypadControls(const std::string &name, const Input &input, SDL_Joystick *joypad) {
-        auto left = new JoypadAxis(input, joypad, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left);
-        auto right = new JoypadAxis(input, joypad, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right);
-        auto up = new JoypadButton(input, joypad, 0);
-        auto down = new JoypadAxis(input, joypad, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right);
-        auto shoot = new JoypadButton(input, joypad, 1);
-        auto pick = new JoypadButton(input, joypad, 2);
-        auto status = new JoypadButton(input, joypad, 3);
+    PlayerControls::joypadControls(const std::string &name, const GameController & gameController) {
+        auto left = new JoypadAxis(gameController, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left);
+        auto right = new JoypadAxis(gameController, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right);
+        auto up = new JoypadButton(gameController, 0);
+        auto down = new JoypadAxis(gameController, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right);
+        auto shoot = new JoypadButton(gameController, 1);
+        auto pick = new JoypadButton(gameController, 2);
+        auto status = new JoypadButton(gameController, 3);
         auto controls = std::make_unique<PlayerControls>(name, left, right, up, down, shoot, pick, status);
         return controls;
     }
@@ -101,15 +101,18 @@ namespace Duel6 {
     }
 
     void PlayerControlsManager::detectJoypads() {
-        controls.resize(6);
-        for (Int32 i = 0; i < input.getNumJoypads(); i++) {
-            auto joypad = input.getJoypad(i);
-            auto name = SDL_JoystickName(joypad);
-            std::string label = Format("J{0}: {1}") << (i + 1) << name;
+        size_t joys = 0;
+        for(auto const & c : input.getJoys()){
+            std::string label = Format("J{0}: {1}") << joys++ << c.getName();
             if (label.size() > 18) {
                 label.resize(18);
             }
-            controls.push_back(PlayerControls::joypadControls(label, input, joypad));
+            if (std::find_if(controls.begin(), controls.end(), [label](std::unique_ptr<PlayerControls> & control) {
+                    return control->getDescription() == label;
+                }) == std::end(controls)) {
+                controls.push_back(PlayerControls::joypadControls(label, c));
+            }
+
         }
     }
 

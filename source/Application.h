@@ -43,6 +43,7 @@ namespace Duel6 {
         TextureManager textureManager;
         Video video;
         Input input;
+        PlayerControlsManager controlsManager;
         Sound sound;
         AppService service;
         Menu menu;
@@ -75,6 +76,8 @@ namespace Duel6 {
 
         void mouseWheelEvent(Context &context, const MouseWheelEvent &event);
 
+        void joyDeviceAddedEvent(Context & context, const JoyDeviceAddedEvent & event);
+        void joyDeviceRemovedEvent(Context & context, const JoyDeviceRemovedEvent & event);
         void syncUpdateAndRender(Context &context);
     };
 }

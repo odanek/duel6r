@@ -117,6 +117,10 @@ namespace Duel6 {
 
         void mouseWheelEvent(const MouseWheelEvent &event) override;
 
+        void joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) override;
+
+        void joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) override;
+
         void update(Float32 elapsedTime) override;
 
         void render() const override;

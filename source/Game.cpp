@@ -87,6 +87,10 @@ namespace Duel6 {
 
     void Game::mouseWheelEvent(const MouseWheelEvent &event) {}
 
+    void Game::joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) {}
+
+    void Game::joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) {}
+
     void Game::start(const std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
                      const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom,
                      GameMode &gameMode) {
