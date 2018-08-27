@@ -29,7 +29,7 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {4.27f, false, true, true, Color(255, 0, 255), 0, 100, 3.11f,
+        LegacyWeapon::Definition DEFINITION = {4.27f, false, true, true, false, Color(255, 0, 255), 0, 100, 3.11f,
                                                "kiss of death", "kiss2.wav", "kiss.wav", 0.01f,
                                                {0, 8, 1, 8, 2, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0},
                                                {0, 10, 1, 10, 2, 10, 1, 10, -1, 0},

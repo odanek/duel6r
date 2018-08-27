@@ -62,6 +62,10 @@ namespace Duel6 {
             Sprite &makeSprite(Sprite &sprite) const { return sprite; }
 
             Texture getBonusTexture() const { return Texture(); }
+
+            bool isChargeable() const override {
+                return false;
+            }
         };
 
         NoneWeapon NO_WEAPON;
@@ -111,6 +115,9 @@ namespace Duel6 {
         return impl != weapon.impl;
     }
 
+    bool Weapon::isChargeable() const {
+        return impl->isChargeable();
+    }
     void Weapon::initialize(Sound &sound, TextureManager &textureManager) {
         add(std::make_unique<Pistol>(sound, textureManager));
         add(std::make_unique<Bazooka>(sound, textureManager));
