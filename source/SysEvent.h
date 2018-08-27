@@ -145,6 +145,10 @@ namespace Duel6 {
         Int32 getAmountY() const {
             return amountY;
         }
+
+        MouseWheelEvent translate(Int32 tx, Int32 ty) const {
+            return MouseWheelEvent(x + tx, y + ty, amountX, amountY);
+        }
     };
 
     class KeyPressEvent : public SysEvent {
