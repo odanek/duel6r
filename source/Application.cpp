@@ -25,6 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef D6_SCRIPTING_LUA
+    #include <lua.hpp>
+#endif
 #include "VideoException.h"
 #include "InfoMessageQueue.h"
 #include "Game.h"
@@ -192,6 +195,11 @@ namespace Duel6 {
         const SDL_version *ttfVersion = TTF_Linked_Version();
         console.printLine(
                 Format("SDL_ttf version: {0}.{1}.{2}") << ttfVersion->major << ttfVersion->minor << ttfVersion->patch);
+
+#ifdef D6_SCRIPTING_LUA
+        const lua_Number *luaVersion = lua_version(nullptr);
+        console.printLine(Format("Lua version: {0}") << *luaVersion);
+#endif
 
         Console::registerBasicCommands(console);
         ConsoleCommands::registerCommands(console, service, menu, gameSettings);
