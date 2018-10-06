@@ -70,6 +70,7 @@ namespace Duel6 {
         static const BonusType SPLIT_FIRE;
         static const BonusType VAMPIRE_SHOTS;
         static const BonusType INFINITE_AMMO;
+        static const BonusType SNORKEL;
 
     private:
         mutable BonusTypeImpl *impl;
