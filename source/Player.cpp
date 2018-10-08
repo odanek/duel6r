@@ -457,7 +457,7 @@ namespace Duel6 {
     Float32 Player::getSpeed() const {
         Float32 spd = 1.0f;
 
-        if (isUnderWater()) {
+        if (isUnderWater() && !hasSnorkel()) {
             spd *= 0.67f;
         }
 

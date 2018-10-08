@@ -25,65 +25,32 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMECONTROLLER_GAMECONTROLLER_H
-#define DUEL6_GAMECONTROLLER_GAMECONTROLLER_H
-
-#include <SDL2/SDL_joystick.h>
-#include <string>
-#include <array>
-#include <iterator>
+#include "../Player.h"
+#include "../World.h"
+#include "Snorkel.h"
 
 namespace Duel6 {
-    class GameController {
+    namespace Bonuses {
+        Snorkel::Snorkel(Texture texture)
+                : texture(texture) {}
 
-    public:
-        using InstanceID = SDL_JoystickID;
-        using Instance = SDL_Joystick *;
-        using ControllerGUID = SDL_JoystickGUID;
-        using AxisPosition = Sint16;
-
-        explicit GameController(Instance instance);
-
-        virtual ~GameController() = default;
-
-        bool isPressed(int button) const;
-
-        AxisPosition getAxis(int axis) const;
-
-        const ControllerGUID &getGUID() const;
-
-        InstanceID getInstanceID() const;
-
-        const std::string &getName() const;
-
-        void close();
-
-        void reset(Instance instance);
-
-        bool isOpen() { return open; }
-
-        static InstanceID toInstanceID(Instance instance) {
-            return SDL_JoystickInstanceID(instance);
+        Texture Snorkel::getTexture() const {
+            return texture;
         }
 
-        static ControllerGUID toGUID(Instance instance) {
-            return SDL_JoystickGetGUID(instance);
+        bool Snorkel::isOneTime() const {
+            return false;
         }
 
-    private:
-        bool open = false;
-        Instance instance;
-        InstanceID instanceID;
-        const ControllerGUID guid;
-        std::string name;
+        bool Snorkel::isApplicable(Player &player, World &world) const {
+            return true;
+        }
 
-    public:
-        GameController(const GameController &) = delete;
-        GameController(GameController &&) = delete;
-        GameController &operator=(const GameController &) = delete;
-    };
+        void Snorkel::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Snorkel for {0} seconds") << duration);
+        }
 
-    bool operator==(const GameController::ControllerGUID &l, const GameController::ControllerGUID &r);
+        void Snorkel::onExpire(Player &player, World &world) const {
+        }
+    }
 }
-
-#endif

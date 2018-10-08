@@ -38,6 +38,7 @@
 #include "bonus/FullLife.h"
 #include "bonus/FastReload.h"
 #include "bonus/InfiniteAmmo.h"
+#include "bonus/Snorkel.h"
 #include "Video.h"
 
 namespace Duel6 {
@@ -77,6 +78,7 @@ namespace Duel6 {
     const BonusType BonusType::SPLIT_FIRE;
     const BonusType BonusType::VAMPIRE_SHOTS;
     const BonusType BonusType::INFINITE_AMMO;
+    const BonusType BonusType::SNORKEL;
 
     std::vector<BonusType> BonusType::types;
     std::vector<BonusType::BonusTypeImplPtr> BonusType::implementations;
@@ -138,6 +140,7 @@ namespace Duel6 {
         SPLIT_FIRE.assign(std::make_unique<Bonuses::SplitFire>(textures.at(10)));
         VAMPIRE_SHOTS.assign(std::make_unique<Bonuses::VampireShots>(textures.at(11)));
         INFINITE_AMMO.assign(std::make_unique<Bonuses::InfiniteAmmo>(textures.at(12)));
+        SNORKEL.assign(std::make_unique<Bonuses::Snorkel>(textures.at(13)));
     }
 
     Bonus::Bonus(BonusType type, Int32 duration, const Vector &position, Texture texture)

@@ -25,65 +25,31 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GAMECONTROLLER_GAMECONTROLLER_H
-#define DUEL6_GAMECONTROLLER_GAMECONTROLLER_H
+#ifndef DUEL6_BONUS_SNORKEL_H
+#define DUEL6_BONUS_SNORKEL_H
 
-#include <SDL2/SDL_joystick.h>
-#include <string>
-#include <array>
-#include <iterator>
+#include "../Bonus.h"
 
 namespace Duel6 {
-    class GameController {
+    namespace Bonuses {
+        class Snorkel : public BonusTypeImpl {
+        private:
+            Texture texture;
 
-    public:
-        using InstanceID = SDL_JoystickID;
-        using Instance = SDL_Joystick *;
-        using ControllerGUID = SDL_JoystickGUID;
-        using AxisPosition = Sint16;
+        public:
+            explicit Snorkel(Texture texture);
 
-        explicit GameController(Instance instance);
+            Texture getTexture() const override;
 
-        virtual ~GameController() = default;
+            bool isOneTime() const override;
 
-        bool isPressed(int button) const;
+            bool isApplicable(Player &player, World &world) const override;
 
-        AxisPosition getAxis(int axis) const;
+            void onApply(Player &player, World &world, Int32 duration) const override;
 
-        const ControllerGUID &getGUID() const;
-
-        InstanceID getInstanceID() const;
-
-        const std::string &getName() const;
-
-        void close();
-
-        void reset(Instance instance);
-
-        bool isOpen() { return open; }
-
-        static InstanceID toInstanceID(Instance instance) {
-            return SDL_JoystickInstanceID(instance);
-        }
-
-        static ControllerGUID toGUID(Instance instance) {
-            return SDL_JoystickGetGUID(instance);
-        }
-
-    private:
-        bool open = false;
-        Instance instance;
-        InstanceID instanceID;
-        const ControllerGUID guid;
-        std::string name;
-
-    public:
-        GameController(const GameController &) = delete;
-        GameController(GameController &&) = delete;
-        GameController &operator=(const GameController &) = delete;
-    };
-
-    bool operator==(const GameController::ControllerGUID &l, const GameController::ControllerGUID &r);
+            void onExpire(Player &player, World &world) const override;
+        };
+    }
 }
 
 #endif

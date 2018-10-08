@@ -540,6 +540,10 @@ namespace Duel6 {
             return (getBonus() == BonusType::FAST_RELOAD);
         }
 
+        bool hasSnorkel() const {
+            return (getBonus() == BonusType::SNORKEL);
+        }
+
         bool isOnElevator() const {
             return (elevator != nullptr);
         }

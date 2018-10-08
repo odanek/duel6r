@@ -72,7 +72,9 @@ namespace Duel6 {
 
             void onUnder(Player &player, Float32 elapsedTime) const override {
                 Float32 hitAmount = getAirHit() * elapsedTime;
-                player.airHit(hitAmount);
+                if(!player.hasSnorkel()){
+                    player.airHit(hitAmount);
+                }
             }
 
         protected:

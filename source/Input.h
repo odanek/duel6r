@@ -42,10 +42,10 @@ namespace Duel6 {
     private:
         std::unordered_set<SDL_Keycode> pressedKeys;
         std::list<GameController> gameControllers;
-        Console & console;
+        Console &console;
 
     public:
-        Input(Console & console) : console(console) {
+        Input(Console &console) : console(console) {
             if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
                 console.printLine("...Starting joypad sub-system");
                 if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
@@ -54,13 +54,14 @@ namespace Duel6 {
                 }
             }
         }
+
         void setPressed(SDL_Keycode keyCode, bool pressed);
 
         bool isPressed(SDL_Keycode keyCode) const {
             return pressedKeys.find(keyCode) != pressedKeys.end();
         }
 
-        const std::list<GameController> & getJoys() const{
+        const std::list<GameController> &getJoys() const {
             return gameControllers;
         }
 
@@ -69,8 +70,8 @@ namespace Duel6 {
             auto GUID = GameController::toGUID(instance);
             auto instanceID = GameController::toInstanceID(instance);
             console.printLine(Format("Joy attached {0}") << instanceID);
-            for(auto & gameController: gameControllers) {
-                if(!gameController.isOpen() && gameController.getGUID() == GUID) {
+            for (auto &gameController: gameControllers) {
+                if (!gameController.isOpen() && gameController.getGUID() == GUID) {
                     gameController.reset(instance);
                     console.printLine(Format("reattaching {0}") << gameController.getName());
                     return;
@@ -79,14 +80,15 @@ namespace Duel6 {
 
             gameControllers.emplace_back(instance);
         }
+
         // handles reattaching
         void joyDetached(GameController::InstanceID instanceID) {
             console.printLine(Format("Joy detached {0}") << instanceID);
-            for(auto & gameController: gameControllers) {
-                if(gameController.getInstanceID() == instanceID) {
-                        console.printLine(Format("closing joy {0}") << instanceID);
-                        gameController.close();
-                        return;
+            for (auto &gameController: gameControllers) {
+                if (gameController.getInstanceID() == instanceID) {
+                    console.printLine(Format("closing joy {0}") << instanceID);
+                    gameController.close();
+                    return;
                 }
             }
         }
