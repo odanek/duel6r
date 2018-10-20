@@ -29,7 +29,7 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {12.2f, true, true, true, Color(255, 255, 0), 2, 80, 3.44f,
+        LegacyWeapon::Definition DEFINITION = {12.2f, true, true, true, false, Color(255, 255, 0), 2, 80, 3.44f,
                                                "double laser", "laser.wav", "bmbazook.wav", 0.005f,
                                                {1, 10, 0, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}, {0, 50, -1, 0},
                                                {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};

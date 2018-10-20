@@ -51,7 +51,20 @@ namespace Duel6 {
             samples.boom = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.boomSound);
         }
     }
-
+    Float32 LegacyWeapon::getShotSpeed(Float32 coefficient) const {
+        if (isChargeable()) {
+            return coefficient * definition.bulletSpeed;
+        } else {
+            return definition.bulletSpeed;
+        }
+    }
+    Int32 LegacyWeapon::getShotPower(Float32 coefficient) const {
+        if (isChargeable()) {
+            return coefficient * definition.power;
+        } else {
+            return definition.power;
+        }
+    }
     void LegacyWeapon::shoot(Player &player, Orientation orientation, World &world) const {
         Sprite shotSprite(definition.shotAnimation, textures.shot);
         auto spriteIterator = world.getSpriteList().addSprite(shotSprite);
@@ -83,5 +96,9 @@ namespace Duel6 {
 
     const LegacyWeapon::WeaponSamples &LegacyWeapon::getSamples() const {
         return samples;
+    }
+
+    bool LegacyWeapon::isChargeable() const {
+        return definition.chargeable;
     }
 }

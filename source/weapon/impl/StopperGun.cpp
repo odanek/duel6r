@@ -29,7 +29,7 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {7.93f, true, false, false, Color(0, 0, 0), 0, 10, 0.9f, "stopper gun",
+        LegacyWeapon::Definition DEFINITION = {7.93f, true, false, false, false, Color(0, 0, 0), 0, 10, 0.9f, "stopper gun",
                                                "spunt.wav", "", 0, {0, 5, 1, 5, 1, 5, 2, 5, 2, 5, 0, 5, 0, 5, -1, 0},
                                                {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
         const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.33f, 0.71f), Vector(0.23f, 0.20f));

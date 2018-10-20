@@ -29,7 +29,7 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {12.2f, false, true, false, Color(0, 255, 255), 0, 100, 4.1f, "lightning",
+        LegacyWeapon::Definition DEFINITION = {12.2f, false, true, false, false, Color(0, 255, 255), 0, 100, 4.1f, "lightning",
                                                "blesk.wav", "bmblesk.wav", 0,
                                                {1, 5, 2, 5, 3, 5, 4, 5, 0, 5, 0, 5, 0, 50, -1, 0},
                                                {0, 10, 1, 10, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};

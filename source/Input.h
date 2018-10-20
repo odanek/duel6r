@@ -29,34 +29,69 @@
 #define DUEL6_INPUT_H
 
 #include <unordered_set>
-#include <vector>
+#include <list>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_joystick.h>
 #include "console/console.h"
+#include "gamecontroller/GameController.h"
 #include "Type.h"
 
 namespace Duel6 {
+
     class Input {
     private:
         std::unordered_set<SDL_Keycode> pressedKeys;
-        std::vector<SDL_Joystick *> joypads;
+        std::list<GameController> gameControllers;
+        Console &console;
 
     public:
+        Input(Console &console) : console(console) {
+            if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
+                console.printLine("...Starting joypad sub-system");
+                if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
+                    console.printLine("...Unable to initialize joypad sub-system");
+                    return;
+                }
+            }
+        }
+
         void setPressed(SDL_Keycode keyCode, bool pressed);
 
         bool isPressed(SDL_Keycode keyCode) const {
             return pressedKeys.find(keyCode) != pressedKeys.end();
         }
 
-        Int32 getNumJoypads() const {
-            return Int32(joypads.size());
+        const std::list<GameController> &getJoys() const {
+            return gameControllers;
         }
 
-        SDL_Joystick *getJoypad(Size index) const {
-            return joypads[index];
+        // handles reattaching
+        void joyAttached(GameController::Instance instance) {
+            auto GUID = GameController::toGUID(instance);
+            auto instanceID = GameController::toInstanceID(instance);
+            console.printLine(Format("Joy attached {0}") << instanceID);
+            for (auto &gameController: gameControllers) {
+                if (!gameController.isOpen() && gameController.getGUID() == GUID) {
+                    gameController.reset(instance);
+                    console.printLine(Format("reattaching {0}") << gameController.getName());
+                    return;
+                }
+            }
+
+            gameControllers.emplace_back(instance);
         }
 
-        void joyScan(Console &console);
+        // handles reattaching
+        void joyDetached(GameController::InstanceID instanceID) {
+            console.printLine(Format("Joy detached {0}") << instanceID);
+            for (auto &gameController: gameControllers) {
+                if (gameController.getInstanceID() == instanceID) {
+                    console.printLine(Format("closing joy {0}") << instanceID);
+                    gameController.close();
+                    return;
+                }
+            }
+        }
     };
 }
 

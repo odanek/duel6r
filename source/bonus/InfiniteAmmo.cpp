@@ -25,22 +25,32 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Triton.h"
+#include "../Player.h"
+#include "../World.h"
+#include "InfiniteAmmo.h"
 
 namespace Duel6 {
-    namespace {
-        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, false, Color(255, 255, 0), 4, 200, 6.56f, "triton",
-                                               "triton.wav", "bmbazook.wav", 0.04f,
-                                               {1, 5, 2, 5, 3, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 8, 1, 8, 2, 8, 3, 8, 4, 8, 3, 8, 2, 8, 1, 8, -1, 0},
-                                               {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.05f, 0.66f), Vector(0.55f, 0.29f));
-    }
+    namespace Bonuses {
+        InfiniteAmmo::InfiniteAmmo(Texture texture)
+                : texture(texture) {}
 
-    Triton::Triton(Sound &sound, TextureManager &textureManager)
-            : LegacyWeapon(sound, textureManager, DEFINITION, 7) {}
+        Texture InfiniteAmmo::getTexture() const {
+            return texture;
+        }
 
-    Rectangle Triton::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+        bool InfiniteAmmo::isOneTime() const {
+            return false;
+        }
+
+        bool InfiniteAmmo::isApplicable(Player &player, World &world) const {
+            return true;
+        }
+
+        void InfiniteAmmo::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Infinite ammo for {0} seconds") << duration);
+        }
+
+        void InfiniteAmmo::onExpire(Player &player, World &world) const {
+        }
     }
 }

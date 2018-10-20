@@ -63,8 +63,6 @@ namespace Duel6 {
         world.getLevel().findStartingPositions(startingPositions);
 
         Int32 layerSpan = Int32(startingPositions.size()) / teamsCount;
-        Int32 midpoint = (layerSpan > 1) ? layerSpan / 2 : 1;
-
         Int32 randomizer = Math::random(teamsCount);
         Int32 playerIndex = 0;
         for (Player &player : players) {
@@ -72,11 +70,8 @@ namespace Duel6 {
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
 
             Int32 playerTeam = (playerIndex + randomizer) % teamsCount;
-            Int32 playerTeamIndex = playerIndex / teamsCount;
-
-            bool direction = Math::random(2) != 0;
-            Int32 lowerBound = layerSpan * playerTeam;
-            Int32 index = lowerBound + midpoint + (direction ? playerTeamIndex : -playerTeamIndex) % midpoint;
+            Int32 playerTeamIndex = Math::random(layerSpan);
+            Int32 index = (layerSpan * playerTeam) + playerTeamIndex % layerSpan;
 
             Level::StartingPosition position = startingPositions[index];
             player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));

@@ -73,9 +73,10 @@ namespace Duel6 {
     }
 
     Application::Application()
-            : console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION), sound(20, console),
+            : console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION),
+              input(console), controlsManager(input),sound(20, console),
               scriptContext(console, sound, gameSettings), scriptManager(scriptContext),
-              service(font, console, textureManager, video, input, sound, scriptManager),
+              service(font, console, textureManager, video, input, controlsManager, sound, scriptManager),
               menu(service), game(service, gameResources, gameSettings), requestClose(false) {}
 
     Application::~Application() {
@@ -122,6 +123,16 @@ namespace Duel6 {
     void Application::mouseWheelEvent(Context &context, const MouseWheelEvent &event) {
         context.mouseWheelEvent(event);
     }
+    void Application::joyDeviceAddedEvent(Context & context, const JoyDeviceAddedEvent & event) {
+        input.joyAttached(event.instance);
+        controlsManager.detectJoypads();
+        context.joyDeviceAddedEvent(event);
+    }
+    void Application::joyDeviceRemovedEvent(Context & context, const JoyDeviceRemovedEvent & event) {
+        input.joyDetached(event.instanceID);
+        controlsManager.detectJoypads();
+        context.joyDeviceRemovedEvent(event);
+    }
 
     void Application::processEvents(Context &context) {
         SDL_Event event;
@@ -144,9 +155,23 @@ namespace Duel6 {
                     mouseMotionEvent(context,
                                      createMouseMotionEvent(event.motion, video.getScreen().getClientHeight()));
                     break;
-                case SDL_MOUSEWHEEL:
-                    mouseWheelEvent(context, MouseWheelEvent(0, 0, event.wheel.x, event.wheel.y));
+                case SDL_MOUSEWHEEL:{
+                        Int32 x,y;
+                        SDL_GetMouseState(&x, &y);
+                        mouseWheelEvent(context, MouseWheelEvent(x, video.getScreen().getClientHeight() - y, event.wheel.x, event.wheel.y));
+                    }
                     break;
+                case SDL_JOYDEVICEADDED:{
+                    auto deviceIndex = event.jdevice.which;
+                    auto joy = SDL_JoystickOpen(deviceIndex);
+                    joyDeviceAddedEvent(context, JoyDeviceAddedEvent(joy));
+                    break;
+                }
+                case SDL_JOYDEVICEREMOVED: {
+                    auto instanceId = event.jdevice.which;
+                    joyDeviceRemovedEvent(context, JoyDeviceRemovedEvent(instanceId));
+                    break;
+                }
                 case SDL_QUIT:
                     requestClose = true;
                     break;

@@ -25,22 +25,65 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Triton.h"
+#ifndef DUEL6_GAMECONTROLLER_GAMECONTROLLER_H
+#define DUEL6_GAMECONTROLLER_GAMECONTROLLER_H
+
+#include <SDL2/SDL_joystick.h>
+#include <string>
+#include <array>
+#include <iterator>
 
 namespace Duel6 {
-    namespace {
-        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, false, Color(255, 255, 0), 4, 200, 6.56f, "triton",
-                                               "triton.wav", "bmbazook.wav", 0.04f,
-                                               {1, 5, 2, 5, 3, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 8, 1, 8, 2, 8, 3, 8, 4, 8, 3, 8, 2, 8, 1, 8, -1, 0},
-                                               {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.05f, 0.66f), Vector(0.55f, 0.29f));
-    }
+    class GameController {
 
-    Triton::Triton(Sound &sound, TextureManager &textureManager)
-            : LegacyWeapon(sound, textureManager, DEFINITION, 7) {}
+    public:
+        using InstanceID = SDL_JoystickID;
+        using Instance = SDL_Joystick *;
+        using ControllerGUID = SDL_JoystickGUID;
+        using AxisPosition = Sint16;
 
-    Rectangle Triton::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
-    }
+        explicit GameController(Instance instance);
+
+        virtual ~GameController() = default;
+
+        bool isPressed(int button) const;
+
+        AxisPosition getAxis(int axis) const;
+
+        const ControllerGUID &getGUID() const;
+
+        InstanceID getInstanceID() const;
+
+        const std::string &getName() const;
+
+        void close();
+
+        void reset(Instance instance);
+
+        bool isOpen() { return open; }
+
+        static InstanceID toInstanceID(Instance instance) {
+            return SDL_JoystickInstanceID(instance);
+        }
+
+        static ControllerGUID toGUID(Instance instance) {
+            return SDL_JoystickGetGUID(instance);
+        }
+
+    private:
+        bool open = false;
+        Instance instance;
+        InstanceID instanceID;
+        const ControllerGUID guid;
+        std::string name;
+
+    public:
+        GameController(const GameController &) = delete;
+        GameController(GameController &&) = delete;
+        GameController &operator=(const GameController &) = delete;
+    };
+
+    bool operator==(const GameController::ControllerGUID &l, const GameController::ControllerGUID &r);
 }
+
+#endif

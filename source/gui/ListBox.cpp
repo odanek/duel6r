@@ -147,6 +147,16 @@ namespace Duel6 {
             }
         }
 
+        void ListBox::mouseWheelEvent(const MouseWheelEvent &event) {
+            if (items.size() > 0 && Control::mouseIn(event, x, y, width, height)) {
+                Int32 itemIndex = std::min(listPos.start - 3 * event.getAmountY(), (Int32) items.size() - listPos.showCount);
+                if (itemIndex < 0) {
+                    itemIndex = 0;
+                }
+                listPos.start = itemIndex;
+            }
+        }
+
         void ListBox::draw(const Font &font) const {
             drawFrame(x - 2, y + 2, width + 4, height + 4, true);
             globRenderer->quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);

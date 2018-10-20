@@ -107,6 +107,8 @@ namespace Duel6 {
             static ItemColor defaultColorize(Int32 index, const std::string& label);
 
         protected:
+            void mouseWheelEvent(const MouseWheelEvent &event) override;
+
             void mouseButtonEvent(const MouseButtonEvent &event) override;
 
             void draw(const Font &font) const override;

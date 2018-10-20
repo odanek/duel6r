@@ -25,22 +25,58 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Triton.h"
+#include "GameController.h"
 
 namespace Duel6 {
-    namespace {
-        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, false, Color(255, 255, 0), 4, 200, 6.56f, "triton",
-                                               "triton.wav", "bmbazook.wav", 0.04f,
-                                               {1, 5, 2, 5, 3, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 8, 1, 8, 2, 8, 3, 8, 4, 8, 3, 8, 2, 8, 1, 8, -1, 0},
-                                               {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.05f, 0.66f), Vector(0.55f, 0.29f));
+    GameController::GameController(Instance instance) :
+            open(SDL_bool::SDL_TRUE == SDL_JoystickGetAttached(instance)),
+            instance(instance),
+            instanceID(SDL_JoystickInstanceID(instance)),
+            guid(SDL_JoystickGetGUID(instance)),
+            name(SDL_JoystickName(instance)) {
+
     }
 
-    Triton::Triton(Sound &sound, TextureManager &textureManager)
-            : LegacyWeapon(sound, textureManager, DEFINITION, 7) {}
+    const GameController::ControllerGUID &GameController::getGUID() const {
+        return guid;
+    }
 
-    Rectangle Triton::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    GameController::InstanceID GameController::getInstanceID() const {
+        return instanceID;
+    }
+
+    GameController::AxisPosition GameController::getAxis(int axis) const {
+        if (!open) {
+            return 0;
+        }
+        return SDL_JoystickGetAxis(instance, axis);
+    }
+
+    const std::string &GameController::getName() const {
+        return name;
+    }
+
+    bool GameController::isPressed(int button) const {
+        return open && (SDL_JoystickGetButton(instance, button) == 1);
+    }
+
+    void GameController::close() {
+        open = false;
+        SDL_JoystickClose(instance); // This breaks everything, I don't know why
+    }
+
+    void GameController::reset(Instance instance) {
+        this->instance = instance;
+        open = SDL_bool::SDL_TRUE == SDL_JoystickGetAttached(instance);
+        instanceID = SDL_JoystickInstanceID(instance);
+    }
+
+    bool operator==(const GameController::ControllerGUID &l, const GameController::ControllerGUID &r) {
+        for (std::size_t i = 0; i < std::size(l.data); ++i) {
+            if (l.data[i] != r.data[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

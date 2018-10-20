@@ -30,6 +30,7 @@
 
 #include <SDL2/SDL.h>
 #include <string>
+#include "gamecontroller/GameController.h"
 #include "Type.h"
 
 namespace Duel6 {
@@ -56,7 +57,16 @@ namespace Duel6 {
     public:
         virtual ~SysEvent() {}
     };
-
+    class JoyDeviceAddedEvent: public SysEvent {
+        public:
+        JoyDeviceAddedEvent(GameController::Instance instance):instance(instance){}
+        GameController::Instance instance;
+    };
+    class JoyDeviceRemovedEvent: public SysEvent {
+        public:
+        JoyDeviceRemovedEvent(GameController::InstanceID instanceID):instanceID(instanceID){}
+        GameController::InstanceID instanceID;
+    };
     class MouseEvent : public SysEvent {
     protected:
         Int32 x;
@@ -144,6 +154,10 @@ namespace Duel6 {
 
         Int32 getAmountY() const {
             return amountY;
+        }
+
+        MouseWheelEvent translate(Int32 tx, Int32 ty) const {
+            return MouseWheelEvent(x + tx, y + ty, amountX, amountY);
         }
     };
 

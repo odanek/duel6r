@@ -43,6 +43,7 @@ namespace Duel6 {
             bool blood;
             bool explodes;
             bool collides;
+            bool chargeable;//e.g. bow/sling/some blaster?
             Color explosionColor;
             Int32 boom;
             Int32 power;
@@ -74,7 +75,8 @@ namespace Duel6 {
 
     public:
         LegacyWeapon(Sound &sound, TextureManager &textureManager, const Definition &definition, Size index);
-
+        virtual Float32 getShotSpeed(Float32 coefficient) const;
+        virtual Int32 getShotPower(Float32 coefficient) const;
         void shoot(Player &player, Orientation orientation, World &world) const override;
 
         Sprite &makeSprite(Sprite &sprite) const override;
@@ -87,6 +89,7 @@ namespace Duel6 {
 
         const WeaponSamples &getSamples() const;
 
+        bool isChargeable() const override;
     protected:
         virtual std::unique_ptr<Shot>
         makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const;

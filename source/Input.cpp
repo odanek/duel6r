@@ -37,25 +37,4 @@ namespace Duel6 {
             pressedKeys.erase(keyCode);
         }
     }
-
-    void Input::joyScan(Console &console) {
-        joypads.clear();
-
-        if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-            console.printLine("...Starting joypad sub-system");
-            if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-                console.printLine("...Unable to initialize joypad sub-system");
-                return;
-            }
-        }
-
-        Int32 joysticks = SDL_NumJoysticks();
-        console.printLine(Format("...Found {0} joypads") << joysticks);
-
-        for (Int32 i = 0; i < joysticks; i++) {
-            auto joypad = SDL_JoystickOpen(i);
-            joypads.push_back(joypad);
-            console.printLine(Format("... * {0}") << SDL_JoystickName(joypad));
-        }
-    }
 }

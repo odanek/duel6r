@@ -25,22 +25,32 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Triton.h"
+#include "../Player.h"
+#include "../World.h"
+#include "Snorkel.h"
 
 namespace Duel6 {
-    namespace {
-        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, false, Color(255, 255, 0), 4, 200, 6.56f, "triton",
-                                               "triton.wav", "bmbazook.wav", 0.04f,
-                                               {1, 5, 2, 5, 3, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 8, 1, 8, 2, 8, 3, 8, 4, 8, 3, 8, 2, 8, 1, 8, -1, 0},
-                                               {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.05f, 0.66f), Vector(0.55f, 0.29f));
-    }
+    namespace Bonuses {
+        Snorkel::Snorkel(Texture texture)
+                : texture(texture) {}
 
-    Triton::Triton(Sound &sound, TextureManager &textureManager)
-            : LegacyWeapon(sound, textureManager, DEFINITION, 7) {}
+        Texture Snorkel::getTexture() const {
+            return texture;
+        }
 
-    Rectangle Triton::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+        bool Snorkel::isOneTime() const {
+            return false;
+        }
+
+        bool Snorkel::isApplicable(Player &player, World &world) const {
+            return true;
+        }
+
+        void Snorkel::onApply(Player &player, World &world, Int32 duration) const {
+            world.getMessageQueue().add(player, Format("Snorkel for {0} seconds") << duration);
+        }
+
+        void Snorkel::onExpire(Player &player, World &world) const {
+        }
     }
 }

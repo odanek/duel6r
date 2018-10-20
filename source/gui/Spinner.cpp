@@ -24,7 +24,8 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include <algorithm>
+#include <utility>
 #include "../Video.h"
 #include "Spinner.h"
 
@@ -52,7 +53,9 @@ namespace Duel6 {
         Int32 Spinner::currentItem() {
             return selectedIndex;
         }
-
+        std::pair<Int32, std::string> & Spinner::currentValue() {
+            return items[selectedIndex];
+        }
         void Spinner::setCurrent(Int32 index) {
             Int32 itemCount = items.size();
             if ((index >= 0 && index < itemCount) || (index == -1 && itemCount == 0)) {
@@ -75,8 +78,10 @@ namespace Duel6 {
                 setCurrent(itemCount - 1);
         }
 
-        void Spinner::addItem(const std::string &item) {
-            items.push_back(item);
+        void Spinner::addItem(const std::string &item, int value, bool skipIfPresent) {
+            if(!skipIfPresent || (std::find_if(items.begin(), items.end(), [item](std::pair<int, std::string> & p){return p.second == item;}) == std::end(items))){
+                items.push_back(std::make_pair(value, item));
+            }
             if (items.size() == 1) {
                 setCurrent(0);
             }
@@ -124,7 +129,7 @@ namespace Duel6 {
             if (items.empty())
                 return;
 
-            font.print(x + 25, y - 15, Color::BLACK, items[selectedIndex]);
+            font.print(x + 25, y - 15, Color::BLACK, items[selectedIndex].second);
         }
     }
 }

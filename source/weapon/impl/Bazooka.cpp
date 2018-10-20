@@ -29,7 +29,7 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, Color(255, 0, 0), 3, 100, 3.28f, "bazooka",
+        LegacyWeapon::Definition DEFINITION = {6.1f, false, true, true, false, Color(255, 0, 0), 3, 100, 3.28f, "bazooka",
                                                "bazooka.wav", "bmbazook.wav", 0.01f,
                                                {1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0},
                                                {0, 10, 1, 10, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};

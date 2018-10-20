@@ -90,7 +90,7 @@ namespace Duel6 {
 
         flags = FlagHasGun;
         orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
-        timeToReload = 0;
+        timeToReload = weapon.isChargeable() ? getReloadInterval() : 0;
         life = D6_MAX_LIFE;
         air = D6_MAX_AIR;
         this->ammo = ammo;
@@ -211,29 +211,54 @@ namespace Duel6 {
             world->getBonusList().checkWeapon(*this);
         }
     }
+    bool Player::isReloading() {
+        if(weapon.isChargeable()){
+            return (hasFlag(FlagShoot)  && !hasFlag(FlagShootDebounce)) || getChargeLevel() < 0.5f;
+        }
+        return timeToReload > 0;
+    }
 
     void Player::shoot() {
-        if (!getAmmo() || isReloading() || !hasGun())
+        if ((!getAmmo() && getBonus() != BonusType::INFINITE_AMMO) || !hasGun())
             return;
 
-        timeToReload = getReloadInterval();
 
-        indicators.getBullets().show();
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
 
-        ammo--;
+        if (isReloading())
+            return;
+
+        if(weapon.isChargeable()){
+            if(! hasFlag(FlagShootDebounce) || !hasFlag(FlagShoot))
+            {
+                return;
+            }
+        }
+
+        if (getBonus() != BonusType::INFINITE_AMMO) {
+            indicators.getBullets().show();
+            ammo--;
+        }
         gunSprite->setFrame(0);
         getPerson().addShots(1);
         Orientation originalOrientation = getOrientation();
 
         getWeapon().shoot(*this, originalOrientation, *world);
 
-        if (getBonus() == BonusType::SPLIT_FIRE && getAmmo() > 0) {
-            ammo--;
+        if (getBonus() == BonusType::SPLIT_FIRE) {
             getPerson().addShots(1);
             Orientation secondaryOrientation =
                     originalOrientation == Orientation::Left ? Orientation::Right : Orientation::Left;
             getWeapon().shoot(*this, secondaryOrientation, *world);
+        }
+
+        if (weapon.isChargeable()) {
+            if (!hasFlag(FlagShootDebounce) || !hasFlag(FlagShoot)) {
+                return;
+            }
+            timeToReload = getReloadInterval();
+        } else {
+            timeToReload = getReloadInterval();
         }
     }
 
@@ -241,7 +266,12 @@ namespace Duel6 {
         setFlag(FlagPick);
         this->weapon = weapon;
         ammo = bullets;
-        timeToReload = 0;
+        if (weapon.isChargeable()){
+            timeToReload = getReloadInterval();
+        } else {
+            timeToReload = 0;
+        }
+
         indicators.getReload().hide();
         indicators.getBullets().show();
         weapon.makeSprite(*gunSprite);
@@ -427,7 +457,7 @@ namespace Duel6 {
     Float32 Player::getSpeed() const {
         Float32 spd = 1.0f;
 
-        if (isUnderWater()) {
+        if (isUnderWater() && !hasSnorkel()) {
             spd *= 0.67f;
         }
 
@@ -495,8 +525,18 @@ namespace Duel6 {
             }
         }
 
-        if (!isGhost() && controls.getShoot().isPressed()) {
-            shoot();
+        if (!isGhost()) {
+            if (controls.getShoot().isPressed()) {
+                shoot();
+                unsetFlag(FlagShootDebounce);
+                setFlag(FlagShoot);
+            } else {
+                setFlag(FlagShootDebounce);
+                if(hasFlag(FlagShoot)){
+                    shoot();
+                    unsetFlag(FlagShoot);
+                }
+            }
         }
 
         unsetFlag(FlagKnee);
@@ -526,7 +566,9 @@ namespace Duel6 {
         // Move intervals
         indicators.updateAll(elapsedTime);
         if (isReloading()) {
-            timeToReload = std::max(0.0f, getReloadTime() - elapsedTime);
+            if(!weapon.isChargeable() || hasFlag(FlagShoot) || getChargeLevel() < 0.5){
+                timeToReload = std::max(0.0f, getReloadTime() - elapsedTime);
+            }
         }
 
         if (getBonusRemainingTime() > 0) {
