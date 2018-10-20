@@ -31,15 +31,69 @@
 #include "Util.h"
 #include "GameMode.h"
 #include "Weapon.h"
+#include "PersonProfile.h"
 
 namespace Duel6 {
-    Round::Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror)
+    Round::Round(Game &game, Int32 roundNumber, const std::string &levelPath, bool mirror)
             : game(game), roundNumber(roundNumber), world(game, levelPath, mirror),
               suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
-              winner(false) {
+              winner(false), scriptContext(world) {}
+
+    void Round::start() {
+        auto &players = world.getPlayers();
         game.getMode().initializePlayerPositions(game, players, world);
         setPlayerViews();
         game.getMode().initializeRound(game, players, world);
+        scriptStart();
+        game.getResources().getRoundStartSound().play();
+    }
+
+    void Round::end() {
+        scriptEnd();
+
+        auto &players = world.getPlayers();
+        for (Player &player : players) {
+            player.endRound();
+        }
+    }
+
+    void Round::scriptStart() {
+        auto &players = world.getPlayers();
+        for (auto &player : players) {
+            PersonProfile *profile = player.getPerson().getProfile();
+            if (profile != nullptr) {
+                auto &personScripts = profile->getScripts();
+                for (auto &script : personScripts) {
+                    script->roundStart(player, scriptContext);
+                }
+            }
+        }
+    }
+
+    void Round::scriptUpdate() {
+        auto &players = world.getPlayers();
+        for (auto &player : players) {
+            PersonProfile *profile = player.getPerson().getProfile();
+            if (profile != nullptr) {
+                auto &personScripts = profile->getScripts();
+                for (auto &script : personScripts) {
+                    script->roundUpdate(player, scriptContext);
+                }
+            }
+        }
+    }
+
+    void Round::scriptEnd() {
+        auto &players = world.getPlayers();
+        for (auto &player : players) {
+            PersonProfile *profile = player.getPerson().getProfile();
+            if (profile != nullptr) {
+                auto &personScripts = profile->getScripts();
+                for (auto &script : personScripts) {
+                    script->roundEnd(player, scriptContext);
+                }
+            }
+        }
     }
 
     void Round::splitScreenView(Player &player, Int32 x, Int32 y) {

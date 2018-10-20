@@ -93,8 +93,8 @@ endif(D6R_RENDERER STREQUAL "es2")
 if (D6R_WITH_LUA)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_SCRIPTING_LUA")
 	set(D6R_SOURCES ${D6R_SOURCES}
-		source/script/lua/LuaPlayerScript.h
-		source/script/lua/LuaPlayerScript.cpp
+            source/script/lua/LuaPersonScript.h
+            source/script/lua/LuaPersonScript.cpp
 		source/script/lua/LuaLevelScript.h
 		source/script/lua/LuaLevelScript.cpp
 		source/script/lua/LuaScriptLoader.h

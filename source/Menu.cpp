@@ -57,7 +57,7 @@ namespace Duel6 {
 
         Json::Parser parser;
         Json::Value json = parser.parse(filePath);
-        persons.fromJson(json.get("persons"));
+        persons.fromJson(json.get("persons"), personProfiles);
 
         for (const Person &person : persons.list()) {
             personListBox->addItem(person.getName());
@@ -510,7 +510,7 @@ namespace Duel6 {
         const std::string &personName = textbox->getText();
 
         if (!personName.empty() && !persons.contains(personName)) {
-            persons.add(Person(personName));
+            persons.add(Person(personName, nullptr));
             personListBox->addItem(personName);
             rebuildTable();
             textbox->flush();

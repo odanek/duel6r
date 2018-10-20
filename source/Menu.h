@@ -62,7 +62,7 @@ namespace Duel6 {
         std::vector<std::unique_ptr<GameMode>> gameModes;
         Gui::Desktop gui;
         PlayerControlsManager controlsManager;
-        std::unordered_map<std::string, std::unique_ptr<PersonProfile>> personProfiles;
+        PersonProfileList personProfiles;
         PlayerSounds defaultPlayerSounds;
         LevelList levelList;
         PersonList persons;

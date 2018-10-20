@@ -25,37 +25,24 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SCRIPT_LUA_PLAYERSCRIPT_H
-#define DUEL6_SCRIPT_LUA_PLAYERSCRIPT_H
+#ifndef DUEL6_SCRIPT_PLAYERSCRIPT_H
+#define DUEL6_SCRIPT_PLAYERSCRIPT_H
 
-#include "../PlayerScript.h"
-#include "../../GameSettings.h"
-#include "../ScriptContext.h"
-#include "lua.hpp"
+#include "Script.h"
+#include "RoundScriptContext.h"
+
+namespace Duel6 {
+    class Player;
+}
 
 namespace Duel6::Script {
-    class LuaPlayerScript : public PlayerScript {
-    private:
-        std::string path;
-        ScriptContext &context;
-        lua_State *state;
-
+    class PersonScript : public Script {
     public:
-        LuaPlayerScript(const std::string &path, ScriptContext &context);
+        virtual void roundStart(Player &player, RoundScriptContext &roundContext) = 0;
 
-        ~LuaPlayerScript();
+        virtual void roundUpdate(Player &player, RoundScriptContext &roundContext) = 0;
 
-        void load();
-
-    private:
-        void registerGlobalContext();
-        void registerConsoleType();
-
-        void roundStart(Player &player, RoundScriptContext &roundContext) override;
-
-        void roundUpdate(Player &player, RoundScriptContext &roundContext) override;
-
-        void roundEnd(Player &player, RoundScriptContext &roundContext) override;
+        virtual void roundEnd(Player &player, RoundScriptContext &roundContext) = 0;
     };
 }
 

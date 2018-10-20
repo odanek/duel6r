@@ -25,23 +25,28 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SCRIPT_PLAYERSCRIPT_H
-#define DUEL6_SCRIPT_PLAYERSCRIPT_H
+#ifndef DUEL6_SCRIPT_PERSONSCRIPTCONTEXT_H
+#define DUEL6_SCRIPT_PERSONSCRIPTCONTEXT_H
 
-#include "Script.h"
-#include "RoundScriptContext.h"
-
-namespace Duel6 {
-    class Player;
-}
+#include <string>
 
 namespace Duel6::Script {
-    class PlayerScript : public Script {
-        virtual void roundStart(Player &player, RoundScriptContext &roundContext) = 0;
+    class PersonScriptContext {
+    private:
+        std::string profileName;
+        std::string profileRoot;
 
-        virtual void roundUpdate(Player &player, RoundScriptContext &roundContext) = 0;
+    public:
+        PersonScriptContext(const std::string &profileName, const std::string &profileRoot)
+                : profileName(profileName), profileRoot(profileRoot) {}
 
-        virtual void roundEnd(Player &player, RoundScriptContext &roundContext) = 0;
+        const std::string &getProfileName() const {
+            return profileName;
+        }
+
+        const std::string &getProfileRoot() const {
+            return profileRoot;
+        }
     };
 }
 

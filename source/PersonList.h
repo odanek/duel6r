@@ -33,6 +33,7 @@
 #include <algorithm>
 #include "Person.h"
 #include "File.h"
+#include "PersonProfile.h"
 
 namespace Duel6 {
     class PersonList {
@@ -75,7 +76,7 @@ namespace Duel6 {
 
         Json::Value toJson() const;
 
-        void fromJson(const Json::Value &json);
+        void fromJson(const Json::Value &json, PersonProfileList &profileList);
     };
 }
 

@@ -31,7 +31,8 @@
 #include <vector>
 #include <memory>
 #include "LevelScript.h"
-#include "PlayerScript.h"
+#include "PersonScript.h"
+#include "PersonScriptContext.h"
 
 namespace Duel6::Script {
     class ScriptLoader {
@@ -40,8 +41,8 @@ namespace Duel6::Script {
 
         virtual std::unique_ptr<LevelScript> loadLevelScript() = 0;
 
-        virtual std::unique_ptr<PlayerScript>
-        loadPlayerScript(const std::string &name, const std::string &directory) = 0;
+        virtual std::unique_ptr<PersonScript>
+        loadPersonScript(PersonScriptContext &personContext) = 0;
     };
 }
 

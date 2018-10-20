@@ -25,34 +25,45 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "LuaScriptLoader.h"
-#include "../../File.h"
-#include "../ScriptException.h"
+#ifndef DUEL6_SCRIPT_LUA_PLAYERSCRIPT_H
+#define DUEL6_SCRIPT_LUA_PLAYERSCRIPT_H
+
+#include "../PersonScript.h"
+#include "../../GameSettings.h"
+#include "../ScriptContext.h"
+#include "../PersonScriptContext.h"
+#include "lua.hpp"
 
 namespace Duel6::Script {
-    LuaScriptLoader::LuaScriptLoader(ScriptContext &context)
-            : context(context) {}
+    class LuaPersonScript : public PersonScript {
+    private:
+        std::string path;
+        ScriptContext &context;
+        PersonScriptContext &personContext;
+        lua_State *state;
 
-    std::unique_ptr<LevelScript> LuaScriptLoader::loadLevelScript() {
-        return nullptr;
-    }
+    public:
+        LuaPersonScript(const std::string &path, ScriptContext &context, PersonScriptContext &personContext);
 
-    std::unique_ptr<PersonScript>
-    LuaScriptLoader::loadPersonScript(PersonScriptContext &personContext) {
-        std::string path = personContext.getProfileRoot() + "script.lua";
-        if (!File::exists(path)) {
-            return nullptr;
-        }
+        ~LuaPersonScript() override;
 
-        context.getConsole().printLine(Format("Loading player script: {0}") << path);
-        try {
-            auto script = std::make_unique<LuaPersonScript>(path, context, personContext);
-            script->load();
-            return script;
-        } catch (ScriptException &e) {
-            context.getConsole().printLine(e.getMessage());
-        }
+        void load();
 
-        return nullptr;
-    }
+        void roundStart(Player &player, RoundScriptContext &roundContext) override;
+
+        void roundUpdate(Player &player, RoundScriptContext &roundContext) override;
+
+        void roundEnd(Player &player, RoundScriptContext &roundContext) override;
+
+    private:
+        void registerGlobalContext();
+
+        void registerConsoleType();
+
+        void pushPlayer(Player &player);
+
+        void pushWorld(World &world);
+    };
 }
+
+#endif

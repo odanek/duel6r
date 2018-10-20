@@ -57,12 +57,12 @@ namespace Duel6::Script {
         return result;
     }
 
-    ScriptManager::PlayerScriptList
-    ScriptManager::loadPlayerScripts(const std::string &name, const std::string &directory) {
-        PlayerScriptList result;
+    ScriptManager::PersonScriptList
+    ScriptManager::loadPersonScripts(PersonScriptContext &personContext) {
+        PersonScriptList result;
 
         for (auto &loader : loaders) {
-            auto script = loader->loadPlayerScript(name, directory);
+            auto script = loader->loadPersonScript(personContext);
             if (script) {
                 result.push_back(std::move(script));
             }

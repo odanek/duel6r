@@ -48,11 +48,16 @@ namespace Duel6 {
         Float32 gameOverWait;
         bool winner;
         std::vector<Player *> alivePlayers;
+        Script::RoundScriptContext scriptContext;
 
     public:
-        Round(Game &game, Int32 roundNumber, std::vector<Player> &players, const std::string &levelPath, bool mirror);
+        Round(Game &game, Int32 roundNumber, const std::string &levelPath, bool mirror);
+
+        void start();
 
         void update(Float32 elapsedTime);
+
+        void end();
 
         void keyEvent(const KeyPressEvent &event);
 
@@ -81,6 +86,12 @@ namespace Duel6 {
         bool isLast() const;
 
     private:
+        void scriptStart();
+
+        void scriptUpdate();
+
+        void scriptEnd();
+
         void checkWinner();
 
         void setPlayerViews();

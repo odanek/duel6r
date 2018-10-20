@@ -41,7 +41,7 @@ namespace Duel6 {
     }
 
     void Game::beforeClose(Context *nextContext) {
-        endRound();
+        round->end();
     }
 
     void Game::render() const {
@@ -127,7 +127,7 @@ namespace Duel6 {
 
     void Game::nextRound() {
         if (playedRounds != 0) {
-            endRound();
+            round->end();
             menu->savePersonData();
         }
 
@@ -139,15 +139,10 @@ namespace Duel6 {
         Console &console = appService.getConsole();
         console.printLine(Format("\n===Loading level {0}===") << levelPath);
         console.printLine(Format("...Parameters: mirror: {0}") << mirror);
-        round = std::make_unique<Round>(*this, playedRounds, players, levelPath, mirror);
 
+        round = std::make_unique<Round>(*this, playedRounds, levelPath, mirror);
         playedRounds++;
-        resources.getRoundStartSound().play();
-    }
 
-    void Game::endRound() {
-        for (Player &player : players) {
-            player.endRound();
-        }
+        round->start();
     }
 }

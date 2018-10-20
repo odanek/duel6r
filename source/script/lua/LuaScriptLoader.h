@@ -28,7 +28,7 @@
 #ifndef DUEL6_SCRIPT_LUA_SCRIPTLOADER_H
 #define DUEL6_SCRIPT_LUA_SCRIPTLOADER_H
 
-#include "LuaPlayerScript.h"
+#include "LuaPersonScript.h"
 #include "LuaLevelScript.h"
 #include "../ScriptLoader.h"
 #include "../ScriptContext.h"
@@ -43,7 +43,7 @@ namespace Duel6::Script {
 
         std::unique_ptr<LevelScript> loadLevelScript() override;
 
-        std::unique_ptr<PlayerScript> loadPlayerScript(const std::string &name, const std::string &directory) override;
+        std::unique_ptr<PersonScript> loadPersonScript(PersonScriptContext &personContext) override;
     };
 }
 

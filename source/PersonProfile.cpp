@@ -30,7 +30,7 @@
 
 namespace Duel6 {
     PersonProfile::PersonProfile(const std::string &profileName, const std::string &profileRoot)
-            : profileName(profileName), profileRoot(profileRoot) {}
+            : profileName(profileName), profileRoot(profileRoot), scriptContext(profileName, profileRoot) {}
 
     void PersonProfile::loadSounds(Sound &sound) {
         sounds = PlayerSounds::load(sound, profileRoot, D6_FILE_PROFILE_SOUNDS);
@@ -41,6 +41,6 @@ namespace Duel6 {
     }
 
     void PersonProfile::loadScripts(Script::ScriptManager& scriptManager) {
-        scripts = scriptManager.loadPlayerScripts(profileName, profileRoot);
+        scripts = scriptManager.loadPersonScripts(scriptContext);
     }
 }
