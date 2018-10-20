@@ -25,38 +25,46 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SCRIPT_LUA_PLAYERSCRIPT_H
-#define DUEL6_SCRIPT_LUA_PLAYERSCRIPT_H
+#ifndef DUEL6_SCRIPT_LUA_LUA_H
+#define DUEL6_SCRIPT_LUA_LUA_H
 
-#include "../PersonScript.h"
-#include "../../GameSettings.h"
-#include "../ScriptContext.h"
-#include "../PersonScriptContext.h"
 #include "lua.hpp"
+#include "../../Type.h"
+#include <string>
 
 namespace Duel6::Script {
-    class LuaPersonScript : public PersonScript {
-    private:
-        std::string path;
-        ScriptContext &context;
-        PersonScriptContext &personContext;
-        lua_State *state;
-
+    class Lua {
     public:
-        LuaPersonScript(const std::string &path, ScriptContext &context, PersonScriptContext &personContext);
+        template<class T>
+        static void pushValue(lua_State *state, T &value);
 
-        ~LuaPersonScript() override;
+        template<class T>
+        static void pushProperty(lua_State *state, const std::string &name, T &value) {
+            lua_pushstring(state, name.c_str());
+            pushValue(state, value);
+            lua_rawset(state, -3);
+        }
 
-        void load();
+        template<class T>
+        static void pushProperty(lua_State *state, const std::string &name, const T &value) {
+            lua_pushstring(state, name.c_str());
+            pushValue(state, value);
+            lua_rawset(state, -3);
+        }
 
-        void roundStart(Player &player, RoundScriptContext &roundContext) override;
+        template<class T>
+        static void registerGlobal(lua_State *state, const std::string &name, T &value) {
+            pushValue(state, value);
+            lua_setglobal(state, name.c_str());
+        }
 
-        void roundUpdate(Player &player, RoundScriptContext &roundContext) override;
+        template<class T>
+        static void registerGlobal(lua_State *state, const std::string &name, const T &value) {
+            pushValue(state, value);
+            lua_setglobal(state, name.c_str());
+        }
 
-        void roundEnd(Player &player, RoundScriptContext &roundContext) override;
-
-    private:
-        void registerGlobalContext();
+        static void invoke(lua_State *state, Int32 nargs, Int32 nresults);
     };
 }
 

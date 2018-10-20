@@ -27,18 +27,10 @@
 
 #include "LuaPersonScript.h"
 #include "../ScriptException.h"
+#include "../../Player.h"
+#include "Lua.h"
 
 namespace Duel6::Script {
-    namespace {
-        int consolePrint(lua_State *L) {
-            const char *str = luaL_checkstring(L, 1);
-            auto *context = (ScriptContext *) lua_touserdata(L, lua_upvalueindex(1));
-            auto *personContext = (PersonScriptContext *) lua_touserdata(L, lua_upvalueindex(2));
-            context->getConsole().printLine(Format("Script {0} says: {1}") << personContext->getProfileName() << str);
-            return 0;
-        }
-    }
-
     LuaPersonScript::LuaPersonScript(const std::string &path, ScriptContext &context, PersonScriptContext &personContext)
             : path(path), context(context), personContext(personContext), state(luaL_newstate()) {
     }
@@ -58,54 +50,35 @@ namespace Duel6::Script {
 
         registerGlobalContext();
 
-        int result = lua_pcall(state, 0, LUA_MULTRET, 0);
-        if (result != LUA_OK) {
-            std::string message = Format("Couldn't run script: {0}: {1}") << path << lua_tostring(state, -1);
-            D6_THROW(ScriptException, message);
-        }
+        Lua::invoke(state, 0, LUA_MULTRET);
     }
 
     void LuaPersonScript::registerGlobalContext() {
-        registerConsoleType();
-    }
-
-    void LuaPersonScript::registerConsoleType() {
-        lua_newtable(state);
-        lua_pushliteral(state, "print");
-        lua_pushlightuserdata(state, &context);
-        lua_pushlightuserdata(state, &personContext);
-        lua_pushcclosure(state, consolePrint, 2);
-        lua_rawset(state, -3);
-        lua_setglobal(state, "console");
-    }
-
-    void LuaPersonScript::pushPlayer(Player &player) {
-        lua_newtable(state);
-    }
-
-    void LuaPersonScript::pushWorld(World &world) {
-        lua_newtable(state);
+        Lua::registerGlobal(state, "context", context);
+        Lua::registerGlobal(state, "personContext", personContext);
     }
 
     void LuaPersonScript::roundStart(Player &player, RoundScriptContext &roundContext) {
         lua_getglobal(state, "roundStart");
-
-        pushPlayer(player);
-        pushWorld(roundContext.getWorld());
-
-        int result = lua_pcall(state, 2, 0, 0);
-        if (result != LUA_OK) {
-            std::string message = Format("Couldn't execute roundStart: {0}: {1}") << path << lua_tostring(state, -1);
-            lua_close(state);
-            D6_THROW(ScriptException, message);
-        }
+        lua_newtable(state);
+        Lua::pushProperty(state, "player", player);
+        Lua::pushProperty(state, "world", roundContext.getWorld());
+        Lua::invoke(state, 1, 0);
     }
 
     void LuaPersonScript::roundUpdate(Player &player, RoundScriptContext &roundContext) {
-
+        lua_getglobal(state, "roundUpdate");
+        lua_newtable(state);
+        Lua::pushProperty(state, "player", player);
+        Lua::pushProperty(state, "world", roundContext.getWorld());
+        Lua::invoke(state, 1, 0);
     }
 
     void LuaPersonScript::roundEnd(Player &player, RoundScriptContext &roundContext) {
-
+        lua_getglobal(state, "roundEnd");
+        lua_newtable(state);
+        Lua::pushProperty(state, "player", player);
+        Lua::pushProperty(state, "world", roundContext.getWorld());
+        Lua::invoke(state, 1, 0);
     }
 }
