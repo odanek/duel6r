@@ -46,6 +46,7 @@ namespace Duel6 {
         Float32 waterFillWait;
         Float32 showYouAreHere;
         Float32 gameOverWait;
+        Uint32 startTime;
         bool winner;
         std::vector<Player *> alivePlayers;
         Script::RoundScriptContext scriptContext;

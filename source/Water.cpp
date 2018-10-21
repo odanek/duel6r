@@ -33,7 +33,9 @@
 namespace Duel6 {
     class WaterImpl {
     public:
-        virtual ~WaterImpl() {}
+        virtual ~WaterImpl() = default;
+
+        virtual std::string getName() const = 0;
 
         virtual void onEnter(Player &player, const Vector &location, World &world) const = 0;
 
@@ -43,13 +45,18 @@ namespace Duel6 {
     namespace {
         Int16 wtAnim[24] = {0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0};
 
-        class EmptyImpl : public WaterImpl {
-            void onEnter(Player &player, const Vector &location, World &world) const {}
+        class NoneWater : public WaterImpl {
+        public:
+            std::string getName() const override {
+                return "none";
+            }
 
-            void onUnder(Player &player, Float32 elapsedTime) const {}
+            void onEnter(Player &player, const Vector &location, World &world) const override {}
+
+            void onUnder(Player &player, Float32 elapsedTime) const override {}
         };
 
-        static EmptyImpl NONE_WATER;
+        NoneWater NONE_WATER;
 
         class WaterBase : public WaterImpl {
         private:
@@ -97,6 +104,10 @@ namespace Duel6 {
             BlueWater(Sound &sound, TextureManager &textureManager)
                     : WaterBase(sound, textureManager, D6_FILE_WATER_BLUE, Color(0, 182, 255)) {}
 
+            std::string getName() const override {
+                return "blue";
+            }
+
             Float32 getAirHit() const override {
                 return 60.0f;
             }
@@ -107,6 +118,10 @@ namespace Duel6 {
             RedWater(Sound &sound, TextureManager &textureManager)
                     : WaterBase(sound, textureManager, D6_FILE_WATER_RED, Color(197, 0, 0)) {}
 
+            std::string getName() const override {
+                return "red";
+            }
+
             Float32 getAirHit() const override {
                 return 120.0f;
             }
@@ -116,6 +131,10 @@ namespace Duel6 {
         public:
             GreenWater(Sound &sound, TextureManager &textureManager)
                     : WaterBase(sound, textureManager, D6_FILE_WATER_GREEN, Color(0, 197, 0)) {}
+
+            std::string getName() const override {
+                return "green";
+            }
 
             Float32 getAirHit() const override {
                 return 180.0f;
@@ -135,6 +154,10 @@ namespace Duel6 {
 
     const std::vector<Water> &Water::values() {
         return types;
+    }
+
+    std::string Water::getName() const {
+        return impl->getName();
     }
 
     void Water::onEnter(Player &player, const Vector &location, World &world) {

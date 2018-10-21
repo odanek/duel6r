@@ -31,13 +31,14 @@
 #include <vector>
 #include <string>
 #include "Type.h"
+#include "Water.h"
 
 namespace Duel6 {
     class Block {
     public:
         typedef std::vector<Block> Meta;
 
-        enum Type {
+        enum class Type {
             EmptySpace = 0,
             Wall,
             Water,
@@ -67,6 +68,20 @@ namespace Duel6 {
 
         Type getType() const {
             return type;
+        }
+
+        Water getWaterType() const {
+            if (is(Type::Water)) {
+                if (index == 4) {
+                    return Water::BLUE;
+                } else if (index == 16) {
+                    return Water::RED;
+                } else if (index == 33) {
+                    return Water::GREEN;
+                }
+            }
+
+            return Water::NONE;
         }
 
         const std::vector<Int32> &getTextures() const {

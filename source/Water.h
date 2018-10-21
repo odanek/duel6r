@@ -61,6 +61,8 @@ namespace Duel6 {
     public:
         Water();
 
+        std::string getName() const;
+
         void onEnter(Player &player, const Vector &location, World &world);
 
         void onUnder(Player &player, Float32 elapsedTime);

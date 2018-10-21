@@ -51,12 +51,14 @@ namespace Duel6::Script {
 
         void roundStart(Player &player, RoundScriptContext &roundContext) override;
 
-        void roundUpdate(Player &player, RoundScriptContext &roundContext) override;
+        void roundUpdate(Uint32 roundTime, Player &player, RoundScriptContext &roundContext) override;
 
-        void roundEnd(Player &player, RoundScriptContext &roundContext) override;
+        void roundEnd(Uint32 roundTime, Player &player, RoundScriptContext &roundContext) override;
 
     private:
         void registerGlobalContext();
+        void registerRoundContext(Player &player, RoundScriptContext &roundContext);
+        void registerOtherPlayers(Player &player, RoundScriptContext &roundContext);
     };
 }
 

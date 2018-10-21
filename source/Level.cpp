@@ -33,7 +33,7 @@
 
 namespace Duel6 {
     Level::Level(const std::string &path, bool mirror, const Block::Meta &blockMeta)
-            : blockMeta(blockMeta) {
+            : blockMeta(blockMeta), raisingWater(false) {
         load(path, mirror);
     }
 
@@ -69,6 +69,7 @@ namespace Duel6 {
     }
 
     void Level::raiseWater() {
+        raisingWater = true;
         if (waterLevel < getHeight() - 1) {
             waterLevel++;
             for (Int32 x = 0; x < getWidth(); x++) {
@@ -105,18 +106,7 @@ namespace Duel6 {
     }
 
     Water Level::getWaterType(Int32 x, Int32 y) const {
-        if (isWater(x, y)) {
-            Uint16 block = getBlock(x, y);
-            if (block == 4) {
-                return Water::BLUE;
-            } else if (block == 16) {
-                return Water::RED;
-            } else if (block == 33) {
-                return Water::GREEN;
-            }
-        }
-
-        return Water::NONE;
+        return getBlockMeta(x, y).getWaterType();
     }
 
     bool Level::isPossibleStartingPosition(Int32 x, Int32 y) {
@@ -148,5 +138,13 @@ namespace Duel6 {
                 }
             }
         }
+    }
+
+    Int32 Level::getWaterLevel() const {
+        return waterLevel;
+    }
+
+    bool Level::isRaisingWater() const {
+        return raisingWater;
     }
 }

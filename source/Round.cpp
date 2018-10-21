@@ -40,6 +40,7 @@ namespace Duel6 {
               winner(false), scriptContext(world) {}
 
     void Round::start() {
+        startTime = SDL_GetTicks();
         auto &players = world.getPlayers();
         game.getMode().initializePlayerPositions(game, players, world);
         setPlayerViews();
@@ -71,26 +72,28 @@ namespace Duel6 {
     }
 
     void Round::scriptUpdate() {
+        Uint32 roundTime = SDL_GetTicks() - startTime;
         auto &players = world.getPlayers();
         for (auto &player : players) {
             PersonProfile *profile = player.getPerson().getProfile();
             if (profile != nullptr) {
                 auto &personScripts = profile->getScripts();
                 for (auto &script : personScripts) {
-                    script->roundUpdate(player, scriptContext);
+                    script->roundUpdate(roundTime, player, scriptContext);
                 }
             }
         }
     }
 
     void Round::scriptEnd() {
+        Uint32 roundTime = SDL_GetTicks() - startTime;
         auto &players = world.getPlayers();
         for (auto &player : players) {
             PersonProfile *profile = player.getPerson().getProfile();
             if (profile != nullptr) {
                 auto &personScripts = profile->getScripts();
                 for (auto &script : personScripts) {
-                    script->roundEnd(player, scriptContext);
+                    script->roundEnd(roundTime, player, scriptContext);
                 }
             }
         }

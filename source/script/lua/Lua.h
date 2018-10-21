@@ -67,6 +67,16 @@ namespace Duel6::Script {
             lua_setglobal(state, name.c_str());
         }
 
+        template<class C, class T>
+        static void pushMetaIndex(lua_State *state, C callback, T &value) {
+            lua_newtable(state);
+            lua_pushliteral(state, "__index");
+            lua_pushlightuserdata(state, &value);
+            lua_pushcclosure(state, callback, 1);
+            lua_rawset(state, -3);
+            lua_setmetatable(state, -2);
+        }
+
         static void invoke(lua_State *state, Int32 nargs, Int32 nresults);
     };
 }

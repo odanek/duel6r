@@ -28,6 +28,7 @@
 #include "LuaPersonScript.h"
 #include "../ScriptException.h"
 #include "../../Player.h"
+#include "../../World.h"
 #include "Lua.h"
 
 namespace Duel6::Script {
@@ -58,26 +59,53 @@ namespace Duel6::Script {
         Lua::registerGlobal(state, "personContext", personContext);
     }
 
-    void LuaPersonScript::roundStart(Player &player, RoundScriptContext &roundContext) {
+    void LuaPersonScript::registerRoundContext(Player &player, RoundScriptContext &roundContext) {
         lua_newtable(state);
         Lua::pushProperty(state, "player", player);
-        Lua::pushProperty(state, "world", roundContext.getWorld());
+
+        lua_pushliteral(state, "otherPlayers");
+        registerOtherPlayers(player, roundContext);
+        lua_rawset(state, -3);
+
+        Lua::pushProperty(state, "level", roundContext.getWorld().getLevel());
+    }
+
+    void LuaPersonScript::registerOtherPlayers(Player &player, RoundScriptContext &roundContext) {
+        World &world = roundContext.getWorld();
+        lua_newtable(state);
+        Int32 index = 1;
+        for (Player &otherPlayer : world.getPlayers()) {
+            if (!player.is(otherPlayer)) {
+                lua_pushinteger(state, index);
+                Lua::pushValue(state, otherPlayer);
+                lua_rawset(state, -3);
+                ++index;
+            }
+        }
+    }
+
+    void LuaPersonScript::roundStart(Player &player, RoundScriptContext &roundContext) {
+        registerRoundContext(player, roundContext);
 
         lua_getglobal(state, "roundStart");
         lua_pushvalue(state, -2);
         Lua::invoke(state, 1, 0);
     }
 
-    void LuaPersonScript::roundUpdate(Player &player, RoundScriptContext &roundContext) {
+    void LuaPersonScript::roundUpdate(Uint32 roundTime, Player &player, RoundScriptContext &roundContext) {
         lua_getglobal(state, "roundUpdate");
         lua_pushvalue(state, -2);
-        Lua::invoke(state, 1, 0);
+        lua_pushinteger(state, roundTime);
+        Lua::invoke(state, 2, 0);
     }
 
-    void LuaPersonScript::roundEnd(Player &player, RoundScriptContext &roundContext) {
+    void LuaPersonScript::roundEnd(Uint32 roundTime, Player &player, RoundScriptContext &roundContext) {
         lua_getglobal(state, "roundEnd");
         lua_pushvalue(state, -2);
-        Lua::invoke(state, 1, 0);
+        lua_pushinteger(state, roundTime);
+        Lua::invoke(state, 2, 0);
+
+        // Pop the round context
         lua_pop(state, 1);
     }
 }

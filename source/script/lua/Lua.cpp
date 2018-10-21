@@ -27,14 +27,18 @@
 
 #include "Lua.h"
 #include "../../Player.h"
-#include "../../World.h"
+#include "../../Level.h"
 #include "../ScriptException.h"
 #include "../../console/console.h"
+#include "../ScriptContext.h"
+#include "../PersonScriptContext.h"
 
 namespace Duel6::Script {
     namespace {
         int consolePrint(lua_State *state);
         int playerMetaIndex(lua_State *state);
+        int levelBlockAt(lua_State *state);
+        int levelMetaIndex(lua_State *state);
     }
 
     template<>
@@ -82,15 +86,7 @@ namespace Duel6::Script {
     void Lua::pushValue(lua_State *state, Player &value) {
         lua_newtable(state);
 
-        // Dynamic meta table
-        lua_newtable(state);
-        lua_pushliteral(state, "__index");
-        lua_pushlightuserdata(state, &value);
-        lua_pushcclosure(state, playerMetaIndex, 1);
-        lua_rawset(state, -3);
-        lua_setmetatable(state, -2);
-
-        // Static properties
+        Lua::pushMetaIndex(state, playerMetaIndex, value);
         Lua::pushProperty(state, "name", value.getPerson().getName());
     }
 
@@ -104,8 +100,17 @@ namespace Duel6::Script {
     }
 
     template<>
-    void Lua::pushValue(lua_State *state, World &value) {
+    void Lua::pushValue(lua_State *state, Level &value) {
         lua_newtable(state);
+
+        Lua::pushMetaIndex(state, levelMetaIndex, value);
+        Lua::pushProperty(state, "width", value.getWidth());
+        Lua::pushProperty(state, "height", value.getHeight());
+
+        lua_pushliteral(state, "blockAt");
+        lua_pushlightuserdata(state, &value);
+        lua_pushcclosure(state, levelBlockAt, 1);
+        lua_rawset(state, -3);
     }
 
     template<>
@@ -145,10 +150,10 @@ namespace Duel6::Script {
                 Lua::pushValue(state, player.getPosition());
                 return 1;
             } else if (!strcmp(propertyName, "life")) {
-                Lua::pushValue(state, player.getLife());
+                Lua::pushValue(state, player.getLife() / D6_MAX_LIFE);
                 return 1;
             } else if (!strcmp(propertyName, "air")) {
-                Lua::pushValue(state, player.getAir());
+                Lua::pushValue(state, player.getAir() / D6_MAX_AIR);
                 return 1;
             } else if (!strcmp(propertyName, "ammo")) {
                 Lua::pushValue(state, player.getAmmo());
@@ -169,11 +174,49 @@ namespace Duel6::Script {
             } else if (!strcmp(propertyName, "weapon")) {
                 Lua::pushValue(state, player.getWeapon());
                 return 1;
+            } else if (!strcmp(propertyName, "alive")) {
+                Lua::pushValue(state, player.isAlive());
+                return 1;
+            } else if (!strcmp(propertyName, "orientation")) {
+                Lua::pushValue(state, player.getOrientation() == Orientation::Left ? -1 : 1);
+                return 1;
+            } else if (!strcmp(propertyName, "velocity")) {
+                Lua::pushValue(state, player.getVelocity());
+                return 1;
+            }
+
+            return 0;
+        }
+
+        int levelBlockAt(lua_State *state) {
+            auto &level = *((Level *) lua_touserdata(state, lua_upvalueindex(1)));
+            auto x = (Int32) luaL_checkinteger(state, 1);
+            auto y = (Int32) luaL_checkinteger(state, 2);
+
+            const Block &block = level.getBlockMeta(x, y);
+
+            lua_newtable(state);
+            Lua::pushProperty(state, "wall", block.is(Block::Type::Wall));
+            Lua::pushProperty(state, "water", block.is(Block::Type::Water));
+            Lua::pushProperty(state, "waterfall", block.is(Block::Type::Waterfall));
+            Lua::pushProperty(state, "waterType", block.getWaterType().getName());
+            
+            return 1;
+        }
+
+        int levelMetaIndex(lua_State *state) {
+            auto &level = *((Level *) lua_touserdata(state, lua_upvalueindex(1)));
+            const char *propertyName = luaL_checkstring(state, 2);
+
+            if (!strcmp(propertyName, "waterLevel")) {
+                Lua::pushValue(state, level.getWaterLevel());
+                return 1;
+            } else if (!strcmp(propertyName, "raisingWater")) {
+                Lua::pushValue(state, level.isRaisingWater());
+                return 1;
             }
 
             return 0;
         }
     }
 }
-
-

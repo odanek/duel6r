@@ -63,7 +63,7 @@ namespace Duel6 {
             for (Int32 x = 0; x < level.getWidth(); x++) {
                 const Block &block = level.getBlockMeta(x, y);
 
-                if (block.is(Block::Wall)) {
+                if (block.is(Block::Type::Wall)) {
                     addWall(block, x, y);
                 }
             }
@@ -79,16 +79,16 @@ namespace Duel6 {
             for (Int32 x = 0; x < level.getWidth(); x++) {
                 const Block &block = level.getBlockMeta(x, y);
 
-                if (block.is(Block::FrontAndBackSprite)) {
+                if (block.is(Block::Type::FrontAndBackSprite)) {
                     addSprite(sprites, block, x, y, 1.0f);
                     addSprite(sprites, block, x, y, 0.0f);
-                } else if (block.is(Block::FrontSprite)) {
+                } else if (block.is(Block::Type::FrontSprite)) {
                     addSprite(sprites, block, x, y, 1.0f);
-                } else if (block.is(Block::BackSprite)) {
+                } else if (block.is(Block::Type::BackSprite)) {
                     addSprite(sprites, block, x, y, 0.0f);
-                } else if (block.is(Block::Front4Sprite)) {
+                } else if (block.is(Block::Type::Front4Sprite)) {
                     addSprite(sprites, block, x, y, 0.75f);
-                } else if (block.is(Block::Back4Sprite)) {
+                } else if (block.is(Block::Type::Back4Sprite)) {
                     addSprite(sprites, block, x, y, 0.25f);
                 }
             }
@@ -104,9 +104,9 @@ namespace Duel6 {
             for (Int32 x = 0; x < level.getWidth(); x++) {
                 const Block &block = level.getBlockMeta(x, y);
 
-                if (block.is(Block::Waterfall)) {
+                if (block.is(Block::Type::Waterfall)) {
                     addSprite(water, block, x, y, 0.75);
-                } else if (block.is(Block::Water)) {
+                } else if (block.is(Block::Type::Water)) {
                     addWater(block, x, y);
                 }
             }
@@ -188,7 +188,7 @@ namespace Duel6 {
 
     void LevelRenderData::addSprite(FaceList &faceList, const Block &block, Int32 x, Int32 y, Float32 z) {
         Float32 fx = Float32(x), fy = Float32(y);
-        bool bottomWaterfall = (block.is(Block::Waterfall) && level.isWater(x, y - 1));
+        bool bottomWaterfall = (block.is(Block::Type::Waterfall) && level.isWater(x, y - 1));
         Vertex::Flag flowFlag = bottomWaterfall ? Vertex::Flag::Flow : Vertex::Flag::None;
 
         faceList.addFace(Face(block))

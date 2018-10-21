@@ -28,6 +28,7 @@
 #ifndef DUEL6_SCRIPT_PLAYERSCRIPT_H
 #define DUEL6_SCRIPT_PLAYERSCRIPT_H
 
+#include "../Type.h"
 #include "Script.h"
 #include "RoundScriptContext.h"
 
@@ -40,9 +41,9 @@ namespace Duel6::Script {
     public:
         virtual void roundStart(Player &player, RoundScriptContext &roundContext) = 0;
 
-        virtual void roundUpdate(Player &player, RoundScriptContext &roundContext) = 0;
+        virtual void roundUpdate(Uint32 roundTime, Player &player, RoundScriptContext &roundContext) = 0;
 
-        virtual void roundEnd(Player &player, RoundScriptContext &roundContext) = 0;
+        virtual void roundEnd(Uint32 roundTime, Player &player, RoundScriptContext &roundContext) = 0;
     };
 }
 
