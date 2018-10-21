@@ -37,8 +37,17 @@ namespace Duel6::Script {
     namespace {
         int consolePrint(lua_State *state);
         int playerMetaIndex(lua_State *state);
+        int playerPressButton(lua_State *state);
         int levelBlockAt(lua_State *state);
         int levelMetaIndex(lua_State *state);
+
+        void pushPlayerButtonCallback(lua_State *state, Player &player, Uint32 button, const char *name) {
+            lua_pushstring(state, name);
+            lua_pushlightuserdata(state, &player);
+            lua_pushinteger(state, button);
+            lua_pushcclosure(state, playerPressButton, 2);
+            lua_rawset(state, -3);
+        }
     }
 
     template<>
@@ -88,6 +97,14 @@ namespace Duel6::Script {
 
         Lua::pushMetaIndex(state, playerMetaIndex, value);
         Lua::pushProperty(state, "name", value.getPerson().getName());
+
+        pushPlayerButtonCallback(state, value, Player::ButtonLeft, "pressLeft");
+        pushPlayerButtonCallback(state, value, Player::ButtonRight, "pressRight");
+        pushPlayerButtonCallback(state, value, Player::ButtonUp, "pressUp");
+        pushPlayerButtonCallback(state, value, Player::ButtonDown, "pressDown");
+        pushPlayerButtonCallback(state, value, Player::ButtonShoot, "pressShoot");
+        pushPlayerButtonCallback(state, value, Player::ButtonPick, "pressPick");
+        pushPlayerButtonCallback(state, value, Player::ButtonStatus, "pressStatus");
     }
 
     template<>
@@ -188,10 +205,22 @@ namespace Duel6::Script {
             return 0;
         }
 
+        int playerPressButton(lua_State *state) {
+            auto &player = *((Player *) lua_touserdata(state, lua_upvalueindex(1)));
+            auto button = (Uint32) lua_tointeger(state, lua_upvalueindex(2));
+            player.pressButton(button);
+            return 0;
+        }
+
         int levelBlockAt(lua_State *state) {
             auto &level = *((Level *) lua_touserdata(state, lua_upvalueindex(1)));
-            auto x = (Int32) luaL_checkinteger(state, 1);
-            auto y = (Int32) luaL_checkinteger(state, 2);
+            auto x = (Int32) luaL_checknumber(state, 1);
+            auto y = (Int32) luaL_checknumber(state, 2);
+
+            if (!level.isInside(x, y)) {
+                lua_pushnil(state);
+                return 1;
+            }
 
             const Block &block = level.getBlockMeta(x, y);
 
@@ -200,7 +229,7 @@ namespace Duel6::Script {
             Lua::pushProperty(state, "water", block.is(Block::Type::Water));
             Lua::pushProperty(state, "waterfall", block.is(Block::Type::Waterfall));
             Lua::pushProperty(state, "waterType", block.getWaterType().getName());
-            
+
             return 1;
         }
 

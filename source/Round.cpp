@@ -71,16 +71,13 @@ namespace Duel6 {
         }
     }
 
-    void Round::scriptUpdate() {
+    void Round::scriptUpdate(Player &player) {
         Uint32 roundTime = SDL_GetTicks() - startTime;
-        auto &players = world.getPlayers();
-        for (auto &player : players) {
-            PersonProfile *profile = player.getPerson().getProfile();
-            if (profile != nullptr) {
-                auto &personScripts = profile->getScripts();
-                for (auto &script : personScripts) {
-                    script->roundUpdate(roundTime, player, scriptContext);
-                }
+        PersonProfile *profile = player.getPerson().getProfile();
+        if (profile != nullptr) {
+            auto &personScripts = profile->getScripts();
+            for (auto &script : personScripts) {
+                script->roundUpdate(roundTime, player, scriptContext);
             }
         }
     }
@@ -180,9 +177,9 @@ namespace Duel6 {
             }
         }
 
-        scriptUpdate();
-
         for (Player &player : world.getPlayers()) {
+            player.updateControllerStatus();
+            scriptUpdate(player);
             player.update(world, game.getSettings().getScreenMode(), elapsedTime);
             if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
                 player.makeGhost();

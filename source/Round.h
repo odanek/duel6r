@@ -89,7 +89,7 @@ namespace Duel6 {
     private:
         void scriptStart();
 
-        void scriptUpdate();
+        void scriptUpdate(Player &player);
 
         void scriptEnd();
 

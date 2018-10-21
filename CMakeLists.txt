@@ -15,45 +15,45 @@ project(Duel6r)
 # Platform detection
 #########################################################################
 
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-	EXEC_PROGRAM(cat ARGS "/proc/cpuinfo" OUTPUT_VARIABLE CPUINFO)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    EXEC_PROGRAM(cat ARGS "/proc/cpuinfo" OUTPUT_VARIABLE CPUINFO)
 
-	STRING(REGEX REPLACE "^.*(arm).*$" "\\1" ARM_THERE ${CPUINFO})
-	STRING(COMPARE EQUAL "arm" "${ARM_THERE}" ARM_TRUE)
-	if(ARM_TRUE)
-		set(D6R_PLATFORM "arm")
-	else(ARM_TRUE)
-		set(D6R_PLATFORM "x86")
-	endif(ARM_TRUE)
-else(CMAKE_SYSTEM_NAME MATCHES "Linux")
-	set(D6R_PLATFORM "x86")
-endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    STRING(REGEX REPLACE "^.*(arm).*$" "\\1" ARM_THERE ${CPUINFO})
+    STRING(COMPARE EQUAL "arm" "${ARM_THERE}" ARM_TRUE)
+    if (ARM_TRUE)
+        set(D6R_PLATFORM "arm")
+    else (ARM_TRUE)
+        set(D6R_PLATFORM "x86")
+    endif (ARM_TRUE)
+else (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(D6R_PLATFORM "x86")
+endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 #########################################################################
 # Compiler flags
 #########################################################################
 
 # visual studio
-if(MSVC)
+if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
-endif(MSVC)
+endif (MSVC)
 
 # gnu compiler or clang
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
-	if(D6R_PLATFORM STREQUAL "x86")
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
+    if (D6R_PLATFORM STREQUAL "x86")
 
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
-	elseif(D6R_PLATFORM STREQUAL "arm")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfloat-abi=hard -mlittle-endian -munaligned-access")
-	endif(D6R_PLATFORM STREQUAL "x86")
-endif(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
+    elseif (D6R_PLATFORM STREQUAL "arm")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfloat-abi=hard -mlittle-endian -munaligned-access")
+    endif (D6R_PLATFORM STREQUAL "x86")
+endif (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 # MinGW
-if(MINGW)
+if (MINGW)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
-endif(MINGW)
+endif (MINGW)
 
 # platform-independent debug macro
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
@@ -73,38 +73,319 @@ set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 ########################
 
 # set the list of source files
-file(GLOB_RECURSE D6R_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "source/*.cpp" "source/*.h")
+set(D6R_SOURCES
+        source/AnimationLooping.h
+        source/Application.cpp
+        source/Application.h
+        source/AppService.h
+        source/Block.cpp
+        source/Block.h
+        source/Bonus.cpp
+        source/Bonus.h
+        source/BonusList.cpp
+        source/BonusList.h
+        source/Color.cpp
+        source/Color.h
+        source/ConsoleCommands.cpp
+        source/ConsoleCommands.h
+        source/Context.cpp
+        source/Context.h
+        source/DataException.h
+        source/Defines.h
+        source/Elevator.cpp
+        source/Elevator.h
+        source/ElevatorList.cpp
+        source/ElevatorList.h
+        source/EnumClassHash.h
+        source/Exception.h
+        source/Explosion.cpp
+        source/Explosion.h
+        source/Face.h
+        source/FaceList.cpp
+        source/FaceList.h
+        source/File.cpp
+        source/File.h
+        source/Fire.cpp
+        source/Fire.h
+        source/Font.cpp
+        source/Font.h
+        source/FontException.h
+        source/Format.cpp
+        source/Format.h
+        source/FormatException.h
+        source/Formatter.h
+        source/Game.cpp
+        source/Game.h
+        source/GameException.h
+        source/GameMode.h
+        source/GameResources.cpp
+        source/GameResources.h
+        source/GameSettings.cpp
+        source/GameSettings.h
+        source/Image.h
+        source/InfoMessage.h
+        source/InfoMessageQueue.cpp
+        source/InfoMessageQueue.h
+        source/Input.cpp
+        source/Input.h
+        source/IoException.h
+        source/Level.cpp
+        source/Level.h
+        source/LevelList.cpp
+        source/LevelList.h
+        source/LevelRenderData.cpp
+        source/LevelRenderData.h
+        source/Main.cpp
+        source/Material.h
+        source/Menu.cpp
+        source/Menu.h
+        source/msdir.c
+        source/msdir.h
+        source/Orientation.h
+        source/Person.cpp
+        source/Person.h
+        source/PersonList.cpp
+        source/PersonList.h
+        source/PersonProfile.cpp
+        source/PersonProfile.h
+        source/Player.cpp
+        source/Player.h
+        source/PlayerControls.cpp
+        source/PlayerControls.h
+        source/PlayerEventListener.cpp
+        source/PlayerEventListener.h
+        source/PlayerSkin.cpp
+        source/PlayerSkin.h
+        source/PlayerSkinColors.cpp
+        source/PlayerSkinColors.h
+        source/PlayerSounds.cpp
+        source/PlayerSounds.h
+        source/Ranking.h
+        source/Rectangle.h
+        source/resource.h
+        source/Round.cpp
+        source/Round.h
+        source/ScreenMode.h
+        source/ScreenParameters.h
+        source/Shot.h
+        source/ShotList.cpp
+        source/ShotList.h
+        source/Sound.cpp
+        source/Sound.h
+        source/SoundException.h
+        source/Sprite.cpp
+        source/Sprite.h
+        source/SpriteList.cpp
+        source/SpriteList.h
+        source/SysEvent.h
+        source/Texture.h
+        source/TextureDictionary.h
+        source/TextureList.h
+        source/TextureManager.cpp
+        source/TextureManager.h
+        source/Type.h
+        source/Util.cpp
+        source/Util.h
+        source/Vertex.h
+        source/Video.cpp
+        source/Video.h
+        source/VideoException.h
+        source/ViewParameters.h
+        source/Water.cpp
+        source/Water.h
+        source/WaterList.cpp
+        source/WaterList.h
+        source/Weapon.cpp
+        source/Weapon.h
+        source/World.cpp
+        source/World.h
+        source/WorldRenderer.cpp
+        source/WorldRenderer.h
 
-if(D6R_RENDERER STREQUAL "gl1")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")
-	set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL1Renderer.h source/renderer/GL1Renderer.cpp)
-endif(D6R_RENDERER STREQUAL "gl1")
+        source/bonus/Bullets.cpp
+        source/bonus/Bullets.h
+        source/bonus/FastMovement.cpp
+        source/bonus/FastMovement.h
+        source/bonus/FastReload.cpp
+        source/bonus/FastReload.h
+        source/bonus/FullLife.cpp
+        source/bonus/FullLife.h
+        source/bonus/InfiniteAmmo.cpp
+        source/bonus/InfiniteAmmo.h
+        source/bonus/Invisibility.cpp
+        source/bonus/Invisibility.h
+        source/bonus/Invulnerability.cpp
+        source/bonus/Invulnerability.h
+        source/bonus/MinusLife.cpp
+        source/bonus/MinusLife.h
+        source/bonus/PlusLife.cpp
+        source/bonus/PlusLife.h
+        source/bonus/PowerfulShots.cpp
+        source/bonus/PowerfulShots.h
+        source/bonus/Snorkel.cpp
+        source/bonus/Snorkel.h
+        source/bonus/SplitFire.cpp
+        source/bonus/SplitFire.h
+        source/bonus/VampireShots.cpp
+        source/bonus/VampireShots.h
 
-if(D6R_RENDERER STREQUAL "es2")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES2")
-	set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
+        source/collision/Collision.cpp
+        source/collision/Collision.h
+        source/collision/WorldCollision.cpp
+        source/collision/WorldCollision.h
 
-	if(WIN32)
-		set(D6R_WITH_GLEW ON)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
-	endif(WIN32)
-endif(D6R_RENDERER STREQUAL "es2")
+        source/console/conarg.cpp
+        source/console/concmd.cpp
+        source/console/condraw.cpp
+        source/console/coninput.cpp
+        source/console/console.cpp
+        source/console/console.h
+        source/console/ConsoleException.h
+        source/console/convar.cpp
+
+        source/gamecontroller/GameController.cpp
+        source/gamecontroller/GameController.h
+
+        source/gamemodes/DeathMatch.cpp
+        source/gamemodes/DeathMatch.h
+        source/gamemodes/GameModeBase.cpp
+        source/gamemodes/GameModeBase.h
+        source/gamemodes/Predator.cpp
+        source/gamemodes/Predator.h
+        source/gamemodes/PredatorPlayerEventListener.cpp
+        source/gamemodes/PredatorPlayerEventListener.h
+        source/gamemodes/Team.h
+        source/gamemodes/TeamDeathMatch.cpp
+        source/gamemodes/TeamDeathMatch.h
+        source/gamemodes/TeamDeathMatchPlayerEventListener.cpp
+        source/gamemodes/TeamDeathMatchPlayerEventListener.h
+
+        source/gui/Button.cpp
+        source/gui/Button.h
+        source/gui/Control.cpp
+        source/gui/Control.h
+        source/gui/Desktop.cpp
+        source/gui/Desktop.h
+        source/gui/Label.cpp
+        source/gui/Label.h
+        source/gui/ListBox.cpp
+        source/gui/ListBox.h
+        source/gui/Slider.cpp
+        source/gui/Slider.h
+        source/gui/Spinner.cpp
+        source/gui/Spinner.h
+        source/gui/TextBox.cpp
+        source/gui/TextBox.h
+
+        source/json/JsonException.h
+        source/json/JsonParser.cpp
+        source/json/JsonParser.h
+        source/json/JsonValue.cpp
+        source/json/JsonValue.h
+        source/json/JsonWriter.cpp
+        source/json/JsonWriter.h
+
+        source/math/Camera.cpp
+        source/math/Camera.h
+        source/math/Math.cpp
+        source/math/Math.h
+        source/math/Matrix.cpp
+        source/math/Matrix.h
+        source/math/Vector.cpp
+        source/math/Vector.h
+
+        source/renderer/Renderer.h
+
+        source/script/LevelScript.h
+        source/script/PersonScript.h
+        source/script/PersonScriptContext.h
+        source/script/RoundScriptContext.h
+        source/script/Script.h
+        source/script/ScriptContext.h
+        source/script/ScriptException.h
+        source/script/ScriptLoader.h
+        source/script/ScriptManager.cpp
+        source/script/ScriptManager.h
+
+        source/weapon/LegacyShot.cpp
+        source/weapon/LegacyShot.h
+        source/weapon/LegacyWeapon.cpp
+        source/weapon/LegacyWeapon.h
+        source/weapon/ShotBase.cpp
+        source/weapon/ShotBase.h
+        source/weapon/WeaponBase.cpp
+        source/weapon/WeaponBase.h
+
+        source/weapon/impl/Bazooka.cpp
+        source/weapon/impl/Bazooka.h
+        source/weapon/impl/Bow.cpp
+        source/weapon/impl/Bow.h
+        source/weapon/impl/DoubleLaser.cpp
+        source/weapon/impl/DoubleLaser.h
+        source/weapon/impl/KissOfDeath.cpp
+        source/weapon/impl/KissOfDeath.h
+        source/weapon/impl/Laser.cpp
+        source/weapon/impl/Laser.h
+        source/weapon/impl/Lightning.cpp
+        source/weapon/impl/Lightning.h
+        source/weapon/impl/MachineGun.cpp
+        source/weapon/impl/MachineGun.h
+        source/weapon/impl/Pistol.cpp
+        source/weapon/impl/Pistol.h
+        source/weapon/impl/Plasma.cpp
+        source/weapon/impl/Plasma.h
+        source/weapon/impl/ShitThrower.cpp
+        source/weapon/impl/ShitThrower.h
+        source/weapon/impl/ShitThrowerShot.cpp
+        source/weapon/impl/ShitThrowerShot.h
+        source/weapon/impl/Shotgun.cpp
+        source/weapon/impl/Shotgun.h
+        source/weapon/impl/Slime.cpp
+        source/weapon/impl/Slime.h
+        source/weapon/impl/Sling.cpp
+        source/weapon/impl/Sling.h
+        source/weapon/impl/Spray.cpp
+        source/weapon/impl/Spray.h
+        source/weapon/impl/StopperGun.cpp
+        source/weapon/impl/StopperGun.h
+        source/weapon/impl/Triton.cpp
+        source/weapon/impl/Triton.h
+        source/weapon/impl/Uzi.cpp
+        source/weapon/impl/Uzi.h
+        )
+
+if (D6R_RENDERER STREQUAL "gl1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")
+    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL1Renderer.h source/renderer/GL1Renderer.cpp)
+endif (D6R_RENDERER STREQUAL "gl1")
+
+if (D6R_RENDERER STREQUAL "es2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES2")
+    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
+
+    if (WIN32)
+        set(D6R_WITH_GLEW ON)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
+    endif (WIN32)
+endif (D6R_RENDERER STREQUAL "es2")
 
 if (D6R_WITH_LUA)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_SCRIPTING_LUA")
-	set(D6R_SOURCES ${D6R_SOURCES}
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_SCRIPTING_LUA")
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/script/lua/Lua.cpp
+            source/script/lua/Lua.h
             source/script/lua/LuaPersonScript.h
             source/script/lua/LuaPersonScript.cpp
-		source/script/lua/LuaLevelScript.h
-		source/script/lua/LuaLevelScript.cpp
-		source/script/lua/LuaScriptLoader.h
-		source/script/lua/LuaScriptLoader.cpp
-	)
-endif(D6R_WITH_LUA)
+            source/script/lua/LuaLevelScript.h
+            source/script/lua/LuaLevelScript.cpp
+            source/script/lua/LuaScriptLoader.h
+            source/script/lua/LuaScriptLoader.cpp
+            )
+endif (D6R_WITH_LUA)
 
-if(WIN32)
+if (WIN32)
     set(D6R_SOURCES ${D6R_SOURCES} source/duel6r.rc)
-endif(WIN32)
+endif (WIN32)
 
 ########################
 #  Add application
@@ -116,8 +397,8 @@ add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
 set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 4.0.1 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
 
 add_custom_command(TARGET ${D6R_APP_NAME} POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/resources/ $<TARGET_FILE_DIR:${D6R_APP_NAME}>)
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/resources/ $<TARGET_FILE_DIR:${D6R_APP_NAME}>)
 
 #########################################################################
 # External dependencies
@@ -126,26 +407,26 @@ add_custom_command(TARGET ${D6R_APP_NAME} POST_BUILD
 # Platform
 if (MINGW)
     target_link_libraries(${D6R_APP_NAME} mingw32)
-endif(MINGW)
+endif (MINGW)
 
 # OpenGL
-if(WIN32)
+if (WIN32)
     target_link_libraries(${D6R_APP_NAME} opengl32.lib)
-elseif(APPLE)
+elseif (APPLE)
     find_library(LIB_OPEN_GL OpenGL DOC "Path to OpenGL framework")
     target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL})
-else(WIN32) # Linux GCC
+else (WIN32) # Linux GCC
     find_library(LIB_OPEN_GL GL DOC "Path to OpenGL import library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL})
-endif(WIN32)
+endif (WIN32)
 
 # SDL
-if(APPLE)
+if (APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf framework")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
-else(APPLE) # MSVC, GCC or MINGW
+else (APPLE) # MSVC, GCC or MINGW
     find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
     include_directories(${HEADERS_SDL2})
 
@@ -154,23 +435,23 @@ else(APPLE) # MSVC, GCC or MINGW
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
-endif(APPLE)
+endif (APPLE)
 
 # GLEW
-if(D6R_WITH_GLEW)
-	find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
-	target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
-	find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
-	include_directories(${HEADERS_GLEW})
-endif(D6R_WITH_GLEW)
+if (D6R_WITH_GLEW)
+    find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
+    find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
+    include_directories(${HEADERS_GLEW})
+endif (D6R_WITH_GLEW)
 
 # LUA
 if (D6R_WITH_LUA)
-	find_library(LIB_LUA lua DOC "Path to LUA library")
-	target_link_libraries(${D6R_APP_NAME} ${LIB_LUA})
-	find_path(HEADERS_LUA lua.hpp DOC "Path to LUA headers")
-	include_directories(${HEADERS_LUA})
-endif(D6R_WITH_LUA)
+    find_library(LIB_LUA lua DOC "Path to LUA library")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_LUA})
+    find_path(HEADERS_LUA lua.hpp DOC "Path to LUA headers")
+    include_directories(${HEADERS_LUA})
+endif (D6R_WITH_LUA)
 
 
 ########################

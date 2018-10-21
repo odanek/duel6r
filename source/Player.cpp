@@ -484,7 +484,7 @@ namespace Duel6 {
             return;
         }
 
-        if (controls.getStatus().isPressed()) {
+        if (controllerState & ButtonStatus) {
             indicators.showAll(5.0f);
         }
 
@@ -493,19 +493,19 @@ namespace Duel6 {
         }
 
         if (!isKneeling()) {
-            if (controls.getLeft().isPressed()) {
+            if (controllerState & ButtonLeft) {
                 setFlag(FlagMoveLeft);
             } else {
                 unsetFlag(FlagMoveLeft);
             }
 
-            if (controls.getRight().isPressed()) {
+            if (controllerState & ButtonRight) {
                 setFlag(FlagMoveRight);
             } else {
                 unsetFlag(FlagMoveRight);
             }
 
-            if (controls.getUp().isPressed()) {
+            if (controllerState & ButtonUp) {
                 unsetFlag(FlagDoubleJump);
                 if (hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !isOnElevator() && !hasFlag(FlagMoveUp)) {
                     setFlag(FlagDoubleJump);
@@ -520,13 +520,13 @@ namespace Duel6 {
                 unsetFlag(FlagMoveUp);
             }
 
-            if (controls.getPick().isPressed()) {
+            if (controllerState & ButtonPick) {
                 pick();
             }
         }
 
         if (!isGhost()) {
-            if (controls.getShoot().isPressed()) {
+            if (controllerState & ButtonShoot) {
                 shoot();
                 unsetFlag(FlagShootDebounce);
                 setFlag(FlagShoot);
@@ -541,8 +541,33 @@ namespace Duel6 {
 
         unsetFlag(FlagKnee);
 
-        if (controls.getDown().isPressed()) {
+        if (controllerState & ButtonDown) {
             fall();
+        }
+    }
+
+    void Player::updateControllerStatus() {
+        controllerState = 0;
+        if (controls.getLeft().isPressed()) {
+            controllerState |= ButtonLeft;
+        }
+        if (controls.getRight().isPressed()) {
+            controllerState |= ButtonRight;
+        }
+        if (controls.getUp().isPressed()) {
+            controllerState |= ButtonUp;
+        }
+        if (controls.getDown().isPressed()) {
+            controllerState |= ButtonDown;
+        }
+        if (controls.getShoot().isPressed()) {
+            controllerState |= ButtonShoot;
+        }
+        if (controls.getPick().isPressed()) {
+            controllerState |= ButtonPick;
+        }
+        if (controls.getStatus().isPressed()) {
+            controllerState |= ButtonStatus;
         }
     }
 

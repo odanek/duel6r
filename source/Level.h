@@ -85,6 +85,10 @@ namespace Duel6 {
             return isWall(ix, iy, outside);
         }
 
+        bool isInside(Int32 x, Int32 y) const {
+            return (x >= 0 && x < width && y >= 0 && y < height);
+        }
+
         const Block &getBlockMeta(Int32 x, Int32 y) const {
             return blockMeta[getBlock(x, y)];
         }
@@ -107,10 +111,6 @@ namespace Duel6 {
         void mirrorLevelData();
 
         bool isPossibleStartingPosition(Int32 x, Int32 y);
-
-        bool isInside(Int32 x, Int32 y) const {
-            return (x >= 0 && x < width && y >= 0 && y < height);
-        }
 
         Uint16 getBlock(Int32 x, Int32 y) const {
             return levelData[(height - y - 1) * width + x];

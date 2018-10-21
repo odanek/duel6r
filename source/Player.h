@@ -263,6 +263,18 @@ namespace Duel6 {
             Water headUnderWater;
             Water feetInWater;
         };
+
+    public:
+        enum ControllerButton {
+            ButtonLeft = 0x01,
+            ButtonRight = 0x02,
+            ButtonUp = 0x04,
+            ButtonDown = 0x08,
+            ButtonShoot = 0x10,
+            ButtonPick = 0x20,
+            ButtonStatus = 0x40
+        };
+
     private:
         Person &person;
         PlayerSkin skin;
@@ -299,6 +311,7 @@ namespace Duel6 {
         Float32 bodyAlpha;
         clock_t roundStartTime;
         PlayerIndicators indicators;
+        Uint32 controllerState;
 
     public:
         Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
@@ -316,6 +329,8 @@ namespace Duel6 {
         void endRound();
 
         void setView(const PlayerView &view);
+
+        void updateControllerStatus();
 
         void update(World &world, ScreenMode screenMode, Float32 elapsedTime);
 
@@ -443,9 +458,12 @@ namespace Duel6 {
         Float32 getReloadTime() const {
             return timeToReload;
         }
+
         Float32 getChargeLevel() const {
-            return 1.0f - timeToReload / getReloadInterval(); // TODO probably will misbehave in case fast reload expires while charging
+            return 1.0f - timeToReload /
+                          getReloadInterval(); // TODO probably will misbehave in case fast reload expires while charging
         }
+
         BonusType getBonus() const {
             return bonus;
         }
@@ -567,6 +585,10 @@ namespace Duel6 {
 
         void removeBody() {
             unsetFlag(FlagLying);
+        }
+
+        void pressButton(Uint32 button) {
+            controllerState |= button;
         }
 
         void die();
