@@ -59,26 +59,25 @@ namespace Duel6::Script {
     }
 
     void LuaPersonScript::roundStart(Player &player, RoundScriptContext &roundContext) {
-        lua_getglobal(state, "roundStart");
         lua_newtable(state);
         Lua::pushProperty(state, "player", player);
         Lua::pushProperty(state, "world", roundContext.getWorld());
+
+        lua_getglobal(state, "roundStart");
+        lua_pushvalue(state, -2);
         Lua::invoke(state, 1, 0);
     }
 
     void LuaPersonScript::roundUpdate(Player &player, RoundScriptContext &roundContext) {
         lua_getglobal(state, "roundUpdate");
-        lua_newtable(state);
-        Lua::pushProperty(state, "player", player);
-        Lua::pushProperty(state, "world", roundContext.getWorld());
+        lua_pushvalue(state, -2);
         Lua::invoke(state, 1, 0);
     }
 
     void LuaPersonScript::roundEnd(Player &player, RoundScriptContext &roundContext) {
         lua_getglobal(state, "roundEnd");
-        lua_newtable(state);
-        Lua::pushProperty(state, "player", player);
-        Lua::pushProperty(state, "world", roundContext.getWorld());
+        lua_pushvalue(state, -2);
         Lua::invoke(state, 1, 0);
+        lua_pop(state, 1);
     }
 }

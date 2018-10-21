@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit SplitFire(Texture texture);
 
+            std::string getName() const override {
+                return "splitFire";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

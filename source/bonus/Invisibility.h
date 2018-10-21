@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit Invisibility(Texture texture);
 
+            std::string getName() const override {
+                return "invisibility";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

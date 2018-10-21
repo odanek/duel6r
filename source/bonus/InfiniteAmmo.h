@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit InfiniteAmmo(Texture texture);
 
+            std::string getName() const override {
+                return "infiniteAmmo";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

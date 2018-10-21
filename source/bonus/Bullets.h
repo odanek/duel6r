@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit Bullets(Texture texture);
 
+            std::string getName() const override {
+                return "bullets";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

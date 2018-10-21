@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit PlusLife(Texture texture);
 
+            std::string getName() const override {
+                return "plusLife";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

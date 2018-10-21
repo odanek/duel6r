@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit VampireShots(Texture texture);
 
+            std::string getName() const override {
+                return "vampireShots";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

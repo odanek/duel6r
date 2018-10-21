@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit FastReload(Texture texture);
 
+            std::string getName() const override {
+                return "fastReload";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

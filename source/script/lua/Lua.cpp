@@ -33,12 +33,8 @@
 
 namespace Duel6::Script {
     namespace {
-        int consolePrint(lua_State *L) {
-            const char *str = luaL_checkstring(L, 1);
-            auto *console = (Console *) lua_touserdata(L, lua_upvalueindex(1));
-            console->printLine(str);
-            return 0;
-        }
+        int consolePrint(lua_State *state);
+        int playerMetaIndex(lua_State *state);
     }
 
     template<>
@@ -85,20 +81,17 @@ namespace Duel6::Script {
     template<>
     void Lua::pushValue(lua_State *state, Player &value) {
         lua_newtable(state);
-        Lua::pushProperty(state, "name", value.getPerson().getName());
-        Lua::pushProperty(state, "position", value.getPosition());
-        Lua::pushProperty(state, "life", value.getLife());
-        Lua::pushProperty(state, "air", value.getAir());
-        Lua::pushProperty(state, "ammo", value.getAmmo());
-        Lua::pushProperty(state, "roundKills", value.getRoundKills());
 
-        lua_pushliteral(state, "bonus");
+        // Dynamic meta table
         lua_newtable(state);
-        //Lua::pushProperty(state, "name", "todo");
-        Lua::pushProperty(state, "remainingTime", value.getBonusRemainingTime());
+        lua_pushliteral(state, "__index");
+        lua_pushlightuserdata(state, &value);
+        lua_pushcclosure(state, playerMetaIndex, 1);
         lua_rawset(state, -3);
+        lua_setmetatable(state, -2);
 
-        Lua::pushProperty(state, "weapon", value.getWeapon());
+        // Static properties
+        Lua::pushProperty(state, "name", value.getPerson().getName());
     }
 
     template<>
@@ -133,6 +126,52 @@ namespace Duel6::Script {
         if (result != LUA_OK) {
             std::string message = Format("Script error: {0}") << lua_tostring(state, -1);
             D6_THROW(ScriptException, message);
+        }
+    }
+
+    namespace {
+        int consolePrint(lua_State *state) {
+            auto &console = *((Console *) lua_touserdata(state, lua_upvalueindex(1)));
+            const char *str = luaL_checkstring(state, 1);
+            console.printLine(str);
+            return 0;
+        }
+
+        int playerMetaIndex(lua_State *state) {
+            auto &player = *((Player *) lua_touserdata(state, lua_upvalueindex(1)));
+            const char *propertyName = luaL_checkstring(state, 2);
+
+            if (!strcmp(propertyName, "position")) {
+                Lua::pushValue(state, player.getPosition());
+                return 1;
+            } else if (!strcmp(propertyName, "life")) {
+                Lua::pushValue(state, player.getLife());
+                return 1;
+            } else if (!strcmp(propertyName, "air")) {
+                Lua::pushValue(state, player.getAir());
+                return 1;
+            } else if (!strcmp(propertyName, "ammo")) {
+                Lua::pushValue(state, player.getAmmo());
+                return 1;
+            } else if (!strcmp(propertyName, "ammo")) {
+                Lua::pushValue(state, player.getRoundKills());
+                return 1;
+            } else if (!strcmp(propertyName, "bonus")) {
+                auto bonus = player.getBonus();
+                if (bonus == BonusType::NONE) {
+                    lua_pushnil(state);
+                } else {
+                    lua_newtable(state);
+                    Lua::pushProperty(state, "name", bonus.getName());
+                    Lua::pushProperty(state, "remainingTime", player.getBonusRemainingTime());
+                }
+                return 1;
+            } else if (!strcmp(propertyName, "weapon")) {
+                Lua::pushValue(state, player.getWeapon());
+                return 1;
+            }
+
+            return 0;
         }
     }
 }

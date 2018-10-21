@@ -41,6 +41,8 @@ namespace Duel6 {
 
     class BonusTypeImpl {
     public:
+        virtual std::string getName() const = 0;
+
         virtual Texture getTexture() const = 0;
 
         virtual bool isOneTime() const = 0;
@@ -85,6 +87,8 @@ namespace Duel6 {
         BonusType();
 
         BonusType(const BonusType &bonusType);
+
+        std::string getName() const;
 
         Texture getTexture() const;
 

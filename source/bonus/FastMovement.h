@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit FastMovement(Texture texture);
 
+            std::string getName() const override {
+                return "fastMovement";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

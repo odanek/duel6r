@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit PowerfulShots(Texture texture);
 
+            std::string getName() const override {
+                return "powerfulShots";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;

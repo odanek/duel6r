@@ -39,6 +39,9 @@ namespace Duel6::Script {
         static void pushValue(lua_State *state, T &value);
 
         template<class T>
+        static void pushValue(lua_State *state, const T &value);
+
+        template<class T>
         static void pushProperty(lua_State *state, const std::string &name, T &value) {
             lua_pushstring(state, name.c_str());
             pushValue(state, value);

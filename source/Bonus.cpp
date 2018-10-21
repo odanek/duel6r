@@ -45,6 +45,10 @@ namespace Duel6 {
     namespace {
         class NoneBonus : public BonusTypeImpl {
         public:
+            std::string getName() const override {
+                return "none";
+            }
+
             Texture getTexture() const override {
                 return Texture();
             }
@@ -93,6 +97,10 @@ namespace Duel6 {
         this->impl = impl.get();
         implementations.push_back(std::forward<BonusTypeImplPtr>(impl));
         types.push_back(*this);
+    }
+
+    std::string BonusType::getName() const {
+        return impl->getName();
     }
 
     Texture BonusType::getTexture() const {

@@ -177,6 +177,8 @@ namespace Duel6 {
             }
         }
 
+        scriptUpdate();
+
         for (Player &player : world.getPlayers()) {
             player.update(world, game.getSettings().getScreenMode(), elapsedTime);
             if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {

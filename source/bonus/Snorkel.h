@@ -39,6 +39,10 @@ namespace Duel6 {
         public:
             explicit Snorkel(Texture texture);
 
+            std::string getName() const override {
+                return "snorkel";
+            }
+
             Texture getTexture() const override;
 
             bool isOneTime() const override;
