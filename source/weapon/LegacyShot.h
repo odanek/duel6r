@@ -71,6 +71,22 @@ namespace Duel6 {
 
         ShotHit getShotHit() override;
 
+        Vector getDimensions() const override {
+            return collisionRect.getSize();
+        }
+
+        Vector getCentre() const override {
+            return getCollisionRect().getCentre();
+        }
+
+        Vector getVelocity() const override {
+            return velocity * bulletSpeed;
+        }
+
+        bool isPowerful() const override {
+            return powerful;
+        }
+
     protected:
         virtual void onExplode(const Vector &centre, Float32 range, World &world);
 
@@ -78,14 +94,7 @@ namespace Duel6 {
             return position;
         }
 
-        Vector getDimensions() const {
-            return collisionRect.getSize();
-        }
-
-        Vector getCentre() const {
-            return getCollisionRect().getCentre();
-        }
-
+    protected:
         Vector getSpritePosition() const {
             if (orientation == Orientation::Left) {
                 return getPosition() - collisionRect.left;

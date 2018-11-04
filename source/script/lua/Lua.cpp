@@ -32,6 +32,7 @@
 #include "../../console/console.h"
 #include "../ScriptContext.h"
 #include "../PersonScriptContext.h"
+#include "../../ShotList.h"
 
 namespace Duel6::Script {
     namespace {
@@ -143,6 +144,31 @@ namespace Duel6::Script {
         Lua::pushProperty(state, "path", value.getProfileRoot());
     }
 
+    template<>
+    void Lua::pushValue(lua_State *state, Shot &value) {
+        lua_newtable(state);
+        Lua::pushProperty(state, "centre", value.getCentre());
+        Lua::pushProperty(state, "dimensions", value.getDimensions());
+        Lua::pushProperty(state, "player", value.getPlayer().getPerson().getName());
+        Lua::pushProperty(state, "weapon", value.getWeapon());
+        Lua::pushProperty(state, "velocity", value.getVelocity());
+        Lua::pushProperty(state, "powerful", value.isPowerful());
+    }
+
+    template<>
+    void Lua::pushValue(lua_State *state, ShotList &value) {
+        lua_newtable(state);
+
+        Int32 index = 1;
+        value.forEach([&index, &state] (Shot &shot) -> bool {
+            lua_pushinteger(state, index);
+            Lua::pushValue(state, shot);
+            lua_rawset(state, -3);
+            ++index;
+            return true;
+        });
+    }
+
     void Lua::invoke(lua_State *state, Int32 nargs, Int32 nresults) {
         int result = lua_pcall(state, nargs, nresults, 0);
         if (result != LUA_OK) {
@@ -163,8 +189,11 @@ namespace Duel6::Script {
             auto &player = *((Player *) lua_touserdata(state, lua_upvalueindex(1)));
             const char *propertyName = luaL_checkstring(state, 2);
 
-            if (!strcmp(propertyName, "position")) {
-                Lua::pushValue(state, player.getPosition());
+            if (!strcmp(propertyName, "centre")) {
+                Lua::pushValue(state, player.getCentre());
+                return 1;
+            } else if (!strcmp(propertyName, "dimensions")) {
+                Lua::pushValue(state, player.getDimensions());
                 return 1;
             } else if (!strcmp(propertyName, "life")) {
                 Lua::pushValue(state, player.getLife() / D6_MAX_LIFE);
@@ -175,7 +204,7 @@ namespace Duel6::Script {
             } else if (!strcmp(propertyName, "ammo")) {
                 Lua::pushValue(state, player.getAmmo());
                 return 1;
-            } else if (!strcmp(propertyName, "ammo")) {
+            } else if (!strcmp(propertyName, "roundKills")) {
                 Lua::pushValue(state, player.getRoundKills());
                 return 1;
             } else if (!strcmp(propertyName, "bonus")) {
@@ -194,11 +223,14 @@ namespace Duel6::Script {
             } else if (!strcmp(propertyName, "alive")) {
                 Lua::pushValue(state, player.isAlive());
                 return 1;
-            } else if (!strcmp(propertyName, "orientation")) {
-                Lua::pushValue(state, player.getOrientation() == Orientation::Left ? -1 : 1);
-                return 1;
             } else if (!strcmp(propertyName, "velocity")) {
                 Lua::pushValue(state, player.getVelocity());
+                return 1;
+            } else if (!strcmp(propertyName, "reloadInterval")) {
+                Lua::pushValue(state, player.getReloadInterval());
+                return 1;
+            } else if (!strcmp(propertyName, "reloadTime")) {
+                Lua::pushValue(state, player.getReloadTime());
                 return 1;
             }
 

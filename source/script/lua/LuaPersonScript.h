@@ -59,6 +59,7 @@ namespace Duel6::Script {
         void registerGlobalContext();
         void registerRoundContext(Player &player, RoundScriptContext &roundContext);
         void registerOtherPlayers(Player &player, RoundScriptContext &roundContext);
+        void registerShots(RoundScriptContext &roundContext);
     };
 }
 

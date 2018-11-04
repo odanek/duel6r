@@ -53,6 +53,14 @@ namespace Duel6 {
     public:
         virtual ~Shot() {}
 
+        virtual Vector getDimensions() const = 0;
+
+        virtual Vector getCentre() const = 0;
+
+        virtual Vector getVelocity() const = 0;
+
+        virtual bool isPowerful() const = 0;
+
         virtual const Weapon &getWeapon() const = 0;
 
         virtual Player &getPlayer() = 0;

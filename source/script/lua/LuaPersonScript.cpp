@@ -32,6 +32,20 @@
 #include "Lua.h"
 
 namespace Duel6::Script {
+    namespace {
+        int roundMetaIndex(lua_State *state) {
+            auto &context = *((RoundScriptContext *) lua_touserdata(state, lua_upvalueindex(1)));
+            const char *propertyName = luaL_checkstring(state, 2);
+
+            if (!strcmp(propertyName, "shots")) {
+                Lua::pushValue(state, context.getWorld().getShotList());
+                return 1;
+            }
+
+            return 0;
+        }
+    }
+
     LuaPersonScript::LuaPersonScript(const std::string &path, ScriptContext &context, PersonScriptContext &personContext)
             : path(path), context(context), personContext(personContext), state(luaL_newstate()) {
     }
@@ -55,12 +69,14 @@ namespace Duel6::Script {
     }
 
     void LuaPersonScript::registerGlobalContext() {
-        Lua::registerGlobal(state, "context", context);
-        Lua::registerGlobal(state, "personContext", personContext);
+        Lua::registerGlobal(state, "script", context);
+        Lua::registerGlobal(state, "person", personContext);
     }
 
     void LuaPersonScript::registerRoundContext(Player &player, RoundScriptContext &roundContext) {
         lua_newtable(state);
+        Lua::pushMetaIndex(state, roundMetaIndex, roundContext);
+
         Lua::pushProperty(state, "player", player);
 
         lua_pushliteral(state, "otherPlayers");
@@ -82,6 +98,10 @@ namespace Duel6::Script {
                 ++index;
             }
         }
+    }
+
+    void LuaPersonScript::registerShots(RoundScriptContext &roundContext) {
+        lua_newtable(state);
     }
 
     void LuaPersonScript::roundStart(Player &player, RoundScriptContext &roundContext) {

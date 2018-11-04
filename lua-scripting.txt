@@ -1,0 +1,80 @@
+Global variables:
+==================
+- script: Script
+- person: Person
+
+Round context:
+===============
+- player: Player
+- otherPlayers: [Player]
+- level: Level
+- shots: [Shot]
+
+Types:
+========
+Script: Object
+	- console: Console
+
+Console: Object
+	- print: (String) -> ()
+
+Person: Object
+	- name: String
+	- path: String (path to profile)
+
+Player: Object
+	- name: String
+	- centre: Vector
+	- dimensions: Vector
+	- velocity: Vector
+	- life: Number
+	- air: Number
+	- ammo: Number
+	- roundKills: Number
+	- bonus: Bonus
+	- weapon: Weapon
+	- alive: Bool
+    - reloadInterval: Number
+    - reloadTime: Number
+    - pressLeft: () -> ()
+    - pressRight: () -> ()
+    - pressUp: () -> ()
+    - pressDown: () -> ()
+    - pressShoot: () -> ()
+    - pressPick: () -> ()
+    - pressStatus: () -> ()
+
+Vector: Object
+	- x: Number
+	- y: Number
+	- z: Number
+
+Bonus: Object
+	- name: String
+	- remainingTime: Number
+
+Weapon: Object
+	- name: String
+	- reloadInterval: Number
+	- chargeable: Bool
+
+Level: Object
+	- width: Number
+	- height: Number
+	- blockAt: (Number, Number) -> Block?
+	- waterLevel: Number
+	- raisingWater: Bool
+
+Block: Object
+	- wall: Bool
+	- waterfall: Bool
+	- water: Bool
+	- waterType: String
+
+Shot: Object
+	- centre: Vector
+	- dimensions: Vector
+	- velocity: Vector
+	- player: String
+	- weapon: Weapon
+	- powerful: Bool

@@ -229,8 +229,7 @@ namespace Duel6 {
             return;
 
         if(weapon.isChargeable()){
-            if(! hasFlag(FlagShootDebounce) || !hasFlag(FlagShoot))
-            {
+            if(! hasFlag(FlagShootDebounce) || !hasFlag(FlagShoot)) {
                 return;
             }
         }
@@ -284,7 +283,7 @@ namespace Duel6 {
 
         bool onElevator = isOnElevator();
         if (onElevator && level.isWall(Int32(getCentre().x), Int32(getCentre().y), false)) {
-            this->velocity.x = 0;
+            velocity.x = 0;
         }
         elevator = nullptr;
         acceleration.x = 0;
@@ -301,16 +300,16 @@ namespace Duel6 {
             externalForcesSpeed.y = 0;
         }
         //do not multiply by speed or elapsedTime !!!
-        this->velocity += acceleration;
+        velocity += acceleration;
 
         // horizontal speed clamping
-        if (fabs(this->velocity.x * speed) > 0.5f) {
-            this->velocity.x = std::copysign(0.5f, this->velocity.x) / speed;
+        if (std::abs(velocity.x * speed) > 0.5f) {
+            velocity.x = std::copysign(0.5f, this->velocity.x) / speed;
         }
-        if (fabs(this->externalForcesSpeed.x * speed) > 0.5f) {
-            this->externalForcesSpeed.x = std::copysign(0.5f, this->externalForcesSpeed.x) / speed;
+        if (std::abs(externalForcesSpeed.x * speed) > 0.5f) {
+            externalForcesSpeed.x = std::copysign(0.5f, externalForcesSpeed.x) / speed;
         }
-        Vector totalSpeed = this->velocity + externalForcesSpeed;
+        Vector totalSpeed = velocity + externalForcesSpeed;
         bleft = false, bright = false, bup = false, bdown = false;
 
         //collision detection here we go
@@ -331,11 +330,11 @@ namespace Duel6 {
             right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
             if (level.isWall(right, down, true) || level.isWall(left, down, true)) {
                 bdown = true;
-                this->velocity.y = 0;
+                velocity.y = 0;
                 totalSpeed.y = 0;
                 if (!(level.isWall(right, up, true) || level.isWall(left, down, true))) {
-                    this->velocity.y = -0.001;
-                    totalSpeed.y = -0.001;
+                    velocity.y = -0.001f;
+                    totalSpeed.y = -0.001f;
                 }
             }
 
@@ -350,7 +349,7 @@ namespace Duel6 {
             if (totalSpeed.y > 0.0f && (level.isWall(right, up, true) || level.isWall(left, up, true))) {
                 bup = true;
                 totalSpeed.y = 0;
-                this->velocity.y = 0;
+                velocity.y = 0;
             }
 
             /**
@@ -392,15 +391,15 @@ namespace Duel6 {
              */
             if (!onElevator) {
                 if (bdown) {
-                    this->position.y = ceil(this->position.y - 0.5f);
+                    position.y = std::ceil(position.y - 0.5f);
                 } else if (bup) {
-                    this->position.y = floor(this->position.y + 0.5f);
+                    position.y = std::floor(position.y + 0.5f);
                 }
 
                 if (bleft) {
-                    this->position.x = ceil(this->position.x + totalSpeed.x * speed) - delta;
+                    position.x = std::ceil(position.x + totalSpeed.x * speed) - delta;
                 } else if (bright) {
-                    this->position.x = floorf(this->position.x) + delta;
+                    position.x = floorf(this->position.x) + delta;
                 }
             }
             if (bleft || bright) {
@@ -461,7 +460,7 @@ namespace Duel6 {
             spd *= 0.67f;
         }
 
-        if (tempSkinDuration) {
+        if (tempSkinDuration > 0) {
             spd *= 0.5f;
         }
 
