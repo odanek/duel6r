@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef D6_RENDERER_GL1
 #include "GL1Renderer.h"
 
 namespace Duel6 {
@@ -339,5 +338,3 @@ namespace Duel6 {
         }
     }
 }
-
-#endif

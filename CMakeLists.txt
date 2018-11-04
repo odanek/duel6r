@@ -369,6 +369,16 @@ if (D6R_RENDERER STREQUAL "es2")
     endif (WIN32)
 endif (D6R_RENDERER STREQUAL "es2")
 
+if (D6R_RENDERER STREQUAL "gl4")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL4")
+    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL4Renderer.h source/renderer/GL4Renderer.cpp)
+
+    if (WIN32)
+        set(D6R_WITH_GLEW ON)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
+    endif (WIN32)
+endif (D6R_RENDERER STREQUAL "gl4")
+
 if (D6R_WITH_LUA)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_SCRIPTING_LUA")
     set(D6R_SOURCES ${D6R_SOURCES}

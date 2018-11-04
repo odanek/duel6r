@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef D6_RENDERER_GL4
 #include "GL4Renderer.h"
 
 namespace Duel6 {
@@ -34,8 +33,10 @@ namespace Duel6 {
     static const char *colorVertexShader =
             "#version 430\n"
                     "uniform mat4 mvp;"
-                    "in vec3 vp;"
+                    "layout(location = 0) in vec3 vp;"
+                    "uniform float pointSize;"
                     "void main() {"
+                    "  gl_PointSize = pointSize;"
                     "  gl_Position = mvp * vec4(vp, 1.0);"
                     "}";
     static const char *textureVertexShader =
@@ -49,7 +50,6 @@ namespace Duel6 {
                     "  uv = uvIn;"
                     "}";
 
-
     static const char *colorFragmentShader =
             "#version 430\n"
                     "uniform vec4 color;"
@@ -62,8 +62,12 @@ namespace Duel6 {
                     "in vec2 uv;"
                     "out vec4 result;"
                     "uniform sampler2D textureUnit;"
+                    "uniform bool alphaTest;"
+                    "uniform vec4 modulateColor;"
                     "void main() {"
-                    "  result = texture2D(textureUnit, uv);"
+                    "  vec4 color = texture2D(textureUnit, uv);"
+                    "  if (alphaTest && color.w < 1.0) discard;"
+                    "  result = color * modulateColor;"
                     "}";
 
     GL4Renderer::GL4Renderer()
@@ -76,6 +80,7 @@ namespace Duel6 {
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
+        glEnable(GL_PROGRAM_POINT_SIZE);
 
         GLuint vbo;
         glGenBuffers(1, &vbo);
@@ -98,10 +103,10 @@ namespace Duel6 {
         glShaderSource(cfs, 1, &colorFragmentShader, nullptr);
         glCompileShader(cfs);
 
-        colorTriangleProgram = glCreateProgram();
-        glAttachShader(colorTriangleProgram, cfs);
-        glAttachShader(colorTriangleProgram, cvs);
-        glLinkProgram(colorTriangleProgram);
+        colorProgram = glCreateProgram();
+        glAttachShader(colorProgram, cfs);
+        glAttachShader(colorProgram, cvs);
+        glLinkProgram(colorProgram);
 
         GLuint tvs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(tvs, 1, &textureVertexShader, nullptr);
@@ -110,10 +115,10 @@ namespace Duel6 {
         glShaderSource(tfs, 1, &textureFragmentShader, nullptr);
         glCompileShader(tfs);
 
-        textureTriangleProgram = glCreateProgram();
-        glAttachShader(textureTriangleProgram, tfs);
-        glAttachShader(textureTriangleProgram, tvs);
-        glLinkProgram(textureTriangleProgram);
+        textureProgram = glCreateProgram();
+        glAttachShader(textureProgram, tfs);
+        glAttachShader(textureProgram, tvs);
+        glLinkProgram(textureProgram);
 
         glActiveTexture(GL_TEXTURE0);
     }
@@ -161,7 +166,7 @@ namespace Duel6 {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterValue);
     }
 
-    void GL4Renderer::freeTexture(Texture::Id texture) {
+    void GL4Renderer::freeTexture(Texture::Id textureId) {
         GLuint id = textureId;
         glDeleteTextures(1, &id);
     }
@@ -237,16 +242,16 @@ namespace Duel6 {
     }
 
     void GL4Renderer::triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) {
-        glUseProgram(colorTriangleProgram);
+        glUseProgram(colorProgram);
 
-        glUniformMatrix4fv(glGetUniformLocation(colorTriangleProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
         Float32 points[] = {p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z};
         glBufferSubData(GL_ARRAY_BUFFER, 0, 9 * sizeof(Float32), points);
 
         Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
                                color.getAlpha() / 255.0f};
-        GLint location = glGetUniformLocation(colorTriangleProgram, "color");
+        GLint location = glGetUniformLocation(colorProgram, "color");
         glUniform4fv(location, 1, colorData);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -256,15 +261,22 @@ namespace Duel6 {
                                const Vector &p2, const Vector &t2,
                                const Vector &p3, const Vector &t3,
                                const Material &material) {
-        glUseProgram(textureTriangleProgram);
+        glUseProgram(textureProgram);
 
         glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
-        glUniform1i(glGetUniformLocation(textureTriangleProgram, "textureUnit"), 0);
+        glUniform1i(glGetUniformLocation(textureProgram, "textureUnit"), 0);
 
-        glUniformMatrix4fv(glGetUniformLocation(textureTriangleProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        glUniformMatrix4fv(glGetUniformLocation(textureProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
         Float32 points[] = {p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z, t1.x, t1.y, t2.x, t2.y, t3.x, t3.y};
         glBufferSubData(GL_ARRAY_BUFFER, 0, 15 * sizeof(Float32), points);
+
+        glUniform1i(glGetUniformLocation(textureProgram, "alphaTest"), material.isMasked() ? 1 : 0);
+
+        const Color &color = material.getColor();
+        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                               color.getAlpha() / 255.0f};
+        glUniform4fv(glGetUniformLocation(textureProgram, "modulateColor"), 1, colorData);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
@@ -339,9 +351,39 @@ namespace Duel6 {
     }
 
     void GL4Renderer::point(const Vector &position, Float32 size, const Color &color) {
+        glUseProgram(colorProgram);
+
+        Float32 points[] = {position.x, position.y, position.z};
+        glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(Float32), points);
+
+        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        glUniform1f(glGetUniformLocation(colorProgram, "pointSize"), size);
+
+        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                               color.getAlpha() / 255.0f};
+        GLint location = glGetUniformLocation(colorProgram, "color");
+        glUniform4fv(location, 1, colorData);
+
+        glDrawArrays(GL_POINTS, 0, 1);
     }
 
     void GL4Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
+        glLineWidth(width);
+
+        glUseProgram(colorProgram);
+
+        Float32 points[] = {from.x, from.y, from.z, to.x, to.y, to.z, 0, 0, 0, 0};
+        glBufferSubData(GL_ARRAY_BUFFER, 0, 10 * sizeof(Float32), points);
+
+        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+
+        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                               color.getAlpha() / 255.0f};
+        GLint location = glGetUniformLocation(colorProgram, "color");
+        glUniform4fv(location, 1, colorData);
+
+        glDrawArrays(GL_LINES, 0, 2);
+        glLineWidth(1.0f);
     }
 
     void GL4Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color) {
@@ -363,5 +405,3 @@ namespace Duel6 {
         }
     }
 }
-
-#endif

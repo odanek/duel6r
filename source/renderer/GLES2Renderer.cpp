@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef D6_RENDERER_GLES2
 #include "GLES2Renderer.h"
 
 namespace Duel6 {
@@ -302,7 +301,7 @@ namespace Duel6 {
 
         glUniform1i(glGetUniformLocation(textureProgram, "alphaTest"), material.isMasked() ? 1 : 0);
 
-        Color color = material.getColor();
+        const Color color = material.getColor();
         Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
                                color.getAlpha() / 255.0f};
         glUniform4fv(glGetUniformLocation(textureProgram, "modulateColor"), 1, colorData);
@@ -443,5 +442,3 @@ namespace Duel6 {
         }
     }
 }
-
-#endif

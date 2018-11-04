@@ -32,6 +32,8 @@
 #include "renderer/GL1Renderer.h"
 #elif defined(D6_RENDERER_GLES2)
 #include "renderer/GLES2Renderer.h"
+#elif defined(D6_RENDERER_GL4)
+#include "renderer/GL4Renderer.h"
 #endif
 
 namespace Duel6 {
@@ -135,12 +137,11 @@ namespace Duel6 {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#elif defined(D6_RENDERER_GLES2)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
-
-//      OpenGL 4.3
-//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-//		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
         SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, params.getBitsPerPixel());
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -181,6 +182,8 @@ namespace Duel6 {
         Renderer *renderer = new GL1Renderer();
 #elif defined(D6_RENDERER_GLES2)
         Renderer* renderer = new GLES2Renderer();
+#elif defined(D6_RENDERER_GL4)
+        Renderer* renderer = new GL4Renderer();
 #endif
         renderer->initialize();
         return renderer;

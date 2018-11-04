@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef D6_RENDERER_GL4
 #ifndef DUEL6_RENDERER_GL4RENDERER_H
 #define DUEL6_RENDERER_GL4RENDERER_H
 
@@ -45,8 +44,8 @@ namespace Duel6 {
         Matrix viewMatrix;
         Matrix modelMatrix;
         Matrix mvpMatrix;
-        GLuint colorTriangleProgram;
-        GLuint textureTriangleProgram;
+        GLuint colorProgram;
+        GLuint textureProgram;
 
     public:
         GL4Renderer();
@@ -123,5 +122,4 @@ namespace Duel6 {
     };
 }
 
-#endif
 #endif
