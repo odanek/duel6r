@@ -383,10 +383,10 @@ namespace Duel6 {
                 for (Size i = 0; i < controlsManager.getNumAvailable(); i++) {
                     const PlayerControls &pc = controlsManager.get(i);
 
-                    if (pc.getLeft().isPressed() ||
-                        pc.getRight().isPressed() ||
-                        pc.getDown().isPressed() ||
-                        pc.getUp().isPressed() ||
+                    if ( (!pc.getLeft().isJoyPadAxis() && pc.getLeft().isPressed()) ||
+                        (!pc.getRight().isJoyPadAxis() && pc.getRight().isPressed()) ||
+                        (!pc.getDown().isJoyPadAxis() && pc.getDown().isPressed()) ||
+                        (!pc.getUp().isJoyPadAxis() && pc.getUp().isPressed()) ||
                         pc.getShoot().isPressed() ||
                         pc.getPick().isPressed()) {
                         controlSwitch[playerIndex]->setCurrent((Int32) i);
