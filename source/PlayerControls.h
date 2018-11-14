@@ -40,6 +40,10 @@ namespace Duel6 {
         virtual ~Control() {}
 
         virtual bool isPressed() const = 0;
+
+        virtual bool isJoyPadAxis() const {
+            return false;
+        }
     };
 
     class KeyboardButton
@@ -78,6 +82,9 @@ namespace Duel6 {
                 : gameController(gameController), axis(axis), direction(direction) {}
 
         bool isPressed() const override;
+        virtual bool isJoyPadAxis() const override {
+            return true;
+        }
     };
 
     class JoypadButton

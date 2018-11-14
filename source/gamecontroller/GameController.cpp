@@ -32,8 +32,9 @@ namespace Duel6 {
             open(SDL_bool::SDL_TRUE == SDL_JoystickGetAttached(instance)),
             instance(instance),
             instanceID(SDL_JoystickInstanceID(instance)),
-            guid(SDL_JoystickGetGUID(instance)),
-            name(SDL_JoystickName(instance)) {
+            guid(SDL_JoystickGetGUID(instance)) {
+            auto joyName = SDL_JoystickName(instance);
+            name = joyName != NULL ? std::string(joyName): "<unknown>"; // unlikely to happen
 
     }
 

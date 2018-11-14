@@ -164,7 +164,13 @@ namespace Duel6 {
                 case SDL_JOYDEVICEADDED:{
                     auto deviceIndex = event.jdevice.which;
                     auto joy = SDL_JoystickOpen(deviceIndex);
-                    joyDeviceAddedEvent(context, JoyDeviceAddedEvent(joy));
+                    if(SDL_JoystickGetAttached(joy)){
+                        joyDeviceAddedEvent(context, JoyDeviceAddedEvent(joy));
+                    } else {
+                        console.printLine(Format("Joy attached, but has been detached again -> skipping."));
+                        break;
+                    }
+
                     break;
                 }
                 case SDL_JOYDEVICEREMOVED: {
