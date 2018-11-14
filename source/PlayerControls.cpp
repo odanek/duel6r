@@ -88,8 +88,8 @@ namespace Duel6 {
                                                  SDLK_7, SDLK_8));
         controls.push_back(
                 PlayerControls::keyboardControls("K4: 5213", input, SDLK_KP_1, SDLK_KP_3, SDLK_KP_5, SDLK_KP_2,
-                                                 SDLK_KP_0,
-                                                 SDLK_KP_PERIOD, SDLK_KP_ENTER));
+                                                 SDLK_KP_PERIOD,
+                                                 SDLK_KP_0, SDLK_KP_ENTER));
       	controls.push_back(
 				        PlayerControls::keyboardControls("K5: TGFH", input, SDLK_f, SDLK_h, SDLK_t, SDLK_g,
                                                  SDLK_r,
