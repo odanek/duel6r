@@ -135,10 +135,10 @@ namespace Duel6 {
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
         globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + fontWidth, height + 2 * fontSize), Color(255, 255, 255, 80));
-        globRenderer->quadXY(Vector(x - fontWidth + 2, y - fontSize + 2), Vector(width + fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
+        globRenderer->quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + 2 * fontWidth, height + 2 * fontSize), Color(255, 255, 255, 80));
+        globRenderer->quadXY(Vector(x - fontWidth + 2, y - fontSize + 2), Vector(width + 2 * fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
 
-        globRenderer->quadXY(Vector(x - fontWidth - 5, height + y - fontSize), Vector(width + fontWidth + 10,fontSize + 4), Color(0, 0, 255, 255));
+        globRenderer->quadXY(Vector(x - fontWidth - 5, height + y - fontSize), Vector(width + 2 * fontWidth + 10,fontSize + 4), Color(0, 0, 255, 255));
         globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
 
         Int32 posX = video.getScreen().getClientWidth() / 2 - tableWidth / 2;;
@@ -511,6 +511,7 @@ namespace Duel6 {
         if (game.isDisplayingScoreTab()) {
             roundOverSummary();
         }
+
         if (game.getRound().hasWinner()) {
             if (game.isOver()) {
                 gameOverSummary();

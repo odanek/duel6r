@@ -143,10 +143,12 @@ namespace Duel6 {
             this->kills += kills;
             return *this;
         }
+
         Person &addDeaths(Int32 deaths) {
             this->deaths += deaths;
             return *this;
         }
+
         Person &addAssistances(Int32 assistances) {
             this->assistances += assistances;
             return *this;
@@ -154,7 +156,6 @@ namespace Duel6 {
 
         Person &addPenalties(Int32 penalties) {
             this->penalties += penalties;
-
             return *this;
         }
 
