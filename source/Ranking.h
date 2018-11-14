@@ -40,6 +40,11 @@ namespace Duel6 {
         public:
             std::string name;
             Int32 points;
+            Int32 wins = 0;
+            Int32 kills = 0;
+            Int32 deaths = 0;
+            Int32 assistances = 0;
+            Int32 penalties = 0;
             Color fontColor;
             Color bcgColor;
             std::vector<Entry> entries;

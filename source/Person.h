@@ -43,6 +43,7 @@ namespace Duel6 {
         Int32 shots;
         Int32 hits;
         Int32 kills;
+        Int32 deaths;
         Int32 assistances;
         Int32 wins;
         Int32 penalties;
@@ -55,7 +56,7 @@ namespace Duel6 {
 
     public:
         Person()
-                : shots(0), hits(0), kills(0), assistances(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0),
+                : shots(0), hits(0), kills(0), deaths(0), assistances(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0),
                   totalDamage(0), assistedDamage(0), profile(nullptr) {}
 
         explicit Person(const std::string &name, PersonProfile *profile)
@@ -78,6 +79,10 @@ namespace Duel6 {
 
         Int32 getKills() const {
             return kills;
+        }
+
+        Int32 getDeaths() const {
+            return deaths;
         }
 
         Int32 getAssistances() const {
@@ -138,7 +143,10 @@ namespace Duel6 {
             this->kills += kills;
             return *this;
         }
-
+        Person &addDeaths(Int32 deaths) {
+            this->deaths += deaths;
+            return *this;
+        }
         Person &addAssistances(Int32 assistances) {
             this->assistances += assistances;
             return *this;
@@ -146,6 +154,7 @@ namespace Duel6 {
 
         Person &addPenalties(Int32 penalties) {
             this->penalties += penalties;
+
             return *this;
         }
 

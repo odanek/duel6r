@@ -67,85 +67,97 @@ namespace Duel6 {
     }
 
     void WorldRenderer::playerRankings() const {
+        Float32 fontSize = 16;
+        Float32 fontWidth = fontSize / 2;
         Ranking ranking = game.getMode().getRanking(game.getPlayers());
         Int32 maxNameLength = ranking.getMaxLength() + 6;
 
         const PlayerView &view = game.getPlayers().front().getView();
-        Int32 posX = view.getX() + view.getWidth() - 8 * maxNameLength - 3;
+        Int32 posX = view.getX() + view.getWidth() - fontWidth * maxNameLength - 3;
         Int32 posY = view.getY() + view.getHeight() - 20;
-        Color bgcolor;
 
         for (const auto &entry : ranking.entries) {
-            posY = renderRankingEntry(entry, posX, posY, maxNameLength);
+            posY = renderRankingEntry(entry, posX, posY, maxNameLength, fontSize, false);
             for (const auto &nestedRankingEntry : entry.entries) {
-                posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxNameLength);
+                posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxNameLength, fontSize, false);
             }
         }
     }
-
     Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength) const {
+        return renderRankingEntry(entry, posX, posY, maxLength, font.getCharHeight(), false);
+    }
+
+    Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength, Float32 charHeight, bool extended) const {
+        if (extended) {
+            maxLength += 20;
+        }
         globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-        Float32 charHeight = font.getCharHeight();
         Color fontColor(entry.fontColor);
-        globRenderer->quadXY(Vector(posX, posY + 1), Vector(8 * maxLength, 16), entry.bcgColor);
+        globRenderer->quadXY(Vector(posX, posY + 1), Vector((charHeight/2) * maxLength, charHeight), entry.bcgColor);
 
         Int32 paddingLeft = entry.isSuperEntry() ? 0 : 5;
         globRenderer->setBlendFunc(Renderer::BlendFunc::None);
         font.print(posX + paddingLeft, posY, 0.0f, fontColor, entry.name, charHeight);
-        font.print(posX + 8 * (maxLength - 5), posY, fontColor, Format("|{0,4}") << entry.points);
 
-        return posY - 16;
+        if(extended) {
+            globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
+            if(!entry.isSuperEntry()) {
+                fontColor = Color::YELLOW;
+            }
+            auto kd = (entry.deaths != 0 ? (float)entry.kills / (float)entry.deaths : entry.kills);
+            auto kd_int = (int)std::floor(kd);
+            auto kd_float = (int)((kd - kd_int) * 100);
+            font.print(posX + (charHeight / 2) * (maxLength - 23), posY, 0.0f, fontColor, (Format("|{0,3}|{1,3}|{2,3}|{3,2}.{4,-2}|{5,4}") << entry.kills  << entry.assistances << entry.deaths << kd_int << kd_float << entry.points), charHeight);
+        } else {
+            font.print(posX + (charHeight / 2) * (maxLength - 5), posY, 0.0f, fontColor, (Format("|{0,4}") << entry.points), charHeight);
+        }
+        return posY - charHeight;
     }
 
     void WorldRenderer::roundOverSummary() const {
-        int width = 200;
-        int height = 120;
+        Float32 fontSize = 32;
+        Float32 fontWidth = fontSize / 2;
+        Ranking ranking = game.getMode().getRanking(game.getPlayers());
+        Int32 maxLength = ranking.getMaxLength() + 6;
+        Int32 maxNameLength = maxLength + 20;
+        int height = fontSize * 3; // reserve for 'SCORE'
+        int tableWidth = maxNameLength * (fontWidth);
+        int width = std::max(tableWidth, 200);
+        for (const auto &entry : ranking.entries) {
+            height += fontSize * (1 + entry.entries.size());
+        }
+        const auto score = "---SCORE---";
+        const auto kad = " K    A   D  K/D  PTS  ";
+        const auto kadWidth = font.getTextWidth(kad, fontSize);
+        const auto scoreWidth = font.getTextWidth(score, fontSize);
+
         int x = video.getScreen().getClientWidth() / 2 - width / 2;
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
         globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(x - 2, y - 2), Vector(width + 4, height + 4), Color(255, 255, 255, 178));
-        globRenderer->quadXY(Vector(x, y), Vector(width, height), Color(0, 0, 255, 178));
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + fontWidth, height + 2 * fontSize), Color(255, 255, 255, 80));
+        globRenderer->quadXY(Vector(x - fontWidth + 2, y - fontSize + 2), Vector(width + fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
+
+        globRenderer->quadXY(Vector(x - fontWidth - 5, height + y - fontSize), Vector(width + fontWidth + 10,fontSize + 4), Color(0, 0, 255, 255));
+        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
+
+        Int32 posX = video.getScreen().getClientWidth() / 2 - tableWidth / 2;;
+        Int32 posY = y + height - fontSize * 3;
 
         Color fontColor = Color::WHITE;
-        font.print(x + width / 2 - 35, y + height - 30, fontColor, "Round Over");
 
-        for (const Player &player : game.getPlayers()) {
-            if (player.isAlive()) {
-                font.print(x + 15, y + height - 70, fontColor,
-                           Format("Winner is: {0}") << player.getPerson().getName());
-                break;
+        font.print(x + (width - scoreWidth) / 2, y + height - fontSize, 0.0f, fontColor, score, fontSize);
+        font.print(x + width - kadWidth, y + height - 2 * fontSize, 0.0f, fontColor, "  K   A   D   K/D  PTS", fontSize);
+        for (const auto &entry : ranking.entries) {
+            posY = renderRankingEntry(entry, posX, posY, maxLength, fontSize, true);
+            for (const auto &nestedRankingEntry : entry.entries) {
+                posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxLength, fontSize, true);
             }
         }
-
-        font.print(x + width / 2 - 2, y + height - 95, fontColor,
-                   Format("{0}") << (Int32) game.getRound().getRemainingGameOverWait());
     }
 
     void WorldRenderer::gameOverSummary() const {
-        Int32 width = 200;
-        Int32 height = 50 + Int32(game.getPlayers().size()) * 16;
-        Int32 x = video.getScreen().getClientWidth() / 2 - width / 2;
-        Int32 y = video.getScreen().getClientHeight() / 2 - height / 2;
-
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(x - 2, y - 2), Vector(width + 4, height + 4), Color(255, 255, 255, 178));
-        globRenderer->quadXY(Vector(x, y), Vector(width, height), Color(0, 0, 255, 178));
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
-
-        Color fontColor = Color::WHITE;
-        font.print(x + width / 2 - 35, y + height - 20, fontColor, "Game Over");
-
-        int count = 0;
-        int ladderY = y + height - 50;
-
-        Ranking ranking = game.getMode().getRanking(game.getPlayers());
-        for (const auto &entry : ranking.entries) {
-            font.print(x + 10, ladderY - 16 * count, fontColor, entry.name);
-            font.print(x + width - 40, ladderY - 16 * count, fontColor, Format("{0,4}") << entry.points);
-            count++;
-        }
+        roundOverSummary();
     }
 
     void WorldRenderer::roundsPlayed() const {
@@ -496,6 +508,9 @@ namespace Duel6 {
             roundsPlayed();
         }
 
+        if (game.isDisplayingScoreTab()) {
+            roundOverSummary();
+        }
         if (game.getRound().hasWinner()) {
             if (game.isOver()) {
                 gameOverSummary();

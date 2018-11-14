@@ -28,7 +28,7 @@
 #ifndef DUEL6_SCRIPT_LUA_LUA_H
 #define DUEL6_SCRIPT_LUA_LUA_H
 
-#include "lua.hpp"
+#include <lua.hpp>
 #include "../../Type.h"
 #include <string>
 

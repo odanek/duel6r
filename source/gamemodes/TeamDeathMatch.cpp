@@ -130,7 +130,8 @@ namespace Duel6 {
         for (Int32 teamIndex = 0; teamIndex < teamsCount; teamIndex++) {
             const Team &team = TEAMS[teamIndex];
             Color bcgColor = team.color.withAlpha(178);
-            ranking.entries.push_back(Ranking::Entry{team.name, 0, Color::BLACK, bcgColor});
+            auto entry = Ranking::Entry{team.name, 0, Color::BLACK, bcgColor};
+            ranking.entries.push_back(entry);
         }
 
         Int32 index = 0;
@@ -139,11 +140,19 @@ namespace Duel6 {
             Ranking::Entry &teamEntry = ranking.entries[teamIndex];
 
             teamEntry.points += player.getPerson().getTotalPoints();
+            teamEntry.kills += player.getPerson().getKills();
+            teamEntry.deaths += player.getPerson().getDeaths();
+            teamEntry.penalties += player.getPerson().getPenalties();
+            teamEntry.assistances += player.getPerson().getAssistances();
             Color fontColor(255, player.isAlive() ? 255 : 0, 0);
             Color bcgColor = teamEntry.bcgColor.scale(0.2f);
 
             Ranking::Entry entry(player.getPerson().getName(), player.getPerson().getTotalPoints(), fontColor,
                                  bcgColor);
+            entry.kills = player.getPerson().getKills();
+            entry.deaths = player.getPerson().getDeaths();
+            entry.penalties = player.getPerson().getPenalties();
+            entry.assistances = player.getPerson().getAssistances();
             teamEntry.addSubEntry(entry);
             index++;
         }

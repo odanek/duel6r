@@ -63,13 +63,15 @@ namespace Duel6 {
             close();
             return;
         }
+        if (event.getCode() == SDLK_TAB && (!getRound().hasWinner())) {
+            displayScoreTab = !displayScoreTab;
+        }
 
         if (!getRound().isLast()) {
             if (event.getCode() == SDLK_F1 && (getRound().hasWinner() || event.withShift())) {
                 nextRound();
                 return;
             }
-
             if (getRound().hasWinner() && ((D6_GAME_OVER_WAIT - getRound().getRemainingGameOverWait()) > 3.0f)) {
                 nextRound();
                 return;
@@ -126,6 +128,7 @@ namespace Duel6 {
     }
 
     void Game::nextRound() {
+        displayScoreTab = false;
         if (playedRounds != 0) {
             round->end();
             menu->savePersonData();

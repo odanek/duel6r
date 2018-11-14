@@ -32,6 +32,7 @@ namespace Duel6 {
         shots = 0;
         hits = 0;
         kills = 0;
+        deaths = 0;
         assistances = 0;
         wins = 0;
         games = 0;
@@ -49,6 +50,7 @@ namespace Duel6 {
         json.set("shots", Json::Value::makeNumber(shots));
         json.set("hits", Json::Value::makeNumber(hits));
         json.set("kills", Json::Value::makeNumber(kills));
+        json.set("deaths", Json::Value::makeNumber(deaths));
         json.set("assistances", Json::Value::makeNumber(assistances));
         json.set("wins", Json::Value::makeNumber(wins));
         json.set("penalties", Json::Value::makeNumber(penalties));
@@ -66,6 +68,7 @@ namespace Duel6 {
         person.shots = json.get("shots").asInt();
         person.hits = json.get("hits").asInt();
         person.kills = json.get("kills").asInt();
+        person.deaths = json.getOrDefault("deaths", Json::Value::makeNumber(0)).asInt();
         person.assistances = json.getOrDefault("assistances", Json::Value::makeNumber(0)).asInt();
         person.wins = json.get("wins").asInt();
         person.penalties = json.get("penalties").asInt();
