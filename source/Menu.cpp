@@ -374,8 +374,6 @@ namespace Duel6 {
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);
 
-        SDL_Event event;
-        SDL_Keysym key;
         bool detected = false;
 
         while (!detected) {

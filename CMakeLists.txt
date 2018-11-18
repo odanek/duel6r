@@ -457,10 +457,17 @@ endif (D6R_WITH_GLEW)
 
 # LUA
 if (D6R_WITH_LUA)
-    find_library(LIB_LUA lua DOC "Path to LUA library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_LUA})
-    find_path(HEADERS_LUA lua.hpp DOC "Path to LUA headers")
-    include_directories(${HEADERS_LUA})
+    if (WIN32)
+        find_library(LIB_LUA lua DOC "Path to LUA library")
+        target_link_libraries(${D6R_APP_NAME} ${LIB_LUA})
+        find_path(HEADERS_LUA lua.hpp DOC "Path to LUA headers")
+        include_directories(${HEADERS_LUA})
+    else (WIN32)
+        find_library(LIB_LUA lua5.3 DOC "Path to LUA library")
+        target_link_libraries(${D6R_APP_NAME} ${LIB_LUA})
+        find_path(HEADERS_LUA lua5.3/lua.hpp DOC "Path to LUA headers")
+        include_directories(${HEADERS_LUA}/lua5.3)
+    endif (WIN32)
 endif (D6R_WITH_LUA)
 
 
