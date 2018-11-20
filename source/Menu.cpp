@@ -374,30 +374,17 @@ namespace Duel6 {
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);
 
-        SDL_Event event;
-        SDL_Keysym key;
         bool detected = false;
 
         while (!detected) {
-            if (SDL_PollEvent(&event)) {
-                switch (event.type) {
-                    case SDL_KEYDOWN:
-                        key = event.key.keysym;
-                        appService.getInput().setPressed(key.sym, true);
-                        break;
-                    case SDL_KEYUP:
-                        key = event.key.keysym;
-                        appService.getInput().setPressed(key.sym, false);
-                        break;
-                }
-
+            if (processEvents(true)) {
                 for (Size i = 0; i < controlsManager.getNumAvailable(); i++) {
                     const PlayerControls &pc = controlsManager.get(i);
 
-                    if (pc.getLeft().isPressed() ||
-                        pc.getRight().isPressed() ||
-                        pc.getDown().isPressed() ||
-                        pc.getUp().isPressed() ||
+                    if ( (!pc.getLeft().isJoyPadAxis() && pc.getLeft().isPressed()) ||
+                        (!pc.getRight().isJoyPadAxis() && pc.getRight().isPressed()) ||
+                        (!pc.getDown().isJoyPadAxis() && pc.getDown().isPressed()) ||
+                        (!pc.getUp().isJoyPadAxis() && pc.getUp().isPressed()) ||
                         pc.getShoot().isPressed() ||
                         pc.getPick().isPressed()) {
                         controlSwitch[playerIndex]->setCurrent((Int32) i);
@@ -649,12 +636,53 @@ namespace Duel6 {
 
         return nullptr;
     }
-
-    void Menu::consumeInputEvents() {
+    int Menu::processEvents(bool single) {
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            // Eat all remaining keyboard events;
+        int result = 0;
+        //TODO This logic duplicates event processing logic in Application. Should be refactored.
+        while ((result = SDL_PollEvent(&event)) != 0) {
+            switch (event.type) {
+                case SDL_KEYDOWN:{
+                    auto key = event.key.keysym;
+                    appService.getInput().setPressed(key.sym, true);
+                    break;
+                }
+                case SDL_KEYUP:{
+                    auto key = event.key.keysym;
+                    appService.getInput().setPressed(key.sym, false);
+                    break;
+                }
+                case SDL_JOYDEVICEADDED:{
+                    appService.getConsole().printLine("Device added");
+
+                    auto deviceIndex = event.jdevice.which;
+                    auto joy = SDL_JoystickOpen(deviceIndex);
+                    if(SDL_JoystickGetAttached(joy)){
+                       appService.getInput().joyAttached(joy);
+                       joyRescan();
+                    } else {
+                        appService.getConsole().printLine(Format("Joy attached, but has been detached again -> skipping."));
+                        break;
+                    }
+
+                    break;
+                }
+                case SDL_JOYDEVICEREMOVED: {
+                    appService.getConsole().printLine("Device removed");
+                    auto instanceId = event.jdevice.which;
+                    appService.getInput().joyDetached(instanceId);
+                    joyRescan();
+                    break;
+                }
+            }
+            if(single){
+                return result;
+            }
         }
+        return result;
+    }
+    void Menu::consumeInputEvents() {
+        processEvents();
     }
 
     void Menu::shufflePlayers() {
