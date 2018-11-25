@@ -59,7 +59,12 @@ namespace Duel6 {
         for (auto &player : ranking) {
             Color fontColor(255, player->isAlive() ? 255 : 0, 0);
             Color bcgColor = Color(0, 0, 255, 178);;
-            result.entries.push_back(Ranking::Entry{player->getPerson().getName(), player->getPerson().getTotalPoints(), fontColor, bcgColor});
+            auto entry = Ranking::Entry{player->getPerson().getName(), player->getPerson().getTotalPoints(), fontColor, bcgColor};
+            entry.kills = player->getPerson().getKills();
+            entry.deaths = player->getPerson().getDeaths();
+            entry.penalties = player->getPerson().getPenalties();
+            entry.assistances = player->getPerson().getAssistances();
+            result.entries.push_back(entry);
         }
 
         return result;

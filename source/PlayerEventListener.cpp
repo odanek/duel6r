@@ -74,6 +74,7 @@ namespace Duel6 {
             onAssistedKill(player, killer, qualifiedAssistances, suicide);
         }
         addKillMessage(player, killer, qualifiedAssistances, suicide);
+        player.getPerson().addDeaths(1);
     }
 
     void PlayerEventListener::onKill(Player &player, Player &killer, Shot &shot, bool suicide) {
@@ -117,11 +118,13 @@ namespace Duel6 {
         //TODO: Change of behavior - when killed by bonus, player gets a penalty point!
         //TODO: Fix by providing enviroment type
         player.getPerson().addPenalties(1);
+        player.getPerson().addDeaths(1);
         messageQueue.add(player, "You are dead");
     }
 
     void PlayerEventListener::onSuicide(Player &player, std::vector<Player *> &playersKilled) {
         player.getPerson().addPenalties(1);
+        player.getPerson().addDeaths(1);
 
         auto qualifiedAssistances = getQualifiedAssistances(attackers[&player]);
 

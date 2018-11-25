@@ -100,7 +100,7 @@ namespace Duel6 {
 
         std::vector<Player> players;
         std::vector<PlayerSkin> skins;
-
+        bool displayScoreTab = false;
     public:
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
 
@@ -175,6 +175,10 @@ namespace Duel6 {
 
         bool isOver() const {
             return getRound().isLast() && getRound().isOver();
+        }
+
+        bool isDisplayingScoreTab() const {
+            return displayScoreTab;
         }
 
         WorldRenderer &getWorldRenderer() {

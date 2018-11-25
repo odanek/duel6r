@@ -61,7 +61,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 # Switches
 set(D6R_RENDERER "gl1")  # Renderer: gl1/gl4/es2
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
-
+set(D6R_WITH_GLEW ON)
 #########################################################################
 #
 # Duel 6 Reloaded
@@ -365,7 +365,6 @@ if (D6R_RENDERER STREQUAL "es2")
 
     if (WIN32)
         set(D6R_WITH_GLEW ON)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
     endif (WIN32)
 endif (D6R_RENDERER STREQUAL "es2")
 
@@ -375,7 +374,6 @@ if (D6R_RENDERER STREQUAL "gl4")
 
     if (WIN32)
         set(D6R_WITH_GLEW ON)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
     endif (WIN32)
 endif (D6R_RENDERER STREQUAL "gl4")
 
@@ -449,6 +447,7 @@ endif (APPLE)
 
 # GLEW
 if (D6R_WITH_GLEW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
     find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
     target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
     find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
