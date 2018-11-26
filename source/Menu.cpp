@@ -485,6 +485,10 @@ namespace Duel6 {
             const std::string &playerName = playerListBox->getItem(index);
             personListBox->addItem(playerName);
             playerListBox->removeItem(index);
+
+            for (Int32 i = index; i + 1 < D6_MAX_PLAYERS; i++) {
+                controlSwitch[i]->setCurrent(controlSwitch[i + 1]->currentItem());
+            }
         }
         updatePlayerCount();
     }
