@@ -33,14 +33,15 @@
 #include "TextureManager.h"
 #include "Color.h"
 #include "console/console.h"
+#include "aseprite/animation.h"
 
 namespace Duel6 {
     class PlayerSkin {
     private:
         TextureList textures;
-
     public:
         PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors, TextureManager &textureManager);
+        PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors, TextureManager &textureManager, animation::Animation & animation);
 
         TextureList &getTextureList() {
             return textures;
@@ -49,6 +50,17 @@ namespace Duel6 {
         const TextureList &getTextureList() const {
             return textures;
         }
+        typedef std::vector<int16_t> anim;
+//TODO private
+        anim noAnim;
+        anim d6SAnim;
+        anim d6WAnim;
+        anim d6JAnim;
+        anim d6DAnim;
+        anim d6LAnim;
+        anim d6NAnim;
+        anim d6PAnim;
+
     };
 }
 

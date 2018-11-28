@@ -39,15 +39,16 @@
 #include "math/Math.h"
 #include "Video.h"
 #include "PlayerEventListener.h"
+
 namespace Duel6 {
-    static Int16 noAnim[4] = {0, 50, 0, -1};
-    static Int16 d6SAnim[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
-    static Int16 d6WAnim[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
-    static Int16 d6JAnim[4] = {8, 50, -1, 0};
-    static Int16 d6DAnim[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
-    static Int16 d6LAnim[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
-    static Int16 d6NAnim[4] = {25, 100, -1, 0};
-    static Int16 d6PAnim[] = {0, 5, 20, 5, 21, 5, 22, 5, 23, 5, 24, 5, 23, 5, 22, 5, 21, 5, 0, 5, -1, 0};
+//    static Int16 * noAnim;//[4] = {0, 50, 0, -1};
+//    static Int16 * d6SAnim;//[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
+//    static Int16 * d6WAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
+//    static Int16 * d6JAnim;//[4] = {8, 50, -1, 0};
+//    static Int16 * d6DAnim;//[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
+//    static Int16 * d6LAnim;//[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
+//    static Int16 * d6NAnim;//[4] = {25, 100, -1, 0};
+//    static Int16 * d6PAnim;//[] = {0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0};
 
     //TODO: This still needs further fine-tuning for good jumping experience
     static const float GRAVITATIONAL_ACCELERATION = -11.0f;
@@ -60,6 +61,24 @@ namespace Duel6 {
     Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
             : person(person), skin(skin), sounds(sounds), controls(controls), bodyAlpha(1.0f) {
         camera.rotate(180.0, 0.0, 0.0);
+        anoAnim =  skin.noAnim;
+        ad6SAnim = skin.d6SAnim;
+        ad6WAnim = skin.d6WAnim;
+        ad6JAnim = skin.d6JAnim;
+        ad6DAnim = skin.d6DAnim;
+        ad6LAnim = skin.d6LAnim;
+        ad6NAnim = skin.d6NAnim;
+        ad6PAnim = skin.d6PAnim;
+
+        noAnim = anoAnim.data();
+        d6SAnim = ad6SAnim.data();
+        d6WAnim = ad6WAnim.data();
+        d6JAnim = ad6JAnim.data();
+        d6DAnim = ad6DAnim.data();
+        d6LAnim = ad6LAnim.data();
+        d6NAnim = ad6NAnim.data();
+        d6PAnim = ad6PAnim.data();
+
     }
 
     Player::~Player() {
@@ -68,7 +87,7 @@ namespace Duel6 {
     void Player::startRound(World &world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon &weapon) {
         this->world = &world;
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-        Sprite manSprite(noAnim, skin.getTextureList());
+        Sprite manSprite(d6SAnim, skin.getTextureList());
         manSprite.setPosition(getSpritePosition(), 0.5f);
         sprite = world.getSpriteList().addSprite(manSprite);
 
@@ -246,7 +265,7 @@ namespace Duel6 {
 
         collider.collideWithElevators(world->getElevatorList(), elapsedTime, speed);
         collider.collideWithLevel(level, elapsedTime, speed);
-        if (isPickingGun() && sprite->getAnimation() == d6PAnim && sprite->isFinished()) {
+        if (isPickingGun() /*&& sprite->getAnimation() == d6PAnim */&& sprite->isFinished()) {
             unsetFlag(FlagPick);
             setFlag(FlagHasGun);
         }
@@ -451,35 +470,40 @@ namespace Duel6 {
     }
 
     void Player::setAnm() {
-        Int16 *animation;
-
+        //Int16 *animation;
+        PlayerSkin::anim * animation;
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
-                animation = d6LAnim;
+                animation = &ad6LAnim;
             } else {
-                animation = d6NAnim;
+                sprite->setDraw(false);
+                animation = &ad6NAnim;
             }
         } else if (isPickingGun()) {
-            animation = d6PAnim;
+            animation = &ad6PAnim;
         } else if (isKneeling()) {
-            animation = d6DAnim;
+            animation = &ad6DAnim;
+            sprite->setLooping(AnimationLooping::RepeatForever);
         } else if (isOnElevator()) {
             if (!isMoving()) {
-                animation = d6SAnim;
+                animation = &ad6SAnim;
             } else {
-                animation = d6WAnim;
+                animation = &ad6WAnim;
+                sprite->setLooping(AnimationLooping::RepeatForever);
             }
         } else if (!isOnGround()) {
-            animation = d6JAnim;
+            animation = &ad6JAnim;
         } else if (!isMoving()) {
-            animation = d6SAnim;
+            animation = &ad6SAnim;
         } else {
-            animation = d6WAnim;
+            animation = &ad6WAnim;
+            sprite->setLooping(AnimationLooping::RepeatForever);
         }
 
         sprite->setPosition(getSpritePosition())
                 .setOrientation(getOrientation())
-                .setAnimation(animation);
+                //.setLooping(AnimationLooping::OnceAndStop)
+                .setAnimation(*animation);
 
         gunSprite->setPosition(getGunSpritePosition())
                 .setOrientation(getOrientation())

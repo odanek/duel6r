@@ -50,6 +50,9 @@ namespace Duel6 {
         this->textures = &textures;
     }
 
+    Sprite &Sprite::setAnimation(const PlayerSkin::anim & animation) {
+        return setAnimation(animation.data());
+    }
     Sprite &Sprite::setAnimation(const Int16 *animation) {
         if (this->animation != animation) {
             this->animation = animation;

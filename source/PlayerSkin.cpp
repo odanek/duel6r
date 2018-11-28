@@ -29,6 +29,34 @@
 #include "TextureManager.h"
 
 namespace Duel6 {
+
+    PlayerSkin::PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors,
+                       TextureManager &textureManager,
+                       animation::Animation & animation) {
+        animation::Palette substitution_table(animation.palette);
+        auto & substitution = substitution_table.colors;
+        int dst[] = {4,5,8,9,12,13,16,24,25};
+        int src[] = {0,1,2,3,4,5,6,7,7};
+
+        for(int i = 0; i < 9; i ++){
+            const auto & color = colors.get((PlayerSkinColors::BodyPart)src[i]);
+            substitution[dst[i]].r = color.getRed();
+            substitution[dst[i]].g = color.getGreen();
+            substitution[dst[i]].b = color.getBlue();
+            substitution[dst[i]].a = color.getAlpha();
+        }
+            //TODO animations
+        noAnim = animation.animations[animation.animationLookup.at("Stand")];
+        d6SAnim = animation.animations[animation.animationLookup.at("Stand")];
+        d6WAnim = animation.animations[animation.animationLookup.at("Walk")];
+        d6JAnim = animation.animations[animation.animationLookup.at("Jump")];
+        d6DAnim = animation.animations[animation.animationLookup.at("Duck")];
+        d6LAnim = animation.animations[animation.animationLookup.at("Death")];
+        d6NAnim = noAnim;
+        d6PAnim = animation.animations[animation.animationLookup.at("Pick")];
+
+        textures = textureManager.generateSprite(animation, substitution_table, TextureFilter::NEAREST, true);
+    }
     PlayerSkin::PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors,
                            TextureManager &textureManager) {
         TextureManager::SubstitutionTable substTable;

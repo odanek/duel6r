@@ -31,6 +31,8 @@
 #include "Video.h"
 #include "File.h"
 #include "IoException.h"
+#include "aseprite/aseprite_to_animation.h"
+#include "aseprite/aseprite.h"
 
 namespace Duel6 {
     namespace Util {
@@ -44,6 +46,10 @@ namespace Duel6 {
         static void writeTgaColor(File &file, const Color &color) {
             Uint8 colBytes[3] = {color.getBlue(), color.getGreen(), color.getRed()};
             file.write(colBytes, 1, 3);
+        }
+
+        animation::Animation loadAseImage(const std::string &path) {
+            return fromASEPRITE(aseprite::ASEPRITE(path));
         }
 
         void loadTargaImage(const std::string &path, Image &image) {

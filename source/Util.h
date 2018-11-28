@@ -33,9 +33,12 @@
 #include "Image.h"
 #include "Video.h"
 #include "Texture.h"
-
+#include "aseprite/animation.h"
 namespace Duel6 {
     namespace Util {
+
+        animation::Animation loadAseImage(const std::string &path);
+
         void loadTargaImage(const std::string &path, Image &image);
 
         void saveTarga(const std::string &path, const Image &image);

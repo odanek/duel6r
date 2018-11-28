@@ -37,6 +37,7 @@
 #include "Texture.h"
 #include "TextureList.h"
 #include "TextureDictionary.h"
+#include "aseprite/animation.h"
 
 #define D6_TEXTURE_EXTENSION     ".tga"
 
@@ -77,6 +78,8 @@ namespace Duel6 {
 
         void disposeAll();
 
+        const animation::Animation loadAnimation(const std::string &path);
+        const TextureList generateSprite(const animation::Animation& animation, const animation::Palette &substitutionTable, TextureFilter filtering, bool clamp);
         const TextureList loadList(const std::string &path, TextureFilter filtering, bool clamp);
 
         const TextureList

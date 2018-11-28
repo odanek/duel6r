@@ -202,6 +202,13 @@ set(D6R_SOURCES
         source/WorldRenderer.cpp
         source/WorldRenderer.h
 
+        source/aseprite/animation.h
+        source/aseprite/aseprite_to_animation.h
+        source/aseprite/aseprite.cpp
+        source/aseprite/aseprite.h
+        source/aseprite/tinf/tinf.cpp
+        source/aseprite/tinf/tinf.h
+
         source/bonus/Bullets.cpp
         source/bonus/Bullets.h
         source/bonus/FastMovement.cpp

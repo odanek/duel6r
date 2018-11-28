@@ -34,11 +34,11 @@
 #include "Orientation.h"
 #include "TextureManager.h"
 #include "math/Vector.h"
-
+#include "PlayerSkin.h"
 namespace Duel6 {
     class Sprite {
     private:
-        const Int16 *animation;    // Source array of animations and delays
+        const Int16 * animation;
         const TextureList *textures;   // Texture array
         Size frame;    // Current animation frame
         Float32 delay;    // Delay to next animation frame
@@ -71,7 +71,7 @@ namespace Duel6 {
             this->position = position;
             return *this;
         }
-
+        Sprite &setAnimation(const PlayerSkin::anim & anim);
         Sprite &setAnimation(const Int16 *animation);
 
         const Int16 *getAnimation() const {
