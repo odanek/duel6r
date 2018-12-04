@@ -129,38 +129,27 @@ namespace Duel6 {
     }
 
     bool Player::isOnGround() const {
-//        // enables jumping sideways out of places with no space above player's head
-//        Float32 delta = 0.8f * VERTICAL_DELTA;
-//        Float32 down = getPosition().y - FLOOR_DISTANCE_THRESHOLD;
-//        Float32 left = getPosition().x + delta;
-//        Float32 right = getPosition().x + (1 - delta);
-//
-//        return world->getLevel().isWall(left, down, true) || world->getLevel().isWall(right, down, true);
         return collider.isOnGround();
     }
 
     void Player::moveHorizontal(const Level &level, Float32 elapsedTime, Float32 speed) {
         if (hasFlag(FlagMoveLeft)) {
             if (this->collider.velocity.x > -D6_PLAYER_MAX_SPEED) {
-                this->collider.velocity.x -= elapsedTime;
+                this->collider.velocity.x -= 2 * elapsedTime; // x 2 to compensate friction in CollidingEntity
             }
             if (this->collider.velocity.x < 0.0f) {
                 orientation = Orientation::Left;
             }
-        } else if (this->collider.velocity.x < 0.0f) {
-            this->collider.velocity.x = std::min(this->collider.velocity.x + elapsedTime, 0.0f);
         }
 
         if (hasFlag(FlagMoveRight)) {
             if (this->collider.velocity.x < D6_PLAYER_MAX_SPEED) {
-                this->collider.velocity.x += elapsedTime;
+                this->collider.velocity.x += 2 * elapsedTime;
             }
 
             if (this->collider.velocity.x > 0.0f) {
                 orientation = Orientation::Right;
             }
-        } else if (this->collider.velocity.x > 0.0f) {
-            this->collider.velocity.x = std::max(this->collider.velocity.x - elapsedTime, 0.0f);
         }
     }
 
@@ -181,15 +170,6 @@ namespace Duel6 {
             }
         }
 
-        if (!isOnElevator()) {
-            collider.velocity.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
-        }
-
-        if (!isOnGround()) {
-            if (collider.velocity.y < -D6_PLAYER_JUMP_SPEED) {
-                collider.velocity.y = -D6_PLAYER_JUMP_SPEED;
-            }
-        }
     }
 
     void Player::fall() {
@@ -197,7 +177,7 @@ namespace Duel6 {
             setFlag(FlagKnee);
         } else {
             if (isRising()) {
-                collider.velocity.y = 0.0f; //TODO Accelerate
+                collider.velocity.y = 0.0f;
             }
         }
     }
@@ -274,157 +254,19 @@ namespace Duel6 {
     }
 
     void Player::makeMove(const Level &level, Float32 elapsedTime) {
-        static bool bleft = false, bright = false, bup = false, bdown = false;
         Float32 speed = getSpeed() * elapsedTime;
         collider.collideWithElevators(world->getElevatorList(), elapsedTime, speed);
-//        bool onElevator = isOnElevator();
-//        if (onElevator && level.isWall(Int32(getCentre().x), Int32(getCentre().y), false)) {
-//            velocity.x = 0;
-//        }
- //       elevator = nullptr;
+
         moveVertical(level, elapsedTime, speed);
         moveHorizontal(level, elapsedTime, speed);
 
         auto collisionResult = collider.collideWithLevel(level, elapsedTime, speed);
-//        acceleration.x = 0;
-//        acceleration.y = 0;
-//
-//
-//
-//        externalForcesSpeed += externalForces;
-//        externalForces.x = 0;
-//        externalForces.y = 0;
-//        if (externalForcesSpeed.length() < 0.01) {
-//            externalForcesSpeed.x = 0;
-//            externalForcesSpeed.y = 0;
-//        }
-//        //do not multiply by speed or elapsedTime !!!
-//        velocity += acceleration;
-//
-//        // horizontal speed clamping
-//        if (std::abs(velocity.x * speed) > 0.5f) {
-//            velocity.x = std::copysign(0.5f, this->velocity.x) / speed;
-//        }
-//        if (std::abs(externalForcesSpeed.x * speed) > 0.5f) {
-//            externalForcesSpeed.x = std::copysign(0.5f, externalForcesSpeed.x) / speed;
-//        }
-//        Vector totalSpeed = velocity + externalForcesSpeed;
-//        bleft = false, bright = false, bup = false, bdown = false;
-//
-//        //collision detection here we go
-//
-//        {
-//            Float32 delta = VERTICAL_DELTA;
-//            Float32 up;
-//            Float32 down;
-//            Float32 left;
-//            Float32 right;
-//
-//            /**
-//             * Down
-//             */
-//            up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
-//            down = getPosition().y + totalSpeed.y * speed;
-//            left = getPosition().x + delta + totalSpeed.x * speed;
-//            right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
-//            if (level.isWall(right, down, true) || level.isWall(left, down, true)) {
-//                bdown = true;
-//                velocity.y = 0;
-//                totalSpeed.y = 0;
-//                if (!(level.isWall(right, up, true) || level.isWall(left, down, true))) {
-//                    velocity.y = -0.001f;
-//                    totalSpeed.y = -0.001f;
-//                }
-//            }
-//
-//            /**
-//             * Up
-//             */
-//            up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
-//            down = getPosition().y + totalSpeed.y * speed;
-//            left = getPosition().x + delta + totalSpeed.x * speed;
-//            right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
-//
-//            if (totalSpeed.y > 0.0f && (level.isWall(right, up, true) || level.isWall(left, up, true))) {
-//                bup = true;
-//                totalSpeed.y = 0;
-//                velocity.y = 0;
-//            }
-//
-//            /**
-//             * Right
-//             */
-//            delta = HORIZONTAL_DELTA;
-//            left = getPosition().x + delta + totalSpeed.x * speed;
-//            down = getPosition().y + 0.1f;
-//            if (totalSpeed.y > 0) {
-//                up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
-//            } else {
-//                up = getPosition().y + DELTA_HEIGHT;
-//            }
-//            right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
-//
-//            if (totalSpeed.x > 0 && (floorf(right) > floorf(getPosition().x)) &&
-//                ((level.isWall(right, up, true) || level.isWall(right, down, true)))) {
-//                bright = true;
-//            }
-//
-//            /**
-//             * Left
-//             */
-//            up = getPosition().y + DELTA_HEIGHT;
-//            down = getPosition().y + 0.1f;
-//            left = getPosition().x + delta + totalSpeed.x * speed;
-//            right = getPosition().x + (1.0f - delta) + totalSpeed.x * speed;
-//            if (totalSpeed.y > 0) {
-//                up = getPosition().y + DELTA_HEIGHT + totalSpeed.y * speed;
-//            } else {
-//                up = getPosition().y + DELTA_HEIGHT;
-//            }
-//            if (level.isWall(left, up, true) || level.isWall(left, down, true) || (left < 0)) {
-//                bleft = true;
-//            }
-
-//            /**
-//             * Put it all together
-//             */
-//            if (!onElevator) {
-//                if (bdown) {
-//                    position.y = std::ceil(position.y - 0.5f);
-//                } else if (bup) {
-//                    position.y = std::floor(position.y + 0.5f);
-//                }
-//
-//                if (bleft) {
-//                    position.x = std::ceil(position.x + totalSpeed.x * speed) - delta;
-//                } else if (bright) {
-//                    position.x = floorf(this->position.x) + delta;
-//                }
-//            }
-//            if (bleft || bright) {
-//                externalForcesSpeed.x *= 0.5;
-//            }
-//            if (bup || bdown) {
-//                externalForcesSpeed.y *= 0.5;
-//            }
-//            externalForcesSpeed.x *= 0.9;
-//            externalForcesSpeed.y *= 0.9;
-//            position.x = std::max(-0.1f, std::min(position.x, level.getWidth() - 0.9f));
-//        }
-
-//        if (isOnElevator()) {
-//            position += elevator->getAcceleratedVelocity() * elapsedTime;
-//        }
-
         if (isPickingGun() && sprite->getAnimation() == d6PAnim && sprite->isFinished()) {
             unsetFlag(FlagPick);
         }
         if (isKneeling()) {
             unsetFlag(FlagMoveLeft | FlagMoveRight);
         }
-//
-//        position.y += totalSpeed.y * speed; // the speed has the elapsedTime already factored in
-//        position.x += totalSpeed.x * D6_PLAYER_ACCEL * speed; // the speed has the elapsedTime already factored in
     }
 
     Vector Player::getVelocity() const {

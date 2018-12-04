@@ -54,6 +54,7 @@ namespace Duel6 {
         void render() const;
 
         const Elevator *checkCollider(CollidingEntity & collider, Float32 speedFactor);
+
         const Elevator *checkPlayer(Player &player, Float32 speedFactor);
     };
 }

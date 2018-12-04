@@ -28,7 +28,8 @@
 #include "WorldCollision.h"
 #include "../Rectangle.h"
 namespace Duel6 {
-
+//TODO Duplicity
+static const float GRAVITATIONAL_ACCELERATION = -11.0f;
 
 void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed) {
     elevator = elevators.checkCollider(*this, elapsedTime * speed);
@@ -66,7 +67,16 @@ CollisionCheckResult CollidingEntity::collideWithLevel(const Level & level, Floa
 
 
 
+            if (!isOnElevator()) {
+               velocity.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
+            }
 
+
+            if (!isOnGround()) {
+                if (velocity.y < -D6_PLAYER_JUMP_SPEED) {
+                    velocity.y = -D6_PLAYER_JUMP_SPEED;
+                }
+            }
             externalForcesSpeed += externalForces;
             externalForces.x = 0;
             externalForces.y = 0;
@@ -74,6 +84,16 @@ CollisionCheckResult CollidingEntity::collideWithLevel(const Level & level, Floa
                 externalForcesSpeed.x = 0;
                 externalForcesSpeed.y = 0;
             }
+
+            //friction
+            if(velocity.x > 0.0f) {
+                acceleration.x -= std::min(elapsedTime, velocity.x);
+            }
+            if(velocity.x < 0.0f) {
+                acceleration.x += std::min(elapsedTime, std::abs(velocity.x));
+            }
+
+
             //do not multiply by speed or elapsedTime !!!
             velocity += acceleration;
 
