@@ -28,9 +28,58 @@
 #ifndef DUEL6_COLLISION_WORLDCOLLISION_H
 #define DUEL6_COLLISION_WORLDCOLLISION_H
 
-#include "../Type.h"
+#include "../math/Vector.h"
+#include "../Level.h"
+#include "../Elevator.h"
+#include "../ElevatorList.h"
+#include "../Rectangle.h"
+#include "../Defines.h"
 
 namespace Duel6 {
+    class CollisionCheckResult {
+    public:
+        bool up = false;
+        bool right = false;
+        bool down = false;
+        bool left = false;
+        bool inWall = false;
+        bool onGround = false;
+        bool clearForJump = false;
+    };
+    class CollidingEntity {
+        static constexpr float FLOOR_DISTANCE_THRESHOLD = 0.0001f;
+        static constexpr float DELTA = 0.30f;
+        static constexpr float VERTICAL_DELTA = 0.5f * DELTA;
+        static constexpr float HORIZONTAL_DELTA = 0.25f * DELTA;
+        static constexpr float DELTA_HEIGHT = 0.94f;
+    public:
+        Vector position;
+        Vector acceleration;
+        Vector externalForces;
+        Vector externalForcesSpeed;
+        Vector velocity;
+        Vector dimensions = {1.0f, 1.0f};
+        const Elevator *elevator;
+        CollisionCheckResult lastCollisionCheck;
+        Rectangle getCollisionRect() const;
+        // aka update
+        void collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed = 1.0f);
+        CollisionCheckResult collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed = 1.0f);
+        void initPosition(Float32 x, Float32 y, Float32 z = 0.0f);
+
+        bool isInWall() const;
+        bool isOnHardSurface() const;
+        bool isUnderHardSurface() const;
+        bool isOnElevator() const;
+        bool isOnGround() const;
+
+
+    private:
+        Vector boundingBoxHorizontal = {HORIZONTAL_DELTA, DELTA_HEIGHT};
+        Vector boundingBoxVertical = {VERTICAL_DELTA, DELTA_HEIGHT};
+
+        void checkElevator(Float32 speed);
+    };
 }
 
 #endif

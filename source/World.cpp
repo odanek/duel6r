@@ -60,7 +60,7 @@ namespace Duel6 {
         shotList.update(*this, elapsedTime);
         elevatorList.update(elapsedTime);
         messageQueue.update(elapsedTime);
-
+     //   bonusList.update(elapsedTime);
         // Add new bonuses
         Int32 mod = Int32(3.0f / elapsedTime);
 

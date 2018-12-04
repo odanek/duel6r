@@ -26,7 +26,210 @@
 */
 
 #include "WorldCollision.h"
-
+#include "../Rectangle.h"
 namespace Duel6 {
 
+
+void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed) {
+    elevator = elevators.checkCollider(*this, elapsedTime * speed);
+
+    if(elevator != nullptr) {
+        position.y = elevator->getPosition().y;
+        position += elevator->getAcceleratedVelocity() * elapsedTime;
+
+        velocity.y = 0.0f;
+        if(isInWall()) {
+            velocity.x = 0.0f;
+        }
+    }
+}
+
+
+CollisionCheckResult CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed) {
+    static bool bleft = false, bright = false, bup = false, bdown = false;
+   // lastCollisionCheck = {true, true, true, true, true, true, false};
+    {
+        Float32 delta = 0.8f * VERTICAL_DELTA;
+        Float32 down = position.y - FLOOR_DISTANCE_THRESHOLD;
+        Float32 left = position.x + delta;
+        Float32 right = position.x + (1 - delta);
+        lastCollisionCheck.onGround = level.isWall(left, down, true) || level.isWall(right, down, true);
+    }
+    {
+        Float32 delta = VERTICAL_DELTA;
+        Float32 up = position.y + DELTA_HEIGHT;
+        Float32 left = position.x + delta;
+        Float32 right = position.x + (1.0f - delta);
+        lastCollisionCheck.clearForJump = !level.isWall(left, up, true) && !level.isWall(right, up, true);
+    }
+    lastCollisionCheck.inWall = level.isWall(Int32(getCollisionRect().getCentre().x), Int32(getCollisionRect().getCentre().y), true);
+
+
+
+
+            externalForcesSpeed += externalForces;
+            externalForces.x = 0;
+            externalForces.y = 0;
+            if (externalForcesSpeed.length() < 0.01) {
+                externalForcesSpeed.x = 0;
+                externalForcesSpeed.y = 0;
+            }
+            //do not multiply by speed or elapsedTime !!!
+            velocity += acceleration;
+
+            acceleration.x = 0;
+            acceleration.y = 0;
+            // horizontal speed clamping
+            if (std::abs(velocity.x * speed) > 0.5f) {
+                velocity.x = std::copysign(0.5f, this->velocity.x) / speed;
+            }
+            if (std::abs(externalForcesSpeed.x * speed) > 0.5f) {
+                externalForcesSpeed.x = std::copysign(0.5f, externalForcesSpeed.x) / speed;
+            }
+            Vector totalSpeed = velocity + externalForcesSpeed;
+            bleft = false, bright = false, bup = false, bdown = false;
+
+            //collision detection here we go
+
+            {
+                Float32 delta = VERTICAL_DELTA;
+                Float32 up;
+                Float32 down;
+                Float32 left;
+                Float32 right;
+
+                /**
+                 * Down
+                 */
+                up = position.y + DELTA_HEIGHT + totalSpeed.y * speed;
+                down = position.y + totalSpeed.y * speed;
+                left = position.x + delta + totalSpeed.x * speed;
+                right = position.x + (1.0f - delta) + totalSpeed.x * speed;
+                if (level.isWall(right, down, true) || level.isWall(left, down, true)) {
+                    bdown = true;
+                    velocity.y = 0;
+                    totalSpeed.y = 0;
+                    if (!(level.isWall(right, up, true) || level.isWall(left, down, true))) {
+                        velocity.y = -0.001f;
+                        totalSpeed.y = -0.001f;
+                    }
+                }
+
+                /**
+                 * Up
+                 */
+                up = position.y + DELTA_HEIGHT + totalSpeed.y * speed;
+                down = position.y + totalSpeed.y * speed;
+                left = position.x + delta + totalSpeed.x * speed;
+                right = position.x + (1.0f - delta) + totalSpeed.x * speed;
+
+                if (totalSpeed.y > 0.0f && (level.isWall(right, up, true) || level.isWall(left, up, true))) {
+                    bup = true;
+                    totalSpeed.y = 0;
+                    velocity.y = 0;
+                }
+
+                /**
+                 * Right
+                 */
+                delta = HORIZONTAL_DELTA;
+                left = position.x + delta + totalSpeed.x * speed;
+                down = position.y + 0.1f;
+                if (totalSpeed.y > 0) {
+                    up = position.y + DELTA_HEIGHT + totalSpeed.y * speed;
+                } else {
+                    up = position.y + DELTA_HEIGHT;
+                }
+                right = position.x + (1.0f - delta) + totalSpeed.x * speed;
+
+                if (totalSpeed.x > 0 && (floorf(right) > floorf(position.x)) &&
+                    ((level.isWall(right, up, true) || level.isWall(right, down, true)))) {
+                    bright = true;
+                }
+
+                /**
+                 * Left
+                 */
+                up = position.y + DELTA_HEIGHT;
+                down = position.y + 0.1f;
+                left = position.x + delta + totalSpeed.x * speed;
+                right = position.x + (1.0f - delta) + totalSpeed.x * speed;
+                if (totalSpeed.y > 0) {
+                    up = position.y + DELTA_HEIGHT + totalSpeed.y * speed;
+                } else {
+                    up = position.y + DELTA_HEIGHT;
+                }
+                if (level.isWall(left, up, true) || level.isWall(left, down, true) || (left < 0)) {
+                    bleft = true;
+                }
+                /**
+                  * Put it all together
+                  */
+                 if (!isOnElevator()) { //TODO POSSIBLE PROBLEM
+                     if (bdown) {
+                         position.y = std::ceil(position.y - 0.5f);
+                     } else if (bup) {
+                         position.y = std::floor(position.y + 0.5f);
+                     }
+
+                     if (bleft) {
+                         position.x = std::ceil(position.x + totalSpeed.x * speed) - delta;
+                     } else if (bright) {
+                         position.x = floorf(this->position.x) + delta;
+                     }
+                 }
+                 if (bleft || bright) {
+                     externalForcesSpeed.x *= 0.5;
+                 }
+                 if (bup || bdown) {
+                     externalForcesSpeed.y *= 0.5;
+                 }
+                 externalForcesSpeed.x *= 0.9;
+                 externalForcesSpeed.y *= 0.9;
+                 position.x = std::max(-0.1f, std::min(position.x, level.getWidth() - 0.9f));
+             }
+
+            position.y += totalSpeed.y * speed; // the speed has the elapsedTime already factored in
+            position.x += totalSpeed.x * D6_PLAYER_ACCEL * speed; // the speed has the elapsedTime already factored in
+
+            lastCollisionCheck.up = bup;
+            lastCollisionCheck.right = bright;
+            lastCollisionCheck.down = bdown;
+            lastCollisionCheck.left = bleft;
+    return lastCollisionCheck;
+
+}
+
+void CollidingEntity::initPosition(Float32 x, Float32 y, Float32 z) {
+    position = {x, y, z};
+    velocity = {0, 0};
+    acceleration = {0, 0};
+    externalForces = {0, 0};
+    externalForcesSpeed = {0, 0};
+    lastCollisionCheck = {true, true, true, true, true, true, false};
+}
+
+Rectangle CollidingEntity::getCollisionRect() const {
+    return Rectangle::fromCornerAndSize(position, dimensions);
+}
+
+bool CollidingEntity::isInWall() const {
+    return lastCollisionCheck.inWall;
+}
+
+bool CollidingEntity::isOnHardSurface() const {
+    return isOnGround() || isOnElevator();
+}
+
+bool CollidingEntity::isUnderHardSurface() const {
+    return !lastCollisionCheck.clearForJump;
+}
+
+bool CollidingEntity::isOnElevator() const {
+    return elevator != nullptr;
+}
+
+bool CollidingEntity::isOnGround() const {
+    return lastCollisionCheck.onGround;
+}
 }
