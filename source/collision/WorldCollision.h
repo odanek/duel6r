@@ -53,6 +53,20 @@ namespace Duel6 {
         static constexpr float HORIZONTAL_DELTA = 0.25f * DELTA;
         static constexpr float DELTA_HEIGHT = 0.94f;
     public:
+        CollidingEntity() = default;
+
+        CollidingEntity(const Vector & position) :
+                    position(position) {}
+
+        CollidingEntity(const CollidingEntity & c):
+            position(c.position),
+            acceleration(c.acceleration),
+            externalForces(c.externalForces),
+            velocity(c.velocity),
+            elevator(c.elevator),
+            lastCollisionCheck(c.lastCollisionCheck) {
+        }
+
         Vector position;
         Vector acceleration;
         Vector externalForces;

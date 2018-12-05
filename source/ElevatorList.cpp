@@ -77,7 +77,6 @@ namespace Duel6 {
 
     const Elevator *ElevatorList::checkCollider(CollidingEntity &collider, Float32 speedFactor) {
         const Float32 distanceThreshold = 0.05f;
-//        Rectangle playerRect = player.getCollisionRect();
         Float32 y = collider.position.y;
         Float32 cX = collider.position.x + collider.dimensions.x / 2;
         Vector playerVelocity = collider.velocity;
@@ -103,44 +102,6 @@ namespace Duel6 {
                 bool after_below = y + playerVerticalStep <= pos.y - distanceThreshold;
                 bool after_inside = y + playerVerticalStep >= pos.y - distanceThreshold &&
                                     y + playerVerticalStep <= pos.y + distanceThreshold;
-
-                if ((before_below && after_inside && !after_above)
-                    || (before_above && (after_below || after_inside))
-                    || (before_inside && (after_below || after_inside))) {
-                    return &elevator;
-                }
-            }
-        }
-        return nullptr;
-    }
-
-    const Elevator *ElevatorList::checkPlayer(Player &player, Float32 speedFactor) {
-        const Float32 distanceThreshold = 0.05f;
-        Rectangle playerRect = player.getCollisionRect();
-        Float32 cX = playerRect.getCentre().x;
-        Vector playerVelocity = player.getVelocity();
-        Float32 playerVerticalStep = playerVelocity.y * speedFactor;
-
-        for (const Elevator &elevator : elevators) {
-            const Vector &pos = elevator.getPosition();
-            const Vector &acceleratedVelocity = elevator.getAcceleratedVelocity();
-
-            if (elevator.getVelocity().y < 0 && playerVelocity.y > 0) {
-                continue;
-            }
-
-            Float32 elevatorVerticalStep = acceleratedVelocity.y * speedFactor;
-            if (cX >= pos.x && cX <= pos.x + 1.0f)  // TODO: Coord
-            {
-                bool before_below = playerRect.left.y <= pos.y - distanceThreshold - elevatorVerticalStep;
-                bool before_above = playerRect.left.y >= pos.y - elevatorVerticalStep + distanceThreshold;
-                bool before_inside = playerRect.left.y >= pos.y - distanceThreshold - elevatorVerticalStep &&
-                                     playerRect.left.y - playerVerticalStep <=
-                                     pos.y - elevatorVerticalStep + distanceThreshold;
-                bool after_above = playerRect.left.y + 2 * playerVerticalStep >= pos.y + distanceThreshold;
-                bool after_below = playerRect.left.y + playerVerticalStep <= pos.y - distanceThreshold;
-                bool after_inside = playerRect.left.y + playerVerticalStep >= pos.y - distanceThreshold &&
-                                    playerRect.left.y + playerVerticalStep <= pos.y + distanceThreshold;
 
                 if ((before_below && after_inside && !after_above)
                     || (before_above && (after_below || after_inside))

@@ -288,12 +288,6 @@ namespace Duel6 {
         SpriteList::Iterator gunSprite;
         Uint32 flags;
         Orientation orientation;
-        CollidingEntity collider;
-//        Vector position;
-//        Vector acceleration;
-//        Vector externalForces;
-//        Vector externalForcesSpeed;
-//        Vector velocity;
         Float32 life;
         Float32 air;
         Int32 ammo;
@@ -306,7 +300,6 @@ namespace Duel6 {
         Float32 timeStuckInWall;
         Float32 tempSkinDuration;
         Weapon weapon;
-      //  const Elevator *elevator;
         PlayerEventListener *eventListener;
         World *world; // TODO: Remove
         Float32 bodyAlpha;
@@ -315,6 +308,7 @@ namespace Duel6 {
         Uint32 controllerState;
 
     public:
+        CollidingEntity collider;
         Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
 
         ~Player();
@@ -626,8 +620,6 @@ namespace Duel6 {
         void dropWeapon(const Level &level);
 
         Float32 getSpeed() const;
-
-        void checkElevator(Float32 speedFactor);
 
         void checkStuck(const Level &level, Float32 elapsedTime);
 

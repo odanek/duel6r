@@ -39,7 +39,6 @@
 #include "math/Math.h"
 #include "Video.h"
 #include "PlayerEventListener.h"
-#include <iostream>
 namespace Duel6 {
     static Int16 noAnim[4] = {0, 50, 0, -1};
     static Int16 d6SAnim[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
@@ -48,7 +47,7 @@ namespace Duel6 {
     static Int16 d6DAnim[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
     static Int16 d6LAnim[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
     static Int16 d6NAnim[4] = {25, 100, -1, 0};
-    static Int16 d6PAnim[] = {0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0};
+    static Int16 d6PAnim[] = {0, 5, 20, 5, 21, 5, 22, 5, 23, 5, 24, 5, 23, 5, 22, 5, 21, 5, 0, 5, -1, 0};
 
     //TODO: This still needs further fine-tuning for good jumping experience
     static const float GRAVITATIONAL_ACCELERATION = -11.0f;
@@ -57,13 +56,6 @@ namespace Duel6 {
 
     // Very important fun aspect!
     static const float SHOT_FORCE_FACTOR = 0.05f;
-
-    // collision detection
-//    static const float FLOOR_DISTANCE_THRESHOLD = 0.0001f;
-//    static const float DELTA = 0.30f;
-//    static const float VERTICAL_DELTA = 0.5f * DELTA;
-//    static const float HORIZONTAL_DELTA = 0.25f * DELTA;
-//    static const float DELTA_HEIGHT = 0.94f;
 
     Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
             : person(person), skin(skin), sounds(sounds), controls(controls), bodyAlpha(1.0f) {
@@ -76,9 +68,6 @@ namespace Duel6 {
     void Player::startRound(World &world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon &weapon) {
         this->world = &world;
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-//        position = Vector(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-//        velocity = Vector(0, 0);
-//        acceleration = Vector(0, 0);
         Sprite manSprite(noAnim, skin.getTextureList());
         manSprite.setPosition(getSpritePosition(), 0.5f);
         sprite = world.getSpriteList().addSprite(manSprite);
@@ -95,7 +84,6 @@ namespace Duel6 {
         life = D6_MAX_LIFE;
         air = D6_MAX_AIR;
         this->ammo = ammo;
-   //     elevator = nullptr;
         bonus = BonusType::INVULNERABILITY;
         bonusDuration = 2.0f;
         bonusRemainingTime = 2.0f;
@@ -104,8 +92,6 @@ namespace Duel6 {
         this->view = view;
         water.headUnderWater = Water::NONE;
         water.feetInWater = Water::NONE;
-//        externalForces = {0, 0};
-//        externalForcesSpeed = {0, 0};
 
         indicators.hideAll(false);
         indicators.getName().show(4.0f);
@@ -183,7 +169,7 @@ namespace Duel6 {
     }
 
     void Player::pick() {
-        if (isOnGround() && !isMoving() && !isOnElevator()) {
+        if ((isOnGround() || isOnElevator()) && !isMoving()) {
             world->getBonusList().checkWeapon(*this);
         }
     }
@@ -241,13 +227,13 @@ namespace Duel6 {
         setFlag(FlagPick);
         this->weapon = weapon;
         ammo = bullets;
-        if (weapon.isChargeable()){
+      //  if (weapon.isChargeable()){
             timeToReload = getReloadInterval();
-        } else {
-            timeToReload = 0;
-        }
-
-        indicators.getReload().hide();
+       // } else {
+       //     timeToReload = 0;
+       // }
+        setFlag(FlagHasGun);
+        indicators.getReload().show();
         indicators.getBullets().show();
         weapon.makeSprite(*gunSprite);
         return *this;
@@ -361,6 +347,7 @@ namespace Duel6 {
             }
 
             if (controllerState & ButtonPick) {
+                dropWeapon(world->getLevel());
                 pick();
             }
         }
@@ -423,10 +410,9 @@ namespace Duel6 {
         setAnm();
 
         // Drop gun if still has it and died
-        if (isLying() && hasGun() && isOnGround()) {
+        if (isLying() && hasGun()) {
             setBonus(BonusType::NONE, 0);
             dropWeapon(world.getLevel());
-            unsetFlag(FlagHasGun);
         }
 
         // Move intervals
@@ -495,7 +481,7 @@ namespace Duel6 {
 
         gunSprite->setPosition(getGunSpritePosition())
                 .setOrientation(getOrientation())
-                .setDraw(isAlive() && !isPickingGun());
+                .setDraw(hasGun() && isAlive() && !isPickingGun());
     }
 
     void Player::prepareCam(const Video &video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY) {
@@ -668,17 +654,13 @@ namespace Duel6 {
     }
 
     void Player::dropWeapon(const Level &level) {
-        Rectangle bbox = getCollisionRect();
-        Int32 x1 = Int32(bbox.left.x), x2 = Int32(bbox.right.x);
-        Int32 y = Int32(bbox.left.y + 0.5f);
-
-        if (level.isWall(x1, y - 1, true) && !level.isWall(x1, y, true)) {
-            world->getBonusList().addPlayerGun(*this, Vector(x1, y));
-        } else {
-            if (level.isWall(x2, y - 1, true) && !level.isWall(x2, y, true)) {
-                world->getBonusList().addPlayerGun(*this, Vector(x2, y));
-            }
+        if(!hasGun()){
+            return;
         }
+        world->getBonusList().addPlayerGun(*this, collider);
+        unsetFlag(FlagHasGun);
+        indicators.getReload().hide();
+        indicators.getBullets().hide();
     }
 
     Player &Player::addLife(Float32 change, bool showHpBar) {
@@ -712,17 +694,6 @@ namespace Duel6 {
             }
             water.feetInWater = feetWater;
         }
-    }
-
-    void Player::checkElevator(Float32 speedFactor) {
-//
-//        const Elevator *elevator = world->getElevatorList().checkPlayer(*this, speedFactor);
-//
-//        if (elevator != nullptr) {
-//            this->elevator = elevator;
-//            position.y = elevator->getPosition().y;
-//            velocity.y = 0.0f;
-//        }
     }
 
     void Player::useTemporarySkin(PlayerSkin &tempSkin) {

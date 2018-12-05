@@ -33,7 +33,7 @@
 #include "math/Vector.h"
 #include "Rectangle.h"
 #include "Weapon.h"
-
+#include "collision/WorldCollision.h"
 namespace Duel6 {
     class Player;
 
@@ -149,10 +149,13 @@ namespace Duel6 {
 
     class LyingWeapon {
         Weapon weapon;
-        Vector position;
         Int32 bullets;
-
     public:
+        CollidingEntity collider;
+        Float32 pickTimeout = 0.5f;
+    public:
+        LyingWeapon(Weapon weapon, Int32 bullets, const CollidingEntity &playerCollider);
+
         LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position);
 
         void render() const;
@@ -166,7 +169,7 @@ namespace Duel6 {
         }
 
         const Vector &getPosition() const {
-            return position;
+            return collider.position;
         }
 
         Vector getDimensions() const {
@@ -178,7 +181,7 @@ namespace Duel6 {
         }
 
         Vector getSpritePosition() const {
-            return position;
+            return collider.position;
         }
     };
 }
