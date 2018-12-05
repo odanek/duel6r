@@ -44,7 +44,7 @@ namespace Duel6 {
 
         virtual void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) = 0;
 
-        virtual void initializeGame(Game &game, std::vector<Player> &players) = 0;
+        virtual void initializeGame(Game &game, std::vector<Player> &players, bool quickLiquid = false, bool globalAssistances = false) = 0;
 
         virtual void initializeRound(Game &game, std::vector<Player> &players, World &world) = 0;
 

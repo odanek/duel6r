@@ -35,7 +35,10 @@ namespace Duel6 {
     public:
         void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) override {}
 
-        void initializeGame(Game &game, std::vector<Player> &players) override {}
+        void initializeGame(Game &game, std::vector<Player> &players, bool quickLiquid = false, bool globalAssistances = false) override {
+            this->quickLiquid = quickLiquid;
+            this->globalAssistances = globalAssistances;
+        }
 
         void initializeRound(Game &game, std::vector<Player> &players, World &world) override {}
 
@@ -44,6 +47,10 @@ namespace Duel6 {
         Ranking getRanking(const std::vector<Player> &players) const override;
 
         bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
+
+        bool quickLiquid = false;
+
+        bool globalAssistances = false;
     };
 }
 

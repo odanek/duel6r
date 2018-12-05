@@ -247,6 +247,12 @@ namespace Duel6 {
             }
         });
 
+        globalAssistanceCheckBox = new Gui::CheckBox(gui);
+        globalAssistanceCheckBox->setLabel("Assistance");
+        globalAssistanceCheckBox->setPosition(11, -21, 130, 20);
+        quickLiquidCheckBox = new Gui::CheckBox(gui);
+        quickLiquidCheckBox->setLabel("Quick Liquid");
+        quickLiquidCheckBox->setPosition(151, -21, 150, 20);
 
         backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
@@ -420,7 +426,8 @@ namespace Duel6 {
             consumeInputEvents();
             return;
         }
-
+        game->getSettings().setQuickLiquid(quickLiquidCheckBox->isChecked());
+        game->getSettings().setGlobalAssistances(globalAssistanceCheckBox->isChecked());
         if (game->getSettings().isRoundLimit() && game->getPlayedRounds() > 0 &&
             game->getPlayedRounds() < game->getSettings().getMaxRounds()) {
             if (!question("Resume previous game? (Y/N)")) {
