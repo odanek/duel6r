@@ -167,10 +167,11 @@ namespace Duel6 {
         collider.position.z = 0.5f;
     }
 
-    LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, const CollidingEntity &playerCollider)
-            : weapon(weapon), bullets(bullets), collider(playerCollider) {
+    LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, Float32 remainingReloadTime, const CollidingEntity &playerCollider)
+            : weapon(weapon), bullets(bullets), collider(playerCollider), remainingReloadTime(remainingReloadTime) {
         collider.position.z = 0.5f;
-        collider.acceleration.x = playerCollider.velocity.x;
+        collider.velocity.x *= 2;
+        collider.velocity.y *= 2;
     }
 
     void LyingWeapon::render() const {

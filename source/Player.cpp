@@ -223,17 +223,16 @@ namespace Duel6 {
         }
     }
 
-    Player &Player::pickWeapon(Weapon weapon, Int32 bullets) {
+    Player &Player::pickWeapon(Weapon weapon, Int32 bullets, Float32 remainingReloadTime) {
         setFlag(FlagPick);
         this->weapon = weapon;
         ammo = bullets;
-      //  if (weapon.isChargeable()){
+        if (weapon.isChargeable()){
             timeToReload = getReloadInterval();
-       // } else {
-       //     timeToReload = 0;
-       // }
-        setFlag(FlagHasGun);
-        indicators.getReload().show();
+        } else {
+            timeToReload = remainingReloadTime;
+        }
+        indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
         indicators.getBullets().show();
         weapon.makeSprite(*gunSprite);
         return *this;
@@ -249,6 +248,7 @@ namespace Duel6 {
         auto collisionResult = collider.collideWithLevel(level, elapsedTime, speed);
         if (isPickingGun() && sprite->getAnimation() == d6PAnim && sprite->isFinished()) {
             unsetFlag(FlagPick);
+            setFlag(FlagHasGun);
         }
         if (isKneeling()) {
             unsetFlag(FlagMoveLeft | FlagMoveRight);
@@ -293,6 +293,8 @@ namespace Duel6 {
 
         if (getBonus() == BonusType::FAST_MOVEMENT) {
             spd *= 1.43f;
+        } else if(!hasGun()) {
+            spd *= 1.4f;
         } else {
             spd *= (1.4f - (getLife() / 250));
         }

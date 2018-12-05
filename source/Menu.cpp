@@ -369,7 +369,9 @@ namespace Duel6 {
 
     void Menu::detectControls(Size playerIndex) {
         render();
-
+        if(playerIndex >= playerListBox->size()) {
+            return;
+        }
         const std::string &name = playerListBox->getItem(playerIndex);
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);
@@ -690,15 +692,28 @@ namespace Duel6 {
     }
 
     void Menu::shufflePlayers() {
+        std::vector<Size> shuffle;
         std::vector<std::string> players;
+        auto size = playerListBox->size();
+        shuffle.reserve(size);
+        players.reserve(size);
         for (Size i = 0; i < playerListBox->size(); i++) {
             players.push_back(playerListBox->getItem(i));
+            shuffle.push_back(i);
         }
 
-        std::shuffle(players.begin(), players.end(), Math::randomEngine);
+        std::vector<Int32> controls;
+        for (Size i = 0; i < playerListBox->size(); i++) {
+            controls.push_back(controlSwitch[i]->currentItem());
+        }
+
+        std::shuffle(shuffle.begin(), shuffle.end(), Math::randomEngine);
+
         playerListBox->clear();
-        for (std::string &player : players) {
-            playerListBox->addItem(player);
+        for (Size i = 0; i < shuffle.size(); i++) {
+            auto pos = shuffle[i];
+            playerListBox->addItem(players[pos]);
+            controlSwitch[i]->setCurrent(controls[pos]);
         }
     }
 }

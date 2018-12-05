@@ -103,7 +103,7 @@ namespace Duel6 {
     }
 
     void BonusList::addPlayerGun(Player &player, const CollidingEntity &playerCollider) {
-        weapons.push_back(LyingWeapon(player.getWeapon(), player.getAmmo(), playerCollider));
+        weapons.push_back(LyingWeapon(player.getWeapon(), player.getAmmo(), player.getReloadTime(), playerCollider));
     }
 
     void BonusList::checkBonus(Player &player) {
@@ -151,7 +151,7 @@ namespace Duel6 {
                     addPlayerGun(player, player.collider);
                 }
 
-                player.pickWeapon(type, weapon.getBullets());
+                player.pickWeapon(type, weapon.getBullets(), weapon.remainingReloadTime);
                 world.getMessageQueue().add(player, Format("You picked up gun {0}") << type.getName());
 
                 weapons.erase(weaponIter);

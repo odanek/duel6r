@@ -490,7 +490,7 @@ namespace Duel6 {
 
         void useTemporarySkin(PlayerSkin &tempSkin);
 
-        Player &pickWeapon(Weapon weapon, Int32 bullets);
+        Player &pickWeapon(Weapon weapon, Int32 bullets, Float32 remainingReloadTime);
 
         bool isReloading();
 

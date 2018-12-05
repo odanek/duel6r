@@ -153,8 +153,9 @@ namespace Duel6 {
     public:
         CollidingEntity collider;
         Float32 pickTimeout = 0.5f;
+        Float32 remainingReloadTime = 0.0f;
     public:
-        LyingWeapon(Weapon weapon, Int32 bullets, const CollidingEntity &playerCollider);
+        LyingWeapon(Weapon weapon, Int32 bullets, Float32 remainingReloadTime, const CollidingEntity &playerCollider);
 
         LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position);
 
