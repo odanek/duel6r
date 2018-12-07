@@ -78,7 +78,8 @@ namespace Duel6 {
     const Elevator *ElevatorList::checkCollider(CollidingEntity &collider, Float32 speedFactor) {
         const Float32 distanceThreshold = 0.05f;
         Float32 y = collider.position.y;
-        Float32 cX = collider.position.x + collider.dimensions.x / 2;
+        Float32 cX = collider.position.x + 0.5f;
+        Float32 leeway = 0.25f * collider.dimensions.x;
         Vector playerVelocity = collider.velocity;
         Float32 playerVerticalStep = playerVelocity.y * speedFactor;
 
@@ -91,7 +92,7 @@ namespace Duel6 {
             }
 
             Float32 elevatorVerticalStep = acceleratedVelocity.y * speedFactor;
-            if (cX >= pos.x && cX <= pos.x + 1.0f)  // TODO: Coord
+            if (cX + leeway >= pos.x && cX - leeway <= pos.x + 1.0f)
             {
                 bool before_below = y <= pos.y - distanceThreshold - elevatorVerticalStep;
                 bool before_above = y >= pos.y - elevatorVerticalStep + distanceThreshold;
