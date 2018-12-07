@@ -131,7 +131,7 @@ namespace Duel6 {
     void BonusList::update(Float32 elapsedTime) {
         for(auto & weapon : weapons){
             weapon.collider.collideWithElevators(world.getElevatorList(), elapsedTime);
-            auto x = weapon.collider.collideWithLevel(world.getLevel(), elapsedTime, elapsedTime);
+            weapon.collider.collideWithLevel(world.getLevel(), elapsedTime, elapsedTime);
             if(weapon.pickTimeout > 0){
                 weapon.pickTimeout -= elapsedTime;
             }

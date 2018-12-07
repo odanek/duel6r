@@ -240,12 +240,12 @@ namespace Duel6 {
 
     void Player::makeMove(const Level &level, Float32 elapsedTime) {
         Float32 speed = getSpeed() * elapsedTime;
-        collider.collideWithElevators(world->getElevatorList(), elapsedTime, speed);
 
         moveVertical(level, elapsedTime, speed);
         moveHorizontal(level, elapsedTime, speed);
 
-        auto collisionResult = collider.collideWithLevel(level, elapsedTime, speed);
+        collider.collideWithElevators(world->getElevatorList(), elapsedTime, speed);
+        collider.collideWithLevel(level, elapsedTime, speed);
         if (isPickingGun() && sprite->getAnimation() == d6PAnim && sprite->isFinished()) {
             unsetFlag(FlagPick);
             setFlag(FlagHasGun);

@@ -73,12 +73,12 @@ namespace Duel6 {
         Vector externalForcesSpeed;
         Vector velocity;
         Vector dimensions = {1.0f, 1.0f};
-        const Elevator *elevator;
+        const Elevator *elevator = nullptr;
         CollisionCheckResult lastCollisionCheck;
         Rectangle getCollisionRect() const;
         // aka update
         void collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed = 1.0f);
-        CollisionCheckResult collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed = 1.0f);
+        void collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed = 1.0f);
         void initPosition(Float32 x, Float32 y, Float32 z = 0.0f);
 
         bool isInWall() const;
