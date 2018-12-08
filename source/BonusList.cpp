@@ -102,8 +102,8 @@ namespace Duel6 {
         return true;
     }
 
-    void BonusList::addPlayerGun(Player &player, const Vector &position) {
-        weapons.push_back(LyingWeapon(player.getWeapon(), player.getAmmo(), position));
+    void BonusList::addPlayerGun(Player &player, const CollidingEntity &playerCollider) {
+        weapons.push_back(LyingWeapon(player.getWeapon(), player.getAmmo(), player.getReloadTime(), playerCollider));
     }
 
     void BonusList::checkBonus(Player &player) {
@@ -128,6 +128,16 @@ namespace Duel6 {
         }
     }
 
+    void BonusList::update(Float32 elapsedTime) {
+        for(auto & weapon : weapons){
+            weapon.collider.collideWithElevators(world.getElevatorList(), elapsedTime);
+            weapon.collider.collideWithLevel(world.getLevel(), elapsedTime, elapsedTime);
+            if(weapon.pickTimeout > 0){
+                weapon.pickTimeout -= elapsedTime;
+            }
+        }
+    }
+
     void BonusList::checkWeapon(Player &player) {
         auto weaponIter = weapons.begin();
         while (weaponIter != weapons.end()) {
@@ -135,13 +145,13 @@ namespace Duel6 {
             Weapon type = weapon.getWeapon();
 
             bool collides = Collision::rectangles(weapon.getCollisionRect(), player.getCollisionRect());
-            if (collides) {
-                if (player.getAmmo() > 0) {
+            if (weapon.pickTimeout <= 0.0f && collides) {
+                if (player.hasGun() && player.getAmmo() > 0) {
                     // Leave the current weapon at the same place
-                    addPlayerGun(player, weapon.getPosition());
+                    addPlayerGun(player, player.collider);
                 }
 
-                player.pickWeapon(type, weapon.getBullets());
+                player.pickWeapon(type, weapon.getBullets(), weapon.remainingReloadTime);
                 world.getMessageQueue().add(player, Format("You picked up gun {0}") << type.getName());
 
                 weapons.erase(weaponIter);

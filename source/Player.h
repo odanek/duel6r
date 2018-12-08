@@ -46,7 +46,7 @@
 #include "Rectangle.h"
 #include "Defines.h"
 #include "Level.h"
-
+#include "collision/WorldCollision.h"
 namespace Duel6 {
     // Forward declarations
     class Elevator;
@@ -288,11 +288,6 @@ namespace Duel6 {
         SpriteList::Iterator gunSprite;
         Uint32 flags;
         Orientation orientation;
-        Vector position;
-        Vector acceleration;
-        Vector externalForces;
-        Vector externalForcesSpeed;
-        Vector velocity;
         Float32 life;
         Float32 air;
         Int32 ammo;
@@ -305,7 +300,6 @@ namespace Duel6 {
         Float32 timeStuckInWall;
         Float32 tempSkinDuration;
         Weapon weapon;
-        const Elevator *elevator;
         PlayerEventListener *eventListener;
         World *world; // TODO: Remove
         Float32 bodyAlpha;
@@ -314,6 +308,7 @@ namespace Duel6 {
         Uint32 controllerState;
 
     public:
+        CollidingEntity collider;
         Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
 
         ~Player();
@@ -348,24 +343,28 @@ namespace Duel6 {
         }
 
         const Vector &getPosition() const {
-            return position;
+            return collider.position;
         }
 
         Vector getDimensions() const {
-            if (isKneeling()) {
-                return Vector(1.0f, 0.8f);
-            } else if (isLying()) {
-                return Vector(1.0f, 0.45f);
-            }
-            return Vector(1.0f, 1.0f);
+            return collider.dimensions;
         }
 
+        void updateDimensions() {
+            if (isKneeling()) {
+                collider.dimensions = Vector(1.0f, 0.8f);
+            } else if (isLying()) {
+                collider.dimensions = Vector(1.0f, 0.45f);
+            } else {
+                collider.dimensions = Vector(1.0f, 1.0f);
+            }
+        }
         Vector getCentre() const {
             return getCollisionRect().getCentre();
         }
 
         Rectangle getCollisionRect() const {
-            return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
+            return collider.getCollisionRect();
         }
 
         Vector getSpritePosition() const {
@@ -491,7 +490,7 @@ namespace Duel6 {
 
         void useTemporarySkin(PlayerSkin &tempSkin);
 
-        Player &pickWeapon(Weapon weapon, Int32 bullets);
+        Player &pickWeapon(Weapon weapon, Int32 bullets, Float32 remainingReloadTime);
 
         bool isReloading();
 
@@ -537,17 +536,17 @@ namespace Duel6 {
         }
 
         bool isRising() const {
-            return velocity.y > 0;
+            return collider.velocity.y > 0;
         }
 
         bool isFalling() const {
-            return velocity.y < 0;
+            return collider.velocity.y < 0;
         }
 
         bool isOnGround() const;
 
         bool isMoving() const {
-            return (velocity.x != 0.0f);
+            return (collider.velocity.x != 0.0f);
         }
 
         bool hasPowerfulShots() const {
@@ -563,7 +562,7 @@ namespace Duel6 {
         }
 
         bool isOnElevator() const {
-            return (elevator != nullptr);
+            return collider.isOnElevator();
         }
 
         const PlayerSkin &getSkin() const {
@@ -621,8 +620,6 @@ namespace Duel6 {
         void dropWeapon(const Level &level);
 
         Float32 getSpeed() const;
-
-        void checkElevator(Float32 speedFactor);
 
         void checkStuck(const Level &level, Float32 elapsedTime);
 
