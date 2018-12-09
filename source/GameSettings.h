@@ -59,6 +59,8 @@ namespace Duel6 {
         bool showFps;
         bool showRanking;
         bool ghostMode;
+        bool quickLiquid;
+        bool globalAssistances;
         ShotCollisionSetting shotCollision;
         EnabledWeapons enabledWeapons;
         LevelSelectionMode levelSelectionMode;
@@ -165,6 +167,24 @@ namespace Duel6 {
         bool isWeaponEnabled(const Weapon &weapon) const;
 
         const EnabledWeapons &getEnabledWeapons() const;
+
+        GameSettings &setGlobalAssistances(bool assistances) {
+            globalAssistances = assistances;
+            return *this;
+        }
+
+        bool isGlobalAssistances() const {
+            return globalAssistances;
+        }
+
+        GameSettings &setQuickLiquid(bool quick) {
+            quickLiquid = quick;
+            return *this;
+        }
+
+        bool isQuickLiquid() const {
+            return quickLiquid;
+        }
     };
 }
 

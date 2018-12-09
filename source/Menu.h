@@ -42,6 +42,7 @@
 #include "Defines.h"
 #include "gui/Desktop.h"
 #include "gui/Button.h"
+#include "gui/CheckBox.h"
 #include "gui/ListBox.h"
 #include "gui/Label.h"
 #include "gui/TextBox.h"
@@ -74,6 +75,8 @@ namespace Duel6 {
         Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
         Gui::Textbox *textbox;
         Gui::Spinner *gameModeSwitch;
+        Gui::CheckBox *globalAssistanceCheckBox;
+        Gui::CheckBox *quickLiquidCheckBox;
         Gui::Label *playersLabel;
         Size backgroundCount;
         Texture menuBannerTexture;

@@ -56,11 +56,13 @@ namespace Duel6 {
     public:
         BonusList(const GameSettings &settings, const GameResources &resources, World &world);
 
+        void update(Float32 elapsedTime);
+
         void addRandomBonus();
 
         void render() const;
 
-        void addPlayerGun(Player &player, const Vector &position);
+        void addPlayerGun(Player &player, const CollidingEntity &playerColliders);
 
         void checkBonus(Player &player);
 

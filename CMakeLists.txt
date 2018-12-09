@@ -261,6 +261,8 @@ set(D6R_SOURCES
 
         source/gui/Button.cpp
         source/gui/Button.h
+        source/gui/CheckBox.cpp
+        source/gui/CheckBox.h
         source/gui/Control.cpp
         source/gui/Control.h
         source/gui/Desktop.cpp

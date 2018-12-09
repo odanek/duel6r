@@ -247,6 +247,12 @@ namespace Duel6 {
             }
         });
 
+        globalAssistanceCheckBox = new Gui::CheckBox(gui);
+        globalAssistanceCheckBox->setLabel("Assistance");
+        globalAssistanceCheckBox->setPosition(11, -21, 130, 20);
+        quickLiquidCheckBox = new Gui::CheckBox(gui);
+        quickLiquidCheckBox->setLabel("Quick Liquid");
+        quickLiquidCheckBox->setPosition(151, -21, 150, 20);
 
         backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
@@ -369,7 +375,9 @@ namespace Duel6 {
 
     void Menu::detectControls(Size playerIndex) {
         render();
-
+        if(playerIndex >= playerListBox->size()) {
+            return;
+        }
         const std::string &name = playerListBox->getItem(playerIndex);
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);
@@ -418,7 +426,8 @@ namespace Duel6 {
             consumeInputEvents();
             return;
         }
-
+        game->getSettings().setQuickLiquid(quickLiquidCheckBox->isChecked());
+        game->getSettings().setGlobalAssistances(globalAssistanceCheckBox->isChecked());
         if (game->getSettings().isRoundLimit() && game->getPlayedRounds() > 0 &&
             game->getPlayedRounds() < game->getSettings().getMaxRounds()) {
             if (!question("Resume previous game? (Y/N)")) {
@@ -690,15 +699,28 @@ namespace Duel6 {
     }
 
     void Menu::shufflePlayers() {
+        std::vector<Size> shuffle;
         std::vector<std::string> players;
+        auto size = playerListBox->size();
+        shuffle.reserve(size);
+        players.reserve(size);
         for (Size i = 0; i < playerListBox->size(); i++) {
             players.push_back(playerListBox->getItem(i));
+            shuffle.push_back(i);
         }
 
-        std::shuffle(players.begin(), players.end(), Math::randomEngine);
+        std::vector<Int32> controls;
+        for (Size i = 0; i < playerListBox->size(); i++) {
+            controls.push_back(controlSwitch[i]->currentItem());
+        }
+
+        std::shuffle(shuffle.begin(), shuffle.end(), Math::randomEngine);
+
         playerListBox->clear();
-        for (std::string &player : players) {
-            playerListBox->addItem(player);
+        for (Size i = 0; i < shuffle.size(); i++) {
+            auto pos = shuffle[i];
+            playerListBox->addItem(players[pos]);
+            controlSwitch[i]->setCurrent(controls[pos]);
         }
     }
 }

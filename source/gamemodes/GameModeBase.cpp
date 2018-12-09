@@ -71,6 +71,6 @@ namespace Duel6 {
     }
 
     bool GameModeBase::checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const {
-        return alivePlayers.size() == 2 && world.getPlayers().size() > 2;
+        return quickLiquid || (alivePlayers.size() == 2 && world.getPlayers().size() > 2);
     }
 }

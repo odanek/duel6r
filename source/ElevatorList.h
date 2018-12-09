@@ -32,9 +32,10 @@
 #include "Type.h"
 #include "Elevator.h"
 #include "TextureManager.h"
-
+#include "collision/WorldCollision.h"
 namespace Duel6 {
     class Player; // Forward declaration
+    class CollidingEntity; // Forward declaration
 
     class ElevatorList {
     private:
@@ -52,7 +53,7 @@ namespace Duel6 {
 
         void render() const;
 
-        const Elevator *checkPlayer(Player &player, Float32 speedFactor);
+        const Elevator *checkCollider(CollidingEntity & collider, Float32 speedFactor);
     };
 }
 

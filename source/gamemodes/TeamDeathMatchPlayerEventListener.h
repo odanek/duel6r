@@ -37,6 +37,7 @@ namespace Duel6 {
     private:
         bool friendlyFire;
         const TeamMap &teamMap;
+        bool globalAssistances;
 
     protected:
         void addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) override;
@@ -48,8 +49,11 @@ namespace Duel6 {
         void onKill(Player &player, Player &killer, Shot &shot, bool suicice) override;
     public:
         TeamDeathMatchPlayerEventListener(InfoMessageQueue &messageQueue, const GameSettings &gameSettings,
-                                          bool friendlyFire, const TeamMap &teamMap)
-                : PlayerEventListener(messageQueue, gameSettings), friendlyFire(friendlyFire), teamMap(teamMap) {}
+                                          bool friendlyFire, const TeamMap &teamMap, bool globalAssistances)
+                : PlayerEventListener(messageQueue, gameSettings),
+                  friendlyFire(friendlyFire),
+                  teamMap(teamMap),
+                  globalAssistances(globalAssistances) {}
 
         bool onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount, Shot &shot, bool directHit) override;
     };

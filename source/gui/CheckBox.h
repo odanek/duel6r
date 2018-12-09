@@ -25,71 +25,51 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_GUI_CONTROL_H
-#define DUEL6_GUI_CONTROL_H
+#ifndef DUEL6_GUI_CHECKBOX_H
+#define DUEL6_GUI_CHECKBOX_H
 
-#include <SDL2/SDL_keycode.h>
-#include "../Font.h"
-#include "../Color.h"
-#include "../SysEvent.h"
+#include "Control.h"
 
 namespace Duel6 {
     namespace Gui {
-        class Desktop;
+        class CheckBox : public Control {
 
-        class Control {
-            friend class Desktop;
+        private:
 
-        public:
-            enum class Type {
-                Button,
-                Checkbox,
-                Label,
-                Textbox,
-                Listbox,
-                Switchbox,
-                Slider
-            };
-
-        protected:
-            Int32 x, y;
+            Int32 width, height;
+            bool checked;
+            std::string label;
 
         public:
-            Control(Desktop &desk);
+            explicit CheckBox(Desktop &desk);
 
-            virtual ~Control() {}
+            ~CheckBox() = default;
 
-            virtual Type getType() const = 0;
+            void setLabel(const std::string &label);
 
-            Int32 getX() const {
-                return x;
+            void setPosition(int X, int Y, int W, int H);
+
+            bool isChecked() const {
+                return checked;
+            }
+            void setChecked(bool value) {
+                checked = value;
             }
 
-            Int32 getY() const {
-                return y;
+            bool toggle() {
+                checked = !checked;
+                return checked;
             }
+
+            Control::Type getType() const override {
+                return Control::Type::Checkbox;
+            }
+
 
         protected:
-            virtual void update(Float32 elapsedTime) {}
+            void draw(const Font &font) const override;
 
-            virtual void draw(const Font &font) const = 0;
-
-            virtual void keyEvent(const KeyPressEvent &event) {}
-
-            virtual void textInputEvent(const TextInputEvent &event) {}
-
-            virtual void mouseMotionEvent(const MouseMotionEvent &event) {}
-
-            virtual void mouseButtonEvent(const MouseButtonEvent &event) {}
-
-            virtual void mouseWheelEvent(const MouseWheelEvent &event) {}
-
-        protected:
-            static void drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p);
-
-            static bool mouseIn(const MouseEvent &event, Int32 x, Int32 y, Int32 w, Int32 h) {
-                return event.getX() >= x && event.getX() < x + w && event.getY() <= y && event.getY() > y - h;
-            }
+            void mouseButtonEvent(const MouseButtonEvent &event) override;
         };
     }
 }

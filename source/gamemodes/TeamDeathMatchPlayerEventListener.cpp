@@ -72,7 +72,7 @@ namespace Duel6 {
             }
             for (auto assistance : assistances) {
                 const Team *assistantTeam = teamMap.at(assistance.player);
-                if (killerTeam == assistantTeam) {
+                if (killerTeam == assistantTeam || globalAssistances) {
                     assistance.confirm();
                 }
             }
@@ -98,7 +98,7 @@ namespace Duel6 {
 
         AssistanceList filteredAssistances;
 
-        std::function<bool (Assistance)> predicate =([&](Assistance assistance) {return killerTeam == teamMap.at(assistance.player);});
+        std::function<bool (Assistance)> predicate =([&](Assistance assistance) {return (globalAssistances && playerTeam != teamMap.at(assistance.player)) || killerTeam == teamMap.at(assistance.player);});
 
         if (playerTeam == killerTeam) {
             killedMessage = "killed teammate";

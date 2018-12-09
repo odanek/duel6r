@@ -89,7 +89,7 @@ namespace Duel6 {
         }
 
         eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(),
-                                                                            friendlyFire, teamMap);
+                                                                            friendlyFire, teamMap, globalAssistances);
         for (auto &player : players) {
             player.setEventListener(*eventListener);
         }
@@ -166,6 +166,9 @@ namespace Duel6 {
     }
 
     bool TeamDeathMatch::checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const {
+        if (quickLiquid) {
+            return true;
+        }
         std::vector<Uint32> teamCounts(teamsCount, 0);
         Size index = 0;
         for (auto const &player: world.getPlayers()) {
