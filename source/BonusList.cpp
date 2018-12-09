@@ -33,11 +33,11 @@
 
 namespace Duel6 {
     BonusList::BonusList(const GameSettings &settings, const GameResources &resources, World &world)
-            : settings(settings), randomTexture(resources.getBonusTextures().at(0)), world(world) {}
+            : settings(settings), texture(resources.getBonusTextures()), world(world) {}
 
     void BonusList::render() const {
         for (const Bonus &bonus : bonuses) {
-            bonus.render();
+            bonus.render(texture);
         }
 
         for (const LyingWeapon &weapon : weapons) {
@@ -68,7 +68,7 @@ namespace Duel6 {
             bool random = Math::random(RANDOM_BONUS_FREQUENCY) == 0;
             Int32 duration = type.isOneTime() ? 0 : 13 + Math::random(17);
             bonuses.push_back(
-                    Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? randomTexture : type.getTexture()));
+                    Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? 0 : type.getTextureIndex()));
         }
     }
 

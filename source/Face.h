@@ -39,7 +39,7 @@ namespace Duel6 {
         bool hidden;
 
     public:
-        Face(const Block &block)
+        explicit Face(const Block &block)
                 : block(&block), currentAnimationFrame(0), hidden(false) {
         }
 

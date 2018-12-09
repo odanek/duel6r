@@ -61,7 +61,7 @@ namespace Duel6 {
         class WaterBase : public WaterImpl {
         private:
             Sound::Sample splashSample;
-            TextureList textures;
+            Texture textures;
 
         public:
             WaterBase(Sound &sound, TextureManager &textureManager, const std::string &sample, const Color &color) {
@@ -69,7 +69,7 @@ namespace Duel6 {
 
                 TextureManager::SubstitutionTable subst;
                 subst[Color(0, 182, 255)] = color;
-                textures = textureManager.loadList(D6_TEXTURE_WATER_PATH, TextureFilter::NEAREST, true, subst);
+                textures = textureManager.loadStack(D6_TEXTURE_WATER_PATH, TextureFilter::NEAREST, true, subst);
             }
 
             void onEnter(Player &player, const Vector &location, World &world) const override {

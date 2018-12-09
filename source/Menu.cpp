@@ -85,7 +85,7 @@ namespace Duel6 {
 
     void Menu::initialize() {
         appService.getConsole().printLine("\n===Menu initialization===");
-        menuBannerTexture = appService.getTextureManager().loadList(D6_TEXTURE_MENU_PATH, TextureFilter::LINEAR, true);
+        menuBannerTexture = appService.getTextureManager().loadStack(D6_TEXTURE_MENU_PATH, TextureFilter::LINEAR, true);
         appService.getConsole().printLine("...Starting GUI library");
         gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
                        (video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 700) / 2);
@@ -546,7 +546,7 @@ namespace Duel6 {
                    Format("{0} {1}") << "version" << APP_VERSION);
 
         Int32 clientHeight = video.getScreen().getClientHeight();
-        Material material = Material::makeTexture(menuBannerTexture.at(0));
+        Material material = Material::makeTexture(menuBannerTexture);
         globRenderer->quadXY(Vector(300, clientHeight - 100), Vector(200, 95), Vector(0, 1), Vector(1, -1), material);
 
         globRenderer->setViewMatrix(Matrix::IDENTITY);

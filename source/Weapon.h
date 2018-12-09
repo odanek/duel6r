@@ -55,6 +55,8 @@ namespace Duel6 {
 
         virtual Texture getBonusTexture() const = 0;
 
+        virtual Int32 getBonusTextureIndex() const = 0;
+
         virtual bool isChargeable() const = 0;
     };
 
@@ -93,6 +95,8 @@ namespace Duel6 {
         Sprite &makeSprite(Sprite &sprite) const;
 
         Texture getBonusTexture() const;
+
+        Int32 getBonusTextureIndex() const;
 
         bool operator==(const Weapon &weapon) const;
 

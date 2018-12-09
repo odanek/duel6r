@@ -42,7 +42,7 @@ namespace Duel6 {
     class BonusList {
     private:
         const GameSettings &settings;
-        Texture randomTexture;
+        Texture texture;
         World &world;
         std::list<Bonus> bonuses;
         std::list<LyingWeapon> weapons;

@@ -38,28 +38,33 @@ namespace Duel6 {
         disposeAll();
     }
 
-    const TextureList TextureManager::loadList(const std::string &path, TextureFilter filtering, bool clamp) {
+    const Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {
         SubstitutionTable emptySubstitutionTable;
-        return loadList(path, filtering, clamp, emptySubstitutionTable);
+        return loadStack(path, filtering, clamp, emptySubstitutionTable);
     }
 
-    const TextureList TextureManager::loadList(const std::string &path, TextureFilter filtering, bool clamp,
+    const Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp,
                                            const SubstitutionTable &substitutionTable) {
         std::vector<std::string> textureFiles = File::listDirectory(path, textureFileExtension);
         std::sort(textureFiles.begin(), textureFiles.end());
 
-        TextureList list;
-        for (std::string &file : textureFiles) {
-            Image image;
-            Texture::Key textureKey = nextKey++;
-            Util::loadTargaImage(path + file, image);
-            substituteColors(image, substitutionTable);
-            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
-                                                          filtering, clamp);
-            list.textures.push_back(Texture(textureKey, textureId));
+        auto size = Util::loadTargaSize(path + textureFiles[0]);
+        Image image(size.first, size.second, textureFiles.size());
+
+        Size offset = 0;
+        for (const auto &file : textureFiles) {
+            Util::loadTargaData(path + file, &image.at(offset));
+            offset += image.getWidth() * image.getHeight();
         }
 
-        return list;
+        substituteColors(image, substitutionTable);
+
+        Texture::Key textureKey = nextKey++;
+        Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), image.getDepth(), &image.at(0), 1,
+                                                          filtering, clamp);
+        textureKeys[textureKey] = textureId;
+
+        return Texture(textureKey, textureId);
     }
 
     const TextureDictionary TextureManager::loadDict(const std::string &path, TextureFilter filtering, bool clamp) {
@@ -70,8 +75,9 @@ namespace Duel6 {
             Image image;
             Texture::Key textureKey = nextKey++;
             Util::loadTargaImage(path + file, image);
-            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
+            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), 1, &image.at(0), 1,
                                                                 filtering, clamp);
+            textureKeys[textureKey] = textureId;
             dict.textures[file] = Texture(textureKey, textureId);
         }
 
@@ -87,13 +93,6 @@ namespace Duel6 {
         }
     }
 
-    void TextureManager::dispose(TextureList &list) {
-        for (Texture &texture : list.textures) {
-            dispose(texture);
-        }
-        list.textures.clear();
-    }
-
     void TextureManager::disposeAll() {
         for (auto &entry : textureKeys) {
             globRenderer->freeTexture(entry.second);
@@ -102,7 +101,7 @@ namespace Duel6 {
     }
 
     void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {
-        Size imgSize = image.getWidth() * image.getHeight();
+        Size imgSize = image.getWidth() * image.getHeight() * image.getDepth();
         for (Size i = 0; i < imgSize; ++i) {
             Color &color = image.at(i);
             auto substituteColor = substitutionTable.find(color);

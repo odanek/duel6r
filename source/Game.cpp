@@ -103,7 +103,7 @@ namespace Duel6 {
         players.clear();
 
         for (auto &skin : skins) {
-            textureManager.dispose(skin.getTextureList());
+            textureManager.dispose(skin.getTexture());
         }
         skins.clear();
 

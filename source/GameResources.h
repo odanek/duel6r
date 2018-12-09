@@ -42,12 +42,12 @@ namespace Duel6 {
         Block::Meta blockMeta;
         Sound::Sample gameOverSound;
         Sound::Sample roundStartSound;
-        TextureList blockTextures;
+        Texture blockTextures;
         BackgroundList bcgTextures;
-        TextureList explosionTextures;
-        TextureList bonusTextures;
-        TextureList elevatorTextures;
-        std::unordered_map<Size, TextureList> fireTextures;
+        Texture explosionTextures;
+        Texture bonusTextures;
+        Texture elevatorTextures;
+        std::unordered_map<Size, Texture> fireTextures;
 
     public:
         void load(AppService &appService);
@@ -64,7 +64,7 @@ namespace Duel6 {
             return roundStartSound;
         }
 
-        const TextureList &getBlockTextures() const {
+        const Texture &getBlockTextures() const {
             return blockTextures;
         }
 
@@ -72,19 +72,19 @@ namespace Duel6 {
             return bcgTextures;
         }
 
-        const TextureList &getExplosionTextures() const {
+        const Texture &getExplosionTextures() const {
             return explosionTextures;
         }
 
-        const TextureList &getBonusTextures() const {
+        const Texture &getBonusTextures() const {
             return bonusTextures;
         }
 
-        const TextureList &getElevatorTextures() const {
+        const Texture &getElevatorTextures() const {
             return elevatorTextures;
         }
 
-        const std::unordered_map<Size, TextureList> &getFireTextures() const {
+        const std::unordered_map<Size, Texture> &getFireTextures() const {
             return fireTextures;
         }
     };

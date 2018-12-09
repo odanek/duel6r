@@ -49,7 +49,7 @@ namespace Duel6 {
         globRenderer->enableDepthTest(false);
 
         for (const Explosion &explosion : explosions) {
-            Material material = Material::makeMaskedColoredTexture(textures.at(0), explosion.color);
+            Material material = Material::makeMaskedColoredTexture(textures, explosion.color);
             Vector position = explosion.centre - Vector(explosion.now, explosion.now);
             position.z = 0.6f;
             Vector size = Vector(2 * explosion.now, 2 * explosion.now);

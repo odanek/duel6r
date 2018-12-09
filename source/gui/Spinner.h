@@ -47,9 +47,7 @@ namespace Duel6 {
             Float32 repeatWait;
 
         public:
-            Spinner(Desktop &desk);
-
-            ~Spinner();
+            explicit Spinner(Desktop &desk);
 
             void setPosition(Int32 X, Int32 Y, Int32 W, Int32 H);
 

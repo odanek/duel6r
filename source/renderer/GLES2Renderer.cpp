@@ -69,7 +69,7 @@ namespace Duel6 {
 
 
     GLES2Renderer::GLES2Renderer()
-            : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
+            : RendererBase() {}
 
     void GLES2Renderer::initialize() {
 #ifdef D6_GLEW
@@ -78,6 +78,7 @@ namespace Duel6 {
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
+        enableOption(GL_CULL_FACE, true);
 
         GLuint cvs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(cvs, 1, &colorVertexShader, nullptr);
@@ -161,13 +162,6 @@ namespace Duel6 {
         return textureId;
     }
 
-    void GLES2Renderer::setTextureFilter(Texture::Id textureId, TextureFilter filter) {
-        glBindTexture(GL_TEXTURE_2D, textureId);
-        GLint filterValue = filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterValue);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterValue);
-    }
-
     void GLES2Renderer::freeTexture(Texture::Id textureId) {
         GLuint id = textureId;
         glDeleteTextures(1, &id);
@@ -179,37 +173,6 @@ namespace Duel6 {
 
     void GLES2Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height) {
         glViewport(x, y, width, height);
-    }
-
-    void GLES2Renderer::setProjectionMatrix(const Matrix &m) {
-        projectionMatrix = m;
-        mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
-    }
-
-    Matrix GLES2Renderer::getProjectionMatrix() const {
-        return projectionMatrix;
-    }
-
-    void GLES2Renderer::setViewMatrix(const Matrix &m) {
-        viewMatrix = m;
-        mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
-    }
-
-    Matrix GLES2Renderer::getViewMatrix() const {
-        return viewMatrix;
-    }
-
-    void GLES2Renderer::setModelMatrix(const Matrix &m) {
-        modelMatrix = m;
-        mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
-    }
-
-    Matrix GLES2Renderer::getModelMatrix() const {
-        return modelMatrix;
-    }
-
-    void GLES2Renderer::enableFaceCulling(bool enable) {
-        enableOption(GL_CULL_FACE, enable);
     }
 
     void GLES2Renderer::enableWireframe(bool enable) {
@@ -241,6 +204,51 @@ namespace Duel6 {
 
     void GLES2Renderer::clearBuffers() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void GLES2Renderer::point(const Vector &position, Float32 size, const Color &color) {
+        glUseProgram(colorProgram);
+        glEnableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+
+        points[0] = position.x;
+        points[1] = position.y;
+        points[2] = position.z;
+
+        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        glUniform1f(glGetUniformLocation(colorProgram, "pointSize"), size);
+
+        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                               color.getAlpha() / 255.0f};
+        GLint location = glGetUniformLocation(colorProgram, "color");
+        glUniform4fv(location, 1, colorData);
+
+        glDrawArrays(GL_POINTS, 0, 1);
+    }
+
+    void GLES2Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
+        glLineWidth(width);
+
+        glUseProgram(colorProgram);
+        glEnableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+
+        points[0] = from.x;
+        points[1] = from.y;
+        points[2] = from.z;
+        points[3] = to.x;
+        points[4] = to.y;
+        points[5] = to.z;
+
+        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+
+        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                               color.getAlpha() / 255.0f};
+        GLint location = glGetUniformLocation(colorProgram, "color");
+        glUniform4fv(location, 1, colorData);
+
+        glDrawArrays(GL_LINES, 0, 2);
+        glLineWidth(1.0f);
     }
 
     void GLES2Renderer::triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) {
@@ -307,131 +315,6 @@ namespace Duel6 {
         glUniform4fv(glGetUniformLocation(textureProgram, "modulateColor"), 1, colorData);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
-    }
-
-    void GLES2Renderer::quadXY(const Vector &position, const Vector &size, const Color &color) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector p3(position.x + size.x, position.y + size.y, position.z);
-        Vector p4(position.x + size.x, position.y, position.z);
-
-        triangle(position, p2, p3, color);
-        triangle(position, p3, p4, color);
-    }
-
-    void GLES2Renderer::quadXY(const Vector &position, const Vector &size,
-                               const Vector &texturePosition, const Vector &textureSize,
-                               const Material &material) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
-        Vector p3(position.x + size.x, position.y + size.y, position.z);
-        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4(position.x + size.x, position.y, position.z);
-        Vector t4(texturePosition.x + textureSize.x, texturePosition.y);
-
-        triangle(position, texturePosition, p2, t2, p3, t3, material);
-        triangle(position, texturePosition, p3, t3, p4, t4, material);
-    }
-
-    void GLES2Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color) {
-        Vector p2(position.x + size.x, position.y, position.z);
-        Vector p3(position.x + size.x, position.y, position.z + size.z);
-        Vector p4(position.x, position.y, position.z + size.z);
-
-        triangle(position, p2, p3, color);
-        triangle(position, p3, p4, color);
-    }
-
-    void GLES2Renderer::quadXZ(const Vector &position, const Vector &size,
-                               const Vector &texturePosition, const Vector &textureSize,
-                               const Material &material) {
-        Vector p2(position.x + size.x, position.y, position.z);
-        Vector t2(texturePosition.x + textureSize.x, texturePosition.y);
-        Vector p3(position.x + size.x, position.y, position.z + size.z);
-        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4(position.x, position.y, position.z + size.z);
-        Vector t4(texturePosition.x, texturePosition.y + textureSize.y);
-
-        triangle(position, texturePosition, p2, t2, p3, t3, material);
-        triangle(position, texturePosition, p3, t3, p4, t4, material);
-    }
-
-    void GLES2Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector p3(position.x, position.y + size.y, position.z + size.z);
-        Vector p4(position.x, position.y, position.z + size.z);
-
-        triangle(position, p2, p3, color);
-        triangle(position, p3, p4, color);
-    }
-
-    void GLES2Renderer::quadYZ(const Vector &position, const Vector &size,
-                               const Vector &texturePosition, const Vector &textureSize,
-                               const Material &material) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
-        Vector p3(position.x, position.y + size.y, position.z + size.z);
-        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4(position.x, position.y, position.z + size.z);
-        Vector t4(texturePosition.x + textureSize.x, texturePosition.y);
-
-        triangle(position, texturePosition, p2, t2, p3, t3, material);
-        triangle(position, texturePosition, p3, t3, p4, t4, material);
-    }
-
-    void GLES2Renderer::point(const Vector &position, Float32 size, const Color &color) {
-        glUseProgram(colorProgram);
-        glEnableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-
-        points[0] = position.x;
-        points[1] = position.y;
-        points[2] = position.z;
-
-        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
-        glUniform1f(glGetUniformLocation(colorProgram, "pointSize"), size);
-
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        GLint location = glGetUniformLocation(colorProgram, "color");
-        glUniform4fv(location, 1, colorData);
-
-        glDrawArrays(GL_POINTS, 0, 1);
-    }
-
-    void GLES2Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
-        glLineWidth(width);
-
-        glUseProgram(colorProgram);
-        glEnableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-
-        points[0] = from.x;
-        points[1] = from.y;
-        points[2] = from.z;
-        points[3] = to.x;
-        points[4] = to.y;
-        points[5] = to.z;
-
-        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
-
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        GLint location = glGetUniformLocation(colorProgram, "color");
-        glUniform4fv(location, 1, colorData);
-
-        glDrawArrays(GL_LINES, 0, 2);
-        glLineWidth(1.0f);
-    }
-
-    void GLES2Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color) {
-        Vector p2(position.x, position.y + size.y);
-        Vector p3(position.x + size.x, position.y + size.y);
-        Vector p4(position.x + size.x, position.y);
-
-        line(position, p2, width, color);
-        line(p2, p3, width, color);
-        line(p3, p4, width, color);
-        line(p4, position, width, color);
     }
 
     void GLES2Renderer::enableOption(GLenum option, bool enable) {

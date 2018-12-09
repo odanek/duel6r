@@ -40,9 +40,9 @@ namespace Duel6 {
         const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << index;
         auto filterType = NEAREST_FILTER_BOOM.find(index) != NEAREST_FILTER_BOOM.end() ? TextureFilter::NEAREST
                                                                                        : TextureFilter::LINEAR;
-        textures.boom = textureManager.loadList(Format("{0}/boom/") << wpnPath, filterType, true);
-        textures.gun = textureManager.loadList(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
-        textures.shot = textureManager.loadList(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
+        textures.boom = textureManager.loadStack(Format("{0}/boom/") << wpnPath, filterType, true);
+        textures.gun = textureManager.loadStack(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
+        textures.shot = textureManager.loadStack(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
 
         if (!definition.shotSound.empty()) {
             samples.shot = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.shotSound);
@@ -78,12 +78,16 @@ namespace Duel6 {
     }
 
     Sprite &LegacyWeapon::makeSprite(Sprite &sprite) const {
-        return sprite.setAnimation(definition.animation).setTextures(textures.gun).setFrame(6).setLooping(
+        return sprite.setAnimation(definition.animation).setTexture(textures.gun).setFrame(6).setLooping(
                 AnimationLooping::OnceAndStop);
     }
 
     Texture LegacyWeapon::getBonusTexture() const {
-        return textures.gun.at(definition.animation[12]);
+        return textures.gun;
+    }
+
+    Int32 LegacyWeapon::getBonusTextureIndex() const {
+        return definition.animation[12];
     }
 
     const LegacyWeapon::Definition &LegacyWeapon::getDefinition() const {

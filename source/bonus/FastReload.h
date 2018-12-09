@@ -33,17 +33,14 @@
 namespace Duel6 {
     namespace Bonuses {
         class FastReload : public BonusTypeImpl {
-        private:
-            Texture texture;
-
         public:
-            explicit FastReload(Texture texture);
-
             std::string getName() const override {
                 return "fastReload";
             }
 
-            Texture getTexture() const override;
+            Int32 getTextureIndex() const override {
+                return 4;
+            }
 
             bool isOneTime() const override;
 

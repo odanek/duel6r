@@ -39,7 +39,7 @@ namespace Duel6 {
     class Sprite {
     private:
         const Int16 *animation;    // Source array of animations and delays
-        const TextureList *textures;   // Texture array
+        Texture texture;   // Texture array
         Size frame;    // Current animation frame
         Float32 delay;    // Delay to next animation frame
         Float32 speed;     // Speed of animation
@@ -59,7 +59,7 @@ namespace Duel6 {
     public:
         Sprite();
 
-        Sprite(const Int16 *animation, const TextureList &textures);
+        Sprite(const Int16 *animation, Texture texture);
 
         Sprite &setPosition(const Vector &position, Float32 z) {
             this->position = position;
@@ -78,8 +78,8 @@ namespace Duel6 {
             return animation;
         }
 
-        Sprite &setTextures(const TextureList &textures) {
-            this->textures = &textures;
+        Sprite &setTexture(const Texture texture) {
+            this->texture = texture;
             return *this;
         }
 

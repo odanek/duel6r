@@ -56,6 +56,8 @@ namespace Duel6 {
 
         static void openGLInfo(Console &console, const Console::Arguments &args);
 
+        static void openGLExtensions(Console &console, const Console::Arguments &args);
+
         static void vsync(Console &console, const Console::Arguments &args);
 
         static void ghostMode(Console &console, const Console::Arguments &args, GameSettings &gameSettings);

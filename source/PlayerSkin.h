@@ -37,16 +37,16 @@
 namespace Duel6 {
     class PlayerSkin {
     private:
-        TextureList textures;
+        Texture textures;
 
     public:
         PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors, TextureManager &textureManager);
 
-        TextureList &getTextureList() {
+        Texture &getTexture() {
             return textures;
         }
 
-        const TextureList &getTextureList() const {
+        const Texture &getTexture() const {
             return textures;
         }
     };

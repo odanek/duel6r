@@ -29,13 +29,14 @@
 
 namespace Duel6 {
     GL1Renderer::GL1Renderer()
-            : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
+            : RendererBase() {}
 
     void GL1Renderer::initialize() {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
+        enableOption(GL_CULL_FACE, true);
     }
 
     Renderer::Info GL1Renderer::getInfo() {
@@ -69,8 +70,9 @@ namespace Duel6 {
         return info;
     }
 
-    Texture::Id GL1Renderer::createTexture(Int32 width, Int32 height, void *data, Int32 alignment, TextureFilter filtering,
-                                       bool clamp) {
+    Texture::Id
+    GL1Renderer::createTexture(Int32 width, Int32 height, void *data, Int32 alignment, TextureFilter filtering,
+                               bool clamp) {
         GLuint textureId;
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D, textureId);
@@ -88,13 +90,6 @@ namespace Duel6 {
         return textureId;
     }
 
-    void GL1Renderer::setTextureFilter(Texture::Id textureId, TextureFilter filter) {
-        glBindTexture(GL_TEXTURE_2D, textureId);
-        GLint filterValue = filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterValue);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterValue);
-    }
-
     void GL1Renderer::freeTexture(Texture::Id textureId) {
         GLuint id = textureId;
         glDeleteTextures(1, &id);
@@ -106,42 +101,6 @@ namespace Duel6 {
 
     void GL1Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height) {
         glViewport(x, y, width, height);
-    }
-
-    void GL1Renderer::setProjectionMatrix(const Matrix &m) {
-        projectionMatrix = m;
-        glMatrixMode(GL_PROJECTION);
-        glLoadMatrixf(m.getStorage());
-    }
-
-    Matrix GL1Renderer::getProjectionMatrix() const {
-        return projectionMatrix;
-    }
-
-    void GL1Renderer::setViewMatrix(const Matrix &m) {
-        viewMatrix = m;
-        Matrix modelView = viewMatrix * modelMatrix;
-        glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixf(modelView.getStorage());
-    }
-
-    Matrix GL1Renderer::getViewMatrix() const {
-        return viewMatrix;
-    }
-
-    void GL1Renderer::setModelMatrix(const Matrix &m) {
-        modelMatrix = m;
-        Matrix modelView = viewMatrix * modelMatrix;
-        glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixf(modelView.getStorage());
-    }
-
-    Matrix GL1Renderer::getModelMatrix() const {
-        return modelMatrix;
-    }
-
-    void GL1Renderer::enableFaceCulling(bool enable) {
-        enableOption(GL_CULL_FACE, enable);
     }
 
     void GL1Renderer::enableWireframe(bool enable) {
@@ -174,6 +133,31 @@ namespace Duel6 {
 
     void GL1Renderer::clearBuffers() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void GL1Renderer::point(const Vector &position, Float32 size, const Color &color) {
+        glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        glPointSize(size);
+
+        glBegin(GL_POINTS);
+        glVertex3f(position.x, position.y, position.z);
+        glEnd();
+
+        glPointSize(1.0f);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    void GL1Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
+        glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        glLineWidth(width);
+
+        glBegin(GL_LINES);
+        glVertex3f(from.x, from.y, from.z);
+        glVertex3f(to.x, to.y, to.z);
+        glEnd();
+
+        glLineWidth(1.0f);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     void GL1Renderer::triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) {
@@ -225,109 +209,57 @@ namespace Duel6 {
         }
     }
 
-    void GL1Renderer::quadXY(const Vector &position, const Vector &size, const Color &color) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector p3(position.x + size.x, position.y + size.y, position.z);
-        Vector p4(position.x + size.x, position.y, position.z);
-
-        triangle(position, p2, p3, color);
-        triangle(position, p3, p4, color);
-    }
-
-    void GL1Renderer::quadXY(const Vector &position, const Vector &size,
-                             const Vector &texturePosition, const Vector &textureSize,
-                             const Material &material) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
-        Vector p3(position.x + size.x, position.y + size.y, position.z);
-        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4(position.x + size.x, position.y, position.z);
-        Vector t4(texturePosition.x + textureSize.x, texturePosition.y);
-
-        triangle(position, texturePosition, p2, t2, p3, t3, material);
-        triangle(position, texturePosition, p3, t3, p4, t4, material);
-    }
-
-    void GL1Renderer::quadXZ(const Vector &position, const Vector &size, const Color &color) {
-        Vector p2(position.x + size.x, position.y, position.z);
-        Vector p3(position.x + size.x, position.y, position.z + size.z);
-        Vector p4(position.x, position.y, position.z + size.z);
-
-        triangle(position, p2, p3, color);
-        triangle(position, p3, p4, color);
-    }
-
-    void GL1Renderer::quadXZ(const Vector &position, const Vector &size,
-                             const Vector &texturePosition, const Vector &textureSize,
-                             const Material &material) {
-        Vector p2(position.x + size.x, position.y, position.z);
-        Vector t2(texturePosition.x + textureSize.x, texturePosition.y);
-        Vector p3(position.x + size.x, position.y, position.z + size.z);
-        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4(position.x, position.y, position.z + size.z);
-        Vector t4(texturePosition.x, texturePosition.y + textureSize.y);
-
-        triangle(position, texturePosition, p2, t2, p3, t3, material);
-        triangle(position, texturePosition, p3, t3, p4, t4, material);
-    }
-
-    void GL1Renderer::quadYZ(const Vector &position, const Vector &size, const Color &color) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector p3(position.x, position.y + size.y, position.z + size.z);
-        Vector p4(position.x, position.y, position.z + size.z);
-
-        triangle(position, p2, p3, color);
-        triangle(position, p3, p4, color);
-    }
-
-    void GL1Renderer::quadYZ(const Vector &position, const Vector &size,
-                             const Vector &texturePosition, const Vector &textureSize,
-                             const Material &material) {
-        Vector p2(position.x, position.y + size.y, position.z);
-        Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
-        Vector p3(position.x, position.y + size.y, position.z + size.z);
-        Vector t3(texturePosition.x + textureSize.x, texturePosition.y + textureSize.y);
-        Vector p4(position.x, position.y, position.z + size.z);
-        Vector t4(texturePosition.x + textureSize.x, texturePosition.y);
-
-        triangle(position, texturePosition, p2, t2, p3, t3, material);
-        triangle(position, texturePosition, p3, t3, p4, t4, material);
-    }
-
-    void GL1Renderer::point(const Vector &position, Float32 size, const Color &color) {
+    void GL1Renderer::quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) {
         glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        glPointSize(size);
 
-        glBegin(GL_POINTS);
-        glVertex3f(position.x, position.y, position.z);
+        glBegin(GL_TRIANGLES);
+        glVertex3f(p1.x, p1.y, p1.z);
+        glVertex3f(p2.x, p2.y, p2.z);
+        glVertex3f(p3.x, p3.y, p3.z);
+        glVertex3f(p4.x, p4.y, p4.z);
         glEnd();
 
-        glPointSize(1.0f);
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    void GL1Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
-        glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        glLineWidth(width);
+    void GL1Renderer::quad(const Vector &p1, const Vector &t1,
+                           const Vector &p2, const Vector &t2,
+                           const Vector &p3, const Vector &t3,
+                           const Vector &p4, const Vector &t4,
+                           const Material &material) {
+        if (material.isColored()) {
+            const Color &color = material.getColor();
+            glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        }
 
-        glBegin(GL_LINES);
-        glVertex3f(from.x, from.y, from.z);
-        glVertex3f(to.x, to.y, to.z);
+        if (material.isMasked()) {
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(GL_GEQUAL, 1.0f);
+        }
+
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
+
+        glBegin(GL_TRIANGLES);
+        glTexCoord2f(t1.x, t1.y);
+        glVertex3f(p1.x, p1.y, p1.z);
+        glTexCoord2f(t2.x, t2.y);
+        glVertex3f(p2.x, p2.y, p2.z);
+        glTexCoord2f(t3.x, t3.y);
+        glVertex3f(p3.x, p3.y, p3.z);
+        glTexCoord2f(t4.x, t4.y);
+        glVertex3f(p4.x, p4.y, p4.z);
         glEnd();
 
-        glLineWidth(1.0f);
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    }
+        glDisable(GL_TEXTURE_2D);
 
-    void GL1Renderer::frame(const Vector &position, const Vector &size, Float32 width, const Color &color) {
-        Vector p2(position.x, position.y + size.y);
-        Vector p3(position.x + size.x, position.y + size.y);
-        Vector p4(position.x + size.x, position.y);
+        if (material.isMasked()) {
+            glDisable(GL_ALPHA_TEST);
+        }
 
-        line(position, p2, width, color);
-        line(p2, p3, width, color);
-        line(p3, p4, width, color);
-        line(p4, position, width, color);
+        if (material.isColored()) {
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
 
     void GL1Renderer::enableOption(GLenum option, bool enable) {

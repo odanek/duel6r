@@ -46,7 +46,17 @@ namespace Duel6 {
             file.write(colBytes, 1, 3);
         }
 
-        void loadTargaImage(const std::string &path, Image &image) {
+        std::pair<Int32, Int32> loadTargaSize(const std::string &path) {
+            File file(path, File::Mode::Binary, File::Access::Read);
+
+            // Header
+            Uint16 header[9];
+            file.read(header, 2, 9);
+
+            return std::make_pair(header[6], header[7]);
+        }
+
+        void loadTargaData(const std::string &path, Color *buffer) {
             File file(path, File::Mode::Binary, File::Access::Read);
 
             // Header
@@ -54,9 +64,11 @@ namespace Duel6 {
             file.read(header, 2, 9);
 
             // Data
-            image.resize(header[6], header[7]);
-            Color color, *output = &image.at(0);
-            Size remainingData = header[6] * header[7];
+            Uint16 width = header[6];
+            Uint16 height = header[7];
+
+            Color color, *output = buffer;
+            Int32 remainingData = width * height;
             Uint8 chunkLength, packet;
 
             while (remainingData > 0) {
@@ -83,19 +95,24 @@ namespace Duel6 {
                 remainingData -= chunkLength;
             }
 
-            if (!(header[8] & 0x2000)) // Flip image vertically
-            {
-                for (Size y = 0; y < image.getHeight() / 2; y++) {
-                    Color *row1 = &image.at(y * image.getWidth());
-                    Color *row2 = &image.at((image.getHeight() - 1 - y) * image.getWidth());
+            if (!(header[8] & 0x2000)) { // Flip image vertically
+                for (Size y = 0; y < height / 2; y++) {
+                    Color *row1 = buffer + (y * width);
+                    Color *row2 = buffer + ((height - 1 - y) * width);
 
-                    for (Size x = 0; x < image.getWidth(); x++, row1++, row2++) {
+                    for (Size x = 0; x < width; x++, row1++, row2++) {
                         Color tmp = *row1;
                         *row1 = *row2;
                         *row2 = tmp;
                     }
                 }
             }
+        }
+
+        void loadTargaImage(const std::string &path, Image &image) {
+            auto size = loadTargaSize(path);
+            image.resize(size.first, size.second);
+            loadTargaData(path, &image.at(0));
         }
 
         void saveTarga(const std::string &path, const Image &image) {

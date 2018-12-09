@@ -38,15 +38,15 @@ namespace Duel6 {
             Flow
         };
 
-    private:
-        Flag flag;
-
     public:
         Float32 x;
         Float32 y;
         Float32 z;
         Float32 u;
         Float32 v;
+
+    private:
+        Flag flag;
 
     public:
         Vertex(Size order, Float32 x, Float32 y, Float32 z, Flag flag = Flag::None) {

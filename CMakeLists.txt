@@ -59,7 +59,7 @@ endif (MINGW)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
 # Switches
-set(D6R_RENDERER "gl1")  # Renderer: gl1/gl4/es2
+set(D6R_RENDERER "gl4")  # Renderer: gl1/gl4/es2
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 set(D6R_WITH_GLEW ON)
 #########################################################################
@@ -180,7 +180,6 @@ set(D6R_SOURCES
         source/SysEvent.h
         source/Texture.h
         source/TextureDictionary.h
-        source/TextureList.h
         source/TextureManager.cpp
         source/TextureManager.h
         source/Type.h
@@ -295,6 +294,8 @@ set(D6R_SOURCES
         source/math/Vector.h
 
         source/renderer/Renderer.h
+        source/renderer/RendererBase.h
+        source/renderer/RendererBase.cpp
 
         source/script/LevelScript.h
         source/script/PersonScript.h

@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        Invisibility::Invisibility(Texture texture)
-                : texture(texture) {}
-
-        Texture Invisibility::getTexture() const {
-            return texture;
-        }
-
         bool Invisibility::isOneTime() const {
             return false;
         }

@@ -41,9 +41,7 @@ namespace Duel6 {
     }
 
     void WorldRenderer::walls(const FaceList &walls) const {
-        globRenderer->enableFaceCulling(true);
         walls.render(game.getResources().getBlockTextures(), false);
-        globRenderer->enableFaceCulling(false);
     }
 
     void WorldRenderer::water(const FaceList &water) const {
@@ -268,8 +266,8 @@ namespace Duel6 {
     void
     WorldRenderer::bonusIndicator(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
-        Texture texture = player.getBonus().getTexture();
-        Material material = Material::makeColoredTexture(texture, Color::WHITE.withAlpha(alpha));
+        auto bonusType = player.getBonus();
+        Material material = Material::makeColoredTexture(game.getResources().getBonusTextures(), Color::WHITE.withAlpha(alpha));
 
         Float32 size = 0.3f;
         Float32 X = xOfs - size / 2;
@@ -277,7 +275,7 @@ namespace Duel6 {
 
         globRenderer->enableDepthWrite(false);
         globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f), Vector(0.4f, -0.4f), material);
+        globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f, Float32(bonusType.getTextureIndex())), Vector(0.4f, -0.4f), material);
         globRenderer->setBlendFunc(Renderer::BlendFunc::None);
         globRenderer->enableDepthWrite(true);
     }

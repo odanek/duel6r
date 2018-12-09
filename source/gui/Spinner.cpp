@@ -41,10 +41,6 @@ namespace Duel6 {
             right->setCaption(" ");
         }
 
-        Spinner::~Spinner() {
-            clear();
-        }
-
         void Spinner::clear() {
             items.clear();
             setCurrent(-1);

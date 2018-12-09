@@ -33,17 +33,14 @@
 namespace Duel6 {
     namespace Bonuses {
         class VampireShots : public BonusTypeImpl {
-        private:
-            Texture texture;
-
         public:
-            explicit VampireShots(Texture texture);
-
             std::string getName() const override {
                 return "vampireShots";
             }
 
-            Texture getTexture() const override;
+            Int32 getTextureIndex() const override {
+                return 11;
+            }
 
             bool isOneTime() const override;
 

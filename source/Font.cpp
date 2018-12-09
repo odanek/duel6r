@@ -155,7 +155,7 @@ namespace Duel6 {
 
         SDL_LockSurface(image);
 
-        Texture::Id textureId = globRenderer->createTexture(image->w, image->h, image->pixels, 4, TextureFilter::LINEAR,
+        Texture::Id textureId = globRenderer->createTexture(image->w, image->h, 1, image->pixels, 4, TextureFilter::LINEAR,
                                                       true);
 
         SDL_UnlockSurface(image);

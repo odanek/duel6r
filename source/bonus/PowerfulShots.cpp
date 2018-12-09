@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        PowerfulShots::PowerfulShots(Texture texture)
-                : texture(texture) {}
-
-        Texture PowerfulShots::getTexture() const {
-            return texture;
-        }
-
         bool PowerfulShots::isOneTime() const {
             return false;
         }

@@ -58,9 +58,9 @@ namespace Duel6 {
         };
 
         struct WeaponTextures {
-            TextureList boom;
-            TextureList gun;
-            TextureList shot;
+            Texture boom;
+            Texture gun;
+            Texture shot;
         };
 
         struct WeaponSamples {
@@ -82,6 +82,8 @@ namespace Duel6 {
         Sprite &makeSprite(Sprite &sprite) const override;
 
         Texture getBonusTexture() const override;
+
+        Int32 getBonusTextureIndex() const override;
 
         const Definition &getDefinition() const;
 

@@ -29,23 +29,26 @@
 #define DUEL6_RENDERER_GL4RENDERER_H
 
 #ifdef D6_GLEW
+
 #include <GL/glew.h>
+
 #else
 #include <SDL2/SDL2_opengl.h>
 #endif
 
-#include "Renderer.h"
+#include "RendererBase.h"
+#include "../Vertex.h"
 
 namespace Duel6 {
     class GL4Renderer
-            : public Renderer {
+            : public RendererBase {
     private:
-        Matrix projectionMatrix;
-        Matrix viewMatrix;
-        Matrix modelMatrix;
-        Matrix mvpMatrix;
+        GLuint colorVao;
+        GLuint colorVbo;
         GLuint colorProgram;
-        GLuint textureProgram;
+        GLuint materialVbo;
+        GLuint materialVao;
+        GLuint materialProgram;
 
     public:
         GL4Renderer();
@@ -54,30 +57,16 @@ namespace Duel6 {
 
         Info getInfo() override;
 
-        Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
-                              TextureFilter filtering, bool clamp) override;
+        Extensions getExtensions() override;
 
-        void setTextureFilter(Texture::Id textureId, TextureFilter filter) override;
+        Texture::Id createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
+                                  TextureFilter filtering, bool clamp) override;
 
         void freeTexture(Texture::Id textureId) override;
 
         void readScreenData(Int32 width, Int32 height, Image &image) override;
 
         void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
-
-        void setProjectionMatrix(const Matrix &m) override;
-
-        Matrix getProjectionMatrix() const override;
-
-        void setViewMatrix(const Matrix &m) override;
-
-        Matrix getViewMatrix() const override;
-
-        void setModelMatrix(const Matrix &m) override;
-
-        Matrix getModelMatrix() const override;
-
-        void enableFaceCulling(bool enable) override;
 
         void enableWireframe(bool enable) override;
 
@@ -89,6 +78,10 @@ namespace Duel6 {
 
         void clearBuffers() override;
 
+        void point(const Vector &position, Float32 size, const Color &color) override;
+
+        void line(const Vector &from, const Vector &to, Float32 width, const Color &color) override;
+
         void triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) override;
 
         void triangle(const Vector &p1, const Vector &t1,
@@ -96,29 +89,32 @@ namespace Duel6 {
                       const Vector &p3, const Vector &t3,
                       const Material &material) override;
 
-        void quadXY(const Vector &position, const Vector &size, const Color &color) override;
+        void quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) override;
 
-        void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material &material) override;
+        void quad(const Vector &p1, const Vector &t1,
+                  const Vector &p2, const Vector &t2,
+                  const Vector &p3, const Vector &t3,
+                  const Vector &p4, const Vector &t4,
+                  const Material &material) override;
 
-        void quadXZ(const Vector &position, const Vector &size, const Color &color) override;
+        Buffer makeBuffer(const FaceList &faceList) override;
 
-        void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material &material) override;
+        void updateBuffer(const FaceList &faceList, const Buffer &buffer) override;
 
-        void quadYZ(const Vector &position, const Vector &size, const Color &color) override;
+        void destroyBuffer(Buffer &buffer) override;
 
-        void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material &material) override;
-
-        void line(const Vector &from, const Vector &to, Float32 width, const Color &color) override;
-
-        void point(const Vector &position, Float32 size, const Color &color) override;
-
-        void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
+        void buffer(Buffer buffer, const Material &material) override;
 
     private:
         void enableOption(GLenum option, bool enable);
+
+        void updateColorBuffer(Int32 vertexCount);
+
+        void updateMaterialBuffer(Int32 vertexCount);
+
+        void createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer);
+
+        void createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer);
     };
 }
 

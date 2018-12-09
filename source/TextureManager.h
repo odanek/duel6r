@@ -35,7 +35,6 @@
 #include "Color.h"
 #include "Image.h"
 #include "Texture.h"
-#include "TextureList.h"
 #include "TextureDictionary.h"
 
 #define D6_TEXTURE_EXTENSION     ".tga"
@@ -54,7 +53,6 @@
 namespace Duel6 {
     class TextureManager {
     public:
-        typedef std::vector<Texture> TextureArray;
         typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
     private:
@@ -73,15 +71,12 @@ namespace Duel6 {
 
         void dispose(Texture &texture);
 
-        void dispose(TextureList &textures);
-
         void disposeAll();
 
-        const TextureList loadList(const std::string &path, TextureFilter filtering, bool clamp);
+        const Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp);
 
-        const TextureList
-        loadList(const std::string &path, TextureFilter filtering, bool clamp,
-                 const SubstitutionTable &substitutionTable);
+        const Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp,
+                                const SubstitutionTable &substitutionTable);
 
         const TextureDictionary loadDict(const std::string &path, TextureFilter filtering, bool clamp);
 

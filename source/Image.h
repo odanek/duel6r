@@ -35,21 +35,22 @@
 namespace Duel6 {
     class Image {
     private:
-        Size dimensions[2];
+        Size dimensions[3];
         std::vector<Color> data;
 
     public:
-        Image() : Image(0, 0) {}
+        Image() : Image(0, 0, 0) {}
 
-        Image(Size width, Size height) {
-            resize(width, height);
+        Image(Size width, Size height, Size depth = 1) {
+            resize(width, height, depth);
         }
 
-        Image &resize(Size width, Size height) {
+        Image &resize(Size width, Size height, Size depth = 1) {
             dimensions[0] = width;
             dimensions[1] = height;
+            dimensions[2] = depth;
             data.clear();
-            data.resize(width * height);
+            data.resize(width * height * depth);
             return *this;
         }
 
@@ -59,6 +60,10 @@ namespace Duel6 {
 
         Size getHeight() const {
             return dimensions[1];
+        }
+
+        Size getDepth() const {
+            return dimensions[2];
         }
 
         Color &at(Size index) {

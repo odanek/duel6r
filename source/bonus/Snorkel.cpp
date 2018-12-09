@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        Snorkel::Snorkel(Texture texture)
-                : texture(texture) {}
-
-        Texture Snorkel::getTexture() const {
-            return texture;
-        }
-
         bool Snorkel::isOneTime() const {
             return false;
         }

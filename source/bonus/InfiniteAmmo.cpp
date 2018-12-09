@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        InfiniteAmmo::InfiniteAmmo(Texture texture)
-                : texture(texture) {}
-
-        Texture InfiniteAmmo::getTexture() const {
-            return texture;
-        }
-
         bool InfiniteAmmo::isOneTime() const {
             return false;
         }

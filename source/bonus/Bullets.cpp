@@ -32,13 +32,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        Bullets::Bullets(Texture texture)
-                : texture(texture) {}
-
-        Texture Bullets::getTexture() const {
-            return texture;
-        }
-
         bool Bullets::isOneTime() const {
             return true;
         }

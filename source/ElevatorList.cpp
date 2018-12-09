@@ -30,8 +30,8 @@
 #include "json/JsonParser.h"
 
 namespace Duel6 {
-    ElevatorList::ElevatorList(const TextureList &textures)
-            : textures(textures) {}
+    ElevatorList::ElevatorList(Texture texture)
+            : texture(texture) {}
 
     void ElevatorList::add(Elevator &elevator) {
         elevators.push_back(elevator);
@@ -65,14 +65,9 @@ namespace Duel6 {
     }
 
     void ElevatorList::render() const {
-        globRenderer->enableFaceCulling(true);
-
-        const Texture &texture = textures.at(0);
         for (const Elevator &elevator : elevators) {
             elevator.render(texture);
         }
-
-        globRenderer->enableFaceCulling(false);
     }
 
     const Elevator *ElevatorList::checkPlayer(Player &player, Float32 speedFactor) {

@@ -44,10 +44,10 @@ namespace Duel6 {
         zRotation = 0;
     }
 
-    Sprite::Sprite(const Int16 *animation, const TextureList &textures)
+    Sprite::Sprite(const Int16 *animation, Texture texture)
             : Sprite() {
         this->animation = animation;
-        this->textures = &textures;
+        this->texture = texture;
     }
 
     Sprite &Sprite::setAnimation(const Int16 *animation) {
@@ -104,7 +104,6 @@ namespace Duel6 {
         }
 
         Int32 textureIndex = animation[frame];
-        Texture texture = textures->at(textureIndex);
         Material material(texture, Color(255, 255, 255, Uint8(255 * alpha)), !isTransparent());
 
         bool rotated = zRotation != 0.0;
@@ -119,7 +118,7 @@ namespace Duel6 {
         }
 
         bool reversed = (orientation == Orientation::Right);
-        Vector texturePos = Vector(reversed ? 1.0f : 0.0f, 1.0f);
+        Vector texturePos = Vector(reversed ? 1.0f : 0.0f, 1.0f, Float32(textureIndex));
         Vector textureSize = Vector(reversed ? -1.0f : 1.0f, -1.0f);
 
         globRenderer->quadXY(Vector(position.x, position.y, z), size, texturePos, textureSize, material);

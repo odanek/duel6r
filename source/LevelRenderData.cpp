@@ -69,7 +69,7 @@ namespace Duel6 {
             }
         }
 
-        walls.optimize();
+        walls.build();
     }
 
     void LevelRenderData::addSpriteFaces() {
@@ -94,7 +94,7 @@ namespace Duel6 {
             }
         }
 
-        sprites.optimize();
+        sprites.build();
     }
 
     void LevelRenderData::addWaterFaces() {
@@ -112,7 +112,7 @@ namespace Duel6 {
             }
         }
 
-        water.optimize();
+        water.build();
     }
 
     void LevelRenderData::addWall(const Block &block, Int32 x, Int32 y) {

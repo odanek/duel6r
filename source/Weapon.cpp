@@ -53,15 +53,19 @@ namespace Duel6 {
     namespace {
         class NoneWeapon : public WeaponImpl {
         public:
-            std::string getName() const { return ""; }
+            std::string getName() const override { return ""; }
 
-            Float32 getReloadInterval() const { return 0.0f; }
+            Float32 getReloadInterval() const override { return 0.0f; }
 
-            void shoot(Player &player, Orientation orientation, World &world) const {}
+            void shoot(Player &player, Orientation orientation, World &world) const override {}
 
-            Sprite &makeSprite(Sprite &sprite) const { return sprite; }
+            Sprite &makeSprite(Sprite &sprite) const override { return sprite; }
 
-            Texture getBonusTexture() const { return Texture(); }
+            Texture getBonusTexture() const override { return Texture(); }
+
+            Int32 getBonusTextureIndex() const {
+                return 0;
+            }
 
             bool isChargeable() const override {
                 return false;
@@ -105,6 +109,10 @@ namespace Duel6 {
 
     Texture Weapon::getBonusTexture() const {
         return impl->getBonusTexture();
+    }
+
+    Int32 Weapon::getBonusTextureIndex() const {
+        return impl->getBonusTextureIndex();
     }
 
     bool Weapon::operator==(const Weapon &weapon) const {

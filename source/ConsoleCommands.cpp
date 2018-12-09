@@ -218,7 +218,13 @@ namespace Duel6 {
         console.printLine(Format("Vendor     : {0}") << info.vendor);
         console.printLine(Format("Renderer   : {0}") << info.renderer);
         console.printLine(Format("Version    : {0}") << info.version);
-        console.printLine("Extensions :");
+        console.printLine("");
+    }
+
+    void ConsoleCommands::openGLExtensions(Console &console, const Console::Arguments &args) {
+        Renderer::Extensions info = globRenderer->getExtensions();
+
+        console.printLine("\n===OpenGL extensions===");
 
         if (info.extensions.empty()) {
             console.printLine("...No supported extensions");
@@ -252,6 +258,7 @@ namespace Duel6 {
             toggleShowFps(con, args, gameSettings);
         });
         console.registerCommand("gl_info", openGLInfo);
+        console.registerCommand("gl_extensions", openGLExtensions);
         console.registerCommand("vsync", vsync);
         console.registerCommand("volume", [&appService](Console &con, const Console::Arguments &args) {
             volume(con, args, appService.getSound());

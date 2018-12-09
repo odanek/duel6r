@@ -99,7 +99,7 @@ namespace Duel6 {
     class FireList {
     private:
         SpriteList &spriteList;
-        const std::unordered_map<Size, TextureList> &textures;
+        const std::unordered_map<Size, Texture> &textures;
         std::vector<Fire> fires;
 
     public:

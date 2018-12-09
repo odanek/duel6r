@@ -37,13 +37,30 @@
 #include "../Material.h"
 
 namespace Duel6 {
+    class FaceList;
+
     class Renderer {
     public:
         struct Info {
             std::string vendor;
             std::string renderer;
             std::string version;
+        };
+
+        struct Extensions {
             std::vector<std::string> extensions;
+        };
+
+        struct Buffer {
+            Uint32 vao;
+            Uint32 vertexVbo;
+            Uint32 textureIndexVbo;
+            Uint32 elements;
+
+            Buffer() : vao(0), vertexVbo(0), textureIndexVbo(0), elements(0) {}
+
+            Buffer(Uint32 vao, Uint32 vertexVbo, Uint32 textureIndexVbo, Uint32 elements)
+                    : vao(vao), vertexVbo(vertexVbo), textureIndexVbo(textureIndexVbo), elements(elements) {}
         };
 
         enum class BlendFunc {
@@ -59,10 +76,10 @@ namespace Duel6 {
 
         virtual Info getInfo() = 0;
 
-        virtual Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
-                                      TextureFilter filtering, bool clamp) = 0;
+        virtual Extensions getExtensions() = 0;
 
-        virtual void setTextureFilter(Texture::Id textureId, TextureFilter filter) = 0;
+        virtual Texture::Id createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
+                                          TextureFilter filtering, bool clamp) = 0;
 
         virtual void freeTexture(Texture::Id textureId) = 0;
 
@@ -82,8 +99,6 @@ namespace Duel6 {
 
         virtual Matrix getModelMatrix() const = 0;
 
-        virtual void enableFaceCulling(bool enable) = 0;
-
         virtual void enableWireframe(bool enable) = 0;
 
         virtual void enableDepthTest(bool enable) = 0;
@@ -100,6 +115,14 @@ namespace Duel6 {
                               const Vector &p2, const Vector &t2,
                               const Vector &p3, const Vector &t3,
                               const Material &material) = 0;
+
+        virtual void quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) = 0;
+
+        virtual void quad(const Vector &p1, const Vector &t1,
+                  const Vector &p2, const Vector &t2,
+                  const Vector &p3, const Vector &t3,
+                  const Vector &p4, const Vector &t4,
+                  const Material &material) = 0;
 
         virtual void quadXY(const Vector &position, const Vector &size, const Color &color) = 0;
 
@@ -121,6 +144,14 @@ namespace Duel6 {
         virtual void line(const Vector &from, const Vector &to, Float32 width, const Color &color) = 0;
 
         virtual void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) = 0;
+
+        virtual Buffer makeBuffer(const FaceList &faceList) = 0;
+
+        virtual void updateBuffer(const FaceList &faceList, const Buffer &buffer) = 0;
+
+        virtual void destroyBuffer(Buffer &buffer) = 0;
+
+        virtual void buffer(Buffer buffer, const Material &material) = 0;
     };
 }
 

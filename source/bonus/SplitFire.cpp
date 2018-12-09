@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        SplitFire::SplitFire(Texture texture)
-                : texture(texture) {}
-
-        Texture SplitFire::getTexture() const {
-            return texture;
-        }
-
         bool SplitFire::isOneTime() const {
             return false;
         }

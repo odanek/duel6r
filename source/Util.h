@@ -36,6 +36,10 @@
 
 namespace Duel6 {
     namespace Util {
+        std::pair<Int32, Int32> loadTargaSize(const std::string &path);
+
+        void loadTargaData(const std::string &path, Color *buffer);
+
         void loadTargaImage(const std::string &path, Image &image);
 
         void saveTarga(const std::string &path, const Image &image);

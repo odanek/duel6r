@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        FastMovement::FastMovement(Texture texture)
-                : texture(texture) {}
-
-        Texture FastMovement::getTexture() const {
-            return texture;
-        }
-
         bool FastMovement::isOneTime() const {
             return false;
         }
