@@ -56,6 +56,7 @@ namespace Duel6 {
 
     private:
         std::vector<ControlPoint> controlPoints;
+        bool circular;
         Size section;
         Float32 remainingWait;
         bool forward;
@@ -65,6 +66,8 @@ namespace Duel6 {
         Vector velocity;
 
     public:
+        explicit Elevator(bool circular);
+
         Elevator &addControlPoint(const ControlPoint &point) {
             controlPoints.push_back(point);
             return *this;

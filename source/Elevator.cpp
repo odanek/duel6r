@@ -32,6 +32,9 @@
 #define D6_ELEV_SPEED 1.83f
 
 namespace Duel6 {
+    Elevator::Elevator(bool circular)
+            : circular(circular) {}
+
     void Elevator::start() {
         position = controlPoints[0].getLocation();
         section = 0;
@@ -84,17 +87,23 @@ namespace Duel6 {
     }
 
     void Elevator::nextSection() {
-        if (forward) {
-            if (section + 2 == controlPoints.size()) {
-                forward = false;
-            } else {
-                ++section;
-            }
+        Size pointCount = controlPoints.size();
+
+        if (circular) {
+            section = (section + 1) % pointCount;
         } else {
-            if (section == 0) {
-                forward = true;
+            if (forward) {
+                if (section + 2 == pointCount) {
+                    forward = false;
+                } else {
+                    ++section;
+                }
             } else {
-                --section;
+                if (section == 0) {
+                    forward = true;
+                } else {
+                    --section;
+                }
             }
         }
 
@@ -102,8 +111,12 @@ namespace Duel6 {
     }
 
     void Elevator::startSection() {
-        ControlPoint &startPoint = controlPoints[forward ? section : section + 1];
-        ControlPoint &endPoint = controlPoints[forward ? section + 1 : section];
+        Size pointCount = controlPoints.size();
+        Size startIndex = section;
+        Size endIndex = (section + 1) % pointCount;
+
+        ControlPoint &startPoint = controlPoints[forward ? startIndex : endIndex];
+        ControlPoint &endPoint = controlPoints[forward ? endIndex : startIndex];
         Vector dir = endPoint.getLocation() - startPoint.getLocation();
         distance = dir.length() / D6_ELEV_SPEED;
         travelled = 0;
