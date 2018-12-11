@@ -28,7 +28,7 @@
 #ifndef DUEL6_DEFINES_H
 #define DUEL6_DEFINES_H
 
-#define APP_VERSION              "5.0.0"
+#define APP_VERSION              "5.5.0"
 #define APP_NAME                 "Duel 6 Reloaded"
 #define APP_FILE_ICON            "data/duel6_icon.bmp"
 
