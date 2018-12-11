@@ -36,7 +36,7 @@ void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 ela
 
     if(elevator != nullptr) {
         position.y = elevator->getPosition().y;
-        position += elevator->getAcceleratedVelocity() * elapsedTime;
+        position += elevator->getVelocity() * elapsedTime;
 
         velocity.y = 0.0f;
         if(isInWall()) {

@@ -32,21 +32,40 @@
 #define D6_ELEV_SPEED 1.83f
 
 namespace Duel6 {
+    Elevator::Elevator(bool circular)
+            : circular(circular) {}
+
     void Elevator::start() {
         position = controlPoints[0].getLocation();
         section = 0;
         forward = true;
-        startSection();
+        remainingWait = 0;
+
+        if (controlPoints.size() > 1) {
+            startSection();
+        } else {
+            distance = 0;
+            travelled = 0;
+            velocity = Vector::ZERO;
+        }
     }
 
     void Elevator::update(Float32 elapsedTime) {
-        if (travelled >= distance * D6_ELEV_SPEED) {
+        if (controlPoints.size() < 2) {
+            return;
+        }
+
+        if (remainingWait > 0) {
+            remainingWait = std::max(0.0f, remainingWait - elapsedTime);
+            return;
+        }
+
+        if (travelled >= distance) {
             nextSection();
         }
 
-        accelerate = 1.0f;
-        position += accelerate * velocity * elapsedTime;
-        travelled += accelerate * D6_ELEV_SPEED * elapsedTime;
+        position += velocity * elapsedTime;
+        travelled += elapsedTime;
     }
 
     void Elevator::render(const Texture &texture) const {
@@ -68,17 +87,23 @@ namespace Duel6 {
     }
 
     void Elevator::nextSection() {
-        if (forward) {
-            if (section + 2 == controlPoints.size()) {
-                forward = false;
-            } else {
-                ++section;
-            }
+        Size pointCount = controlPoints.size();
+
+        if (circular) {
+            section = (section + 1) % pointCount;
         } else {
-            if (section == 0) {
-                forward = true;
+            if (forward) {
+                if (section + 2 == pointCount) {
+                    forward = false;
+                } else {
+                    ++section;
+                }
             } else {
-                --section;
+                if (section == 0) {
+                    forward = true;
+                } else {
+                    --section;
+                }
             }
         }
 
@@ -86,12 +111,16 @@ namespace Duel6 {
     }
 
     void Elevator::startSection() {
-        ControlPoint &left = controlPoints[forward ? section : section + 1];
-        ControlPoint &right = controlPoints[forward ? section + 1 : section];
-        accelerate = 0;
-        Vector dir = right.getLocation() - left.getLocation();
+        Size pointCount = controlPoints.size();
+        Size startIndex = section;
+        Size endIndex = (section + 1) % pointCount;
+
+        ControlPoint &startPoint = controlPoints[forward ? startIndex : endIndex];
+        ControlPoint &endPoint = controlPoints[forward ? endIndex : startIndex];
+        Vector dir = endPoint.getLocation() - startPoint.getLocation();
         distance = dir.length() / D6_ELEV_SPEED;
         travelled = 0;
         velocity = dir / distance;
+        remainingWait = startPoint.getWait() / 1000.0f;
     }
 }

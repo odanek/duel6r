@@ -47,12 +47,15 @@ namespace Duel6 {
 
         Size elevators = root.get("elevators").getLength();
         for (Size i = 0; i < elevators; i++) {
-            Elevator elevator;
-            Json::Value points = root.get("elevators").get(i).get("controlPoints");
+            Json::Value definition = root.get("elevators").get(i);
+            bool circular = definition.getOrDefault("circular", Json::Value::makeBoolean(false)).asBoolean();
+            Elevator elevator(circular);
+            Json::Value points = definition.get("controlPoints");
             for (Size j = 0; j < points.getLength(); j++) {
                 Int32 x = points.get(j).get("x").asInt();
                 Int32 y = points.get(j).get("y").asInt();
-                elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y));
+                Int32 wait = points.get(j).getOrDefault("wait", Json::Value::makeNumber(0)).asInt();
+                elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y, wait));
             }
             add(elevator);
         }
@@ -80,7 +83,7 @@ namespace Duel6 {
 
         for (const Elevator &elevator : elevators) {
             const Vector &pos = elevator.getPosition();
-            const Vector &acceleratedVelocity = elevator.getAcceleratedVelocity();
+            const Vector &acceleratedVelocity = elevator.getVelocity();
 
             if (elevator.getVelocity().y < 0 && playerVelocity.y > 0) {
                 continue;
