@@ -36,7 +36,7 @@ void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 ela
 
     if(elevator != nullptr) {
         position.y = elevator->getPosition().y;
-        position += elevator->getAcceleratedVelocity() * elapsedTime;
+        position += elevator->getVelocity() * elapsedTime;
 
         velocity.y = 0.0f;
         if(isInWall()) {
@@ -195,7 +195,7 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
          if (bup || bdown) {
              externalForcesSpeed.y *= 0.5;
          }
-         waterForces *= 0.9;
+//         waterForces *= 0.9;
          externalForcesSpeed.x *= 0.9;
          externalForcesSpeed.y *= 0.9;
          position.x = std::max(-0.1f, std::min(position.x, level.getWidth() - 0.9f));

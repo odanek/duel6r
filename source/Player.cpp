@@ -146,7 +146,7 @@ namespace Duel6 {
             }
 
             if (isOnElevator()) { //leaving elevator
-                collider.acceleration.y += collider.elevator->getAcceleratedVelocity().y;
+                collider.acceleration.y += collider.elevator->getVelocity().y;
             }
 
         }

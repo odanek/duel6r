@@ -39,26 +39,28 @@ namespace Duel6 {
         class ControlPoint {
         private:
             Vector location;
+            Float32 wait;
 
         public:
-            ControlPoint(Float32 x, Float32 y)
-                    : location(x, y) {}
-
-            ControlPoint(Int32 x, Int32 y)
-                    : location(Float32(x), Float32(y)) {}
+            ControlPoint(Int32 x, Int32 y, Int32 wait)
+                    : location(Float32(x), Float32(y)), wait(wait) {}
 
             const Vector &getLocation() const {
                 return location;
             };
+
+            Float32 getWait() const {
+                return wait;
+            }
         };
 
     private:
         std::vector<ControlPoint> controlPoints;
         Size section;
+        Float32 remainingWait;
         bool forward;
         Float32 distance;
         Float32 travelled;
-        Float32 accelerate;
         Vector position;
         Vector velocity;
 
@@ -78,16 +80,8 @@ namespace Duel6 {
             return position;
         }
 
-        const Vector getAcceleratedVelocity() const {
-            return velocity * accelerate;
-        }
-
         const Vector &getVelocity() const {
-            return velocity;
-        }
-
-        Float32 getAccelerate() const {
-            return accelerate;
+            return remainingWait > 0 ? Vector::ZERO : velocity;
         }
 
     private:
