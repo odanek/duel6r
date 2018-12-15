@@ -30,7 +30,7 @@
 namespace Duel6 {
     RendererBase::RendererBase()
             : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
-            
+
     void RendererBase::setProjectionMatrix(const Matrix &m) {
         projectionMatrix = m;
         mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;

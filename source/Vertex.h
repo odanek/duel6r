@@ -33,9 +33,9 @@
 namespace Duel6 {
     class Vertex {
     public:
-        enum class Flag {
-            None,
-            Flow
+        enum Flag {
+            None = 0,
+            Flow = 1
         };
 
     public:
@@ -46,10 +46,10 @@ namespace Duel6 {
         Float32 v;
 
     private:
-        Flag flag;
+        Uint32 flag;
 
     public:
-        Vertex(Size order, Float32 x, Float32 y, Float32 z, Flag flag = Flag::None) {
+        Vertex(Size order, Float32 x, Float32 y, Float32 z, Uint32 flag = None) {
             this->x = x;
             this->y = y;
             this->z = z;
@@ -58,10 +58,10 @@ namespace Duel6 {
             this->flag = flag;
         }
 
-        Vertex(Size order, Int32 x, Int32 y, Int32 z, Flag flag = Flag::None)
+        Vertex(Size order, Int32 x, Int32 y, Int32 z, Uint32 flag = Flag::None)
                 : Vertex(order, Float32(x), Float32(y), Float32(z), flag) {}
 
-        Flag getFlag() const {
+        Uint32 getFlag() const {
             return flag;
         }
     };

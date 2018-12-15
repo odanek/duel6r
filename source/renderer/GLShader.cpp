@@ -25,71 +25,53 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_LEVELRENDERDATA_H
-#define DUEL6_LEVELRENDERDATA_H
-
-#include "Type.h"
-#include "FaceList.h"
-#include "Level.h"
+#include <vector>
+#include "GLShader.h"
+#include "../File.h"
+#include "../Exception.h"
+#include "../VideoException.h"
+#include "../Format.h"
 
 namespace Duel6 {
-    class LevelRenderData {
-    private:
-        const Level &level;
-        FaceList walls;
-        FaceList sprites;
-        FaceList water;
-        Float32 animationSpeed;
-        Float32 animWait;
-        Float32 waveHeight;
+    GLShader::GLShader(GLenum type, const std::string &path)
+            : type(type), id(0) {
+        id = glCreateShader(type);
 
-    public:
-        LevelRenderData(const Level &level, Float32 animationSpeed, Float32 waveHeight);
+        auto shaderData = File::load(path);
+        shaderData.push_back(0);
+        auto shaderText = (const char *)(shaderData.data());
+        glShaderSource(id, 1, &shaderText, nullptr);
 
-        void generateFaces();
+        glCompileShader(id);
 
-        void generateWater();
+        GLint isCompiled = 0;
+        glGetShaderiv(id, GL_COMPILE_STATUS, &isCompiled);
+        if(isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
 
-        void update(Float32 elapsedTime);
+            std::vector<GLchar> errorLog(maxLength);
+            glGetShaderInfoLog(id, maxLength, &maxLength, errorLog.data());
 
-        FaceList &getWalls() {
-            return walls;
+            glDeleteShader(id);
+
+            D6_THROW(VideoException, Format("Shader compilation ({0}) failed:\n {1}\n") << path << (const char *)errorLog.data());
         }
+    }
 
-        const FaceList &getWalls() const {
-            return walls;
+    GLShader::~GLShader() {
+        if (id != 0) {
+            glDeleteShader(id);
+            id = 0;
         }
+    }
 
-        FaceList &getSprites() {
-            return sprites;
-        }
+    GLuint GLShader::getId() const {
+        return id;
+    }
 
-        const FaceList &getSprites() const {
-            return sprites;
-        }
-
-        FaceList &getWater() {
-            return water;
-        }
-
-        const FaceList &getWater() const {
-            return water;
-        }
-
-    private:
-        void addWallFaces();
-
-        void addSpriteFaces();
-
-        void addWaterFaces();
-
-        void addWall(const Block &block, Int32 x, Int32 y);
-
-        void addWater(const Block &block, Int32 x, Int32 y);
-
-        void addSprite(FaceList &faceList, const Block &block, Int32 x, Int32 y, Float32 z);
-    };
+    GLenum GLShader::getType() const {
+        return type;
+    }
 }
-
-
-#endif

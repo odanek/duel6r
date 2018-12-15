@@ -54,6 +54,7 @@ namespace Duel6 {
         FireList fireList;
         BonusList bonusList;
         ElevatorList elevatorList;
+        Float32 time;
 
     public:
         World(Game &game, const std::string &levelPath, bool mirror);

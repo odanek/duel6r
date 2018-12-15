@@ -28,16 +28,11 @@
 #ifndef DUEL6_RENDERER_GL4RENDERER_H
 #define DUEL6_RENDERER_GL4RENDERER_H
 
-#ifdef D6_GLEW
-
 #include <GL/glew.h>
-
-#else
-#include <SDL2/SDL2_opengl.h>
-#endif
-
 #include "RendererBase.h"
 #include "../Vertex.h"
+#include "GLProgram.h"
+#include "GLShader.h"
 
 namespace Duel6 {
     class GL4Renderer
@@ -45,15 +40,19 @@ namespace Duel6 {
     private:
         GLuint colorVao;
         GLuint colorVbo;
-        GLuint colorProgram;
         GLuint materialVbo;
         GLuint materialVao;
-        GLuint materialProgram;
+
+        GLShader colorVertexShader;
+        GLShader colorFragmentShader;
+        GLShader materialVertexShader;
+        GLShader materialFragmentShader;
+
+        GLProgram colorProgram;
+        GLProgram materialProgram;
 
     public:
         GL4Renderer();
-
-        void initialize() override;
 
         Info getInfo() override;
 
@@ -76,7 +75,15 @@ namespace Duel6 {
 
         void setBlendFunc(BlendFunc func) override;
 
+        void setGlobalTime(Float32 time) override;
+
         void clearBuffers() override;
+
+        void setProjectionMatrix(const Matrix &m) override;
+
+        void setViewMatrix(const Matrix &m) override;
+
+        void setModelMatrix(const Matrix &m) override;
 
         void point(const Vector &position, Float32 size, const Color &color) override;
 
@@ -111,6 +118,8 @@ namespace Duel6 {
         void updateColorBuffer(Int32 vertexCount);
 
         void updateMaterialBuffer(Int32 vertexCount);
+
+        void updateMvpUniform();
 
         void createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer);
 

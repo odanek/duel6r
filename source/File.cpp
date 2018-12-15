@@ -140,12 +140,24 @@ namespace Duel6 {
 
     }
 
-    void File::load(const std::string &path, long offset, void *ptr) {
+    void File::load(const std::string &path, void *ptr, long offset) {
         Size length = getSize(path) - offset;
         File file(path, File::Mode::Binary, File::Access::Read);
         file.seek(offset, Seek::Set);
         file.read(ptr, 1, length);
         file.close();
+    }
+
+    std::vector<Uint8> File::load(const std::string &path, long offset) {
+        Size length = getSize(path) - offset;
+        std::vector<Uint8> data(length);
+
+        File file(path, File::Mode::Binary, File::Access::Read);
+        file.seek(offset, Seek::Set);
+        file.read(&data[0], 1, length);
+        file.close();
+
+        return data;
     }
 
     static bool nameEndsWith(const std::string &name, const std::string &suffix) {

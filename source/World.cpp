@@ -36,7 +36,7 @@ namespace Duel6 {
               levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game.getResources(), *this),
-              elevatorList(game.getResources().getElevatorTextures()) {
+              elevatorList(game.getResources().getElevatorTextures()), time(0) {
         Console &console = game.getAppService().getConsole();
         console.printLine(Format("...Width   : {0}") << level.getWidth());
         console.printLine(Format("...Height  : {0}") << level.getHeight());
@@ -54,6 +54,8 @@ namespace Duel6 {
     }
 
     void World::update(Float32 elapsedTime) {
+        time += elapsedTime;
+
         spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
         explosionList.update(elapsedTime);
         levelRenderData.update(elapsedTime);
@@ -67,6 +69,8 @@ namespace Duel6 {
         if (mod != 0 && Math::random(mod) == 0) {
             bonusList.addRandomBonus();
         }
+
+        globRenderer->setGlobalTime(time);
     }
 
     void World::raiseWater() {

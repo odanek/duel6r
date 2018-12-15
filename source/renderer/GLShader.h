@@ -25,60 +25,24 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GLES2RENDERER_H
-#define DUEL6_RENDERER_GLES2RENDERER_H
+#ifndef DUEL6_RENDERER_GLSHADER_H
+#define DUEL6_RENDERER_GLSHADER_H
 
 #include <GL/glew.h>
-#include "RendererBase.h"
+#include <string>
 
 namespace Duel6 {
-    class GLES2Renderer
-            : public RendererBase {
+    class GLShader {
     private:
-        Matrix projectionMatrix;
-        Matrix viewMatrix;
-        Matrix modelMatrix;
-        Matrix mvpMatrix;
-        GLuint colorProgram;
-        GLuint textureProgram;
+        GLenum type;
+        GLuint id;
 
     public:
-        GLES2Renderer();
+        GLShader(GLenum type, const std::string &path);
+        ~GLShader();
 
-        Info getInfo() override;
-
-        Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
-                                  TextureFilter filtering, bool clamp) override;
-
-        void freeTexture(Texture::Id textureId) override;
-
-        void readScreenData(Int32 width, Int32 height, Image &image) override;
-
-        void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
-
-        void enableWireframe(bool enable) override;
-
-        void enableDepthTest(bool enable) override;
-
-        void enableDepthWrite(bool enable) override;
-
-        void setBlendFunc(BlendFunc func) override;
-
-        void clearBuffers() override;
-
-        void point(const Vector &position, Float32 size, const Color &color) override;
-
-        void line(const Vector &from, const Vector &to, Float32 width, const Color &color) override;
-
-        void triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) override;
-
-        void triangle(const Vector &p1, const Vector &t1,
-                      const Vector &p2, const Vector &t2,
-                      const Vector &p3, const Vector &t3,
-                      const Material &material) override;
-
-    private:
-        void enableOption(GLenum option, bool enable);
+        GLuint getId() const;
+        GLenum getType() const;
     };
 }
 

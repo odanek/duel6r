@@ -29,6 +29,7 @@
 #include "../FaceList.h"
 #include "../Exception.h"
 #include "../VideoException.h"
+#include "../File.h"
 
 namespace Duel6 {
     struct ColorVertex {
@@ -39,59 +40,24 @@ namespace Duel6 {
     struct MaterialVertex {
         Vector xyz; // Position
         Vector str; // Texture coordinates
+        Uint32 flags;
     };
     static MaterialVertex materialPoints[4];
 
-    static const char *colorVertexShader =
-            "#version 430\n"
-            "uniform mat4 mvp;"
-            "layout(location = 0) in vec3 vp;"
-            "void main() {"
-            "  gl_Position = mvp * vec4(vp, 1.0);"
-            "}";
-    static const char *materialVertexShader =
-            "#version 430\n"
-            "uniform mat4 mvp;"
-            "layout(location = 0) in vec3 vp;"
-            "layout(location = 1) in vec2 uvIn;"
-            "layout(location = 2) in float texIndexIn;"
-            "out vec3 uv;"
-            "void main() {"
-            "  gl_Position = mvp * vec4(vp, 1.0);"
-            "  uv = vec3(uvIn, texIndexIn);"
-            "}";
-
-    static const char *colorFragmentShader =
-            "#version 430\n"
-            "uniform vec4 color;"
-            "out vec4 result;"
-            "void main() {"
-            "  result = color;"
-            "}";
-    static const char *materialFragmentShader =
-            "#version 430\n"
-            "in vec3 uv;"
-            "out vec4 result;"
-            "uniform sampler2DArray textureUnit;"
-            "uniform bool alphaTest;"
-            "uniform vec4 modulateColor;"
-            "void main() {"
-            "  vec4 color = texture(textureUnit, uv);"
-            "  if (alphaTest && color.w < 1.0) discard;"
-            "  result = color * modulateColor;"
-            "}";
-
     GL4Renderer::GL4Renderer()
-            : RendererBase() {}
+            : RendererBase(),
+              colorVertexShader(GL_VERTEX_SHADER, "shaders/gl4/colorVertex.glsl"),
+              colorFragmentShader(GL_FRAGMENT_SHADER, "shaders/gl4/colorFragment.glsl"),
+              materialVertexShader(GL_VERTEX_SHADER, "shaders/gl4/materialVertex.glsl"),
+              materialFragmentShader(GL_FRAGMENT_SHADER, "shaders/gl4/materialFragment.glsl"),
+              colorProgram(colorVertexShader, colorFragmentShader),
+              materialProgram(materialVertexShader, materialFragmentShader) {
+        memset(materialPoints, 0, sizeof(MaterialVertex) * 4);
 
-    void GL4Renderer::initialize() {
-#ifdef D6_GLEW
-        glewInit();
-#endif
-
+        enableOption(GL_CULL_FACE, true);
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
-        enableOption(GL_CULL_FACE, true);
+        glActiveTexture(GL_TEXTURE0);
 
         glGenVertexArrays(1, &colorVao);
         glBindVertexArray(colorVao);
@@ -118,34 +84,10 @@ namespace Duel6 {
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(MaterialVertex), (const GLvoid *) (5 * sizeof(Float32)));
         glEnableVertexAttribArray(2);
-        
+        glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(MaterialVertex), (const GLvoid *) (6 * sizeof(Float32)));
+        glEnableVertexAttribArray(3);
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        GLuint cvs = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(cvs, 1, &colorVertexShader, nullptr);
-        glCompileShader(cvs);
-        GLuint cfs = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(cfs, 1, &colorFragmentShader, nullptr);
-        glCompileShader(cfs);
-
-        colorProgram = glCreateProgram();
-        glAttachShader(colorProgram, cfs);
-        glAttachShader(colorProgram, cvs);
-        glLinkProgram(colorProgram);
-
-        GLuint tvs = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(tvs, 1, &materialVertexShader, nullptr);
-        glCompileShader(tvs);
-        GLuint tfs = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(tfs, 1, &materialFragmentShader, nullptr);
-        glCompileShader(tfs);
-
-        materialProgram = glCreateProgram();
-        glAttachShader(materialProgram, tfs);
-        glAttachShader(materialProgram, tvs);
-        glLinkProgram(materialProgram);
-
-        glActiveTexture(GL_TEXTURE0);
     }
 
     Renderer::Info GL4Renderer::getInfo() {
@@ -183,7 +125,6 @@ namespace Duel6 {
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, filter);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, filter);
 
-        // Clamp texture coordinates
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 
@@ -230,23 +171,40 @@ namespace Duel6 {
         }
     }
 
+    void GL4Renderer::setGlobalTime(Float32 time) {
+        materialProgram.bind(); // Required for INTEL
+        materialProgram.setUniform("globalTime", time);
+    }
+
     void GL4Renderer::clearBuffers() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
+    void GL4Renderer::setProjectionMatrix(const Matrix &m) {
+        RendererBase::setProjectionMatrix(m);
+        updateMvpUniform();
+    }
+
+    void GL4Renderer::setViewMatrix(const Matrix &m) {
+        RendererBase::setViewMatrix(m);
+        updateMvpUniform();
+    }
+
+    void GL4Renderer::setModelMatrix(const Matrix &m) {
+        RendererBase::setModelMatrix(m);
+        updateMvpUniform();
+    }
+
     void GL4Renderer::point(const Vector &position, Float32 size, const Color &color) {
         glBindVertexArray(colorVao);
-        glUseProgram(colorProgram);
+        colorProgram.bind();
 
         colorPoints[0].xyz = position;
         updateColorBuffer(1);
 
-        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
-
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        GLint location = glGetUniformLocation(colorProgram, "color");
-        glUniform4fv(location, 1, colorData);
+        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                                color.getAlpha() / 255.0f};
+        colorProgram.setUniform("color", colorData);
 
         glPointSize(size);
         glDrawArrays(GL_POINTS, 0, 1);
@@ -255,18 +213,15 @@ namespace Duel6 {
 
     void GL4Renderer::line(const Vector &from, const Vector &to, Float32 width, const Color &color) {
         glBindVertexArray(colorVao);
-        glUseProgram(colorProgram);
+        colorProgram.bind();
 
         colorPoints[0].xyz = from;
         colorPoints[1].xyz = to;
         updateColorBuffer(2);
 
-        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
-
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        GLint location = glGetUniformLocation(colorProgram, "color");
-        glUniform4fv(location, 1, colorData);
+        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                                color.getAlpha() / 255.0f};
+        colorProgram.setUniform("color", colorData);
 
         glLineWidth(width);
         glDrawArrays(GL_LINES, 0, 2);
@@ -275,19 +230,16 @@ namespace Duel6 {
 
     void GL4Renderer::triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) {
         glBindVertexArray(colorVao);
-        glUseProgram(colorProgram);
-
-        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        colorProgram.bind();
 
         colorPoints[0].xyz = p1;
         colorPoints[1].xyz = p2;
         colorPoints[2].xyz = p3;
         updateColorBuffer(3);
 
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        GLint location = glGetUniformLocation(colorProgram, "color");
-        glUniform4fv(location, 1, colorData);
+        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                                color.getAlpha() / 255.0f};
+        colorProgram.setUniform("color", colorData);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
@@ -297,12 +249,9 @@ namespace Duel6 {
                                const Vector &p3, const Vector &t3,
                                const Material &material) {
         glBindVertexArray(materialVao);
-        glUseProgram(materialProgram);
+        materialProgram.bind();
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture().getId());
-        glUniform1i(glGetUniformLocation(materialProgram, "textureUnit"), 0);
-
-        glUniformMatrix4fv(glGetUniformLocation(materialProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
         materialPoints[0].xyz = p1;
         materialPoints[0].str = t1;
@@ -312,21 +261,19 @@ namespace Duel6 {
         materialPoints[2].str = t3;
         updateMaterialBuffer(3);
 
-        glUniform1i(glGetUniformLocation(materialProgram, "alphaTest"), material.isMasked() ? 1 : 0);
+        materialProgram.setUniform("alphaTest", material.isMasked() ? 1 : 0);
 
         const Color &color = material.getColor();
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        glUniform4fv(glGetUniformLocation(materialProgram, "modulateColor"), 1, colorData);
+        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                                color.getAlpha() / 255.0f};
+        materialProgram.setUniform("modulateColor", colorData);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
     void GL4Renderer::quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) {
         glBindVertexArray(colorVao);
-        glUseProgram(colorProgram);
-
-        glUniformMatrix4fv(glGetUniformLocation(colorProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
+        colorProgram.bind();
 
         colorPoints[0].xyz = p1;
         colorPoints[1].xyz = p2;
@@ -334,10 +281,9 @@ namespace Duel6 {
         colorPoints[3].xyz = p4;
         updateColorBuffer(4);
 
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        GLint location = glGetUniformLocation(colorProgram, "color");
-        glUniform4fv(location, 1, colorData);
+        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                                color.getAlpha() / 255.0f};
+        colorProgram.setUniform("color", colorData);
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
@@ -348,12 +294,9 @@ namespace Duel6 {
                            const Vector &p4, const Vector &t4,
                            const Material &material) {
         glBindVertexArray(materialVao);
-        glUseProgram(materialProgram);
+        materialProgram.bind();
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture().getId());
-        glUniform1i(glGetUniformLocation(materialProgram, "textureUnit"), 0);
-
-        glUniformMatrix4fv(glGetUniformLocation(materialProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
 
         materialPoints[0].xyz = p1;
         materialPoints[0].str = t1;
@@ -365,12 +308,12 @@ namespace Duel6 {
         materialPoints[3].str = t4;
         updateMaterialBuffer(4);
 
-        glUniform1i(glGetUniformLocation(materialProgram, "alphaTest"), material.isMasked() ? 1 : 0);
+        materialProgram.setUniform("alphaTest", material.isMasked() ? 1 : 0);
 
         const Color &color = material.getColor();
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        glUniform4fv(glGetUniformLocation(materialProgram, "modulateColor"), 1, colorData);
+        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                                color.getAlpha() / 255.0f};
+        materialProgram.setUniform("modulateColor", colorData);
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
@@ -389,19 +332,22 @@ namespace Duel6 {
         GLuint vertexVbo;
         glGenBuffers(1, &vertexVbo);
         glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
-        glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(Vertex), &vertexBuffer[0], GL_STATIC_DRAW);
-        //glNamedBufferStorage(vertexVbo, vertexBuffer.size() * sizeof(Float32), &vertexBuffer[0], 0); // GL 4.5
+        glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(Vertex), vertexBuffer.data(), GL_STATIC_DRAW);
+        //glNamedBufferStorage(vertexVbo, vertexBuffer.size() * sizeof(Float32), vertexBuffer.data(), 0); // GL 4.5
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *) (3 * sizeof(Float32)));
         glEnableVertexAttribArray(1);
+        glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const GLvoid *) (5 * sizeof(Float32)));
+        glEnableVertexAttribArray(3);
 
         GLuint textureIndexVbo;
         glGenBuffers(1, &textureIndexVbo);
         glBindBuffer(GL_ARRAY_BUFFER, textureIndexVbo);
-        glBufferData(GL_ARRAY_BUFFER, textureIndexBuffer.size() * sizeof(Float32), &textureIndexBuffer[0], GL_STATIC_DRAW);
-        //glNamedBufferStorage(textureIndexVbo, textureIndexBuffer.size() * sizeof(Float32), &textureIndexBuffer[0], 0); // GL 4.5
+        glBufferData(GL_ARRAY_BUFFER, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(),
+                     GL_STATIC_DRAW);
+        //glNamedBufferStorage(textureIndexVbo, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(), 0); // GL 4.5
 
         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
         glEnableVertexAttribArray(2);
@@ -416,15 +362,15 @@ namespace Duel6 {
         createFaceListTextureIndexBuffer(faceList, textureIndexBuffer);
 
         glBindBuffer(GL_ARRAY_BUFFER, buffer.textureIndexVbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.elements * sizeof(Float32), &textureIndexBuffer[0]);
-        // glNamedBufferSubData(buffer.textureIndexVbo, 0, buffer.elements * sizeof(Float32), &textureIndexBuffer[0]); // GL 4.5
+        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.elements * sizeof(Float32), textureIndexBuffer.data());
+        // glNamedBufferSubData(buffer.textureIndexVbo, 0, buffer.elements * sizeof(Float32), textureIndexBuffer.data()); // GL 4.5
     }
 
     void GL4Renderer::destroyBuffer(Buffer &buffer) {
         if (buffer.vao != 0) {
             glDeleteVertexArrays(1, &buffer.vao);
             glDeleteBuffers(1, &buffer.vertexVbo);
-            glDeleteBuffers(2, &buffer.textureIndexVbo);
+            glDeleteBuffers(1, &buffer.textureIndexVbo);
             buffer.vao = 0;
             buffer.vertexVbo = 0;
             buffer.textureIndexVbo = 0;
@@ -433,17 +379,15 @@ namespace Duel6 {
 
     void GL4Renderer::buffer(Renderer::Buffer buffer, const Material &material) {
         glBindVertexArray(buffer.vao);
-        glUseProgram(materialProgram);
+        materialProgram.bind();
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture().getId());
-        glUniform1i(glGetUniformLocation(materialProgram, "textureUnit"), 0);
-        glUniformMatrix4fv(glGetUniformLocation(materialProgram, "mvp"), 1, GL_FALSE, mvpMatrix.getStorage());
-        glUniform1i(glGetUniformLocation(materialProgram, "alphaTest"), material.isMasked() ? 1 : 0);
+        materialProgram.setUniform("alphaTest", material.isMasked() ? 1 : 0);
 
         const Color &color = material.getColor();
-        Float32 colorData[] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                               color.getAlpha() / 255.0f};
-        glUniform4fv(glGetUniformLocation(materialProgram, "modulateColor"), 1, colorData);
+        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
+                                color.getAlpha() / 255.0f};
+        materialProgram.setUniform("color", colorData);
 
         glDrawArrays(GL_TRIANGLES, 0, buffer.elements);
     }
@@ -468,8 +412,15 @@ namespace Duel6 {
         // glNamedBufferSubData(triangleVbo, 0, vertexCount * sizeof(VertexData), points); // GL 4.5
     }
 
+    void GL4Renderer::updateMvpUniform() {
+        colorProgram.bind(); // Required for INTEL
+        colorProgram.setUniform("mvp", mvpMatrix);
+        materialProgram.bind(); // Required for INTEL
+        materialProgram.setUniform("mvp", mvpMatrix);
+    }
+
     void GL4Renderer::createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer) {
-        const Vertex *vertex = &faceList.getVertexes()[0];
+        const Vertex *vertex = faceList.getVertexes().data();
         const auto &faces = faceList.getFaces();
 
         const auto faceCount = faces.size();
@@ -490,7 +441,8 @@ namespace Duel6 {
         }
     }
 
-    void GL4Renderer::createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer) {
+    void
+    GL4Renderer::createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer) {
         const auto &faces = faceList.getFaces();
         textureIndexBuffer.reserve(faces.size() * 6);
 

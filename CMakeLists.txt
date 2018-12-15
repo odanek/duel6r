@@ -61,7 +61,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 # Switches
 set(D6R_RENDERER "gl4")  # Renderer: gl1/gl4/es2
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
-set(D6R_WITH_GLEW ON)
+
 #########################################################################
 #
 # Duel 6 Reloaded
@@ -365,19 +365,18 @@ endif (D6R_RENDERER STREQUAL "gl1")
 if (D6R_RENDERER STREQUAL "es2")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES2")
     set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
-
-    if (WIN32)
-        set(D6R_WITH_GLEW ON)
-    endif (WIN32)
 endif (D6R_RENDERER STREQUAL "es2")
 
 if (D6R_RENDERER STREQUAL "gl4")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL4")
-    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL4Renderer.h source/renderer/GL4Renderer.cpp)
-
-    if (WIN32)
-        set(D6R_WITH_GLEW ON)
-    endif (WIN32)
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/GL4Renderer.h
+            source/renderer/GL4Renderer.cpp
+            source/renderer/GLShader.h
+            source/renderer/GLShader.cpp
+            source/renderer/GLProgram.h
+            source/renderer/GLProgram.cpp
+        )
 endif (D6R_RENDERER STREQUAL "gl4")
 
 if (D6R_WITH_LUA)
@@ -449,13 +448,10 @@ else (APPLE) # MSVC, GCC or MINGW
 endif (APPLE)
 
 # GLEW
-if (D6R_WITH_GLEW)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
-    find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
-    find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
-    include_directories(${HEADERS_GLEW})
-endif (D6R_WITH_GLEW)
+find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
+target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
+find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
+include_directories(${HEADERS_GLEW})
 
 # LUA
 if (D6R_WITH_LUA)

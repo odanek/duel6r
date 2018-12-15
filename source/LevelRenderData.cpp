@@ -41,7 +41,6 @@ namespace Duel6 {
 
     void LevelRenderData::generateWater() {
         addWaterFaces();
-        floatingVertexes.build(water, waveHeight);
     }
 
     void LevelRenderData::update(Float32 elapsedTime) {
@@ -52,8 +51,6 @@ namespace Duel6 {
             sprites.nextFrame();
             water.nextFrame();
         }
-
-        floatingVertexes.update(elapsedTime);
     }
 
     void LevelRenderData::addWallFaces() {

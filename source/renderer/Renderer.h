@@ -72,8 +72,6 @@ namespace Duel6 {
     public:
         virtual ~Renderer() = default;
 
-        virtual void initialize() = 0;
-
         virtual Info getInfo() = 0;
 
         virtual Extensions getExtensions() = 0;
@@ -106,6 +104,8 @@ namespace Duel6 {
         virtual void enableDepthWrite(bool enable) = 0;
 
         virtual void setBlendFunc(BlendFunc func) = 0;
+
+        virtual void setGlobalTime(Float32 time) = 0;
 
         virtual void clearBuffers() = 0;
 

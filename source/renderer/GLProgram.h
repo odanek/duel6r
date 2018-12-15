@@ -25,60 +25,37 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GLES2RENDERER_H
-#define DUEL6_RENDERER_GLES2RENDERER_H
+#ifndef DUEL6_RENDERER_GLPROGRAM_H
+#define DUEL6_RENDERER_GLPROGRAM_H
 
 #include <GL/glew.h>
-#include "RendererBase.h"
+#include "GLShader.h"
+#include "../Type.h"
+#include "../math/Matrix.h"
 
 namespace Duel6 {
-    class GLES2Renderer
-            : public RendererBase {
+    class GLProgram {
     private:
-        Matrix projectionMatrix;
-        Matrix viewMatrix;
-        Matrix modelMatrix;
-        Matrix mvpMatrix;
-        GLuint colorProgram;
-        GLuint textureProgram;
+        const GLShader &vertexShader;
+        const GLShader &fragmentShader;
+        GLuint id;
 
     public:
-        GLES2Renderer();
+        GLProgram(const GLShader &vertexShader, const GLShader &fragmentShader);
+        ~GLProgram();
 
-        Info getInfo() override;
+        void bind();
+        GLint uniformLocation(const GLchar *name);
 
-        Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
-                                  TextureFilter filtering, bool clamp) override;
+        void setUniform(const GLchar *name, Int32 value);
+        void setUniform(const GLchar *name, Float32 value);
+        void setUniform(const GLchar *name, Float32 value[4]);
+        void setUniform(const GLchar *name, const Matrix &value);
 
-        void freeTexture(Texture::Id textureId) override;
+        GLuint getId() const;
 
-        void readScreenData(Int32 width, Int32 height, Image &image) override;
-
-        void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
-
-        void enableWireframe(bool enable) override;
-
-        void enableDepthTest(bool enable) override;
-
-        void enableDepthWrite(bool enable) override;
-
-        void setBlendFunc(BlendFunc func) override;
-
-        void clearBuffers() override;
-
-        void point(const Vector &position, Float32 size, const Color &color) override;
-
-        void line(const Vector &from, const Vector &to, Float32 width, const Color &color) override;
-
-        void triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) override;
-
-        void triangle(const Vector &p1, const Vector &t1,
-                      const Vector &p2, const Vector &t2,
-                      const Vector &p3, const Vector &t3,
-                      const Material &material) override;
-
-    private:
-        void enableOption(GLenum option, bool enable);
+        const GLShader &getVertexShader() const;
+        const GLShader &getFragmentShader() const;
     };
 }
 
