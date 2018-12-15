@@ -12,12 +12,13 @@ uniform float globalTime;
 
 out vec3 uv;
 
+vec3 waterWave(in vec3 position) {
+    float displacement = sin(globalTime * 2.13 + 1.05 * position.x) * waveHeight;
+    return vec3(position.x, position.y - waveHeight + displacement, position.z);
+}
+
 void main() {
-    vec3 pos = vp;
-    if (flagsIn == 1) {
-        float displacement = sin(globalTime * 2.13 + 1.05 * vp.x) * waveHeight;
-        pos = vec3(pos.x, pos.y - waveHeight + displacement, pos.z);
-    }
+    vec3 pos = flagsIn == 1 ? waterWave(vp) : vp;
     gl_Position = mvp * vec4(pos, 1.0);
     uv = vec3(uvIn, texIndexIn);
 }
