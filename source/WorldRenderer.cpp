@@ -425,8 +425,8 @@ namespace Duel6 {
         walls(world.getLevelRenderData().getWalls());
         sprites(world.getLevelRenderData().getSprites());
         world.getElevatorList().render();
-        world.getSpriteList().render();
         world.getBonusList().render();
+        world.getSpriteList().render();
         invulRings(game.getPlayers());
         water(world.getLevelRenderData().getWater());
         youAreHere();

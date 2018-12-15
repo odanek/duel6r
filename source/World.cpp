@@ -49,7 +49,7 @@ namespace Duel6 {
         console.printLine("...Level initialization");
         console.printLine("...Loading elevators");
         elevatorList.load(levelPath, mirror);
-        fireList.find(levelRenderData.getSprites());
+        fireList.find(level);
         background = findBackground(game.getResources().getBcgTextures());
     }
 
@@ -63,9 +63,9 @@ namespace Duel6 {
         elevatorList.update(elapsedTime);
         messageQueue.update(elapsedTime);
         bonusList.update(elapsedTime);
+
         // Add new bonuses
         Int32 mod = Int32(3.0f / elapsedTime);
-
         if (mod != 0 && Math::random(mod) == 0) {
             bonusList.addRandomBonus();
         }

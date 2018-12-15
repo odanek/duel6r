@@ -76,6 +76,10 @@ namespace Duel6 {
             for (Int32 x = 0; x < level.getWidth(); x++) {
                 const Block &block = level.getBlockMeta(x, y);
 
+                if (block.isBurning()) {
+                    continue;
+                }
+
                 if (block.is(Block::Type::FrontAndBackSprite)) {
                     addSprite(sprites, block, x, y, 1.0f);
                     addSprite(sprites, block, x, y, 0.0f);

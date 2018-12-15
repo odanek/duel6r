@@ -96,6 +96,10 @@ namespace Duel6 {
             return (this->type == type);
         }
 
+        bool isBurning() const {
+            return index == 7 || index == 8;
+        }
+
         static Meta loadMeta(const std::string &path);
 
     private:

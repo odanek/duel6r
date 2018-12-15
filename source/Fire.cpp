@@ -34,27 +34,35 @@ namespace Duel6 {
     const std::vector<FireType> FireType::types = {CONIFEROUS_TREE, BROAD_LEAVED_TREE};
 
     namespace {
+        Int16 nonFireAnimation[4] = {3, 20, -1, 0};
         Int16 fireAnimation[20] = {0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0};
     }
 
-    Fire::Fire(const FireType &type, Face &face, const Vector &position)
-            : type(type), face(face), position(position), burned(false) {}
+    Fire::Fire(const FireType &type, SpriteList::Iterator sprite, const Vector &position)
+            : type(type), sprite(sprite), position(position), burned(false) {}
 
     FireList::FireList(const GameResources &resources, SpriteList &spriteList)
             : spriteList(spriteList), textures(resources.getFireTextures()) {}
 
-    void FireList::find(FaceList &sprites) {
-        Size faceIndex = 0;
-        for (Face &face : sprites.getFaces()) {
-            for (const FireType &type : FireType::values()) {
-                if (face.getBlock().getIndex() == type.getBlock()) {
-                    const Vertex &vertex = sprites.getVertexes()[faceIndex << 2];
-                    Vector position(vertex.x, vertex.y - 1.0f);
-                    fires.push_back(Fire(type, face, position));
+    void FireList::find(const Level &level) {
+        for (Int32 y = 0; y < level.getHeight(); y++) {
+            for (Int32 x = 0; x < level.getWidth(); x++) {
+                const Block &block = level.getBlockMeta(x, y);
+
+                if (block.isBurning()) {
+                    for (const FireType &type : FireType::values()) {
+                        if (block.getIndex() == type.getBlock()) {
+                            Vector position(x, y);
+
+                            Sprite fireSprite(nonFireAnimation, textures.at(type.getId()));
+                            fireSprite.setPosition(position, 0.75f).setLooping(AnimationLooping::OnceAndStop);
+                            auto sprite = spriteList.addSprite(fireSprite);
+
+                            fires.push_back(Fire(type, sprite, position));
+                        }
+                    }
                 }
             }
-
-            faceIndex++;
         }
     }
 
@@ -66,7 +74,7 @@ namespace Duel6 {
 
                 if (distance < d) {
                     fire.setBurned(true);
-                    fire.getFace().hide();
+                    spriteList.removeSprite(fire.getSprite());
 
                     Sprite fireSprite(fireAnimation, textures.at(fire.getType().getId()));
                     fireSprite.setPosition(fire.getPosition(), 0.75f)

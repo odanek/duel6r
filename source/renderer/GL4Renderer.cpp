@@ -64,7 +64,7 @@ namespace Duel6 {
 
         glGenBuffers(1, &colorVbo);
         glBindBuffer(GL_ARRAY_BUFFER, colorVbo);
-        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(ColorVertex), colorPoints, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(ColorVertex), colorPoints, GL_STREAM_DRAW);
         //glNamedBufferStorage(colorVbo, 4 * sizeof(ColorVertex), colorPoints, GL_DYNAMIC_STORAGE_BIT);  // GL 4.5
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -75,7 +75,7 @@ namespace Duel6 {
 
         glGenBuffers(1, &materialVbo);
         glBindBuffer(GL_ARRAY_BUFFER, materialVbo);
-        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(MaterialVertex), materialPoints, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(MaterialVertex), materialPoints, GL_STREAM_DRAW);
         //glNamedBufferStorage(materialVbo, 4 * sizeof(MaterialVertex), materialPoints, GL_DYNAMIC_STORAGE_BIT);  // GL 4.5
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MaterialVertex), nullptr);
@@ -145,6 +145,7 @@ namespace Duel6 {
     }
 
     void GL4Renderer::enableWireframe(bool enable) {
+        glPolygonMode(GL_FRONT_AND_BACK, enable ? GL_LINE : GL_FILL);
     }
 
     void GL4Renderer::enableDepthTest(bool enable) {
@@ -345,8 +346,7 @@ namespace Duel6 {
         GLuint textureIndexVbo;
         glGenBuffers(1, &textureIndexVbo);
         glBindBuffer(GL_ARRAY_BUFFER, textureIndexVbo);
-        glBufferData(GL_ARRAY_BUFFER, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(),
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(), GL_STATIC_DRAW);
         //glNamedBufferStorage(textureIndexVbo, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(), 0); // GL 4.5
 
         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -362,7 +362,8 @@ namespace Duel6 {
         createFaceListTextureIndexBuffer(faceList, textureIndexBuffer);
 
         glBindBuffer(GL_ARRAY_BUFFER, buffer.textureIndexVbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.elements * sizeof(Float32), textureIndexBuffer.data());
+        glBufferData(GL_ARRAY_BUFFER, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(), GL_STATIC_DRAW);
+        // glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.elements * sizeof(Float32), textureIndexBuffer.data());
         // glNamedBufferSubData(buffer.textureIndexVbo, 0, buffer.elements * sizeof(Float32), textureIndexBuffer.data()); // GL 4.5
     }
 
@@ -402,13 +403,15 @@ namespace Duel6 {
 
     void GL4Renderer::updateColorBuffer(Int32 vertexCount) {
         glBindBuffer(GL_ARRAY_BUFFER, colorVbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(ColorVertex), colorPoints);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(ColorVertex), colorPoints, GL_STREAM_DRAW);
+        // glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(ColorVertex), colorPoints);
         // glNamedBufferSubData(triangleVbo, 0, vertexCount * sizeof(VertexData), points); // GL 4.5
     }
 
     void GL4Renderer::updateMaterialBuffer(Int32 vertexCount) {
         glBindBuffer(GL_ARRAY_BUFFER, materialVbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(MaterialVertex), materialPoints);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(MaterialVertex), materialPoints, GL_STREAM_DRAW);
+        // glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(MaterialVertex), materialPoints);
         // glNamedBufferSubData(triangleVbo, 0, vertexCount * sizeof(VertexData), points); // GL 4.5
     }
 
