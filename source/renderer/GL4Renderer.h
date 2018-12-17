@@ -110,7 +110,7 @@ namespace Duel6 {
 
         void destroyBuffer(Buffer &buffer) override;
 
-        void buffer(Buffer buffer, const Material &material) override;
+        void buffer(const Buffer &buffer, const Material &material) override;
 
     private:
         void enableOption(GLenum option, bool enable);

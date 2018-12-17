@@ -34,8 +34,8 @@ namespace Duel6 {
     const std::vector<FireType> FireType::types = {CONIFEROUS_TREE, BROAD_LEAVED_TREE};
 
     namespace {
-        Int16 nonFireAnimation[4] = {3, 20, -1, 0};
-        Int16 fireAnimation[20] = {0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0};
+        AnimationEntry nonFireAnimation[] = {3, 20, -1, 0};
+        AnimationEntry fireAnimation[] = {0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0};
     }
 
     Fire::Fire(const FireType &type, SpriteList::Iterator sprite, const Vector &position)
@@ -54,11 +54,10 @@ namespace Duel6 {
                         if (block.getIndex() == type.getBlock()) {
                             Vector position(x, y);
 
-                            Sprite fireSprite(nonFireAnimation, textures.at(type.getId()));
-                            fireSprite.setPosition(position, 0.75f).setLooping(AnimationLooping::OnceAndStop);
-                            auto sprite = spriteList.addSprite(fireSprite);
+                            auto sprite = spriteList.add(nonFireAnimation, textures.at(type.getId()));
+                            sprite->setPosition(position, 0.75f).setLooping(AnimationLooping::OnceAndStop);
 
-                            fires.push_back(Fire(type, sprite, position));
+                            fires.emplace_back(type, sprite, position);
                         }
                     }
                 }
@@ -74,12 +73,10 @@ namespace Duel6 {
 
                 if (distance < d) {
                     fire.setBurned(true);
-                    spriteList.removeSprite(fire.getSprite());
+                    spriteList.remove(fire.getSprite());
 
-                    Sprite fireSprite(fireAnimation, textures.at(fire.getType().getId()));
-                    fireSprite.setPosition(fire.getPosition(), 0.75f)
-                            .setLooping(AnimationLooping::OnceAndStop);
-                    spriteList.addSprite(fireSprite);
+                    auto sprite = spriteList.add(fireAnimation, textures.at(fire.getType().getId()));
+                    sprite->setPosition(fire.getPosition(), 0.75f).setLooping(AnimationLooping::OnceAndStop);
                 }
             }
         }

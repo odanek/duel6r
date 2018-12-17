@@ -34,11 +34,16 @@
 #include "Orientation.h"
 #include "TextureManager.h"
 #include "math/Vector.h"
+#include "renderer/Renderer.h"
 
 namespace Duel6 {
+    class SpriteList;
+
     class Sprite {
+        friend class SpriteList;
+
     private:
-        const Int16 *animation;    // Source array of animations and delays
+        Animation animation;    // Source array of animations and delays
         Texture texture;   // Texture array
         Size frame;    // Current animation frame
         Float32 delay;    // Delay to next animation frame
@@ -50,6 +55,7 @@ namespace Duel6 {
         Vector size;
         Float32 grow;   // Grow factor for explosions
         Float32 alpha;  // Transparency ratio
+        Renderer::BlendFunc blendFunc;
         bool visible;
         bool noDepth;
         bool finished;
@@ -57,9 +63,7 @@ namespace Duel6 {
         Vector rotationCentre;
 
     public:
-        Sprite();
-
-        Sprite(const Int16 *animation, Texture texture);
+        Sprite(Animation animation, Texture texture);
 
         Sprite &setPosition(const Vector &position, Float32 z) {
             this->position = position;
@@ -72,9 +76,9 @@ namespace Duel6 {
             return *this;
         }
 
-        Sprite &setAnimation(const Int16 *animation);
+        Sprite &setAnimation(Animation);
 
-        const Int16 *getAnimation() const {
+        Animation getAnimation() const {
             return animation;
         }
 
@@ -99,10 +103,9 @@ namespace Duel6 {
             return *this;
         }
 
-        Sprite &setAlpha(Float32 alpha) {
-            this->alpha = alpha;
-            return *this;
-        }
+        Sprite &setAlpha(Float32 alpha);
+
+        Sprite &setBlendFunc(Renderer::BlendFunc blendFunc);
 
         Sprite &setSpeed(Float32 speed) {
             this->speed = speed;
@@ -133,7 +136,7 @@ namespace Duel6 {
         }
 
         bool isTransparent() const {
-            return alpha < 1.0f;
+            return blendFunc != Renderer::BlendFunc::None;
         }
 
         bool isFinished() const {

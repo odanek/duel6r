@@ -51,13 +51,11 @@ namespace Duel6 {
             samples.boom = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.boomSound);
         }
     }
+
     Float32 LegacyWeapon::getShotSpeed(Float32 coefficient) const {
-        if (isChargeable()) {
-            return coefficient * definition.bulletSpeed;
-        } else {
-            return definition.bulletSpeed;
-        }
+        return isChargeable() ? getBulletSpeed() * coefficient : getBulletSpeed();
     }
+
     Int32 LegacyWeapon::getShotPower(Float32 coefficient) const {
         if (isChargeable()) {
             return coefficient * definition.power;
@@ -65,21 +63,16 @@ namespace Duel6 {
             return definition.power;
         }
     }
+
     void LegacyWeapon::shoot(Player &player, Orientation orientation, World &world) const {
-        Sprite shotSprite(definition.shotAnimation, textures.shot);
-        auto spriteIterator = world.getSpriteList().addSprite(shotSprite);
-        world.getShotList().addShot(makeShot(player, orientation, spriteIterator));
+        world.getShotList().addShot(makeShot(player, world, orientation));
         samples.shot.play();
     }
 
-    std::unique_ptr<Shot>
-    LegacyWeapon::makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const {
-        return std::make_unique<LegacyShot>(player, *this, orientation, spriteIterator, getShotCollisionRectangle());
-    }
-
-    Sprite &LegacyWeapon::makeSprite(Sprite &sprite) const {
-        return sprite.setAnimation(definition.animation).setTexture(textures.gun).setFrame(6).setLooping(
-                AnimationLooping::OnceAndStop);
+    SpriteList::Iterator LegacyWeapon::makeSprite(SpriteList &spriteList) const {
+        auto sprite = spriteList.add(definition.animation, textures.gun);
+        sprite->setFrame(6).setLooping(AnimationLooping::OnceAndStop);
+        return sprite;
     }
 
     Texture LegacyWeapon::getBonusTexture() const {
@@ -103,6 +96,6 @@ namespace Duel6 {
     }
 
     bool LegacyWeapon::isChargeable() const {
-        return definition.chargeable;
+        return false;
     }
 }

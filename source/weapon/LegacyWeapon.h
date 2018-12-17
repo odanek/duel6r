@@ -39,22 +39,12 @@ namespace Duel6 {
     class LegacyWeapon : public WeaponBase {
     public:
         struct Definition {
-            Float32 bulletSpeed;
-            bool blood;
-            bool explodes;
-            bool collides;
-            bool chargeable;//e.g. bow/sling/some blaster?
-            Color explosionColor;
-            Int32 boom;
             Int32 power;
             Float32 reloadSpeed;
             std::string name;
             std::string shotSound;
             std::string boomSound;
-            Float32 expGrow;
-            Int16 animation[16];
-            Int16 shotAnimation[18];
-            Int16 boomAnimation[14];
+            AnimationEntry animation[16];
         };
 
         struct WeaponTextures {
@@ -75,11 +65,14 @@ namespace Duel6 {
 
     public:
         LegacyWeapon(Sound &sound, TextureManager &textureManager, const Definition &definition, Size index);
+
         virtual Float32 getShotSpeed(Float32 coefficient) const;
+
         virtual Int32 getShotPower(Float32 coefficient) const;
+
         void shoot(Player &player, Orientation orientation, World &world) const override;
 
-        Sprite &makeSprite(Sprite &sprite) const override;
+        SpriteList::Iterator makeSprite(SpriteList &spriteList) const override;
 
         Texture getBonusTexture() const override;
 
@@ -92,11 +85,11 @@ namespace Duel6 {
         const WeaponSamples &getSamples() const;
 
         bool isChargeable() const override;
-    protected:
-        virtual std::unique_ptr<Shot>
-        makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const;
 
-        virtual Rectangle getShotCollisionRectangle() const = 0;
+        virtual Float32 getBulletSpeed() const = 0;
+
+    protected:
+        virtual std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation) const = 0;
     };
 }
 

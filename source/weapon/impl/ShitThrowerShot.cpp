@@ -29,12 +29,26 @@
 
 namespace Duel6 {
     namespace {
-        const Rectangle COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.28f, 0.72f), Vector(0.38f, 0.18f));
+        const Rectangle collistionRectangle = Rectangle::fromCornerAndSize(Vector(0.28f, 0.72f), Vector(0.38f, 0.18f));
+        const AnimationEntry shotAnimation[] = {0, 10, 1, 10, 2, 10, 1, 10, -1, 0};
+        const AnimationEntry boomAnimation[] = {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
 
-    ShitThrowerShot::ShitThrowerShot(Player &player, const LegacyWeapon &weapon, Orientation orientation,
-                                     SpriteList::Iterator sprite, PlayerSkin &brownSkin)
-            : LegacyShot(player, weapon, orientation, sprite, COLLISION_RECT), brownSkin(brownSkin) {
+    ShitThrowerShot::ShitThrowerShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation,
+                                     PlayerSkin &brownSkin)
+            : LegacyShot(player, world, weapon, shotAnimation, boomAnimation, orientation, collistionRectangle), brownSkin(brownSkin) {
+    }
+
+    bool ShitThrowerShot::isColliding() const {
+        return true;
+    }
+
+    bool ShitThrowerShot::hasBlood() const {
+        return false;
+    }
+
+    Float32 ShitThrowerShot::getExplosionRange() const {
+        return 2.0f;
     }
 
     void ShitThrowerShot::onExplode(const Vector &centre, Float32 range, World &world) {
@@ -42,5 +56,11 @@ namespace Duel6 {
 
     void ShitThrowerShot::onHitPlayer(Player &player, bool directHit, const Vector &point, World &world) {
         player.useTemporarySkin(brownSkin);
+    }
+
+    SpriteList::Iterator ShitThrowerShot::makeBoomSprite(SpriteList &spriteList) {
+        auto sprite = LegacyShot::makeBoomSprite(spriteList);
+        sprite->setNoDepth(true).setGrow(0.04f * getPowerFactor());;
+        return sprite;
     }
 }

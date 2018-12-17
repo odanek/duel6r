@@ -321,40 +321,72 @@ set(D6R_SOURCES
 
         source/weapon/impl/Bazooka.cpp
         source/weapon/impl/Bazooka.h
+        source/weapon/impl/BazookaShot.cpp
+        source/weapon/impl/BazookaShot.h
         source/weapon/impl/Bow.cpp
         source/weapon/impl/Bow.h
+        source/weapon/impl/BowShot.cpp
+        source/weapon/impl/BowShot.h
         source/weapon/impl/DoubleLaser.cpp
         source/weapon/impl/DoubleLaser.h
+        source/weapon/impl/DoubleLaserShot.cpp
+        source/weapon/impl/DoubleLaserShot.h
         source/weapon/impl/KissOfDeath.cpp
         source/weapon/impl/KissOfDeath.h
+        source/weapon/impl/KissOfDeathShot.cpp
+        source/weapon/impl/KissOfDeathShot.h
         source/weapon/impl/Laser.cpp
         source/weapon/impl/Laser.h
+        source/weapon/impl/LaserShot.cpp
+        source/weapon/impl/LaserShot.h
         source/weapon/impl/Lightning.cpp
         source/weapon/impl/Lightning.h
+        source/weapon/impl/LightningShot.cpp
+        source/weapon/impl/LightningShot.h
         source/weapon/impl/MachineGun.cpp
         source/weapon/impl/MachineGun.h
+        source/weapon/impl/MachineGunShot.cpp
+        source/weapon/impl/MachineGunShot.h
         source/weapon/impl/Pistol.cpp
         source/weapon/impl/Pistol.h
+        source/weapon/impl/PistolShot.cpp
+        source/weapon/impl/PistolShot.h
         source/weapon/impl/Plasma.cpp
         source/weapon/impl/Plasma.h
+        source/weapon/impl/PlasmaShot.cpp
+        source/weapon/impl/PlasmaShot.h
         source/weapon/impl/ShitThrower.cpp
         source/weapon/impl/ShitThrower.h
         source/weapon/impl/ShitThrowerShot.cpp
         source/weapon/impl/ShitThrowerShot.h
         source/weapon/impl/Shotgun.cpp
         source/weapon/impl/Shotgun.h
+        source/weapon/impl/ShotgunShot.cpp
+        source/weapon/impl/ShotgunShot.h
         source/weapon/impl/Slime.cpp
         source/weapon/impl/Slime.h
+        source/weapon/impl/SlimeShot.cpp
+        source/weapon/impl/SlimeShot.h
         source/weapon/impl/Sling.cpp
         source/weapon/impl/Sling.h
+        source/weapon/impl/SlingShot.cpp
+        source/weapon/impl/SlingShot.h
         source/weapon/impl/Spray.cpp
         source/weapon/impl/Spray.h
+        source/weapon/impl/SprayShot.cpp
+        source/weapon/impl/SprayShot.h
         source/weapon/impl/StopperGun.cpp
         source/weapon/impl/StopperGun.h
+        source/weapon/impl/StopperGunShot.cpp
+        source/weapon/impl/StopperGunShot.h
         source/weapon/impl/Triton.cpp
         source/weapon/impl/Triton.h
+        source/weapon/impl/TritonShot.cpp
+        source/weapon/impl/TritonShot.h
         source/weapon/impl/Uzi.cpp
         source/weapon/impl/Uzi.h
+        source/weapon/impl/UziShot.cpp
+        source/weapon/impl/UziShot.h
         )
 
 if (D6R_RENDERER STREQUAL "gl1")

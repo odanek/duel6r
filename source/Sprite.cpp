@@ -29,7 +29,9 @@
 #include "Video.h"
 
 namespace Duel6 {
-    Sprite::Sprite() {
+    Sprite::Sprite(Animation animation, Texture texture) {
+        this->animation = animation;
+        this->texture = texture;
         frame = 0;
         delay = 0;
         speed = 1;
@@ -42,15 +44,10 @@ namespace Duel6 {
         grow = 0;
         alpha = 1.0f;
         zRotation = 0;
+        blendFunc = Renderer::BlendFunc::None;
     }
 
-    Sprite::Sprite(const Int16 *animation, Texture texture)
-            : Sprite() {
-        this->animation = animation;
-        this->texture = texture;
-    }
-
-    Sprite &Sprite::setAnimation(const Int16 *animation) {
+    Sprite &Sprite::setAnimation(Animation animation) {
         if (this->animation != animation) {
             this->animation = animation;
             delay = 0.0f;
@@ -58,6 +55,17 @@ namespace Duel6 {
             finished = false;
         }
 
+        return *this;
+    }
+
+    Sprite &Sprite::setAlpha(Float32 alpha) {
+        this->alpha = alpha;
+        this->setBlendFunc(alpha < 1 ? Renderer::BlendFunc::SrcAlpha : Renderer::BlendFunc::None);
+        return *this;
+    }
+
+    Sprite &Sprite::setBlendFunc(Renderer::BlendFunc blendFunc) {
+        this->blendFunc = blendFunc;
         return *this;
     }
 
@@ -101,6 +109,9 @@ namespace Duel6 {
 
         if (isNoDepth()) {
             globRenderer->enableDepthTest(false);
+        }
+        if (isTransparent()) {
+            globRenderer->setBlendFunc(blendFunc);
         }
 
         Int32 textureIndex = animation[frame];

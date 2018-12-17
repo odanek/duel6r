@@ -39,11 +39,10 @@ namespace Duel6 {
     public:
         ShitThrower(Sound &sound, TextureManager &textureManager);
 
-    protected:
-        std::unique_ptr<Shot>
-        makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const override;
+        Float32 getBulletSpeed() const override;
 
-        Rectangle getShotCollisionRectangle() const override;
+    protected:
+        std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation) const override;
     };
 }
 

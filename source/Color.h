@@ -106,10 +106,6 @@ namespace Duel6 {
             return color[3];
         }
 
-        Uint8 get(Size index) const {
-            return color[index];
-        }
-
         Color &set(Uint8 red, Uint8 green, Uint8 blue) {
             setRed(red);
             setGreen(green);

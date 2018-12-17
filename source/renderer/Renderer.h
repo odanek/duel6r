@@ -151,7 +151,7 @@ namespace Duel6 {
 
         virtual void destroyBuffer(Buffer &buffer) = 0;
 
-        virtual void buffer(Buffer buffer, const Material &material) = 0;
+        virtual void buffer(const Buffer &buffer, const Material &material) = 0;
     };
 }
 

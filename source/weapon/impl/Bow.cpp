@@ -26,19 +26,28 @@
 */
 
 #include "Bow.h"
+#include "BowShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {24.4f, true, false, false, true, Color(0, 0, 0), 0, 50, 1.64f, "bow",
-                                               "luk.wav", "", 0, {1, 10, 2, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.05f, 0.84f), Vector(0.38f, 0.18f));
+        const LegacyWeapon::Definition DEFINITION = {50, 1.64f,
+                                                     "bow",
+                                                     "luk.wav", "",
+                                                     {1, 10, 2, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
     }
 
     Bow::Bow(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 9) {}
 
-    Rectangle Bow::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 Bow::getBulletSpeed() const {
+        return 24.4f;
+    }
+
+    bool Bow::isChargeable() const {
+        return true;
+    }
+
+    std::unique_ptr<Shot> Bow::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<BowShot>(player, world, *this, orientation);
     }
 }

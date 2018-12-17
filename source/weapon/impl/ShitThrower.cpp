@@ -30,11 +30,10 @@
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {5.49f, false, false, true, false, Color(0, 0, 0), 2, 0, 1.97f, "shit thrower",
-                                               "shit.wav", "shit-hit.wav", 0.04f,
-                                               {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0},
-                                               {0, 10, 1, 10, 2, 10, 1, 10, -1, 0},
-                                               {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        const LegacyWeapon::Definition DEFINITION = {0, 1.97f,
+                                                     "shit thrower",
+                                                     "shit.wav", "shit-hit.wav",
+                                                     {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0}};
     }
 
     ShitThrower::ShitThrower(Sound &sound, TextureManager &textureManager)
@@ -44,12 +43,11 @@ namespace Duel6 {
         brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
     }
 
-    std::unique_ptr<Shot>
-    ShitThrower::makeShot(Player &player, Orientation orientation, SpriteList::Iterator spriteIterator) const {
-        return std::make_unique<ShitThrowerShot>(player, *this, orientation, spriteIterator, *brownSkin);
+    Float32 ShitThrower::getBulletSpeed() const {
+        return 5.49f;
     }
 
-    Rectangle ShitThrower::getShotCollisionRectangle() const {
-        return Rectangle::empty();
+    std::unique_ptr<Shot> ShitThrower::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<ShitThrowerShot>(player, world, *this, orientation, *brownSkin);
     }
 }

@@ -26,19 +26,24 @@
 */
 
 #include "Laser.h"
+#include "LaserShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {15.25f, true, false, false, false, Color(0, 0, 0), 0, 35, 0.25f, "laser",
-                                               "laser.wav", "", 0, {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.185f, 0.76f), Vector(0.40f, 0.11f));
+        const LegacyWeapon::Definition DEFINITION = {35, 0.25f,
+                                                     "laser",
+                                                     "laser.wav", "",
+                                                     {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
     }
 
     Laser::Laser(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 5) {}
 
-    Rectangle Laser::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 Laser::getBulletSpeed() const {
+        return 15.25f;
+    }
+
+    std::unique_ptr<Shot> Laser::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<LaserShot>(player, world, *this, orientation);
     }
 }

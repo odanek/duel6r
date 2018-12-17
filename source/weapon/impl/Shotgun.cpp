@@ -26,19 +26,24 @@
 */
 
 #include "Shotgun.h"
+#include "ShotgunShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {9.15f, true, false, false, false, Color(0, 0, 0), 0, 60, 2.29f, "shotgun",
-                                               "shotgun.wav", "", 0, {1, 5, 2, 5, 3, 5, 2, 5, 1, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 50, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.25f, 0.74f), Vector(0.42f, 0.18f));
+        const LegacyWeapon::Definition DEFINITION = {60, 2.29f,
+                                                     "shotgun",
+                                                     "shotgun.wav", "",
+                                                     {1, 5, 2, 5, 3, 5, 2, 5, 1, 5, 0, 5, 0, 50, -1, 0}};
     }
 
     Shotgun::Shotgun(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 3) {}
 
-    Rectangle Shotgun::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 Shotgun::getBulletSpeed() const {
+        return 9.15f;
+    }
+
+    std::unique_ptr<Shot> Shotgun::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<ShotgunShot>(player, world, *this, orientation);
     }
 }

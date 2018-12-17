@@ -26,19 +26,28 @@
 */
 
 #include "Sling.h"
+#include "SlingShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {6.71f, true, false, false, true, Color(0, 0, 0), 0, 15, 0.82f, "sling",
-                                               "prak.wav", "", 0, {0, 5, 1, 5, 0, 5, 2, 5, 0, 5, 0, 5, 0, 5, -1, 0},
-                                               {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.34f, 0.73f), Vector(0.21f, 0.18f));
+        const LegacyWeapon::Definition DEFINITION = {15, 0.82f,
+                                                     "sling",
+                                                     "prak.wav", "",
+                                                     {0, 5, 1, 5, 0, 5, 2, 5, 0, 5, 0, 5, 0, 5, -1, 0}};
     }
 
     Sling::Sling(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 14) {}
 
-    Rectangle Sling::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 Sling::getBulletSpeed() const {
+        return 6.71f;
+    }
+
+    bool Sling::isChargeable() const {
+        return true;
+    }
+
+    std::unique_ptr<Shot> Sling::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<SlingShot>(player, world, *this, orientation);
     }
 }

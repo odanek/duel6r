@@ -36,13 +36,20 @@ namespace Duel6 {
         PlayerSkin &brownSkin;
 
     public:
-        ShitThrowerShot(Player &player, const LegacyWeapon &weapon, Orientation shotOrientation,
-                        SpriteList::Iterator sprite, PlayerSkin &brownSkin);
+        ShitThrowerShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation shotOrientation, PlayerSkin &brownSkin);
+
+        bool hasBlood() const override;
 
         void onHitPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) override;
 
+        bool isColliding() const override;
+
     protected:
         void onExplode(const Vector &centre, Float32 range, World &world) override;
+
+        Float32 getExplosionRange() const override;
+
+        SpriteList::Iterator makeBoomSprite(SpriteList &spriteList) override;
     };
 }
 

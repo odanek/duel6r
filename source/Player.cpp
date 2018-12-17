@@ -39,15 +39,16 @@
 #include "math/Math.h"
 #include "Video.h"
 #include "PlayerEventListener.h"
+
 namespace Duel6 {
-    static Int16 noAnim[4] = {0, 50, 0, -1};
-    static Int16 d6SAnim[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
-    static Int16 d6WAnim[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
-    static Int16 d6JAnim[4] = {8, 50, -1, 0};
-    static Int16 d6DAnim[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
-    static Int16 d6LAnim[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
-    static Int16 d6NAnim[4] = {25, 100, -1, 0};
-    static Int16 d6PAnim[] = {0, 5, 20, 5, 21, 5, 22, 5, 23, 5, 24, 5, 23, 5, 22, 5, 21, 5, 0, 5, -1, 0};
+    static const Int32 noAnim[4] = {0, 50, 0, -1};
+    static const Int32 d6SAnim[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
+    static const Int32 d6WAnim[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
+    static const Int32 d6JAnim[4] = {8, 50, -1, 0};
+    static const Int32 d6DAnim[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
+    static const Int32 d6LAnim[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
+    static const Int32 d6NAnim[4] = {25, 100, -1, 0};
+    static const Int32 d6PAnim[] = {0, 5, 20, 5, 21, 5, 22, 5, 23, 5, 24, 5, 23, 5, 22, 5, 21, 5, 0, 5, -1, 0};
 
     //TODO: This still needs further fine-tuning for good jumping experience
     static const float GRAVITATIONAL_ACCELERATION = -11.0f;
@@ -68,15 +69,12 @@ namespace Duel6 {
     void Player::startRound(World &world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon &weapon) {
         this->world = &world;
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-        Sprite manSprite(noAnim, skin.getTexture());
-        manSprite.setPosition(getSpritePosition(), 0.5f);
-        sprite = world.getSpriteList().addSprite(manSprite);
+
+        sprite = world.getSpriteList().add(noAnim, skin.getTexture());
+        sprite->setPosition(getSpritePosition(), 0.5f);
 
         this->weapon = weapon;
-        Sprite gunSprite;
-        weapon.makeSprite(gunSprite);
-        gunSprite.setPosition(getGunSpritePosition(), 0.5f);
-        this->gunSprite = world.getSpriteList().addSprite(gunSprite);
+        gunSprite = weapon.makeSprite(world.getSpriteList());
 
         flags = FlagHasGun;
         orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
@@ -234,7 +232,10 @@ namespace Duel6 {
         }
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
         indicators.getBullets().show();
-        weapon.makeSprite(*gunSprite);
+
+        world->getSpriteList().remove(gunSprite);
+        gunSprite = weapon.makeSprite(world->getSpriteList());
+
         return *this;
     }
 
@@ -451,7 +452,7 @@ namespace Duel6 {
     }
 
     void Player::setAnm() {
-        Int16 *animation;
+        Animation animation;
 
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
@@ -479,11 +480,13 @@ namespace Duel6 {
 
         sprite->setPosition(getSpritePosition())
                 .setOrientation(getOrientation())
-                .setAnimation(animation);
+                .setAnimation(animation)
+                .setAlpha(bodyAlpha * alpha);
 
-        gunSprite->setPosition(getGunSpritePosition())
+        gunSprite->setPosition(getGunSpritePosition(), 0.5f)
                 .setOrientation(getOrientation())
-                .setDraw(hasGun() && isAlive() && !isPickingGun());
+                .setDraw(hasGun() && isAlive() && !isPickingGun())
+                .setAlpha(alpha);
     }
 
     void Player::prepareCam(const Video &video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY) {

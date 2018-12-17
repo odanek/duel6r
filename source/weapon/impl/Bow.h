@@ -35,8 +35,12 @@ namespace Duel6 {
     public:
         Bow(Sound &sound, TextureManager &textureManager);
 
-    public:
-        Rectangle getShotCollisionRectangle() const override;
+        Float32 getBulletSpeed() const override;
+
+        bool isChargeable() const override;
+
+    protected:
+        std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation) const override;
     };
 }
 

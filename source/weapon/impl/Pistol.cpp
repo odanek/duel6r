@@ -26,19 +26,24 @@
 */
 
 #include "Pistol.h"
+#include "PistolShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {9.15f, true, false, false, false, Color(0, 0, 0), 0, 30, 0.98f, "pistol",
-                                               "pistol.wav", "", 0, {1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0},
-                                               {0, 50, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.25f, 0.74f), Vector(0.42f, 0.18f));
+        const LegacyWeapon::Definition DEFINITION = {30, 0.98f,
+                                                     "pistol",
+                                                     "pistol.wav", "",
+                                                     {1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0}};
     }
 
     Pistol::Pistol(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 0) {}
 
-    Rectangle Pistol::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 Pistol::getBulletSpeed() const {
+        return 9.15f;
+    }
+
+    std::unique_ptr<Shot> Pistol::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<PistolShot>(player, world, *this, orientation);
     }
 }

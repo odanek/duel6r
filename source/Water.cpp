@@ -43,7 +43,7 @@ namespace Duel6 {
     };
 
     namespace {
-        Int16 wtAnim[24] = {0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0};
+        AnimationEntry splashAnimation[] = {0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0};
 
         class NoneWater : public WaterImpl {
         public:
@@ -90,10 +90,8 @@ namespace Duel6 {
             }
 
             void addSplash(SpriteList &spriteList, const Vector &position) const {
-                Sprite waterSplash(wtAnim, textures);
-                waterSplash.setPosition(position - Vector(0.5f, 0.0f), 0.5f).setLooping(
-                        AnimationLooping::OnceAndRemove);
-                spriteList.addSprite(waterSplash);
+                auto sprite = spriteList.add(splashAnimation, textures);
+                sprite->setPosition(position - Vector(0.5f, 0.0f), 0.5f).setLooping(AnimationLooping::OnceAndRemove);
             }
 
             virtual Float32 getAirHit() const = 0;

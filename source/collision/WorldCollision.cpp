@@ -188,7 +188,7 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
              } else if (bright) {
                  position.x = floorf(this->position.x) + delta;
              }
-         } else if(isInWall() && bleft || bright){
+         } else if (isInWall() && (bleft || bright)) {
              externalForces.x = (elevator->getPosition().x - position.x);
          }
          if (bleft || bright) {

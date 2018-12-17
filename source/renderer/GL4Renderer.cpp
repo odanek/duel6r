@@ -378,7 +378,7 @@ namespace Duel6 {
         }
     }
 
-    void GL4Renderer::buffer(Renderer::Buffer buffer, const Material &material) {
+    void GL4Renderer::buffer(const Renderer::Buffer &buffer, const Material &material) {
         glBindVertexArray(buffer.vao);
         materialProgram.bind();
 

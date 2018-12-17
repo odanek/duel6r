@@ -59,7 +59,7 @@ namespace Duel6 {
 
             void shoot(Player &player, Orientation orientation, World &world) const override {}
 
-            Sprite &makeSprite(Sprite &sprite) const override { return sprite; }
+            SpriteList::Iterator makeSprite(SpriteList &spriteList) const override { return SpriteList::Iterator(); }
 
             Texture getBonusTexture() const override { return Texture(); }
 
@@ -103,8 +103,8 @@ namespace Duel6 {
         impl->shoot(player, orientation, world);
     }
 
-    Sprite &Weapon::makeSprite(Sprite &sprite) const {
-        return impl->makeSprite(sprite);
+    SpriteList::Iterator Weapon::makeSprite(SpriteList &spriteList) const {
+        return impl->makeSprite(spriteList);
     }
 
     Texture Weapon::getBonusTexture() const {

@@ -30,8 +30,8 @@
 #include "LevelRenderData.h"
 
 namespace Duel6 {
-    LevelRenderData::LevelRenderData(const Level &level, Float32 animationSpeed, Float32 waveHeight)
-            : level(level), animationSpeed(animationSpeed), animWait(0), waveHeight(waveHeight) {}
+    LevelRenderData::LevelRenderData(const Level &level, ScreenMode screenMode, Float32 animationSpeed, Float32 waveHeight)
+            : level(level), screenMode(screenMode), animationSpeed(animationSpeed), animWait(0), waveHeight(waveHeight) {}
 
     void LevelRenderData::generateFaces() {
         addWallFaces();
@@ -117,6 +117,14 @@ namespace Duel6 {
     }
 
     void LevelRenderData::addWall(const Block &block, Int32 x, Int32 y) {
+        Int32 width = level.getWidth();
+        Int32 height = level.getHeight();
+        bool splitScreen = screenMode == ScreenMode::SplitScreen;
+        bool left = splitScreen || x > width / 2;
+        bool right = splitScreen || x < width / 2;
+        bool top = splitScreen || y < height / 2;
+        bool bottom = splitScreen || y > height / 2;
+
         walls.addFace(Face(block))
                 .addVertex(Vertex(0, x, y + 1, 1))
                 .addVertex(Vertex(1, x + 1, y + 1, 1))
@@ -132,28 +140,28 @@ namespace Duel6 {
             .addVertex(Vertex(3, x + 1, y, 0));
 #endif
 
-        if (!level.isWall(x - 1, y, false)) {
+        if (left && !level.isWall(x - 1, y, false)) {
             walls.addFace(Face(block))
                     .addVertex(Vertex(0, x, y + 1, 0))
                     .addVertex(Vertex(1, x, y + 1, 1))
                     .addVertex(Vertex(2, x, y, 1))
                     .addVertex(Vertex(3, x, y, 0));
         }
-        if (!level.isWall(x + 1, y, false)) {
+        if (right && !level.isWall(x + 1, y, false)) {
             walls.addFace(Face(block))
                     .addVertex(Vertex(0, x + 1, y + 1, 1))
                     .addVertex(Vertex(1, x + 1, y + 1, 0))
                     .addVertex(Vertex(2, x + 1, y, 0))
                     .addVertex(Vertex(3, x + 1, y, 1));
         }
-        if (!level.isWall(x, y + 1, false)) {
+        if (top && !level.isWall(x, y + 1, false)) {
             walls.addFace(Face(block))
                     .addVertex(Vertex(0, x, y + 1, 1))
                     .addVertex(Vertex(1, x, y + 1, 0))
                     .addVertex(Vertex(2, x + 1, y + 1, 0))
                     .addVertex(Vertex(3, x + 1, y + 1, 1));
         }
-        if (!level.isWall(x, y - 1, false)) {
+        if (bottom && !level.isWall(x, y - 1, false)) {
             walls.addFace(Face(block))
                     .addVertex(Vertex(0, x, y, 1))
                     .addVertex(Vertex(1, x + 1, y, 1))

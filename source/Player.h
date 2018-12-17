@@ -299,6 +299,7 @@ namespace Duel6 {
         Float32 timeSinceHit;
         Float32 timeStuckInWall;
         Float32 tempSkinDuration;
+        Float32 alpha;
         Weapon weapon;
         PlayerEventListener *eventListener;
         World *world; // TODO: Remove
@@ -424,8 +425,7 @@ namespace Duel6 {
         }
 
         Player &setAlpha(Float32 alpha) {
-            sprite->setAlpha(bodyAlpha * alpha);
-            gunSprite->setAlpha(alpha);
+            this->alpha = alpha;
             return *this;
         }
 

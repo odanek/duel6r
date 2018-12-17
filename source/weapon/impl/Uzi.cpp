@@ -26,19 +26,24 @@
 */
 
 #include "Uzi.h"
+#include "UziShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {10.98f, true, false, false, false, Color(0, 0, 0), 0, 15, 0.26f, "uzi",
-                                               "pistol.wav", "", 0, {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 50, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.25f, 0.74f), Vector(0.42f, 0.18f));
+        const LegacyWeapon::Definition DEFINITION = {15, 0.26f,
+                                                     "uzi",
+                                                     "pistol.wav", "",
+                                                     {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
     }
 
     Uzi::Uzi(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 8) {}
 
-    Rectangle Uzi::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 Uzi::getBulletSpeed() const {
+        return 10.98f;
+    }
+
+    std::unique_ptr<Shot> Uzi::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<UziShot>(player, world, *this, orientation);
     }
 }
