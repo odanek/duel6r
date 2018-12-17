@@ -25,65 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_FACELIST_H
-#define DUEL6_FACELIST_H
-
 #include <vector>
-#include "Vertex.h"
-#include "Face.h"
-#include "TextureManager.h"
-#include "renderer/RendererBuffer.h"
+#include "GL1Buffer.h"
+#include "GL1Renderer.h"
 
 namespace Duel6 {
-    class FaceList {
-    private:
-        std::vector<Vertex> vertexes;
-        std::vector<Face> faces;
-        std::unique_ptr<RendererBuffer> buffer;
+    GL1Buffer::GL1Buffer(GL1Renderer &renderer, const FaceList &faceList)
+            : renderer(renderer), faceList(faceList) {
+    }
 
-    public:
-        FaceList() {}
+    GL1Buffer::~GL1Buffer() {
+    }
 
-        ~FaceList();
+    void GL1Buffer::update(const FaceList &faceList) {
+    }
 
-        FaceList &clear() {
-            vertexes.clear();
-            faces.clear();
-            return *this;
-        }
-
-        FaceList &addVertex(const Vertex &vertex) {
-            vertexes.push_back(vertex);
-            return *this;
-        }
-
-        FaceList &addFace(const Face &face) {
-            faces.push_back(face);
-            return *this;
-        }
-
-        std::vector<Vertex> &getVertexes() {
-            return vertexes;
-        }
-
-        const std::vector<Vertex> &getVertexes() const {
-            return vertexes;
-        }
-
-        std::vector<Face> &getFaces() {
-            return faces;
-        }
-
-        const std::vector<Face> &getFaces() const {
-            return faces;
-        }
-
-        void build();
-
-        void render(const Texture &texture, bool masked) const;
-
-        void nextFrame();
-    };
+    void GL1Buffer::render(const Material &material) {
+    }
 }
-
-#endif

@@ -26,12 +26,11 @@
 */
 
 #include "GL1Renderer.h"
+#include "GL1Buffer.h"
 
 namespace Duel6 {
     GL1Renderer::GL1Renderer()
-            : RendererBase() {}
-
-    void GL1Renderer::initialize() {
+            : RendererBase() {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
         glFrontFace(GL_CW);
@@ -44,6 +43,12 @@ namespace Duel6 {
         info.vendor = (const char *) glGetString(GL_VENDOR);
         info.renderer = (const char *) glGetString(GL_RENDERER);
         info.version = (const char *) glGetString(GL_VERSION);
+
+        return info;
+    }
+
+    Renderer::Extensions GL1Renderer::getExtensions() {
+        Extensions info;
 
         const char *extensions = (const char *) glGetString(GL_EXTENSIONS);
 
@@ -70,8 +75,8 @@ namespace Duel6 {
         return info;
     }
 
-    Texture::Id
-    GL1Renderer::createTexture(Int32 width, Int32 height, void *data, Int32 alignment, TextureFilter filtering,
+    Texture
+    GL1Renderer::createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment, TextureFilter filtering,
                                bool clamp) {
         GLuint textureId;
         glGenTextures(1, &textureId);
@@ -79,7 +84,7 @@ namespace Duel6 {
         glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-        GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
+        GLint filter = filtering == TextureFilter::Nearest ? GL_NEAREST : GL_LINEAR;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
@@ -90,7 +95,7 @@ namespace Duel6 {
         return textureId;
     }
 
-    void GL1Renderer::freeTexture(Texture::Id textureId) {
+    void GL1Renderer::freeTexture(Texture textureId) {
         GLuint id = textureId;
         glDeleteTextures(1, &id);
     }
@@ -131,8 +136,32 @@ namespace Duel6 {
         }
     }
 
+    void GL1Renderer::setGlobalTime(Float32 time) {
+        // TODO
+    }
+
     void GL1Renderer::clearBuffers() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void GL1Renderer::setProjectionMatrix(const Matrix &m) {
+        RendererBase::setProjectionMatrix(m);
+        glMatrixMode(GL_PROJECTION);
+        glLoadMatrixf(m.getStorage());
+    }
+
+    void GL1Renderer::setViewMatrix(const Matrix &m) {
+        RendererBase::setViewMatrix(m);
+        Matrix modelView = viewMatrix * modelMatrix;
+        glMatrixMode(GL_MODELVIEW);
+        glLoadMatrixf(modelView.getStorage());
+    }
+
+    void GL1Renderer::setModelMatrix(const Matrix &m) {
+        RendererBase::setModelMatrix(m);
+        Matrix modelView = viewMatrix * modelMatrix;
+        glMatrixMode(GL_MODELVIEW);
+        glLoadMatrixf(modelView.getStorage());
     }
 
     void GL1Renderer::point(const Vector &position, Float32 size, const Color &color) {
@@ -187,7 +216,7 @@ namespace Duel6 {
         }
 
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
+        glBindTexture(GL_TEXTURE_2D, material.getTexture());
 
         glBegin(GL_TRIANGLES);
         glTexCoord2f(t1.x, t1.y);
@@ -212,7 +241,7 @@ namespace Duel6 {
     void GL1Renderer::quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) {
         glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 
-        glBegin(GL_TRIANGLES);
+        glBegin(GL_TRIANGLE_FAN);
         glVertex3f(p1.x, p1.y, p1.z);
         glVertex3f(p2.x, p2.y, p2.z);
         glVertex3f(p3.x, p3.y, p3.z);
@@ -238,9 +267,9 @@ namespace Duel6 {
         }
 
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, material.getTexture().getId());
+        glBindTexture(GL_TEXTURE_2D, material.getTexture());
 
-        glBegin(GL_TRIANGLES);
+        glBegin(GL_TRIANGLE_FAN);
         glTexCoord2f(t1.x, t1.y);
         glVertex3f(p1.x, p1.y, p1.z);
         glTexCoord2f(t2.x, t2.y);
@@ -260,6 +289,10 @@ namespace Duel6 {
         if (material.isColored()) {
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         }
+    }
+
+    std::unique_ptr<RendererBuffer> GL1Renderer::makeBuffer(const FaceList &faceList) {
+        return std::make_unique<GL1Buffer>(*this, faceList);
     }
 
     void GL1Renderer::enableOption(GLenum option, bool enable) {

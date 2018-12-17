@@ -104,7 +104,7 @@ namespace Duel6 {
                   const Vector &p4, const Vector &t4,
                   const Material &material) override;
 
-        std::unique_ptr<Renderer::Buffer> makeBuffer(const FaceList &faceList) override;
+        std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) override;
 
     private:
         void enableOption(GLenum option, bool enable);

@@ -59,7 +59,7 @@ endif (MINGW)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
 # Switches
-set(D6R_RENDERER "gl4")  # Renderer: gl1/gl4/es2
+set(D6R_RENDERER "gl1")  # Renderer: gl1/gl4/es2
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
 #########################################################################
@@ -393,7 +393,10 @@ if (D6R_RENDERER STREQUAL "gl1")
     set(D6R_SOURCES ${D6R_SOURCES}
             source/renderer/gl1/GL1Types.h
             source/renderer/gl1/GL1Renderer.h
-            source/renderer/gl1/GL1Renderer.cpp)
+            source/renderer/gl1/GL1Renderer.cpp
+            source/renderer/gl1/GL1Buffer.h
+            source/renderer/gl1/GL1Buffer.cpp
+            )
 endif (D6R_RENDERER STREQUAL "gl1")
 
 if (D6R_RENDERER STREQUAL "es2")
@@ -401,7 +404,8 @@ if (D6R_RENDERER STREQUAL "es2")
     set(D6R_SOURCES ${D6R_SOURCES}
             source/renderer/es2/GLES2Types.h
             source/renderer/es2/GLES2Renderer.h
-            source/renderer/es2/GLES2Renderer.cpp)
+            source/renderer/es2/GLES2Renderer.cpp
+            )
 endif (D6R_RENDERER STREQUAL "es2")
 
 if (D6R_RENDERER STREQUAL "gl4")

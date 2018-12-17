@@ -36,6 +36,7 @@
 #include "../Image.h"
 #include "../Material.h"
 #include "RendererTypes.h"
+#include "RendererBuffer.h"
 
 namespace Duel6 {
     class FaceList;
@@ -50,13 +51,6 @@ namespace Duel6 {
 
         struct Extensions {
             std::vector<std::string> extensions;
-        };
-
-        class Buffer {
-        public:
-            virtual ~Buffer() = default;
-            virtual void update(const FaceList &faceList) = 0;
-            virtual void render(const Material &material) = 0;
         };
 
     public:
@@ -135,7 +129,7 @@ namespace Duel6 {
 
         virtual void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) = 0;
 
-        virtual std::unique_ptr<Buffer> makeBuffer(const FaceList &faceList) = 0;
+        virtual std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) = 0;
     };
 }
 

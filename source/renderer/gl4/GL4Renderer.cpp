@@ -319,7 +319,7 @@ namespace Duel6 {
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
 
-    std::unique_ptr<Renderer::Buffer> GL4Renderer::makeBuffer(const FaceList &faceList) {
+    std::unique_ptr<RendererBuffer> GL4Renderer::makeBuffer(const FaceList &faceList) {
         return std::make_unique<GL4Buffer>(materialProgram, faceList);
     }
 
@@ -346,6 +346,8 @@ namespace Duel6 {
     }
 
     void GL4Renderer::updateMvpUniform() {
+        mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+
         colorProgram.bind(); // Required for INTEL
         colorProgram.setUniform("mvp", mvpMatrix);
         materialProgram.bind(); // Required for INTEL

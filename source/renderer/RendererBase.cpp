@@ -33,7 +33,6 @@ namespace Duel6 {
 
     void RendererBase::setProjectionMatrix(const Matrix &m) {
         projectionMatrix = m;
-        mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     }
 
     Matrix RendererBase::getProjectionMatrix() const {
@@ -42,7 +41,6 @@ namespace Duel6 {
 
     void RendererBase::setViewMatrix(const Matrix &m) {
         viewMatrix = m;
-        mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     }
 
     Matrix RendererBase::getViewMatrix() const {
@@ -51,7 +49,6 @@ namespace Duel6 {
 
     void RendererBase::setModelMatrix(const Matrix &m) {
         modelMatrix = m;
-        mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     }
 
     Matrix RendererBase::getModelMatrix() const {

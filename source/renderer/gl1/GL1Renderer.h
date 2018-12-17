@@ -28,7 +28,7 @@
 #ifndef DUEL6_RENDERER_GL1RENDERER_H
 #define DUEL6_RENDERER_GL1RENDERER_H
 
-#include <SDL2/SDL_opengl.h>
+#include <GL/glew.h>
 #include "../RendererBase.h"
 
 namespace Duel6 {
@@ -37,14 +37,14 @@ namespace Duel6 {
     public:
         GL1Renderer();
 
-        void initialize() override;
-
         Info getInfo() override;
 
-        Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
+        Extensions getExtensions() override;
+
+        Texture createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
                                   TextureFilter filtering, bool clamp) override;
 
-        void freeTexture(Texture::Id textureId) override;
+        void freeTexture(Texture textureId) override;
 
         void readScreenData(Int32 width, Int32 height, Image &image) override;
 
@@ -58,7 +58,15 @@ namespace Duel6 {
 
         void setBlendFunc(BlendFunc func) override;
 
+        void setGlobalTime(Float32 time) override;
+
         void clearBuffers() override;
+
+        void setProjectionMatrix(const Matrix &m) override;
+
+        void setViewMatrix(const Matrix &m) override;
+
+        void setModelMatrix(const Matrix &m) override;
 
         void point(const Vector &position, Float32 size, const Color &color) override;
 
@@ -79,6 +87,7 @@ namespace Duel6 {
                   const Vector &p4, const Vector &t4,
                   const Material &material) override;
 
+        std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) override;
 
     private:
         void enableOption(GLenum option, bool enable);

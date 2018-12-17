@@ -25,64 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_FACELIST_H
-#define DUEL6_FACELIST_H
+#ifndef DUEL6_RENDERER_GL1_TYPES_H
+#define DUEL6_RENDERER_GL1_TYPES_H
 
-#include <vector>
-#include "Vertex.h"
-#include "Face.h"
-#include "TextureManager.h"
-#include "renderer/RendererBuffer.h"
+#include <GL/glew.h>
 
 namespace Duel6 {
-    class FaceList {
-    private:
-        std::vector<Vertex> vertexes;
-        std::vector<Face> faces;
-        std::unique_ptr<RendererBuffer> buffer;
+    typedef GLuint Texture;
 
-    public:
-        FaceList() {}
+    enum class BlendFunc {
+        None,
+        SrcAlpha,
+        SrcColor
+    };
 
-        ~FaceList();
-
-        FaceList &clear() {
-            vertexes.clear();
-            faces.clear();
-            return *this;
-        }
-
-        FaceList &addVertex(const Vertex &vertex) {
-            vertexes.push_back(vertex);
-            return *this;
-        }
-
-        FaceList &addFace(const Face &face) {
-            faces.push_back(face);
-            return *this;
-        }
-
-        std::vector<Vertex> &getVertexes() {
-            return vertexes;
-        }
-
-        const std::vector<Vertex> &getVertexes() const {
-            return vertexes;
-        }
-
-        std::vector<Face> &getFaces() {
-            return faces;
-        }
-
-        const std::vector<Face> &getFaces() const {
-            return faces;
-        }
-
-        void build();
-
-        void render(const Texture &texture, bool masked) const;
-
-        void nextFrame();
+    enum class TextureFilter {
+        Nearest,
+        Linear
     };
 }
 

@@ -29,14 +29,12 @@
 #define DUEL6_RENDERER_GL4_GL4BUFFER_H
 
 #include <GL/glew.h>
-#include "../Renderer.h"
+#include "../RendererBuffer.h"
 #include "../../Vertex.h"
 #include "GL4Program.h"
 
 namespace Duel6 {
-    class GL4Renderer;
-
-    class GL4Buffer : public Renderer::Buffer {
+    class GL4Buffer : public RendererBuffer {
     private:
         GL4Program &program;
         Uint32 vao;
