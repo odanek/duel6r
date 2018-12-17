@@ -30,13 +30,13 @@
 
 namespace Duel6 {
     FaceList::~FaceList() {
-        globRenderer->destroyBuffer(buffer);
     }
 
     void FaceList::build() {
-        globRenderer->destroyBuffer(buffer);
         if (!faces.empty()) {
             buffer = globRenderer->makeBuffer(*this);
+        } else {
+            buffer = nullptr;
         }
     }
 
@@ -46,13 +46,17 @@ namespace Duel6 {
         }
 
         Material material(texture, Color::WHITE, masked);
-        globRenderer->buffer(buffer, material);
+        buffer->render(material);
     }
 
     void FaceList::nextFrame() {
+        if (faces.empty()) {
+            return;
+        }
+
         for (Face &face : faces) {
             face.nextFrame();
         }
-        globRenderer->updateBuffer(*this, buffer);
+        buffer->update(*this);
     }
 }

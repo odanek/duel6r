@@ -192,8 +192,6 @@ set(D6R_SOURCES
         source/ViewParameters.h
         source/Water.cpp
         source/Water.h
-        source/WaterList.cpp
-        source/WaterList.h
         source/Weapon.cpp
         source/Weapon.h
         source/World.cpp
@@ -404,10 +402,12 @@ if (D6R_RENDERER STREQUAL "gl4")
     set(D6R_SOURCES ${D6R_SOURCES}
             source/renderer/GL4Renderer.h
             source/renderer/GL4Renderer.cpp
-            source/renderer/GLShader.h
-            source/renderer/GLShader.cpp
-            source/renderer/GLProgram.h
-            source/renderer/GLProgram.cpp
+            source/renderer/gl4/GL4Shader.h
+            source/renderer/gl4/GL4Shader.cpp
+            source/renderer/gl4/GL4Program.h
+            source/renderer/gl4/GL4Program.cpp
+            source/renderer/gl4/GL4Buffer.h
+            source/renderer/gl4/GL4Buffer.cpp
         )
 endif (D6R_RENDERER STREQUAL "gl4")
 

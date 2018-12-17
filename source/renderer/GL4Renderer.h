@@ -30,9 +30,9 @@
 
 #include <GL/glew.h>
 #include "RendererBase.h"
-#include "../Vertex.h"
-#include "GLProgram.h"
-#include "GLShader.h"
+#include "gl4/GL4Program.h"
+#include "gl4/GL4Shader.h"
+#include "gl4/GL4Buffer.h"
 
 namespace Duel6 {
     class GL4Renderer
@@ -43,13 +43,13 @@ namespace Duel6 {
         GLuint materialVbo;
         GLuint materialVao;
 
-        GLShader colorVertexShader;
-        GLShader colorFragmentShader;
-        GLShader materialVertexShader;
-        GLShader materialFragmentShader;
+        GL4Shader colorVertexShader;
+        GL4Shader colorFragmentShader;
+        GL4Shader materialVertexShader;
+        GL4Shader materialFragmentShader;
 
-        GLProgram colorProgram;
-        GLProgram materialProgram;
+        GL4Program colorProgram;
+        GL4Program materialProgram;
 
     public:
         GL4Renderer();
@@ -104,13 +104,7 @@ namespace Duel6 {
                   const Vector &p4, const Vector &t4,
                   const Material &material) override;
 
-        Buffer makeBuffer(const FaceList &faceList) override;
-
-        void updateBuffer(const FaceList &faceList, const Buffer &buffer) override;
-
-        void destroyBuffer(Buffer &buffer) override;
-
-        void buffer(const Buffer &buffer, const Material &material) override;
+        std::unique_ptr<Renderer::Buffer> makeBuffer(const FaceList &faceList) override;
 
     private:
         void enableOption(GLenum option, bool enable);
@@ -120,10 +114,6 @@ namespace Duel6 {
         void updateMaterialBuffer(Int32 vertexCount);
 
         void updateMvpUniform();
-
-        void createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer);
-
-        void createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer);
     };
 }
 

@@ -319,78 +319,8 @@ namespace Duel6 {
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
 
-    Renderer::Buffer GL4Renderer::makeBuffer(const FaceList &faceList) {
-        std::vector<Vertex> vertexBuffer;
-        createFaceListVertexBuffer(faceList, vertexBuffer);
-
-        std::vector<Float32> textureIndexBuffer;
-        createFaceListTextureIndexBuffer(faceList, textureIndexBuffer);
-
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-
-        GLuint vertexVbo;
-        glGenBuffers(1, &vertexVbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
-        glBufferData(GL_ARRAY_BUFFER, vertexBuffer.size() * sizeof(Vertex), vertexBuffer.data(), GL_STATIC_DRAW);
-        //glNamedBufferStorage(vertexVbo, vertexBuffer.size() * sizeof(Float32), vertexBuffer.data(), 0); // GL 4.5
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *) (3 * sizeof(Float32)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex), (const GLvoid *) (5 * sizeof(Float32)));
-        glEnableVertexAttribArray(3);
-
-        GLuint textureIndexVbo;
-        glGenBuffers(1, &textureIndexVbo);
-        glBindBuffer(GL_ARRAY_BUFFER, textureIndexVbo);
-        glBufferData(GL_ARRAY_BUFFER, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(), GL_STATIC_DRAW);
-        //glNamedBufferStorage(textureIndexVbo, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(), 0); // GL 4.5
-
-        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
-        glEnableVertexAttribArray(2);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        return {vao, vertexVbo, textureIndexVbo, Uint32(6 * faceList.getFaces().size())};
-    }
-
-    void GL4Renderer::updateBuffer(const FaceList &faceList, const Buffer &buffer) {
-        std::vector<Float32> textureIndexBuffer;
-        createFaceListTextureIndexBuffer(faceList, textureIndexBuffer);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffer.textureIndexVbo);
-        glBufferData(GL_ARRAY_BUFFER, textureIndexBuffer.size() * sizeof(Float32), textureIndexBuffer.data(), GL_STATIC_DRAW);
-        // glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.elements * sizeof(Float32), textureIndexBuffer.data());
-        // glNamedBufferSubData(buffer.textureIndexVbo, 0, buffer.elements * sizeof(Float32), textureIndexBuffer.data()); // GL 4.5
-    }
-
-    void GL4Renderer::destroyBuffer(Buffer &buffer) {
-        if (buffer.vao != 0) {
-            glDeleteVertexArrays(1, &buffer.vao);
-            glDeleteBuffers(1, &buffer.vertexVbo);
-            glDeleteBuffers(1, &buffer.textureIndexVbo);
-            buffer.vao = 0;
-            buffer.vertexVbo = 0;
-            buffer.textureIndexVbo = 0;
-        }
-    }
-
-    void GL4Renderer::buffer(const Renderer::Buffer &buffer, const Material &material) {
-        glBindVertexArray(buffer.vao);
-        materialProgram.bind();
-
-        glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture().getId());
-        materialProgram.setUniform("alphaTest", material.isMasked() ? 1 : 0);
-
-        const Color &color = material.getColor();
-        Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
-                                color.getAlpha() / 255.0f};
-        materialProgram.setUniform("color", colorData);
-
-        glDrawArrays(GL_TRIANGLES, 0, buffer.elements);
+    std::unique_ptr<Renderer::Buffer> GL4Renderer::makeBuffer(const FaceList &faceList) {
+        return std::make_unique<GL4Buffer>(materialProgram, faceList);
     }
 
     void GL4Renderer::enableOption(GLenum option, bool enable) {
@@ -420,43 +350,5 @@ namespace Duel6 {
         colorProgram.setUniform("mvp", mvpMatrix);
         materialProgram.bind(); // Required for INTEL
         materialProgram.setUniform("mvp", mvpMatrix);
-    }
-
-    void GL4Renderer::createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer) {
-        const Vertex *vertex = faceList.getVertexes().data();
-        const auto &faces = faceList.getFaces();
-
-        const auto faceCount = faces.size();
-        vertexBuffer.reserve(faceCount * 6);
-
-        for (Size i = 0; i < faceCount; i++, vertex += 4) {
-            const Vertex &v1 = vertex[0];
-            const Vertex &v2 = vertex[1];
-            const Vertex &v3 = vertex[2];
-            const Vertex &v4 = vertex[3];
-
-            vertexBuffer.push_back(v1);
-            vertexBuffer.push_back(v2);
-            vertexBuffer.push_back(v3);
-            vertexBuffer.push_back(v1);
-            vertexBuffer.push_back(v3);
-            vertexBuffer.push_back(v4);
-        }
-    }
-
-    void
-    GL4Renderer::createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer) {
-        const auto &faces = faceList.getFaces();
-        textureIndexBuffer.reserve(faces.size() * 6);
-
-        for (const Face &face : faces) {
-            Float32 textureIndex = face.getCurrentTexture();
-            textureIndexBuffer.push_back(textureIndex);
-            textureIndexBuffer.push_back(textureIndex);
-            textureIndexBuffer.push_back(textureIndex);
-            textureIndexBuffer.push_back(textureIndex);
-            textureIndexBuffer.push_back(textureIndex);
-            textureIndexBuffer.push_back(textureIndex);
-        }
     }
 }

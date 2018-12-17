@@ -25,24 +25,24 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GLPROGRAM_H
-#define DUEL6_RENDERER_GLPROGRAM_H
+#ifndef DUEL6_RENDERER_GL4_GL4PROGRAM_H
+#define DUEL6_RENDERER_GL4_GL4PROGRAM_H
 
 #include <GL/glew.h>
-#include "GLShader.h"
-#include "../Type.h"
-#include "../math/Matrix.h"
+#include "GL4Shader.h"
+#include "../../Type.h"
+#include "../../math/Matrix.h"
 
 namespace Duel6 {
-    class GLProgram {
+    class GL4Program {
     private:
-        const GLShader &vertexShader;
-        const GLShader &fragmentShader;
+        const GL4Shader &vertexShader;
+        const GL4Shader &fragmentShader;
         GLuint id;
 
     public:
-        GLProgram(const GLShader &vertexShader, const GLShader &fragmentShader);
-        ~GLProgram();
+        GL4Program(const GL4Shader &vertexShader, const GL4Shader &fragmentShader);
+        ~GL4Program();
 
         void bind();
         GLint uniformLocation(const GLchar *name);
@@ -54,8 +54,8 @@ namespace Duel6 {
 
         GLuint getId() const;
 
-        const GLShader &getVertexShader() const;
-        const GLShader &getFragmentShader() const;
+        const GL4Shader &getVertexShader() const;
+        const GL4Shader &getFragmentShader() const;
     };
 }
 

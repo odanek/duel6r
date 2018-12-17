@@ -26,12 +26,12 @@
 */
 
 #include <vector>
-#include "GLProgram.h"
-#include "../Exception.h"
-#include "../VideoException.h"
+#include "GL4Program.h"
+#include "../../Exception.h"
+#include "../../VideoException.h"
 
 namespace Duel6 {
-    GLProgram::GLProgram(const GLShader &vertexShader, const GLShader &fragmentShader)
+    GL4Program::GL4Program(const GL4Shader &vertexShader, const GL4Shader &fragmentShader)
             : vertexShader(vertexShader), fragmentShader(fragmentShader) {
         id = glCreateProgram();
 
@@ -56,46 +56,46 @@ namespace Duel6 {
         }
     }
 
-    GLProgram::~GLProgram() {
+    GL4Program::~GL4Program() {
         if (id != 0) {
             glDeleteProgram(id);
             id = 0;
         }
     }
 
-    void GLProgram::bind() {
+    void GL4Program::bind() {
         glUseProgram(id);
     }
 
-    GLint GLProgram::uniformLocation(const GLchar *name) {
+    GLint GL4Program::uniformLocation(const GLchar *name) {
         return glGetUniformLocation(id, name);
     }
 
-    void GLProgram::setUniform(const GLchar *name, Int32 value) {
+    void GL4Program::setUniform(const GLchar *name, Int32 value) {
         glProgramUniform1i(id, uniformLocation(name), value);
     }
 
-    void GLProgram::setUniform(const GLchar *name, Float32 value) {
+    void GL4Program::setUniform(const GLchar *name, Float32 value) {
         glProgramUniform1f(id, uniformLocation(name), value);
     }
 
-    void GLProgram::setUniform(const GLchar *name, Float32 value[4]) {
+    void GL4Program::setUniform(const GLchar *name, Float32 value[4]) {
         glProgramUniform4fv(id, uniformLocation(name), 1, value);
     }
 
-    void GLProgram::setUniform(const GLchar *name, const Matrix &value) {
+    void GL4Program::setUniform(const GLchar *name, const Matrix &value) {
         glProgramUniformMatrix4fv(id, uniformLocation(name), 1, GL_FALSE, value.getStorage());
     }
 
-    GLuint GLProgram::getId() const {
+    GLuint GL4Program::getId() const {
         return id;
     }
 
-    const GLShader &GLProgram::getVertexShader() const {
+    const GL4Shader &GL4Program::getVertexShader() const {
         return vertexShader;
     }
 
-    const GLShader &GLProgram::getFragmentShader() const {
+    const GL4Shader &GL4Program::getFragmentShader() const {
         return fragmentShader;
     }
 }

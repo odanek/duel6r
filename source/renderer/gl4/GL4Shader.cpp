@@ -25,34 +25,53 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "math/Math.h"
-#include "WaterList.h"
+#include <vector>
+#include "GL4Shader.h"
+#include "../../File.h"
+#include "../../Exception.h"
+#include "../../VideoException.h"
+#include "../../Format.h"
 
 namespace Duel6 {
-    WaterList::WaterList()
-            : phase(0.0f) {}
+    GL4Shader::GL4Shader(GLenum type, const std::string &path)
+            : type(type), id(0) {
+        id = glCreateShader(type);
 
-    void WaterList::build(FaceList &waterFaces, Float32 waveHeight) {
-        this->waveHeight = waveHeight;
-        vertexes.clear();
-        for (Vertex &vertex : waterFaces.getVertexes()) {
-            if (vertex.getFlag() == Vertex::Flag::Flow) {
-                vertexes.push_back(WaterVertex(vertex, waveHeight));
-            }
+        auto shaderData = File::load(path);
+        shaderData.push_back(0);
+        auto shaderText = (const char *)(shaderData.data());
+        glShaderSource(id, 1, &shaderText, nullptr);
+
+        glCompileShader(id);
+
+        GLint isCompiled = 0;
+        glGetShaderiv(id, GL_COMPILE_STATUS, &isCompiled);
+        if(isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
+
+            std::vector<GLchar> errorLog(maxLength);
+            glGetShaderInfoLog(id, maxLength, &maxLength, errorLog.data());
+
+            glDeleteShader(id);
+
+            D6_THROW(VideoException, Format("Shader compilation ({0}) failed:\n {1}\n") << path << (const char *)errorLog.data());
         }
     }
 
-    void WaterList::update(Float32 elapsedTime) {
-        phase += 122 * elapsedTime;
-        while (phase >= 360) {
-            phase -= 360;
+    GL4Shader::~GL4Shader() {
+        if (id != 0) {
+            glDeleteShader(id);
+            id = 0;
         }
+    }
 
-        for (WaterVertex &wv : vertexes) {
-            Vertex &vertex = wv.getVertex();
-            Float32 vertexPhase = phase + 60.0f * vertex.x;
-            Float32 height = Math::degSin(vertexPhase) * waveHeight;
-            vertex.y = wv.getY() + height;
-        }
+    GLuint GL4Shader::getId() const {
+        return id;
+    }
+
+    GLenum GL4Shader::getType() const {
+        return type;
     }
 }

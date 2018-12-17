@@ -39,7 +39,7 @@ namespace Duel6 {
     private:
         std::vector<Vertex> vertexes;
         std::vector<Face> faces;
-        Renderer::Buffer buffer;
+        std::unique_ptr<Renderer::Buffer> buffer;
 
     public:
         FaceList() {}

@@ -28,6 +28,7 @@
 #ifndef DUEL6_RENDERER_RENDERER_H
 #define DUEL6_RENDERER_RENDERER_H
 
+#include <memory>
 #include <vector>
 #include "../math/Vector.h"
 #include "../math/Matrix.h"
@@ -51,16 +52,11 @@ namespace Duel6 {
             std::vector<std::string> extensions;
         };
 
-        struct Buffer {
-            Uint32 vao;
-            Uint32 vertexVbo;
-            Uint32 textureIndexVbo;
-            Uint32 elements;
-
-            Buffer() : vao(0), vertexVbo(0), textureIndexVbo(0), elements(0) {}
-
-            Buffer(Uint32 vao, Uint32 vertexVbo, Uint32 textureIndexVbo, Uint32 elements)
-                    : vao(vao), vertexVbo(vertexVbo), textureIndexVbo(textureIndexVbo), elements(elements) {}
+        class Buffer {
+        public:
+            virtual ~Buffer() = default;
+            virtual void update(const FaceList &faceList) = 0;
+            virtual void render(const Material &material) = 0;
         };
 
         enum class BlendFunc {
@@ -145,13 +141,7 @@ namespace Duel6 {
 
         virtual void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) = 0;
 
-        virtual Buffer makeBuffer(const FaceList &faceList) = 0;
-
-        virtual void updateBuffer(const FaceList &faceList, const Buffer &buffer) = 0;
-
-        virtual void destroyBuffer(Buffer &buffer) = 0;
-
-        virtual void buffer(const Buffer &buffer, const Material &material) = 0;
+        virtual std::unique_ptr<Buffer> makeBuffer(const FaceList &faceList) = 0;
     };
 }
 

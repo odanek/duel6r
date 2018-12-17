@@ -25,48 +25,38 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_WATERLIST_H
-#define DUEL6_WATERLIST_H
+#ifndef DUEL6_RENDERER_GL4_GL4BUFFER_H
+#define DUEL6_RENDERER_GL4_GL4BUFFER_H
 
-#include <vector>
-#include "Type.h"
-#include "FaceList.h"
-#include "console/console.h"
+#include <GL/glew.h>
+#include "../Renderer.h"
+#include "../../Vertex.h"
+#include "GL4Program.h"
 
 namespace Duel6 {
-    class WaterList {
+    class GL4Renderer;
+
+    class GL4Buffer : public Renderer::Buffer {
     private:
-        class WaterVertex {
-        private:
-            Float32 y;
-            Vertex &vertex;
-
-        public:
-            WaterVertex(Vertex &vertex, Float32 height)
-                    : vertex(vertex) {
-                y = vertex.y - height;
-            }
-
-            Vertex &getVertex() {
-                return vertex;
-            }
-
-            Float32 getY() const {
-                return y;
-            }
-        };
-
-    private:
-        std::vector<WaterVertex> vertexes;
-        Float32 waveHeight;
-        Float32 phase;
+        GL4Program &program;
+        Uint32 vao;
+        Uint32 vertexVbo;
+        Uint32 textureIndexVbo;
+        Size elements;
 
     public:
-        WaterList();
+        explicit GL4Buffer(GL4Program &program, const FaceList &faceList);
 
-        void build(FaceList &waterFaces, Float32 waveHeight);
+        ~GL4Buffer() override;
 
-        void update(Float32 elapsedTime);
+        void update(const FaceList &faceList) override;
+
+        void render(const Material &material) override;
+
+    private:
+        void createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer);
+
+        void createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer);
     };
 }
 

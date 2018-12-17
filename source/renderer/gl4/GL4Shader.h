@@ -25,21 +25,21 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GLSHADER_H
-#define DUEL6_RENDERER_GLSHADER_H
+#ifndef DUEL6_RENDERER_GL4_GLSHADER_H
+#define DUEL6_RENDERER_GL4_GLSHADER_H
 
 #include <GL/glew.h>
 #include <string>
 
 namespace Duel6 {
-    class GLShader {
+    class GL4Shader {
     private:
         GLenum type;
         GLuint id;
 
     public:
-        GLShader(GLenum type, const std::string &path);
-        ~GLShader();
+        GL4Shader(GLenum type, const std::string &path);
+        ~GL4Shader();
 
         GLuint getId() const;
         GLenum getType() const;
