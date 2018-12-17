@@ -158,7 +158,11 @@ namespace Duel6 {
     }
 
     void GL1Renderer::setGlobalTime(Float32 time) {
-        // TODO
+        globalTime = time;
+    }
+
+    Float32 GL1Renderer::getGlobalTime() const {
+        return globalTime;
     }
 
     void GL1Renderer::clearBuffers() {

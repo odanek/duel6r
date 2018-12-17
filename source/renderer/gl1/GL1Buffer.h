@@ -30,6 +30,8 @@
 
 #include <GL/glew.h>
 #include "../RendererBuffer.h"
+#include "../../Vertex.h"
+#include "../../math/Vector.h"
 
 namespace Duel6 {
     class GL1Renderer;
@@ -47,6 +49,9 @@ namespace Duel6 {
         void update(const FaceList &faceList) override;
 
         void render(const Material &material) override;
+
+    private:
+        Vector getVertexPosition(const Vertex &vertex) const;
     };
 }
 

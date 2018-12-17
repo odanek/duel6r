@@ -34,6 +34,9 @@
 namespace Duel6 {
     class GL1Renderer
             : public RendererBase {
+    private:
+        Float32 globalTime;
+
     public:
         GL1Renderer();
 
@@ -59,6 +62,8 @@ namespace Duel6 {
         void setBlendFunc(BlendFunc func) override;
 
         void setGlobalTime(Float32 time) override;
+
+        Float32 getGlobalTime() const;
 
         void clearBuffers() override;
 

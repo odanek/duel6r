@@ -28,10 +28,13 @@
 #include <vector>
 #include "GL1Buffer.h"
 #include "GL1Renderer.h"
-#include "../../Vertex.h"
 #include "../../FaceList.h"
 
 namespace Duel6 {
+    namespace {
+        const Float32 waveHeight = 0.1f;
+    }
+
     GL1Buffer::GL1Buffer(GL1Renderer &renderer, const FaceList &faceList)
             : renderer(renderer), faceList(faceList) {
     }
@@ -54,13 +57,21 @@ namespace Duel6 {
 
             Float32 currentTexture = face.getCurrentTexture();
 
-            renderer.quad(Vector(v1.x, v1.y, v1.z), Vector(v1.u, v1.v, currentTexture),
-                          Vector(v2.x, v2.y, v2.z), Vector(v2.u, v2.v, currentTexture),
-                          Vector(v3.x, v3.y, v3.z), Vector(v3.u, v3.v, currentTexture),
-                          Vector(v4.x, v4.y, v4.z), Vector(v4.u, v4.v, currentTexture),
+            renderer.quad(getVertexPosition(v1), Vector(v1.u, v1.v, currentTexture),
+                          getVertexPosition(v2), Vector(v2.u, v2.v, currentTexture),
+                          getVertexPosition(v3), Vector(v3.u, v3.v, currentTexture),
+                          getVertexPosition(v4), Vector(v4.u, v4.v, currentTexture),
                           material);
 
             vertex += 4;
         }
+    }
+
+    Vector GL1Buffer::getVertexPosition(const Duel6::Vertex &vertex) const {
+        Float32 y = vertex.y;
+        if (vertex.getFlag() == Vertex::Flow) {
+            y = y - waveHeight + Math::radianSin(renderer.getGlobalTime() * 2.13f + 1.05f * vertex.x) * waveHeight;
+        }
+        return Vector(vertex.x, y, vertex.z);
     }
 }
