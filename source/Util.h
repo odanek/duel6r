@@ -32,7 +32,6 @@
 #include "Type.h"
 #include "Image.h"
 #include "Video.h"
-#include "Texture.h"
 
 namespace Duel6 {
     namespace Util {

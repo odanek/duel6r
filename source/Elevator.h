@@ -31,7 +31,7 @@
 #include <vector>
 #include "Type.h"
 #include "math/Vector.h"
-#include "Texture.h"
+#include "renderer/RendererTypes.h"
 
 namespace Duel6 {
     class Elevator {

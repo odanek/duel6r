@@ -25,26 +25,43 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GL1RENDERER_H
-#define DUEL6_RENDERER_GL1RENDERER_H
+#ifndef DUEL6_RENDERER_GL4RENDERER_H
+#define DUEL6_RENDERER_GL4RENDERER_H
 
-#include <SDL2/SDL_opengl.h>
-#include "RendererBase.h"
+#include <GL/glew.h>
+#include "../RendererBase.h"
+#include "GL4Program.h"
+#include "GL4Shader.h"
+#include "GL4Buffer.h"
 
 namespace Duel6 {
-    class GL1Renderer
+    class GL4Renderer
             : public RendererBase {
-    public:
-        GL1Renderer();
+    private:
+        GLuint colorVao;
+        GLuint colorVbo;
+        GLuint materialVbo;
+        GLuint materialVao;
 
-        void initialize() override;
+        GL4Shader colorVertexShader;
+        GL4Shader colorFragmentShader;
+        GL4Shader materialVertexShader;
+        GL4Shader materialFragmentShader;
+
+        GL4Program colorProgram;
+        GL4Program materialProgram;
+
+    public:
+        GL4Renderer();
 
         Info getInfo() override;
 
-        Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
+        Extensions getExtensions() override;
+
+        Texture createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
                                   TextureFilter filtering, bool clamp) override;
 
-        void freeTexture(Texture::Id textureId) override;
+        void freeTexture(Texture textureId) override;
 
         void readScreenData(Int32 width, Int32 height, Image &image) override;
 
@@ -58,7 +75,15 @@ namespace Duel6 {
 
         void setBlendFunc(BlendFunc func) override;
 
+        void setGlobalTime(Float32 time) override;
+
         void clearBuffers() override;
+
+        void setProjectionMatrix(const Matrix &m) override;
+
+        void setViewMatrix(const Matrix &m) override;
+
+        void setModelMatrix(const Matrix &m) override;
 
         void point(const Vector &position, Float32 size, const Color &color) override;
 
@@ -79,9 +104,16 @@ namespace Duel6 {
                   const Vector &p4, const Vector &t4,
                   const Material &material) override;
 
+        std::unique_ptr<Renderer::Buffer> makeBuffer(const FaceList &faceList) override;
 
     private:
         void enableOption(GLenum option, bool enable);
+
+        void updateColorBuffer(Int32 vertexCount);
+
+        void updateMaterialBuffer(Int32 vertexCount);
+
+        void updateMvpUniform();
     };
 }
 

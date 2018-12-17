@@ -26,10 +26,10 @@
 */
 
 #include "GL4Renderer.h"
-#include "../FaceList.h"
-#include "../Exception.h"
-#include "../VideoException.h"
-#include "../File.h"
+#include "../../FaceList.h"
+#include "../../Exception.h"
+#include "../../VideoException.h"
+#include "../../File.h"
 
 namespace Duel6 {
     struct ColorVertex {
@@ -112,7 +112,7 @@ namespace Duel6 {
         return info;
     }
 
-    Texture::Id GL4Renderer::createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
+    Texture GL4Renderer::createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
                                            TextureFilter filtering,
                                            bool clamp) {
         GLuint textureId;
@@ -121,7 +121,7 @@ namespace Duel6 {
         glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-        GLint filter = filtering == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
+        GLint filter = filtering == TextureFilter::Nearest ? GL_NEAREST : GL_LINEAR;
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, filter);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, filter);
 
@@ -131,7 +131,7 @@ namespace Duel6 {
         return textureId;
     }
 
-    void GL4Renderer::freeTexture(Texture::Id textureId) {
+    void GL4Renderer::freeTexture(Texture textureId) {
         GLuint id = textureId;
         glDeleteTextures(1, &id);
     }
@@ -156,7 +156,7 @@ namespace Duel6 {
         glDepthMask(GLboolean(enable ? GL_TRUE : GL_FALSE));
     }
 
-    void GL4Renderer::setBlendFunc(Renderer::BlendFunc func) {
+    void GL4Renderer::setBlendFunc(BlendFunc func) {
         switch (func) {
             case BlendFunc::None:
                 glDisable(GL_BLEND);
@@ -252,7 +252,7 @@ namespace Duel6 {
         glBindVertexArray(materialVao);
         materialProgram.bind();
 
-        glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture().getId());
+        glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture());
 
         materialPoints[0].xyz = p1;
         materialPoints[0].str = t1;
@@ -297,7 +297,7 @@ namespace Duel6 {
         glBindVertexArray(materialVao);
         materialProgram.bind();
 
-        glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture().getId());
+        glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture());
 
         materialPoints[0].xyz = p1;
         materialPoints[0].str = t1;

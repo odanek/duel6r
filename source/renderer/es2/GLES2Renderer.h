@@ -29,7 +29,7 @@
 #define DUEL6_RENDERER_GLES2RENDERER_H
 
 #include <GL/glew.h>
-#include "RendererBase.h"
+#include "../RendererBase.h"
 
 namespace Duel6 {
     class GLES2Renderer

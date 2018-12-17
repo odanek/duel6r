@@ -38,11 +38,11 @@ namespace Duel6 {
     LegacyWeapon::LegacyWeapon(Sound &sound, TextureManager &textureManager, const Definition &definition, Size index)
             : WeaponBase(definition.name, definition.reloadSpeed), definition(definition) {
         const std::string wpnPath = Format("{0}{1,3|0}") << D6_TEXTURE_WPN_PATH << index;
-        auto filterType = NEAREST_FILTER_BOOM.find(index) != NEAREST_FILTER_BOOM.end() ? TextureFilter::NEAREST
-                                                                                       : TextureFilter::LINEAR;
+        auto filterType = NEAREST_FILTER_BOOM.find(index) != NEAREST_FILTER_BOOM.end() ? TextureFilter::Nearest
+                                                                                       : TextureFilter::Linear;
         textures.boom = textureManager.loadStack(Format("{0}/boom/") << wpnPath, filterType, true);
-        textures.gun = textureManager.loadStack(Format("{0}/gun/") << wpnPath, TextureFilter::NEAREST, true);
-        textures.shot = textureManager.loadStack(Format("{0}/shot/") << wpnPath, TextureFilter::NEAREST, true);
+        textures.gun = textureManager.loadStack(Format("{0}/gun/") << wpnPath, TextureFilter::Nearest, true);
+        textures.shot = textureManager.loadStack(Format("{0}/shot/") << wpnPath, TextureFilter::Nearest, true);
 
         if (!definition.shotSound.empty()) {
             samples.shot = sound.loadSample(std::string(D6_FILE_WEAPON_SOUNDS) + definition.shotSound);

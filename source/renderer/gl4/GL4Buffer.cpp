@@ -88,7 +88,7 @@ namespace Duel6 {
         glBindVertexArray(vao);
         program.bind();
 
-        glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture().getId());
+        glBindTexture(GL_TEXTURE_2D_ARRAY, material.getTexture());
         program.setUniform("alphaTest", material.isMasked() ? 1 : 0);
 
         const Color &color = material.getColor();

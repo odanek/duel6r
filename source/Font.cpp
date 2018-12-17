@@ -50,9 +50,9 @@ namespace Duel6 {
             mutable EntryMap entryMap;
 
         public:
-            LruFontCache() {}
+            LruFontCache() = default;
 
-            ~LruFontCache() {}
+            ~LruFontCache() = default;
 
             bool has(const std::string &text) const {
                 return entryMap.find(text) != entryMap.end();
@@ -74,13 +74,13 @@ namespace Duel6 {
                     Entry lastEntry = entryList.back();
                     entryList.pop_back();
                     entryMap.erase(lastEntry.text);
-                    globRenderer->freeTexture(lastEntry.texture.getId());
+                    globRenderer->freeTexture(lastEntry.texture);
                 }
             }
 
             void empty() {
                 for (const Entry &entry : entryList) {
-                    globRenderer->freeTexture(entry.texture.getId());
+                    globRenderer->freeTexture(entry.texture);
                 }
                 entryList.clear();
                 entryMap.clear();
@@ -136,9 +136,9 @@ namespace Duel6 {
         Material material = Material::makeColoredTexture(texture, color);
         Float32 width = getTextWidth(str, height);
 
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         globRenderer->quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), material);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
     }
 
     Texture Font::getTexture(const std::string &text) const {
@@ -155,12 +155,12 @@ namespace Duel6 {
 
         SDL_LockSurface(image);
 
-        Texture::Id textureId = globRenderer->createTexture(image->w, image->h, 1, image->pixels, 4, TextureFilter::LINEAR,
+        Texture texture = globRenderer->createTexture(image->w, image->h, 1, image->pixels, 4, TextureFilter::Linear,
                                                       true);
 
         SDL_UnlockSurface(image);
         SDL_FreeSurface(image);
 
-        return Texture(0, textureId);
+        return texture;
     }
 }

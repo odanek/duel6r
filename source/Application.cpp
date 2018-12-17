@@ -280,7 +280,6 @@ namespace Duel6 {
     }
 
     void Application::tearDown() {
-        textureManager.disposeAll();
         font.dispose();
         TTF_Quit();
         SDL_Quit();

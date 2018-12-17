@@ -178,7 +178,6 @@ set(D6R_SOURCES
         source/SpriteList.cpp
         source/SpriteList.h
         source/SysEvent.h
-        source/Texture.h
         source/TextureDictionary.h
         source/TextureManager.cpp
         source/TextureManager.h
@@ -294,6 +293,8 @@ set(D6R_SOURCES
         source/math/Vector.h
 
         source/renderer/Renderer.h
+        source/renderer/RendererInterface.h
+        source/renderer/RendererTypes.h
         source/renderer/RendererBase.h
         source/renderer/RendererBase.cpp
 
@@ -389,19 +390,26 @@ set(D6R_SOURCES
 
 if (D6R_RENDERER STREQUAL "gl1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")
-    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL1Renderer.h source/renderer/GL1Renderer.cpp)
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/gl1/GL1Types.h
+            source/renderer/gl1/GL1Renderer.h
+            source/renderer/gl1/GL1Renderer.cpp)
 endif (D6R_RENDERER STREQUAL "gl1")
 
 if (D6R_RENDERER STREQUAL "es2")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES2")
-    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/es2/GLES2Types.h
+            source/renderer/es2/GLES2Renderer.h
+            source/renderer/es2/GLES2Renderer.cpp)
 endif (D6R_RENDERER STREQUAL "es2")
 
 if (D6R_RENDERER STREQUAL "gl4")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL4")
     set(D6R_SOURCES ${D6R_SOURCES}
-            source/renderer/GL4Renderer.h
-            source/renderer/GL4Renderer.cpp
+            source/renderer/gl4/GL4Types.h
+            source/renderer/gl4/GL4Renderer.h
+            source/renderer/gl4/GL4Renderer.cpp
             source/renderer/gl4/GL4Shader.h
             source/renderer/gl4/GL4Shader.cpp
             source/renderer/gl4/GL4Program.h

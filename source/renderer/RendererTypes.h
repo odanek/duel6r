@@ -25,15 +25,15 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERER_H
-#define DUEL6_RENDERER_RENDERER_H
+#ifndef DUEL6_RENDERER_RENDERERTYPES_H
+#define DUEL6_RENDERER_RENDERERTYPES_H
 
 #if defined(D6_RENDERER_GL1)
-#include "gl1/GL1Renderer.h"
+#include "gl1/GL1Types.h"
 #elif defined(D6_RENDERER_GLES2)
-#include "es2/GLES2Renderer.h"
+#include "es2/GLES2Types.h"
 #elif defined(D6_RENDERER_GL4)
-#include "gl4/GL4Renderer.h"
+#include "gl4/GL4Types.h"
 #endif
 
 #endif

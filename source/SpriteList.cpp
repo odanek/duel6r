@@ -59,7 +59,7 @@ namespace Duel6 {
         renderTransparent(true);
 
         globRenderer->enableDepthWrite(true);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
     }
 
     void SpriteList::renderTransparent(bool transparent) const {

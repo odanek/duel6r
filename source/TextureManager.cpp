@@ -32,11 +32,7 @@
 
 namespace Duel6 {
     TextureManager::TextureManager(const std::string &fileExtension)
-            : nextKey(1), textureFileExtension(fileExtension) {}
-
-    TextureManager::~TextureManager() {
-        disposeAll();
-    }
+            : textureFileExtension(fileExtension) {}
 
     const Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {
         SubstitutionTable emptySubstitutionTable;
@@ -59,12 +55,9 @@ namespace Duel6 {
 
         substituteColors(image, substitutionTable);
 
-        Texture::Key textureKey = nextKey++;
-        Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), image.getDepth(), &image.at(0), 1,
+        Texture texture = globRenderer->createTexture(image.getWidth(), image.getHeight(), image.getDepth(), &image.at(0), 1,
                                                           filtering, clamp);
-        textureKeys[textureKey] = textureId;
-
-        return Texture(textureKey, textureId);
+        return texture;
     }
 
     const TextureDictionary TextureManager::loadDict(const std::string &path, TextureFilter filtering, bool clamp) {
@@ -73,31 +66,18 @@ namespace Duel6 {
         TextureDictionary dict;
         for (std::string &file : textureFiles) {
             Image image;
-            Texture::Key textureKey = nextKey++;
             Util::loadTargaImage(path + file, image);
-            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), 1, &image.at(0), 1,
+            Texture texture = globRenderer->createTexture(image.getWidth(), image.getHeight(), 1, &image.at(0), 1,
                                                                 filtering, clamp);
-            textureKeys[textureKey] = textureId;
-            dict.textures[file] = Texture(textureKey, textureId);
+            dict.textures[file] = texture;
         }
 
         return dict;
     }
 
     void TextureManager::dispose(Texture &texture) {
-        auto key = texture.getKey();
-        auto keyIterator = textureKeys.find(key);
-        if (key != 0 && keyIterator != textureKeys.end()) {
-            globRenderer->freeTexture(keyIterator->second);
-            texture.id = 0;
-        }
-    }
-
-    void TextureManager::disposeAll() {
-        for (auto &entry : textureKeys) {
-            globRenderer->freeTexture(entry.second);
-        }
-        textureKeys.clear();
+        globRenderer->freeTexture(texture);
+        texture = 0;
     }
 
     void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {

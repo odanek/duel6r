@@ -29,7 +29,7 @@
 #define DUEL6_MATERIAL_H
 
 #include "Color.h"
-#include "Texture.h"
+#include "renderer/RendererTypes.h"
 
 namespace Duel6 {
     struct Material {

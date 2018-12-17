@@ -34,8 +34,8 @@
 #include "Type.h"
 #include "Color.h"
 #include "Image.h"
-#include "Texture.h"
 #include "TextureDictionary.h"
+#include "renderer/Renderer.h"
 
 #define D6_TEXTURE_EXTENSION     ".tga"
 
@@ -56,22 +56,12 @@ namespace Duel6 {
         typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
     private:
-        Texture::Key nextKey;
         std::string textureFileExtension;
-        std::unordered_map<Texture::Key, Texture::Id> textureKeys;
 
     public:
         explicit TextureManager(const std::string &fileExtension);
 
-        ~TextureManager();
-
-        Size size() {
-            return textureKeys.size();
-        }
-
         void dispose(Texture &texture);
-
-        void disposeAll();
 
         const Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp);
 

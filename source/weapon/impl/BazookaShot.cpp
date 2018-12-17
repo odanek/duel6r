@@ -63,7 +63,7 @@ namespace Duel6 {
 
     SpriteList::Iterator BazookaShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
-        sprite->setAlpha(1.0f).setBlendFunc(Renderer::BlendFunc::SrcColor).setNoDepth(true);
+        sprite->setAlpha(1.0f).setBlendFunc(BlendFunc::SrcColor).setNoDepth(true);
         sprite->setGrow(0.03f * getPowerFactor());
         return sprite;
     }

@@ -44,7 +44,7 @@ namespace Duel6 {
         grow = 0;
         alpha = 1.0f;
         zRotation = 0;
-        blendFunc = Renderer::BlendFunc::None;
+        blendFunc = BlendFunc::None;
     }
 
     Sprite &Sprite::setAnimation(Animation animation) {
@@ -60,11 +60,11 @@ namespace Duel6 {
 
     Sprite &Sprite::setAlpha(Float32 alpha) {
         this->alpha = alpha;
-        this->setBlendFunc(alpha < 1 ? Renderer::BlendFunc::SrcAlpha : Renderer::BlendFunc::None);
+        this->setBlendFunc(alpha < 1 ? BlendFunc::SrcAlpha : BlendFunc::None);
         return *this;
     }
 
-    Sprite &Sprite::setBlendFunc(Renderer::BlendFunc blendFunc) {
+    Sprite &Sprite::setBlendFunc(BlendFunc blendFunc) {
         this->blendFunc = blendFunc;
         return *this;
     }

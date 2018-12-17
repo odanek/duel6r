@@ -25,51 +25,23 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_TEXTURE_H
-#define DUEL6_TEXTURE_H
+#ifndef DUEL6_RENDERER_GL4_TYPES_H
+#define DUEL6_RENDERER_GL4_TYPES_H
 
-#include "Type.h"
+#include <GL/glew.h>
 
 namespace Duel6 {
-    class TextureManager;
+    typedef GLuint Texture;
 
-    class Texture {
-    public:
-        typedef Uint32 Key;
-        typedef Uint32 Id;
-
-    private:
-        friend class TextureManager;
-        Key key;
-        Id id;
-
-    public:
-        Texture()
-                : key(0), id(0) {}
-
-        Texture(Key key, Id id)
-                : key(key), id(id) {}
-
-        Id getId() const {
-            return id;
-        }
-
-        Key getKey() const {
-            return key;
-        }
-
-        bool operator==(const Texture &texture) const {
-            return key == texture.key;
-        }
-
-        bool operator!=(const Texture &texture) const {
-            return key != texture.key;
-        }
+    enum class BlendFunc {
+        None,
+        SrcAlpha,
+        SrcColor
     };
 
     enum class TextureFilter {
-        NEAREST,
-        LINEAR
+        Nearest,
+        Linear
     };
 }
 

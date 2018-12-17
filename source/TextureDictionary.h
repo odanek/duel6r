@@ -29,7 +29,7 @@
 #define DUEL6_TEXTUREDICTIONARY_H
 
 #include <unordered_map>
-#include "Texture.h"
+#include "renderer/RendererTypes.h"
 
 namespace Duel6 {
     class TextureManager;

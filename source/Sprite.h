@@ -55,7 +55,7 @@ namespace Duel6 {
         Vector size;
         Float32 grow;   // Grow factor for explosions
         Float32 alpha;  // Transparency ratio
-        Renderer::BlendFunc blendFunc;
+        BlendFunc blendFunc;
         bool visible;
         bool noDepth;
         bool finished;
@@ -105,7 +105,7 @@ namespace Duel6 {
 
         Sprite &setAlpha(Float32 alpha);
 
-        Sprite &setBlendFunc(Renderer::BlendFunc blendFunc);
+        Sprite &setBlendFunc(BlendFunc blendFunc);
 
         Sprite &setSpeed(Float32 speed) {
             this->speed = speed;
@@ -136,7 +136,7 @@ namespace Duel6 {
         }
 
         bool isTransparent() const {
-            return blendFunc != Renderer::BlendFunc::None;
+            return blendFunc != BlendFunc::None;
         }
 
         bool isFinished() const {

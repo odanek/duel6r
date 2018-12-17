@@ -180,7 +180,7 @@ namespace Duel6 {
         glDepthMask(GLboolean(enable ? GL_TRUE : GL_FALSE));
     }
 
-    void GLES2Renderer::setBlendFunc(Renderer::BlendFunc func) {
+    void GLES2Renderer::setBlendFunc(BlendFunc func) {
         switch (func) {
             case BlendFunc::None:
                 glDisable(GL_BLEND);

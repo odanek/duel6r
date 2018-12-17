@@ -39,7 +39,7 @@
 #include "Type.h"
 #include "Color.h"
 #include "Format.h"
-#include "Texture.h"
+#include "renderer/RendererTypes.h"
 
 namespace Duel6 {
     class Console;
