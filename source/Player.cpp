@@ -59,7 +59,7 @@ namespace Duel6 {
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
     Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
-            : person(person), skin(skin), sounds(sounds), controls(controls), bodyAlpha(1.0f) {
+            : person(person), skin(skin), sounds(sounds), controls(controls) {
         camera.rotate(180.0, 0.0, 0.0);
     }
 
@@ -87,6 +87,8 @@ namespace Duel6 {
         bonusRemainingTime = 2.0f;
         tempSkinDuration = 0;
         roundKills = 0;
+        bodyAlpha = 1.0f;
+        alpha = 1.0f;
         this->view = view;
         water.headUnderWater = Water::NONE;
         water.feetInWater = Water::NONE;

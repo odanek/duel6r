@@ -29,6 +29,10 @@
 #include "GL1Buffer.h"
 
 namespace Duel6 {
+    namespace {
+        std::unordered_map<GLuint, std::vector<GLuint>> textureIdMap;
+    }
+
     GL1Renderer::GL1Renderer()
             : RendererBase() {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -76,28 +80,45 @@ namespace Duel6 {
     }
 
     Texture
-    GL1Renderer::createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment, TextureFilter filtering,
+    GL1Renderer::createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
+                               TextureFilter filtering,
                                bool clamp) {
-        GLuint textureId;
-        glGenTextures(1, &textureId);
-        glBindTexture(GL_TEXTURE_2D, textureId);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        std::vector<GLuint> idList(depth);
+        glGenTextures(depth, idList.data());
 
-        GLint filter = filtering == TextureFilter::Nearest ? GL_NEAREST : GL_LINEAR;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+        Int32 imageSize = width * height;
+        auto colorData = (const Color *) data;
 
-        // Clamp texture coordinates
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        for (Int32 i = 0; i < depth; i++, colorData += imageSize) {
+            glBindTexture(GL_TEXTURE_2D, idList[i]);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, colorData);
 
-        return textureId;
+            GLint filter = filtering == TextureFilter::Nearest ? GL_NEAREST : GL_LINEAR;
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+
+            // Clamp texture coordinates
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        }
+
+        GLuint firstId = idList[0];
+        textureIdMap[firstId] = idList;
+
+        return firstId;
     }
 
     void GL1Renderer::freeTexture(Texture textureId) {
-        GLuint id = textureId;
-        glDeleteTextures(1, &id);
+        auto iterator = textureIdMap.find(textureId);
+        if (iterator == textureIdMap.end()) {
+            return;
+        }
+
+        for (GLuint id : iterator->second) {
+            glDeleteTextures(1, &id);
+        }
+        textureIdMap.erase(iterator);
     }
 
     void GL1Renderer::readScreenData(Int32 width, Int32 height, Image &image) {
@@ -205,6 +226,12 @@ namespace Duel6 {
                                const Vector &p2, const Vector &t2,
                                const Vector &p3, const Vector &t3,
                                const Material &material) {
+        auto textureIterator = textureIdMap.find(material.getTexture());
+        if (textureIterator == textureIdMap.end()) {
+            return;
+        }
+        GLuint textureId = textureIterator->second[GLuint(t1.z)];
+
         if (material.isColored()) {
             const Color &color = material.getColor();
             glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -216,7 +243,7 @@ namespace Duel6 {
         }
 
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, material.getTexture());
+        glBindTexture(GL_TEXTURE_2D, textureId);
 
         glBegin(GL_TRIANGLES);
         glTexCoord2f(t1.x, t1.y);
@@ -266,8 +293,10 @@ namespace Duel6 {
             glAlphaFunc(GL_GEQUAL, 1.0f);
         }
 
+        GLuint textureId = textureIdMap.find(material.getTexture())->second[GLuint(t1.z)];
+
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, material.getTexture());
+        glBindTexture(GL_TEXTURE_2D, textureId);
 
         glBegin(GL_TRIANGLE_FAN);
         glTexCoord2f(t1.x, t1.y);
