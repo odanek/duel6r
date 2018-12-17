@@ -35,7 +35,7 @@
 #include "Color.h"
 #include "Image.h"
 #include "TextureDictionary.h"
-#include "renderer/Renderer.h"
+#include "renderer/RendererTypes.h"
 
 #define D6_TEXTURE_EXTENSION     ".tga"
 

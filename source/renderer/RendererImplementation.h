@@ -25,68 +25,15 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_VIDEO_H
-#define DUEL6_VIDEO_H
+#ifndef DUEL6_RENDERER_RENDERERIMPLEMENTATION_H
+#define DUEL6_RENDERER_RENDERERIMPLEMENTATION_H
 
-#include <SDL2/SDL.h>
-#include "console/console.h"
-#include "Type.h"
-#include "ScreenParameters.h"
-#include "ViewParameters.h"
-#include "renderer/Renderer.h"
-
-namespace Duel6 {
-    extern Renderer *globRenderer;  // TODO: Glob fix
-
-    class Video {
-    public:
-        enum class Mode {
-            Orthogonal,
-            Perspective
-        };
-
-    private:
-        SDL_Window *window;
-        SDL_GLContext glContext;
-        Float32 fps;
-        ScreenParameters screen;
-        ViewParameters view;
-
-    public:
-        ~Video();
-
-        void initialize(const std::string &name, const std::string &icon, Console &console);
-
-        void screenUpdate(Console &console, const Font &font);
-
-        const ScreenParameters &getScreen() const {
-            return screen;
-        }
-
-        const ViewParameters &getView() const {
-            return view;
-        }
-
-        Float32 getFps() const {
-            return fps;
-        }
-
-        void setMode(Mode mode) const;
-
-    private:
-        void renderConsole(Console &console, const Font &font);
-
-        void swapBuffers();
-
-        void calculateFps();
-
-        SDL_Window *createWindow(const std::string &name, const std::string &icon, const ScreenParameters &params,
-                                 Console &console);
-
-        SDL_GLContext createContext(const ScreenParameters &params, Console &console);
-
-        Renderer *createRenderer();
-    };
-}
+#if defined(D6_RENDERER_GL1)
+#include "gl1/GL1Renderer.h"
+#elif defined(D6_RENDERER_GLES2)
+#include "es2/GLES2Renderer.h"
+#elif defined(D6_RENDERER_GL4)
+#include "gl4/GL4Renderer.h"
+#endif
 
 #endif

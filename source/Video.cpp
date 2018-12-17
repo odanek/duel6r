@@ -27,7 +27,7 @@
 
 #include "VideoException.h"
 #include "Video.h"
-#include "renderer/Renderer.h"
+#include "renderer/RendererImplementation.h"
 
 namespace Duel6 {
     Renderer *globRenderer = nullptr; // TODO: Remove

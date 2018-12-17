@@ -292,8 +292,8 @@ set(D6R_SOURCES
         source/math/Vector.cpp
         source/math/Vector.h
 
-        source/renderer/Renderer.h
-        source/renderer/RendererInterface.h
+        source/renderer/RendererImplementation.h
+        source/renderer/RendererImplementation.h
         source/renderer/RendererTypes.h
         source/renderer/RendererBase.h
         source/renderer/RendererBase.cpp

@@ -28,12 +28,109 @@
 #ifndef DUEL6_RENDERER_RENDERER_H
 #define DUEL6_RENDERER_RENDERER_H
 
-#if defined(D6_RENDERER_GL1)
-#include "gl1/GL1Renderer.h"
-#elif defined(D6_RENDERER_GLES2)
-#include "es2/GLES2Renderer.h"
-#elif defined(D6_RENDERER_GL4)
-#include "gl4/GL4Renderer.h"
-#endif
+#include <memory>
+#include <vector>
+#include "../math/Vector.h"
+#include "../math/Matrix.h"
+#include "../Color.h"
+#include "../Image.h"
+#include "../Material.h"
+#include "RendererTypes.h"
+#include "RendererBuffer.h"
+
+namespace Duel6 {
+    class FaceList;
+
+    class Renderer {
+    public:
+        struct Info {
+            std::string vendor;
+            std::string renderer;
+            std::string version;
+        };
+
+        struct Extensions {
+            std::vector<std::string> extensions;
+        };
+
+    public:
+        virtual ~Renderer() = default;
+
+        virtual Info getInfo() = 0;
+
+        virtual Extensions getExtensions() = 0;
+
+        virtual Texture createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
+                                      TextureFilter filtering, bool clamp) = 0;
+
+        virtual void freeTexture(Texture textureId) = 0;
+
+        virtual void readScreenData(Int32 width, Int32 height, Image &image) = 0;
+
+        virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
+
+        virtual void setProjectionMatrix(const Matrix &m) = 0;
+
+        virtual Matrix getProjectionMatrix() const = 0;
+
+        virtual void setViewMatrix(const Matrix &m) = 0;
+
+        virtual Matrix getViewMatrix() const = 0;
+
+        virtual void setModelMatrix(const Matrix &m) = 0;
+
+        virtual Matrix getModelMatrix() const = 0;
+
+        virtual void enableWireframe(bool enable) = 0;
+
+        virtual void enableDepthTest(bool enable) = 0;
+
+        virtual void enableDepthWrite(bool enable) = 0;
+
+        virtual void setBlendFunc(BlendFunc func) = 0;
+
+        virtual void setGlobalTime(Float32 time) = 0;
+
+        virtual void clearBuffers() = 0;
+
+        virtual void triangle(const Vector &p1, const Vector &p2, const Vector &p3, const Color &color) = 0;
+
+        virtual void triangle(const Vector &p1, const Vector &t1,
+                              const Vector &p2, const Vector &t2,
+                              const Vector &p3, const Vector &t3,
+                              const Material &material) = 0;
+
+        virtual void quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) = 0;
+
+        virtual void quad(const Vector &p1, const Vector &t1,
+                          const Vector &p2, const Vector &t2,
+                          const Vector &p3, const Vector &t3,
+                          const Vector &p4, const Vector &t4,
+                          const Material &material) = 0;
+
+        virtual void quadXY(const Vector &position, const Vector &size, const Color &color) = 0;
+
+        virtual void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
+                            const Vector &textureSize, const Material &material) = 0;
+
+        virtual void quadXZ(const Vector &position, const Vector &size, const Color &color) = 0;
+
+        virtual void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,
+                            const Vector &textureSize, const Material &material) = 0;
+
+        virtual void quadYZ(const Vector &position, const Vector &size, const Color &color) = 0;
+
+        virtual void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
+                            const Vector &textureSize, const Material &material) = 0;
+
+        virtual void point(const Vector &position, Float32 size, const Color &color) = 0;
+
+        virtual void line(const Vector &from, const Vector &to, Float32 width, const Color &color) = 0;
+
+        virtual void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) = 0;
+
+        virtual std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) = 0;
+    };
+}
 
 #endif

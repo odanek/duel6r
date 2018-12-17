@@ -34,7 +34,7 @@
 #include "Orientation.h"
 #include "TextureManager.h"
 #include "math/Vector.h"
-#include "renderer/Renderer.h"
+#include "renderer/RendererTypes.h"
 
 namespace Duel6 {
     class SpriteList;

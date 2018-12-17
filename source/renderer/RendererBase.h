@@ -28,7 +28,7 @@
 #ifndef DUEL6_RENDERER_RENDERER_BASE_H
 #define DUEL6_RENDERER_RENDERER_BASE_H
 
-#include "RendererInterface.h"
+#include "Renderer.h"
 
 namespace Duel6 {
 
