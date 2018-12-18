@@ -27,7 +27,14 @@
 
 #include "VideoException.h"
 #include "Video.h"
-#include "renderer/RendererImplementation.h"
+
+#if defined(D6_RENDERER_GL1)
+#include "renderer/gl1/GL1Renderer.h"
+#elif defined(D6_RENDERER_GLES2)
+#include "renderer/es2/GLES2Renderer.h"
+#elif defined(D6_RENDERER_GL4)
+#include "renderer/gl4/GL4Renderer.h"
+#endif
 
 namespace Duel6 {
     Renderer *globRenderer = nullptr; // TODO: Remove

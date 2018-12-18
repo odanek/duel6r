@@ -122,6 +122,7 @@ set(D6R_SOURCES
         source/GameResources.h
         source/GameSettings.cpp
         source/GameSettings.h
+        source/Image.cpp
         source/Image.h
         source/InfoMessage.h
         source/InfoMessageQueue.cpp
@@ -182,8 +183,6 @@ set(D6R_SOURCES
         source/TextureManager.cpp
         source/TextureManager.h
         source/Type.h
-        source/Util.cpp
-        source/Util.h
         source/Vertex.h
         source/Video.cpp
         source/Video.h
@@ -292,8 +291,6 @@ set(D6R_SOURCES
         source/math/Vector.cpp
         source/math/Vector.h
 
-        source/renderer/RendererImplementation.h
-        source/renderer/RendererImplementation.h
         source/renderer/RendererTypes.h
         source/renderer/RendererBase.h
         source/renderer/RendererBase.cpp
@@ -479,7 +476,8 @@ if (APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf framework")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
+    find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image framework")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
 else (APPLE) # MSVC, GCC or MINGW
     find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
     include_directories(${HEADERS_SDL2})
@@ -488,7 +486,8 @@ else (APPLE) # MSVC, GCC or MINGW
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
+    find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image import library")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
 endif (APPLE)
 
 # GLEW

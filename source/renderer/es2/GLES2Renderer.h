@@ -47,8 +47,7 @@ namespace Duel6 {
 
         Info getInfo() override;
 
-        Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
-                                  TextureFilter filtering, bool clamp) override;
+        Texture::Id createTexture(const Image &image, TextureFilter filtering, bool clamp) override;
 
         void freeTexture(Texture::Id textureId) override;
 

@@ -28,6 +28,7 @@
 #ifndef DUEL6_IMAGE_H
 #define DUEL6_IMAGE_H
 
+#include <SDL2/SDL.h>
 #include <vector>
 #include "Type.h"
 #include "Color.h"
@@ -41,18 +42,9 @@ namespace Duel6 {
     public:
         Image() : Image(0, 0, 0) {}
 
-        Image(Size width, Size height, Size depth = 1) {
-            resize(width, height, depth);
-        }
+        Image(Size width, Size height, Size depth = 1);
 
-        Image &resize(Size width, Size height, Size depth = 1) {
-            dimensions[0] = width;
-            dimensions[1] = height;
-            dimensions[2] = depth;
-            data.clear();
-            data.resize(width * height * depth);
-            return *this;
-        }
+        Image &resize(Size width, Size height, Size depth = 1);
 
         Size getWidth() const {
             return dimensions[0];
@@ -73,6 +65,20 @@ namespace Duel6 {
         const Color &at(Size index) const {
             return data[index];
         }
+
+        Image flipY() const;
+
+        Image &addSlice(const Image &slice);
+
+        void save(const std::string &path) const;
+
+        std::string saveScreenshot() const;
+
+        static Image load(const std::string &path);
+
+        static Image loadStack(const std::string &path);
+
+        static Image fromSurface(SDL_Surface *surface);
     };
 }
 

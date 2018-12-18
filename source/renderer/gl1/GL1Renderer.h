@@ -44,12 +44,11 @@ namespace Duel6 {
 
         Extensions getExtensions() override;
 
-        Texture createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
-                                  TextureFilter filtering, bool clamp) override;
+        Texture createTexture(const Image &image, TextureFilter filtering, bool clamp) override;
 
         void freeTexture(Texture textureId) override;
 
-        void readScreenData(Int32 width, Int32 height, Image &image) override;
+        Image makeScreenshot() override;
 
         void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) override;
 

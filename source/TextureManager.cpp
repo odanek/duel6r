@@ -27,12 +27,11 @@
 
 #include <algorithm>
 #include "TextureManager.h"
-#include "Util.h"
 #include "File.h"
+#include "Video.h"
 
 namespace Duel6 {
-    TextureManager::TextureManager(const std::string &fileExtension)
-            : textureFileExtension(fileExtension) {}
+    TextureManager::TextureManager() {}
 
     const Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {
         SubstitutionTable emptySubstitutionTable;
@@ -41,34 +40,20 @@ namespace Duel6 {
 
     const Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp,
                                            const SubstitutionTable &substitutionTable) {
-        std::vector<std::string> textureFiles = File::listDirectory(path, textureFileExtension);
-        std::sort(textureFiles.begin(), textureFiles.end());
-
-        auto size = Util::loadTargaSize(path + textureFiles[0]);
-        Image image(size.first, size.second, textureFiles.size());
-
-        Size offset = 0;
-        for (const auto &file : textureFiles) {
-            Util::loadTargaData(path + file, &image.at(offset));
-            offset += image.getWidth() * image.getHeight();
-        }
-
+        Image image = Image::loadStack(path);
         substituteColors(image, substitutionTable);
 
-        Texture texture = globRenderer->createTexture(image.getWidth(), image.getHeight(), image.getDepth(), &image.at(0), 1,
-                                                          filtering, clamp);
+        Texture texture = globRenderer->createTexture(image, filtering, clamp);
         return texture;
     }
 
     const TextureDictionary TextureManager::loadDict(const std::string &path, TextureFilter filtering, bool clamp) {
-        std::vector<std::string> textureFiles = File::listDirectory(path, textureFileExtension);
+        std::vector<std::string> textureFiles = File::listDirectory(path);
 
         TextureDictionary dict;
         for (std::string &file : textureFiles) {
-            Image image;
-            Util::loadTargaImage(path + file, image);
-            Texture texture = globRenderer->createTexture(image.getWidth(), image.getHeight(), 1, &image.at(0), 1,
-                                                                filtering, clamp);
+            Image image = Image::load(path + file);
+            Texture texture = globRenderer->createTexture(image, filtering, clamp);
             dict.textures[file] = texture;
         }
 

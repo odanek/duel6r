@@ -151,15 +151,11 @@ namespace Duel6 {
     }
 
     Texture Font::renderText(const std::string &text) const {
-        SDL_Surface *image = TTF_RenderText_Blended(font, text.c_str(), SDL_Color{255, 255, 255, 255});
+        SDL_Surface *surface = TTF_RenderText_Blended(font, text.c_str(), SDL_Color{255, 255, 255, 255});
+        Image image = Image::fromSurface(surface);
+        SDL_FreeSurface(surface);
 
-        SDL_LockSurface(image);
-
-        Texture texture = globRenderer->createTexture(image->w, image->h, 1, image->pixels, 4, TextureFilter::Linear,
-                                                      true);
-
-        SDL_UnlockSurface(image);
-        SDL_FreeSurface(image);
+        Texture texture = globRenderer->createTexture(image, TextureFilter::Linear, true);
 
         return texture;
     }

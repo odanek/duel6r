@@ -32,7 +32,6 @@
 #include "TextureManager.h"
 #include "Menu.h"
 #include "Game.h"
-#include "Util.h"
 #include "File.h"
 #include "Font.h"
 #include "json/JsonParser.h"
@@ -254,7 +253,7 @@ namespace Duel6 {
         quickLiquidCheckBox->setLabel("Quick Liquid");
         quickLiquidCheckBox->setPosition(151, -21, 150, 20);
 
-        backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
+        backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
         levelListBox->addItem("Random");

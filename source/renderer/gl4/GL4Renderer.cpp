@@ -112,14 +112,12 @@ namespace Duel6 {
         return info;
     }
 
-    Texture GL4Renderer::createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
-                                           TextureFilter filtering,
-                                           bool clamp) {
+    Texture GL4Renderer::createTexture(const Image &image, TextureFilter filtering, bool clamp) {
         GLuint textureId;
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D_ARRAY, textureId);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, image.getWidth(), image.getHeight(), image.getDepth(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
 
         GLint filter = filtering == TextureFilter::Nearest ? GL_NEAREST : GL_LINEAR;
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, filter);
@@ -136,8 +134,17 @@ namespace Duel6 {
         glDeleteTextures(1, &id);
     }
 
-    void GL4Renderer::readScreenData(Int32 width, Int32 height, Image &image) {
+    Image GL4Renderer::makeScreenshot() {
+        GLint dimensions[4];
+        glGetIntegerv(GL_VIEWPORT, dimensions);
+
+        auto width = dimensions[2];
+        auto height = dimensions[3];
+
+        Image image(width, height);
         glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+
+        return image.flipY();
     }
 
     void GL4Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height) {

@@ -83,9 +83,9 @@ namespace Duel6 {
 
         static std::vector<Uint8> load(const std::string &path, long offset = 0);
 
-        static std::vector<std::string> listDirectory(const std::string &path, const std::string &extension);
+        static std::vector<std::string> listDirectory(const std::string &path, const std::string &extension = "");
 
-        static Size countFiles(const std::string &path, const std::string &extension);
+        static Size countFiles(const std::string &path, const std::string &extension = "");
     };
 }
 

@@ -26,7 +26,6 @@
 */
 
 #include "Sound.h"
-#include "Util.h"
 #include "math/Math.h"
 #include "Menu.h"
 #include "WorldRenderer.h"

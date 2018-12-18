@@ -73,7 +73,7 @@ namespace Duel6 {
     }
 
     Application::Application()
-            : console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION),
+            : console(Console::ExpandFlag), textureManager(),
               input(console), controlsManager(input),sound(20, console),
               scriptContext(console, sound, gameSettings), scriptManager(scriptContext),
               service(font, console, textureManager, video, input, controlsManager, sound, scriptManager),

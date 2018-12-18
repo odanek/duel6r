@@ -61,21 +61,6 @@ namespace Duel6 {
             set(red, green, blue, alpha);
         }
 
-        Color(const Color &color) {
-            *this = color;
-        }
-
-        Color &operator=(const Color &color) {
-            if (this != &color) {
-                setRed(color.getRed());
-                setGreen(color.getGreen());
-                setBlue(color.getBlue());
-                setAlpha(color.getAlpha());
-            }
-
-            return *this;
-        }
-
         bool operator==(const Color &color) const {
             return (getRed() == color.getRed() &&
                     getGreen() == color.getGreen() &&

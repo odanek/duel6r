@@ -60,12 +60,11 @@ namespace Duel6 {
 
         virtual Extensions getExtensions() = 0;
 
-        virtual Texture createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
-                                      TextureFilter filtering, bool clamp) = 0;
+        virtual Texture createTexture(const Image &image, TextureFilter filtering, bool clamp) = 0;
 
         virtual void freeTexture(Texture textureId) = 0;
 
-        virtual void readScreenData(Int32 width, Int32 height, Image &image) = 0;
+        virtual Image makeScreenshot() = 0;
 
         virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
 

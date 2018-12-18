@@ -79,19 +79,20 @@ namespace Duel6 {
         return info;
     }
 
-    Texture
-    GL1Renderer::createTexture(Int32 width, Int32 height, Int32 depth, void *data, Int32 alignment,
-                               TextureFilter filtering,
-                               bool clamp) {
+    Texture GL1Renderer::createTexture(const Image &image, TextureFilter filtering, bool clamp) {
+        auto width = image.getWidth();
+        auto height = image.getHeight();
+        auto depth = image.getDepth();
+
         std::vector<GLuint> idList(depth);
         glGenTextures(depth, idList.data());
 
-        Int32 imageSize = width * height;
-        auto colorData = (const Color *) data;
+        auto imageSize = width * height;
+        auto colorData = &image.at(0);
 
-        for (Int32 i = 0; i < depth; i++, colorData += imageSize) {
+        for (Size i = 0; i < depth; i++, colorData += imageSize) {
             glBindTexture(GL_TEXTURE_2D, idList[i]);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, colorData);
 
             GLint filter = filtering == TextureFilter::Nearest ? GL_NEAREST : GL_LINEAR;
@@ -121,8 +122,17 @@ namespace Duel6 {
         textureIdMap.erase(iterator);
     }
 
-    void GL1Renderer::readScreenData(Int32 width, Int32 height, Image &image) {
+    Image GL1Renderer::makeScreenshot() {
+        GLint dimensions[4];
+        glGetIntegerv(GL_VIEWPORT, dimensions);
+
+        auto width = dimensions[2];
+        auto height = dimensions[3];
+
+        Image image(width, height);
         glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &image.at(0));
+
+        return image.flipY();
     }
 
     void GL1Renderer::setViewport(Int32 x, Int32 y, Int32 width, Int32 height) {

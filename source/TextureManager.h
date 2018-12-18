@@ -37,8 +37,6 @@
 #include "TextureDictionary.h"
 #include "renderer/RendererTypes.h"
 
-#define D6_TEXTURE_EXTENSION     ".tga"
-
 #define D6_TEXTURE_MAN_PATH      "textures/man/"
 #define D6_TEXTURE_BCG_PATH      "textures/backgrounds/"
 #define D6_TEXTURE_EXPL_PATH     "textures/explosion/"
@@ -55,11 +53,8 @@ namespace Duel6 {
     public:
         typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
-    private:
-        std::string textureFileExtension;
-
     public:
-        explicit TextureManager(const std::string &fileExtension);
+        TextureManager();
 
         void dispose(Texture &texture);
 

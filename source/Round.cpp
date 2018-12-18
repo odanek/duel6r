@@ -28,7 +28,6 @@
 #include "Round.h"
 #include "Game.h"
 #include "GameException.h"
-#include "Util.h"
 #include "GameMode.h"
 #include "Weapon.h"
 #include "PersonProfile.h"
@@ -212,7 +211,8 @@ namespace Duel6 {
 
         // Save screenshot
         if (event.getCode() == SDLK_F10) {
-            std::string name = Util::saveScreenTga(game.getAppService().getVideo());
+            Image image = globRenderer->makeScreenshot();
+            std::string name = image.saveScreenshot();
             game.getAppService().getConsole().printLine(Format("Screenshot saved to {0}") << name);
         }
     }
