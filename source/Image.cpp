@@ -175,7 +175,7 @@ namespace Duel6 {
                 *output = Color(red, green, blue, red == 0 && green == 0 && blue == 0 ? Uint8(0) : alpha);
             }
 
-            input += (surface->pitch - (width * bpp)) * bpp;
+            input += surface->pitch - (width * bpp);
         }
 
         SDL_UnlockSurface(surface);
