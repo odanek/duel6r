@@ -297,6 +297,12 @@ namespace Duel6 {
                            const Vector &p3, const Vector &t3,
                            const Vector &p4, const Vector &t4,
                            const Material &material) {
+        auto textureIterator = textureIdMap.find(material.getTexture());
+        if (textureIterator == textureIdMap.end()) {
+            return;
+        }
+        GLuint textureId = textureIterator->second[GLuint(t1.z)];
+
         if (material.isColored()) {
             const Color &color = material.getColor();
             glColor4ub(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -306,9 +312,7 @@ namespace Duel6 {
             glEnable(GL_ALPHA_TEST);
             glAlphaFunc(GL_GEQUAL, 1.0f);
         }
-
-        GLuint textureId = textureIdMap.find(material.getTexture())->second[GLuint(t1.z)];
-
+        
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, textureId);
 

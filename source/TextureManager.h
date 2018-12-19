@@ -56,12 +56,12 @@ namespace Duel6 {
     public:
         TextureManager();
 
-        void dispose(Texture &texture);
+        void dispose(Texture texture);
 
-        const Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp);
+        Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp);
 
-        const Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp,
-                                const SubstitutionTable &substitutionTable);
+        Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp,
+                          const SubstitutionTable &substitutionTable);
 
         const TextureDictionary loadDict(const std::string &path, TextureFilter filtering, bool clamp);
 

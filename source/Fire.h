@@ -84,6 +84,10 @@ namespace Duel6 {
             return position;
         }
 
+        Vector getCentre() const {
+            return position + Vector(0.5f, 0.5f);
+        }
+
         SpriteList::Iterator getSprite() const {
             return sprite;
         }
@@ -100,6 +104,7 @@ namespace Duel6 {
     class FireList {
     private:
         SpriteList &spriteList;
+        Texture burningTexture;
         const std::unordered_map<Size, Texture> &textures;
         std::vector<Fire> fires;
 
@@ -109,6 +114,8 @@ namespace Duel6 {
         void find(const Level &level);
 
         void check(const Vector &explCentre, Float32 d);
+
+        static void initialize();
     };
 }
 

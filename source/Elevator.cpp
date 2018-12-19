@@ -68,7 +68,7 @@ namespace Duel6 {
         travelled += elapsedTime;
     }
 
-    void Elevator::render(const Texture &texture) const {
+    void Elevator::render(Texture texture) const {
         Float32 X = position.x, Y = position.y - 0.3f;
         Material material = Material::makeTexture(texture);
 

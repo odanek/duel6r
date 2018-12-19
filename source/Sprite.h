@@ -42,6 +42,9 @@ namespace Duel6 {
     class Sprite {
         friend class SpriteList;
 
+    public:
+        using FinishCallback = void();
+
     private:
         Animation animation;    // Source array of animations and delays
         Texture texture;   // Texture array
@@ -61,47 +64,30 @@ namespace Duel6 {
         bool finished;
         Float32 zRotation;
         Vector rotationCentre;
+        std::function<FinishCallback> onFinished;
 
     public:
         Sprite(Animation animation, Texture texture);
 
-        Sprite &setPosition(const Vector &position, Float32 z) {
-            this->position = position;
-            this->z = z;
-            return *this;
-        }
+        Sprite setOnFinished(std::function<FinishCallback> callback);
 
-        Sprite &setPosition(const Vector &position) {
-            this->position = position;
-            return *this;
-        }
+        Sprite &setPosition(const Vector &position, Float32 z);
+
+        Sprite &setPosition(const Vector &position);
 
         Sprite &setAnimation(Animation);
 
-        Animation getAnimation() const {
-            return animation;
-        }
+        Animation getAnimation() const;
 
-        Sprite &setTexture(const Texture texture) {
-            this->texture = texture;
-            return *this;
-        }
+        Sprite &setTexture(Texture texture);
 
-        Sprite &setFrame(Size frame) {
-            this->frame = frame;
-            this->delay = 0;
-            return *this;
-        }
+        Sprite &setFrame(Size frame);
 
-        Sprite &setOrientation(Orientation orientation) {
-            this->orientation = orientation;
-            return *this;
-        }
+        Sprite &setOrientation(Orientation orientation);
 
-        Sprite &setGrow(Float32 grow) {
-            this->grow = grow;
-            return *this;
-        }
+        Sprite &setSize(const Vector &size);
+
+        Sprite &setGrow(Float32 grow);
 
         Sprite &setAlpha(Float32 alpha);
 

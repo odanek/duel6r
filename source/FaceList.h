@@ -80,7 +80,7 @@ namespace Duel6 {
 
         void build();
 
-        void render(const Texture &texture, bool masked) const;
+        void render(Texture texture, bool masked) const;
 
         void nextFrame();
     };

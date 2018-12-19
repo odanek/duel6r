@@ -40,7 +40,7 @@ namespace Duel6 {
         }
     }
 
-    void FaceList::render(const Texture &texture, bool masked) const {
+    void FaceList::render(Texture texture, bool masked) const {
         if (faces.empty()) {
             return;
         }

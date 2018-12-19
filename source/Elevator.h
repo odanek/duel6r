@@ -77,7 +77,7 @@ namespace Duel6 {
 
         void update(Float32 elapsedTime);
 
-        void render(const Texture &texture) const;
+        void render(Texture texture) const;
 
         const Vector &getPosition() const {
             return position;

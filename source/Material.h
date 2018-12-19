@@ -39,12 +39,12 @@ namespace Duel6 {
         bool masked;
 
     public:
-        explicit Material(const Texture &texture, const Color &color = Color::WHITE, bool masked = false)
+        explicit Material(Texture texture, const Color &color = Color::WHITE, bool masked = false)
                 : texture(texture), color(color), masked(masked) {}
 
         Material &operator=(const Material &m) = default;
 
-        const Texture &getTexture() const {
+        Texture getTexture() const {
             return texture;
         }
 
@@ -60,19 +60,19 @@ namespace Duel6 {
             return masked;
         }
 
-        static Material makeTexture(const Texture &texture) {
+        static Material makeTexture(Texture texture) {
             return Material(texture);
         }
 
-        static Material makeColoredTexture(const Texture &texture, const Color &color) {
+        static Material makeColoredTexture(Texture texture, const Color &color) {
             return Material(texture, color);
         }
 
-        static Material makeMaskedTexture(const Texture &texture) {
+        static Material makeMaskedTexture(Texture texture) {
             return Material(texture, Color::WHITE, true);
         }
 
-        static Material makeMaskedColoredTexture(const Texture &texture, const Color &color) {
+        static Material makeMaskedColoredTexture(Texture texture, const Color &color) {
             return Material(texture, color, true);
         }
     };

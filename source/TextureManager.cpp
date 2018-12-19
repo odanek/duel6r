@@ -33,13 +33,13 @@
 namespace Duel6 {
     TextureManager::TextureManager() {}
 
-    const Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {
+    Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {
         SubstitutionTable emptySubstitutionTable;
         return loadStack(path, filtering, clamp, emptySubstitutionTable);
     }
 
-    const Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp,
-                                           const SubstitutionTable &substitutionTable) {
+    Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp,
+                                      const SubstitutionTable &substitutionTable) {
         Image image = Image::loadStack(path);
         substituteColors(image, substitutionTable);
 
@@ -60,9 +60,8 @@ namespace Duel6 {
         return dict;
     }
 
-    void TextureManager::dispose(Texture &texture) {
+    void TextureManager::dispose(Texture texture) {
         globRenderer->freeTexture(texture);
-        texture = 0;
     }
 
     void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {

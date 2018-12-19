@@ -42,11 +42,7 @@ namespace Duel6 {
     public:
         PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors, TextureManager &textureManager);
 
-        Texture &getTexture() {
-            return textures;
-        }
-
-        const Texture &getTexture() const {
+        Texture getTexture() const {
             return textures;
         }
     };

@@ -47,7 +47,7 @@ namespace Duel6 {
             return textures;
         }
 
-        const Texture &at(const std::string &key) const {
+        Texture at(const std::string &key) const {
             return textures.at(key);
         }
     };

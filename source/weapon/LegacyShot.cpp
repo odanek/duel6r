@@ -77,7 +77,7 @@ namespace Duel6 {
     }
 
     bool LegacyShot::hasBlood() const {
-        return false;
+        return true;
     }
 
     bool LegacyShot::hasPlayerExplosion() const {

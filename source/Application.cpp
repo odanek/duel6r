@@ -244,6 +244,8 @@ namespace Duel6 {
         menu.setGameReference(game);
         game.setMenuReference(&menu);
 
+        FireList::initialize();
+
         for (Weapon weapon : Weapon::values()) {
             gameSettings.enableWeapon(weapon, true);
         }

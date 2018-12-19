@@ -34,15 +34,17 @@ namespace Duel6 {
     const std::vector<FireType> FireType::types = {CONIFEROUS_TREE, BROAD_LEAVED_TREE};
 
     namespace {
-        AnimationEntry nonFireAnimation[] = {3, 20, -1, 0};
-        AnimationEntry fireAnimation[] = {0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0};
+        AnimationEntry nonFireAnimation[] = {0, 20, -1, 0};
+        AnimationEntry burnedAnimation[] = {1, 20, -1, 0};
+        std::vector<AnimationEntry> burningAnimation;
     }
 
     Fire::Fire(const FireType &type, SpriteList::Iterator sprite, const Vector &position)
             : type(type), sprite(sprite), position(position), burned(false) {}
 
     FireList::FireList(const GameResources &resources, SpriteList &spriteList)
-            : spriteList(spriteList), textures(resources.getFireTextures()) {}
+            : spriteList(spriteList), burningTexture(resources.getBurningTexture()),
+              textures(resources.getFireTextures()) {}
 
     void FireList::find(const Level &level) {
         for (Int32 y = 0; y < level.getHeight(); y++) {
@@ -67,18 +69,36 @@ namespace Duel6 {
 
     void FireList::check(const Vector &explCentre, Float32 d) {
         for (Fire &fire : fires) {
-            if (!fire.isBurned()) {
-                Vector fireCentre = fire.getPosition() + Vector(0.5f, 0.5f);
-                Float32 distance = (explCentre - fireCentre).length();
+            if (fire.isBurned()) {
+                continue;
+            }
 
-                if (distance < d) {
-                    fire.setBurned(true);
-                    spriteList.remove(fire.getSprite());
+            Float32 distance = (explCentre - fire.getCentre()).length();
+            if (distance >= d) {
+                continue;
+            }
 
-                    auto sprite = spriteList.add(fireAnimation, textures.at(fire.getType().getId()));
-                    sprite->setPosition(fire.getPosition(), 0.75f).setLooping(AnimationLooping::OnceAndStop);
-                }
+            fire.setBurned(true);
+
+            auto sprite = spriteList.add(burningAnimation.data(), burningTexture);
+            sprite->setPosition(fire.getPosition() - Vector(0.3f, 0.2f), 0.8f)
+                    .setSize(Vector(1.6f, 1.6f))
+                    .setLooping(AnimationLooping::OnceAndRemove)
+                    .setBlendFunc(BlendFunc::SrcColor)
+                    .setOnFinished([&fire]() {
+                        fire.getSprite()->setAnimation(burnedAnimation);
+                    });
+        }
+    }
+
+    void FireList::initialize() {
+        for (Int32 j = 0; j < 3; j++) {
+            for (Int32 i = 0; i < 49; i++) {
+                burningAnimation.push_back(i);
+                burningAnimation.push_back(1);
             }
         }
+        burningAnimation.push_back(-1);
+        burningAnimation.push_back(0);
     }
 }

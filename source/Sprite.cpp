@@ -47,6 +47,26 @@ namespace Duel6 {
         blendFunc = BlendFunc::None;
     }
 
+    Sprite Sprite::setOnFinished(std::function<FinishCallback> callback) {
+        onFinished = std::move(callback);
+        return *this;
+    }
+
+    Sprite &Sprite::setPosition(const Vector &position, Float32 z) {
+        this->position = position;
+        this->z = z;
+        return *this;
+    }
+
+    Sprite &Sprite::setPosition(const Vector &position) {
+        this->position = position;
+        return *this;
+    }
+
+    Animation Sprite::getAnimation() const {
+        return animation;
+    }
+
     Sprite &Sprite::setAnimation(Animation animation) {
         if (this->animation != animation) {
             this->animation = animation;
@@ -55,6 +75,32 @@ namespace Duel6 {
             finished = false;
         }
 
+        return *this;
+    }
+
+    Sprite &Sprite::setTexture(Texture texture) {
+        this->texture = texture;
+        return *this;
+    }
+
+    Sprite &Sprite::setFrame(Size frame) {
+        this->frame = frame;
+        this->delay = 0;
+        return *this;
+    }
+
+    Sprite &Sprite::setOrientation(Orientation orientation) {
+        this->orientation = orientation;
+        return *this;
+    }
+
+    Sprite &Sprite::setSize(const Vector &size) {
+        this->size = size;
+        return *this;
+    }
+
+    Sprite &Sprite::setGrow(Float32 grow) {
+        this->grow = grow;
         return *this;
     }
 
@@ -85,7 +131,12 @@ namespace Duel6 {
             frame += 2;
             delay = 0;
             if (animation[frame] == -1) {
-                finished = true;
+                if (!finished) {
+                    finished = true;
+                    if (onFinished) {
+                        onFinished();
+                    }
+                }
 
                 if (looping == AnimationLooping::RepeatForever) {
                     frame = 0;
@@ -119,13 +170,8 @@ namespace Duel6 {
 
         bool rotated = zRotation != 0.0;
         if (rotated) {
-            Vector translate = position + rotationCentre;
-
-            Matrix shift = Matrix::translate(-translate);
-            Matrix rotate = Matrix::rotate(zRotation, Vector::UNIT_Z);
-            Matrix unshift = Matrix::translate(translate);
-
-            globRenderer->setModelMatrix(unshift * rotate * shift);
+            Matrix rotate = Matrix::rotateAroundPoint(zRotation, Vector::UNIT_Z, position + rotationCentre);
+            globRenderer->setModelMatrix(rotate);
         }
 
         bool reversed = (orientation == Orientation::Right);
