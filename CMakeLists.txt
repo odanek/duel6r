@@ -491,7 +491,7 @@ else (APPLE) # MSVC, GCC or MINGW
 endif (APPLE)
 
 # GLEW
-find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
+find_library(LIB_GLEW GLEW DOC "Path to GLEW library")
 target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
 find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
 include_directories(${HEADERS_GLEW})

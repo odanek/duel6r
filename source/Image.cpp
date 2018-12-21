@@ -31,6 +31,7 @@
 #include <SDL2/SDL_image.h>
 #endif
 
+#include <algorithm>
 #include "Image.h"
 #include "Exception.h"
 #include "IoException.h"
