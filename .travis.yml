@@ -9,6 +9,7 @@ before_install:
 install:
 - sudo apt-get install -qq g++-6
 - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+- sudo apt-get install -qq liblua5.3-dev libglew-dev
 - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
 before_script:
 - mkdir build
