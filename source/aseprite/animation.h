@@ -63,6 +63,13 @@ public:
 			pixels(std::move(image.pixels)) {
 	}
 
+	Image & operator=(const animation::Image& image) {
+		width = image.width;
+		height = image.height;
+		pixels = image.pixels;
+		return *this;
+	}
+
 	Image & operator =(Image && image) {
 		width = image.width;
 		height = image.height;
@@ -180,7 +187,7 @@ public:
 	uint16_t framesCount;
 	uint8_t transparentIndex;
 	Palette palette;
-	std::vector<std::vector<int16_t>> animations;
+	std::vector<std::vector<int32_t>> animations;
 	std::vector<Frame> frames;
 	std::vector<Layer> layers;
 	std::vector<Image> images;
@@ -193,6 +200,7 @@ public:
 			std::cout << " name: " << layer.name << " " << (layer.isGroupLayer ? "[G]" : "") << "\n";
 		}
 	}
+	static animation::Animation loadAseImage(const std::string &path);
 };
 
 }

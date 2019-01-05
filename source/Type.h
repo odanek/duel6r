@@ -46,6 +46,9 @@ namespace Duel6 {
     typedef double Float64;
 
     typedef size_t Size;
+
+    typedef Int32 AnimationEntry;
+    typedef AnimationEntry const *Animation;
 }
 
 #endif

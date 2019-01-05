@@ -32,7 +32,6 @@
 #include "TextureManager.h"
 #include "Menu.h"
 #include "Game.h"
-#include "Util.h"
 #include "File.h"
 #include "Font.h"
 #include "json/JsonParser.h"
@@ -85,7 +84,7 @@ namespace Duel6 {
 
     void Menu::initialize() {
         appService.getConsole().printLine("\n===Menu initialization===");
-        menuBannerTexture = appService.getTextureManager().loadList(D6_TEXTURE_MENU_PATH, TextureFilter::LINEAR, true);
+        menuBannerTexture = appService.getTextureManager().loadStack(D6_TEXTURE_MENU_PATH, TextureFilter::Linear, true);
         appService.getConsole().printLine("...Starting GUI library");
         gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
                        (video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 700) / 2);
@@ -254,7 +253,7 @@ namespace Duel6 {
         quickLiquidCheckBox->setLabel("Quick Liquid");
         quickLiquidCheckBox->setPosition(151, -21, 150, 20);
 
-        backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH, D6_TEXTURE_EXTENSION);
+        backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
         levelListBox->addItem("Random");
@@ -555,7 +554,7 @@ namespace Duel6 {
                    Format("{0} {1}") << "version" << APP_VERSION);
 
         Int32 clientHeight = video.getScreen().getClientHeight();
-        Material material = Material::makeTexture(menuBannerTexture.at(0));
+        Material material = Material::makeTexture(menuBannerTexture);
         globRenderer->quadXY(Vector(300, clientHeight - 100), Vector(200, 95), Vector(0, 1), Vector(1, -1), material);
 
         globRenderer->setViewMatrix(Matrix::IDENTITY);

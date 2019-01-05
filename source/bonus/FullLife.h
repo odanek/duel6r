@@ -33,17 +33,14 @@
 namespace Duel6 {
     namespace Bonuses {
         class FullLife : public BonusTypeImpl {
-        private:
-            Texture texture;
-
         public:
-            explicit FullLife(Texture texture);
-
             std::string getName() const override {
                 return "fullLife";
             }
 
-            Texture getTexture() const override;
+            Int32 getTextureIndex() const override {
+                return 3;
+            }
 
             bool isOneTime() const override;
 

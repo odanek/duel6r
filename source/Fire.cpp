@@ -34,46 +34,71 @@ namespace Duel6 {
     const std::vector<FireType> FireType::types = {CONIFEROUS_TREE, BROAD_LEAVED_TREE};
 
     namespace {
-        Int16 fireAnimation[20] = {0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 0, 20, 1, 20, 2, 100, -1, 0};
+        AnimationEntry nonFireAnimation[] = {0, 20, -1, 0};
+        AnimationEntry burnedAnimation[] = {1, 20, -1, 0};
+        std::vector<AnimationEntry> burningAnimation;
     }
 
-    Fire::Fire(const FireType &type, Face &face, const Vector &position)
-            : type(type), face(face), position(position), burned(false) {}
+    Fire::Fire(const FireType &type, SpriteList::Iterator sprite, const Vector &position)
+            : type(type), sprite(sprite), position(position), burned(false) {}
 
     FireList::FireList(const GameResources &resources, SpriteList &spriteList)
-            : spriteList(spriteList), textures(resources.getFireTextures()) {}
+            : spriteList(spriteList), burningTexture(resources.getBurningTexture()),
+              textures(resources.getFireTextures()) {}
 
-    void FireList::find(FaceList &sprites) {
-        Size faceIndex = 0;
-        for (Face &face : sprites.getFaces()) {
-            for (const FireType &type : FireType::values()) {
-                if (face.getBlock().getIndex() == type.getBlock()) {
-                    const Vertex &vertex = sprites.getVertexes()[faceIndex << 2];
-                    Vector position(vertex.x, vertex.y - 1.0f);
-                    fires.push_back(Fire(type, face, position));
+    void FireList::find(const Level &level) {
+        for (Int32 y = 0; y < level.getHeight(); y++) {
+            for (Int32 x = 0; x < level.getWidth(); x++) {
+                const Block &block = level.getBlockMeta(x, y);
+
+                if (block.isBurning()) {
+                    for (const FireType &type : FireType::values()) {
+                        if (block.getIndex() == type.getBlock()) {
+                            Vector position(x, y);
+
+                            auto sprite = spriteList.add(nonFireAnimation, textures.at(type.getId()));
+                            sprite->setPosition(position, 0.75f).setLooping(AnimationLooping::OnceAndStop);
+
+                            fires.emplace_back(type, sprite, position);
+                        }
+                    }
                 }
             }
-
-            faceIndex++;
         }
     }
 
     void FireList::check(const Vector &explCentre, Float32 d) {
         for (Fire &fire : fires) {
-            if (!fire.isBurned()) {
-                Vector fireCentre = fire.getPosition() + Vector(0.5f, 0.5f);
-                Float32 distance = (explCentre - fireCentre).length();
+            if (fire.isBurned()) {
+                continue;
+            }
 
-                if (distance < d) {
-                    fire.setBurned(true);
-                    fire.getFace().hide();
+            Float32 distance = (explCentre - fire.getCentre()).length();
+            if (distance >= d) {
+                continue;
+            }
 
-                    Sprite fireSprite(fireAnimation, textures.at(fire.getType().getId()));
-                    fireSprite.setPosition(fire.getPosition(), 0.75f)
-                            .setLooping(AnimationLooping::OnceAndStop);
-                    spriteList.addSprite(fireSprite);
-                }
+            fire.setBurned(true);
+
+            auto sprite = spriteList.add(burningAnimation.data(), burningTexture);
+            sprite->setPosition(fire.getPosition() - Vector(0.3f, 0.2f), 0.8f)
+                    .setSize(Vector(1.6f, 1.6f))
+                    .setLooping(AnimationLooping::OnceAndRemove)
+                    .setBlendFunc(BlendFunc::SrcColor)
+                    .setOnFinished([&fire]() {
+                        fire.getSprite()->setAnimation(burnedAnimation);
+                    });
+        }
+    }
+
+    void FireList::initialize() {
+        for (Int32 j = 0; j < 3; j++) {
+            for (Int32 i = 0; i < 49; i++) {
+                burningAnimation.push_back(i);
+                burningAnimation.push_back(1);
             }
         }
+        burningAnimation.push_back(-1);
+        burningAnimation.push_back(0);
     }
 }

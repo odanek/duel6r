@@ -61,8 +61,6 @@ namespace Duel6 {
         public:
             ListBox(Desktop &desk, bool sb);
 
-            ~ListBox();
-
             ListBox &setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
 
             ListBox &addItem(const std::string &item);

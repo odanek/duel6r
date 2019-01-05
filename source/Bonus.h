@@ -43,7 +43,7 @@ namespace Duel6 {
     public:
         virtual std::string getName() const = 0;
 
-        virtual Texture getTexture() const = 0;
+        virtual Int32 getTextureIndex() const = 0;
 
         virtual bool isOneTime() const = 0;
 
@@ -90,7 +90,7 @@ namespace Duel6 {
 
         std::string getName() const;
 
-        Texture getTexture() const;
+        Int32 getTextureIndex() const;
 
         bool isOneTime() const;
 
@@ -107,7 +107,7 @@ namespace Duel6 {
     public:
         static const std::vector<BonusType> &values();
 
-        static void initialize(const TextureList &textures);
+        static void initialize();
     };
 
     class Bonus {
@@ -115,12 +115,12 @@ namespace Duel6 {
         BonusType bonus;
         Int32 duration;
         Vector position;
-        Texture texture;
+        Int32 textureIndex;
 
     public:
-        Bonus(BonusType type, Int32 duration, const Vector &position, Texture texture);
+        Bonus(BonusType type, Int32 duration, const Vector &position, Int32 textureIndex);
 
-        void render() const;
+        void render(Texture texture) const;
 
         const BonusType &getType() const {
             return bonus;

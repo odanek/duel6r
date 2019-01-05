@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        FastReload::FastReload(Texture texture)
-                : texture(texture) {}
-
-        Texture FastReload::getTexture() const {
-            return texture;
-        }
-
         bool FastReload::isOneTime() const {
             return false;
         }

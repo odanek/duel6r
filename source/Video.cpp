@@ -29,11 +29,11 @@
 #include "Video.h"
 
 #if defined(D6_RENDERER_GL1)
-#include "renderer/GL1Renderer.h"
+#include "renderer/gl1/GL1Renderer.h"
 #elif defined(D6_RENDERER_GLES2)
-#include "renderer/GLES2Renderer.h"
+#include "renderer/es2/GLES2Renderer.h"
 #elif defined(D6_RENDERER_GL4)
-#include "renderer/GL4Renderer.h"
+#include "renderer/gl4/GL4Renderer.h"
 #endif
 
 namespace Duel6 {
@@ -98,6 +98,12 @@ namespace Duel6 {
 
         window = createWindow(name, icon, screen, console);
         glContext = createContext(screen, console);
+
+        GLenum err = glewInit();
+        if (GLEW_OK != err) {
+            D6_THROW(VideoException, (const char *)glewGetErrorString(err));
+        }
+
         globRenderer = createRenderer();
 
         setMode(Mode::Orthogonal);
@@ -129,19 +135,27 @@ namespace Duel6 {
     }
 
     SDL_GLContext Video::createContext(const ScreenParameters &params, Console &console) {
+        Int32 majorVersion;
+        Int32 minorVersion;
+        Int32 profile;
+
 #if defined(D6_RENDERER_GL1)
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+        majorVersion = 2;
+        minorVersion = 0;
+        profile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
 #elif defined(D6_RENDERER_GLES2)
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#elif defined(D6_RENDERER_GLES2)
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        majorVersion = 2;
+        minorVersion = 0;
+        profile = SDL_GL_CONTEXT_PROFILE_ES;
+#elif defined(D6_RENDERER_GL4)
+        majorVersion = 4;
+        minorVersion = 3;
+        profile = SDL_GL_CONTEXT_PROFILE_CORE;
 #endif
+
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profile);
 
         SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, params.getBitsPerPixel());
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -156,7 +170,7 @@ namespace Duel6 {
         console.printLine(Format("...Bits per-pixel: {0}") << params.getBitsPerPixel());
         SDL_GLContext glc = SDL_GL_CreateContext(window);
         if (glc == nullptr) {
-            D6_THROW(VideoException, std::string("Unable to OpenGL context: ") + SDL_GetError());
+            D6_THROW(VideoException, std::string("Unable to create OpenGL context: ") + SDL_GetError());
         }
 
         // Retrieve final video parameters
@@ -185,7 +199,7 @@ namespace Duel6 {
 #elif defined(D6_RENDERER_GL4)
         Renderer* renderer = new GL4Renderer();
 #endif
-        renderer->initialize();
+
         return renderer;
     }
 

@@ -34,12 +34,9 @@
 #include "Type.h"
 #include "Color.h"
 #include "Image.h"
-#include "Texture.h"
-#include "TextureList.h"
 #include "TextureDictionary.h"
+#include "renderer/RendererTypes.h"
 #include "aseprite/animation.h"
-
-#define D6_TEXTURE_EXTENSION     ".tga"
 
 #define D6_TEXTURE_MAN_PATH      "textures/man/"
 #define D6_TEXTURE_BCG_PATH      "textures/backgrounds/"
@@ -55,36 +52,21 @@
 namespace Duel6 {
     class TextureManager {
     public:
-        typedef std::vector<Texture> TextureArray;
         typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
-    private:
-        Texture::Key nextKey;
-        std::string textureFileExtension;
-        std::unordered_map<Texture::Key, Texture::Id> textureKeys;
-
     public:
-        explicit TextureManager(const std::string &fileExtension);
+        TextureManager();
 
-        ~TextureManager();
+        void dispose(Texture texture);
 
-        Size size() {
-            return textureKeys.size();
-        }
-
-        void dispose(Texture &texture);
-
-        void dispose(TextureList &textures);
-
-        void disposeAll();
+        Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp);
 
         const animation::Animation loadAnimation(const std::string &path);
-        const TextureList generateSprite(const animation::Animation& animation, const animation::Palette &substitutionTable, TextureFilter filtering, bool clamp);
-        const TextureList loadList(const std::string &path, TextureFilter filtering, bool clamp);
 
-        const TextureList
-        loadList(const std::string &path, TextureFilter filtering, bool clamp,
-                 const SubstitutionTable &substitutionTable);
+        Texture generateSprite(const animation::Animation& animation, const animation::Palette &substitutionTable, TextureFilter filtering, bool clamp);
+
+        Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp,
+                          const SubstitutionTable &substitutionTable);
 
         const TextureDictionary loadDict(const std::string &path, TextureFilter filtering, bool clamp);
 

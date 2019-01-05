@@ -39,11 +39,11 @@ namespace Duel6 {
 
     class ElevatorList {
     private:
-        const TextureList &textures;
+        Texture texture;
         std::vector<Elevator> elevators;
 
     public:
-        ElevatorList(const TextureList &textures);
+        ElevatorList(Texture texture);
 
         void load(const std::string &path, bool mirror);
 

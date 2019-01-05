@@ -41,18 +41,16 @@ namespace Duel6 {
     }
 
     void WorldRenderer::walls(const FaceList &walls) const {
-        globRenderer->enableFaceCulling(true);
         walls.render(game.getResources().getBlockTextures(), false);
-        globRenderer->enableFaceCulling(false);
     }
 
     void WorldRenderer::water(const FaceList &water) const {
         globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
+        globRenderer->setBlendFunc(BlendFunc::SrcColor);
 
         water.render(game.getResources().getBlockTextures(), false);
 
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
         globRenderer->enableDepthWrite(true);
     }
 
@@ -91,16 +89,16 @@ namespace Duel6 {
         if (extended) {
             maxLength += 20;
         }
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         Color fontColor(entry.fontColor);
         globRenderer->quadXY(Vector(posX, posY + 1), Vector((charHeight/2) * maxLength, charHeight), entry.bcgColor);
 
         Int32 paddingLeft = entry.isSuperEntry() ? 0 : 5;
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
         font.print(posX + paddingLeft, posY, 0.0f, fontColor, entry.name, charHeight);
 
         if(extended) {
-            globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
+            globRenderer->setBlendFunc(BlendFunc::SrcColor);
             if(!entry.isSuperEntry()) {
                 fontColor = Color::YELLOW;
             }
@@ -134,12 +132,12 @@ namespace Duel6 {
         int x = video.getScreen().getClientWidth() / 2 - width / 2;
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         globRenderer->quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + 2 * fontWidth, height + 2 * fontSize), Color(255, 255, 255, 80));
         globRenderer->quadXY(Vector(x - fontWidth + 2, y - fontSize + 2), Vector(width + 2 * fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
 
         globRenderer->quadXY(Vector(x - fontWidth - 5, height + y - fontSize), Vector(width + 2 * fontWidth + 10,fontSize + 4), Color(0, 0, 255, 255));
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcColor);
+        globRenderer->setBlendFunc(BlendFunc::SrcColor);
 
         Int32 posX = video.getScreen().getClientWidth() / 2 - tableWidth / 2;;
         Int32 posY = y + height - fontSize * 3;
@@ -216,10 +214,10 @@ namespace Duel6 {
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
         globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         globRenderer->quadXY(Vector(X, Y - 0.1f, 0.5f), Vector(1.0f, 0.1f), Color::BLACK.withAlpha(alpha));
         globRenderer->quadXY(Vector(X + 0.01f, Y - 0.08f, 0.5f), Vector(width, 0.07f), color.withAlpha(alpha));
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
         globRenderer->enableDepthWrite(true);
 
         return 0.1f;
@@ -235,9 +233,9 @@ namespace Duel6 {
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
         globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::BLUE.withAlpha(alpha));
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
 
         font.print(X, Y, 0.5f, Color::YELLOW.withAlpha(alpha), name, 0.3f);
 
@@ -256,9 +254,9 @@ namespace Duel6 {
 
         globRenderer->enableDepthWrite(false);
 
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::YELLOW.withAlpha(alpha));
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
 
         font.print(X, Y, 0.5f, Color::BLUE.withAlpha(alpha), bulletCount, 0.3f);
 
@@ -268,17 +266,17 @@ namespace Duel6 {
     void
     WorldRenderer::bonusIndicator(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
-        Texture texture = player.getBonus().getTexture();
-        Material material = Material::makeColoredTexture(texture, Color::WHITE.withAlpha(alpha));
+        auto bonusType = player.getBonus();
+        Material material = Material::makeColoredTexture(game.getResources().getBonusTextures(), Color::WHITE.withAlpha(alpha));
 
         Float32 size = 0.3f;
         Float32 X = xOfs - size / 2;
         Float32 Y = yOfs;
 
         globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f), Vector(0.4f, -0.4f), material);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
+        globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f, Float32(bonusType.getTextureIndex())), Vector(0.4f, -0.4f), material);
+        globRenderer->setBlendFunc(BlendFunc::None);
         globRenderer->enableDepthWrite(true);
     }
 
@@ -388,9 +386,9 @@ namespace Duel6 {
         const auto &screen = video.getScreen();
 
         video.setMode(Video::Mode::Orthogonal);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         globRenderer->quadXY(Vector::ZERO, Vector(screen.getClientWidth(), screen.getClientHeight()), color);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
         video.setMode(Video::Mode::Perspective);
     }
 
@@ -427,8 +425,8 @@ namespace Duel6 {
         walls(world.getLevelRenderData().getWalls());
         sprites(world.getLevelRenderData().getSprites());
         world.getElevatorList().render();
-        world.getSpriteList().render();
         world.getBonusList().render();
+        world.getSpriteList().render();
         invulRings(game.getPlayers());
         water(world.getLevelRenderData().getWater());
         youAreHere();

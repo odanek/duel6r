@@ -48,10 +48,6 @@ namespace Duel6 {
             }
         }
 
-        ListBox::~ListBox() {
-            clear();
-        }
-
         ListBox &ListBox::clear() {
             items.clear();
             listPos.items = 0;

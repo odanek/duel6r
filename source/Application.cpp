@@ -73,7 +73,7 @@ namespace Duel6 {
     }
 
     Application::Application()
-            : console(Console::ExpandFlag), textureManager(D6_TEXTURE_EXTENSION),
+            : console(Console::ExpandFlag), textureManager(),
               input(console), controlsManager(input),sound(20, console),
               scriptContext(console, sound, gameSettings), scriptManager(scriptContext),
               service(font, console, textureManager, video, input, controlsManager, sound, scriptManager),
@@ -244,6 +244,8 @@ namespace Duel6 {
         menu.setGameReference(game);
         game.setMenuReference(&menu);
 
+        FireList::initialize();
+
         for (Weapon weapon : Weapon::values()) {
             gameSettings.enableWeapon(weapon, true);
         }
@@ -280,7 +282,6 @@ namespace Duel6 {
     }
 
     void Application::tearDown() {
-        textureManager.disposeAll();
         font.dispose();
         TTF_Quit();
         SDL_Quit();

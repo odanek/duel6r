@@ -33,7 +33,7 @@
 #include <vector>
 #include "Type.h"
 #include "Sound.h"
-#include "Sprite.h"
+#include "SpriteList.h"
 #include "TextureManager.h"
 
 namespace Duel6 {
@@ -51,9 +51,11 @@ namespace Duel6 {
 
         virtual void shoot(Player &player, Orientation orientation, World &world) const = 0;
 
-        virtual Sprite &makeSprite(Sprite &sprite) const = 0;
+        virtual SpriteList::Iterator makeSprite(SpriteList &spriteList) const = 0;
 
         virtual Texture getBonusTexture() const = 0;
+
+        virtual Int32 getBonusTextureIndex() const = 0;
 
         virtual bool isChargeable() const = 0;
     };
@@ -90,9 +92,11 @@ namespace Duel6 {
 
         void shoot(Player &player, Orientation orientation, World &world) const;
 
-        Sprite &makeSprite(Sprite &sprite) const;
+        SpriteList::Iterator makeSprite(SpriteList &spriteList) const;
 
         Texture getBonusTexture() const;
+
+        Int32 getBonusTextureIndex() const;
 
         bool operator==(const Weapon &weapon) const;
 

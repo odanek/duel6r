@@ -40,9 +40,10 @@
 namespace Duel6 {
     class LegacyShot : public ShotBase {
     private:
-        const LegacyWeapon::Definition &definition;
         const LegacyWeapon::WeaponTextures &textures;
         const LegacyWeapon::WeaponSamples &samples;
+        const Animation animationShot;
+        const Animation animationBoom;
         Rectangle collisionRect;
         Orientation orientation;
         Vector position;
@@ -54,8 +55,8 @@ namespace Duel6 {
         Int32 power;
 
     public:
-        LegacyShot(Player &player, const LegacyWeapon &weapon, Orientation orientation, SpriteList::Iterator sprite,
-                   const Rectangle &collisionRect);
+        LegacyShot(Player &player, World &world, const LegacyWeapon &weapon, Animation shotAnimation,
+                   Animation boomAnimation, Orientation orientation, const Rectangle &collisionRect);
 
         bool update(Float32 elapsedTime, World &world) override;
 
@@ -83,9 +84,21 @@ namespace Duel6 {
             return velocity * bulletSpeed;
         }
 
-        bool isPowerful() const override {
-            return powerful;
-        }
+        virtual bool isColliding() const;
+
+        bool isPowerful() const override;
+
+        Float32 getPowerFactor() const;
+
+        virtual bool hasBlood() const;
+
+        virtual bool hasPlayerExplosion() const;
+
+        virtual Color getPlayerExplosionColor() const;
+
+        Animation getShotAnimation() const;
+
+        Animation getBoomAnimation() const;
 
     protected:
         virtual void onExplode(const Vector &centre, Float32 range, World &world);
@@ -105,7 +118,7 @@ namespace Duel6 {
 
         void move(Float32 elapsedTime);
 
-        Float32 getExplosionRange() const;
+        virtual Float32 getExplosionRange() const;
 
         Float32 getExplosionPower() const;
 
@@ -123,6 +136,9 @@ namespace Duel6 {
 
         void addPlayerBlood(const Player &player, const Vector &point, World &world);
 
+        SpriteList::Iterator makeSprite(SpriteList &spriteList);
+
+        virtual SpriteList::Iterator makeBoomSprite(SpriteList &spriteList);
     };
 }
 

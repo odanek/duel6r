@@ -26,19 +26,24 @@
 */
 
 #include "MachineGun.h"
+#include "MachineGunShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {9.15f, true, false, false, false, Color(0, 0, 0), 0, 40, 0.66f, "machine gun",
-                                               "kulomet.wav", "", 0, {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 50, -1, 0}, {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.41f, 0.66f), Vector(0.19f, 0.30f));
+        const LegacyWeapon::Definition DEFINITION = {40, 0.66f,
+                                                     "machine gun",
+                                                     "kulomet.wav", "",
+                                                     {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
     }
 
     MachineGun::MachineGun(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 6) {}
 
-    Rectangle MachineGun::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 MachineGun::getBulletSpeed() const {
+        return 9.15f;
+    }
+
+    std::unique_ptr<Shot> MachineGun::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<MachineGunShot>(player, world, *this, orientation);
     }
 }

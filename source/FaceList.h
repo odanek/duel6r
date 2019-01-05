@@ -32,15 +32,19 @@
 #include "Vertex.h"
 #include "Face.h"
 #include "TextureManager.h"
+#include "renderer/RendererBuffer.h"
 
 namespace Duel6 {
     class FaceList {
     private:
         std::vector<Vertex> vertexes;
         std::vector<Face> faces;
+        std::unique_ptr<RendererBuffer> buffer;
 
     public:
         FaceList() {}
+
+        ~FaceList();
 
         FaceList &clear() {
             vertexes.clear();
@@ -74,9 +78,9 @@ namespace Duel6 {
             return faces;
         }
 
-        void optimize();
+        void build();
 
-        void render(const TextureList &textures, bool masked) const;
+        void render(Texture texture, bool masked) const;
 
         void nextFrame();
     };

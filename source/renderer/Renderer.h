@@ -28,45 +28,43 @@
 #ifndef DUEL6_RENDERER_RENDERER_H
 #define DUEL6_RENDERER_RENDERER_H
 
+#include <memory>
 #include <vector>
 #include "../math/Vector.h"
 #include "../math/Matrix.h"
 #include "../Color.h"
-#include "../Texture.h"
 #include "../Image.h"
 #include "../Material.h"
+#include "RendererTypes.h"
+#include "RendererBuffer.h"
 
 namespace Duel6 {
+    class FaceList;
+
     class Renderer {
     public:
         struct Info {
             std::string vendor;
             std::string renderer;
             std::string version;
-            std::vector<std::string> extensions;
         };
 
-        enum class BlendFunc {
-            None,
-            SrcAlpha,
-            SrcColor
+        struct Extensions {
+            std::vector<std::string> extensions;
         };
 
     public:
         virtual ~Renderer() = default;
 
-        virtual void initialize() = 0;
-
         virtual Info getInfo() = 0;
 
-        virtual Texture::Id createTexture(Int32 width, Int32 height, void *data, Int32 alignment,
-                                      TextureFilter filtering, bool clamp) = 0;
+        virtual Extensions getExtensions() = 0;
 
-        virtual void setTextureFilter(Texture::Id textureId, TextureFilter filter) = 0;
+        virtual Texture createTexture(const Image &image, TextureFilter filtering, bool clamp) = 0;
 
-        virtual void freeTexture(Texture::Id textureId) = 0;
+        virtual void freeTexture(Texture textureId) = 0;
 
-        virtual void readScreenData(Int32 width, Int32 height, Image &image) = 0;
+        virtual Image makeScreenshot() = 0;
 
         virtual void setViewport(Int32 x, Int32 y, Int32 width, Int32 height) = 0;
 
@@ -82,8 +80,6 @@ namespace Duel6 {
 
         virtual Matrix getModelMatrix() const = 0;
 
-        virtual void enableFaceCulling(bool enable) = 0;
-
         virtual void enableWireframe(bool enable) = 0;
 
         virtual void enableDepthTest(bool enable) = 0;
@@ -91,6 +87,8 @@ namespace Duel6 {
         virtual void enableDepthWrite(bool enable) = 0;
 
         virtual void setBlendFunc(BlendFunc func) = 0;
+
+        virtual void setGlobalTime(Float32 time) = 0;
 
         virtual void clearBuffers() = 0;
 
@@ -100,6 +98,14 @@ namespace Duel6 {
                               const Vector &p2, const Vector &t2,
                               const Vector &p3, const Vector &t3,
                               const Material &material) = 0;
+
+        virtual void quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) = 0;
+
+        virtual void quad(const Vector &p1, const Vector &t1,
+                          const Vector &p2, const Vector &t2,
+                          const Vector &p3, const Vector &t3,
+                          const Vector &p4, const Vector &t4,
+                          const Material &material) = 0;
 
         virtual void quadXY(const Vector &position, const Vector &size, const Color &color) = 0;
 
@@ -121,6 +127,8 @@ namespace Duel6 {
         virtual void line(const Vector &from, const Vector &to, Float32 width, const Color &color) = 0;
 
         virtual void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) = 0;
+
+        virtual std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) = 0;
     };
 }
 

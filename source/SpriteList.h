@@ -40,9 +40,9 @@ namespace Duel6 {
         std::list<Sprite> sprites;
 
     public:
-        Iterator addSprite(const Sprite &sprite);
+        Iterator add(Animation animation, Texture texture);
 
-        void removeSprite(Iterator iterator) {
+        void remove(Iterator iterator) {
             sprites.erase(iterator);
         }
 

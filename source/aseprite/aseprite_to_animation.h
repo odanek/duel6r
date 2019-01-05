@@ -97,7 +97,7 @@ animation::Animation fromASEPRITE(const aseprite::ASEPRITE & ase){
 	}
     for(const auto & loop : animation.loops) {
         const float SPRITE_SPEED_COEFFICIENT = 1.0f/10.0f; //TODO
-        std::vector<int16_t> animationLoop;
+        std::vector<int32_t> animationLoop;
 
         if(loop.loopType == animation::LoopType::FORWARD){
             uint16_t loopLength = loop.to - loop.from + 1;

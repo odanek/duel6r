@@ -41,14 +41,14 @@
 #include "PlayerEventListener.h"
 
 namespace Duel6 {
-//    static Int16 * noAnim;//[4] = {0, 50, 0, -1};
-//    static Int16 * d6SAnim;//[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
-//    static Int16 * d6WAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
-//    static Int16 * d6JAnim;//[4] = {8, 50, -1, 0};
-//    static Int16 * d6DAnim;//[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
-//    static Int16 * d6LAnim;//[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
-//    static Int16 * d6NAnim;//[4] = {25, 100, -1, 0};
-//    static Int16 * d6PAnim;//[] = {0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0};
+//    static const Int32 noAnim[4] = {0, 50, 0, -1};
+//    static const Int32 d6SAnim[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
+//    static const Int32 d6WAnim[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
+//    static const Int32 d6JAnim[4] = {8, 50, -1, 0};
+//    static const Int32 d6DAnim[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
+//    static const Int32 d6LAnim[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
+//    static const Int32 d6NAnim[4] = {25, 100, -1, 0};
+//    static const Int32 d6PAnim[] = {0, 5, 20, 5, 21, 5, 22, 5, 23, 5, 24, 5, 23, 5, 22, 5, 21, 5, 0, 5, -1, 0};
 
     //TODO: This still needs further fine-tuning for good jumping experience
     static const float GRAVITATIONAL_ACCELERATION = -11.0f;
@@ -59,7 +59,7 @@ namespace Duel6 {
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
     Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
-            : person(person), skin(skin), sounds(sounds), controls(controls), bodyAlpha(1.0f) {
+            : person(person), skin(skin), sounds(sounds), controls(controls) {
         camera.rotate(180.0, 0.0, 0.0);
         anoAnim =  skin.noAnim;
         ad6SAnim = skin.d6SAnim;
@@ -87,15 +87,12 @@ namespace Duel6 {
     void Player::startRound(World &world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon &weapon) {
         this->world = &world;
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-        Sprite manSprite(d6SAnim, skin.getTextureList());
-        manSprite.setPosition(getSpritePosition(), 0.5f);
-        sprite = world.getSpriteList().addSprite(manSprite);
+
+        sprite = world.getSpriteList().add(d6SAnim, skin.getTexture());
+        sprite->setPosition(getSpritePosition(), 0.5f);
 
         this->weapon = weapon;
-        Sprite gunSprite;
-        weapon.makeSprite(gunSprite);
-        gunSprite.setPosition(getGunSpritePosition(), 0.5f);
-        this->gunSprite = world.getSpriteList().addSprite(gunSprite);
+        gunSprite = weapon.makeSprite(world.getSpriteList());
 
         flags = FlagHasGun;
         orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
@@ -108,6 +105,8 @@ namespace Duel6 {
         bonusRemainingTime = 2.0f;
         tempSkinDuration = 0;
         roundKills = 0;
+        bodyAlpha = 1.0f;
+        alpha = 1.0f;
         this->view = view;
         water.headUnderWater = Water::NONE;
         water.feetInWater = Water::NONE;
@@ -253,7 +252,10 @@ namespace Duel6 {
         }
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
         indicators.getBullets().show();
-        weapon.makeSprite(*gunSprite);
+
+        world->getSpriteList().remove(gunSprite);
+        gunSprite = weapon.makeSprite(world->getSpriteList());
+
         return *this;
     }
 
@@ -470,44 +472,45 @@ namespace Duel6 {
     }
 
     void Player::setAnm() {
-        //Int16 *animation;
-        PlayerSkin::anim * animation;
+        Animation animation;
+        //PlayerSkin::anim * animation;
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
-                animation = &ad6LAnim;
+                animation = d6LAnim;
             } else {
                 sprite->setDraw(false);
-                animation = &ad6NAnim;
+                animation = d6NAnim;
             }
         } else if (isPickingGun()) {
-            animation = &ad6PAnim;
+            animation = d6PAnim;
         } else if (isKneeling()) {
-            animation = &ad6DAnim;
+            animation = d6DAnim;
             sprite->setLooping(AnimationLooping::RepeatForever);
         } else if (isOnElevator()) {
             if (!isMoving()) {
-                animation = &ad6SAnim;
+                animation = d6SAnim;
             } else {
-                animation = &ad6WAnim;
+                animation = d6WAnim;
                 sprite->setLooping(AnimationLooping::RepeatForever);
             }
         } else if (!isOnGround()) {
-            animation = &ad6JAnim;
+            animation = d6JAnim;
         } else if (!isMoving()) {
-            animation = &ad6SAnim;
+            animation = d6SAnim;
         } else {
-            animation = &ad6WAnim;
+            animation = d6WAnim;
             sprite->setLooping(AnimationLooping::RepeatForever);
         }
 
         sprite->setPosition(getSpritePosition())
                 .setOrientation(getOrientation())
-                //.setLooping(AnimationLooping::OnceAndStop)
-                .setAnimation(*animation);
+                .setAnimation(animation)
+                .setAlpha(bodyAlpha * alpha);
 
-        gunSprite->setPosition(getGunSpritePosition())
+        gunSprite->setPosition(getGunSpritePosition(), 0.5f)
                 .setOrientation(getOrientation())
-                .setDraw(hasGun() && isAlive() && !isPickingGun());
+                .setDraw(hasGun() && isAlive() && !isPickingGun())
+                .setAlpha(alpha);
     }
 
     void Player::prepareCam(const Video &video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY) {
@@ -724,12 +727,12 @@ namespace Duel6 {
 
     void Player::useTemporarySkin(PlayerSkin &tempSkin) {
         tempSkinDuration = Float32(10 + Math::random(5));
-        sprite->setTextures(tempSkin.getTextureList());
+        sprite->setTexture(tempSkin.getTexture());
     }
 
     void Player::switchToOriginalSkin() {
         tempSkinDuration = 0;
-        sprite->setTextures(skin.getTextureList());
+        sprite->setTexture(skin.getTexture());
     }
 
     void Player::processShot(Shot &shot, std::vector<Player *> &playersHit, std::vector<Player *> &playersKilled) {

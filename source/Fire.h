@@ -35,6 +35,7 @@
 #include "TextureManager.h"
 #include "SpriteList.h"
 #include "GameResources.h"
+#include "Level.h"
 
 namespace Duel6 {
     class FireType {
@@ -68,12 +69,12 @@ namespace Duel6 {
     class Fire {
     private:
         const FireType &type;
-        Face &face;
+        SpriteList::Iterator sprite;
         Vector position;
         bool burned;
 
     public:
-        Fire(const FireType &type, Face &face, const Vector &position);
+        Fire(const FireType &type, SpriteList::Iterator sprite, const Vector &position);
 
         const FireType &getType() const {
             return type;
@@ -83,8 +84,12 @@ namespace Duel6 {
             return position;
         }
 
-        Face &getFace() const {
-            return face;
+        Vector getCentre() const {
+            return position + Vector(0.5f, 0.5f);
+        }
+
+        SpriteList::Iterator getSprite() const {
+            return sprite;
         }
 
         bool isBurned() const {
@@ -99,15 +104,18 @@ namespace Duel6 {
     class FireList {
     private:
         SpriteList &spriteList;
-        const std::unordered_map<Size, TextureList> &textures;
+        Texture burningTexture;
+        const std::unordered_map<Size, Texture> &textures;
         std::vector<Fire> fires;
 
     public:
         FireList(const GameResources &resources, SpriteList &spriteList);
 
-        void find(FaceList &sprites);
+        void find(const Level &level);
 
         void check(const Vector &explCentre, Float32 d);
+
+        static void initialize();
     };
 }
 

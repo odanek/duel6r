@@ -49,8 +49,8 @@ namespace Duel6 {
                 return "none";
             }
 
-            Texture getTexture() const override {
-                return Texture();
+            Int32 getTextureIndex() const override {
+                return 0;
             }
 
             bool isOneTime() const override {
@@ -103,8 +103,8 @@ namespace Duel6 {
         return impl->getName();
     }
 
-    Texture BonusType::getTexture() const {
-        return impl->getTexture();
+    Int32 BonusType::getTextureIndex() const {
+        return impl->getTextureIndex();
     }
 
     bool BonusType::isOneTime() const {
@@ -135,31 +135,31 @@ namespace Duel6 {
         return types;
     }
 
-    void BonusType::initialize(const TextureList &textures) {
-        PLUS_LIFE.assign(std::make_unique<Bonuses::PlusLife>(textures.at(1)));
-        MINUS_LIFE.assign(std::make_unique<Bonuses::MinusLife>(textures.at(2)));
-        FULL_LIFE.assign(std::make_unique<Bonuses::FullLife>(textures.at(3)));
-        FAST_RELOAD.assign(std::make_unique<Bonuses::FastReload>(textures.at(4)));
-        POWERFUL_SHOTS.assign(std::make_unique<Bonuses::PowerfulShots>(textures.at(5)));
-        INVULNERABILITY.assign(std::make_unique<Bonuses::Invulnerability>(textures.at(6)));
-        BULLETS.assign(std::make_unique<Bonuses::Bullets>(textures.at(7)));
-        FAST_MOVEMENT.assign(std::make_unique<Bonuses::FastMovement>(textures.at(8)));
-        INVISIBILITY.assign(std::make_unique<Bonuses::Invisibility>(textures.at(9)));
-        SPLIT_FIRE.assign(std::make_unique<Bonuses::SplitFire>(textures.at(10)));
-        VAMPIRE_SHOTS.assign(std::make_unique<Bonuses::VampireShots>(textures.at(11)));
-        INFINITE_AMMO.assign(std::make_unique<Bonuses::InfiniteAmmo>(textures.at(12)));
-        SNORKEL.assign(std::make_unique<Bonuses::Snorkel>(textures.at(13)));
+    void BonusType::initialize() {
+        PLUS_LIFE.assign(std::make_unique<Bonuses::PlusLife>());
+        MINUS_LIFE.assign(std::make_unique<Bonuses::MinusLife>());
+        FULL_LIFE.assign(std::make_unique<Bonuses::FullLife>());
+        FAST_RELOAD.assign(std::make_unique<Bonuses::FastReload>());
+        POWERFUL_SHOTS.assign(std::make_unique<Bonuses::PowerfulShots>());
+        INVULNERABILITY.assign(std::make_unique<Bonuses::Invulnerability>());
+        BULLETS.assign(std::make_unique<Bonuses::Bullets>());
+        FAST_MOVEMENT.assign(std::make_unique<Bonuses::FastMovement>());
+        INVISIBILITY.assign(std::make_unique<Bonuses::Invisibility>());
+        SPLIT_FIRE.assign(std::make_unique<Bonuses::SplitFire>());
+        VAMPIRE_SHOTS.assign(std::make_unique<Bonuses::VampireShots>());
+        INFINITE_AMMO.assign(std::make_unique<Bonuses::InfiniteAmmo>());
+        SNORKEL.assign(std::make_unique<Bonuses::Snorkel>());
     }
 
-    Bonus::Bonus(BonusType type, Int32 duration, const Vector &position, Texture texture)
-            : bonus(type), duration(duration), position(position), texture(texture) {
+    Bonus::Bonus(BonusType type, Int32 duration, const Vector &position, Int32 textureIndex)
+            : bonus(type), duration(duration), position(position), textureIndex(textureIndex) {
         this->position.z = 0.5f;
     }
 
-    void Bonus::render() const {
+    void Bonus::render(Texture texture) const {
         Vector pos = getSpritePosition();
         Material material = Material::makeMaskedTexture(texture);
-        globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), material);
+        globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f, Float32(textureIndex)), Vector(0.8f, -0.8f), material);
     }
 
     LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position):
@@ -177,6 +177,6 @@ namespace Duel6 {
     void LyingWeapon::render() const {
         Vector pos = getSpritePosition();
         Material material = Material::makeMaskedTexture(weapon.getBonusTexture());
-        globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f), Vector(0.8f, -0.8f), material);
+        globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f, Float32(weapon.getBonusTextureIndex())), Vector(0.8f, -0.8f), material);
     }
 }

@@ -285,14 +285,14 @@ namespace Duel6 {
         PlayerSkin::anim ad6NAnim;
         PlayerSkin::anim ad6PAnim;
 
-        Int16 * noAnim;//[4] = {0, 50, 0, -1};
-        Int16 * d6SAnim;//[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
-        Int16 * d6WAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
-        Int16 * d6JAnim;//[4] = {8, 50, -1, 0};
-        Int16 * d6DAnim;//[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
-        Int16 * d6LAnim;//[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
-        Int16 * d6NAnim;//[4] = {25, 100, -1, 0};
-        Int16 * d6PAnim;//[] = {0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0};
+        AnimationEntry * noAnim;//[4] = {0, 50, 0, -1};
+        AnimationEntry * d6SAnim;//[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
+        AnimationEntry * d6WAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
+        AnimationEntry * d6JAnim;//[4] = {8, 50, -1, 0};
+        AnimationEntry * d6DAnim;//[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
+        AnimationEntry * d6LAnim;//[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
+        AnimationEntry * d6NAnim;//[4] = {25, 100, -1, 0};
+        AnimationEntry * d6PAnim;//[] = {0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0};
 
         Person &person;
         PlayerSkin skin;
@@ -317,6 +317,7 @@ namespace Duel6 {
         Float32 timeSinceHit;
         Float32 timeStuckInWall;
         Float32 tempSkinDuration;
+        Float32 alpha;
         Weapon weapon;
         PlayerEventListener *eventListener;
         World *world; // TODO: Remove
@@ -442,8 +443,7 @@ namespace Duel6 {
         }
 
         Player &setAlpha(Float32 alpha) {
-            sprite->setAlpha(bodyAlpha * alpha);
-            gunSprite->setAlpha(alpha);
+            this->alpha = alpha;
             return *this;
         }
 

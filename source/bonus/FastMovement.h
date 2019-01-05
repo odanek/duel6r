@@ -33,17 +33,14 @@
 namespace Duel6 {
     namespace Bonuses {
         class FastMovement : public BonusTypeImpl {
-        private:
-            Texture texture;
-
         public:
-            explicit FastMovement(Texture texture);
-
             std::string getName() const override {
                 return "fastMovement";
             }
 
-            Texture getTexture() const override;
+            Int32 getTextureIndex() const override {
+                return 8;
+            }
 
             bool isOneTime() const override;
 

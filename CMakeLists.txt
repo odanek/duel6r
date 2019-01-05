@@ -61,7 +61,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 # Switches
 set(D6R_RENDERER "gl1")  # Renderer: gl1/gl4/es2
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
-set(D6R_WITH_GLEW ON)
+
 #########################################################################
 #
 # Duel 6 Reloaded
@@ -122,6 +122,7 @@ set(D6R_SOURCES
         source/GameResources.h
         source/GameSettings.cpp
         source/GameSettings.h
+        source/Image.cpp
         source/Image.h
         source/InfoMessage.h
         source/InfoMessageQueue.cpp
@@ -178,14 +179,10 @@ set(D6R_SOURCES
         source/SpriteList.cpp
         source/SpriteList.h
         source/SysEvent.h
-        source/Texture.h
         source/TextureDictionary.h
-        source/TextureList.h
         source/TextureManager.cpp
         source/TextureManager.h
         source/Type.h
-        source/Util.cpp
-        source/Util.h
         source/Vertex.h
         source/Video.cpp
         source/Video.h
@@ -193,8 +190,6 @@ set(D6R_SOURCES
         source/ViewParameters.h
         source/Water.cpp
         source/Water.h
-        source/WaterList.cpp
-        source/WaterList.h
         source/Weapon.cpp
         source/Weapon.h
         source/World.cpp
@@ -204,6 +199,7 @@ set(D6R_SOURCES
 
         source/aseprite/animation.h
         source/aseprite/aseprite_to_animation.h
+        source/aseprite/aseprite_to_animation.cpp
         source/aseprite/aseprite.cpp
         source/aseprite/aseprite.h
         source/aseprite/tinf/tinf.cpp
@@ -303,7 +299,9 @@ set(D6R_SOURCES
         source/math/Vector.cpp
         source/math/Vector.h
 
-        source/renderer/Renderer.h
+        source/renderer/RendererTypes.h
+        source/renderer/RendererBase.h
+        source/renderer/RendererBase.cpp
 
         source/script/LevelScript.h
         source/script/PersonScript.h
@@ -327,63 +325,107 @@ set(D6R_SOURCES
 
         source/weapon/impl/Bazooka.cpp
         source/weapon/impl/Bazooka.h
+        source/weapon/impl/BazookaShot.cpp
+        source/weapon/impl/BazookaShot.h
         source/weapon/impl/Bow.cpp
         source/weapon/impl/Bow.h
+        source/weapon/impl/BowShot.cpp
+        source/weapon/impl/BowShot.h
         source/weapon/impl/DoubleLaser.cpp
         source/weapon/impl/DoubleLaser.h
+        source/weapon/impl/DoubleLaserShot.cpp
+        source/weapon/impl/DoubleLaserShot.h
         source/weapon/impl/KissOfDeath.cpp
         source/weapon/impl/KissOfDeath.h
+        source/weapon/impl/KissOfDeathShot.cpp
+        source/weapon/impl/KissOfDeathShot.h
         source/weapon/impl/Laser.cpp
         source/weapon/impl/Laser.h
+        source/weapon/impl/LaserShot.cpp
+        source/weapon/impl/LaserShot.h
         source/weapon/impl/Lightning.cpp
         source/weapon/impl/Lightning.h
+        source/weapon/impl/LightningShot.cpp
+        source/weapon/impl/LightningShot.h
         source/weapon/impl/MachineGun.cpp
         source/weapon/impl/MachineGun.h
+        source/weapon/impl/MachineGunShot.cpp
+        source/weapon/impl/MachineGunShot.h
         source/weapon/impl/Pistol.cpp
         source/weapon/impl/Pistol.h
+        source/weapon/impl/PistolShot.cpp
+        source/weapon/impl/PistolShot.h
         source/weapon/impl/Plasma.cpp
         source/weapon/impl/Plasma.h
+        source/weapon/impl/PlasmaShot.cpp
+        source/weapon/impl/PlasmaShot.h
         source/weapon/impl/ShitThrower.cpp
         source/weapon/impl/ShitThrower.h
         source/weapon/impl/ShitThrowerShot.cpp
         source/weapon/impl/ShitThrowerShot.h
         source/weapon/impl/Shotgun.cpp
         source/weapon/impl/Shotgun.h
+        source/weapon/impl/ShotgunShot.cpp
+        source/weapon/impl/ShotgunShot.h
         source/weapon/impl/Slime.cpp
         source/weapon/impl/Slime.h
+        source/weapon/impl/SlimeShot.cpp
+        source/weapon/impl/SlimeShot.h
         source/weapon/impl/Sling.cpp
         source/weapon/impl/Sling.h
+        source/weapon/impl/SlingShot.cpp
+        source/weapon/impl/SlingShot.h
         source/weapon/impl/Spray.cpp
         source/weapon/impl/Spray.h
+        source/weapon/impl/SprayShot.cpp
+        source/weapon/impl/SprayShot.h
         source/weapon/impl/StopperGun.cpp
         source/weapon/impl/StopperGun.h
+        source/weapon/impl/StopperGunShot.cpp
+        source/weapon/impl/StopperGunShot.h
         source/weapon/impl/Triton.cpp
         source/weapon/impl/Triton.h
+        source/weapon/impl/TritonShot.cpp
+        source/weapon/impl/TritonShot.h
         source/weapon/impl/Uzi.cpp
         source/weapon/impl/Uzi.h
+        source/weapon/impl/UziShot.cpp
+        source/weapon/impl/UziShot.h
         )
 
 if (D6R_RENDERER STREQUAL "gl1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")
-    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL1Renderer.h source/renderer/GL1Renderer.cpp)
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/gl1/GL1Types.h
+            source/renderer/gl1/GL1Renderer.h
+            source/renderer/gl1/GL1Renderer.cpp
+            source/renderer/gl1/GL1Buffer.h
+            source/renderer/gl1/GL1Buffer.cpp
+            )
 endif (D6R_RENDERER STREQUAL "gl1")
 
 if (D6R_RENDERER STREQUAL "es2")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES2")
-    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GLES2Renderer.h source/renderer/GLES2Renderer.cpp)
-
-    if (WIN32)
-        set(D6R_WITH_GLEW ON)
-    endif (WIN32)
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/es2/GLES2Types.h
+            source/renderer/es2/GLES2Renderer.h
+            source/renderer/es2/GLES2Renderer.cpp
+            )
 endif (D6R_RENDERER STREQUAL "es2")
 
 if (D6R_RENDERER STREQUAL "gl4")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL4")
-    set(D6R_SOURCES ${D6R_SOURCES} source/renderer/GL4Renderer.h source/renderer/GL4Renderer.cpp)
-
-    if (WIN32)
-        set(D6R_WITH_GLEW ON)
-    endif (WIN32)
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/gl4/GL4Types.h
+            source/renderer/gl4/GL4Renderer.h
+            source/renderer/gl4/GL4Renderer.cpp
+            source/renderer/gl4/GL4Shader.h
+            source/renderer/gl4/GL4Shader.cpp
+            source/renderer/gl4/GL4Program.h
+            source/renderer/gl4/GL4Program.cpp
+            source/renderer/gl4/GL4Buffer.h
+            source/renderer/gl4/GL4Buffer.cpp
+        )
 endif (D6R_RENDERER STREQUAL "gl4")
 
 if (D6R_WITH_LUA)
@@ -442,7 +484,8 @@ if (APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf framework")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
+    find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image framework")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
 else (APPLE) # MSVC, GCC or MINGW
     find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
     include_directories(${HEADERS_SDL2})
@@ -451,17 +494,15 @@ else (APPLE) # MSVC, GCC or MINGW
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
     find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
     find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF})
+    find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image import library")
+    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
 endif (APPLE)
 
 # GLEW
-if (D6R_WITH_GLEW)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_GLEW")
-    find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
-    find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
-    include_directories(${HEADERS_GLEW})
-endif (D6R_WITH_GLEW)
+find_library(LIB_GLEW GLEW DOC "Path to GLEW library")
+target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
+find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
+include_directories(${HEADERS_GLEW})
 
 # LUA
 if (D6R_WITH_LUA)

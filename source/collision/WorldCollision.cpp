@@ -176,7 +176,7 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
         /**
           * Put it all together
           */
-         if (!isOnElevator()) { //TODO POSSIBLE PROBLEM
+         if (!isOnElevator()) {
              if (bdown) {
                  position.y = std::ceil(position.y - 0.5f);
              } else if (bup) {
@@ -188,6 +188,8 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
              } else if (bright) {
                  position.x = floorf(this->position.x) + delta;
              }
+         } else if (isInWall() && (bleft || bright)) {
+             externalForces.x = (elevator->getPosition().x - position.x);
          }
          if (bleft || bright) {
              externalForcesSpeed.x *= 0.5;
@@ -195,7 +197,6 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
          if (bup || bdown) {
              externalForcesSpeed.y *= 0.5;
          }
-//         waterForces *= 0.9;
          externalForcesSpeed.x *= 0.9;
          externalForcesSpeed.y *= 0.9;
          position.x = std::max(-0.1f, std::min(position.x, level.getWidth() - 0.9f));

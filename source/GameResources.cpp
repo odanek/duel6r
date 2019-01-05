@@ -48,26 +48,30 @@ namespace Duel6 {
         console.printLine(Format("...Loading block meta data: {0}") << D6_FILE_BLOCK_META);
         blockMeta = Block::loadMeta(D6_FILE_BLOCK_META);
         console.printLine(Format("...Loading block textures: {0}") << D6_TEXTURE_BLOCK_PATH);
-        blockTextures = textureManager.loadList(D6_TEXTURE_BLOCK_PATH, TextureFilter::LINEAR, true);
+        blockTextures = textureManager.loadStack(D6_TEXTURE_BLOCK_PATH, TextureFilter::Linear, true);
         console.printLine(Format("...Loading explosion textures: {0}") << D6_TEXTURE_EXPL_PATH);
-        explosionTextures = textureManager.loadList(D6_TEXTURE_EXPL_PATH, TextureFilter::NEAREST, true);
+        explosionTextures = textureManager.loadStack(D6_TEXTURE_EXPL_PATH, TextureFilter::Nearest, true);
         console.printLine(Format("...Loading bonus textures: {0}") << D6_TEXTURE_EXPL_PATH);
-        bonusTextures = textureManager.loadList(D6_TEXTURE_BONUS_PATH, TextureFilter::LINEAR, true);
+        bonusTextures = textureManager.loadStack(D6_TEXTURE_BONUS_PATH, TextureFilter::Linear, true);
         console.printLine(Format("...Loading elevator textures: {0}") << D6_TEXTURE_ELEVATOR_PATH);
-        elevatorTextures = textureManager.loadList(D6_TEXTURE_ELEVATOR_PATH, TextureFilter::LINEAR, true);
+        elevatorTextures = textureManager.loadStack(D6_TEXTURE_ELEVATOR_PATH, TextureFilter::Linear, true);
 
         console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
-        bcgTextures = textureManager.loadDict(D6_TEXTURE_BCG_PATH, TextureFilter::LINEAR, true);
-
+        bcgTextures = textureManager.loadDict(D6_TEXTURE_BCG_PATH, TextureFilter::Linear, true);
+        std::string animationPath(D6_TEXTURE_MAN_PATH);
+        animationPath += "man.ase";
+        playerAnimation = textureManager.loadAnimation(animationPath);
         console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
         for (const FireType &fireType : FireType::values()) {
-            TextureList texture = textureManager.loadList(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(),
-                                                      TextureFilter::LINEAR, true);
+            Texture texture = textureManager.loadStack(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(),
+                                                       TextureFilter::Nearest, true);
             fireTextures[fireType.getId()] = texture;
-            globRenderer->setTextureFilter(texture.at(2).getId(), TextureFilter::NEAREST);
         }
 
+        Texture burn = textureManager.loadStack("textures/fire/burn/", TextureFilter::Linear, true);
+        burningTexture = burn;
+
         console.printLine("\n...Bonus initialization");
-        BonusType::initialize(bonusTextures);
+        BonusType::initialize();
     }
 }

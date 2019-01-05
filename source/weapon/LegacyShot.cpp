@@ -30,11 +30,13 @@
 #include "LegacyShot.h"
 
 namespace Duel6 {
-    LegacyShot::LegacyShot(Player &player, const LegacyWeapon &weapon, Orientation orientation,
-                           SpriteList::Iterator sprite, const Rectangle &collisionRect)
-            : ShotBase(player.getWeapon(), player), definition(weapon.getDefinition()), textures(weapon.getTextures()),
-              samples(weapon.getSamples()), collisionRect(collisionRect), orientation(orientation), sprite(sprite),
-              shotHit({false, nullptr, nullptr}), bulletSpeed(weapon.getShotSpeed(player.getChargeLevel())), power(weapon.getShotPower(player.getChargeLevel())) {
+    LegacyShot::LegacyShot(Player &player, World &world, const LegacyWeapon &weapon, Animation shotAnimation,
+                           Animation boomAnimation, Orientation orientation, const Rectangle &collisionRect)
+            : ShotBase(player.getWeapon(), player), textures(weapon.getTextures()),
+              samples(weapon.getSamples()), animationShot(shotAnimation),
+              animationBoom(boomAnimation), collisionRect(collisionRect), orientation(orientation),
+              shotHit({false, nullptr, nullptr}), bulletSpeed(weapon.getShotSpeed(player.getChargeLevel())),
+              power(weapon.getShotPower(player.getChargeLevel())) {
         const Vector dim = getDimensions();
         const Rectangle playerRect = player.getCollisionRect();
         if (orientation == Orientation::Left) {
@@ -44,7 +46,8 @@ namespace Duel6 {
             position = Vector(playerRect.right.x, player.getGunVerticalPosition() - dim.y / 2.0f);
             velocity = Vector(1.0f, 0.0f);
         }
-        this->sprite->setPosition(getSpritePosition(), 0.6f).setOrientation(this->orientation);
+
+        sprite = makeSprite(world.getSpriteList());
         powerful = getPlayer().hasPowerfulShots();
     }
 
@@ -53,41 +56,60 @@ namespace Duel6 {
         sprite->setPosition(getSpritePosition());
     }
 
+    bool LegacyShot::isColliding() const {
+        return false;
+    }
+
+    bool LegacyShot::isPowerful() const {
+        return powerful;
+    }
+
+    Float32 LegacyShot::getPowerFactor() const {
+        return (powerful ? 2.0f : 1.0f);
+    }
+
     Float32 LegacyShot::getExplosionPower() const {
-        Float32 coef = (powerful ? 2.0f : 1.0f);
-        return power * coef;
+        return power;
     }
 
     Float32 LegacyShot::getExplosionRange() const {
-        Float32 coef = (powerful ? 2.0f : 1.0f);
-        return definition.boom * coef;
+        return 0;
+    }
+
+    bool LegacyShot::hasBlood() const {
+        return true;
+    }
+
+    bool LegacyShot::hasPlayerExplosion() const {
+        return false;
+    }
+
+    Color LegacyShot::getPlayerExplosionColor() const {
+        return Color::BLACK;
+    }
+
+    Animation LegacyShot::getShotAnimation() const {
+        return animationShot;
+    }
+
+    Animation LegacyShot::getBoomAnimation() const {
+        return animationBoom;
     }
 
     bool LegacyShot::update(Float32 elapsedTime, World &world) {
         move(elapsedTime);
 
-        if(!shotHit.hit){
+        if (!shotHit.hit) {
             shotHit = evaluateShotHit(world);
         }
 
         if (shotHit.hit) {
             explode(world);
 
-            Sprite boom(definition.boomAnimation, textures.boom);
-            boom.setPosition(getCentre() - Vector(0.5f, 0.5f), 0.6f)
-                    .setSpeed(2.0f)
-                    .setLooping(AnimationLooping::OnceAndRemove)
-                    .setOrientation(orientation)
-                    .setAlpha(0.6f)
-                    .setGrow(definition.expGrow * (powerful ? 1.2f : 1.0f));
-
-            SpriteList::Iterator boomSprite = world.getSpriteList().addSprite(boom);
+            makeBoomSprite(world.getSpriteList());
             samples.boom.play();
-            if (definition.boom > 0) {
-                boomSprite->setNoDepth(true);
-            }
 
-            world.getSpriteList().removeSprite(sprite);
+            world.getSpriteList().remove(sprite);
             return false;
         }
         return true;
@@ -101,14 +123,15 @@ namespace Duel6 {
         return false;
     }
 
-    void LegacyShot::explode( World &world) {
+    void LegacyShot::explode(World &world) {
         std::vector<Player *> killedPlayers;
         std::vector<Player *> hittedPlayers;
 
         Player &author = getPlayer();
 
-        Float32 range = getExplosionRange();
-        Float32 power = getExplosionPower();
+        Float32 powerFactor = getPowerFactor();
+        Float32 range = getExplosionRange() * powerFactor;
+        Float32 power = getExplosionPower() * powerFactor;
 
         const Vector shotCentre = getCentre();
         onExplode(shotCentre, range, world);
@@ -117,9 +140,6 @@ namespace Duel6 {
             bool directHit = (shotHit.collidingPlayer != nullptr && player.is(*shotHit.collidingPlayer));
             Vector playerCentre = player.getCentre();
             Float32 dist = directHit ? 0 : (playerCentre - shotCentre).length();
-            if (directHit) {
-
-            }
             if (directHit || dist < range) {
                 hittedPlayers.push_back(&player);
                 if (player.hitByShot(directHit ? power : ((range - dist) * power) / range, *this, directHit,
@@ -137,21 +157,21 @@ namespace Duel6 {
     }
 
     void LegacyShot::onHitPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) {
-        if (directHit && definition.blood) {
+        if (directHit && hasBlood()) {
             addPlayerBlood(player, hitPoint, world);
         }
 
-        if (directHit && definition.explodes && !player.isAlive()) {
+        if (directHit && hasPlayerExplosion() && !player.isAlive()) {
             addPlayerExplosion(player, world);
         }
     }
 
     void LegacyShot::onKillPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) {
-        if (directHit && definition.blood) {
+        if (directHit && hasBlood()) {
             addPlayerBlood(player, hitPoint, world);
         }
 
-        if (directHit && definition.explodes) {
+        if (directHit && hasPlayerExplosion()) {
             addPlayerExplosion(player, world);
         }
     }
@@ -202,13 +222,13 @@ namespace Duel6 {
         ShotHit hit = {false, nullptr, nullptr};
 
         if (collisionSetting == ShotCollisionSetting::All ||
-            (collisionSetting == ShotCollisionSetting::Large && definition.collides)) {
+            (collisionSetting == ShotCollisionSetting::Large && isColliding())) {
             shotList.forEach([this, &hit](Shot &otherShot) -> bool {
                 if (this != &otherShot && otherShot.requestCollision(*this)) {
-                        hit.hit = true;
-                        hit.collidingShotPlayer = &otherShot.getPlayer();
-                        return false;
-                    }
+                    hit.hit = true;
+                    hit.collidingShotPlayer = &otherShot.getPlayer();
+                    return false;
+                }
                 return true;
             });
         }
@@ -217,7 +237,7 @@ namespace Duel6 {
 
     void LegacyShot::addPlayerExplosion(Player &player, World &world) {
         player.removeBody();
-        world.getExplosionList().add(player.getCentre(), 0.5f, 1.2f, definition.explosionColor);
+        world.getExplosionList().add(player.getCentre(), 0.5f, 1.2f, getPlayerExplosionColor());
     }
 
     void LegacyShot::addPlayerBlood(const Player &player, const Vector &point, World &world) {
@@ -229,5 +249,21 @@ namespace Duel6 {
 
     ShotHit LegacyShot::getShotHit() {
         return shotHit;
+    }
+
+    SpriteList::Iterator LegacyShot::makeSprite(SpriteList &spriteList) {
+        sprite = spriteList.add(getShotAnimation(), textures.shot);
+        sprite->setPosition(getSpritePosition(), 0.6f).setOrientation(this->orientation);
+        return sprite;
+    }
+
+    SpriteList::Iterator LegacyShot::makeBoomSprite(SpriteList &spriteList) {
+        auto sprite = spriteList.add(getBoomAnimation(), textures.boom);
+        sprite->setPosition(getCentre() - Vector(0.5f, 0.5f), 0.6f)
+                .setSpeed(2.0f)
+                .setLooping(AnimationLooping::OnceAndRemove)
+                .setOrientation(orientation)
+                .setAlpha(0.6f);
+        return sprite;
     }
 }

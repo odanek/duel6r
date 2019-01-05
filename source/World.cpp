@@ -33,10 +33,10 @@ namespace Duel6 {
     World::World(Game &game, const std::string &levelPath, bool mirror)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
               level(levelPath, mirror, game.getResources().getBlockMeta()),
-              levelRenderData(level, D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
+              levelRenderData(level, gameSettings.getScreenMode(), D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game.getResources(), *this),
-              elevatorList(game.getResources().getElevatorTextures()) {
+              elevatorList(game.getResources().getElevatorTextures()), time(0) {
         Console &console = game.getAppService().getConsole();
         console.printLine(Format("...Width   : {0}") << level.getWidth());
         console.printLine(Format("...Height  : {0}") << level.getHeight());
@@ -49,11 +49,13 @@ namespace Duel6 {
         console.printLine("...Level initialization");
         console.printLine("...Loading elevators");
         elevatorList.load(levelPath, mirror);
-        fireList.find(levelRenderData.getSprites());
+        fireList.find(level);
         background = findBackground(game.getResources().getBcgTextures());
     }
 
     void World::update(Float32 elapsedTime) {
+        time += elapsedTime;
+
         spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
         explosionList.update(elapsedTime);
         levelRenderData.update(elapsedTime);
@@ -61,12 +63,14 @@ namespace Duel6 {
         elevatorList.update(elapsedTime);
         messageQueue.update(elapsedTime);
         bonusList.update(elapsedTime);
+
         // Add new bonuses
         Int32 mod = Int32(3.0f / elapsedTime);
-
         if (mod != 0 && Math::random(mod) == 0) {
             bonusList.addRandomBonus();
         }
+
+        globRenderer->setGlobalTime(time);
     }
 
     void World::raiseWater() {

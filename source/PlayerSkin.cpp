@@ -30,7 +30,7 @@
 
 namespace Duel6 {
 
-    PlayerSkin::PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors,
+    PlayerSkin::PlayerSkin(const PlayerSkinColors &colors,
                        TextureManager &textureManager,
                        animation::Animation & animation) {
         animation::Palette substitution_table(animation.palette);
@@ -55,7 +55,7 @@ namespace Duel6 {
         d6NAnim = noAnim;
         d6PAnim = animation.animations[animation.animationLookup.at("Pick")];
 
-        textures = textureManager.generateSprite(animation, substitution_table, TextureFilter::NEAREST, true);
+        textures = textureManager.generateSprite(animation, substitution_table, TextureFilter::Nearest, true);
     }
     PlayerSkin::PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors,
                            TextureManager &textureManager) {
@@ -70,6 +70,6 @@ namespace Duel6 {
         substTable[Color(180, 182, 0)] = colors.get(PlayerSkinColors::Shoes);
         substTable[Color(255, 145, 172)] = colors.get(PlayerSkinColors::Face);
 
-        textures = textureManager.loadList(texturePath, TextureFilter::NEAREST, true, substTable);
+        textures = textureManager.loadStack(texturePath, TextureFilter::Nearest, true, substTable);
     }
 }

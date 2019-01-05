@@ -25,7 +25,6 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Util.h"
 #include "Explosion.h"
 
 namespace Duel6 {
@@ -49,7 +48,7 @@ namespace Duel6 {
         globRenderer->enableDepthTest(false);
 
         for (const Explosion &explosion : explosions) {
-            Material material = Material::makeMaskedColoredTexture(textures.at(0), explosion.color);
+            Material material = Material::makeMaskedColoredTexture(textures, explosion.color);
             Vector position = explosion.centre - Vector(explosion.now, explosion.now);
             position.z = 0.6f;
             Vector size = Vector(2 * explosion.now, 2 * explosion.now);

@@ -255,6 +255,13 @@ namespace Duel6 {
         return result;
     }
 
+    Matrix Matrix::rotateAroundPoint(Float32 radians, const Vector &axis, const Vector &point) {
+        Matrix shift = Matrix::translate(-point);
+        Matrix rotate = Matrix::rotate(radians, axis);
+        Matrix unshift = Matrix::translate(point);
+        return unshift * rotate * shift;
+    }
+
     // Source: gluPerspective
     Matrix Matrix::perspective(Float32 fovAngle, Float32 aspect, Float32 nearClip, Float32 farClip) {
         Float32 fovY = Math::angleToRadians(fovAngle) / 2;

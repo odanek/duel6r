@@ -34,12 +34,20 @@
 #include "Orientation.h"
 #include "TextureManager.h"
 #include "math/Vector.h"
-#include "PlayerSkin.h"
+#include "renderer/RendererTypes.h"
+
 namespace Duel6 {
+    class SpriteList;
+
     class Sprite {
+        friend class SpriteList;
+
+    public:
+        using FinishCallback = void();
+
     private:
-        const Int16 * animation;
-        const TextureList *textures;   // Texture array
+        Animation animation;    // Source array of animations and delays
+        Texture texture;   // Texture array
         Size frame;    // Current animation frame
         Float32 delay;    // Delay to next animation frame
         Float32 speed;     // Speed of animation
@@ -50,59 +58,40 @@ namespace Duel6 {
         Vector size;
         Float32 grow;   // Grow factor for explosions
         Float32 alpha;  // Transparency ratio
+        BlendFunc blendFunc;
         bool visible;
         bool noDepth;
         bool finished;
         Float32 zRotation;
         Vector rotationCentre;
+        std::function<FinishCallback> onFinished;
 
     public:
-        Sprite();
+        Sprite(Animation animation, Texture texture);
 
-        Sprite(const Int16 *animation, const TextureList &textures);
+        Sprite setOnFinished(std::function<FinishCallback> callback);
 
-        Sprite &setPosition(const Vector &position, Float32 z) {
-            this->position = position;
-            this->z = z;
-            return *this;
-        }
+        Sprite &setPosition(const Vector &position, Float32 z);
 
-        Sprite &setPosition(const Vector &position) {
-            this->position = position;
-            return *this;
-        }
-        Sprite &setAnimation(const PlayerSkin::anim & anim);
-        Sprite &setAnimation(const Int16 *animation);
+        Sprite &setPosition(const Vector &position);
 
-        const Int16 *getAnimation() const {
-            return animation;
-        }
+        Sprite &setAnimation(Animation);
 
-        Sprite &setTextures(const TextureList &textures) {
-            this->textures = &textures;
-            return *this;
-        }
+        Animation getAnimation() const;
 
-        Sprite &setFrame(Size frame) {
-            this->frame = frame;
-            this->delay = 0;
-            return *this;
-        }
+        Sprite &setTexture(Texture texture);
 
-        Sprite &setOrientation(Orientation orientation) {
-            this->orientation = orientation;
-            return *this;
-        }
+        Sprite &setFrame(Size frame);
 
-        Sprite &setGrow(Float32 grow) {
-            this->grow = grow;
-            return *this;
-        }
+        Sprite &setOrientation(Orientation orientation);
 
-        Sprite &setAlpha(Float32 alpha) {
-            this->alpha = alpha;
-            return *this;
-        }
+        Sprite &setSize(const Vector &size);
+
+        Sprite &setGrow(Float32 grow);
+
+        Sprite &setAlpha(Float32 alpha);
+
+        Sprite &setBlendFunc(BlendFunc blendFunc);
 
         Sprite &setSpeed(Float32 speed) {
             this->speed = speed;
@@ -133,7 +122,7 @@ namespace Duel6 {
         }
 
         bool isTransparent() const {
-            return alpha < 1.0f;
+            return blendFunc != BlendFunc::None;
         }
 
         bool isFinished() const {

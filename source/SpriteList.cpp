@@ -29,8 +29,8 @@
 #include "Video.h"
 
 namespace Duel6 {
-    SpriteList::Iterator SpriteList::addSprite(const Sprite &sprite) {
-        sprites.push_back(sprite);
+    SpriteList::Iterator SpriteList::add(Animation animation, Texture texture) {
+        sprites.emplace_back(animation, texture);
         return std::prev(sprites.end());
     }
 
@@ -54,13 +54,12 @@ namespace Duel6 {
     void SpriteList::render() const {
         renderTransparent(false);
 
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
         globRenderer->enableDepthWrite(false);
 
         renderTransparent(true);
 
         globRenderer->enableDepthWrite(true);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
     }
 
     void SpriteList::renderTransparent(bool transparent) const {

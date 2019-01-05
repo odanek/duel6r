@@ -50,9 +50,9 @@ namespace Duel6 {
             mutable EntryMap entryMap;
 
         public:
-            LruFontCache() {}
+            LruFontCache() = default;
 
-            ~LruFontCache() {}
+            ~LruFontCache() = default;
 
             bool has(const std::string &text) const {
                 return entryMap.find(text) != entryMap.end();
@@ -74,13 +74,13 @@ namespace Duel6 {
                     Entry lastEntry = entryList.back();
                     entryList.pop_back();
                     entryMap.erase(lastEntry.text);
-                    globRenderer->freeTexture(lastEntry.texture.getId());
+                    globRenderer->freeTexture(lastEntry.texture);
                 }
             }
 
             void empty() {
                 for (const Entry &entry : entryList) {
-                    globRenderer->freeTexture(entry.texture.getId());
+                    globRenderer->freeTexture(entry.texture);
                 }
                 entryList.clear();
                 entryMap.clear();
@@ -136,9 +136,9 @@ namespace Duel6 {
         Material material = Material::makeColoredTexture(texture, color);
         Float32 width = getTextWidth(str, height);
 
-        globRenderer->setBlendFunc(Renderer::BlendFunc::SrcAlpha);
+        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
         globRenderer->quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), material);
-        globRenderer->setBlendFunc(Renderer::BlendFunc::None);
+        globRenderer->setBlendFunc(BlendFunc::None);
     }
 
     Texture Font::getTexture(const std::string &text) const {
@@ -151,16 +151,12 @@ namespace Duel6 {
     }
 
     Texture Font::renderText(const std::string &text) const {
-        SDL_Surface *image = TTF_RenderText_Blended(font, text.c_str(), SDL_Color{255, 255, 255, 255});
+        SDL_Surface *surface = TTF_RenderText_Blended(font, text.c_str(), SDL_Color{255, 255, 255, 255});
+        Image image = Image::fromSurface(surface);
+        SDL_FreeSurface(surface);
 
-        SDL_LockSurface(image);
+        Texture texture = globRenderer->createTexture(image, TextureFilter::Linear, true);
 
-        Texture::Id textureId = globRenderer->createTexture(image->w, image->h, image->pixels, 4, TextureFilter::LINEAR,
-                                                      true);
-
-        SDL_UnlockSurface(image);
-        SDL_FreeSurface(image);
-
-        return Texture(0, textureId);
+        return texture;
     }
 }

@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        MinusLife::MinusLife(Texture texture)
-                : texture(texture) {}
-
-        Texture MinusLife::getTexture() const {
-            return texture;
-        }
-
         bool MinusLife::isOneTime() const {
             return true;
         }

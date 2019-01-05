@@ -38,19 +38,17 @@
 namespace Duel6 {
     class PlayerSkin {
     private:
-        TextureList textures;
+
+        Texture textures;
+
     public:
         PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors, TextureManager &textureManager);
-        PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors, TextureManager &textureManager, animation::Animation & animation);
+        PlayerSkin(const PlayerSkinColors &colors, TextureManager &textureManager, animation::Animation & animation);
 
-        TextureList &getTextureList() {
+        Texture getTexture() const {
             return textures;
         }
-
-        const TextureList &getTextureList() const {
-            return textures;
-        }
-        typedef std::vector<int16_t> anim;
+        typedef std::vector<AnimationEntry> anim;
 //TODO private
         anim noAnim;
         anim d6SAnim;

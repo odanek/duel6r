@@ -31,7 +31,7 @@
 #include <vector>
 #include "Type.h"
 #include "math/Vector.h"
-#include "Texture.h"
+#include "renderer/RendererTypes.h"
 
 namespace Duel6 {
     class Elevator {
@@ -77,7 +77,7 @@ namespace Duel6 {
 
         void update(Float32 elapsedTime);
 
-        void render(const Texture &texture) const;
+        void render(Texture texture) const;
 
         const Vector &getPosition() const {
             return position;

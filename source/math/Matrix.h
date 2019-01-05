@@ -98,6 +98,8 @@ namespace Duel6 {
 
         static Matrix rotate(Float32 radians, const Vector &axis);
 
+        static Matrix rotateAroundPoint(Float32 radians, const Vector &axis, const Vector &point);
+
         static Matrix perspective(Float32 fov, Float32 aspect, Float32 nearClip, Float32 farClip);
 
         static Matrix orthographic(Float32 left, Float32 right, Float32 bottom, Float32 top, Float32 near, Float32 far);

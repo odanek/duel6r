@@ -32,7 +32,7 @@
 #include "Water.h"
 #include "Block.h"
 #include "AppService.h"
-
+#include "aseprite/animation.h"
 namespace Duel6 {
     class GameResources {
     public:
@@ -42,12 +42,14 @@ namespace Duel6 {
         Block::Meta blockMeta;
         Sound::Sample gameOverSound;
         Sound::Sample roundStartSound;
-        TextureList blockTextures;
+        Texture blockTextures;
         BackgroundList bcgTextures;
-        TextureList explosionTextures;
-        TextureList bonusTextures;
-        TextureList elevatorTextures;
-        std::unordered_map<Size, TextureList> fireTextures;
+        Texture explosionTextures;
+        Texture bonusTextures;
+        Texture elevatorTextures;
+        std::unordered_map<Size, Texture> fireTextures;
+        Texture burningTexture;
+        animation::Animation playerAnimation;
 
     public:
         void load(AppService &appService);
@@ -64,7 +66,7 @@ namespace Duel6 {
             return roundStartSound;
         }
 
-        const TextureList &getBlockTextures() const {
+        Texture getBlockTextures() const {
             return blockTextures;
         }
 
@@ -72,20 +74,28 @@ namespace Duel6 {
             return bcgTextures;
         }
 
-        const TextureList &getExplosionTextures() const {
+        Texture getExplosionTextures() const {
             return explosionTextures;
         }
 
-        const TextureList &getBonusTextures() const {
+        Texture getBonusTextures() const {
             return bonusTextures;
         }
 
-        const TextureList &getElevatorTextures() const {
+        Texture getElevatorTextures() const {
             return elevatorTextures;
         }
 
-        const std::unordered_map<Size, TextureList> &getFireTextures() const {
+        const std::unordered_map<Size, Texture> &getFireTextures() const {
             return fireTextures;
+        }
+
+        Texture getBurningTexture() const {
+            return burningTexture;
+        }
+
+        animation::Animation & getPlayerAnimation() {
+        	return playerAnimation;
         }
     };
 }

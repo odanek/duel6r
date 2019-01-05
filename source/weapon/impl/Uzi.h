@@ -35,8 +35,10 @@ namespace Duel6 {
     public:
         Uzi(Sound &sound, TextureManager &textureManager);
 
-    public:
-        Rectangle getShotCollisionRectangle() const override;
+        Float32 getBulletSpeed() const override;
+
+    protected:
+        std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation) const override;
     };
 }
 

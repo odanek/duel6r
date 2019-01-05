@@ -31,13 +31,6 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        VampireShots::VampireShots(Texture texture)
-                : texture(texture) {}
-
-        Texture VampireShots::getTexture() const {
-            return texture;
-        }
-
         bool VampireShots::isOneTime() const {
             return false;
         }

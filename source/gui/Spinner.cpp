@@ -41,10 +41,6 @@ namespace Duel6 {
             right->setCaption(" ");
         }
 
-        Spinner::~Spinner() {
-            clear();
-        }
-
         void Spinner::clear() {
             items.clear();
             setCurrent(-1);
@@ -124,7 +120,7 @@ namespace Duel6 {
 
             px = right->getX() + 7 + (right->isPressed() ? 1 : 0);
             py = right->getY() - 4 - (right->isPressed() ? 1 : 0);
-            globRenderer->triangle(Vector(px - 1, py), Vector(px - 1, py - 7), Vector(px + 3, py - 4), Color::BLACK);
+            globRenderer->triangle(Vector(px - 1, py), Vector(px + 3, py - 4), Vector(px - 1, py - 7), Color::BLACK);
 
             if (items.empty())
                 return;

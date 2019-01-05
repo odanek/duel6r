@@ -79,14 +79,14 @@ namespace Duel6 {
         Gui::CheckBox *quickLiquidCheckBox;
         Gui::Label *playersLabel;
         Size backgroundCount;
-        TextureList menuBannerTexture;
+        Texture menuBannerTexture;
         Sound::Track menuTrack;
         bool playMusic;
 
     public:
         explicit Menu(AppService &appService);
 
-        ~Menu() = default;
+        ~Menu() override = default;
 
         void setGameReference(Game &game) {
             this->game = &game;

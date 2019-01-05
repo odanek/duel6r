@@ -103,19 +103,17 @@ namespace Duel6 {
         players.clear();
 
         for (auto &skin : skins) {
-            textureManager.dispose(skin.getTextureList());
+            textureManager.dispose(skin.getTexture());
         }
         skins.clear();
 
         Size playerIndex = 0;
-        std::string animationPath(D6_TEXTURE_MAN_PATH);
-        animationPath += "man.ase";
-        animation::Animation playerAnimation = textureManager.loadAnimation(animationPath);
+        players.reserve(playerDefinitions.size());
         for (const PlayerDefinition &playerDef : playerDefinitions) {
             console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-            skins.push_back(PlayerSkin(D6_TEXTURE_MAN_PATH, playerDef.getColors(), textureManager, playerAnimation));
-            players.push_back(
-                    Player(playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls()));
+            skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, resources.getPlayerAnimation()));
+            players.emplace_back(
+                    playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls());
             playerIndex++;
         }
 

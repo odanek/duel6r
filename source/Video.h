@@ -33,8 +33,7 @@
 #include "Type.h"
 #include "ScreenParameters.h"
 #include "ViewParameters.h"
-
-#include "renderer/Renderer.h" // TODO: Remove
+#include "renderer/Renderer.h"
 
 namespace Duel6 {
     extern Renderer *globRenderer;  // TODO: Glob fix

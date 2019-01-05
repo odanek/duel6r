@@ -26,20 +26,24 @@
 */
 
 #include "Lightning.h"
+#include "LightningShot.h"
 
 namespace Duel6 {
     namespace {
-        LegacyWeapon::Definition DEFINITION = {12.2f, false, true, false, false, Color(0, 255, 255), 0, 100, 4.1f, "lightning",
-                                               "blesk.wav", "bmblesk.wav", 0,
-                                               {1, 5, 2, 5, 3, 5, 4, 5, 0, 5, 0, 5, 0, 50, -1, 0},
-                                               {0, 10, 1, 10, -1, 0}, {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0}};
-        const Rectangle SHOT_COLLISION_RECT = Rectangle::fromCornerAndSize(Vector(0.13f, 0.65f), Vector(0.52f, 0.33f));
+        const LegacyWeapon::Definition DEFINITION = {100, 4.1f,
+                                                     "lightning",
+                                                     "blesk.wav", "bmblesk.wav",
+                                                     {1, 5, 2, 5, 3, 5, 4, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
     }
 
     Lightning::Lightning(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 2) {}
 
-    Rectangle Lightning::getShotCollisionRectangle() const {
-        return SHOT_COLLISION_RECT;
+    Float32 Lightning::getBulletSpeed() const {
+        return 12.2f;
+    }
+
+    std::unique_ptr<Shot> Lightning::makeShot(Player &player, World &world, Orientation orientation) const {
+        return std::make_unique<LightningShot>(player, world, *this, orientation);
     }
 }

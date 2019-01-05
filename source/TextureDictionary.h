@@ -29,7 +29,7 @@
 #define DUEL6_TEXTUREDICTIONARY_H
 
 #include <unordered_map>
-#include "Texture.h"
+#include "renderer/RendererTypes.h"
 
 namespace Duel6 {
     class TextureManager;
@@ -47,7 +47,7 @@ namespace Duel6 {
             return textures;
         }
 
-        const Texture &at(const std::string &key) const {
+        Texture at(const std::string &key) const {
             return textures.at(key);
         }
     };

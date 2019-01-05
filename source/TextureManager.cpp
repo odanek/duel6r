@@ -27,31 +27,28 @@
 
 #include <algorithm>
 #include "TextureManager.h"
-#include "Util.h"
 #include "File.h"
+#include "Video.h"
+#include "aseprite/animation.h"
 
 namespace Duel6 {
-    TextureManager::TextureManager(const std::string &fileExtension)
-            : nextKey(1), textureFileExtension(fileExtension) {}
+    TextureManager::TextureManager() {}
 
-    TextureManager::~TextureManager() {
-        disposeAll();
-    }
     const animation::Animation TextureManager::loadAnimation(const std::string &path) {
-        return Util::loadAseImage(path);
+        return animation::Animation::loadAseImage(path);
     }
 
-    const TextureList TextureManager::generateSprite(const animation::Animation& animation,
+    Texture TextureManager::generateSprite(const animation::Animation& animation,
             const animation::Palette &substitutionTable,
             TextureFilter filtering,
             bool clamp) {
-        TextureList list;
+        Image list;
         for(uint16_t f = 0; f < animation.framesCount; f ++){
             Image frameImage(animation.width, animation.height);
             for(uint16_t p = 0; p < animation.width * animation.height; p++){
                 frameImage.at(p).setAlpha(0);
             }
-            Texture::Key textureKey = nextKey++;
+          //  Texture::Key textureKey = nextKey++;
             for(const auto & layer: animation.layers){
 
                 //TODO: Filter for headband / hair etc.
@@ -106,81 +103,46 @@ namespace Duel6 {
                         }
                     }
                 }
-                // frameImage now contains pixels from all layers
-
             }
-            Texture::Id textureId = globRenderer->createTexture(frameImage.getWidth(), frameImage.getHeight(), &frameImage.at(0), 1,
-                                                          filtering, clamp);
-            list.textures.push_back(Texture(textureKey, textureId));
+            // frameImage now contains pixels from all layers
+            list.addSlice(frameImage);
         }
-        return list;
+        return globRenderer->createTexture(list, filtering, clamp);
     }
 
-    const TextureList TextureManager::loadList(const std::string &path, TextureFilter filtering, bool clamp) {
+    Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {
         SubstitutionTable emptySubstitutionTable;
-        return loadList(path, filtering, clamp, emptySubstitutionTable);
+        return loadStack(path, filtering, clamp, emptySubstitutionTable);
     }
 
-    const TextureList TextureManager::loadList(const std::string &path, TextureFilter filtering, bool clamp,
-                                           const SubstitutionTable &substitutionTable) {
-        std::vector<std::string> textureFiles = File::listDirectory(path, textureFileExtension);
-        std::sort(textureFiles.begin(), textureFiles.end());
+    Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp,
+                                      const SubstitutionTable &substitutionTable) {
+        Image image = Image::loadStack(path);
+        substituteColors(image, substitutionTable);
 
-        TextureList list;
-        for (std::string &file : textureFiles) {
-            Image image;
-            Texture::Key textureKey = nextKey++;
-            Util::loadTargaImage(path + file, image);
-            substituteColors(image, substitutionTable);
-            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
-                                                          filtering, clamp);
-            list.textures.push_back(Texture(textureKey, textureId));
-        }
-
-        return list;
+        Texture texture = globRenderer->createTexture(image, filtering, clamp);
+        return texture;
     }
 
     const TextureDictionary TextureManager::loadDict(const std::string &path, TextureFilter filtering, bool clamp) {
-        std::vector<std::string> textureFiles = File::listDirectory(path, textureFileExtension);
+        std::vector<std::string> textureFiles = File::listDirectory(path);
 
         TextureDictionary dict;
         for (std::string &file : textureFiles) {
-            Image image;
-            Texture::Key textureKey = nextKey++;
-            Util::loadTargaImage(path + file, image);
-            Texture::Id textureId = globRenderer->createTexture(image.getWidth(), image.getHeight(), &image.at(0), 1,
-                                                                filtering, clamp);
-            dict.textures[file] = Texture(textureKey, textureId);
+            Image image = Image::load(path + file);
+            Texture texture = globRenderer->createTexture(image, filtering, clamp);
+            dict.textures[file] = texture;
         }
 
         return dict;
     }
 
-    void TextureManager::dispose(Texture &texture) {
-        auto key = texture.getKey();
-        auto keyIterator = textureKeys.find(key);
-        if (key != 0 && keyIterator != textureKeys.end()) {
-            globRenderer->freeTexture(keyIterator->second);
-            texture.id = 0;
-        }
-    }
-
-    void TextureManager::dispose(TextureList &list) {
-        for (Texture &texture : list.textures) {
-            dispose(texture);
-        }
-        list.textures.clear();
-    }
-
-    void TextureManager::disposeAll() {
-        for (auto &entry : textureKeys) {
-            globRenderer->freeTexture(entry.second);
-        }
-        textureKeys.clear();
+    void TextureManager::dispose(Texture texture) {
+        globRenderer->freeTexture(texture);
     }
 
     void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {
-        Size imgSize = image.getWidth() * image.getHeight();
+        Size imgSize = image.getWidth() * image.getHeight() * image.getDepth();
         for (Size i = 0; i < imgSize; ++i) {
             Color &color = image.at(i);
             auto substituteColor = substitutionTable.find(color);
