@@ -21,7 +21,7 @@ animation::LoopType from(uint16_t type){
 std::vector<uint8_t> from(const std::vector<aseprite::PIXEL_DATA> & in){
 	std::vector<uint8_t> result(in.size());
 	for(size_t i = 0; i < in.size(); i++){
-	    result[i] = in[i].INDEXED;
+		result[i] = in[i].INDEXED;
 	}
 	return result;
 }
@@ -59,12 +59,13 @@ animation::Animation fromASEPRITE(const aseprite::ASEPRITE & ase){
 		}
 		if(chunk.type == 0x2004) {
 			const auto & layer = std::get<aseprite::LAYER_CHUNK>(chunk.data);
-			animation.layers.push_back(animation::Layer(
+			animation.layers.emplace_back(
+					animation::Layer::BLEND_MODE(layer.blendMode),
 					layer.flags & 0x1,
 					layer.layerType == 1,
 					layer.opacity,
 					layer.name.toString(),
-					animation.framesCount));
+					animation.framesCount);
 		}
 	}
 	for(size_t f = 0; f < animation.framesCount; f++){
@@ -85,18 +86,17 @@ animation::Animation fromASEPRITE(const aseprite::ASEPRITE & ase){
 					cel.x = cel_chunk.x;
 					cel.y = cel_chunk.y;
 					cel.opacity = cel_chunk.opacity;
-                    animation.images.emplace_back();
-                    auto & image = animation.images.back();
-                    cel.image = animation.images.size() - 1;
-                    image.width = cel_chunk.width;
-                    image.height = cel_chunk.height;
-                    image.pixels = from(cel_chunk.pixels);
+					animation.images.emplace_back(
+							cel_chunk.width,
+							cel_chunk.height,
+							from(cel_chunk.pixels));
+					cel.image = animation.images.size() - 1;
 				}
 			}
 		}
 	}
     for(const auto & loop : animation.loops) {
-        const float SPRITE_SPEED_COEFFICIENT = 1.0f/10.0f;
+        const float SPRITE_SPEED_COEFFICIENT = 1.0f/10.0f; //TODO
         std::vector<int16_t> animationLoop;
 
         if(loop.loopType == animation::LoopType::FORWARD){

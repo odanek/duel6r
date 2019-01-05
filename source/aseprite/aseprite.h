@@ -83,9 +83,6 @@ public:
     void toString();
 };
 
-
-
-
 enum CHUNK_TYPE {
     PALETTE_OLD_0x0004 = 0x0004,
     PALETTE_OLD_0x0011 = 0x0011,
@@ -252,11 +249,11 @@ struct CHUNK {
 	// first variant must have default constructor
 	using chunk_t = std::variant<
 			PALETTE_OLD_CHUNK,
-		    LAYER_CHUNK ,
+			LAYER_CHUNK ,
 			PALETTE_CHUNK,
-		    CEL_CHUNK,
-		    TAG_CHUNK,
-		    SLICE_CHUNK>;
+			CEL_CHUNK,
+			TAG_CHUNK,
+			SLICE_CHUNK>;
     chunk_t data;
     WORD type;
 
@@ -324,6 +321,5 @@ bool operator & (std::ifstream & stream, OUT & out){
 }
 
 }
-
 
 #endif

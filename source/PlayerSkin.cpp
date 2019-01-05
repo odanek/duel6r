@@ -34,11 +34,11 @@ namespace Duel6 {
                        TextureManager &textureManager,
                        animation::Animation & animation) {
         animation::Palette substitution_table(animation.palette);
+        int dst[] = { 4, 5, 8, 9, 12, 13, 16, 20, 24, 25 }; //indexes to palette colors used in the man.ase
+        int src[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 8 };
         auto & substitution = substitution_table.colors;
-        int dst[] = {4,5,8,9,12,13,16,24,25};
-        int src[] = {0,1,2,3,4,5,6,7,7};
 
-        for(int i = 0; i < 9; i ++){
+        for(int i = 0; i < 10; i ++){
             const auto & color = colors.get((PlayerSkinColors::BodyPart)src[i]);
             substitution[dst[i]].r = color.getRed();
             substitution[dst[i]].g = color.getGreen();

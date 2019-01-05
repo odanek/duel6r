@@ -12,6 +12,7 @@
 
 #include <string>
 #include <iostream>
+#include <utility>
 
 #include <array>
 #include <vector>
@@ -39,24 +40,36 @@ public:
 
 class Image {
 public:
-	uint16_t width;
-	uint16_t height;
+	uint16_t width = 0;
+	uint16_t height = 0;
 
 	std::vector<uint8_t> pixels; // TOOD 32bit color images
 	Image() = default;
-    Image(const Image & image): width(image.width), height(image.height), pixels(image.pixels){
-
-    }
-
-	Image(Image && image): width(image.width), height(image.height), pixels(std::move(image.pixels)){
-
+	Image(uint16_t width, uint16_t height, std::vector<uint8_t> && pixels) :
+			width(width),
+			height(height),
+			pixels(std::move(pixels)) {
 	}
-	Image & operator = (Image && image) {
-	    width = image.width;
-	    height = image.height;
-	    pixels = std::move(image.pixels);
-	    return *this;
+
+	Image(const Image & image) :
+			width(image.width),
+			height(image.height),
+			pixels(image.pixels) {
 	}
+
+	Image(Image && image) :
+			width(image.width),
+			height(image.height),
+			pixels(std::move(image.pixels)) {
+	}
+
+	Image & operator =(Image && image) {
+		width = image.width;
+		height = image.height;
+		pixels = std::move(image.pixels);
+		return *this;
+	}
+
 	std::vector<Color> substitute(const Palette& palette, uint8_t opacity = 255, uint8_t transparentIndex = 0) const {
 		size_t size = pixels.size();
 		std::vector<Color> result(size);
@@ -68,7 +81,7 @@ public:
 				result[i].r = 0;
 				result[i].g = 0;
 				result[i].b = 0;
-			    result[i].a = 0;
+				result[i].a = 0;
 			}
 		}
 		return result;
@@ -80,10 +93,10 @@ public:
 
 class Cel {
 public:
-	uint16_t x;
-	uint16_t y;
+	uint16_t x = 0;
+	uint16_t y = 0;
 
-	uint8_t opacity;
+	uint8_t opacity = 0;
 
 	uint32_t image; //pointer to animation.images
 
@@ -100,17 +113,43 @@ public:
 
 class Layer {
 public:
+	enum BLEND_MODE {
+		Normal     = 0,
+		Multiply   = 1,
+		Screen     = 2,
+		Overlay    = 3,
+		Darken     = 4,
+		Lighten    = 5,
+		ColorDodge = 6,
+		ColorBurn  = 7,
+		HardLight  = 8,
+		SoftLight  = 9,
+		Difference = 10,
+		Exclusion  = 11,
+		Hue        = 12,
+		Saturation = 13,
+		Color      = 14,
+		Luminosity = 15,
+		Addition   = 16,
+		Subtract   = 17,
+		Divide     = 18
+	};
+
+	BLEND_MODE blendMode = Normal;
 	bool visible = true;
 	bool isGroupLayer = false; // true -> no frames
 	uint8_t opacity;
 	std::string name;
 	std::vector<Cel> frames;
-	Layer(bool visible, bool isGroupLayer, uint8_t opacity, const std::string & name, uint32_t framesCount):
-		visible(visible),
-		isGroupLayer(isGroupLayer),
-		opacity(opacity),
-		name(name) {
-		if(!isGroupLayer){
+	Layer(BLEND_MODE blendMode, bool visible, bool isGroupLayer,
+			uint8_t opacity, const std::string & name,
+			uint32_t framesCount) :
+			blendMode(blendMode),
+			visible(visible),
+			isGroupLayer(isGroupLayer),
+			opacity(opacity),
+			name(name) {
+		if (!isGroupLayer) {
 			frames.resize(framesCount);
 		}
 	}

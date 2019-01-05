@@ -46,7 +46,6 @@ namespace Duel6 {
             TextureFilter filtering,
             bool clamp) {
         TextureList list;
-
         for(uint16_t f = 0; f < animation.framesCount; f ++){
             Image frameImage(animation.width, animation.height);
             for(uint16_t p = 0; p < animation.width * animation.height; p++){
@@ -56,8 +55,9 @@ namespace Duel6 {
             for(const auto & layer: animation.layers){
 
                 //TODO: Filter for headband / hair etc.
-                if(!layer.visible || layer.isGroupLayer) continue; //TODO group layers and visibility
                 const animation::Cel & frame = layer.frames[f];
+                if(!layer.visible || layer.isGroupLayer || frame.opacity == 0) continue; //TODO group layers and visibility
+
                 const animation::Image & image = animation.images[frame.image];
                 const float layerOpacity = layer.opacity / 255.0f;
                 const auto x = frame.x;
@@ -71,10 +71,38 @@ namespace Duel6 {
 
                         //TODO LAYER BLEND MODE
                         const auto & color = pixels[v * width + u];
+                        auto & dstColor = frameImage.at( (y + v) * animation.width + u + x );
+                        bool transparent = dstColor.getRed() == 0 &&
+                                dstColor.getGreen() == 0 &&
+                                dstColor.getBlue() == 0 &&
+                                dstColor.getAlpha() == 0;
                         if(color.r == 0 && color.g == 0 && color.b == 0 && color.a == 0){
+                            // do not overwrite pixel with empty pixel
+                            continue;
+                        } else if (transparent) {
+                            // overwrite empty pixel
+                            dstColor.set(color.r, color.g, color.b, color.a);
+                        }
+                        else {
+                            // color mixing
+                            switch(layer.blendMode){
+                            case animation::Layer::BLEND_MODE::Darken:{
+                                uint8_t R = std::min(dstColor.getRed(), color.r);
+                                uint8_t G = std::min(dstColor.getGreen(), color.g);
+                                uint8_t B = std::min(dstColor.getBlue(), color.b);
+                                uint8_t A = std::max(dstColor.getAlpha(), color.a);
+                                R += (R - dstColor.getRed()) * ((255 -  color.a) / 255.0f);
+                                G += (G - dstColor.getGreen()) * ((255 - color.a) / 255.0f);
+                                B += (B - dstColor.getBlue()) * ((255 - color.a) / 255.0f);
 
-                        } else {
-                            frameImage.at( (y + v) * animation.width + u + x ).set(color.r, color.g, color.b, color.a);
+                                dstColor.set(R, G, B, A);
+
+                                break;
+                            }
+                            case animation::Layer::BLEND_MODE::Normal:
+                            default:
+                                frameImage.at( (y + v) * animation.width + u + x ).set(color.r, color.g, color.b, color.a);
+                            }
                         }
                     }
                 }
