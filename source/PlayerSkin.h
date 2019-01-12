@@ -53,6 +53,7 @@ namespace Duel6 {
         anim noAnim;
         anim d6SAnim;
         anim d6WAnim;
+        anim d6FallAnim;
         anim d6JAnim;
         anim d6DAnim;
         anim d6LAnim;

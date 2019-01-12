@@ -43,7 +43,7 @@ namespace Duel6 {
     };
 
     namespace {
-        AnimationEntry splashAnimation[] = {0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, 5, 9, 5, -1, 0};
+        AnimationEntry splashAnimation[] = {0, 82, 1, 82, 2, 82, 3, 82, 4, 82, 5, 82, 6, 82, 7, 82, 8, 82, 9, 82, -1, 0};
 
         class NoneWater : public WaterImpl {
         public:

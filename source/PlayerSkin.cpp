@@ -48,6 +48,7 @@ namespace Duel6 {
             //TODO animations
         noAnim = animation.animations[animation.animationLookup.at("Stand")];
         d6SAnim = animation.animations[animation.animationLookup.at("Stand")];
+        d6FallAnim = animation.animations[animation.animationLookup.at("Fall")];
         d6WAnim = animation.animations[animation.animationLookup.at("Walk")];
         d6JAnim = animation.animations[animation.animationLookup.at("Jump")];
         d6DAnim = animation.animations[animation.animationLookup.at("Duck")];

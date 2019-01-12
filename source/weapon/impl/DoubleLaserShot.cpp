@@ -30,11 +30,11 @@
 namespace Duel6 {
     namespace {
         const Rectangle collistionRectangle = Rectangle::fromCornerAndSize(Vector(0.12f, 0.68f), Vector(0.39f, 0.28f));
-        const AnimationEntry shotAnimation[] = {0, 50, -1, 0};
-        const AnimationEntry boomAnimation[] = {0, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 11,
-                                                  1, 12, 1, 13, 1, 14, 1, 15, 1, 16, 1, 17, 1, 18, 1, 19, 1, 20, 1, 21,
-                                                  1, 22, 1, 23, 1, 24, 1, 25, 1, 26, 1, 27, 1, 28, 1, 29, 1, 30, 1, 31,
-                                                  1, 32, 1, 33, 1, 34, 1, 35, 1, -1, 0};
+        const AnimationEntry shotAnimation[] = {0, 820, -1, 0};
+        const AnimationEntry boomAnimation[] = {0, 16, 2, 16, 3, 16, 4, 16, 5, 16, 6, 16, 7, 16, 8, 16, 9, 16, 10, 16, 11,
+                                                  16, 12, 16, 13, 16, 14, 16, 15, 16, 16, 16, 17, 16, 18, 16, 19, 16, 20, 16, 21,
+                                                  16, 22, 16, 23, 16, 24, 16, 25, 16, 26, 16, 27, 16, 28, 16, 29, 16, 30, 16, 31,
+                                                  16, 32, 16, 33, 16, 34, 16, 35, 16, -1, 0};
     }
 
     DoubleLaserShot::DoubleLaserShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation)

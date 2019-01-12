@@ -34,8 +34,8 @@ namespace Duel6 {
     const std::vector<FireType> FireType::types = {CONIFEROUS_TREE, BROAD_LEAVED_TREE};
 
     namespace {
-        AnimationEntry nonFireAnimation[] = {0, 20, -1, 0};
-        AnimationEntry burnedAnimation[] = {1, 20, -1, 0};
+        AnimationEntry nonFireAnimation[] = {0, 328, -1, 0};
+        AnimationEntry burnedAnimation[] = {1, 328, -1, 0};
         std::vector<AnimationEntry> burningAnimation;
     }
 

@@ -89,7 +89,7 @@ namespace Duel6 {
         colors.set(PlayerSkinColors::BodyInner, body);
         colors.set(PlayerSkinColors::BodyOuter, body.scale(0.5));
         colors.set(PlayerSkinColors::HandInner, body);
-        colors.set(PlayerSkinColors::HandOuter, body.scale(0.5));
+        colors.set(PlayerSkinColors::HandOuter, body.scale(0.2));
         colors.set(PlayerSkinColors::Trousers, Color::random());
         colors.set(PlayerSkinColors::Shoes, Color::random());
         colors.set(PlayerSkinColors::Face, face);

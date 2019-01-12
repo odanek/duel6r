@@ -64,6 +64,7 @@ namespace Duel6 {
         anoAnim =  skin.noAnim;
         ad6SAnim = skin.d6SAnim;
         ad6WAnim = skin.d6WAnim;
+        ad6FallAnim = skin.d6FallAnim;
         ad6JAnim = skin.d6JAnim;
         ad6DAnim = skin.d6DAnim;
         ad6LAnim = skin.d6LAnim;
@@ -73,6 +74,7 @@ namespace Duel6 {
         noAnim = anoAnim.data();
         d6SAnim = ad6SAnim.data();
         d6WAnim = ad6WAnim.data();
+        d6FallAnim = ad6FallAnim.data();
         d6JAnim = ad6JAnim.data();
         d6DAnim = ad6DAnim.data();
         d6LAnim = ad6LAnim.data();
@@ -264,7 +266,6 @@ namespace Duel6 {
 
         moveVertical(level, elapsedTime, speed);
         moveHorizontal(level, elapsedTime, speed);
-
         collider.collideWithElevators(world->getElevatorList(), elapsedTime, speed);
         collider.collideWithLevel(level, elapsedTime, speed);
         if (isPickingGun() /*&& sprite->getAnimation() == d6PAnim */&& sprite->isFinished()) {
@@ -474,6 +475,7 @@ namespace Duel6 {
     void Player::setAnm() {
         Animation animation;
         //PlayerSkin::anim * animation;
+        sprite->setSpeed(1.0f);
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
                 animation = d6LAnim;
@@ -490,14 +492,23 @@ namespace Duel6 {
             if (!isMoving()) {
                 animation = d6SAnim;
             } else {
+                sprite->setSpeed(getSpeed());
                 animation = d6WAnim;
                 sprite->setLooping(AnimationLooping::RepeatForever);
             }
         } else if (!isOnGround()) {
-            animation = d6JAnim;
+            if(collider.velocity.y > 0){
+                animation = d6JAnim;
+                sprite->setLooping(AnimationLooping::RepeatForever);
+            } else {
+                animation = d6FallAnim;
+                sprite->setLooping(AnimationLooping::RepeatForever);
+            }
+            sprite->setSpeed(Player::getVelocity().length());
         } else if (!isMoving()) {
             animation = d6SAnim;
         } else {
+            sprite->setSpeed(Player::getVelocity().length());
             animation = d6WAnim;
             sprite->setLooping(AnimationLooping::RepeatForever);
         }

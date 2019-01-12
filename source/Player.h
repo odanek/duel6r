@@ -279,6 +279,7 @@ namespace Duel6 {
         PlayerSkin::anim anoAnim;
         PlayerSkin::anim ad6SAnim;
         PlayerSkin::anim ad6WAnim;
+        PlayerSkin::anim ad6FallAnim;
         PlayerSkin::anim ad6JAnim;
         PlayerSkin::anim ad6DAnim;
         PlayerSkin::anim ad6LAnim;
@@ -286,8 +287,9 @@ namespace Duel6 {
         PlayerSkin::anim ad6PAnim;
 
         AnimationEntry * noAnim;//[4] = {0, 50, 0, -1};
-        AnimationEntry * d6SAnim;//[22] = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
+        AnimationEntry * d6SAnim;//[22]  = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
         AnimationEntry * d6WAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
+        AnimationEntry * d6FallAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
         AnimationEntry * d6JAnim;//[4] = {8, 50, -1, 0};
         AnimationEntry * d6DAnim;//[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
         AnimationEntry * d6LAnim;//[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};

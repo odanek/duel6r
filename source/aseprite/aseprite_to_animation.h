@@ -96,7 +96,6 @@ animation::Animation fromASEPRITE(const aseprite::ASEPRITE & ase){
 		}
 	}
     for(const auto & loop : animation.loops) {
-        const float SPRITE_SPEED_COEFFICIENT = 1.0f/10.0f; //TODO
         std::vector<int32_t> animationLoop;
 
         if(loop.loopType == animation::LoopType::FORWARD){
@@ -105,7 +104,7 @@ animation::Animation fromASEPRITE(const aseprite::ASEPRITE & ase){
 
             for(uint16_t frame = loop.from; frame <= /*(!)*/ loop.to; frame++) {
                 animationLoop.push_back(frame);
-                animationLoop.push_back(animation.frames[frame].duration * SPRITE_SPEED_COEFFICIENT);
+                animationLoop.push_back(animation.frames[frame].duration);
             }
 
         } else if(loop.loopType == animation::LoopType::PING_PONG) {
@@ -114,11 +113,11 @@ animation::Animation fromASEPRITE(const aseprite::ASEPRITE & ase){
 
             for(uint16_t frame = loop.from; frame < /*(!)*/ loop.to; frame++) {
                 animationLoop.push_back(frame);
-                animationLoop.push_back(animation.frames[frame].duration * SPRITE_SPEED_COEFFICIENT);
+                animationLoop.push_back(animation.frames[frame].duration);
             }
             for(uint16_t frame = loop.to; frame >= loop.from; frame--) {
                 animationLoop.push_back(frame);
-                animationLoop.push_back(animation.frames[frame].duration * SPRITE_SPEED_COEFFICIENT);
+                animationLoop.push_back(animation.frames[frame].duration);
             }
 
         } else if(loop.loopType == animation::LoopType::REVERSE) {
@@ -127,7 +126,7 @@ animation::Animation fromASEPRITE(const aseprite::ASEPRITE & ase){
 
             for(uint16_t frame = loop.to; frame >= loop.from; frame--) {
                 animationLoop.push_back(frame);
-                animationLoop.push_back(animation.frames[frame].duration * SPRITE_SPEED_COEFFICIENT);
+                animationLoop.push_back(animation.frames[frame].duration);
             }
 
         }
