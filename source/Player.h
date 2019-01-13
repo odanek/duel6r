@@ -257,6 +257,7 @@ namespace Duel6 {
             FlagDoubleJump = 0x1000,
             FlagShoot = 0x2000,
             FlagShootDebounce = 0x4000,
+            FlagDying = 0x8000,
         };
 
         struct WaterState {
@@ -285,17 +286,22 @@ namespace Duel6 {
         PlayerSkin::anim ad6LAnim;
         PlayerSkin::anim ad6NAnim;
         PlayerSkin::anim ad6PAnim;
+        PlayerSkin::anim ad6DeadFallAnim;
+        PlayerSkin::anim ad6DeadHitAnim;
+        PlayerSkin::anim ad6DeadLyingAnim;
 
-        AnimationEntry * noAnim;//[4] = {0, 50, 0, -1};
-        AnimationEntry * d6SAnim;//[22]  = {0, 200, 1, 30, 0, 30, 2, 30, 0, 90, 3, 15, 4, 15, 3, 15, 4, 15, 3, 30, -1, 0};
-        AnimationEntry * d6WAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
-        AnimationEntry * d6FallAnim;//[10] = {6, 5, 5, 5, 6, 5, 7, 5, -1, 0};
-        AnimationEntry * d6JAnim;//[4] = {8, 50, -1, 0};
-        AnimationEntry * d6DAnim;//[18] = {9, 300, 10, 60, 9, 60, 11, 60, 9, 150, 12, 60, 9, 60, 12, 60, -1, 0};
-        AnimationEntry * d6LAnim;//[16] = {13, 10, 14, 10, 15, 10, 16, 10, 17, 10, 18, 10, 19, 10, -1, 0};
-        AnimationEntry * d6NAnim;//[4] = {25, 100, -1, 0};
-        AnimationEntry * d6PAnim;//[] = {0, 10, 20, 10, 21, 10, 22, 10, 23, 10, 24, 10, 23, 10, 22, 10, 21, 10, 0, 10, -1, 0};
-
+        AnimationEntry * noAnim;
+        AnimationEntry * d6SAnim;
+        AnimationEntry * d6WAnim;
+        AnimationEntry * d6FallAnim;
+        AnimationEntry * d6JAnim;
+        AnimationEntry * d6DAnim;
+        AnimationEntry * d6LAnim;
+        AnimationEntry * d6NAnim;
+        AnimationEntry * d6PAnim;
+        AnimationEntry * d6DeadFallAnim;
+        AnimationEntry * d6DeadHitAnim;
+        AnimationEntry * d6DeadLyingAnim;
         Person &person;
         PlayerSkin skin;
         Camera camera;
@@ -522,8 +528,12 @@ namespace Duel6 {
             return hasFlag(FlagLying);
         }
 
+        bool isDying() const {
+            return hasFlag(FlagDying);
+        }
+
         bool isAlive() const {
-            return !hasFlag(FlagDead);
+            return !hasFlag(FlagDead) && !hasFlag(FlagDying);
         }
 
         bool isGhost() const {

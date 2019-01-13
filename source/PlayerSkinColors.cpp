@@ -45,6 +45,12 @@ namespace Duel6 {
                 Color(255, 216, 116),
                 Color(153, 0, 0)
         };
+
+        static Color headBandColors[] = {
+                Color(224, 36, 36),
+                Color(222, 146, 40),
+                Color(40, 144, 122)
+        };
     }
 
     PlayerSkinColors::PlayerSkinColors(const Color &color) {
@@ -75,12 +81,16 @@ namespace Duel6 {
         colors.set(PlayerSkinColors::Trousers, Color::fromString(root.get("trousers").asString()));
         colors.set(PlayerSkinColors::Shoes, Color::fromString(root.get("shoes").asString()));
         colors.set(PlayerSkinColors::Face, Color::fromString(root.get("face").asString()));
+
+        colors.setHair(root.getOrDefault("hair", Json::Value::makeNumber(0)).asInt());
+        colors.setHeadBand(root.getOrDefault("headBand", Json::Value::makeBoolean(false)).asBoolean());
         return colors;
     }
 
     PlayerSkinColors PlayerSkinColors::makeRandom() {
         const Color& hair = hairColors[Math::random(6)];
         const Color& face = faceColors[Math::random(3)];
+        const Color& headBand = headBandColors[Math::random(3)];
         Color body = Color::random();
 
         PlayerSkinColors colors;
@@ -93,6 +103,10 @@ namespace Duel6 {
         colors.set(PlayerSkinColors::Trousers, Color::random());
         colors.set(PlayerSkinColors::Shoes, Color::random());
         colors.set(PlayerSkinColors::Face, face);
+        colors.set(PlayerSkinColors::HeadBand, headBand);
+
+        colors.setHair(Math::random(3));
+        colors.setHeadBand(Math::random(10) > 5);
         return colors;
     }
 }

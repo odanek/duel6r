@@ -42,12 +42,21 @@ namespace Duel6 {
             HandInner,
             Trousers,
             Shoes,
-            Face
+            Face,
+            HeadBand,
+            HeadBandOuter
+        };
+
+        enum Hair {
+            Normal = 0,
+            None,
+            Short
         };
 
     private:
-        Color color[9];
-
+        Color color[11];
+        Hair hair = Normal;
+        bool headBand = false;
     public:
         PlayerSkinColors() = default;
 
@@ -57,6 +66,9 @@ namespace Duel6 {
 
         PlayerSkinColors &set(BodyPart bodyPart, const Color &color) {
             this->color[(int) bodyPart] = color;
+            if(bodyPart == HeadBand) {
+                this->color[(int) HeadBandOuter] = color.scale(0.90f);
+            }
             return *this;
         }
 
@@ -64,6 +76,26 @@ namespace Duel6 {
             return color[(int) bodyPart];
         }
 
+        PlayerSkinColors &setHair(int value) {
+            if(value < 0 || value > 2) {
+                return *this;
+            }
+            hair = Hair(value);
+            return *this;
+        }
+
+        const Hair getHair() const {
+            return hair;
+        }
+
+        PlayerSkinColors &setHeadBand(bool value) {
+            headBand = value;
+            return *this;
+        }
+
+        const bool hasHeadBand() const {
+            return headBand;
+        }
         static PlayerSkinColors load(const std::string &profileRoot, const std::string &file);
         static PlayerSkinColors makeRandom();
     };

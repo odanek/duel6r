@@ -49,6 +49,10 @@ namespace Duel6 {
             return textures;
         }
         typedef std::vector<AnimationEntry> anim;
+
+        ~PlayerSkin(){
+
+        }
 //TODO private
         anim noAnim;
         anim d6SAnim;
@@ -56,6 +60,9 @@ namespace Duel6 {
         anim d6FallAnim;
         anim d6JAnim;
         anim d6DAnim;
+        anim d6DeadFallAnim;
+        anim d6DeadHitAnim;
+        anim d6DeadLyingAnim;
         anim d6LAnim;
         anim d6NAnim;
         anim d6PAnim;

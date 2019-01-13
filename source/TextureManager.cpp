@@ -43,17 +43,16 @@ namespace Duel6 {
             TextureFilter filtering,
             bool clamp) {
         Image list;
-        for(uint16_t f = 0; f < animation.framesCount; f ++){
+        for (uint16_t f = 0; f < animation.framesCount; f++) {
             Image frameImage(animation.width, animation.height);
-            for(uint16_t p = 0; p < animation.width * animation.height; p++){
+            for (uint16_t p = 0; p < animation.width * animation.height; p++) {
                 frameImage.at(p).setAlpha(0);
             }
-          //  Texture::Key textureKey = nextKey++;
-            for(const auto & layer: animation.layers){
 
-                //TODO: Filter for headband / hair etc.
+            for (const auto & layer : animation.layers) {
                 const animation::Cel & frame = layer.frames[f];
-                if(!layer.visible || layer.isGroupLayer || frame.opacity == 0) continue; //TODO group layers and visibility
+                if (!layer.visible || layer.isGroupLayer || frame.opacity == 0)
+                    continue;
 
                 const animation::Image & image = animation.images[frame.image];
                 const float layerOpacity = layer.opacity / 255.0f;
@@ -63,9 +62,12 @@ namespace Duel6 {
                 const auto height = image.height;
 
                 auto pixels = image.substitute(substitutionTable, layerOpacity * frame.opacity, animation.transparentIndex);
-                for(uint16_t v = 0; v < height; v++) {
-                    for(uint16_t u = 0; u < width; u++){
-
+                for (uint16_t v = 0; v < height && v + y < animation.height; v++) {
+                    if (v + y < 0)
+                        continue; // In Aseprite image cel can be placed in a way that it spans beyond the image boundaries (and could crash code below)
+                    for (uint16_t u = 0; u < width && u + x < animation.width; u++) {
+                        if (u + x < 0)
+                            continue;
                         //TODO LAYER BLEND MODE
                         const auto & color = pixels[v * width + u];
                         auto & dstColor = frameImage.at( (y + v) * animation.width + u + x );
@@ -73,7 +75,7 @@ namespace Duel6 {
                                 dstColor.getGreen() == 0 &&
                                 dstColor.getBlue() == 0 &&
                                 dstColor.getAlpha() == 0;
-                        if(color.r == 0 && color.g == 0 && color.b == 0 && color.a == 0){
+                        if (color.r == 0 && color.g == 0 && color.b == 0 && color.a == 0) {
                             // do not overwrite pixel with empty pixel
                             continue;
                         } else if (transparent) {
@@ -81,7 +83,7 @@ namespace Duel6 {
                             dstColor.set(color.r, color.g, color.b, color.a);
                         }
                         else {
-                            // color mixing
+                            // color mixing //TODO
                             switch(layer.blendMode){
                             case animation::Layer::BLEND_MODE::Darken:{
                                 uint8_t R = std::min(dstColor.getRed(), color.r);
@@ -93,12 +95,11 @@ namespace Duel6 {
                                 B += (B - dstColor.getBlue()) * ((255 - color.a) / 255.0f);
 
                                 dstColor.set(R, G, B, A);
-
                                 break;
                             }
                             case animation::Layer::BLEND_MODE::Normal:
                             default:
-                                frameImage.at( (y + v) * animation.width + u + x ).set(color.r, color.g, color.b, color.a);
+                                frameImage.at((y + v) * animation.width + u + x).set(color.r, color.g, color.b, color.a);
                             }
                         }
                     }
