@@ -41,7 +41,7 @@ namespace Duel6 {
             d6DAnim(animation.animations[animation.animationLookup.at("Duck")]),
             d6DeadFallAnim(animation.animations[animation.animationLookup.at("Dead_fall")]),
             d6DeadHitAnim(animation.animations[animation.animationLookup.at("Dead_hit")]),
-            d6DeadLyingAnim(animation.animations[animation.animationLookup.at("Dead_hit")]),
+            d6DeadLyingAnim(animation.animations[animation.animationLookup.at("Dead_lying")]),
             d6LAnim(animation.animations[animation.animationLookup.at("Death")]),
             d6NAnim(noAnim),
             d6PAnim(animation.animations[animation.animationLookup.at("Pick")])

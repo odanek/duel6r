@@ -434,7 +434,7 @@ namespace Duel6 {
         setAnm();
 
         // Drop gun if still has it and died
-        if (!isAlive() && hasGun()) {
+        if (isLying() && hasGun()) {
             setBonus(BonusType::NONE, 0);
             dropWeapon(world.getLevel());
         }
@@ -473,8 +473,7 @@ namespace Duel6 {
     }
 
     void Player::setAnm() {
-        Animation animation = d6NAnim;
-        //PlayerSkin::anim * animation;
+        Animation animation;
         sprite->setSpeed(1.0f);
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
@@ -492,7 +491,11 @@ namespace Duel6 {
                             animation = d6DeadHitAnim;
                             sprite->setLooping(AnimationLooping::OnceAndStop);
                         } else {
-                            animation = d6DeadLyingAnim;
+                            if(sprite->isFinished()){
+                                animation = d6DeadLyingAnim;
+                            } else {
+                                animation = sprite->getAnimation();
+                            }
                         }
                     }
                 }
@@ -514,7 +517,7 @@ namespace Duel6 {
                 sprite->setLooping(AnimationLooping::RepeatForever);
             }
         } else if (!isOnGround()) {
-            if(collider.velocity.y > 0){
+            if(isRising()){
                 animation = d6JAnim;
                 sprite->setLooping(AnimationLooping::RepeatForever);
             } else {

@@ -521,7 +521,7 @@ bool FRAME::read(std::ifstream & s, PIXELTYPE pixelFormat) {
             WORD type;
             auto p = s.tellg();
             result = result && s & size && s & type;
-            auto p2 = s.tellg();
+            //auto p2 = s.tellg();
             //std::cout << std::hex << "0x" << p2 << ":DEBUG Chunk: size: " << size << " type: " << type << std::dec << "\n";
             switch (type) {
             case PALETTE_OLD_0x0004: {
@@ -571,11 +571,11 @@ ASEPRITE::ASEPRITE(std::string filename) :
         ASEPRITE::tinf_initialized = true;
     }
     if (readAseHeader()) {
-        header.toString();
+        //header.toString();
         PIXELTYPE pixelFormat = header.bitDepth == 8 ? INDEXED : header.bitDepth == 16 ? GRAYSCALE : RGBA;
         frames.resize(header.frames);
         for (size_t f = 0; f < header.frames && file.good(); f++) {
-            std::cout << " FRAME " << f << "\n";
+            //std::cout << " FRAME " << f << "\n";
             frames[f].read(file, pixelFormat);
         }
     }
