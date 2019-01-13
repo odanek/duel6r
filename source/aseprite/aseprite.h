@@ -222,9 +222,9 @@ struct SLICE_CHUNK {
 
 struct CEL_CHUNK {
 
-	CEL_CHUNK & operator = (const CEL_CHUNK && cel);
+    CEL_CHUNK & operator =(const CEL_CHUNK && cel);
 
-	CEL_CHUNK(CEL_CHUNK && cel);
+    CEL_CHUNK(CEL_CHUNK && cel);
     CEL_CHUNK(std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize);
     ~CEL_CHUNK();
     WORD layerIndex; // see NOTE.2
@@ -245,15 +245,15 @@ struct CEL_CHUNK {
 
 struct CHUNK {
 
-	// all variants must have move constructor, move assignment operator
-	// first variant must have default constructor
-	using chunk_t = std::variant<
-			PALETTE_OLD_CHUNK,
-			LAYER_CHUNK ,
-			PALETTE_CHUNK,
-			CEL_CHUNK,
-			TAG_CHUNK,
-			SLICE_CHUNK>;
+    // all variants must have move constructor, move assignment operator
+    // first variant must have default constructor
+    using chunk_t = std::variant<
+        PALETTE_OLD_CHUNK,
+        LAYER_CHUNK ,
+        PALETTE_CHUNK,
+        CEL_CHUNK,
+        TAG_CHUNK,
+        SLICE_CHUNK>;
     chunk_t data;
     WORD type;
 

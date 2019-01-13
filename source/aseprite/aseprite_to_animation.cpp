@@ -10,6 +10,6 @@
 #include "aseprite_to_animation.h"
 
 animation::Animation animation::Animation::loadAseImage(const std::string &path) {
-	return fromASEPRITE(aseprite::ASEPRITE(path));
+    return fromASEPRITE(aseprite::ASEPRITE(path));
 }
 
