@@ -124,6 +124,10 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
             bdown = true;
             velocity.y = 0;
             totalSpeed.y = 0;
+            if (!(level.isWall(right, up, true) || level.isWall(left, down, true))) {
+                velocity.y = -0.001f;
+                totalSpeed.y = -0.001f;
+            }
         }
 
         /**
