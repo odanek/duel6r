@@ -54,15 +54,17 @@ namespace Duel6 {
     }
 
     PlayerSkinColors::PlayerSkinColors(const Color &color) {
-        for (Size i = 0; i < 9; i++) {
+        for (Size i = 0; i < 11; i++) {
             this->color[i] = color;
         }
     }
 
     PlayerSkinColors &PlayerSkinColors::operator=(const PlayerSkinColors &colors) {
-        for (Size i = 0; i < 9; i++) {
+        for (Size i = 0; i < 11; i++) {
             this->color[i] = colors.color[i];
         }
+        this->hair = colors.hair;
+        this->headBand = colors.headBand;
         return *this;
     }
 
@@ -81,7 +83,7 @@ namespace Duel6 {
         colors.set(PlayerSkinColors::Trousers, Color::fromString(root.get("trousers").asString()));
         colors.set(PlayerSkinColors::Shoes, Color::fromString(root.get("shoes").asString()));
         colors.set(PlayerSkinColors::Face, Color::fromString(root.get("face").asString()));
-
+        colors.set(PlayerSkinColors::HeadBand, Color::fromString(root.getOrDefault("headBandColor", Json::Value::makeString("e02424")).asString()));
         colors.setHair(root.getOrDefault("hair", Json::Value::makeNumber(0)).asInt());
         colors.setHeadBand(root.getOrDefault("headBand", Json::Value::makeBoolean(false)).asBoolean());
         return colors;
