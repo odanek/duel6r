@@ -185,7 +185,7 @@ bool PALETTE_CHUNK::read(std::ifstream & s) {
     return result;
 }
 
-LAYER_CHUNK::LAYER_CHUNK(LAYER_CHUNK && layer) noexcept {
+LAYER_CHUNK::LAYER_CHUNK(LAYER_CHUNK && layer) {
     flags = layer.flags;
     layerType = layer.layerType;
     layerChildLevel = layer.layerChildLevel;
@@ -282,14 +282,16 @@ bool TAG_CHUNK::read(std::ifstream & s) {
 SLICE_CHUNK::SLICE_CHUNK(std::ifstream & s) {
     read(s);
 }
+
 bool SLICE_CHUNK::read(std::ifstream & s) {
     DWORD reserved;
     bool result = s & count
         && s & flags
         && s & reserved
         && s & name;
-    if (!result)
+    if (!result) {
         return result;
+    }
     sliceKeys.resize(count);
     for (DWORD i = 0; i < count && result; i++) {
         auto & k = sliceKeys[i];
@@ -299,26 +301,19 @@ bool SLICE_CHUNK::read(std::ifstream & s) {
             && s & k.y
             && s & k.width
             && s & k.height;
-        switch (flags) {
-        case 1: {
+        if (flags & 0x1) {
             auto & n = k.data.ninePatches;
             result = result
                 && s & n.centerX
                 && s & n.centerY
                 && s & n.centerWidth
                 && s & n.centerHeight;
-            break;
         }
-        case 2: {
+        if (flags & 0x2) {
             auto & pivot = k.data.pivot;
             result = result
                 && s & pivot.pivotX
                 && s & pivot.pivotY;
-            break;
-        }
-        case 0: {
-            break;
-        }
         }
     }
     return result;
@@ -354,9 +349,6 @@ CEL_CHUNK::CEL_CHUNK(std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize) {
     read(s, pixelFormat, dataSize);
 }
 
-CEL_CHUNK::~CEL_CHUNK() {
-    pixels.clear(); //TODO remove
-}
 // chunkSize - to tell size of compressed data
 bool CEL_CHUNK::read(std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize) {
     BYTE reserved[7];
@@ -366,6 +358,8 @@ bool CEL_CHUNK::read(std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize) {
         && s & opacity
         && s & type
         && s & reserved;
+    constexpr size_t CEL_HEADER_SIZE = sizeof(layerIndex) + sizeof(x) + sizeof(y) + sizeof(opacity) + sizeof(type) + sizeof(reserved);
+    static_assert(CEL_HEADER_SIZE == 16);
     if (!result)
         return result;
     switch (type) {
@@ -378,7 +372,7 @@ bool CEL_CHUNK::read(std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize) {
         break;
     }
     case 2: {
-        result = readCompressedPixels(s, pixelFormat, dataSize - 16 /*size of already read data*/);
+        result = readCompressedPixels(s, pixelFormat, dataSize - CEL_HEADER_SIZE);
         break;
     }
     default:
@@ -495,14 +489,9 @@ CHUNK::CHUNK(chunk_t && data, WORD type) :
 }
 
 CHUNK::CHUNK(CHUNK && c) {
-    std::cout << "CHUNK(CHUNK && ) called :( \n";
     data = std::move(c.data);
     type = c.type;
     c.type = 0;
-}
-
-CHUNK::~CHUNK() {
-    type = 0; //TODO remove
 }
 
 bool FRAME::read(std::ifstream & s, PIXELTYPE pixelFormat) {
@@ -519,6 +508,7 @@ bool FRAME::read(std::ifstream & s, PIXELTYPE pixelFormat) {
         for (size_t c = 0; c < chunkCount && result; c++) {
             DWORD size;
             WORD type;
+            constexpr size_t CHUNK_HEADER_SIZE = sizeof(size) + sizeof(type);
             auto p = s.tellg();
             result = result && s & size && s & type;
             //auto p2 = s.tellg();
@@ -534,7 +524,7 @@ bool FRAME::read(std::ifstream & s, PIXELTYPE pixelFormat) {
                 break;
             }
             case CEL_0x2005: {
-                chunks.emplace_back(CEL_CHUNK(s, pixelFormat, size - 6), type);
+                chunks.emplace_back(CEL_CHUNK(s, pixelFormat, size - CHUNK_HEADER_SIZE), type);
                 break;
             }
             case FRAME_TAGS_0x2018: {
@@ -559,8 +549,8 @@ bool FRAME::read(std::ifstream & s, PIXELTYPE pixelFormat) {
     return result;
 }
 
-ASEPRITE::ASEPRITE(std::string filename) :
-    file(filename, std::ios::in | std::ios::binary) {
+ASEPRITE::ASEPRITE(std::string filename) {
+    std::ifstream file(filename, std::ios::in | std::ios::binary);
     if (!file.good()) {
         std::cout << "File " << filename << " not good\n";
         file.close();
@@ -570,22 +560,22 @@ ASEPRITE::ASEPRITE(std::string filename) :
         tinf_init();
         ASEPRITE::tinf_initialized = true;
     }
-    if (readAseHeader()) {
+    if (file & header) {
         //header.toString();
         PIXELTYPE pixelFormat = header.bitDepth == 8 ? INDEXED : header.bitDepth == 16 ? GRAYSCALE : RGBA;
         frames.resize(header.frames);
         for (size_t f = 0; f < header.frames && file.good(); f++) {
             //std::cout << " FRAME " << f << "\n";
-            frames[f].read(file, pixelFormat);
+            if(!frames[f].read(file, pixelFormat)){
+                std::cout << " Failed to read FRAME " << f << " in " << filename << " ...stopping.\n";
+                break;
+            }
         }
     }
 
     file.close();
 }
 
-bool ASEPRITE::readAseHeader() {
-    return file & header;
-}
 bool ASEPRITE::tinf_initialized = false;
 /*
  Notes

@@ -23,6 +23,13 @@
 #include "tinf/tinf.h"
 
 namespace aseprite {
+
+template <typename OUT>
+bool operator & (std::ifstream & stream, OUT & out){
+    stream.read((char *) &out, sizeof(OUT));
+    return stream.good();
+}
+
 using BYTE = uint8_t;
 using WORD = uint16_t;
 using SHORT = int16_t;
@@ -30,10 +37,17 @@ using DWORD = uint32_t;
 using LONG = int32_t;
 using FIXED = int32_t; // convert 16.16 fixed to double: x / 65536
 
+static_assert(sizeof(BYTE) == 1);
+static_assert(sizeof(WORD) == 2);
+static_assert(sizeof(SHORT) == 2);
+static_assert(sizeof(DWORD) == 4);
+static_assert(sizeof(LONG) == 4);
+static_assert(sizeof(FIXED) == 4);
 
 enum PIXELTYPE {
     RGBA, GRAYSCALE, INDEXED
 };
+
 union PIXEL_DATA {
     BYTE RGBA[4];
     BYTE GRAYSCALE[2];
@@ -44,14 +58,19 @@ struct PIXEL {
     PIXELTYPE TYPE;
     PIXEL_DATA DATA;
 };
+
 struct STRING {
+    WORD length;
+    std::vector<BYTE> data;
+
     STRING() = default;
+
     STRING(STRING && s);
 
     STRING & operator = (const STRING && s);
-    WORD length;
-    std::vector<BYTE> data;
+
     bool read(std::ifstream & s);
+
     std::string toString() const;
 };
 
@@ -80,6 +99,7 @@ public:
 public:
 
     bool read(std::ifstream & s);
+
     void toString();
 };
 
@@ -96,13 +116,17 @@ enum CHUNK_TYPE {
       USER_DATA_0x2020 = 0x2020, //TODO
           SLICE_0x2022 = 0x2022,
 };
+
 struct Color {
     BYTE r;
     BYTE g;
     BYTE b;
     BYTE a = 255;
 };
+
 struct PALETTE_OLD_CHUNK {
+    std::array<Color, UINT8_MAX + 1> colors;
+
     PALETTE_OLD_CHUNK() = default;
 
     PALETTE_OLD_CHUNK(PALETTE_OLD_CHUNK && p);
@@ -110,28 +134,24 @@ struct PALETTE_OLD_CHUNK {
     PALETTE_OLD_CHUNK(std::ifstream & s);
 
     PALETTE_OLD_CHUNK & operator = (const PALETTE_OLD_CHUNK && palatte);
-    std::array<Color, UINT8_MAX + 1> colors;
 
     bool read(std::ifstream & s);
 };
+
 struct PALETTE_CHUNK {
     std::array<Color, UINT8_MAX + 1> colors;
 
     PALETTE_CHUNK(PALETTE_CHUNK && palette);
+
     PALETTE_CHUNK(std::ifstream & s);
 
     PALETTE_CHUNK & operator = (const PALETTE_CHUNK && palette);
-    ~PALETTE_CHUNK() = default;
+
     bool read (std::ifstream & s);
 };
 
 struct LAYER_CHUNK {
-
-	LAYER_CHUNK(LAYER_CHUNK && layer) noexcept;
-    LAYER_CHUNK(std::ifstream & s);
-    LAYER_CHUNK & operator = (const LAYER_CHUNK && layer);
-    WORD flags; //
-                // 1 = Visible
+    WORD flags; // 1 = Visible
                 // 2 = Editable
                 // 4 = Lock movement
                 // 8 = Background
@@ -144,51 +164,64 @@ struct LAYER_CHUNK {
     WORD width; // default layer width in pixels . ignored
     WORD height; //ignored
 
-    WORD blendMode; //
-                    //                  Normal         = 0
-                    //                  Multiply       = 1
-                    //                  Screen         = 2
-                    //                  Overlay        = 3
-                    //                  Darken         = 4
-                    //                  Lighten        = 5
-                    //                  Color Dodge    = 6
-                    //                  Color Burn     = 7
-                    //                  Hard Light     = 8
-                    //                  Soft Light     = 9
-                    //                  Difference     = 10
-                    //                  Exclusion      = 11
-                    //                  Hue            = 12
-                    //                  Saturation     = 13
-                    //                  Color          = 14
-                    //                  Luminosity     = 15
-                    //                  Addition       = 16
-                    //                  Subtract       = 17
-                    //                  Divide         = 18
+    WORD blendMode; // Normal         = 0
+                    // Multiply       = 1
+                    // Screen         = 2
+                    // Overlay        = 3
+                    // Darken         = 4
+                    // Lighten        = 5
+                    // Color Dodge    = 6
+                    // Color Burn     = 7
+                    // Hard Light     = 8
+                    // Soft Light     = 9
+                    // Difference     = 10
+                    // Exclusion      = 11
+                    // Hue            = 12
+                    // Saturation     = 13
+                    // Color          = 14
+                    // Luminosity     = 15
+                    // Addition       = 16
+                    // Subtract       = 17
+                    // Divide         = 18
     BYTE opacity;
     BYTE unused[3];
     STRING name;
 
-    bool read(std::ifstream & s);
+    LAYER_CHUNK(LAYER_CHUNK && layer);
 
+    LAYER_CHUNK(std::ifstream & s);
+
+    LAYER_CHUNK & operator = (const LAYER_CHUNK && layer);
+
+    bool read(std::ifstream & s);
 };
+
 struct TAG {
-    TAG() = default;
-    TAG(TAG && t);
-    TAG & operator = (const TAG && t);
     WORD from;
     WORD to;
     BYTE direction; // 0 - forward, 1 - reverse, 2 - ping-pong
     STRING name; //name of the animation loop (e.g. walk, jump, etc.)
+
+    TAG() = default;
+
+    TAG(TAG && t);
+
+    TAG & operator = (const TAG && t);
+
     bool read(std::ifstream & s);
 };
+
 struct TAG_CHUNK {
     std::vector<TAG> tags;
     TAG_CHUNK(std::ifstream & s);
 
     TAG_CHUNK(TAG_CHUNK && tag);
+
     TAG_CHUNK & operator = (TAG_CHUNK && tag);
+
     bool read (std::ifstream & s);
 };
+
 struct SLICE_KEY {
     struct TYPE_NINE_PATCHES { // 9-patches slice - a 3x3 grid
         LONG centerX;
@@ -196,37 +229,38 @@ struct SLICE_KEY {
         DWORD centerWidth;
         DWORD centerHeight;
     };
+
     struct TYPE_PIVOT {
         LONG pivotX;
         LONG pivotY;
     };
+
+    union t_data {
+        TYPE_NINE_PATCHES ninePatches;
+        TYPE_PIVOT pivot;
+    };
+
     DWORD frame;
     LONG x;
     LONG y;
     DWORD width;
     DWORD height;
-    union t_data {
-        TYPE_NINE_PATCHES ninePatches;
-        TYPE_PIVOT pivot;
-    };
+
     t_data data;
 };
+
 struct SLICE_CHUNK {
     std::vector<SLICE_KEY> sliceKeys;
     DWORD count;
     DWORD flags;
     STRING name;
+
     SLICE_CHUNK(std::ifstream & s);
+
     bool read(std::ifstream & s);
 };
 
 struct CEL_CHUNK {
-
-    CEL_CHUNK & operator =(const CEL_CHUNK && cel);
-
-    CEL_CHUNK(CEL_CHUNK && cel);
-    CEL_CHUNK(std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize);
-    ~CEL_CHUNK();
     WORD layerIndex; // see NOTE.2
     SHORT x;
     SHORT y;
@@ -237,14 +271,21 @@ struct CEL_CHUNK {
     WORD width = 0; //type == 0,2
     WORD height = 0; // type == 0,2
     WORD frameLink; // type == 1
-    // chunkSize - to tell size of compressed data
+
+    CEL_CHUNK & operator =(const CEL_CHUNK && cel);
+
+    CEL_CHUNK(CEL_CHUNK && cel);
+
+    CEL_CHUNK(std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize);
+
     bool read (std::ifstream & s, PIXELTYPE pixelFormat, DWORD dataSize);
+
     bool readRawPixels(std::ifstream & s, PIXELTYPE pixelFormat);
+
     bool readCompressedPixels(std::ifstream & s, PIXELTYPE pixelFormat, DWORD sourceLen);
 };
 
 struct CHUNK {
-
     // all variants must have move constructor, move assignment operator
     // first variant must have default constructor
     using chunk_t = std::variant<
@@ -254,12 +295,13 @@ struct CHUNK {
         CEL_CHUNK,
         TAG_CHUNK,
         SLICE_CHUNK>;
+
     chunk_t data;
     WORD type;
 
     CHUNK(chunk_t && data, WORD type);
+
     CHUNK(CHUNK && c);
-    ~CHUNK();
 };
 
 struct FRAME {
@@ -270,18 +312,17 @@ struct FRAME {
     BYTE reserved[2]; // 0
     DWORD chunkCount; // if zero, use chunks_old
     std::vector<CHUNK> chunks;
+
     bool read(std::ifstream & s, PIXELTYPE pixelFormat);
 };
-
 
 struct ASEPRITE {
     ASE_HEADER header;
     std::vector<FRAME> frames;
-    std::ifstream file;
+
     ASEPRITE(std::string filename);
 private:
     static bool tinf_initialized;
-    bool readAseHeader();
 };
 
 
@@ -314,11 +355,7 @@ Layer name and hierarchy      Layer index
   `- Layer3                   5
 
  */
-template <typename OUT>
-bool operator & (std::ifstream & stream, OUT & out){
-    stream.read((char *) &out, sizeof(OUT));
-    return stream.good();
-}
+
 
 }
 
