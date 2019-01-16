@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {15, 0.82f,
                                                      "sling",
                                                      "prak.wav", "",
-                                                     {0, 5, 1, 5, 0, 5, 2, 5, 0, 5, 0, 5, 0, 5, -1, 0}};
+                                                     {0, 82, 1, 82, 0, 82, 2, 82, 0, 82, 0, 82, 0, 82, -1, 0}};
     }
 
     Sling::Sling(Sound &sound, TextureManager &textureManager)

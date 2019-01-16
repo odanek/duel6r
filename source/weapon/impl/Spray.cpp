@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {20, 0.66f,
                                                      "spray",
                                                      "spray.wav", "",
-                                                     {0, 8, 1, 8, 0, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0}};
+                                                     {0, 82, 1, 82, 0, 82, 1, 82, 0, 82, 0, 82, 0, 82, -1, 0}};
     }
 
     Spray::Spray(Sound &sound, TextureManager &textureManager)

@@ -60,7 +60,7 @@ namespace Duel6 {
     SpriteList::Iterator DoubleLaserShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
         sprite->setAlpha(1.0f).setBlendFunc(BlendFunc::SrcColor).setNoDepth(true);
-        sprite->setGrow(0.005f * getPowerFactor());
+        sprite->setGrow(0.3f * getPowerFactor());
         return sprite;
     }
 }

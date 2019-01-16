@@ -56,7 +56,7 @@ namespace Duel6 {
 
     SpriteList::Iterator KissOfDeathShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
-        sprite->setGrow(0.01f * getPowerFactor());
+        sprite->setGrow(0.61f * getPowerFactor());
         return sprite;
     }
 }

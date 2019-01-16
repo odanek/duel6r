@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {200, 6.56f,
                                                      "triton",
                                                      "triton.wav", "bmbazook.wav",
-                                                     {1, 5, 2, 5, 3, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 82, 2, 82, 3, 82, 0, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     Triton::Triton(Sound &sound, TextureManager &textureManager)

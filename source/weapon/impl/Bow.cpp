@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {50, 1.64f,
                                                      "bow",
                                                      "luk.wav", "",
-                                                     {1, 10, 2, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 164, 2, 164, 0, 82, 0, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     Bow::Bow(Sound &sound, TextureManager &textureManager)

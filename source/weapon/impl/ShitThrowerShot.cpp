@@ -60,7 +60,7 @@ namespace Duel6 {
 
     SpriteList::Iterator ShitThrowerShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
-        sprite->setNoDepth(true).setGrow(0.04f * getPowerFactor());;
+        sprite->setNoDepth(true).setGrow(2.44f * getPowerFactor());
         return sprite;
     }
 }

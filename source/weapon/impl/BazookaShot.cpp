@@ -31,8 +31,8 @@ namespace Duel6 {
     namespace {
         const Rectangle collistionRectangle = Rectangle::fromCornerAndSize(Vector(0.035f, 0.65f), Vector(0.59f, 0.40f));
         const AnimationEntry shotAnimation[] = {0, 164, 1, 164, -1, 0};
-        const AnimationEntry boomAnimation[] = {0, 16, 2, 16, 3, 16, 4, 16, 5, 16, 6, 16, 7, 16, 8, 16, 9, 16, 10, 16, 11,
-            16, 12, 16, 13, 16, 14, 16, 15, 16, 16, 16, 17, 16, 18, 16, 19, 16, 20, 16,
+        const AnimationEntry boomAnimation[] = {0, 16, 2, 16, 3, 16, 4, 16, 5, 16, 6, 16, 7, 16, 8, 16, 9, 16, 10, 16,
+                                                11, 16, 12, 16, 13, 16, 14, 16, 15, 16, 16, 16, 17, 16, 18, 16, 19, 16, 20, 16,
                                                 21, 16, 22, 16, 23, 16, 24, 16, 25, 16, 26, 16, 27, 16, 28, 16, 29, 16, 30, 16,
                                                 31, 16, 32, 16, 33, 16, 34, 16, 35, 16, -1, 0};
     }
@@ -64,7 +64,7 @@ namespace Duel6 {
     SpriteList::Iterator BazookaShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
         sprite->setAlpha(1.0f).setBlendFunc(BlendFunc::SrcColor).setNoDepth(true);
-        sprite->setGrow(0.03f * getPowerFactor());
+        sprite->setGrow(1.83f * getPowerFactor());
         return sprite;
     }
 }

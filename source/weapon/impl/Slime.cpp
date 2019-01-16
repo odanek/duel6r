@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {50, 1.31f,
                                                      "slime",
                                                      "sliz.wav", "",
-                                                     {1, 10, 2, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 163, 2, 163, 0, 82, 0, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     Slime::Slime(Sound &sound, TextureManager &textureManager)

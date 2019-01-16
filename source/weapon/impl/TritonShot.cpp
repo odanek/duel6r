@@ -64,7 +64,7 @@ namespace Duel6 {
     SpriteList::Iterator TritonShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
         sprite->setAlpha(1.0f).setBlendFunc(BlendFunc::SrcColor).setNoDepth(true);
-        sprite->setGrow(0.07f * getPowerFactor());
+        sprite->setGrow(4.27f * getPowerFactor());
         return sprite;
     }
 }

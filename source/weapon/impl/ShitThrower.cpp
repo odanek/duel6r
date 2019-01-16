@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {0, 1.97f,
                                                      "shit thrower",
                                                      "shit.wav", "shit-hit.wav",
-                                                     {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0}};
+                                                     {0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 82, -1, 0}};
     }
 
     ShitThrower::ShitThrower(Sound &sound, TextureManager &textureManager)

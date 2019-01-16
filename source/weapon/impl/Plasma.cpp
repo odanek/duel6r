@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {25, 0.33f,
                                                      "plasma",
                                                      "plasma.wav", "",
-                                                     {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     Plasma::Plasma(Sound &sound, TextureManager &textureManager)

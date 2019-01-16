@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {40, 0.66f,
                                                      "machine gun",
                                                      "kulomet.wav", "",
-                                                     {1, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     MachineGun::MachineGun(Sound &sound, TextureManager &textureManager)
