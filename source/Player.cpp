@@ -524,11 +524,11 @@ namespace Duel6 {
                 animation = d6FallAnim;
                 sprite->setLooping(AnimationLooping::RepeatForever);
             }
-            sprite->setSpeed(Player::getVelocity().length());
+            sprite->setSpeed(getVelocity().length());
         } else if (!isMoving()) {
             animation = d6SAnim;
         } else {
-            sprite->setSpeed(Player::getVelocity().length());
+            sprite->setSpeed(getVelocity().length());
             animation = d6WAnim;
             sprite->setLooping(AnimationLooping::RepeatForever);
         }

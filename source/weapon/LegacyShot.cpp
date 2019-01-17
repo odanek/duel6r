@@ -260,7 +260,7 @@ namespace Duel6 {
     SpriteList::Iterator LegacyShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = spriteList.add(getBoomAnimation(), textures.boom);
         sprite->setPosition(getCentre() - Vector(0.5f, 0.5f), 0.6f)
-                .setSpeed(2.0f)
+                .setSpeed(0.5f)
                 .setLooping(AnimationLooping::OnceAndRemove)
                 .setOrientation(orientation)
                 .setAlpha(0.6f);
