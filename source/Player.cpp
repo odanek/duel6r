@@ -244,6 +244,8 @@ namespace Duel6 {
 
     Player &Player::pickWeapon(Weapon weapon, Int32 bullets, Float32 remainingReloadTime) {
         setFlag(FlagPick);
+        unsetFlag(FlagMoveLeft | FlagMoveRight);
+
         this->weapon = weapon;
         ammo = bullets;
         if (weapon.isChargeable()){

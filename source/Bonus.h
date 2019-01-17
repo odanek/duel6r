@@ -143,7 +143,7 @@ namespace Duel6 {
         }
 
         Vector getSpritePosition() const {
-            return position - Vector(0.2f, 0.2f);
+            return Vector(position.x - 0.2f, position.y - 0.2f, 0.40f);
         }
     };
 
@@ -182,7 +182,8 @@ namespace Duel6 {
         }
 
         Vector getSpritePosition() const {
-            return collider.position;
+            auto position = collider.position;
+            return Vector(position.x, position.y, 0.40f);
         }
     };
 }
