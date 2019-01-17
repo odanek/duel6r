@@ -7,5 +7,8 @@
 	"handInner": "00ff00",
 	"trousers": "ff0000",
 	"shoes": "b4b600",
-	"face": "ff91ac"
+	"face": "ff91ac",
+	"hair": 1,
+	"headBand": true,
+	"headBandColor": "00ffff"
 }

@@ -33,14 +33,17 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {0, 1.97f,
                                                      "shit thrower",
                                                      "shit.wav", "shit-hit.wav",
-                                                     {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, -1, 0}};
+                                                     {0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 82, -1, 0}};
     }
 
     ShitThrower::ShitThrower(Sound &sound, TextureManager &textureManager)
             : LegacyWeapon(sound, textureManager, DEFINITION, 16) {
         Color brownColor(83, 44, 0);
+        std::string animationPath(D6_TEXTURE_MAN_PATH);
+        animationPath += "man.ase";
+        animation::Animation playerAnimation = textureManager.loadAnimation(animationPath);
         PlayerSkinColors skinColors(brownColor);
-        brownSkin = std::make_unique<PlayerSkin>("textures/man/", skinColors, textureManager);
+        brownSkin = std::make_unique<PlayerSkin>(skinColors, textureManager, playerAnimation);
     }
 
     Float32 ShitThrower::getBulletSpeed() const {

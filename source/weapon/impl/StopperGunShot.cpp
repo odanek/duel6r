@@ -30,8 +30,8 @@
 namespace Duel6 {
     namespace {
         const Rectangle collistionRectangle = Rectangle::fromCornerAndSize(Vector(0.33f, 0.71f), Vector(0.23f, 0.20f));
-        const AnimationEntry shotAnimation[] = {0, 50, -1, 0};
-        const AnimationEntry boomAnimation[] = {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        const AnimationEntry shotAnimation[] = {0, 820, -1, 0};
+        const AnimationEntry boomAnimation[] = {0, 164, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
 
     StopperGunShot::StopperGunShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation)

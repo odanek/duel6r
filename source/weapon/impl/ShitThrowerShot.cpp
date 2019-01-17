@@ -30,8 +30,8 @@
 namespace Duel6 {
     namespace {
         const Rectangle collistionRectangle = Rectangle::fromCornerAndSize(Vector(0.28f, 0.72f), Vector(0.38f, 0.18f));
-        const AnimationEntry shotAnimation[] = {0, 10, 1, 10, 2, 10, 1, 10, -1, 0};
-        const AnimationEntry boomAnimation[] = {0, 10, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        const AnimationEntry shotAnimation[] = {0, 164, 1, 164, 2, 164, 1, 164, -1, 0};
+        const AnimationEntry boomAnimation[] = {0, 164, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
 
     ShitThrowerShot::ShitThrowerShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation,
@@ -60,7 +60,7 @@ namespace Duel6 {
 
     SpriteList::Iterator ShitThrowerShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
-        sprite->setNoDepth(true).setGrow(0.04f * getPowerFactor());;
+        sprite->setNoDepth(true).setGrow(2.44f * getPowerFactor());
         return sprite;
     }
 }

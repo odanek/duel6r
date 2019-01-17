@@ -32,7 +32,7 @@ namespace Duel6 {
     namespace {
         const LegacyWeapon::Definition DEFINITION = {100, 3.11f,
                                                      "kiss of death", "kiss2.wav", "kiss.wav",
-                                                     {0, 8, 1, 8, 2, 8, 1, 8, 0, 8, 0, 8, 0, 8, -1, 0}};
+                                                     {0, 132, 1, 132, 2, 132, 1, 132, 0, 132, 0, 132, 0, 132, -1, 0}};
     }
 
     KissOfDeath::KissOfDeath(Sound &sound, TextureManager &textureManager)

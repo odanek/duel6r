@@ -30,8 +30,8 @@
 namespace Duel6 {
     namespace {
         const Rectangle collistionRectangle = Rectangle::fromCornerAndSize(Vector(0.05f, 0.84f), Vector(0.38f, 0.18f));
-        const AnimationEntry shotAnimation[] = {0, 50, -1, 0};
-        const AnimationEntry boomAnimation[] = {0, 10, -1, 0};
+        const AnimationEntry shotAnimation[] = {0, 820, -1, 0};
+        const AnimationEntry boomAnimation[] = {0, 164, -1, 0};
     }
 
     BowShot::BowShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation)

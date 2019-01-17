@@ -36,6 +36,7 @@
 #include "Image.h"
 #include "TextureDictionary.h"
 #include "renderer/RendererTypes.h"
+#include "aseprite/animation.h"
 
 #define D6_TEXTURE_MAN_PATH      "textures/man/"
 #define D6_TEXTURE_BCG_PATH      "textures/backgrounds/"
@@ -59,6 +60,10 @@ namespace Duel6 {
         void dispose(Texture texture);
 
         Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp);
+
+        const animation::Animation loadAnimation(const std::string &path);
+
+        Texture generateSprite(const animation::Animation& animation, const animation::Palette &substitutionTable, TextureFilter filtering, bool clamp);
 
         Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp,
                           const SubstitutionTable &substitutionTable);

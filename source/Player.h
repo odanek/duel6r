@@ -257,6 +257,7 @@ namespace Duel6 {
             FlagDoubleJump = 0x1000,
             FlagShoot = 0x2000,
             FlagShootDebounce = 0x4000,
+            FlagDying = 0x8000,
         };
 
         struct WaterState {
@@ -276,6 +277,31 @@ namespace Duel6 {
         };
 
     private:
+        PlayerSkin::anim anoAnim;
+        PlayerSkin::anim ad6SAnim;
+        PlayerSkin::anim ad6WAnim;
+        PlayerSkin::anim ad6FallAnim;
+        PlayerSkin::anim ad6JAnim;
+        PlayerSkin::anim ad6DAnim;
+        PlayerSkin::anim ad6LAnim;
+        PlayerSkin::anim ad6NAnim;
+        PlayerSkin::anim ad6PAnim;
+        PlayerSkin::anim ad6DeadFallAnim;
+        PlayerSkin::anim ad6DeadHitAnim;
+        PlayerSkin::anim ad6DeadLyingAnim;
+
+        AnimationEntry * noAnim;
+        AnimationEntry * d6SAnim;
+        AnimationEntry * d6WAnim;
+        AnimationEntry * d6FallAnim;
+        AnimationEntry * d6JAnim;
+        AnimationEntry * d6DAnim;
+        AnimationEntry * d6LAnim;
+        AnimationEntry * d6NAnim;
+        AnimationEntry * d6PAnim;
+        AnimationEntry * d6DeadFallAnim;
+        AnimationEntry * d6DeadHitAnim;
+        AnimationEntry * d6DeadLyingAnim;
         Person &person;
         PlayerSkin skin;
         Camera camera;
@@ -502,8 +528,12 @@ namespace Duel6 {
             return hasFlag(FlagLying);
         }
 
+        bool isDying() const {
+            return hasFlag(FlagDying);
+        }
+
         bool isAlive() const {
-            return !hasFlag(FlagDead);
+            return !hasFlag(FlagDead) && !hasFlag(FlagDying);
         }
 
         bool isGhost() const {

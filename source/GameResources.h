@@ -32,7 +32,7 @@
 #include "Water.h"
 #include "Block.h"
 #include "AppService.h"
-
+#include "aseprite/animation.h"
 namespace Duel6 {
     class GameResources {
     public:
@@ -49,6 +49,7 @@ namespace Duel6 {
         Texture elevatorTextures;
         std::unordered_map<Size, Texture> fireTextures;
         Texture burningTexture;
+        animation::Animation playerAnimation;
 
     public:
         void load(AppService &appService);
@@ -91,6 +92,10 @@ namespace Duel6 {
 
         Texture getBurningTexture() const {
             return burningTexture;
+        }
+
+        animation::Animation & getPlayerAnimation() {
+        	return playerAnimation;
         }
     };
 }

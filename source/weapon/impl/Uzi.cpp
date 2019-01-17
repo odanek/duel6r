@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {15, 0.26f,
                                                      "uzi",
                                                      "pistol.wav", "",
-                                                     {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     Uzi::Uzi(Sound &sound, TextureManager &textureManager)

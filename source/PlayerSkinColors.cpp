@@ -45,18 +45,26 @@ namespace Duel6 {
                 Color(255, 216, 116),
                 Color(153, 0, 0)
         };
+
+        static Color headBandColors[] = {
+                Color(224, 36, 36),
+                Color(222, 146, 40),
+                Color(40, 144, 122)
+        };
     }
 
     PlayerSkinColors::PlayerSkinColors(const Color &color) {
-        for (Size i = 0; i < 9; i++) {
+        for (Size i = 0; i < 11; i++) {
             this->color[i] = color;
         }
     }
 
     PlayerSkinColors &PlayerSkinColors::operator=(const PlayerSkinColors &colors) {
-        for (Size i = 0; i < 9; i++) {
+        for (Size i = 0; i < 11; i++) {
             this->color[i] = colors.color[i];
         }
+        this->hair = colors.hair;
+        this->headBand = colors.headBand;
         return *this;
     }
 
@@ -75,12 +83,16 @@ namespace Duel6 {
         colors.set(PlayerSkinColors::Trousers, Color::fromString(root.get("trousers").asString()));
         colors.set(PlayerSkinColors::Shoes, Color::fromString(root.get("shoes").asString()));
         colors.set(PlayerSkinColors::Face, Color::fromString(root.get("face").asString()));
+        colors.set(PlayerSkinColors::HeadBand, Color::fromString(root.getOrDefault("headBandColor", Json::Value::makeString("e02424")).asString()));
+        colors.setHair(root.getOrDefault("hair", Json::Value::makeNumber(0)).asInt());
+        colors.setHeadBand(root.getOrDefault("headBand", Json::Value::makeBoolean(false)).asBoolean());
         return colors;
     }
 
     PlayerSkinColors PlayerSkinColors::makeRandom() {
         const Color& hair = hairColors[Math::random(6)];
         const Color& face = faceColors[Math::random(3)];
+        const Color& headBand = headBandColors[Math::random(3)];
         Color body = Color::random();
 
         PlayerSkinColors colors;
@@ -89,10 +101,14 @@ namespace Duel6 {
         colors.set(PlayerSkinColors::BodyInner, body);
         colors.set(PlayerSkinColors::BodyOuter, body.scale(0.5));
         colors.set(PlayerSkinColors::HandInner, body);
-        colors.set(PlayerSkinColors::HandOuter, body.scale(0.5));
+        colors.set(PlayerSkinColors::HandOuter, body.scale(0.2));
         colors.set(PlayerSkinColors::Trousers, Color::random());
         colors.set(PlayerSkinColors::Shoes, Color::random());
         colors.set(PlayerSkinColors::Face, face);
+        colors.set(PlayerSkinColors::HeadBand, headBand);
+
+        colors.setHair(Math::random(3));
+        colors.setHeadBand(Math::random(10) > 5);
         return colors;
     }
 }

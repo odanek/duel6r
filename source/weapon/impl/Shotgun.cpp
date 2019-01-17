@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {60, 2.29f,
                                                      "shotgun",
                                                      "shotgun.wav", "",
-                                                     {1, 5, 2, 5, 3, 5, 2, 5, 1, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 82, 2, 82, 3, 82, 2, 82, 1, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     Shotgun::Shotgun(Sound &sound, TextureManager &textureManager)

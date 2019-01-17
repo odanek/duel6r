@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {10, 0.9f,
                                                      "stopper gun",
                                                      "spunt.wav", "",
-                                                     {0, 5, 1, 5, 1, 5, 2, 5, 2, 5, 0, 5, 0, 5, -1, 0}};
+                                                     {0, 82, 1, 82, 1, 82, 2, 82, 2, 82, 0, 82, 0, 82, -1, 0}};
     }
 
     StopperGun::StopperGun(Sound &sound, TextureManager &textureManager)

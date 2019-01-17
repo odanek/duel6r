@@ -58,7 +58,9 @@ namespace Duel6 {
 
         console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
         bcgTextures = textureManager.loadDict(D6_TEXTURE_BCG_PATH, TextureFilter::Linear, true);
-
+        std::string animationPath(D6_TEXTURE_MAN_PATH);
+        animationPath += "man.ase";
+        playerAnimation = textureManager.loadAnimation(animationPath);
         console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
         for (const FireType &fireType : FireType::values()) {
             Texture texture = textureManager.loadStack(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(),

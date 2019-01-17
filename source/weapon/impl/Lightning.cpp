@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {100, 4.1f,
                                                      "lightning",
                                                      "blesk.wav", "bmblesk.wav",
-                                                     {1, 5, 2, 5, 3, 5, 4, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 82, 2, 82, 3, 82, 4, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     Lightning::Lightning(Sound &sound, TextureManager &textureManager)

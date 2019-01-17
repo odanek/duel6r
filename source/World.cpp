@@ -56,7 +56,7 @@ namespace Duel6 {
     void World::update(Float32 elapsedTime) {
         time += elapsedTime;
 
-        spriteList.update(elapsedTime * D6_SPRITE_SPEED_COEF);
+        spriteList.update(elapsedTime);
         explosionList.update(elapsedTime);
         levelRenderData.update(elapsedTime);
         shotList.update(*this, elapsedTime);

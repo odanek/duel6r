@@ -29,6 +29,42 @@
 #include "TextureManager.h"
 
 namespace Duel6 {
+
+    PlayerSkin::PlayerSkin(const PlayerSkinColors &colors,
+                       TextureManager &textureManager,
+                       animation::Animation & animation):
+            noAnim(animation.animations[animation.animationLookup.at("Stand")]),
+            d6SAnim(animation.animations[animation.animationLookup.at("Stand")]),
+            d6WAnim(animation.animations[animation.animationLookup.at("Walk")]),
+            d6FallAnim(animation.animations[animation.animationLookup.at("Fall")]),
+            d6JAnim(animation.animations[animation.animationLookup.at("Jump")]),
+            d6DAnim(animation.animations[animation.animationLookup.at("Duck")]),
+            d6DeadFallAnim(animation.animations[animation.animationLookup.at("Dead_fall")]),
+            d6DeadHitAnim(animation.animations[animation.animationLookup.at("Dead_hit")]),
+            d6DeadLyingAnim(animation.animations[animation.animationLookup.at("Dead_lying")]),
+            d6LAnim(animation.animations[animation.animationLookup.at("Death")]),
+            d6NAnim(noAnim),
+            d6PAnim(animation.animations[animation.animationLookup.at("Pick")])
+
+                       {
+        animation::Palette substitution_table(animation.palette);
+        int dst[] = { 4, 5, 8, 9, 12, 13, 16, 20, 24, 25, 36, 37 }; //indexes to palette colors used in the man.ase
+        int src[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10};
+        auto & substitution = substitution_table.colors;
+        for(int i = 0; i < 12; i ++){
+            const auto & color = colors.get((PlayerSkinColors::BodyPart)src[i]);
+            substitution[dst[i]].r = color.getRed();
+            substitution[dst[i]].g = color.getGreen();
+            substitution[dst[i]].b = color.getBlue();
+            substitution[dst[i]].a = color.getAlpha();
+        }
+
+        animation.setLayerVisibility("Hair", colors.getHair() == PlayerSkinColors::Hair::Normal);
+        animation.setLayerVisibility("Hair_Short", colors.getHair() == PlayerSkinColors::Hair::Short);
+        animation.setLayerVisibility("Headband", colors.hasHeadBand());
+
+        textures = textureManager.generateSprite(animation, substitution_table, TextureFilter::Nearest, true);
+    }
     PlayerSkin::PlayerSkin(const std::string &texturePath, const PlayerSkinColors &colors,
                            TextureManager &textureManager) {
         TextureManager::SubstitutionTable substTable;

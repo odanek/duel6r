@@ -51,6 +51,11 @@ namespace Duel6 {
         for (auto &definition : definitions) {
             const Team &team = getPlayerTeam(index);
             PlayerSkinColors &colors = definition.getColors();
+            auto hair = colors.getHair();
+            if(hair == PlayerSkinColors::Hair::None || hair == PlayerSkinColors::Hair::Short){
+                colors.setHeadBand(true);
+            }
+            colors.set(PlayerSkinColors::HeadBand, team.color);
             colors.set(PlayerSkinColors::Trousers, team.color);
             colors.set(PlayerSkinColors::HairTop, team.color);
             index++;

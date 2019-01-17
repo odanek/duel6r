@@ -32,7 +32,7 @@ namespace Duel6 {
     namespace {
         const LegacyWeapon::Definition DEFINITION = {80, 3.44f,
                                                      "double laser", "laser.wav", "bmbazook.wav",
-                                                     {1, 10, 0, 10, 0, 5, 0, 5, 0, 5, 0, 5, 0, 50, -1, 0}};
+                                                     {1, 164, 0, 164, 0, 82, 0, 82, 0, 82, 0, 82, 0, 820, -1, 0}};
     }
 
     DoubleLaser::DoubleLaser(Sound &sound, TextureManager &textureManager)

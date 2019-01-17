@@ -30,8 +30,8 @@
 namespace Duel6 {
     namespace {
         const Rectangle collistionRectangle = Rectangle::fromCornerAndSize(Vector(0.22f, 0.74f), Vector(0.43f, 0.22f));
-        const AnimationEntry shotAnimation[] = {0, 10, 1, 10, 2, 10, 1, 10, -1, 0};
-        const AnimationEntry boomAnimation[] = {0, 5, 1, 5, 0, 5, 1, 5, 0, 5, 1, 5, -1, 0};
+        const AnimationEntry shotAnimation[] = {0, 164, 1, 164, 2, 164, 1, 164, -1, 0};
+        const AnimationEntry boomAnimation[] = {0, 82, 1, 82, 0, 82, 1, 82, 0, 82, 1, 82, -1, 0};
     }
 
     KissOfDeathShot::KissOfDeathShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation)
@@ -56,7 +56,7 @@ namespace Duel6 {
 
     SpriteList::Iterator KissOfDeathShot::makeBoomSprite(SpriteList &spriteList) {
         auto sprite = LegacyShot::makeBoomSprite(spriteList);
-        sprite->setGrow(0.01f * getPowerFactor());
+        sprite->setGrow(0.61f * getPowerFactor());
         return sprite;
     }
 }

@@ -54,8 +54,6 @@
 
 #define D6_UPDATE_FREQUENCY      90
 
-#define D6_SPRITE_SPEED_COEF     61
-
 #define D6_ANM_SPEED             0.328f
 #define D6_WAVE_HEIGHT           0.1f
 

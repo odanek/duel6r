@@ -126,8 +126,8 @@ namespace Duel6 {
     }
 
     void Sprite::update(float elapsedTime) {
-        delay += elapsedTime;
-        if (delay >= animation[frame + 1] * speed) {
+        delay += elapsedTime * speed * 1000;
+        if (delay >= animation[frame + 1]) {
             frame += 2;
             delay = 0;
             if (animation[frame] == -1) {

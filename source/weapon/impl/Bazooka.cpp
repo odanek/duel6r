@@ -33,7 +33,7 @@ namespace Duel6 {
         const LegacyWeapon::Definition DEFINITION = {100, 3.28f,
                                                      "bazooka",
                                                      "bazooka.wav", "bmbazook.wav",
-                                                     {1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 6, 5, 0, 50, -1, 0}};
+                                                     {1, 82, 2, 82, 3, 82, 4, 82, 5, 82, 6, 82, 0, 820, -1, 0}};
     }
 
     Bazooka::Bazooka(Sound &sound, TextureManager &textureManager)
