@@ -162,6 +162,10 @@ namespace Duel6 {
         globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f, Float32(textureIndex)), Vector(0.8f, -0.8f), material);
     }
 
+    Vector Bonus::getSpritePosition() const {
+        return Vector(position.x - 0.2f, position.y - 0.2f, 0.47f);
+    }
+
     LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position):
             weapon(weapon), bullets(bullets), collider(position) {
         collider.position.z = 0.5f;
@@ -178,5 +182,10 @@ namespace Duel6 {
         Vector pos = getSpritePosition();
         Material material = Material::makeMaskedTexture(weapon.getBonusTexture());
         globRenderer->quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f, Float32(weapon.getBonusTextureIndex())), Vector(0.8f, -0.8f), material);
+    }
+
+    Vector LyingWeapon::getSpritePosition() const {
+        auto position = collider.position;
+        return Vector(position.x, position.y, 0.47f);
     }
 }

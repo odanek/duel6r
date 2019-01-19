@@ -81,7 +81,7 @@ namespace Duel6 {
             fire.setBurned(true);
 
             auto sprite = spriteList.add(burningAnimation.data(), burningTexture);
-            sprite->setPosition(fire.getPosition() - Vector(0.3f, 0.2f), 0.85f)
+            sprite->setPosition(fire.getPosition() - Vector(0.3f, 0.2f), 0.78f)
                     .setSize(Vector(1.6f, 1.6f))
                     .setLooping(AnimationLooping::OnceAndRemove)
                     .setBlendFunc(BlendFunc::SrcColor)

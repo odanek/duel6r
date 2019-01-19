@@ -142,9 +142,7 @@ namespace Duel6 {
             return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
         }
 
-        Vector getSpritePosition() const {
-            return Vector(position.x - 0.2f, position.y - 0.2f, 0.40f);
-        }
+        Vector getSpritePosition() const;
     };
 
     class LyingWeapon {
@@ -181,10 +179,7 @@ namespace Duel6 {
             return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
         }
 
-        Vector getSpritePosition() const {
-            auto position = collider.position;
-            return Vector(position.x, position.y, 0.40f);
-        }
+        Vector getSpritePosition() const;
     };
 }
 

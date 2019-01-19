@@ -87,7 +87,7 @@ namespace Duel6 {
         }
 
         // Set graphics mode
-        view = ViewParameters(0.1f, 100.0f, 45.0f);
+        view = ViewParameters(1.0f, 40.0f, 45.0f);
 
 #ifdef D6_DEBUG
         // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
