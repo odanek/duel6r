@@ -277,31 +277,21 @@ namespace Duel6 {
         };
 
     private:
-        PlayerSkin::anim anoAnim;
-        PlayerSkin::anim ad6SAnim;
-        PlayerSkin::anim ad6WAnim;
-        PlayerSkin::anim ad6FallAnim;
-        PlayerSkin::anim ad6JAnim;
-        PlayerSkin::anim ad6DAnim;
-        PlayerSkin::anim ad6LAnim;
-        PlayerSkin::anim ad6NAnim;
-        PlayerSkin::anim ad6PAnim;
-        PlayerSkin::anim ad6DeadFallAnim;
-        PlayerSkin::anim ad6DeadHitAnim;
-        PlayerSkin::anim ad6DeadLyingAnim;
+        const PlayerAnimations & animations;
 
-        AnimationEntry * noAnim;
-        AnimationEntry * d6SAnim;
-        AnimationEntry * d6WAnim;
-        AnimationEntry * d6FallAnim;
-        AnimationEntry * d6JAnim;
-        AnimationEntry * d6DAnim;
-        AnimationEntry * d6LAnim;
-        AnimationEntry * d6NAnim;
-        AnimationEntry * d6PAnim;
-        AnimationEntry * d6DeadFallAnim;
-        AnimationEntry * d6DeadHitAnim;
-        AnimationEntry * d6DeadLyingAnim;
+        const AnimationEntry * noAnim;
+        const AnimationEntry * d6SAnim;
+        const AnimationEntry * d6WAnim;
+        const AnimationEntry * d6FallAnim;
+        const AnimationEntry * d6JAnim;
+        const AnimationEntry * d6DAnim;
+        const AnimationEntry * d6LAnim;
+        const AnimationEntry * d6NAnim;
+        const AnimationEntry * d6PAnim;
+        const AnimationEntry * d6DeadFallAnim;
+        const AnimationEntry * d6DeadHitAnim;
+        const AnimationEntry * d6DeadLyingAnim;
+
         Person &person;
         PlayerSkin skin;
         Camera camera;
@@ -664,6 +654,8 @@ namespace Duel6 {
         void unsetFlag(Uint32 flag) {
             flags &= ~flag;
         }
+
+        void initAnimations();
     };
 }
 

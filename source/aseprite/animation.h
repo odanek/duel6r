@@ -9,6 +9,7 @@
 #define ANIMATION_H
 
 #include <cstdint>
+#include <cassert>
 
 #include <string>
 #include <iostream>
@@ -112,6 +113,14 @@ public:
 
 class Layer {
 public:
+    class LayerView {
+    public:
+        bool visible = true;
+
+        LayerView(const Layer & l) :
+            visible(l.visible) {
+        }
+    };
     enum BLEND_MODE {
         Normal = 0,
         Multiply = 1,
@@ -210,6 +219,41 @@ public:
 
 class Animation {
 public:
+
+    class AnimationView {
+    public:
+        const Animation & animation;
+        std::vector<Layer::LayerView> layerViews;
+    public:
+        AnimationView(const Animation & animation) :
+            animation(animation),
+            layerViews(animation.layers.begin(), animation.layers.end()) {
+        }
+
+        void setLayerVisibility(const std::string & name, bool visible) {
+            for (uint32_t i = 0; i < layerViews.size(); i++) {
+                if (animation.layers[i].name == name) {
+                    layerViews[i].visible = visible;
+                }
+            }
+        }
+
+        void setVisibilityForAllLayers(bool visible) {
+            for (auto & view : layerViews) {
+                view.visible = visible;
+            }
+        }
+
+        void hideAllLayers() {
+            setVisibilityForAllLayers(false);
+        }
+
+        void showAllLayers() {
+            setVisibilityForAllLayers(true);
+        }
+
+    };
+
     uint16_t width;
     uint16_t height;
     uint16_t framesCount;
@@ -222,14 +266,7 @@ public:
     std::vector<Loop> loops;
     std::map<std::string, uint32_t> animationLookup; //index to animations
 
-    void setLayerVisibility(const std::string & name, bool visible) {
-        for (auto & layer : layers) {
-            if (layer.name == name) {
-                layer.visible = visible;
-                return;
-            }
-        }
-    }
+
     void log() {
         std::cout << "Animation: frames:" << framesCount << " width: " << width << " height: " << height << "\n";
         std::cout << "  layers: \n";
@@ -237,6 +274,25 @@ public:
             std::cout << " name: " << layer.name << " " << (layer.isGroupLayer ? "[G]" : "") << "\n";
         }
     }
+
+    bool hasAnimation(const std::string & animationName) {
+        return animationLookup.count(animationName) > 0;
+    }
+
+    const std::vector<int32_t> & getAnimation(const std::string & animationName) const {
+        const auto & it = animationLookup.find(animationName);
+        if(it == animationLookup.end()){
+            assert(animations.size() > 0);
+            return animations[0];
+        } else {
+            return animations[it->second];
+        }
+    }
+
+    AnimationView toView() const {
+        return AnimationView(*this);
+    }
+
     static animation::Animation loadAseImage(const std::string &path);
 };
 

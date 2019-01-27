@@ -49,37 +49,30 @@ namespace Duel6 {
     // Very important fun aspect!
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
-    Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls) :
-        anoAnim(skin.noAnim),
-        ad6SAnim(skin.d6SAnim),
-        ad6WAnim(skin.d6WAnim),
-        ad6FallAnim(skin.d6FallAnim),
-        ad6JAnim(skin.d6JAnim),
-        ad6DAnim(skin.d6DAnim),
-        ad6LAnim(skin.d6LAnim),
-        ad6NAnim(skin.d6NAnim),
-        ad6PAnim(skin.d6PAnim),
-        ad6DeadFallAnim(skin.d6DeadFallAnim),
-        ad6DeadHitAnim(skin.d6DeadHitAnim),
-        ad6DeadLyingAnim(skin.d6DeadLyingAnim),
-        noAnim(anoAnim.data()),
-        d6SAnim(ad6SAnim.data()),
-        d6WAnim(ad6WAnim.data()),
-        d6FallAnim(ad6FallAnim.data()),
-        d6JAnim(ad6JAnim.data()),
-        d6DAnim(ad6DAnim.data()),
-        d6LAnim(ad6LAnim.data()),
-        d6NAnim(ad6NAnim.data()),
-        d6PAnim(ad6PAnim.data()),
-        d6DeadFallAnim(ad6DeadFallAnim.data()),
-        d6DeadHitAnim(ad6DeadHitAnim.data()),
-        d6DeadLyingAnim(ad6DeadLyingAnim.data()),
-        person(person),
-        skin(skin),
-        sounds(sounds),
-        controls(controls),
-        orientation(Orientation::Left){
+    Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
+        : animations(skin.getAnimations()),
+          person(person),
+          skin(skin),
+          sounds(sounds),
+          controls(controls),
+          orientation(Orientation::Left) {
         camera.rotate(180.0, 0.0, 0.0);
+        initAnimations();
+    }
+
+    void Player::initAnimations() {
+        noAnim = animations.noAnim();
+        d6SAnim = animations.d6SAnim();
+        d6WAnim = animations.d6WAnim();
+        d6FallAnim = animations.d6FallAnim();
+        d6JAnim = animations.d6JAnim();
+        d6DAnim = animations.d6DAnim();
+        d6LAnim = animations.d6LAnim();
+        d6NAnim = animations.d6NAnim();
+        d6PAnim = animations.d6PAnim();
+        d6DeadFallAnim = animations.d6DeadFallAnim();
+        d6DeadHitAnim = animations.d6DeadHitAnim();
+        d6DeadLyingAnim = animations.d6DeadLyingAnim();
     }
 
     Player::~Player() {
