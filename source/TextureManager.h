@@ -63,7 +63,14 @@ namespace Duel6 {
 
         const animation::Animation loadAnimation(const std::string &path);
 
-        Texture generateSprite(const animation::Animation& animation, const animation::Palette &substitutionTable, TextureFilter filtering, bool clamp);
+        Texture generateSprite(const animation::Animation& animation,
+                               const animation::Animation::AnimationView & animationView,
+                               const animation::Palette &substitutionTable,
+                               TextureFilter filtering, bool clamp) const;
+
+        Texture generateSprite(const animation::Animation& animation,
+                               const animation::Palette &substitutionTable,
+                               TextureFilter filtering, bool clamp) const;
 
         Texture loadStack(const std::string &path, TextureFilter filtering, bool clamp,
                           const SubstitutionTable &substitutionTable);

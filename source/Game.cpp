@@ -109,9 +109,10 @@ namespace Duel6 {
 
         Size playerIndex = 0;
         players.reserve(playerDefinitions.size());
+        playerAnimations = std::make_unique<PlayerAnimations>(resources.getPlayerAnimation());
         for (const PlayerDefinition &playerDef : playerDefinitions) {
             console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-            skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, resources.getPlayerAnimation()));
+            skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, *playerAnimations));
             players.emplace_back(
                     playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls());
             playerIndex++;

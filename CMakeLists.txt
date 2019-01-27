@@ -151,6 +151,8 @@ set(D6R_SOURCES
         source/PersonProfile.h
         source/Player.cpp
         source/Player.h
+        source/PlayerAnimations.cpp
+        source/PlayerAnimations.h
         source/PlayerControls.cpp
         source/PlayerControls.h
         source/PlayerEventListener.cpp

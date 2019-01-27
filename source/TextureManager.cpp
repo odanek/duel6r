@@ -39,9 +39,17 @@ namespace Duel6 {
     }
 
     Texture TextureManager::generateSprite(const animation::Animation& animation,
+               const animation::Palette &substitutionTable,
+               TextureFilter filtering,
+               bool clamp) const {
+        return generateSprite(animation, animation.toView(), substitutionTable, filtering, clamp);
+    }
+
+    Texture TextureManager::generateSprite(const animation::Animation& animation,
+            const animation::Animation::AnimationView & animationView,
             const animation::Palette &substitutionTable,
             TextureFilter filtering,
-            bool clamp) {
+            bool clamp) const {
         Image list;
         for (uint16_t f = 0; f < animation.framesCount; f++) {
             Image frameImage(animation.width, animation.height);
@@ -49,10 +57,12 @@ namespace Duel6 {
                 frameImage.at(p).setAlpha(0);
             }
 
-            for (const auto & layer : animation.layers) {
+            for (size_t l = 0 ; l < animation.layers.size(); l++) {
+                const auto & layer = animation.layers[l];
                 const animation::Cel & frame = layer.frames[f];
-                if (!layer.visible || layer.isGroupLayer || frame.opacity == 0)
+                if (!animationView.layerViews[l].visible || layer.isGroupLayer || frame.opacity == 0) {
                     continue;
+                }
 
                 const animation::Image & image = animation.images[frame.image];
                 const float layerOpacity = layer.opacity / 255.0f;
