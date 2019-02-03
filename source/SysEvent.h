@@ -59,8 +59,11 @@ namespace Duel6 {
     };
     class JoyDeviceAddedEvent: public SysEvent {
         public:
-        JoyDeviceAddedEvent(GameController::Instance instance):instance(instance){}
+        JoyDeviceAddedEvent(GameController::Instance instance, GameController::DeviceIndex deviceIndex):
+            instance(instance),
+            deviceIndex(deviceIndex){}
         GameController::Instance instance;
+        GameController::DeviceIndex deviceIndex;
     };
     class JoyDeviceRemovedEvent: public SysEvent {
         public:

@@ -36,12 +36,20 @@ namespace Duel6 {
     }
 
     bool JoypadAxis::isPressed() const {
-        auto axisPosition = gameController.getAxis((axis == Axis::Horizontal) ? 0 : 1);
+        auto axisPosition = gameController.getAxis(axis);
         return (direction == Direction::Left) ? axisPosition < -1000 : axisPosition > 1000;
     }
 
     bool JoypadButton::isPressed() const {
         return gameController.isPressed(button);
+    }
+
+    ComplexControl::ComplexControl(Control * c1, Control * c2):
+        control1(c1), control2(c2) {
+    }
+
+    bool ComplexControl::isPressed() const {
+        return control1->isPressed() || control2->isPressed();
     }
 
     std::unique_ptr<PlayerControls>
@@ -61,13 +69,18 @@ namespace Duel6 {
 
     std::unique_ptr<PlayerControls>
     PlayerControls::joypadControls(const std::string &name, const GameController & gameController) {
-        auto left = new JoypadAxis(gameController, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Left);
-        auto right = new JoypadAxis(gameController, JoypadAxis::Axis::Horizontal, JoypadAxis::Direction::Right);
-        auto up = new JoypadButton(gameController, 0);
-        auto down = new JoypadAxis(gameController, JoypadAxis::Axis::Vertical, JoypadAxis::Direction::Right);
-        auto shoot = new JoypadButton(gameController, 1);
-        auto pick = new JoypadButton(gameController, 2);
-        auto status = new JoypadButton(gameController, 3);
+        auto left = new ComplexControl(new JoypadAxis(gameController, GameController::GameControllerAxis::CONTROLLER_AXIS_LEFTX, JoypadAxis::Direction::Left),
+                                       new JoypadButton(gameController, GameController::GameControllerButton::CONTROLLER_BUTTON_DPAD_LEFT));
+        auto right = new ComplexControl(new JoypadAxis(gameController, GameController::GameControllerAxis::CONTROLLER_AXIS_LEFTX, JoypadAxis::Direction::Right),
+                                        new JoypadButton(gameController, GameController::GameControllerButton::CONTROLLER_BUTTON_DPAD_RIGHT));
+        auto up = new JoypadButton(gameController, GameController::GameControllerButton::CONTROLLER_BUTTON_X);
+        auto down = new ComplexControl(new JoypadAxis(gameController, GameController::GameControllerAxis::CONTROLLER_AXIS_LEFTY, JoypadAxis::Direction::Right),
+                                       new JoypadButton(gameController, GameController::GameControllerButton::CONTROLLER_BUTTON_DPAD_DOWN));
+        auto shoot = new ComplexControl(new JoypadButton(gameController, GameController::GameControllerButton::CONTROLLER_BUTTON_A),
+                                        new JoypadAxis(gameController, GameController::GameControllerAxis::CONTROLLER_AXIS_TRIGGERRIGHT, JoypadAxis::Direction::Right));
+        auto pick = new ComplexControl(new JoypadButton(gameController, GameController::GameControllerButton::CONTROLLER_BUTTON_B),
+                                       new JoypadAxis(gameController, GameController::GameControllerAxis::CONTROLLER_AXIS_TRIGGERLEFT, JoypadAxis::Direction::Right));
+        auto status = new JoypadButton(gameController, GameController::GameControllerButton::CONTROLLER_BUTTON_Y);
         auto controls = std::make_unique<PlayerControls>(name, left, right, up, down, shoot, pick, status);
         return controls;
     }

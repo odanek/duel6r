@@ -29,6 +29,7 @@
 #define DUEL6_GAMECONTROLLER_GAMECONTROLLER_H
 
 #include <SDL2/SDL_joystick.h>
+#include <SDL2/SDL_gamecontroller.h>
 #include <string>
 #include <array>
 #include <iterator>
@@ -37,18 +38,47 @@ namespace Duel6 {
     class GameController {
 
     public:
+        enum GameControllerAxis {
+            CONTROLLER_AXIS_LEFTX = 0,
+            CONTROLLER_AXIS_LEFTY,
+            CONTROLLER_AXIS_RIGHTX,
+            CONTROLLER_AXIS_RIGHTY,
+            CONTROLLER_AXIS_TRIGGERLEFT,
+            CONTROLLER_AXIS_TRIGGERRIGHT
+        };
+        enum GameControllerButton {
+            CONTROLLER_BUTTON_X = 0,
+            CONTROLLER_BUTTON_A,
+            CONTROLLER_BUTTON_B,
+            CONTROLLER_BUTTON_Y,
+
+            CONTROLLER_BUTTON_BACK,
+            CONTROLLER_BUTTON_GUIDE,
+            CONTROLLER_BUTTON_START,
+            CONTROLLER_BUTTON_LEFTSTICK,
+            CONTROLLER_BUTTON_RIGHTSTICK,
+            CONTROLLER_BUTTON_LEFTSHOULDER,
+            CONTROLLER_BUTTON_RIGHTSHOULDER,
+            CONTROLLER_BUTTON_DPAD_UP,
+            CONTROLLER_BUTTON_DPAD_DOWN,
+            CONTROLLER_BUTTON_DPAD_LEFT,
+            CONTROLLER_BUTTON_DPAD_RIGHT
+        };
+
+        using DeviceIndex = Sint16;
         using InstanceID = SDL_JoystickID;
         using Instance = SDL_Joystick *;
+        using GameControllerInstance = SDL_GameController *;
         using ControllerGUID = SDL_JoystickGUID;
         using AxisPosition = Sint16;
 
-        explicit GameController(Instance instance);
+        explicit GameController(Instance instance, DeviceIndex deviceIndex);
 
         virtual ~GameController() = default;
 
-        bool isPressed(int button) const;
+        bool isPressed(GameControllerButton button) const;
 
-        AxisPosition getAxis(int axis) const;
+        AxisPosition getAxis(GameControllerAxis axis) const;
 
         const ControllerGUID &getGUID() const;
 
@@ -58,7 +88,7 @@ namespace Duel6 {
 
         void close();
 
-        void reset(Instance instance);
+        void reset(Instance instance, DeviceIndex deviceIndex);
 
         bool isOpen() { return open; }
 
@@ -72,11 +102,14 @@ namespace Duel6 {
 
     private:
         bool open = false;
+        bool supportsGameControllerAPI = false;
         Instance instance;
         InstanceID instanceID;
         const ControllerGUID guid;
+        GameControllerInstance gameControllerInstance;
         std::string name;
 
+        void openGameController(Instance instance, DeviceIndex deviceIndex);
     public:
         GameController(const GameController &) = delete;
         GameController(GameController &&) = delete;

@@ -45,15 +45,7 @@ namespace Duel6 {
         Console &console;
 
     public:
-        Input(Console &console) : console(console) {
-            if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-                console.printLine("...Starting joypad sub-system");
-                if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-                    console.printLine("...Unable to initialize joypad sub-system");
-                    return;
-                }
-            }
-        }
+        Input(Console &console);
 
         void setPressed(SDL_Keycode keyCode, bool pressed);
 
@@ -66,19 +58,19 @@ namespace Duel6 {
         }
 
         // handles reattaching
-        void joyAttached(GameController::Instance instance) {
+        void joyAttached(GameController::Instance instance, GameController::DeviceIndex deviceIndex) {
             auto GUID = GameController::toGUID(instance);
             auto instanceID = GameController::toInstanceID(instance);
             console.printLine(Format("Joy attached {0}") << instanceID);
             for (auto &gameController: gameControllers) {
                 if (!gameController.isOpen() && gameController.getGUID() == GUID) {
-                    gameController.reset(instance);
+                    gameController.reset(instance, deviceIndex);
                     console.printLine(Format("reattaching {0}") << gameController.getName());
                     return;
                 }
             }
 
-            gameControllers.emplace_back(instance);
+            gameControllers.emplace_back(instance, deviceIndex);
         }
 
         // handles reattaching

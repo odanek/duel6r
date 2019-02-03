@@ -124,7 +124,7 @@ namespace Duel6 {
         context.mouseWheelEvent(event);
     }
     void Application::joyDeviceAddedEvent(Context & context, const JoyDeviceAddedEvent & event) {
-        input.joyAttached(event.instance);
+        input.joyAttached(event.instance, event.deviceIndex);
         controlsManager.detectJoypads();
         context.joyDeviceAddedEvent(event);
     }
@@ -165,7 +165,7 @@ namespace Duel6 {
                     auto deviceIndex = event.jdevice.which;
                     auto joy = SDL_JoystickOpen(deviceIndex);
                     if(SDL_JoystickGetAttached(joy)){
-                        joyDeviceAddedEvent(context, JoyDeviceAddedEvent(joy));
+                        joyDeviceAddedEvent(context, JoyDeviceAddedEvent(joy, deviceIndex));
                     } else {
                         console.printLine(Format("Joy attached, but has been detached again -> skipping."));
                         break;
