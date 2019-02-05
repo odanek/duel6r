@@ -670,7 +670,7 @@ namespace Duel6 {
                     auto deviceIndex = event.jdevice.which;
                     auto joy = SDL_JoystickOpen(deviceIndex);
                     if(SDL_JoystickGetAttached(joy)){
-                       appService.getInput().joyAttached(joy);
+                       appService.getInput().joyAttached(joy, deviceIndex);
                        joyRescan();
                     } else {
                         appService.getConsole().printLine(Format("Joy attached, but has been detached again -> skipping."));

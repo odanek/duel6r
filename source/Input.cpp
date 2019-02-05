@@ -30,6 +30,20 @@
 #include "Input.h"
 
 namespace Duel6 {
+    Input::Input(Console &console)
+        : console(console) {
+        auto load = SDL_GameControllerAddMappingsFromFile("controllers.txt");
+        if (load == -1) {
+            console.printLine("...Failed to load controllers.txt with controllers' mappings");
+        }
+        if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
+            console.printLine("...Starting joypad sub-system");
+            if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
+                console.printLine("...Unable to initialize joypad sub-system");
+                return;
+            }
+        }
+    }
     void Input::setPressed(SDL_Keycode keyCode, bool pressed) {
         if (pressed) {
             pressedKeys.insert(keyCode);

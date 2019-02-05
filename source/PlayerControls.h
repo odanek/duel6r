@@ -46,6 +46,19 @@ namespace Duel6 {
         }
     };
 
+
+    class ComplexControl: public Control {
+    private:
+        std::unique_ptr<Control> control1;
+        std::unique_ptr<Control> control2;
+    public:
+
+        ComplexControl(Control * c1, Control * c2);
+
+        bool isPressed() const override;
+    private:
+
+    };
     class KeyboardButton
             : public Control {
     private:
@@ -62,11 +75,6 @@ namespace Duel6 {
     class JoypadAxis
             : public Control {
     public:
-        enum class Axis {
-            Horizontal,
-            Vertical
-        };
-
         enum class Direction {
             Left,
             Right
@@ -74,11 +82,11 @@ namespace Duel6 {
 
     private:
         const GameController & gameController;
-        Axis axis;
+        GameController::GameControllerAxis axis;
         Direction direction;
 
     public:
-        JoypadAxis( const GameController & gameController, Axis axis, Direction direction)
+        JoypadAxis( const GameController & gameController, GameController::GameControllerAxis axis, Direction direction)
                 : gameController(gameController), axis(axis), direction(direction) {}
 
         bool isPressed() const override;
@@ -91,10 +99,10 @@ namespace Duel6 {
             : public Control {
     private:
         const GameController & gameController;
-        Size button;
+        GameController::GameControllerButton button;
 
     public:
-        JoypadButton(const GameController & gameController, Size button)
+        JoypadButton(const GameController & gameController, GameController::GameControllerButton button)
                 : gameController(gameController), button(button) {}
 
         bool isPressed() const override;
