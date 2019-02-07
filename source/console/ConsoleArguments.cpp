@@ -31,7 +31,7 @@ Popis: Zpracovani argumentu a prikazoveho bufferu
 */
 
 #include <stdio.h>
-#include "console.h"
+#include "Console.h"
 
 namespace Duel6 {
     std::string Console::expandLine(const std::string &line) {

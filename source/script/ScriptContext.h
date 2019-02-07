@@ -28,7 +28,7 @@
 #ifndef DUEL6_SCRIPT_SCRIPTCONTEXT_H
 #define DUEL6_SCRIPT_SCRIPTCONTEXT_H
 
-#include "../console/console.h"
+#include "../console/Console.h"
 #include "../Sound.h"
 #include "../GameSettings.h"
 

@@ -30,7 +30,7 @@ Projekt: Konzole
 Popis: Zpracovani prikazove radky
 */
 
-#include "console.h"
+#include "Console.h"
 
 namespace Duel6 {
     void Console::setInputScroll() {

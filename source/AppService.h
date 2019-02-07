@@ -28,7 +28,7 @@
 #ifndef DUEL6_APPSERVICE_H
 #define DUEL6_APPSERVICE_H
 
-#include "console/console.h"
+#include "console/Console.h"
 #include "Sound.h"
 #include "input/Input.h"
 #include "input/PlayerControls.h"

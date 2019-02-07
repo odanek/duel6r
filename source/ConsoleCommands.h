@@ -28,7 +28,7 @@
 #ifndef DUEL6_CONSOLECOMMANDS_H
 #define DUEL6_CONSOLECOMMANDS_H
 
-#include "console/console.h"
+#include "console/Console.h"
 #include "Menu.h"
 #include "Game.h"
 #include "Sound.h"

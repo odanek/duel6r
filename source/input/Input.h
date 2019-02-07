@@ -32,7 +32,7 @@
 #include <list>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_joystick.h>
-#include "../console/console.h"
+#include "../console/Console.h"
 #include "GameController.h"
 #include "../Type.h"
 

@@ -41,7 +41,7 @@
 #endif
 
 #include "Type.h"
-#include "console/console.h"
+#include "console/Console.h"
 
 namespace Duel6 {
     class Sound {

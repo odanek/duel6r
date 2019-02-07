@@ -33,7 +33,7 @@ Popis: Vykresleni konzoly
 #include <time.h>
 #include "../Color.h"
 #include "../Video.h" // TODO: Remove
-#include "console.h"
+#include "Console.h"
 
 namespace Duel6 {
     namespace {

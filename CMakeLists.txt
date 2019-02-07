@@ -237,14 +237,14 @@ set(D6R_SOURCES
         source/collision/WorldCollision.cpp
         source/collision/WorldCollision.h
 
-        source/console/conarg.cpp
-        source/console/concmd.cpp
-        source/console/condraw.cpp
-        source/console/coninput.cpp
-        source/console/console.cpp
-        source/console/console.h
+        source/console/ConsoleArguments.cpp
+        source/console/ConsoleCommands.cpp
+        source/console/ConsoleRenderer.cpp
+        source/console/ConsoleInput.cpp
+        source/console/Console.cpp
+        source/console/Console.h
         source/console/ConsoleException.h
-        source/console/convar.cpp
+        source/console/ConsoleVariables.cpp
 
         source/gamemodes/DeathMatch.cpp
         source/gamemodes/DeathMatch.h

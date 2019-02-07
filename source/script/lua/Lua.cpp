@@ -29,7 +29,7 @@
 #include "../../Player.h"
 #include "../../Level.h"
 #include "../ScriptException.h"
-#include "../../console/console.h"
+#include "../../console/Console.h"
 #include "../ScriptContext.h"
 #include "../PersonScriptContext.h"
 #include "../../ShotList.h"

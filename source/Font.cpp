@@ -27,7 +27,7 @@
 
 #include <list>
 #include <unordered_map>
-#include "console/console.h"
+#include "console/Console.h"
 #include "Font.h"
 #include "FontException.h"
 #include "Video.h"

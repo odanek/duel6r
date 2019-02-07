@@ -31,7 +31,7 @@ Popis: Zpracovani promenych
 */
 
 #include <sstream>
-#include "console.h"
+#include "Console.h"
 
 namespace Duel6 {
     void Console::registerVariable(const std::string &name, Uint32 flags, Variable::Pointer &&ptr) {
@@ -135,17 +135,17 @@ namespace Duel6 {
     }
 
     template<>
-    std::unique_ptr<Console::Variable> Console::Variable::from(Int32 &val) {
+    Console::Variable::Pointer Console::Variable::from(Int32 &val) {
         return std::make_unique<Console::IntVariable>(val);
     }
 
     template<>
-    std::unique_ptr<Console::Variable> Console::Variable::from(Float32 &val) {
+    Console::Variable::Pointer Console::Variable::from(Float32 &val) {
         return std::make_unique<Console::FloatVariable>(val);
     }
 
     template<>
-    std::unique_ptr<Console::Variable> Console::Variable::from(bool &val) {
+    Console::Variable::Pointer Console::Variable::from(bool &val) {
         return std::make_unique<Console::BoolVariable>(val);
     }
 }

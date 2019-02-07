@@ -29,7 +29,7 @@
 #define DUEL6_VIDEO_H
 
 #include <SDL2/SDL.h>
-#include "console/console.h"
+#include "console/Console.h"
 #include "Type.h"
 #include "ScreenParameters.h"
 #include "ViewParameters.h"

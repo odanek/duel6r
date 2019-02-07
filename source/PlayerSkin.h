@@ -33,7 +33,7 @@
 #include "PlayerAnimations.h"
 #include "TextureManager.h"
 #include "Color.h"
-#include "console/console.h"
+#include "console/Console.h"
 #include "aseprite/animation.h"
 
 namespace Duel6 {
