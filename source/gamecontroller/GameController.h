@@ -110,9 +110,12 @@ namespace Duel6 {
         std::string name;
 
         void openGameController(Instance instance, DeviceIndex deviceIndex);
+
     public:
         GameController(const GameController &) = delete;
+
         GameController(GameController &&) = delete;
+
         GameController &operator=(const GameController &) = delete;
     };
 

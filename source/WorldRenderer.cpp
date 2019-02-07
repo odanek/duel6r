@@ -81,9 +81,6 @@ namespace Duel6 {
             }
         }
     }
-    Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength) const {
-        return renderRankingEntry(entry, posX, posY, maxLength, font.getCharHeight(), false);
-    }
 
     Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength, Float32 charHeight, bool extended) const {
         if (extended) {
@@ -105,7 +102,7 @@ namespace Duel6 {
             auto kd = (entry.deaths != 0 ? (float)entry.kills / (float)entry.deaths : entry.kills);
             auto kd_int = (int)std::floor(kd);
             auto kd_float = (int)((kd - kd_int) * 100);
-            font.print(posX + (charHeight / 2) * (maxLength - 23), posY, 0.0f, fontColor, (Format("|{0,3}|{1,3}|{2,3}|{3,2}.{4,-2}|{5,4}") << entry.kills  << entry.assistances << entry.deaths << kd_int << kd_float << entry.points), charHeight);
+            font.print(posX + (charHeight / 2) * (maxLength - 23), posY, 0.0f, fontColor, (Format("|{0,3}|{1,3}|{2,3}|{3,2}.{4,2|0}|{5,4}") << entry.kills  << entry.assistances << entry.deaths << kd_int << kd_float << entry.points), charHeight);
         } else {
             font.print(posX + (charHeight / 2) * (maxLength - 5), posY, 0.0f, fontColor, (Format("|{0,4}") << entry.points), charHeight);
         }

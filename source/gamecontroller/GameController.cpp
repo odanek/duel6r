@@ -26,6 +26,7 @@
 */
 
 #include "GameController.h"
+#include "../InputException.h"
 #include <SDL2/SDL_gamecontroller.h>
 
 namespace Duel6 {
@@ -34,9 +35,9 @@ namespace Duel6 {
             instance(instance),
             instanceID(SDL_JoystickInstanceID(instance)),
             guid(SDL_JoystickGetGUID(instance)) {
-            auto joyName = SDL_JoystickName(instance);
-            name = joyName != NULL ? std::string(joyName): "<unknown>"; // unlikely to happen
-            openGameController(instance, deviceIndex);
+        auto joyName = SDL_JoystickName(instance);
+        name = joyName != NULL ? std::string(joyName) : "<unknown>"; // unlikely to happen
+        openGameController(instance, deviceIndex);
     }
 
     const GameController::ControllerGUID &GameController::getGUID() const {
@@ -52,15 +53,29 @@ namespace Duel6 {
             return 0;
         }
 
-        if(supportsGameControllerAPI){
+        if (supportsGameControllerAPI) {
             SDL_GameControllerAxis gameControllerAxis;
-            switch(axis) {
-                case CONTROLLER_AXIS_LEFTX: gameControllerAxis = SDL_CONTROLLER_AXIS_LEFTX; break;
-                case CONTROLLER_AXIS_LEFTY: gameControllerAxis = SDL_CONTROLLER_AXIS_LEFTY; break;
-                case CONTROLLER_AXIS_RIGHTX: gameControllerAxis = SDL_CONTROLLER_AXIS_RIGHTX; break;
-                case CONTROLLER_AXIS_RIGHTY: gameControllerAxis = SDL_CONTROLLER_AXIS_RIGHTY; break;
-                case CONTROLLER_AXIS_TRIGGERLEFT: gameControllerAxis = SDL_CONTROLLER_AXIS_TRIGGERLEFT; break;
-                case CONTROLLER_AXIS_TRIGGERRIGHT: gameControllerAxis = SDL_CONTROLLER_AXIS_TRIGGERRIGHT; break;
+            switch (axis) {
+                case CONTROLLER_AXIS_LEFTX:
+                    gameControllerAxis = SDL_CONTROLLER_AXIS_LEFTX;
+                    break;
+                case CONTROLLER_AXIS_LEFTY:
+                    gameControllerAxis = SDL_CONTROLLER_AXIS_LEFTY;
+                    break;
+                case CONTROLLER_AXIS_RIGHTX:
+                    gameControllerAxis = SDL_CONTROLLER_AXIS_RIGHTX;
+                    break;
+                case CONTROLLER_AXIS_RIGHTY:
+                    gameControllerAxis = SDL_CONTROLLER_AXIS_RIGHTY;
+                    break;
+                case CONTROLLER_AXIS_TRIGGERLEFT:
+                    gameControllerAxis = SDL_CONTROLLER_AXIS_TRIGGERLEFT;
+                    break;
+                case CONTROLLER_AXIS_TRIGGERRIGHT:
+                    gameControllerAxis = SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
+                    break;
+                default:
+                    D6_THROW(InputException, "Invalid joystick axis");
             }
             return SDL_GameControllerGetAxis(gameControllerInstance, gameControllerAxis);
         }
@@ -72,28 +87,59 @@ namespace Duel6 {
     }
 
     bool GameController::isPressed(GameControllerButton button) const {
-        if(!open){
+        if (!open) {
             return false;
         }
-        if(supportsGameControllerAPI){
-            SDL_GameControllerButton bt = SDL_CONTROLLER_BUTTON_X;
-            switch(button) {
-                case CONTROLLER_BUTTON_X: bt = SDL_CONTROLLER_BUTTON_X; break;
-                case CONTROLLER_BUTTON_A: bt = SDL_CONTROLLER_BUTTON_A; break;
-                case CONTROLLER_BUTTON_B: bt = SDL_CONTROLLER_BUTTON_B; break;
-                case CONTROLLER_BUTTON_Y: bt = SDL_CONTROLLER_BUTTON_Y; break;
-
-                case CONTROLLER_BUTTON_BACK: bt = SDL_CONTROLLER_BUTTON_BACK; break;
-                case CONTROLLER_BUTTON_GUIDE: bt = SDL_CONTROLLER_BUTTON_GUIDE; break;
-                case CONTROLLER_BUTTON_START: bt = SDL_CONTROLLER_BUTTON_START; break;
-                case CONTROLLER_BUTTON_LEFTSTICK: bt = SDL_CONTROLLER_BUTTON_LEFTSTICK; break;
-                case CONTROLLER_BUTTON_RIGHTSTICK: bt = SDL_CONTROLLER_BUTTON_RIGHTSTICK; break;
-                case CONTROLLER_BUTTON_LEFTSHOULDER: bt = SDL_CONTROLLER_BUTTON_LEFTSHOULDER; break;
-                case CONTROLLER_BUTTON_RIGHTSHOULDER: bt = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER; break;
-                case CONTROLLER_BUTTON_DPAD_UP: bt = SDL_CONTROLLER_BUTTON_DPAD_UP; break;
-                case CONTROLLER_BUTTON_DPAD_DOWN: bt = SDL_CONTROLLER_BUTTON_DPAD_DOWN; break;
-                case CONTROLLER_BUTTON_DPAD_LEFT: bt = SDL_CONTROLLER_BUTTON_DPAD_LEFT; break;
-                case CONTROLLER_BUTTON_DPAD_RIGHT: bt = SDL_CONTROLLER_BUTTON_DPAD_RIGHT; break;
+        if (supportsGameControllerAPI) {
+            SDL_GameControllerButton bt;
+            switch (button) {
+                case CONTROLLER_BUTTON_X:
+                    bt = SDL_CONTROLLER_BUTTON_X;
+                    break;
+                case CONTROLLER_BUTTON_A:
+                    bt = SDL_CONTROLLER_BUTTON_A;
+                    break;
+                case CONTROLLER_BUTTON_B:
+                    bt = SDL_CONTROLLER_BUTTON_B;
+                    break;
+                case CONTROLLER_BUTTON_Y:
+                    bt = SDL_CONTROLLER_BUTTON_Y;
+                    break;
+                case CONTROLLER_BUTTON_BACK:
+                    bt = SDL_CONTROLLER_BUTTON_BACK;
+                    break;
+                case CONTROLLER_BUTTON_GUIDE:
+                    bt = SDL_CONTROLLER_BUTTON_GUIDE;
+                    break;
+                case CONTROLLER_BUTTON_START:
+                    bt = SDL_CONTROLLER_BUTTON_START;
+                    break;
+                case CONTROLLER_BUTTON_LEFTSTICK:
+                    bt = SDL_CONTROLLER_BUTTON_LEFTSTICK;
+                    break;
+                case CONTROLLER_BUTTON_RIGHTSTICK:
+                    bt = SDL_CONTROLLER_BUTTON_RIGHTSTICK;
+                    break;
+                case CONTROLLER_BUTTON_LEFTSHOULDER:
+                    bt = SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+                    break;
+                case CONTROLLER_BUTTON_RIGHTSHOULDER:
+                    bt = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+                    break;
+                case CONTROLLER_BUTTON_DPAD_UP:
+                    bt = SDL_CONTROLLER_BUTTON_DPAD_UP;
+                    break;
+                case CONTROLLER_BUTTON_DPAD_DOWN:
+                    bt = SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+                    break;
+                case CONTROLLER_BUTTON_DPAD_LEFT:
+                    bt = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+                    break;
+                case CONTROLLER_BUTTON_DPAD_RIGHT:
+                    bt = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+                    break;
+                default:
+                    D6_THROW(InputException, "Invalid joystick button");
             }
             return SDL_GameControllerGetButton(gameControllerInstance, bt) == 1;
         }
@@ -104,7 +150,7 @@ namespace Duel6 {
     void GameController::close() {
         open = false;
         SDL_JoystickClose(instance); // This breaks everything, I don't know why
-        if(supportsGameControllerAPI) {
+        if (supportsGameControllerAPI) {
             SDL_GameControllerClose(gameControllerInstance);
             supportsGameControllerAPI = false;
         }
@@ -119,12 +165,9 @@ namespace Duel6 {
 
     void GameController::openGameController(Instance instance, DeviceIndex deviceIndex) {
         gameControllerInstance = SDL_GameControllerOpen(deviceIndex);
-        if(gameControllerInstance == NULL) {
-            supportsGameControllerAPI = false;
-        } else {
-            supportsGameControllerAPI = true;
-        }
+        supportsGameControllerAPI = gameControllerInstance != nullptr;
     }
+
     bool operator==(const GameController::ControllerGUID &l, const GameController::ControllerGUID &r) {
         for (std::size_t i = 0; i < std::size(l.data); ++i) {
             if (l.data[i] != r.data[i]) {

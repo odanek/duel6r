@@ -129,6 +129,7 @@ set(D6R_SOURCES
         source/InfoMessageQueue.h
         source/Input.cpp
         source/Input.h
+        source/InputException.h
         source/IoException.h
         source/Level.cpp
         source/Level.h
