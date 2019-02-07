@@ -30,9 +30,9 @@
 
 #include "console/console.h"
 #include "Sound.h"
-#include "Input.h"
+#include "input/Input.h"
+#include "input/PlayerControls.h"
 #include "TextureManager.h"
-#include "PlayerControls.h"
 #include "Video.h"
 #include "script/ScriptManager.h"
 

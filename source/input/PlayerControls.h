@@ -25,14 +25,14 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_PLAYERCONTROLS_H
-#define DUEL6_PLAYERCONTROLS_H
+#ifndef DUEL6_INPUT_PLAYERCONTROLS_H
+#define DUEL6_INPUT_PLAYERCONTROLS_H
 
 #include <memory>
 #include <vector>
-#include "Type.h"
+#include "../Type.h"
 #include "Input.h"
-#include "gamecontroller/GameController.h"
+#include "GameController.h"
 
 namespace Duel6 {
     class Control {

@@ -25,16 +25,16 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_INPUT_H
-#define DUEL6_INPUT_H
+#ifndef DUEL6_INPUT_INPUT_H
+#define DUEL6_INPUT_INPUT_H
 
 #include <unordered_set>
 #include <list>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_joystick.h>
-#include "console/console.h"
-#include "gamecontroller/GameController.h"
-#include "Type.h"
+#include "../console/console.h"
+#include "GameController.h"
+#include "../Type.h"
 
 namespace Duel6 {
 

@@ -35,7 +35,7 @@
 #include "SpriteList.h"
 #include "Person.h"
 #include "PlayerSkin.h"
-#include "PlayerControls.h"
+#include "input/PlayerControls.h"
 #include "PlayerSounds.h"
 #include "Orientation.h"
 #include "ScreenMode.h"

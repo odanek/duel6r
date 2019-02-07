@@ -25,30 +25,17 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <SDL2/SDL.h>
-#include "Format.h"
-#include "Input.h"
+#ifndef DUEL6_INPUT_INPUTEXCEPTION_H
+#define DUEL6_INPUT_INPUTEXCEPTION_H
+
+#include "../Exception.h"
 
 namespace Duel6 {
-    Input::Input(Console &console)
-        : console(console) {
-        auto load = SDL_GameControllerAddMappingsFromFile("controllers.txt");
-        if (load == -1) {
-            console.printLine("...Failed to load controllers.txt with controllers' mappings");
-        }
-        if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-            console.printLine("...Starting joypad sub-system");
-            if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-                console.printLine("...Unable to initialize joypad sub-system");
-                return;
-            }
-        }
-    }
-    void Input::setPressed(SDL_Keycode keyCode, bool pressed) {
-        if (pressed) {
-            pressedKeys.insert(keyCode);
-        } else {
-            pressedKeys.erase(keyCode);
-        }
-    }
+    class InputException : public Exception {
+    public:
+        InputException(const std::string &file, Int32 line, const std::string &message)
+                : Exception(file, line, message) {}
+    };
 }
+
+#endif

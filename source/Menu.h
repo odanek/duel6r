@@ -35,7 +35,7 @@
 #include "LevelList.h"
 #include "PersonList.h"
 #include "PersonProfile.h"
-#include "PlayerControls.h"
+#include "input/PlayerControls.h"
 #include "PlayerSkinColors.h"
 #include "Video.h"
 #include "AppService.h"

@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include "Sound.h"
 #include "Video.h"
-#include "PlayerControls.h"
+#include "input/PlayerControls.h"
 #include "TextureManager.h"
 #include "Menu.h"
 #include "Game.h"

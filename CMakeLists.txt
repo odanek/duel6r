@@ -127,9 +127,6 @@ set(D6R_SOURCES
         source/InfoMessage.h
         source/InfoMessageQueue.cpp
         source/InfoMessageQueue.h
-        source/Input.cpp
-        source/Input.h
-        source/InputException.h
         source/IoException.h
         source/Level.cpp
         source/Level.h
@@ -154,8 +151,6 @@ set(D6R_SOURCES
         source/Player.h
         source/PlayerAnimations.cpp
         source/PlayerAnimations.h
-        source/PlayerControls.cpp
-        source/PlayerControls.h
         source/PlayerEventListener.cpp
         source/PlayerEventListener.h
         source/PlayerSkin.cpp
@@ -249,9 +244,6 @@ set(D6R_SOURCES
         source/console/ConsoleException.h
         source/console/convar.cpp
 
-        source/gamecontroller/GameController.cpp
-        source/gamecontroller/GameController.h
-
         source/gamemodes/DeathMatch.cpp
         source/gamemodes/DeathMatch.h
         source/gamemodes/GameModeBase.cpp
@@ -284,6 +276,14 @@ set(D6R_SOURCES
         source/gui/Spinner.h
         source/gui/TextBox.cpp
         source/gui/TextBox.h
+
+        source/input/GameController.cpp
+        source/input/GameController.h
+        source/input/Input.cpp
+        source/input/Input.h
+        source/input/InputException.h
+        source/input/PlayerControls.cpp
+        source/input/PlayerControls.h
 
         source/json/JsonException.h
         source/json/JsonParser.cpp

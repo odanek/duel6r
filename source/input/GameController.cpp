@@ -26,7 +26,7 @@
 */
 
 #include "GameController.h"
-#include "../InputException.h"
+#include "InputException.h"
 #include <SDL2/SDL_gamecontroller.h>
 
 namespace Duel6 {
