@@ -169,11 +169,11 @@ namespace Duel6 {
         }
 
         Float32 angle() const {
-            return Math::radiansToAngle(std::atan2(y, x));
+            return Math::radToDeg(std::atan2(y, x));
         }
 
         static Vector direction(Float32 angle) {
-            return Vector(cosf(Math::angleToRadians(angle)), sinf(Math::angleToRadians(angle)));
+            return Vector(cosf(Math::degToRad(angle)), sinf(Math::degToRad(angle)));
         }
 
         static Vector min(const Vector &left, const Vector &right) {

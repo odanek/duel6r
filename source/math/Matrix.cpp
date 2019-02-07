@@ -264,7 +264,7 @@ namespace Duel6 {
 
     // Source: gluPerspective
     Matrix Matrix::perspective(Float32 fovAngle, Float32 aspect, Float32 nearClip, Float32 farClip) {
-        Float32 fovY = Math::angleToRadians(fovAngle) / 2;
+        Float32 fovY = Math::degToRad(fovAngle) / 2;
         Float32 f = Math::radianCos(fovY) / Math::radianSin(fovY);
 
         Matrix result;

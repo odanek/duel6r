@@ -59,17 +59,17 @@ namespace Duel6 {
 
         template<class T>
         static T degSin(T angle) {
-            return radianSin(angleToRadians(angle));
+            return radianSin(degToRad(angle));
         }
 
         template<class T>
         static T degCos(T angle) {
-            return radianCos(angleToRadians(angle));
+            return radianCos(degToRad(angle));
         }
 
         template<class T>
         static T degTan(T angle) {
-            return radianTan(angleToRadians(angle));
+            return radianTan(degToRad(angle));
         }
 
         template<class T>
@@ -93,12 +93,12 @@ namespace Duel6 {
         }
 
         template<class T>
-        static T angleToRadians(T angle) {
+        static T degToRad(T angle) {
             return T(angle * Pi / 180.0);
         }
 
         template<class T>
-        static T radiansToAngle(T radians) {
+        static T radToDeg(T radians) {
             return T(radians * 180.0 / Pi);
         }
 
