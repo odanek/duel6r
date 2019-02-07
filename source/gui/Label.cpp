@@ -34,8 +34,7 @@ namespace Duel6 {
                 : Control(desk) {
         }
 
-        Label::~Label() {
-        }
+        Label::~Label() = default;
 
         void Label::setPosition(int X, int Y, int W, int H) {
             x = X;
@@ -48,8 +47,8 @@ namespace Duel6 {
             text = caption;
         }
 
-        void Label::draw(const Font &font) const {
-            globRenderer->quadXY(Vector(x, y - height + 1), Vector(width - 1, height - 1), Color(170, 170, 170));
+        void Label::draw(Renderer &renderer, const Font &font) const {
+            renderer.quadXY(Vector(x, y - height + 1), Vector(width - 1, height - 1), Color(170, 170, 170));
             font.print(x, y - 15, Color(0), text);
         }
     }

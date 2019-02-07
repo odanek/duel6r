@@ -38,10 +38,8 @@ static void reportError(const std::string &err) {
 
 int main(int argc, char **argv) {
     try {
-        Duel6::Application app;
-        app.setup(argc, argv);
+        Duel6::Application app(argc, argv);
         app.run();
-        app.tearDown();
         return 0;
     }
     catch (const Duel6::Exception &e) {

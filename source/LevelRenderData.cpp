@@ -30,8 +30,10 @@
 #include "LevelRenderData.h"
 
 namespace Duel6 {
-    LevelRenderData::LevelRenderData(const Level &level, ScreenMode screenMode, Float32 animationSpeed, Float32 waveHeight)
-            : level(level), screenMode(screenMode), animationSpeed(animationSpeed), animWait(0), waveHeight(waveHeight) {}
+    LevelRenderData::LevelRenderData(const Level &level, Renderer &renderer, ScreenMode screenMode,
+                                     Float32 animationSpeed, Float32 waveHeight)
+            : level(level), renderer(renderer), screenMode(screenMode), animationSpeed(animationSpeed), animWait(0),
+              waveHeight(waveHeight) {}
 
     void LevelRenderData::generateFaces() {
         addWallFaces();
@@ -66,7 +68,7 @@ namespace Duel6 {
             }
         }
 
-        walls.build();
+        walls.build(renderer);
     }
 
     void LevelRenderData::addSpriteFaces() {
@@ -95,7 +97,7 @@ namespace Duel6 {
             }
         }
 
-        sprites.build();
+        sprites.build(renderer);
     }
 
     void LevelRenderData::addWaterFaces() {
@@ -113,7 +115,7 @@ namespace Duel6 {
             }
         }
 
-        water.build();
+        water.build(renderer);
     }
 
     void LevelRenderData::addWall(const Block &block, Int32 x, Int32 y) {

@@ -35,13 +35,13 @@ namespace Duel6 {
     BonusList::BonusList(const GameSettings &settings, const GameResources &resources, World &world)
             : settings(settings), texture(resources.getBonusTextures()), world(world) {}
 
-    void BonusList::render() const {
+    void BonusList::render(Renderer &renderer) const {
         for (const Bonus &bonus : bonuses) {
-            bonus.render(texture);
+            bonus.render(renderer, texture);
         }
 
         for (const LyingWeapon &weapon : weapons) {
-            weapon.render();
+            weapon.render(renderer);
         }
     }
 

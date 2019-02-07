@@ -186,6 +186,7 @@ namespace Duel6 {
         }
 
         world.update(elapsedTime);
+        game.getAppService().getVideo().getRenderer().setGlobalTime(world.getTime());
 
         if (suddenDeathMode) {
             waterFillWait += elapsedTime;
@@ -211,7 +212,7 @@ namespace Duel6 {
 
         // Save screenshot
         if (event.getCode() == SDLK_F10) {
-            Image image = globRenderer->makeScreenshot();
+            Image image = game.getAppService().getVideo().getRenderer().makeScreenshot();
             std::string name = image.saveScreenshot();
             game.getAppService().getConsole().printLine(Format("Screenshot saved to {0}") << name);
         }

@@ -35,8 +35,8 @@ namespace Duel6 {
             Color bcgColor(192, 192, 192);
         }
 
-        Desktop::Desktop() {
-        }
+        Desktop::Desktop(Renderer &renderer)
+                : renderer(renderer) {}
 
         Desktop::~Desktop() {
         }
@@ -59,14 +59,14 @@ namespace Duel6 {
         }
 
         void Desktop::draw(const Font &font) const {
-            globRenderer->quadXY(Vector(0, 0), Vector(screenWidth, screenHeight), bcgColor);
-            globRenderer->setViewMatrix(Matrix::translate(Float32(trX), Float32(trY), 0));
+            renderer.quadXY(Vector(0, 0), Vector(screenWidth, screenHeight), bcgColor);
+            renderer.setViewMatrix(Matrix::translate(Float32(trX), Float32(trY), 0));
 
             for (auto &control : controls) {
-                control->draw(font);
+                control->draw(renderer, font);
             }
 
-            globRenderer->setViewMatrix(Matrix::IDENTITY);
+            renderer.setViewMatrix(Matrix::IDENTITY);
         }
 
         void Desktop::keyEvent(const KeyPressEvent &event) {

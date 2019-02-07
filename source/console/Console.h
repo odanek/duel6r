@@ -294,7 +294,7 @@ namespace Duel6 {
 
         ~Console();
 
-        void render(Int32 csX, Int32 csY, const Font &font);
+        void render(Renderer &renderer, Int32 csX, Int32 csY, const Font &font);
 
         Console &print(const std::string &str);
 
@@ -370,7 +370,7 @@ namespace Duel6 {
 
         void renderHistory(int csY, const Font &font) const;
 
-        void renderBackground(Int32 csX, Int32 csY, const Font &font) const;
+        void renderBackground(Renderer &renderer, Int32 csX, Int32 csY, const Font &font) const;
 
         void renderSeparator(Int32 csY, const Font &font) const;
 

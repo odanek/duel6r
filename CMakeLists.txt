@@ -109,6 +109,7 @@ set(D6R_SOURCES
         source/Fire.h
         source/Font.cpp
         source/Font.h
+        source/FontCache.h
         source/FontException.h
         source/Format.cpp
         source/Format.h

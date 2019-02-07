@@ -46,7 +46,8 @@
 namespace Duel6 {
     Menu::Menu(AppService &appService)
             : appService(appService), font(appService.getFont()), video(appService.getVideo()),
-              sound(appService.getSound()), controlsManager(appService.getControlsManager()),
+              renderer(video.getRenderer()), sound(appService.getSound()), gui(video.getRenderer()),
+              controlsManager(appService.getControlsManager()),
               defaultPlayerSounds(PlayerSounds::makeDefault(sound)), playMusic(false) {}
 
     void Menu::loadPersonData(const std::string &filePath) {
@@ -240,7 +241,7 @@ namespace Duel6 {
                 playerListBox->onColorize(Gui::ListBox::defaultColorize);
             } else {
                 Int32 teamCount = 1 + selectedIndex / 2;
-                playerListBox->onColorize([teamCount](Int32 index, const std::string& label) {
+                playerListBox->onColorize([teamCount](Int32 index, const std::string &label) {
                     return Gui::ListBox::ItemColor{Color::BLACK, TEAMS[index % teamCount].color};
                 });
             }
@@ -330,8 +331,8 @@ namespace Duel6 {
         Int32 x = video.getScreen().getClientWidth() / 2 - width / 2,
                 y = video.getScreen().getClientHeight() / 2 - 10;
 
-        globRenderer->quadXY(Vector(x, y), Vector(width, 20), Color(255, 204, 204));
-        globRenderer->frame(Vector(x, y), Vector(width, 20), 2, Color::BLACK);
+        renderer.quadXY(Vector(x, y), Vector(width, 20), Color(255, 204, 204));
+        renderer.frame(Vector(x, y), Vector(width, 20), 2, Color::BLACK);
 
         font.print(x + 30, y + 2, Color::RED, message);
         video.screenUpdate(appService.getConsole(), font);
@@ -374,7 +375,7 @@ namespace Duel6 {
 
     void Menu::detectControls(Size playerIndex) {
         render();
-        if(playerIndex >= playerListBox->size()) {
+        if (playerIndex >= playerListBox->size()) {
             return;
         }
         const std::string &name = playerListBox->getItem(playerIndex);
@@ -388,7 +389,7 @@ namespace Duel6 {
                 for (Size i = 0; i < controlsManager.getNumAvailable(); i++) {
                     const PlayerControls &pc = controlsManager.get(i);
 
-                    if ( (!pc.getLeft().isJoyPadAxis() && pc.getLeft().isPressed()) ||
+                    if ((!pc.getLeft().isJoyPadAxis() && pc.getLeft().isPressed()) ||
                         (!pc.getRight().isJoyPadAxis() && pc.getRight().isPressed()) ||
                         (!pc.getDown().isJoyPadAxis() && pc.getDown().isPressed()) ||
                         (!pc.getUp().isJoyPadAxis() && pc.getUp().isPressed()) ||
@@ -548,16 +549,16 @@ namespace Duel6 {
 
         gui.draw(font);
 
-        globRenderer->setViewMatrix(Matrix::translate(Float32(trX), -Float32(trY), 0));
+        renderer.setViewMatrix(Matrix::translate(Float32(trX), -Float32(trY), 0));
 
         font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE,
                    Format("{0} {1}") << "version" << APP_VERSION);
 
         Int32 clientHeight = video.getScreen().getClientHeight();
         Material material = Material::makeTexture(menuBannerTexture);
-        globRenderer->quadXY(Vector(300, clientHeight - 100), Vector(200, 95), Vector(0, 1), Vector(1, -1), material);
+        renderer.quadXY(Vector(300, clientHeight - 100), Vector(200, 95), Vector(0, 1), Vector(1, -1), material);
 
-        globRenderer->setViewMatrix(Matrix::IDENTITY);
+        renderer.setViewMatrix(Matrix::IDENTITY);
     }
 
     void Menu::keyEvent(const KeyPressEvent &event) {
@@ -598,11 +599,11 @@ namespace Duel6 {
         gui.mouseWheelEvent(event);
     }
 
-    void Menu::joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) {
+    void Menu::joyDeviceAddedEvent(const JoyDeviceAddedEvent &event) {
         joyRescan();
     }
 
-    void Menu::joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) {
+    void Menu::joyDeviceRemovedEvent(const JoyDeviceRemovedEvent &event) {
         joyRescan();
     }
 
@@ -648,32 +649,34 @@ namespace Duel6 {
 
         return nullptr;
     }
+
     int Menu::processEvents(bool single) {
         SDL_Event event;
         int result = 0;
         //TODO This logic duplicates event processing logic in Application. Should be refactored.
         while ((result = SDL_PollEvent(&event)) != 0) {
             switch (event.type) {
-                case SDL_KEYDOWN:{
+                case SDL_KEYDOWN: {
                     auto key = event.key.keysym;
                     appService.getInput().setPressed(key.sym, true);
                     break;
                 }
-                case SDL_KEYUP:{
+                case SDL_KEYUP: {
                     auto key = event.key.keysym;
                     appService.getInput().setPressed(key.sym, false);
                     break;
                 }
-                case SDL_JOYDEVICEADDED:{
+                case SDL_JOYDEVICEADDED: {
                     appService.getConsole().printLine("Device added");
 
                     auto deviceIndex = event.jdevice.which;
                     auto joy = SDL_JoystickOpen(deviceIndex);
-                    if(SDL_JoystickGetAttached(joy)){
-                       appService.getInput().joyAttached(joy, deviceIndex);
-                       joyRescan();
+                    if (SDL_JoystickGetAttached(joy)) {
+                        appService.getInput().joyAttached(joy, deviceIndex);
+                        joyRescan();
                     } else {
-                        appService.getConsole().printLine(Format("Joy attached, but has been detached again -> skipping."));
+                        appService.getConsole().printLine(
+                                Format("Joy attached, but has been detached again -> skipping."));
                         break;
                     }
 
@@ -687,12 +690,13 @@ namespace Duel6 {
                     break;
                 }
             }
-            if(single){
+            if (single) {
                 return result;
             }
         }
         return result;
     }
+
     void Menu::consumeInputEvents() {
         processEvents();
     }

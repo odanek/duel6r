@@ -55,10 +55,10 @@ namespace Duel6 {
             }
         }
 
-        void CheckBox::draw(const Font &font) const {
+        void CheckBox::draw(Renderer &renderer, const Font &font) const {
             Int32 px, py;
 
-            drawFrame(x, y, 16, 16, checked);
+            drawFrame(renderer, x, y, 16, 16, checked);
             px = x + 32;
             py = y - (height >> 1) - 7;
             font.print(px, py, Color(0), label);

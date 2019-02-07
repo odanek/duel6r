@@ -60,7 +60,7 @@ namespace Duel6 {
 
         void addRandomBonus();
 
-        void render() const;
+        void render(Renderer &renderer) const;
 
         void addPlayerGun(Player &player, const CollidingEntity &playerColliders);
 

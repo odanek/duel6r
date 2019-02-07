@@ -151,6 +151,10 @@ namespace Duel6 {
             return elevatorList;
         }
 
+        Float32 getTime() const {
+            return time;
+        }
+
     private:
         std::string findBackground(const GameResources::BackgroundList &backgrounds);
     };

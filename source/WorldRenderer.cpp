@@ -32,12 +32,15 @@
 #include "Explosion.h"
 
 namespace Duel6 {
+    WorldRenderer::WorldRenderer(Duel6::AppService &appService, const Duel6::Game &game)
+        : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()) {}
+
     void WorldRenderer::setView(const PlayerView &view) const {
         setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());
     }
 
     void WorldRenderer::setView(int x, int y, int width, int height) const {
-        globRenderer->setViewport(x, y, width, height);
+        renderer.setViewport(x, y, width, height);
     }
 
     void WorldRenderer::walls(const FaceList &walls) const {
@@ -45,13 +48,13 @@ namespace Duel6 {
     }
 
     void WorldRenderer::water(const FaceList &water) const {
-        globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(BlendFunc::SrcColor);
+        renderer.enableDepthWrite(false);
+        renderer.setBlendFunc(BlendFunc::SrcColor);
 
         water.render(game.getResources().getBlockTextures(), false);
 
-        globRenderer->setBlendFunc(BlendFunc::None);
-        globRenderer->enableDepthWrite(true);
+        renderer.setBlendFunc(BlendFunc::None);
+        renderer.enableDepthWrite(true);
     }
 
     void WorldRenderer::sprites(const FaceList &sprites) const {
@@ -61,7 +64,7 @@ namespace Duel6 {
     void WorldRenderer::background(Texture texture) const {
         Int32 cw = video.getScreen().getClientWidth();
         Int32 ch = video.getScreen().getClientHeight();
-        globRenderer->quadXY(Vector(0, 0), Vector(cw, ch), Vector(0, 1), Vector(1, -1), Material::makeTexture(texture));
+        renderer.quadXY(Vector(0, 0), Vector(cw, ch), Vector(0, 1), Vector(1, -1), Material::makeTexture(texture));
     }
 
     void WorldRenderer::playerRankings() const {
@@ -86,16 +89,16 @@ namespace Duel6 {
         if (extended) {
             maxLength += 20;
         }
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
         Color fontColor(entry.fontColor);
-        globRenderer->quadXY(Vector(posX, posY + 1), Vector((charHeight/2) * maxLength, charHeight), entry.bcgColor);
+        renderer.quadXY(Vector(posX, posY + 1), Vector((charHeight/2) * maxLength, charHeight), entry.bcgColor);
 
         Int32 paddingLeft = entry.isSuperEntry() ? 0 : 5;
-        globRenderer->setBlendFunc(BlendFunc::None);
+        renderer.setBlendFunc(BlendFunc::None);
         font.print(posX + paddingLeft, posY, 0.0f, fontColor, entry.name, charHeight);
 
         if(extended) {
-            globRenderer->setBlendFunc(BlendFunc::SrcColor);
+            renderer.setBlendFunc(BlendFunc::SrcColor);
             if(!entry.isSuperEntry()) {
                 fontColor = Color::YELLOW;
             }
@@ -129,12 +132,12 @@ namespace Duel6 {
         int x = video.getScreen().getClientWidth() / 2 - width / 2;
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + 2 * fontWidth, height + 2 * fontSize), Color(255, 255, 255, 80));
-        globRenderer->quadXY(Vector(x - fontWidth + 2, y - fontSize + 2), Vector(width + 2 * fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + 2 * fontWidth, height + 2 * fontSize), Color(255, 255, 255, 80));
+        renderer.quadXY(Vector(x - fontWidth + 2, y - fontSize + 2), Vector(width + 2 * fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
 
-        globRenderer->quadXY(Vector(x - fontWidth - 5, height + y - fontSize), Vector(width + 2 * fontWidth + 10,fontSize + 4), Color(0, 0, 255, 255));
-        globRenderer->setBlendFunc(BlendFunc::SrcColor);
+        renderer.quadXY(Vector(x - fontWidth - 5, height + y - fontSize), Vector(width + 2 * fontWidth + 10,fontSize + 4), Color(0, 0, 255, 255));
+        renderer.setBlendFunc(BlendFunc::SrcColor);
 
         Int32 posX = video.getScreen().getClientWidth() / 2 - tableWidth / 2;;
         Int32 posY = y + height - fontSize * 3;
@@ -160,7 +163,7 @@ namespace Duel6 {
         int x = video.getScreen().getClientWidth() / 2 - width / 2;
         int y = video.getScreen().getClientHeight() - 20;
 
-        globRenderer->quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
+        renderer.quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
         font.print(x + 8, y, Color::WHITE,
                    Format("Rounds: {0,3}|{1,3}") << game.getPlayedRounds() << game.getSettings().getMaxRounds());
     }
@@ -172,7 +175,7 @@ namespace Duel6 {
         Int32 x = Int32(video.getScreen().getClientWidth()) - width;
         Int32 y = Int32(video.getScreen().getClientHeight()) - 20;
 
-        globRenderer->quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
+        renderer.quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
         font.print(x, y, Color::WHITE, fpsCount);
     }
 
@@ -180,7 +183,7 @@ namespace Duel6 {
         Float32 remainingTime = game.getRound().getRemainingYouAreHere();
         if (remainingTime <= 0) return;
 
-        globRenderer->enableDepthTest(false);
+        renderer.enableDepthTest(false);
 
         Float32 radius = 0.5f + 0.5f * std::abs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
         for (const Player &player : game.getPlayers()) {
@@ -192,13 +195,13 @@ namespace Duel6 {
                 Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
                 Vector pos = playerCentre + spike * radius * Vector::direction(u * 10);
                 if (u > 0) {
-                    globRenderer->line(lastPoint, pos, 3.0f, Color::YELLOW);
+                    renderer.line(lastPoint, pos, 3.0f, Color::YELLOW);
                 }
                 lastPoint = pos;
             }
         }
 
-        globRenderer->enableDepthTest(true);
+        renderer.enableDepthTest(true);
     }
 
     Float32
@@ -210,12 +213,12 @@ namespace Duel6 {
 
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
-        globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(X, Y - 0.1f, 0.5f), Vector(1.0f, 0.1f), Color::BLACK.withAlpha(alpha));
-        globRenderer->quadXY(Vector(X + 0.01f, Y - 0.08f, 0.5f), Vector(width, 0.07f), color.withAlpha(alpha));
-        globRenderer->setBlendFunc(BlendFunc::None);
-        globRenderer->enableDepthWrite(true);
+        renderer.enableDepthWrite(false);
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector(X, Y - 0.1f, 0.5f), Vector(1.0f, 0.1f), Color::BLACK.withAlpha(alpha));
+        renderer.quadXY(Vector(X + 0.01f, Y - 0.08f, 0.5f), Vector(width, 0.07f), color.withAlpha(alpha));
+        renderer.setBlendFunc(BlendFunc::None);
+        renderer.enableDepthWrite(true);
 
         return 0.1f;
     }
@@ -229,14 +232,14 @@ namespace Duel6 {
 
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
-        globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::BLUE.withAlpha(alpha));
-        globRenderer->setBlendFunc(BlendFunc::None);
+        renderer.enableDepthWrite(false);
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::BLUE.withAlpha(alpha));
+        renderer.setBlendFunc(BlendFunc::None);
 
         font.print(X, Y, 0.5f, Color::YELLOW.withAlpha(alpha), name, 0.3f);
 
-        globRenderer->enableDepthWrite(true);
+        renderer.enableDepthWrite(true);
     }
 
     void
@@ -249,15 +252,15 @@ namespace Duel6 {
 
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
 
-        globRenderer->enableDepthWrite(false);
+        renderer.enableDepthWrite(false);
 
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::YELLOW.withAlpha(alpha));
-        globRenderer->setBlendFunc(BlendFunc::None);
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::YELLOW.withAlpha(alpha));
+        renderer.setBlendFunc(BlendFunc::None);
 
         font.print(X, Y, 0.5f, Color::BLUE.withAlpha(alpha), bulletCount, 0.3f);
 
-        globRenderer->enableDepthWrite(true);
+        renderer.enableDepthWrite(true);
     }
 
     void
@@ -270,11 +273,11 @@ namespace Duel6 {
         Float32 X = xOfs - size / 2;
         Float32 Y = yOfs;
 
-        globRenderer->enableDepthWrite(false);
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f, Float32(bonusType.getTextureIndex())), Vector(0.4f, -0.4f), material);
-        globRenderer->setBlendFunc(BlendFunc::None);
-        globRenderer->enableDepthWrite(true);
+        renderer.enableDepthWrite(false);
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f, Float32(bonusType.getTextureIndex())), Vector(0.4f, -0.4f), material);
+        renderer.setBlendFunc(BlendFunc::None);
+        renderer.enableDepthWrite(true);
     }
 
     void WorldRenderer::playerStatus(const Player &player) const {
@@ -349,7 +352,7 @@ namespace Duel6 {
         Float32 Y = yOfs + 0.1f;
 
         for (Int32 i = 0; i < player.getRoundKills(); i++, X += 0.2f) {
-            globRenderer->point(Vector(X, Y, 0.5f), 5.0f, Color::BLUE);
+            renderer.point(Vector(X, Y, 0.5f), 5.0f, Color::BLUE);
         }
     }
 
@@ -361,7 +364,7 @@ namespace Duel6 {
         for (Int32 uh = p; uh < 360 + p; uh += 15) {
             Int32 u = uh % 360;
             Vector pos = playerCentre + radius * Vector::direction(u);
-            globRenderer->point(Vector(pos.x, pos.y, 0.5f), 2.0f, Color::RED);
+            renderer.point(Vector(pos.x, pos.y, 0.5f), 2.0f, Color::RED);
         }
     }
 
@@ -376,16 +379,16 @@ namespace Duel6 {
     void WorldRenderer::splitBox(const PlayerView &view) const {
         const auto &screen = video.getScreen();
         setView(view.getX() - 2, view.getY() - 2, view.getWidth() + 4, view.getHeight() + 4);
-        globRenderer->quadXY(Vector::ZERO, Vector(screen.getClientWidth(), screen.getClientHeight()), Color::RED);
+        renderer.quadXY(Vector::ZERO, Vector(screen.getClientWidth(), screen.getClientHeight()), Color::RED);
     }
 
     void WorldRenderer::screenCurtain(const Color &color) const {
         const auto &screen = video.getScreen();
 
         video.setMode(Video::Mode::Orthogonal);
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector::ZERO, Vector(screen.getClientWidth(), screen.getClientHeight()), color);
-        globRenderer->setBlendFunc(BlendFunc::None);
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector::ZERO, Vector(screen.getClientWidth(), screen.getClientHeight()), color);
+        renderer.setBlendFunc(BlendFunc::None);
         video.setMode(Video::Mode::Perspective);
     }
 
@@ -393,18 +396,18 @@ namespace Duel6 {
         const InfoMessageQueue &messageQueue = game.getRound().getWorld().getMessageQueue();
 
         if (game.getSettings().getScreenMode() == ScreenMode::FullScreen) {
-            messageQueue.renderAllMessages(game.getPlayers().front().getView(), 20, font);
+            messageQueue.renderAllMessages(renderer, game.getPlayers().front().getView(), 20, font);
         } else {
             for (const Player &player : game.getPlayers()) {
-                messageQueue.renderPlayerMessages(player, font);
+                messageQueue.renderPlayerMessages(renderer, player, font);
             }
         }
     }
 
     void WorldRenderer::shotCollisionBox(const ShotList &shotList) const {
-        shotList.forEach([](const Shot &shot) -> bool {
+        shotList.forEach([this](const Shot &shot) -> bool {
             const auto &rect = shot.getCollisionRect();
-            globRenderer->frame(Vector(rect.left.x, rect.left.y, 0.6f), rect.getSize(), 1.0f, Color::RED);
+            renderer.frame(Vector(rect.left.x, rect.left.y, 0.6f), rect.getSize(), 1.0f, Color::RED);
             return true;
         });
     }
@@ -412,18 +415,18 @@ namespace Duel6 {
     void WorldRenderer::view(const Player &player) const {
         const Camera &camera = player.getCamera();
         Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
-        globRenderer->setViewMatrix(viewMatrix);
+        renderer.setViewMatrix(viewMatrix);
 
         if (game.getSettings().isWireframe()) {
-            globRenderer->enableWireframe(true);
+            renderer.enableWireframe(true);
         }
 
         const World &world = game.getRound().getWorld();
         walls(world.getLevelRenderData().getWalls());
         sprites(world.getLevelRenderData().getSprites());
-        world.getElevatorList().render();
-        world.getBonusList().render();
-        world.getSpriteList().render();
+        world.getElevatorList().render(renderer);
+        world.getBonusList().render(renderer);
+        world.getSpriteList().render(renderer);
         invulRings(game.getPlayers());
         water(world.getLevelRenderData().getWater());
         youAreHere();
@@ -433,10 +436,10 @@ namespace Duel6 {
         }
         //shotCollisionBox(world.getShotList());
 
-        world.getExplosionList().render();
+        world.getExplosionList().render(renderer);
 
         if (game.getSettings().isWireframe()) {
-            globRenderer->enableWireframe(false);
+            renderer.enableWireframe(false);
         }
     }
 
@@ -478,7 +481,7 @@ namespace Duel6 {
     void WorldRenderer::render() const {
         const GameSettings &settings = game.getSettings();
 
-        globRenderer->clearBuffers();
+        renderer.clearBuffers();
 
         if (settings.getScreenMode() == ScreenMode::FullScreen) {
             fullScreen();

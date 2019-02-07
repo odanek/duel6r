@@ -25,73 +25,71 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_ELEVATOR_H
-#define DUEL6_ELEVATOR_H
+#ifndef DUEL6_FONTCACHE_H
+#define DUEL6_FONTCACHE_H
 
-#include <vector>
+#include <string>
+#include <unordered_map>
+#include <list>
 #include "Type.h"
-#include "math/Vector.h"
 #include "renderer/RendererTypes.h"
 #include "renderer/Renderer.h"
 
 namespace Duel6 {
-    class Elevator {
-    public:
-        class ControlPoint {
-        private:
-            Vector location;
-            Float32 wait;
-
-        public:
-            ControlPoint(Int32 x, Int32 y, Int32 wait)
-                    : location(Float32(x), Float32(y)), wait(wait) {}
-
-            const Vector &getLocation() const {
-                return location;
-            };
-
-            Float32 getWait() const {
-                return wait;
-            }
+    class FontCache {
+    private:
+        struct Entry {
+            std::string text;
+            Texture texture;
         };
+        typedef std::list <Entry> EntryList;
+        typedef std::unordered_map <std::string, EntryList::iterator> EntryMap;
 
     private:
-        std::vector<ControlPoint> controlPoints;
-        bool circular;
-        Size section;
-        Float32 remainingWait;
-        bool forward;
-        Float32 distance;
-        Float32 travelled;
-        Vector position;
-        Vector velocity;
+        mutable EntryList entryList;
+        mutable EntryMap entryMap;
+        Renderer &renderer;
+        Size maxEntries;
 
     public:
-        explicit Elevator(bool circular);
+        explicit FontCache(Renderer &renderer, Size maxEntries)
+                : renderer(renderer), maxEntries(maxEntries) {}
 
-        Elevator &addControlPoint(const ControlPoint &point) {
-            controlPoints.push_back(point);
-            return *this;
+        ~FontCache() {
+            empty();
         }
 
-        void start();
-
-        void update(Float32 elapsedTime);
-
-        void render(Renderer &renderer, Texture texture) const;
-
-        const Vector &getPosition() const {
-            return position;
+        bool has(const std::string &text) const {
+            return entryMap.find(text) != entryMap.end();
         }
 
-        const Vector &getVelocity() const {
-            return remainingWait > 0 ? Vector::ZERO : velocity;
+        Texture get(const std::string &text) const {
+            auto iter = entryMap.find(text);
+            Entry entry = *iter->second;
+            entryList.erase(iter->second);
+            entryList.push_front(entry);
+            iter->second = entryList.begin();
+            return entry.texture;
         }
 
-    private:
-        void nextSection();
+        void add(const std::string &text, Texture texture) const {
+            entryList.push_front(Entry{text, texture});
+            entryMap.insert(std::make_pair(text, entryList.begin()));
+            if (entryList.size() > maxEntries) {
+                Entry lastEntry = entryList.back();
+                entryList.pop_back();
+                entryMap.erase(lastEntry.text);
+                renderer.freeTexture(lastEntry.texture);
+            }
+        }
 
-        void startSection();
+        void empty() {
+            for (const Entry &entry : entryList) {
+                renderer.freeTexture(entry.texture);
+            }
+            entryList.clear();
+            entryMap.clear();
+        }
     };
 }
 

@@ -32,24 +32,25 @@
 #include "aseprite/animation.h"
 
 namespace Duel6 {
-    TextureManager::TextureManager() {}
+    TextureManager::TextureManager(Renderer &renderer)
+            : renderer(renderer) {}
 
     const animation::Animation TextureManager::loadAnimation(const std::string &path) {
         return animation::Animation::loadAseImage(path);
     }
 
-    Texture TextureManager::generateSprite(const animation::Animation& animation,
-               const animation::Palette &substitutionTable,
-               TextureFilter filtering,
-               bool clamp) const {
+    Texture TextureManager::generateSprite(const animation::Animation &animation,
+                                           const animation::Palette &substitutionTable,
+                                           TextureFilter filtering,
+                                           bool clamp) const {
         return generateSprite(animation, animation.toView(), substitutionTable, filtering, clamp);
     }
 
-    Texture TextureManager::generateSprite(const animation::Animation& animation,
-            const animation::Animation::AnimationView & animationView,
-            const animation::Palette &substitutionTable,
-            TextureFilter filtering,
-            bool clamp) const {
+    Texture TextureManager::generateSprite(const animation::Animation &animation,
+                                           const animation::Animation::AnimationView &animationView,
+                                           const animation::Palette &substitutionTable,
+                                           TextureFilter filtering,
+                                           bool clamp) const {
         Image list;
         for (uint16_t f = 0; f < animation.framesCount; f++) {
             Image frameImage(animation.width, animation.height);
@@ -57,21 +58,22 @@ namespace Duel6 {
                 frameImage.at(p).setAlpha(0);
             }
 
-            for (size_t l = 0 ; l < animation.layers.size(); l++) {
-                const auto & layer = animation.layers[l];
-                const animation::Cel & frame = layer.frames[f];
+            for (size_t l = 0; l < animation.layers.size(); l++) {
+                const auto &layer = animation.layers[l];
+                const animation::Cel &frame = layer.frames[f];
                 if (!animationView.layerViews[l].visible || layer.isGroupLayer || frame.opacity == 0) {
                     continue;
                 }
 
-                const animation::Image & image = animation.images[frame.image];
+                const animation::Image &image = animation.images[frame.image];
                 const float layerOpacity = layer.opacity / 255.0f;
                 const auto x = frame.x;
                 const auto y = frame.y;
                 const auto width = image.width;
                 const auto height = image.height;
 
-                auto pixels = image.substitute(substitutionTable, layerOpacity * frame.opacity, animation.transparentIndex);
+                auto pixels = image.substitute(substitutionTable, layerOpacity * frame.opacity,
+                                               animation.transparentIndex);
                 for (uint16_t v = 0; v < height && v + y < animation.height; v++) {
                     if (v + y < 0)
                         continue; // In Aseprite image cel can be placed in a way that it spans beyond the image boundaries (and could crash code below)
@@ -79,37 +81,37 @@ namespace Duel6 {
                         if (u + x < 0)
                             continue;
                         //TODO LAYER BLEND MODE
-                        const auto & color = pixels[v * width + u];
-                        auto & dstColor = frameImage.at( (y + v) * animation.width + u + x );
+                        const auto &color = pixels[v * width + u];
+                        auto &dstColor = frameImage.at((y + v) * animation.width + u + x);
                         bool transparent = dstColor.getRed() == 0 &&
-                                dstColor.getGreen() == 0 &&
-                                dstColor.getBlue() == 0 &&
-                                dstColor.getAlpha() == 0;
+                                           dstColor.getGreen() == 0 &&
+                                           dstColor.getBlue() == 0 &&
+                                           dstColor.getAlpha() == 0;
                         if (color.r == 0 && color.g == 0 && color.b == 0 && color.a == 0) {
                             // do not overwrite pixel with empty pixel
                             continue;
                         } else if (transparent) {
                             // overwrite empty pixel
                             dstColor.set(color.r, color.g, color.b, color.a);
-                        }
-                        else {
+                        } else {
                             // color mixing //TODO
-                            switch(layer.blendMode){
-                            case animation::Layer::BLEND_MODE::Darken:{
-                                uint8_t R = std::min(dstColor.getRed(), color.r);
-                                uint8_t G = std::min(dstColor.getGreen(), color.g);
-                                uint8_t B = std::min(dstColor.getBlue(), color.b);
-                                uint8_t A = std::max(dstColor.getAlpha(), color.a);
-                                R += (R - dstColor.getRed()) * ((255 -  color.a) / 255.0f);
-                                G += (G - dstColor.getGreen()) * ((255 - color.a) / 255.0f);
-                                B += (B - dstColor.getBlue()) * ((255 - color.a) / 255.0f);
+                            switch (layer.blendMode) {
+                                case animation::Layer::BLEND_MODE::Darken: {
+                                    uint8_t R = std::min(dstColor.getRed(), color.r);
+                                    uint8_t G = std::min(dstColor.getGreen(), color.g);
+                                    uint8_t B = std::min(dstColor.getBlue(), color.b);
+                                    uint8_t A = std::max(dstColor.getAlpha(), color.a);
+                                    R += (R - dstColor.getRed()) * ((255 - color.a) / 255.0f);
+                                    G += (G - dstColor.getGreen()) * ((255 - color.a) / 255.0f);
+                                    B += (B - dstColor.getBlue()) * ((255 - color.a) / 255.0f);
 
-                                dstColor.set(R, G, B, A);
-                                break;
-                            }
-                            case animation::Layer::BLEND_MODE::Normal:
-                            default:
-                                frameImage.at((y + v) * animation.width + u + x).set(color.r, color.g, color.b, color.a);
+                                    dstColor.set(R, G, B, A);
+                                    break;
+                                }
+                                case animation::Layer::BLEND_MODE::Normal:
+                                default:
+                                    frameImage.at((y + v) * animation.width + u + x).set(color.r, color.g, color.b,
+                                                                                         color.a);
                             }
                         }
                     }
@@ -118,7 +120,7 @@ namespace Duel6 {
             // frameImage now contains pixels from all layers
             list.addSlice(frameImage);
         }
-        return globRenderer->createTexture(list, filtering, clamp);
+        return renderer.createTexture(list, filtering, clamp);
     }
 
     Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {
@@ -131,7 +133,7 @@ namespace Duel6 {
         Image image = Image::loadStack(path);
         substituteColors(image, substitutionTable);
 
-        Texture texture = globRenderer->createTexture(image, filtering, clamp);
+        Texture texture = renderer.createTexture(image, filtering, clamp);
         return texture;
     }
 
@@ -141,7 +143,7 @@ namespace Duel6 {
         TextureDictionary dict;
         for (std::string &file : textureFiles) {
             Image image = Image::load(path + file);
-            Texture texture = globRenderer->createTexture(image, filtering, clamp);
+            Texture texture = renderer.createTexture(image, filtering, clamp);
             dict.textures[file] = texture;
         }
 
@@ -149,7 +151,7 @@ namespace Duel6 {
     }
 
     void TextureManager::dispose(Texture texture) {
-        globRenderer->freeTexture(texture);
+        renderer.freeTexture(texture);
     }
 
     void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {

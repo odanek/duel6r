@@ -44,18 +44,18 @@ namespace Duel6 {
         }
     }
 
-    void ExplosionList::render() const {
-        globRenderer->enableDepthTest(false);
+    void ExplosionList::render(Renderer &renderer) const {
+        renderer.enableDepthTest(false);
 
         for (const Explosion &explosion : explosions) {
             Material material = Material::makeMaskedColoredTexture(textures, explosion.color);
             Vector position = explosion.centre - Vector(explosion.now, explosion.now);
             position.z = 0.6f;
             Vector size = Vector(2 * explosion.now, 2 * explosion.now);
-            globRenderer->quadXY(position, size, Vector::ZERO, Vector(1, 1), material);
+            renderer.quadXY(position, size, Vector::ZERO, Vector(1, 1), material);
         }
 
-        globRenderer->enableDepthTest(true);
+        renderer.enableDepthTest(true);
     }
 
     void ExplosionList::add(const Vector &centre, Float32 startSize, Float32 maxSize, const Color &color) {

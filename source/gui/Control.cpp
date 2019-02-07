@@ -39,22 +39,22 @@ namespace Duel6 {
             desk.addControl(this);
         }
 
-        void Control::drawFrame(Int32 x, Int32 y, Int32 w, Int32 h, bool p) {
+        void Control::drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p) {
             w--;
             h--;
 
             const Color &topColor = p ? frameDarkColor : frameLightColor;
             const Color &bottomColor = p ? frameLightColor : frameDarkColor;
 
-            globRenderer->line(Vector(x, y), Vector(x, y - h), 1.0f, topColor);
-            globRenderer->line(Vector(x + 1, y), Vector(x + 1, y - h + 1), 1.0f, topColor);
-            globRenderer->line(Vector(x, y), Vector(x + w, y), 1.0f, topColor);
-            globRenderer->line(Vector(x, y - 1), Vector(x + w - 1, y - 1), 1.0f, topColor);
+            renderer.line(Vector(x, y), Vector(x, y - h), 1.0f, topColor);
+            renderer.line(Vector(x + 1, y), Vector(x + 1, y - h + 1), 1.0f, topColor);
+            renderer.line(Vector(x, y), Vector(x + w, y), 1.0f, topColor);
+            renderer.line(Vector(x, y - 1), Vector(x + w - 1, y - 1), 1.0f, topColor);
 
-            globRenderer->line(Vector(x + w, y - h), Vector(x + w, y), 1.0f, bottomColor);
-            globRenderer->line(Vector(x + w - 1, y - h), Vector(x + w - 1, y - 1), 1.0f, bottomColor);
-            globRenderer->line(Vector(x + w, y - h), Vector(x, y - h), 1.0f, bottomColor);
-            globRenderer->line(Vector(x + w, y - h + 1), Vector(x + 1, y - h + 1), 1.0f, bottomColor);
+            renderer.line(Vector(x + w, y - h), Vector(x + w, y), 1.0f, bottomColor);
+            renderer.line(Vector(x + w - 1, y - h), Vector(x + w - 1, y - 1), 1.0f, bottomColor);
+            renderer.line(Vector(x + w, y - h), Vector(x, y - h), 1.0f, bottomColor);
+            renderer.line(Vector(x + w, y - h + 1), Vector(x + 1, y - h + 1), 1.0f, bottomColor);
         }
     }
 }

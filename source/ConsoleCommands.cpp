@@ -210,8 +210,8 @@ namespace Duel6 {
         }
     }
 
-    void ConsoleCommands::openGLInfo(Console &console, const Console::Arguments &args) {
-        Renderer::Info info = globRenderer->getInfo();
+    void ConsoleCommands::openGLInfo(Console &console, const Console::Arguments &args, Renderer &renderer) {
+        Renderer::Info info = renderer.getInfo();
 
         console.printLine("\n===OpenGL info===");
         console.printLine(Format("Vendor     : {0}") << info.vendor);
@@ -220,8 +220,8 @@ namespace Duel6 {
         console.printLine("");
     }
 
-    void ConsoleCommands::openGLExtensions(Console &console, const Console::Arguments &args) {
-        Renderer::Extensions info = globRenderer->getExtensions();
+    void ConsoleCommands::openGLExtensions(Console &console, const Console::Arguments &args, Renderer &renderer) {
+        Renderer::Extensions info = renderer.getExtensions();
 
         console.printLine("\n===OpenGL extensions===");
 
@@ -256,8 +256,12 @@ namespace Duel6 {
         console.registerCommand("show_fps", [&gameSettings](Console &con, const Console::Arguments &args) {
             toggleShowFps(con, args, gameSettings);
         });
-        console.registerCommand("gl_info", openGLInfo);
-        console.registerCommand("gl_extensions", openGLExtensions);
+        console.registerCommand("gl_info", [&appService](Console &con, const Console::Arguments &args) {
+            openGLInfo(con, args, appService.getVideo().getRenderer());
+        });
+        console.registerCommand("gl_extensions", [&appService](Console &con, const Console::Arguments &args) {
+            openGLExtensions(con, args, appService.getVideo().getRenderer());
+        });
         console.registerCommand("vsync", vsync);
         console.registerCommand("volume", [&appService](Console &con, const Console::Arguments &args) {
             volume(con, args, appService.getSound());

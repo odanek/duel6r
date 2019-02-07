@@ -37,49 +37,7 @@
 #endif
 
 namespace Duel6 {
-    Renderer *globRenderer = nullptr; // TODO: Remove
-
-    Video::~Video() {
-        if (globRenderer != nullptr) {
-            delete globRenderer;
-            globRenderer = nullptr;
-        }
-
-        SDL_GL_DeleteContext(glContext);
-        SDL_DestroyWindow(window);
-    }
-
-    void Video::screenUpdate(Console &console, const Font &font) {
-        renderConsole(console, font);
-        swapBuffers();
-    }
-
-    void Video::renderConsole(Console &console, const Font &font) {
-        if (console.isActive()) {
-            console.render(screen.getClientWidth(), screen.getClientHeight(), font);
-        }
-    }
-
-    void Video::swapBuffers() {
-        SDL_GL_SwapWindow(window);
-        calculateFps();
-    }
-
-    void Video::calculateFps() {
-        static Uint32 curTime = 0, lastTime = 0, frameCounter = 0;
-        curTime = SDL_GetTicks();
-
-        if (curTime - lastTime >= 1000) {
-            fps = frameCounter * 1000 / float(curTime - lastTime);
-            lastTime = curTime;
-            frameCounter = 0;
-        }
-        frameCounter++;
-    }
-
-    void Video::initialize(const std::string &name, const std::string &icon, Console &console) {
-        console.printLine("\n===Video initialization===");
-
+    Video::Video(const std::string &name, const std::string &icon, Console &console) {
         // Get current video mode
         SDL_DisplayMode currentVideoMode;
         if (SDL_GetCurrentDisplayMode(0, &currentVideoMode)) {
@@ -104,11 +62,44 @@ namespace Duel6 {
             D6_THROW(VideoException, (const char *)glewGetErrorString(err));
         }
 
-        globRenderer = createRenderer();
+        renderer = createRenderer();
 
         setMode(Mode::Orthogonal);
 
         SDL_ShowCursor(SDL_DISABLE);
+    }
+
+    Video::~Video() {
+        SDL_GL_DeleteContext(glContext);
+        SDL_DestroyWindow(window);
+    }
+
+    void Video::screenUpdate(Console &console, const Font &font) {
+        renderConsole(console, font);
+        swapBuffers();
+    }
+
+    void Video::renderConsole(Console &console, const Font &font) {
+        if (console.isActive()) {
+            console.render(*renderer, screen.getClientWidth(), screen.getClientHeight(), font);
+        }
+    }
+
+    void Video::swapBuffers() {
+        SDL_GL_SwapWindow(window);
+        calculateFps();
+    }
+
+    void Video::calculateFps() {
+        static Uint32 curTime = 0, lastTime = 0, frameCounter = 0;
+        curTime = SDL_GetTicks();
+
+        if (curTime - lastTime >= 1000) {
+            fps = frameCounter * 1000 / float(curTime - lastTime);
+            lastTime = curTime;
+            frameCounter = 0;
+        }
+        frameCounter++;
     }
 
     SDL_Window *Video::createWindow(const std::string &name, const std::string &icon, const ScreenParameters &params,
@@ -191,32 +182,36 @@ namespace Duel6 {
         return glc;
     }
 
-    Renderer *Video::createRenderer() {
+    std::unique_ptr<Renderer> Video::createRenderer() {
 #if defined(D6_RENDERER_GL1)
-        Renderer *renderer = new GL1Renderer();
+        return std::make_unique<GL1Renderer>();
 #elif defined(D6_RENDERER_GLES2)
-        Renderer* renderer = new GLES2Renderer();
+        return std::make_unique<GLES2Renderer>();
 #elif defined(D6_RENDERER_GL4)
-        Renderer* renderer = new GL4Renderer();
+        return std::make_unique<GL4Renderer>();
 #endif
 
-        return renderer;
+        D6_THROW(VideoException, "Invalid renderer");
     }
 
     void Video::setMode(Mode mode) const {
         if (mode == Mode::Perspective) {
             Matrix projection = Matrix::perspective(view.getFieldOfView(), screen.getAspect(), view.getNearClip(),
                                                     view.getFarClip());
-            globRenderer->setProjectionMatrix(projection);
-            globRenderer->setViewMatrix(Matrix::IDENTITY);
-            globRenderer->setModelMatrix(Matrix::IDENTITY);
-            globRenderer->enableDepthTest(true);
+            renderer->setProjectionMatrix(projection);
+            renderer->setViewMatrix(Matrix::IDENTITY);
+            renderer->setModelMatrix(Matrix::IDENTITY);
+            renderer->enableDepthTest(true);
         } else {
             Matrix projection = Matrix::orthographic(0, screen.getClientWidth(), 0, screen.getClientHeight(), -1, 1);
-            globRenderer->setProjectionMatrix(projection);
-            globRenderer->setViewMatrix(Matrix::IDENTITY);
-            globRenderer->setModelMatrix(Matrix::IDENTITY);
-            globRenderer->enableDepthTest(false);
+            renderer->setProjectionMatrix(projection);
+            renderer->setViewMatrix(Matrix::IDENTITY);
+            renderer->setModelMatrix(Matrix::IDENTITY);
+            renderer->enableDepthTest(false);
         }
+    }
+
+    Renderer &Video::getRenderer() const {
+        return *renderer;
     }
 }

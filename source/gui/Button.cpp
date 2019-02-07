@@ -70,10 +70,10 @@ namespace Duel6 {
             }
         }
 
-        void Button::draw(const Font &font) const {
+        void Button::draw(Renderer &renderer, const Font &font) const {
             Int32 px, py;
 
-            drawFrame(x, y, width, height, pressed);
+            drawFrame(renderer, x, y, width, height, pressed);
             px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
             py = y - (height >> 1) - 7 - pressed;
             font.print(px, py, Color(0), caption);

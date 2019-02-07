@@ -72,11 +72,11 @@ namespace Duel6 {
             text.clear();
         }
 
-        void Textbox::draw(const Font &font) const {
+        void Textbox::draw(Renderer &renderer, const Font &font) const {
             int w = (width << 3) + 8;
 
-            drawFrame(x - 2, y + 2, w + 4, 22, true);
-            globRenderer->quadXY(Vector(x, y - 17), Vector(w, 17), Color::WHITE);
+            drawFrame(renderer, x - 2, y + 2, w + 4, 22, true);
+            renderer.quadXY(Vector(x, y - 17), Vector(w, 17), Color::WHITE);
             font.print(x, y - 16, Color(0), text + "_");
         }
     }

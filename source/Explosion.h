@@ -54,7 +54,7 @@ namespace Duel6 {
 
         void update(Float32 elapsedTime);
 
-        void render() const;
+        void render(Renderer &renderer) const;
 
         void add(const Vector &centre, Float32 startSize, Float32 maxSize, const Color &color);
     };

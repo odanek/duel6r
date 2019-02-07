@@ -52,7 +52,7 @@ namespace Duel6 {
         animation::Animation playerAnimation;
 
     public:
-        void load(AppService &appService);
+        void load(Console &console, Sound &sound, TextureManager &textureManager);
 
         const Block::Meta &getBlockMeta() const {
             return blockMeta;

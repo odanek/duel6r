@@ -120,7 +120,7 @@ namespace Duel6 {
     public:
         Bonus(BonusType type, Int32 duration, const Vector &position, Int32 textureIndex);
 
-        void render(Texture texture) const;
+        void render(Renderer &renderer, Texture texture) const;
 
         const BonusType &getType() const {
             return bonus;
@@ -157,7 +157,7 @@ namespace Duel6 {
 
         LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position);
 
-        void render() const;
+        void render(Renderer &renderer) const;
 
         const Weapon &getWeapon() const {
             return weapon;

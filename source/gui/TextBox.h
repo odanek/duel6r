@@ -51,7 +51,7 @@ namespace Duel6 {
 
             void flush();
 
-            void draw(const Font &font) const override;
+            void draw(Renderer &renderer, const Font &font) const override;
 
             void textInputEvent(const TextInputEvent &event) override;
 

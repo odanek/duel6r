@@ -78,7 +78,7 @@ namespace Duel6 {
             return faces;
         }
 
-        void build();
+        void build(Renderer &renderer);
 
         void render(Texture texture, bool masked) const;
 

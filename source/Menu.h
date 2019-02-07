@@ -58,6 +58,7 @@ namespace Duel6 {
         AppService &appService;
         Font &font;
         Video &video;
+        Renderer &renderer;
         Sound &sound;
         Game *game;
         std::vector<std::unique_ptr<GameMode>> gameModes;

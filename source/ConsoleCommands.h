@@ -54,9 +54,9 @@ namespace Duel6 {
 
         static void ammoRange(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
 
-        static void openGLInfo(Console &console, const Console::Arguments &args);
+        static void openGLInfo(Console &console, const Console::Arguments &args, Renderer &renderer);
 
-        static void openGLExtensions(Console &console, const Console::Arguments &args);
+        static void openGLExtensions(Console &console, const Console::Arguments &args, Renderer &renderer);
 
         static void vsync(Console &console, const Console::Arguments &args);
 

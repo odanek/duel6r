@@ -40,6 +40,8 @@
 #include "Color.h"
 #include "Format.h"
 #include "renderer/RendererTypes.h"
+#include "renderer/Renderer.h"
+#include "FontCache.h"
 
 namespace Duel6 {
     class Console;
@@ -47,9 +49,11 @@ namespace Duel6 {
     class Font {
     private:
         TTF_Font *font;
+        Renderer &renderer;
+        FontCache fontCache;
 
     public:
-        Font();
+        Font(Renderer &renderer);
 
         ~Font();
 
@@ -58,8 +62,6 @@ namespace Duel6 {
         void print(Int32 x, Int32 y, const Color &color, const std::string &str) const;
 
         void print(Float32 x, Float32 y, Float32 z, const Color &color, const std::string &str, Float32 height) const;
-
-        void dispose();
 
         Float32 getTextWidth(const std::string &str, Float32 height) const;
 

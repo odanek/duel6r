@@ -39,10 +39,10 @@
 namespace Duel6 {
     class Application {
     private:
-        Font font;
         Console console;
-        TextureManager textureManager;
-        Video video;
+        std::unique_ptr<Video> video;
+        std::unique_ptr<Font> font;
+        std::unique_ptr<TextureManager> textureManager;
         Input input;
         PlayerControlsManager controlsManager;
         Sound sound;
@@ -50,21 +50,17 @@ namespace Duel6 {
         GameResources gameResources;
         Script::ScriptContext scriptContext;
         Script::ScriptManager scriptManager;
-        AppService service;
-        Menu menu;
-        Game game;
+        std::unique_ptr<Menu> menu;
+        std::unique_ptr<Game> game;
+        std::unique_ptr<AppService> service;
         bool requestClose;
 
     public:
-        Application();
+        Application(Int32 argc, char **argv);
 
         ~Application();
 
-        void setup(Int32 argc, char **argv);
-
         void run();
-
-        void tearDown();
 
     private:
         void processEvents(Context &context);

@@ -37,6 +37,7 @@
 #include "TextureDictionary.h"
 #include "renderer/RendererTypes.h"
 #include "aseprite/animation.h"
+#include "renderer/Renderer.h"
 
 #define D6_TEXTURE_MAN_PATH      "textures/man/"
 #define D6_TEXTURE_BCG_PATH      "textures/backgrounds/"
@@ -51,11 +52,14 @@
 
 namespace Duel6 {
     class TextureManager {
+    private:
+        Renderer &renderer;
+
     public:
         typedef std::unordered_map<Color, Color, ColorHash> SubstitutionTable;
 
     public:
-        TextureManager();
+        TextureManager(Renderer &renderer);
 
         void dispose(Texture texture);
 

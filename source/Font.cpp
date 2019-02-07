@@ -33,84 +33,21 @@
 #include "Video.h"
 
 namespace Duel6 {
-    namespace {
-        class LruFontCache {
-        private:
-            static const Size MAX_ENTRIES = 100;
-
-            struct Entry {
-                std::string text;
-                Texture texture;
-            };
-            typedef std::list<Entry> EntryList;
-            typedef std::unordered_map<std::string, EntryList::iterator> EntryMap;
-
-        private:
-            mutable EntryList entryList;
-            mutable EntryMap entryMap;
-
-        public:
-            LruFontCache() = default;
-
-            ~LruFontCache() = default;
-
-            bool has(const std::string &text) const {
-                return entryMap.find(text) != entryMap.end();
-            }
-
-            Texture get(const std::string &text) const {
-                auto iter = entryMap.find(text);
-                Entry entry = *iter->second;
-                entryList.erase(iter->second);
-                entryList.push_front(entry);
-                iter->second = entryList.begin();
-                return entry.texture;
-            }
-
-            void add(const std::string &text, Texture texture) {
-                entryList.push_front(Entry{text, texture});
-                entryMap.insert(std::make_pair(text, entryList.begin()));
-                if (entryList.size() > MAX_ENTRIES) {
-                    Entry lastEntry = entryList.back();
-                    entryList.pop_back();
-                    entryMap.erase(lastEntry.text);
-                    globRenderer->freeTexture(lastEntry.texture);
-                }
-            }
-
-            void empty() {
-                for (const Entry &entry : entryList) {
-                    globRenderer->freeTexture(entry.texture);
-                }
-                entryList.clear();
-                entryMap.clear();
-            }
-        };
-
-        LruFontCache fontCache;
-    }
-
-    Font::Font()
-            : font(nullptr) {}
+    Font::Font(Renderer &renderer)
+            : font(nullptr), renderer(renderer), fontCache(renderer, 100) {}
 
     Font::~Font() {
-        dispose();
+        if (font != nullptr) {
+            TTF_CloseFont(font);
+            font = nullptr;
+        }
     }
 
     void Font::load(const std::string &fontFile, Console &console) {
-        dispose();
         console.printLine(Format("...loading font: {0}") << fontFile);
         font = TTF_OpenFont(fontFile.c_str(), 32);
         if (font == nullptr) {
             D6_THROW(FontException, Format("Unable to load font {0} due to error: {1}") << fontFile << TTF_GetError());
-        }
-    }
-
-    void Font::dispose() {
-        fontCache.empty();
-        if (font != nullptr) {
-            TTF_CloseFont(font);
-            font = nullptr;
         }
     }
 
@@ -136,9 +73,9 @@ namespace Duel6 {
         Material material = Material::makeColoredTexture(texture, color);
         Float32 width = getTextWidth(str, height);
 
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), material);
-        globRenderer->setBlendFunc(BlendFunc::None);
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector(x, y, z), Vector(width, height), Vector(0, 1), Vector(1, -1), material);
+        renderer.setBlendFunc(BlendFunc::None);
     }
 
     Texture Font::getTexture(const std::string &text) const {
@@ -155,7 +92,7 @@ namespace Duel6 {
         Image image = Image::fromSurface(surface);
         SDL_FreeSurface(surface);
 
-        Texture texture = globRenderer->createTexture(image, TextureFilter::Linear, true);
+        Texture texture = renderer.createTexture(image, TextureFilter::Linear, true);
 
         return texture;
     }

@@ -33,7 +33,8 @@ namespace Duel6 {
     World::World(Game &game, const std::string &levelPath, bool mirror)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
               level(levelPath, mirror, game.getResources().getBlockMeta()),
-              levelRenderData(level, gameSettings.getScreenMode(), D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
+              levelRenderData(level, game.getAppService().getVideo().getRenderer(), gameSettings.getScreenMode(),
+                              D6_ANM_SPEED, D6_WAVE_HEIGHT), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game.getResources(), *this),
               elevatorList(game.getResources().getElevatorTextures()), time(0) {
@@ -69,8 +70,6 @@ namespace Duel6 {
         if (mod != 0 && Math::random(mod) == 0) {
             bonusList.addRandomBonus();
         }
-
-        globRenderer->setGlobalTime(time);
     }
 
     void World::raiseWater() {
@@ -87,7 +86,7 @@ namespace Duel6 {
 
         std::vector<std::string> bcgNames;
         bcgNames.reserve(bcgDict.size());
-        
+
         for (auto &entry : bcgDict) {
             bcgNames.push_back(entry.first);
         }

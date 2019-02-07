@@ -52,10 +52,10 @@ namespace Duel6 {
 
         void update(Float32 elapsedTime);
 
-        void render() const;
+        void render(Renderer &renderer) const;
 
     private:
-        void renderTransparent(bool transparent) const;
+        void renderTransparent(Renderer &renderer, bool transparent) const;
     };
 }
 

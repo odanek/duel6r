@@ -153,16 +153,16 @@ namespace Duel6 {
         }
     }
 
-    void Sprite::render() const {
+    void Sprite::render(Renderer &renderer) const {
         if (!visible) {
             return;
         }
 
         if (isNoDepth()) {
-            globRenderer->enableDepthTest(false);
+            renderer.enableDepthTest(false);
         }
         if (isTransparent()) {
-            globRenderer->setBlendFunc(blendFunc);
+            renderer.setBlendFunc(blendFunc);
         }
 
         Int32 textureIndex = animation[frame];
@@ -171,21 +171,21 @@ namespace Duel6 {
         bool rotated = zRotation != 0.0;
         if (rotated) {
             Matrix rotate = Matrix::rotateAroundPoint(zRotation, Vector::UNIT_Z, position + rotationCentre);
-            globRenderer->setModelMatrix(rotate);
+            renderer.setModelMatrix(rotate);
         }
 
         bool reversed = (orientation == Orientation::Right);
         Vector texturePos = Vector(reversed ? 1.0f : 0.0f, 1.0f, Float32(textureIndex));
         Vector textureSize = Vector(reversed ? -1.0f : 1.0f, -1.0f);
 
-        globRenderer->quadXY(Vector(position.x, position.y, z), size, texturePos, textureSize, material);
+        renderer.quadXY(Vector(position.x, position.y, z), size, texturePos, textureSize, material);
 
         if (rotated) {
-            globRenderer->setModelMatrix(Matrix::IDENTITY);
+            renderer.setModelMatrix(Matrix::IDENTITY);
         }
 
         if (isNoDepth()) {
-            globRenderer->enableDepthTest(true);
+            renderer.enableDepthTest(true);
         }
     }
 }

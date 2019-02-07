@@ -110,17 +110,17 @@ namespace Duel6 {
             }
         }
 
-        void Spinner::draw(const Font &font) const {
-            drawFrame(x + 20, y, width - 40, 18, true);
-            globRenderer->quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
+        void Spinner::draw(Renderer &renderer, const Font &font) const {
+            drawFrame(renderer, x + 20, y, width - 40, 18, true);
+            renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
 
             Int32 px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
             Int32 py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
-            globRenderer->triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);
+            renderer.triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);
 
             px = right->getX() + 7 + (right->isPressed() ? 1 : 0);
             py = right->getY() - 4 - (right->isPressed() ? 1 : 0);
-            globRenderer->triangle(Vector(px - 1, py), Vector(px + 3, py - 4), Vector(px - 1, py - 7), Color::BLACK);
+            renderer.triangle(Vector(px - 1, py), Vector(px + 3, py - 4), Vector(px - 1, py - 7), Color::BLACK);
 
             if (items.empty())
                 return;

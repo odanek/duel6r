@@ -32,16 +32,12 @@
 #include "Bonus.h"
 
 namespace Duel6 {
-    void GameResources::load(AppService &appService) {
-        Sound &sound = appService.getSound();
-        Console &console = appService.getConsole();
-        TextureManager &textureManager = appService.getTextureManager();
-
+    void GameResources::load(Console &console, Sound &sound, TextureManager &textureManager) {
         console.printLine("\n===Initializing game resources===");
         console.printLine("\n...Weapon initialization");
         Weapon::initialize(sound, textureManager);
         console.printLine("...Building water-list");
-        Water::initialize(sound, appService.getTextureManager());
+        Water::initialize(sound, textureManager);
         console.printLine("...Loading game sounds");
         roundStartSound = sound.loadSample("sound/game/round-start.wav");
         gameOverSound = sound.loadSample("sound/game/game-over.wav");

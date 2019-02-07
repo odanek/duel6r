@@ -46,33 +46,33 @@ namespace Duel6 {
         return *this;
     }
 
-    void InfoMessageQueue::renderPlayerMessages(const Player &player, const Font &font) const {
+    void InfoMessageQueue::renderPlayerMessages(Renderer &renderer, const Player &player, const Font &font) const {
         const PlayerView &view = player.getView();
         Int32 posX = view.getX() + 4;
         Int32 posY = view.getY() + view.getHeight() - 24;
 
         for (const InfoMessage &msg : messages) {
             if (player.is(msg.getPlayer())) {
-                renderMessage(posX, posY, msg.getText(), font);
+                renderMessage(renderer, posX, posY, msg.getText(), font);
                 posY -= 16;
             }
         }
     }
 
-    void InfoMessageQueue::renderAllMessages(const PlayerView &view, Int32 offsetY, const Font &font) const {
+    void InfoMessageQueue::renderAllMessages(Renderer &renderer, const PlayerView &view, Int32 offsetY, const Font &font) const {
         Int32 posX = view.getX() + 4;
         Int32 posY = view.getY() + view.getHeight() - offsetY;
 
         for (const InfoMessage &msg : messages) {
-            renderMessage(posX, posY, msg.getPlayer().getPerson().getName() + ": " + msg.getText(), font);
+            renderMessage(renderer, posX, posY, msg.getPlayer().getPerson().getName() + ": " + msg.getText(), font);
             posY -= 16;
         }
     }
 
-    void InfoMessageQueue::renderMessage(Int32 x, Int32 y, const std::string &msg, const Font &font) {
-        globRenderer->setBlendFunc(BlendFunc::SrcAlpha);
-        globRenderer->quadXY(Vector(x, y + 1), Vector(8 * Uint32(msg.length()), 14), Color(0, 0, 255, 178));
-        globRenderer->setBlendFunc(BlendFunc::None);
+    void InfoMessageQueue::renderMessage(Renderer &renderer, Int32 x, Int32 y, const std::string &msg, const Font &font) {
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        renderer.quadXY(Vector(x, y + 1), Vector(8 * Uint32(msg.length()), 14), Color(0, 0, 255, 178));
+        renderer.setBlendFunc(BlendFunc::None);
         font.print(x, y, Color::YELLOW, msg);
     }
 

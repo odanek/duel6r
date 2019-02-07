@@ -60,7 +60,7 @@ namespace Duel6 {
             }
 
         protected:
-            void draw(const Font &font) const override;
+            void draw(Renderer &renderer, const Font &font) const override;
 
             void update(Float32 elpasedTime) override;
 

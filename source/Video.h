@@ -36,8 +36,6 @@
 #include "renderer/Renderer.h"
 
 namespace Duel6 {
-    extern Renderer *globRenderer;  // TODO: Glob fix
-
     class Video {
     public:
         enum class Mode {
@@ -51,11 +49,12 @@ namespace Duel6 {
         Float32 fps;
         ScreenParameters screen;
         ViewParameters view;
+        std::unique_ptr<Renderer> renderer;
 
     public:
-        ~Video();
+        Video(const std::string &name, const std::string &icon, Console &console);
 
-        void initialize(const std::string &name, const std::string &icon, Console &console);
+        ~Video();
 
         void screenUpdate(Console &console, const Font &font);
 
@@ -73,6 +72,8 @@ namespace Duel6 {
 
         void setMode(Mode mode) const;
 
+        Renderer &getRenderer() const;
+
     private:
         void renderConsole(Console &console, const Font &font);
 
@@ -85,7 +86,7 @@ namespace Duel6 {
 
         SDL_GLContext createContext(const ScreenParameters &params, Console &console);
 
-        Renderer *createRenderer();
+        std::unique_ptr<Renderer> createRenderer();
     };
 }
 

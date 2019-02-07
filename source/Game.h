@@ -198,8 +198,8 @@ namespace Duel6 {
             return *gameMode;
         }
 
-        void setMenuReference(const Menu *menu) {
-            this->menu = menu;
+        void setMenuReference(const Menu &menu) {
+            this->menu = &menu;
         }
 
     private:

@@ -103,13 +103,13 @@ namespace Duel6 {
         }
     }
 
-    void Console::renderBackground(Int32 csX, Int32 csY, const Font &font) const {
+    void Console::renderBackground(Renderer &renderer, Int32 csX, Int32 csY, const Font &font) const {
         Int32 sizeY = (show + 2) * font.getCharHeight() + 2;
         Int32 bottom = csY - sizeY;
 
         // TODO: Gradient col[1] -> col[2]
-        globRenderer->quadXY(Vector(0, bottom), Vector(csX, sizeY), conCol[2]);
-        globRenderer->quadXY(Vector(0, bottom - 3), Vector(csX, 3), conCol[0]);
+        renderer.quadXY(Vector(0, bottom), Vector(csX, sizeY), conCol[2]);
+        renderer.quadXY(Vector(0, bottom - 3), Vector(csX, 3), conCol[0]);
     }
 
     void Console::renderSeparator(Int32 csY, const Font &font) const {
@@ -137,7 +137,7 @@ namespace Duel6 {
     Render the console content to screen
     ==================================================
     */
-    void Console::render(int csX, int csY, const Font &font) {
+    void Console::render(Renderer &renderer, int csX, int csY, const Font &font) {
         if (!visible) {
             return;
         }
@@ -152,7 +152,7 @@ namespace Duel6 {
             scroll = 0;
         }
 
-        renderBackground(csX, csY, font);
+        renderBackground(renderer, csX, csY, font);
 
         // Vypsani poslednich show radku
         if (show > 0) {

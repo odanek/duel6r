@@ -32,9 +32,9 @@ namespace Duel6 {
     FaceList::~FaceList() {
     }
 
-    void FaceList::build() {
+    void FaceList::build(Renderer &renderer) {
         if (!faces.empty()) {
-            buffer = globRenderer->makeBuffer(*this);
+            buffer = renderer.makeBuffer(*this);
         } else {
             buffer = nullptr;
         }

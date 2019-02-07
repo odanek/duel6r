@@ -109,7 +109,7 @@ namespace Duel6 {
 
             void mouseButtonEvent(const MouseButtonEvent &event) override;
 
-            void draw(const Font &font) const override;
+            void draw(Renderer &renderer, const Font &font) const override;
         };
     }
 }

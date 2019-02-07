@@ -37,6 +37,7 @@ namespace Duel6 {
     class LevelRenderData {
     private:
         const Level &level;
+        Renderer &renderer;
         ScreenMode screenMode;
         FaceList walls;
         FaceList sprites;
@@ -46,7 +47,8 @@ namespace Duel6 {
         Float32 waveHeight;
 
     public:
-        LevelRenderData(const Level &level, ScreenMode screenMode, Float32 animationSpeed, Float32 waveHeight);
+        LevelRenderData(const Level &level, Renderer &renderer, ScreenMode screenMode, Float32 animationSpeed,
+                        Float32 waveHeight);
 
         void generateFaces();
 

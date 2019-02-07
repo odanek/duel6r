@@ -72,7 +72,7 @@ namespace Duel6 {
             }
 
         protected:
-            void draw(const Font &font) const override;
+            void draw(Renderer &renderer, const Font &font) const override;
 
             void mouseButtonEvent(const MouseButtonEvent &event) override;
 

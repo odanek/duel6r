@@ -36,6 +36,7 @@ namespace Duel6 {
     namespace Gui {
         class Desktop {
         private:
+            Renderer &renderer;
             Int32 screenWidth;
             Int32 screenHeight;
             Int32 trX; // x translation
@@ -43,7 +44,7 @@ namespace Duel6 {
             std::vector<std::unique_ptr<Control>> controls;
 
         public:
-            Desktop();
+            Desktop(Renderer &renderer);
 
             ~Desktop();
 

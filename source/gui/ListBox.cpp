@@ -153,9 +153,9 @@ namespace Duel6 {
             }
         }
 
-        void ListBox::draw(const Font &font) const {
-            drawFrame(x - 2, y + 2, width + 4, height + 4, true);
-            globRenderer->quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
+        void ListBox::draw(Renderer &renderer, const Font &font) const {
+            drawFrame(renderer, x - 2, y + 2, width + 4, height + 4, true);
+            renderer.quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
 
             if (items.empty())
                 return;
@@ -176,7 +176,7 @@ namespace Duel6 {
                 Color fontColor = (index == selected) ? Color::WHITE : colors.font;
                 Color bcgColor = (index == selected) ? highlightColor : colors.background;
 
-                globRenderer->quadXY(Vector(x, Y - (itemHeight - 1)), Vector(width - 1, itemHeight - 1), bcgColor);
+                renderer.quadXY(Vector(x, Y - (itemHeight - 1)), Vector(width - 1, itemHeight - 1), bcgColor);
                 font.print(x, Y - shift, fontColor, label.substr(0, size_t(width) / 8));
             }
         }

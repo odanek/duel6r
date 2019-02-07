@@ -47,10 +47,10 @@ namespace Duel6 {
         const Font &font;
         const Video &video;
         const Game &game;
+        Renderer &renderer;
 
     public:
-        WorldRenderer(AppService &appService, const Game &game)
-                : font(appService.getFont()), video(appService.getVideo()), game(game) {}
+        WorldRenderer(AppService &appService, const Game &game);
 
         void render() const;
 

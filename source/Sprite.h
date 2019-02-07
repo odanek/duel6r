@@ -135,7 +135,7 @@ namespace Duel6 {
 
         void update(Float32 elapsedTime);
 
-        void render() const;
+        void render(Renderer &renderer) const;
     };
 }
 

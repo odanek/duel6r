@@ -72,15 +72,83 @@ namespace Duel6 {
         }
     }
 
-    Application::Application()
-            : console(Console::ExpandFlag), textureManager(),
-              input(console), controlsManager(input),sound(20, console),
+    Application::Application(Int32 argc, char **argv)
+            : console(Console::ExpandFlag), input(console), controlsManager(input), sound(20, console),
               scriptContext(console, sound, gameSettings), scriptManager(scriptContext),
-              service(font, console, textureManager, video, input, controlsManager, sound, scriptManager),
-              menu(service), game(service, gameResources, gameSettings), requestClose(false) {}
+              requestClose(false) {
+        if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+            D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());
+        }
+        if (TTF_Init() != 0) {
+            D6_THROW(FontException, Format("Unable to initialize font subsystem: {0}") << TTF_GetError());
+        }
+
+        // Print application info
+        SDL_version sdlVersion;
+        console.printLine("\n===Application information===");
+        console.printLine(Format("{0} version: {1}") << APP_NAME << APP_VERSION);
+        SDL_GetVersion(&sdlVersion);
+        console.printLine(
+                Format("SDL version: {0}.{1}.{2}") << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
+        const SDL_version *mixVersion = Mix_Linked_Version();
+        console.printLine(Format("SDL_mixer version: {0}.{1}.{2}") << mixVersion->major << mixVersion->minor
+                                                                   << mixVersion->patch);
+        const SDL_version *ttfVersion = TTF_Linked_Version();
+        console.printLine(
+                Format("SDL_ttf version: {0}.{1}.{2}") << ttfVersion->major << ttfVersion->minor << ttfVersion->patch);
+
+#ifdef D6_SCRIPTING_LUA
+        const lua_Number *luaVersion = lua_version(nullptr);
+        console.printLine(Format("Lua version: {0}") << *luaVersion);
+#endif
+
+        Console::registerBasicCommands(console);
+
+        console.printLine("\n===Video initialization==");
+        video = std::make_unique<Video>(APP_NAME, APP_FILE_ICON, console);
+        textureManager = std::make_unique<TextureManager>(video->getRenderer());
+
+        console.printLine("\n===Font initialization===");
+        font = std::make_unique<Font>(video->getRenderer());
+        font->load(D6_FILE_TTF_FONT, console);
+
+        service = std::make_unique<AppService>(*font, console, *textureManager, *video, input, controlsManager, sound, scriptManager);
+
+        gameResources.load(console, sound, *textureManager);
+
+        menu = std::make_unique<Menu>(*service);
+        game = std::make_unique<Game>(*service, gameResources, gameSettings);
+
+        menu->setGameReference(*game);
+        game->setMenuReference(*menu);
+
+        FireList::initialize();
+
+        for (Weapon weapon : Weapon::values()) {
+            gameSettings.enableWeapon(weapon, true);
+        }
+
+        scriptManager.registerLoaders();
+        menu->initialize();
+
+        // Execute config script and command line arguments
+        console.printLine("\n===Config===");
+        ConsoleCommands::registerCommands(console, *service, *menu, gameSettings);
+        console.exec(std::string("exec ") + D6_FILE_CONFIG);
+
+        for (int i = 1; i < argc; i++) {
+            console.exec(argv[i]);
+        }
+    }
 
     Application::~Application() {
-        tearDown();
+        game.reset();
+        menu.reset();
+        font.reset();
+        video.reset();
+
+        TTF_Quit();
+        SDL_Quit();
     }
 
     void Application::textInputEvent(Context &context, const TextInputEvent &event) {
@@ -99,7 +167,7 @@ namespace Duel6 {
                 console.toggle();
                 if (console.isActive()) {
                     SDL_StartTextInput();
-                } else if (context.is(game)) {
+                } else if (context.is(*game)) {
                     SDL_StopTextInput();
                 }
             }
@@ -149,16 +217,16 @@ namespace Duel6 {
                 case SDL_MOUSEBUTTONDOWN:
                 case SDL_MOUSEBUTTONUP:
                     mouseButtonEvent(context,
-                                     createMouseButtonEvent(event.button, video.getScreen().getClientHeight()));
+                                     createMouseButtonEvent(event.button, video->getScreen().getClientHeight()));
                     break;
                 case SDL_MOUSEMOTION:
                     mouseMotionEvent(context,
-                                     createMouseMotionEvent(event.motion, video.getScreen().getClientHeight()));
+                                     createMouseMotionEvent(event.motion, video->getScreen().getClientHeight()));
                     break;
                 case SDL_MOUSEWHEEL:{
                         Int32 x,y;
                         SDL_GetMouseState(&x, &y);
-                        mouseWheelEvent(context, MouseWheelEvent(x, video.getScreen().getClientHeight() - y, event.wheel.x, event.wheel.y));
+                        mouseWheelEvent(context, MouseWheelEvent(x, video->getScreen().getClientHeight() - y, event.wheel.x, event.wheel.y));
                     }
                     break;
                 case SDL_JOYDEVICEADDED:{
@@ -193,7 +261,7 @@ namespace Duel6 {
         Uint32 lastTime = curTime;
 
         context.render();
-        video.screenUpdate(console, font);
+        video->screenUpdate(console, *font);
 
         curTime = SDL_GetTicks();
         Float64 elapsedTime = (curTime - lastTime) * 0.001f;
@@ -205,65 +273,8 @@ namespace Duel6 {
         }
     }
 
-    void Application::setup(Int32 argc, char **argv) {
-        if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-            D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());
-        }
-        if (TTF_Init() != 0) {
-            D6_THROW(FontException, Format("Unable to initialize font subsystem: {0}") << TTF_GetError());
-        }
-
-        // Print application info
-        SDL_version sdlVersion;
-        console.printLine("\n===Application information===");
-        console.printLine(Format("{0} version: {1}") << APP_NAME << APP_VERSION);
-        SDL_GetVersion(&sdlVersion);
-        console.printLine(
-                Format("SDL version: {0}.{1}.{2}") << sdlVersion.major << sdlVersion.minor << sdlVersion.patch);
-        const SDL_version *mixVersion = Mix_Linked_Version();
-        console.printLine(Format("SDL_mixer version: {0}.{1}.{2}") << mixVersion->major << mixVersion->minor
-                                                                   << mixVersion->patch);
-        const SDL_version *ttfVersion = TTF_Linked_Version();
-        console.printLine(
-                Format("SDL_ttf version: {0}.{1}.{2}") << ttfVersion->major << ttfVersion->minor << ttfVersion->patch);
-
-#ifdef D6_SCRIPTING_LUA
-        const lua_Number *luaVersion = lua_version(nullptr);
-        console.printLine(Format("Lua version: {0}") << *luaVersion);
-#endif
-
-        Console::registerBasicCommands(console);
-        ConsoleCommands::registerCommands(console, service, menu, gameSettings);
-
-        console.printLine("\n===Font initialization===");
-        font.load(D6_FILE_TTF_FONT, console);
-
-        video.initialize(APP_NAME, APP_FILE_ICON, console);
-
-        gameResources.load(service);
-        menu.setGameReference(game);
-        game.setMenuReference(&menu);
-
-        FireList::initialize();
-
-        for (Weapon weapon : Weapon::values()) {
-            gameSettings.enableWeapon(weapon, true);
-        }
-
-        scriptManager.registerLoaders();
-        menu.initialize();
-
-        // Execute config script and command line arguments
-        console.printLine("\n===Config===");
-        console.exec(std::string("exec ") + D6_FILE_CONFIG);
-
-        for (int i = 1; i < argc; i++) {
-            console.exec(argv[i]);
-        }
-    }
-
     void Application::run() {
-        Context::push(menu);
+        Context::push(*menu);
 
         while (Context::exists() && !requestClose) {
             Context &context = Context::getCurrent();
@@ -279,11 +290,5 @@ namespace Duel6 {
         {
             Context::pop();
         }
-    }
-
-    void Application::tearDown() {
-        font.dispose();
-        TTF_Quit();
-        SDL_Quit();
     }
 }

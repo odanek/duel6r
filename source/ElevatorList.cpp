@@ -67,9 +67,9 @@ namespace Duel6 {
         }
     }
 
-    void ElevatorList::render() const {
+    void ElevatorList::render(Renderer &renderer) const {
         for (const Elevator &elevator : elevators) {
-            elevator.render(texture);
+            elevator.render(renderer, texture);
         }
     }
 

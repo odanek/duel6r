@@ -51,21 +51,21 @@ namespace Duel6 {
         }
     }
 
-    void SpriteList::render() const {
-        renderTransparent(false);
+    void SpriteList::render(Renderer &renderer) const {
+        renderTransparent(renderer, false);
 
-        globRenderer->enableDepthWrite(false);
+        renderer.enableDepthWrite(false);
 
-        renderTransparent(true);
+        renderTransparent(renderer, true);
 
-        globRenderer->enableDepthWrite(true);
-        globRenderer->setBlendFunc(BlendFunc::None);
+        renderer.enableDepthWrite(true);
+        renderer.setBlendFunc(BlendFunc::None);
     }
 
-    void SpriteList::renderTransparent(bool transparent) const {
+    void SpriteList::renderTransparent(Renderer &renderer, bool transparent) const {
         for (const Sprite &sprite : sprites) {
             if (sprite.isTransparent() == transparent) {
-                sprite.render();
+                sprite.render(renderer);
             }
         }
     }
