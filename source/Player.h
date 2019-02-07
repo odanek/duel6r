@@ -47,6 +47,9 @@
 #include "Defines.h"
 #include "Level.h"
 #include "collision/WorldCollision.h"
+#include "PlayerIndicators.h"
+#include "PlayerView.h"
+
 namespace Duel6 {
     // Forward declarations
     class Elevator;
@@ -60,185 +63,6 @@ namespace Duel6 {
     class InfoMessageQueue;
 
     class PlayerEventListener;
-
-    struct PlayerView {
-    private:
-        Int32 x;
-        Int32 y;
-        Int32 width;
-        Int32 height;
-
-    public:
-        PlayerView() {}
-
-        PlayerView(Int32 x, Int32 y, Int32 width, Int32 height)
-                : x(x), y(y), width(width), height(height) {}
-
-        Int32 getX() const {
-            return x;
-        }
-
-        Int32 getY() const {
-            return y;
-        }
-
-        Int32 getWidth() const {
-            return width;
-        }
-
-        Int32 getHeight() const {
-            return height;
-        }
-    };
-
-    class Indicator {
-    public:
-        static constexpr Float32 DURATION = 2.0f;
-        static constexpr Float32 FADE_DURATION = 0.5f;
-
-    private:
-        Float32 totalDuration;
-        Float32 duration;
-
-    public:
-        Indicator()
-                : totalDuration(0), duration(0) {}
-
-        Indicator &setDuration(Float32 duration, bool keepFade = true) {
-            Float32 startDuration = keepFade ? getAlpha() * FADE_DURATION : 0;
-            this->totalDuration = startDuration + duration;
-            this->duration = duration < FADE_DURATION ? 0 : startDuration;
-            return *this;
-        }
-
-        Indicator &show(Float32 duration = DURATION) {
-            return setDuration(duration);
-        }
-
-        Indicator &hide(bool keepFade = true) {
-            return setDuration(0, keepFade);
-        }
-
-        bool isVisible() const {
-            return totalDuration > 0.0f;
-        }
-
-        Float32 getAlpha() const {
-            if (duration > totalDuration - FADE_DURATION) {
-                return (totalDuration - duration) / FADE_DURATION;
-            } else if (duration < FADE_DURATION) {
-                return duration / FADE_DURATION;
-            }
-            return 1.0f;
-        }
-
-        Indicator &update(Float32 elapsedTime) {
-            if (isVisible()) {
-                duration += elapsedTime;
-                if (duration > totalDuration) {
-                    hide();
-                }
-            }
-            return *this;
-        }
-    };
-
-    struct PlayerIndicators {
-    private:
-        Indicator health;
-        Indicator air;
-        Indicator reload;
-        Indicator name;
-        Indicator bullets;
-        Indicator bonus;
-
-    public:
-        PlayerIndicators &showAll(Float32 duration) {
-            health.show(duration);
-            air.show(duration);
-            name.show(duration);
-            bullets.show(duration);
-            return *this;
-        }
-
-        PlayerIndicators &hideAll(bool keepFade) {
-            health.hide(keepFade);
-            air.hide(keepFade);
-            reload.hide(keepFade);
-            name.hide(keepFade);
-            bullets.hide(keepFade);
-            bonus.hide(keepFade);
-            return *this;
-        }
-
-        PlayerIndicators &updateAll(Float32 elapsedTime) {
-            health.update(elapsedTime);
-            air.update(elapsedTime);
-            reload.update(elapsedTime);
-            name.update(elapsedTime);
-            bullets.update(elapsedTime);
-            bonus.update(elapsedTime);
-            return *this;
-        }
-
-        Indicator &getHealth() {
-            return health;
-        }
-
-        Indicator &getAir() {
-            return air;
-        }
-
-        Indicator &getReload() {
-            return reload;
-        }
-
-        Indicator &getName() {
-            return name;
-        }
-
-        Indicator &getBullets() {
-            return bullets;
-        }
-
-        Indicator &getBonus() {
-            return bonus;
-        }
-
-        const Indicator &getHealth() const {
-            return health;
-        }
-
-        const Indicator &getAir() const {
-            return air;
-        }
-
-        const Indicator &getReload() const {
-            return reload;
-        }
-
-        const Indicator &getName() const {
-            return name;
-        }
-
-        const Indicator &getBullets() const {
-            return bullets;
-        }
-
-        const Indicator &getBonus() const {
-            return bonus;
-        }
-    };
-
-    struct CameraPosition {
-        Float32 Left;
-        Float32 Right;
-        Float32 Up;
-        Float32 Down;
-        Vector Pos;
-        Float32 TolX;
-        Float32 TolY;
-    };
 
     class Player {
     private:
@@ -277,25 +101,12 @@ namespace Duel6 {
         };
 
     private:
-        const PlayerAnimations & animations;
-
-        const AnimationEntry * noAnim;
-        const AnimationEntry * d6SAnim;
-        const AnimationEntry * d6WAnim;
-        const AnimationEntry * d6FallAnim;
-        const AnimationEntry * d6JAnim;
-        const AnimationEntry * d6DAnim;
-        const AnimationEntry * d6LAnim;
-        const AnimationEntry * d6NAnim;
-        const AnimationEntry * d6PAnim;
-        const AnimationEntry * d6DeadFallAnim;
-        const AnimationEntry * d6DeadHitAnim;
-        const AnimationEntry * d6DeadLyingAnim;
-
         Person &person;
         PlayerSkin skin;
         Camera camera;
-        CameraPosition cameraPos;
+        Vector cameraFov;
+        Vector cameraTolerance;
+        const PlayerAnimations &animations;
         const PlayerSounds &sounds;
         const PlayerControls &controls;
         PlayerView view;
@@ -323,9 +134,9 @@ namespace Duel6 {
         clock_t roundStartTime;
         PlayerIndicators indicators;
         Uint32 controllerState;
+        CollidingEntity collider;
 
     public:
-        CollidingEntity collider;
         Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
 
         ~Player();
@@ -367,15 +178,8 @@ namespace Duel6 {
             return collider.dimensions;
         }
 
-        void updateDimensions() {
-            if (isKneeling()) {
-                collider.dimensions = Vector(1.0f, 0.8f);
-            } else if (isLying()) {
-                collider.dimensions = Vector(1.0f, 0.45f);
-            } else {
-                collider.dimensions = Vector(1.0f, 1.0f);
-            }
-        }
+        void updateDimensions();
+
         Vector getCentre() const {
             return getCollisionRect().getCentre();
         }
@@ -445,20 +249,7 @@ namespace Duel6 {
             return *this;
         }
 
-        Player &setBonus(BonusType type, Int32 duration) {
-            if (type == bonus) {
-                bonusRemainingTime += Float32(duration) / 2;
-                bonusDuration += Float32(duration) / 2;
-            } else {
-                bonus.onExpire(*this, *world);
-                bonus = type;
-                bonusRemainingTime = Float32(duration);
-                bonusDuration = Float32(duration);
-            }
-            bonus.onApply(*this, *world, Int32(bonusDuration));
-            indicators.getBonus().show(bonusDuration);
-            return *this;
-        }
+        Player &setBonus(BonusType type, Int32 duration);
 
         Float32 getLife() const {
             return life;
@@ -475,8 +266,8 @@ namespace Duel6 {
         }
 
         Float32 getChargeLevel() const {
-            return 1.0f - timeToReload /
-                          getReloadInterval(); // TODO probably will misbehave in case fast reload expires while charging
+            // TODO probably will misbehave in case fast reload expires while charging
+            return 1.0f - timeToReload / getReloadInterval();
         }
 
         BonusType getBonus() const {
@@ -612,6 +403,8 @@ namespace Duel6 {
 
         void die();
 
+        const CollidingEntity &getCollider() const;
+
     private:
         void makeMove(const Level &level, Float32 elapsedTime);
 
@@ -654,8 +447,6 @@ namespace Duel6 {
         void unsetFlag(Uint32 flag) {
             flags &= ~flag;
         }
-
-        void initAnimations();
     };
 }
 

@@ -148,7 +148,7 @@ namespace Duel6 {
             if (weapon.pickTimeout <= 0.0f && collides) {
                 if (player.hasGun() && player.getAmmo() > 0) {
                     // Leave the current weapon at the same place
-                    addPlayerGun(player, player.collider);
+                    addPlayerGun(player, player.getCollider());
                 }
 
                 player.pickWeapon(type, weapon.getBullets(), weapon.remainingReloadTime);

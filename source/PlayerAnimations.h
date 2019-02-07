@@ -35,38 +35,54 @@
 
 namespace Duel6 {
 
-    class PlayerAnimations {
-        friend class Player;
-
-        class PlayerAnimation {
-        private:
-            const std::vector<AnimationEntry> animation;
-
-        public:
-            PlayerAnimation(const animation::Animation & animation, const std::string & name);
-
-            Animation operator ()() const;
-        };
-
+    class PlayerAnimation {
     private:
-        const animation::Animation & animation;
-        const PlayerAnimation noAnim;
-        const PlayerAnimation d6SAnim;
-        const PlayerAnimation d6WAnim;
-        const PlayerAnimation d6FallAnim;
-        const PlayerAnimation d6JAnim;
-        const PlayerAnimation d6DAnim;
-        const PlayerAnimation d6DeadFallAnim;
-        const PlayerAnimation d6DeadHitAnim;
-        const PlayerAnimation d6DeadLyingAnim;
-        const PlayerAnimation d6LAnim;
-        const PlayerAnimation d6NAnim;
-        const PlayerAnimation d6PAnim;
+        const std::vector<AnimationEntry> animation;
 
     public:
-        PlayerAnimations(const animation::Animation & animation);
+        PlayerAnimation(const animation::Animation &animation, const std::string &name);
 
-        Texture generateAnimationTexture(const TextureManager & textureManager, const PlayerSkinColors &colors) const;
+        Animation get() const;
+    };
+
+    class PlayerAnimations {
+    private:
+        const animation::Animation &animation;
+        const PlayerAnimation stand;
+        const PlayerAnimation walk;
+        const PlayerAnimation fall;
+        const PlayerAnimation jump;
+        const PlayerAnimation duck;
+        const PlayerAnimation deadFall;
+        const PlayerAnimation deadHit;
+        const PlayerAnimation deadLying;
+        const PlayerAnimation dying;
+        const PlayerAnimation pick;
+
+    public:
+        PlayerAnimations(const animation::Animation &animation);
+
+        Texture generateAnimationTexture(const TextureManager &textureManager, const PlayerSkinColors &colors) const;
+
+        const PlayerAnimation &getStand() const;
+
+        const PlayerAnimation &getWalk() const;
+
+        const PlayerAnimation &getFall() const;
+
+        const PlayerAnimation &getJump() const;
+
+        const PlayerAnimation &getDuck() const;
+
+        const PlayerAnimation &getDeadFall() const;
+
+        const PlayerAnimation &getDeadHit() const;
+
+        const PlayerAnimation &getDeadLying() const;
+
+        const PlayerAnimation &getDying() const;
+
+        const PlayerAnimation &getPick() const;
     };
 
 }

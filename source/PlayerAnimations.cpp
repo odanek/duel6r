@@ -33,37 +33,35 @@
 
 namespace Duel6 {
 
-    PlayerAnimations::PlayerAnimation::PlayerAnimation(const animation::Animation & animation, const std::string & name)
-        : animation(animation.getAnimation(name)) {
+    PlayerAnimation::PlayerAnimation(const animation::Animation &animation, const std::string &name)
+            : animation(animation.getAnimation(name)) {
     }
 
-    Animation PlayerAnimations::PlayerAnimation::operator ()() const {
+    Animation PlayerAnimation::get() const {
         return animation.data();
     }
 
-    PlayerAnimations::PlayerAnimations(const animation::Animation & animation)
-        : animation(animation),
-          noAnim(animation, "Stand"),
-          d6SAnim(animation, "Stand"),
-          d6WAnim(animation, "Walk"),
-          d6FallAnim(animation, "Fall"),
-          d6JAnim(animation, "Jump"),
-          d6DAnim(animation, "Duck"),
-          d6DeadFallAnim(animation, "Dead_fall"),
-          d6DeadHitAnim(animation, "Dead_hit"),
-          d6DeadLyingAnim(animation, "Dead_lying"),
-          d6LAnim(animation, "Death"),
-          d6NAnim(noAnim),
-          d6PAnim(animation, "Pick") {
-    }
+    PlayerAnimations::PlayerAnimations(const animation::Animation &animation)
+            : animation(animation),
+              stand(animation, "Stand"),
+              walk(animation, "Walk"),
+              fall(animation, "Fall"),
+              jump(animation, "Jump"),
+              duck(animation, "Duck"),
+              deadFall(animation, "Dead_fall"),
+              deadHit(animation, "Dead_hit"),
+              deadLying(animation, "Dead_lying"),
+              dying(animation, "Death"),
+              pick(animation, "Pick") {}
 
-    Texture PlayerAnimations::generateAnimationTexture(const TextureManager & textureManager, const PlayerSkinColors &colors) const {
+    Texture PlayerAnimations::generateAnimationTexture(const TextureManager &textureManager,
+                                                       const PlayerSkinColors &colors) const {
         animation::Palette substitution_table(animation.palette);
-        int dst[] = { 4, 5, 8, 9, 12, 13, 16, 20, 24, 25, 36, 37 }; //indexes to palette colors used in the man.ase
-        int src[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10 };
-        auto & substitution = substitution_table.colors;
+        int dst[] = {4, 5, 8, 9, 12, 13, 16, 20, 24, 25, 36, 37}; //indexes to palette colors used in the man.ase
+        int src[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10};
+        auto &substitution = substitution_table.colors;
         for (int i = 0; i < 12; i++) {
-            const auto & color = colors.get((PlayerSkinColors::BodyPart) src[i]);
+            const auto &color = colors.get((PlayerSkinColors::BodyPart) src[i]);
             substitution[dst[i]].r = color.getRed();
             substitution[dst[i]].g = color.getGreen();
             substitution[dst[i]].b = color.getBlue();
@@ -77,5 +75,45 @@ namespace Duel6 {
         view.setLayerVisibility("Headband", colors.hasHeadBand());
 
         return textureManager.generateSprite(animation, view, substitution_table, TextureFilter::Nearest, true);
+    }
+
+    const PlayerAnimation &PlayerAnimations::getStand() const {
+        return stand;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getWalk() const {
+        return walk;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getFall() const {
+        return fall;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getJump() const {
+        return jump;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getDuck() const {
+        return duck;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getDeadFall() const {
+        return deadFall;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getDeadHit() const {
+        return deadHit;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getDeadLying() const {
+        return deadLying;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getDying() const {
+        return dying;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getPick() const {
+        return pick;
     }
 }

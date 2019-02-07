@@ -50,29 +50,13 @@ namespace Duel6 {
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
     Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
-        : animations(skin.getAnimations()),
-          person(person),
-          skin(skin),
-          sounds(sounds),
-          controls(controls),
-          orientation(Orientation::Left) {
+            : person(person),
+              skin(skin),
+              animations(skin.getAnimations()),
+              sounds(sounds),
+              controls(controls),
+              orientation(Orientation::Left) {
         camera.rotate(180.0, 0.0, 0.0);
-        initAnimations();
-    }
-
-    void Player::initAnimations() {
-        noAnim = animations.noAnim();
-        d6SAnim = animations.d6SAnim();
-        d6WAnim = animations.d6WAnim();
-        d6FallAnim = animations.d6FallAnim();
-        d6JAnim = animations.d6JAnim();
-        d6DAnim = animations.d6DAnim();
-        d6LAnim = animations.d6LAnim();
-        d6NAnim = animations.d6NAnim();
-        d6PAnim = animations.d6PAnim();
-        d6DeadFallAnim = animations.d6DeadFallAnim();
-        d6DeadHitAnim = animations.d6DeadHitAnim();
-        d6DeadLyingAnim = animations.d6DeadLyingAnim();
     }
 
     Player::~Player() {
@@ -82,7 +66,7 @@ namespace Duel6 {
         this->world = &world;
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
 
-        sprite = world.getSpriteList().add(d6SAnim, skin.getTexture());
+        sprite = world.getSpriteList().add(animations.getStand().get(), skin.getTexture());
         sprite->setPosition(getSpritePosition(), 0.5f);
 
         this->weapon = weapon;
@@ -185,9 +169,10 @@ namespace Duel6 {
             world->getBonusList().checkWeapon(*this);
         }
     }
+
     bool Player::isReloading() {
-        if(weapon.isChargeable()){
-            return (hasFlag(FlagShoot)  && !hasFlag(FlagShootDebounce)) || getChargeLevel() < 0.5f;
+        if (weapon.isChargeable()) {
+            return (hasFlag(FlagShoot) && !hasFlag(FlagShootDebounce)) || getChargeLevel() < 0.5f;
         }
         return timeToReload > 0;
     }
@@ -202,8 +187,8 @@ namespace Duel6 {
         if (isReloading())
             return;
 
-        if(weapon.isChargeable()){
-            if(! hasFlag(FlagShootDebounce) || !hasFlag(FlagShoot)) {
+        if (weapon.isChargeable()) {
+            if (!hasFlag(FlagShootDebounce) || !hasFlag(FlagShoot)) {
                 return;
             }
         }
@@ -241,7 +226,7 @@ namespace Duel6 {
 
         this->weapon = weapon;
         ammo = bullets;
-        if (weapon.isChargeable()){
+        if (weapon.isChargeable()) {
             timeToReload = getReloadInterval();
         } else {
             timeToReload = remainingReloadTime;
@@ -292,7 +277,7 @@ namespace Duel6 {
         world->getLevel().findStartingPositions(startingPositions);
 
         Level::StartingPosition &newPosition = startingPositions.front();
-        collider.initPosition((Float32)newPosition.first, Float32(newPosition.second) + 0.0001f);
+        collider.initPosition((Float32) newPosition.first, Float32(newPosition.second) + 0.0001f);
 
         timeStuckInWall = 0;
     }
@@ -310,7 +295,7 @@ namespace Duel6 {
 
         if (getBonus() == BonusType::FAST_MOVEMENT) {
             spd *= 1.43f;
-        } else if(!hasGun()) {
+        } else if (!hasGun()) {
             spd *= 1.4f;
         } else {
             spd *= (1.4f - (getLife() / 250));
@@ -378,7 +363,7 @@ namespace Duel6 {
                 setFlag(FlagShoot);
             } else {
                 setFlag(FlagShootDebounce);
-                if(hasFlag(FlagShoot)){
+                if (hasFlag(FlagShoot)) {
                     shoot();
                     unsetFlag(FlagShoot);
                 }
@@ -437,7 +422,7 @@ namespace Duel6 {
         // Move intervals
         indicators.updateAll(elapsedTime);
         if (isReloading()) {
-            if(!weapon.isChargeable() || hasFlag(FlagShoot) || getChargeLevel() < 0.5){
+            if (!weapon.isChargeable() || hasFlag(FlagShoot) || getChargeLevel() < 0.5) {
                 timeToReload = std::max(0.0f, getReloadTime() - elapsedTime);
             }
         }
@@ -472,22 +457,22 @@ namespace Duel6 {
         sprite->setSpeed(1.0f);
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
-                if(isDying()) {
-                    if(sprite->getAnimation() == d6LAnim && sprite->isFinished()){
+                if (isDying()) {
+                    if (sprite->getAnimation() == animations.getDying().get() && sprite->isFinished()) {
                         unsetFlag(FlagDying);
                         setFlag(FlagDead);
                     }
-                    animation = d6LAnim;
+                    animation = animations.getDying().get();
                 } else { //dead
-                    if(!collider.isOnHardSurface()){
-                        animation = d6DeadFallAnim;
+                    if (!collider.isOnHardSurface()) {
+                        animation = animations.getDeadFall().get();
                     } else {
-                        if(sprite->getAnimation() == d6DeadFallAnim){
-                            animation = d6DeadHitAnim;
+                        if (sprite->getAnimation() == animations.getDeadFall().get()) {
+                            animation = animations.getDeadHit().get();
                             sprite->setLooping(AnimationLooping::OnceAndStop);
                         } else {
-                            if(sprite->isFinished()){
-                                animation = d6DeadLyingAnim;
+                            if (sprite->isFinished()) {
+                                animation = animations.getDeadLying().get();
                             } else {
                                 animation = sprite->getAnimation();
                             }
@@ -496,35 +481,35 @@ namespace Duel6 {
                 }
             } else {
                 sprite->setDraw(false);
-                animation = d6NAnim;
+                animation = animations.getStand().get();
             }
         } else if (isPickingGun()) {
-            animation = d6PAnim;
+            animation = animations.getPick().get();
         } else if (isKneeling()) {
-            animation = d6DAnim;
+            animation = animations.getDuck().get();
             sprite->setLooping(AnimationLooping::RepeatForever);
         } else if (isOnElevator()) {
             if (!isMoving()) {
-                animation = d6SAnim;
+                animation = animations.getStand().get();
             } else {
                 sprite->setSpeed(getSpeed());
-                animation = d6WAnim;
+                animation = animations.getWalk().get();
                 sprite->setLooping(AnimationLooping::RepeatForever);
             }
         } else if (!isOnGround()) {
-            if(isRising()){
-                animation = d6JAnim;
+            if (isRising()) {
+                animation = animations.getJump().get();
                 sprite->setLooping(AnimationLooping::RepeatForever);
             } else {
-                animation = d6FallAnim;
+                animation = animations.getFall().get();
                 sprite->setLooping(AnimationLooping::RepeatForever);
             }
             sprite->setSpeed(getVelocity().length());
         } else if (!isMoving()) {
-            animation = d6SAnim;
+            animation = animations.getStand().get();
         } else {
             sprite->setSpeed(getVelocity().length());
-            animation = d6WAnim;
+            animation = animations.getWalk().get();
             sprite->setLooping(AnimationLooping::RepeatForever);
         }
 
@@ -561,17 +546,17 @@ namespace Duel6 {
             dY = 2.0f * fovY * mZ;
         }
 
-        cameraPos.Pos.x = levelSizeX / 2.0f;
-        cameraPos.Pos.y = levelSizeY / 2.0f;
-        cameraPos.Pos.z = mZ + 1.0f;
-        cameraPos.Left = cameraPos.Pos.x - dX / 2.0f;
-        cameraPos.Right = cameraPos.Pos.x + dX / 2.0f;
-        cameraPos.Down = cameraPos.Pos.y - dY / 2.0f;
-        cameraPos.Up = cameraPos.Pos.y + dY / 2.0f;
-        cameraPos.TolX = (dX * D6_CAM_TOLPER_X) / 200.0f;
-        cameraPos.TolY = (dY * D6_CAM_TOLPER_Y) / 200.0f;
+        Vector position;
+        position.x = levelSizeX / 2.0f;
+        position.y = levelSizeY / 2.0f;
+        position.z = mZ + 1.0f;
 
-        camera.setPosition(cameraPos.Pos);
+        cameraFov.x = dX / 2.0f;
+        cameraFov.y = dY / 2.0f;
+        cameraTolerance.x = (dX * D6_CAM_TOLPER_X) / 200.0f;
+        cameraTolerance.y = (dY * D6_CAM_TOLPER_Y) / 200.0f;
+
+        camera.setPosition(position);
 
         if (screenMode == ScreenMode::SplitScreen) {
             updateCam(levelSizeX, levelSizeY);
@@ -580,39 +565,38 @@ namespace Duel6 {
 
     void Player::updateCam(Int32 levelSizeX, Int32 levelSizeY) {
         Float32 mX = 0.0, mY = 0.0;
-        Vector pos = getCentre();
+        Vector centre = getCentre();
+        Vector position = camera.getPosition();
+        Vector tolerance = cameraTolerance;
+        Vector fov = cameraFov;
 
-        if (pos.x < cameraPos.Pos.x - cameraPos.TolX) {
-            mX = pos.x - (cameraPos.Pos.x - cameraPos.TolX);
-            if (cameraPos.Left + mX < 0.0f)
-                mX = -cameraPos.Left;
-        } else if (pos.x > cameraPos.Pos.x + cameraPos.TolX) {
-            mX = pos.x - (cameraPos.Pos.x + cameraPos.TolX);
-            if (cameraPos.Right + mX > (Float32) levelSizeX)
-                mX = (Float32) levelSizeX - cameraPos.Right;
+        if (centre.x < position.x - tolerance.x) {
+            mX = centre.x - (position.x - tolerance.x);
+            if (position.x - fov.x + mX < 0.0f)
+                mX = fov.x - position.x;
+        } else if (centre.x > position.x + tolerance.x) {
+            mX = centre.x - (position.x + tolerance.x);
+            if (position.x + fov.x + mX > (Float32) levelSizeX)
+                mX = (Float32) levelSizeX - (position.x + fov.x);
         }
-        if (pos.y < cameraPos.Pos.y - cameraPos.TolY) {
-            mY = pos.y - (cameraPos.Pos.y - cameraPos.TolY);
-            if (cameraPos.Down + mY < 0.0f)
-                mY = -cameraPos.Down;
-        } else if (pos.y > cameraPos.Pos.y + cameraPos.TolY) {
-            mY = pos.y - (cameraPos.Pos.y + cameraPos.TolY);
-            if (cameraPos.Up + mY > (Float32) levelSizeY)
-                mY = (Float32) levelSizeY - cameraPos.Up;
+        if (centre.y < position.y - tolerance.y) {
+            mY = centre.y - (position.y - tolerance.y);
+            if (position.y - fov.y + mY < 0.0f)
+                mY = fov.y - position.y;
+        } else if (centre.y > position.y + tolerance.y) {
+            mY = centre.y - (position.y + tolerance.y);
+            if (position.y + fov.y + mY > (Float32) levelSizeY)
+                mY = (Float32) levelSizeY - (position.y + fov.y);
         }
 
         if (mX != 0.0) {
-            cameraPos.Left += mX;
-            cameraPos.Right += mX;
-            cameraPos.Pos.x += mX;
+            position.x += mX;
         }
         if (mY != 0.0) {
-            cameraPos.Up += mY;
-            cameraPos.Down += mY;
-            cameraPos.Pos.y += mY;
+            position.y += mY;
         }
         if (mX != 0.0 || mY != 0.0) {
-            camera.setPosition(cameraPos.Pos);
+            camera.setPosition(position);
         }
     }
 
@@ -709,7 +693,7 @@ namespace Duel6 {
     }
 
     void Player::dropWeapon(const Level &level) {
-        if(!hasGun()){
+        if (!hasGun()) {
             return;
         }
         world->getBonusList().addPlayerGun(*this, collider);
@@ -784,6 +768,31 @@ namespace Duel6 {
         }
     }
 
+    void Player::updateDimensions() {
+        if (isKneeling()) {
+            collider.dimensions = Vector(1.0f, 0.8f);
+        } else if (isLying()) {
+            collider.dimensions = Vector(1.0f, 0.45f);
+        } else {
+            collider.dimensions = Vector(1.0f, 1.0f);
+        }
+    }
+
+    Player &Player::setBonus(BonusType type, Int32 duration) {
+        if (type == bonus) {
+            bonusRemainingTime += Float32(duration) / 2;
+            bonusDuration += Float32(duration) / 2;
+        } else {
+            bonus.onExpire(*this, *world);
+            bonus = type;
+            bonusRemainingTime = Float32(duration);
+            bonusDuration = Float32(duration);
+        }
+        bonus.onApply(*this, *world, Int32(bonusDuration));
+        indicators.getBonus().show(bonusDuration);
+        return *this;
+    }
+
     void Player::die() {
         setFlag(FlagDying | FlagLying);
         unsetFlag(FlagMoveUp | FlagMoveDown | FlagMoveLeft | FlagMoveRight | FlagKnee | FlagPick);
@@ -792,5 +801,9 @@ namespace Duel6 {
 
         Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
         getPerson().addTimeAlive(timeAlive);
+    }
+
+    const CollidingEntity &Player::getCollider() const {
+        return collider;
     }
 }

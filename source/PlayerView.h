@@ -25,30 +25,40 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_PLAYERSKIN_H
-#define DUEL6_PLAYERSKIN_H
+#ifndef DUEL6_PLAYERVIEW_H
+#define DUEL6_PLAYERVIEW_H
 
-#include <string>
-#include "PlayerSkinColors.h"
-#include "PlayerAnimations.h"
-#include "TextureManager.h"
-#include "Color.h"
-#include "console/console.h"
-#include "aseprite/animation.h"
+#include "Type.h"
 
 namespace Duel6 {
-    class PlayerSkin {
+    struct PlayerView {
     private:
-        const PlayerAnimations &animations;
-        Texture textures;
+        Int32 x;
+        Int32 y;
+        Int32 width;
+        Int32 height;
 
     public:
-        PlayerSkin(const PlayerSkinColors &colors, const TextureManager &textureManager,
-                   const PlayerAnimations &animations);
+        PlayerView() = default;
 
-        Texture getTexture() const;
+        PlayerView(Int32 x, Int32 y, Int32 width, Int32 height)
+                : x(x), y(y), width(width), height(height) {}
 
-        const PlayerAnimations &getAnimations() const;
+        Int32 getX() const {
+            return x;
+        }
+
+        Int32 getY() const {
+            return y;
+        }
+
+        Int32 getWidth() const {
+            return width;
+        }
+
+        Int32 getHeight() const {
+            return height;
+        }
     };
 }
 

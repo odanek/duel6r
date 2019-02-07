@@ -153,12 +153,14 @@ set(D6R_SOURCES
         source/PlayerAnimations.h
         source/PlayerEventListener.cpp
         source/PlayerEventListener.h
+        source/PlayerIndicators.h
         source/PlayerSkin.cpp
         source/PlayerSkin.h
         source/PlayerSkinColors.cpp
         source/PlayerSkinColors.h
         source/PlayerSounds.cpp
         source/PlayerSounds.h
+        source/PlayerView.h
         source/Ranking.h
         source/Rectangle.h
         source/resource.h
