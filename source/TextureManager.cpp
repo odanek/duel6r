@@ -155,6 +155,10 @@ namespace Duel6 {
     }
 
     void TextureManager::substituteColors(Image &image, const SubstitutionTable &substitutionTable) {
+        if (substitutionTable.empty()) {
+            return;
+        }
+
         Size imgSize = image.getWidth() * image.getHeight() * image.getDepth();
         for (Size i = 0; i < imgSize; ++i) {
             Color &color = image.at(i);
