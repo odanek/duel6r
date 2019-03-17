@@ -41,7 +41,7 @@ namespace Duel6 {
     }
 
     void Game::beforeClose(Context *nextContext) {
-        round->end();
+        endRound();
     }
 
     void Game::render() const {
@@ -126,15 +126,11 @@ namespace Duel6 {
         settings.setScreenMode(screenMode);
         settings.setScreenZoom(screenZoom);
         gameMode.initializeGame(*this, players, settings.isQuickLiquid(), settings.isGlobalAssistances());
-        nextRound();
+        startRound();
     }
 
-    void Game::nextRound() {
+    void Game::startRound() {
         displayScoreTab = false;
-        if (playedRounds != 0) {
-            round->end();
-            menu->savePersonData();
-        }
 
         bool shuffle = settings.getLevelSelectionMode() == LevelSelectionMode::Shuffle;
         Int32 level = shuffle ? playedRounds % Int32(levels.size()) : Math::random(Int32(levels.size()));
@@ -149,5 +145,15 @@ namespace Duel6 {
         playedRounds++;
 
         round->start();
+    }
+
+    void Game::endRound() {
+        round->end();
+        menu->savePersonData();
+    }
+
+    void Game::nextRound() {
+        endRound();
+        startRound();
     }
 }

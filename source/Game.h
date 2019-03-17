@@ -207,6 +207,8 @@ namespace Duel6 {
 
         void beforeClose(Context *nextContext) override;
 
+        void startRound();
+
         void nextRound();
 
         void endRound();
