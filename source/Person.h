@@ -38,6 +38,9 @@ namespace Duel6 {
     class PersonProfile;
 
     class Person {
+    public:
+        static constexpr Int32 defaultElo = 1000;
+
     private:
         std::string name;
         Int32 shots;
@@ -52,12 +55,14 @@ namespace Duel6 {
         Int32 totalGameTime;
         Int32 totalDamage;
         Int32 assistedDamage;
+        Int32 elo;
+        Int32 eloTrend;
         PersonProfile *profile;
 
     public:
         Person()
                 : shots(0), hits(0), kills(0), deaths(0), assistances(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0),
-                  totalDamage(0), assistedDamage(0), profile(nullptr) {}
+                  totalDamage(0), assistedDamage(0), elo(defaultElo), eloTrend(0), profile(nullptr) {}
 
         explicit Person(const std::string &name, PersonProfile *profile)
                 : Person() {
@@ -129,6 +134,14 @@ namespace Duel6 {
             return assistedDamage;
         }
 
+        Int32 getElo() const {
+            return elo;
+        }
+
+        Int32 getEloTrend() const {
+            return eloTrend;
+        }
+
         Person &addShots(Int32 shots) {
             this->shots += shots;
             return *this;
@@ -169,20 +182,30 @@ namespace Duel6 {
             return *this;
         }
 
-        void addTimeAlive(Int32 timeAlive) {
+        Person &addTimeAlive(Int32 timeAlive) {
             this->timeAlive += timeAlive;
+            return *this;
         }
 
-        void addTotalGameTime(Int32 totalGameTime) {
+        Person &addTotalGameTime(Int32 totalGameTime) {
             this->totalGameTime += totalGameTime;
+            return *this;
         }
 
-        void addDamageCaused(Int32 damageCaused) {
+        Person &addDamageCaused(Int32 damageCaused) {
             this->totalDamage += damageCaused;
+            return *this;
         }
 
-        void addAssistedDamage(Int32 damageCaused) {
+        Person &addAssistedDamage(Int32 damageCaused) {
             this->assistedDamage += damageCaused;
+            return *this;
+        }
+
+        Person &setElo(Int32 elo) {
+            eloTrend = elo > this->elo ? 1 : (elo < this->elo ? -1 : 0);
+            this->elo = elo;
+            return *this;
         }
 
         PersonProfile *getProfile() const {
@@ -216,6 +239,8 @@ namespace Duel6 {
         Json::Value toJson() const;
 
         static Person fromJson(const Json::Value &json);
+
+        static std::string getKillsToDeathsRatio(Int32 kills, Int32 deaths);
     };
 }
 

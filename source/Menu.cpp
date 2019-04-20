@@ -172,7 +172,7 @@ namespace Duel6 {
         auto scoreLabel = new Gui::Label(gui);
         scoreLabel->setPosition(10, 219, 800, 18);
         scoreLabel->setCaption(
-                "    Name   | Games | Wins | Shots | Acc. | Kills | Assists | Pen | PTS | Alive | Damage  | Time");
+                "    Name   |  Elo | Pts | Win | Kill | Assist | Pen | Death |  K/D | Shot | Acc. | Alive |  Dmg ");
 
         auto levelLabel = new Gui::Label(gui);
         levelLabel->setPosition(654, 494, 155, 18);
@@ -308,22 +308,28 @@ namespace Duel6 {
 
         for (auto person : ranking) {
             std::string personStat =
-                    Format("{0,-11}|{1,6} |{2,5} |{3,6} |{4,4}% |{5,6} | {6,7} | {7,3} |{8,4} |{9,5}% |{10,4}|{12,4}|{11,4}m ")
+                    Format("{0,-11}|{1,5}{2,1} |{3,4} |{4,4} |{5,5} |{6,7} |{7,4} |{8,6} |{9,5} |{10,5} |{11,4}% |{12,4}% |{13,5} ")
                             << person->getName()
-                            << person->getGames()
+                            << person->getElo()
+                            << (person->getEloTrend() > 0 ? '+' : (person->getEloTrend() < 0 ? '-' : '='))
+                            << person->getTotalPoints()
                             << person->getWins()
-                            << person->getShots()
-                            << person->getAccuracy()
                             << person->getKills()
                             << person->getAssistances()
                             << person->getPenalties()
-                            << person->getTotalPoints()
+                            << person->getDeaths()
+                            << Person::getKillsToDeathsRatio(person->getKills(), person->getDeaths())
+                            << person->getShots()
+                            << person->getAccuracy()
                             << person->getAliveRatio()
-                            << person->getTotalDamage()
-                            << (person->getTotalGameTime() + 30) / 60
-                            << person->getAssistedDamage();
+                            << person->getTotalDamage();
             scoreListBox->addItem(personStat);
         }
+
+        scoreListBox->onColorize([ranking](Int32 index, const std::string& label) {
+            Color col = ranking[index]->getGames() == 0 ? Color(100, 100, 100) : Color::BLACK;
+            return Gui::ListBox::ItemColor{col, Color::WHITE};
+        });
     }
 
     void Menu::showMessage(const std::string &message) {

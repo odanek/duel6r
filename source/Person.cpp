@@ -25,7 +25,9 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <cmath>
 #include "Person.h"
+#include "Format.h"
 
 namespace Duel6 {
     Person &Person::reset() {
@@ -59,6 +61,8 @@ namespace Duel6 {
         json.set("totalGameTime", Json::Value::makeNumber(totalGameTime));
         json.set("totalDamage", Json::Value::makeNumber(totalDamage));
         json.set("assistedDamage", Json::Value::makeNumber(assistedDamage));
+        json.set("elo", Json::Value::makeNumber(elo));
+        json.set("eloTrend", Json::Value::makeNumber(eloTrend));
         return json;
     }
 
@@ -77,6 +81,15 @@ namespace Duel6 {
         person.totalGameTime = json.get("totalGameTime").asInt();
         person.totalDamage = json.getOrDefault("totalDamage", Json::Value::makeNumber(0)).asInt();
         person.assistedDamage = json.getOrDefault("assistedDamage", Json::Value::makeNumber(0)).asInt();
+        person.elo = json.getOrDefault("elo", Json::Value::makeNumber(defaultElo)).asInt();
+        person.eloTrend = json.getOrDefault("eloTrend", Json::Value::makeNumber(0)).asInt();
         return person;
+    }
+
+    std::string Person::getKillsToDeathsRatio(Duel6::Int32 kills, Duel6::Int32 deaths) {
+        auto kd = (deaths != 0 ? (float)kills / (float)deaths : kills);
+        auto kd_int = (Int32)std::floor(kd);
+        auto kd_float = (Int32)((kd - kd_int) * 100);
+        return Format("{0,2}.{1,2|0}") << kd_int << kd_float;
     }
 }
