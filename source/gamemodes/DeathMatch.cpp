@@ -50,4 +50,23 @@ namespace Duel6 {
         }
         return false;
     }
+
+    void DeathMatch::updateElo(std::vector<Player> &players) const {
+        const double K = 20.0;
+
+        auto playerCount = players.size();
+        for (Size i = 0; i < playerCount; i++) {
+            for (Size j = i + 1; j < playerCount; j++) {
+                auto& personA = players[i].getPerson();
+                auto& personB = players[j].getPerson();
+                double Ra = personA.getElo();
+                double Rb = personB.getElo();
+                double P = 1.0 / (1.0 + std::pow(10.0, (Rb - Ra) / 400.0));
+                double d = personA.hasHigherScoreThan(personB) ? 1.0 : (personB.hasHigherScoreThan(personA) ? 0.0 : 0.5);
+                double diff = K * (d - P);
+                personA.setElo(Int32(Ra + diff));
+                personB.setElo(Int32(Rb - diff));
+            }
+        }
+    }
 }

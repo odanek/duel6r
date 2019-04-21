@@ -100,8 +100,6 @@ namespace Duel6 {
         void splitScreenView(Player &player, Int32 x, Int32 y);
 
         void switchScreenMode();
-
-        void updatePlayerElo();
     };
 }
 

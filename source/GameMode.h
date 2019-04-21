@@ -55,6 +55,8 @@ namespace Duel6 {
         virtual bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const  = 0;
 
         virtual Ranking getRanking(const std::vector<Player> &players) const = 0;
+
+        virtual void updateElo(std::vector<Player> &players) const = 0;
     };
 }
 #endif

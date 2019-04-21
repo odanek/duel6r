@@ -172,7 +172,7 @@ namespace Duel6 {
         auto scoreLabel = new Gui::Label(gui);
         scoreLabel->setPosition(10, 219, 800, 18);
         scoreLabel->setCaption(
-                "    Name   |  Elo | Pts | Win | Kill | Assist | Pen | Death |  K/D | Shot | Acc. | Alive |  Dmg ");
+                "    Name   |   Elo | Pts | Win | Kill | Assist | Pen | Death |  K/D | Shot | Acc. | GmTm |  Dmg ");
 
         auto levelLabel = new Gui::Label(gui);
         levelLabel->setPosition(654, 494, 155, 18);

@@ -32,10 +32,14 @@
 
 namespace Duel6 {
     class GameModeBase : public GameMode {
+    protected:
+        bool quickLiquid;
+        bool globalAssistances;
+
     public:
         void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) override {}
 
-        void initializeGame(Game &game, std::vector<Player> &players, bool quickLiquid = false, bool globalAssistances = false) override {
+        void initializeGame(Game &game, std::vector<Player> &players, bool quickLiquid, bool globalAssistances) override {
             this->quickLiquid = quickLiquid;
             this->globalAssistances = globalAssistances;
         }
@@ -48,9 +52,7 @@ namespace Duel6 {
 
         bool checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const override;
 
-        bool quickLiquid = false;
-
-        bool globalAssistances = false;
+        void updateElo(std::vector<Player> &players) const override;
     };
 }
 

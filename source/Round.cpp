@@ -163,7 +163,7 @@ namespace Duel6 {
 
             game.getResources().getGameOverSound().play();
             if (isLast()) {
-                updatePlayerElo();
+                game.getMode().updateElo(world.getPlayers());
             }
         }
     }
@@ -226,26 +226,6 @@ namespace Duel6 {
         settings.setScreenMode((settings.getScreenMode() == ScreenMode::FullScreen) ? ScreenMode::SplitScreen
                                                                                     : ScreenMode::FullScreen);
         setPlayerViews();
-    }
-
-    void Round::updatePlayerElo() {
-        auto &players = world.getPlayers();
-        auto playerCount = players.size();
-        for (Size i = 0; i < playerCount; i++) {
-            for (Size j = i + 1; j < playerCount; j++) {
-                auto& personA = players[i].getPerson();
-                auto& personB = players[j].getPerson();
-                double Ra = personA.getElo();
-                double Rb = personB.getElo();
-                double P = 1.0 / (1.0 + std::pow(10.0, (Rb - Ra) / 400.0));
-                double d = personA.hasHigherScoreThan(personB) ? 1.0 : (personB.hasHigherScoreThan(personA) ? 0.0 : 0.5);
-                double K = 20.0;
-                double Ra2 = Ra + K * (d - P);
-                double Rb2 = Rb + K * (P - d);
-                personA.setElo(Int32(Ra2));
-                personB.setElo(Int32(Rb2));
-            }
-        }
     }
 
     bool Round::isOver() const {
