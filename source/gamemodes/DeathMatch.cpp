@@ -54,19 +54,33 @@ namespace Duel6 {
     void DeathMatch::updateElo(std::vector<Player> &players) const {
         const double K = 20.0;
 
+        std::vector<Int32> originalElo;
+        std::vector<double> diff;
+        for (auto& player : players) {
+            originalElo.push_back(player.getPerson().getElo());
+            diff.push_back(0.0);
+        }
+
         auto playerCount = players.size();
         for (Size i = 0; i < playerCount; i++) {
+            auto& personA = players[i].getPerson();
+            auto Ra = originalElo[i];
+
             for (Size j = i + 1; j < playerCount; j++) {
-                auto& personA = players[i].getPerson();
                 auto& personB = players[j].getPerson();
-                double Ra = personA.getElo();
-                double Rb = personB.getElo();
-                double P = 1.0 / (1.0 + std::pow(10.0, (Rb - Ra) / 400.0));
-                double d = personA.hasHigherScoreThan(personB) ? 1.0 : (personB.hasHigherScoreThan(personA) ? 0.0 : 0.5);
-                double diff = K * (d - P);
-                personA.setElo(Int32(Ra + diff));
-                personB.setElo(Int32(Rb - diff));
+                auto Rb = originalElo[j];
+
+                double P = 1.0 / (1.0 + std::pow(10.0, double(Rb - Ra) / 400.0));
+                double result = personA.hasHigherScoreThan(personB) ? 1.0 : (personB.hasHigherScoreThan(personA) ? 0.0 : 0.5);
+                double d = K * (result - P);
+
+                diff[i] += d;
+                diff[j] -= d;
             }
+
+            auto Ra2 = Int32(Ra + diff[i]);
+            personA.setElo(Ra2);
+            personA.setEloTrend(Math::sign(Ra2 - Ra));
         }
     }
 }

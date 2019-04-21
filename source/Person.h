@@ -203,8 +203,12 @@ namespace Duel6 {
         }
 
         Person &setElo(Int32 elo) {
-            eloTrend = elo > this->elo ? 1 : (elo < this->elo ? -1 : 0);
             this->elo = elo;
+            return *this;
+        }
+
+        Person &setEloTrend(Int32 trend) {
+            this->eloTrend = trend;
             return *this;
         }
 
