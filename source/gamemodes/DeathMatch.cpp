@@ -58,7 +58,7 @@ namespace Duel6 {
         std::vector<double> diff;
         for (auto& player : players) {
             originalElo.push_back(player.getPerson().getElo());
-            diff.push_back(0.0);
+            diff.push_back(0.5); // 0.5 for correct rounding
         }
 
         auto playerCount = players.size();
@@ -80,7 +80,7 @@ namespace Duel6 {
 
             auto Ra2 = Int32(Ra + diff[i]);
             personA.setElo(Ra2);
-            personA.setEloTrend(Math::sign(Ra2 - Ra));
+            personA.setEloTrend(Ra2 - Ra);
         }
     }
 }

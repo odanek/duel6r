@@ -71,8 +71,7 @@ namespace Duel6 {
         Gui::ListBox *personListBox;
         Gui::ListBox *playerListBox;
         Gui::ListBox *scoreListBox;
-        Gui::ListBox *levelListBox;
-        Gui::ListBox *screenModeListBox;
+        Gui::ListBox *eloListBox;
         Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
         Gui::Textbox *textbox;
         Gui::Spinner *gameModeSwitch;

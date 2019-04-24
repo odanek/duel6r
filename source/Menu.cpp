@@ -105,14 +105,8 @@ namespace Duel6 {
             removePlayer(index);
         });
 
-        levelListBox = new Gui::ListBox(gui, true);
-        levelListBox->setPosition(654, 475, 17, 15, 16);
-
-        screenModeListBox = new Gui::ListBox(gui, false);
-        screenModeListBox->setPosition(654, 541, 19, 2, 16);
-        screenModeListBox->addItem("Fullscreen");
-        screenModeListBox->addItem("Split screen");
-        screenModeListBox->selectItem(0);
+        eloListBox = new Gui::ListBox(gui, true);
+        eloListBox->setPosition(594, 539, 24, 19, 16);
 
         loadPersonProfiles(D6_FILE_PROFILES);
         loadPersonData(D6_FILE_PHIST);
@@ -175,12 +169,8 @@ namespace Duel6 {
                 "    Name   |   Elo | Pts | Win | Kill | Assist | Pen | Death |  K/D | Shot | Acc. | GmTm |  Dmg ");
 
         auto levelLabel = new Gui::Label(gui);
-        levelLabel->setPosition(654, 494, 155, 18);
-        levelLabel->setCaption("Level");
-
-        auto screenModeLabel = new Gui::Label(gui);
-        screenModeLabel->setPosition(654, 560, 155, 18);
-        screenModeLabel->setCaption("Screen mode");
+        levelLabel->setPosition(594, 560, 210, 18);
+        levelLabel->setCaption("Elo scoreboard");
 
         auto personsLabel = new Gui::Label(gui);
         personsLabel->setPosition(10, 560, 181, 18);
@@ -257,12 +247,6 @@ namespace Duel6 {
         backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
-        levelListBox->addItem("Random");
-        for (Size i = 0; i < levelList.getLength(); i++) {
-            levelListBox->addItem(levelList.getFileName(i).substr(0, levelList.getFileName(i).rfind(".")));
-        }
-        levelListBox->selectItem(0);
-
         menuTrack = sound.loadModule("sound/undead.xm");
     }
 
@@ -299,7 +283,9 @@ namespace Duel6 {
         std::vector<const Person *> ranking;
 
         for (const Person &person : persons.list()) {
-            ranking.push_back(&person);
+            if (person.getGames() > 0) {
+                ranking.push_back(&person);
+            }
         }
 
         std::sort(ranking.begin(), ranking.end(), [](const Person *left, const Person *right) {
@@ -326,10 +312,21 @@ namespace Duel6 {
             scoreListBox->addItem(personStat);
         }
 
-        scoreListBox->onColorize([ranking](Int32 index, const std::string& label) {
-            Color col = ranking[index]->getGames() == 0 ? Color(100, 100, 100) : Color::BLACK;
-            return Gui::ListBox::ItemColor{col, Color::WHITE};
+        std::vector<const Person *> eloRanking;
+        for (const Person &person : persons.list()) {
+            eloRanking.push_back(&person);
+        }
+        std::sort(eloRanking.begin(), eloRanking.end(), [](const Person *left, const Person *right) {
+            return left->getElo() > right->getElo();
         });
+
+        eloListBox->clear();
+        for (auto person : eloRanking) {
+            auto trend = person->getEloTrend();
+            auto sign = trend > 0 ? "+" : "-";
+            std::string trendStr = trend == 0 ? std::string() : Format("{0}{1}") << sign << std::abs(trend);
+            eloListBox->addItem(Format("{0,-11}  {1,4}  {2,4}") << person->getName() << person->getElo() << trendStr);
+        }
     }
 
     void Menu::showMessage(const std::string &message) {
@@ -462,12 +459,8 @@ namespace Duel6 {
 
         // Levels
         std::vector<std::string> levels;
-        if (!levelListBox->selectedIndex()) {
-            for (Size i = 0; i < levelList.getLength(); ++i) {
-                levels.push_back(levelList.getPath(i));
-            }
-        } else {
-            levels.push_back(levelList.getPath(levelListBox->selectedIndex() - 1));
+        for (Size i = 0; i < levelList.getLength(); ++i) {
+            levels.push_back(levelList.getPath(i));
         }
 
         // Game backgrounds
@@ -477,8 +470,7 @@ namespace Duel6 {
         }
 
         // Screen
-        ScreenMode screenMode = (playerListBox->size() > 4 || screenModeListBox->selectedIndex() == 0)
-                                ? ScreenMode::FullScreen : ScreenMode::SplitScreen;
+        ScreenMode screenMode = ScreenMode::FullScreen;
         Int32 screenZoom = 13;
 
         // Start
