@@ -330,11 +330,13 @@ namespace Duel6 {
         });
 
         eloListBox->clear();
+        Int32 index = 1;
         for (auto person : eloRanking) {
             auto trend = person->getEloTrend();
             auto sign = trend > 0 ? "+" : "-";
             std::string trendStr = trend == 0 ? std::string() : Format("{0}{1}") << sign << std::abs(trend);
-            eloListBox->addItem(Format("{0,-11}  {1,4}  {2,4}") << person->getName() << person->getElo() << trendStr);
+            eloListBox->addItem(Format("{0,2|0} {1,-11} {2,4} {3,4}") << index << person->getName() << person->getElo() << trendStr);
+            index++;
         }
     }
 
