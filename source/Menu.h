@@ -166,6 +166,8 @@ namespace Duel6 {
         void consumeInputEvents();
 
         void shufflePlayers();
+
+        void eloShufflePlayers();
     };
 }
 

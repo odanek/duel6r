@@ -81,6 +81,7 @@ namespace Duel6 {
             auto Ra2 = Int32(Ra + diff[i]);
             personA.setElo(Ra2);
             personA.setEloTrend(Ra2 - Ra);
+            personA.addEloGame();
         }
     }
 }

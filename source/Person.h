@@ -57,12 +57,13 @@ namespace Duel6 {
         Int32 assistedDamage;
         Int32 elo;
         Int32 eloTrend;
+        Int32 eloGames;
         PersonProfile *profile;
 
     public:
         Person()
                 : shots(0), hits(0), kills(0), deaths(0), assistances(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0),
-                  totalDamage(0), assistedDamage(0), elo(defaultElo), eloTrend(0), profile(nullptr) {}
+                  totalDamage(0), assistedDamage(0), elo(defaultElo), eloTrend(0), eloGames(0), profile(nullptr) {}
 
         explicit Person(const std::string &name, PersonProfile *profile)
                 : Person() {
@@ -142,6 +143,10 @@ namespace Duel6 {
             return eloTrend;
         }
 
+        Int32 getEloGames() const {
+            return eloGames;
+        }
+
         Person &addShots(Int32 shots) {
             this->shots += shots;
             return *this;
@@ -209,6 +214,11 @@ namespace Duel6 {
 
         Person &setEloTrend(Int32 trend) {
             this->eloTrend = trend;
+            return *this;
+        }
+
+        Person &addEloGame() {
+            this->eloGames++;
             return *this;
         }
 

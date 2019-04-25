@@ -168,16 +168,16 @@ namespace Duel6 {
         scoreLabel->setCaption(
                 "    Name   |   Elo | Pts | Win | Kill | Assist | Pen | Death |  K/D | Shot | Acc. | GmTm |  Dmg ");
 
-        auto levelLabel = new Gui::Label(gui);
-        levelLabel->setPosition(594, 560, 210, 18);
-        levelLabel->setCaption("Elo scoreboard");
+        auto eloLabel = new Gui::Label(gui);
+        eloLabel->setPosition(594, 560, 210, 18);
+        eloLabel->setCaption("Elo scoreboard");
 
         auto personsLabel = new Gui::Label(gui);
         personsLabel->setPosition(10, 560, 181, 18);
         personsLabel->setCaption("Persons");
 
         playersLabel = new Gui::Label(gui);
-        playersLabel->setPosition(200, 560, 105, 18);
+        playersLabel->setPosition(200, 560, 88, 18);
 
         updatePlayerCount();
 
@@ -186,6 +186,13 @@ namespace Duel6 {
         shuffleButton->setPosition(307, 560, 17, 17);
         shuffleButton->onClick([this](Gui::Button &) {
             shufflePlayers();
+        });
+
+        Gui::Button *eloShuffleButton = new Gui::Button(gui);
+        eloShuffleButton->setCaption("E");
+        eloShuffleButton->setPosition(290, 560, 17, 17);
+        eloShuffleButton->onClick([this](Gui::Button &) {
+            eloShufflePlayers();
         });
 
         auto controllerLabel = new Gui::Label(gui);
@@ -314,7 +321,9 @@ namespace Duel6 {
 
         std::vector<const Person *> eloRanking;
         for (const Person &person : persons.list()) {
-            eloRanking.push_back(&person);
+            if (person.getEloGames() > 0) {
+                eloRanking.push_back(&person);
+            }
         }
         std::sort(eloRanking.begin(), eloRanking.end(), [](const Person *left, const Person *right) {
             return left->getElo() > right->getElo();
@@ -473,6 +482,11 @@ namespace Duel6 {
         ScreenMode screenMode = ScreenMode::FullScreen;
         Int32 screenZoom = 13;
 
+        // Clear elo trend
+        for (auto &person : persons.list()) {
+            person.setEloTrend(0);
+        }
+
         // Start
         Context::push(*game);
         game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
@@ -501,7 +515,7 @@ namespace Duel6 {
     }
 
     void Menu::updatePlayerCount() {
-        playersLabel->setCaption(Format("Players {0,5}") << playerListBox->size());
+        playersLabel->setCaption(Format("Players {0,3}") << playerListBox->size());
     }
 
     void Menu::addPerson() {
@@ -700,28 +714,64 @@ namespace Duel6 {
     }
 
     void Menu::shufflePlayers() {
+        auto playerCount = playerListBox->size();
+
         std::vector<Size> shuffle;
         std::vector<std::string> players;
-        auto size = playerListBox->size();
-        shuffle.reserve(size);
-        players.reserve(size);
-        for (Size i = 0; i < playerListBox->size(); i++) {
+        std::vector<Int32> controls;
+
+        for (Size i = 0; i < playerCount; i++) {
             players.push_back(playerListBox->getItem(i));
             shuffle.push_back(i);
-        }
-
-        std::vector<Int32> controls;
-        for (Size i = 0; i < playerListBox->size(); i++) {
             controls.push_back(controlSwitch[i]->currentItem());
         }
 
         std::shuffle(shuffle.begin(), shuffle.end(), Math::randomEngine);
 
         playerListBox->clear();
-        for (Size i = 0; i < shuffle.size(); i++) {
+        for (Size i = 0; i < playerCount; i++) {
             auto pos = shuffle[i];
             playerListBox->addItem(players[pos]);
             controlSwitch[i]->setCurrent(controls[pos]);
+        }
+    }
+
+    void Menu::eloShufflePlayers() {
+        auto playerCount = playerListBox->size();
+
+        std::vector<const Person *> players;
+        std::unordered_map<std::string, Int32> controls;
+
+        for (Size i = 0; i < playerCount; i++) {
+            std::string name = playerListBox->getItem(i);
+            Person &person = persons.getByName(name);
+            players.push_back(&person);
+            controls[name] = controlSwitch[i]->currentItem();
+        }
+
+        std::sort(players.begin(), players.end(), [](const Person *left, const Person *right) {
+            return left->getElo() > right->getElo();
+        });
+
+        std::vector<Size> shuffle;
+        for (Size i = 0; i < playerCount; i++) {
+            shuffle.push_back(i);
+
+        }
+
+        Int32 teamPlayerCount = 1 + gameModeSwitch->currentItem() / 2;
+        for (Int32 start = 0; start < Int32(playerCount); start += teamPlayerCount) {
+            auto span = std::min(teamPlayerCount, Int32(playerCount) - start);
+            auto first = shuffle.begin() + start;
+            std::shuffle(first, first + span, Math::randomEngine);
+        }
+
+        playerListBox->clear();
+        for (Size i = 0; i < playerCount; i++) {
+            auto pos = shuffle[i];
+            std::string name = players[pos]->getName();
+            playerListBox->addItem(name);
+            controlSwitch[i]->setCurrent(controls[name]);
         }
     }
 }
