@@ -1,7 +1,7 @@
 # Duel 6 Reloaded
 
 ## Description
-Duel 6 Reloaded is a **cross-platform open-source last-man-standing 2D multi-player game**. The game currently supports up to **10 players** that can compete in **26 arenas**. The arenas consist of solid blocks, moving platforms and water sections. Players are able to move through the environment using walking, jumping and crouching and use weapons to eliminate their opponents. There is a diverse set of **12 available weapons** that differ in shot and reload speed, shot power and splash damage. In addition players can pick up various bonuses to boost their stamina and other characteristics. The number of rounds can be specified and the game collects player **statistics** during the gameplay such as number of wins, kills or accuracy. There are negative points for comitting suicide and drowning that discourage players from performing kamikaze attacks. The game features **customizable player profiles** and **level editor**.
+Duel 6 Reloaded is a **cross-platform open-source last-man-standing 2D multi-player game**. The game currently supports up to **15 players** that can compete in **26 arenas**. The arenas consist of solid blocks, moving platforms and water sections. Players are able to move through the environment using walking, jumping and crouching and use weapons to eliminate their opponents. There is a diverse set of **12 available weapons** that differ in shot and reload speed, shot power and splash damage. In addition players can pick up various bonuses to boost their stamina and other characteristics. The number of rounds can be specified and the game collects player **statistics** during the gameplay such as number of wins, kills or accuracy. There are negative points for comitting suicide and drowning that discourage players from performing kamikaze attacks. The game features **customizable player profiles** and **level editor**.
 
 ## History
 
@@ -24,6 +24,9 @@ The game has been tested on the following platforms:
 - **Linux** with GCC 7.1 compiler
 - **Mac OS X** with LLVM/Clang compiler
 
+Recommended IDE:
+- **CLion** - Duel 6 Reloaded is supported by [JetBrains](https://www.jetbrains.com/?from=Duel6Reloaded)
+
 ## Customization
 
 The game offers several customization options
@@ -36,17 +39,17 @@ Each player has its own set of **skin colors** and **sounds** for various game s
 
 Levels are saved in JSON format and there is an [HTML5 level editor](https://github.com/odanek/duel6r-editor) available in my GitHub repository that can be used to create new levels and modify the existing ones.
 
+### Scripting
+
+The game has built-in [Lua](https://www.lua.org/home.html) scripting. More information about the API can be found in **lua-scripting.txt**.
+
 ## Future plans and milestones
 
-- Upgrading the graphics backend to support OpenGL ES 2 and OpenGL 3 and newer
+- Computer opponents/bots - AI
+- Network play
 - Rewriting the remaining parts of original C code with global functions and variables using modern object-oriented code
 - Providing extension API for weapons, players and other game attributes
 - Collision detection and physics
-- Font rendering using TTF fonts
-- Team play
-- Computer opponents - AI
-- Network play
-- LUA scripting
 
 ## Contact
 
