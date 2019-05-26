@@ -55,6 +55,9 @@ namespace Duel6 {
             return;
         }
 
+        personListBox->clear();
+        playerListBox->clear();
+
         Json::Parser parser;
         Json::Value json = parser.parse(filePath);
         persons.fromJson(json.get("persons"), personProfiles);
@@ -69,6 +72,9 @@ namespace Duel6 {
             playerListBox->addItem(name);
             personListBox->removeItem(name);
         }
+
+        Int32 playedRounds = json.getOrDefault("rounds", Json::Value::makeNumber(0)).asInt();
+        game->setPlayedRounds(playedRounds);
     }
 
     void Menu::joyRescan() {
@@ -109,7 +115,6 @@ namespace Duel6 {
         eloListBox->setPosition(594, 539, 24, 19, 16);
 
         loadPersonProfiles(D6_FILE_PROFILES);
-        loadPersonData(D6_FILE_PHIST);
 
         auto addPlayerButton = new Gui::Button(gui);
         addPlayerButton->setPosition(200, 253, 80, 25);
@@ -279,6 +284,8 @@ namespace Duel6 {
         }
         json.set("playing", playing);
 
+        json.set("rounds", Json::Value::makeNumber(game->getPlayedRounds()));
+
         Json::Writer writer(true);
         writer.writeToFile(D6_FILE_PHIST, json);
     }
@@ -443,9 +450,8 @@ namespace Duel6 {
         }
         game->getSettings().setQuickLiquid(quickLiquidCheckBox->isChecked());
         game->getSettings().setGlobalAssistances(globalAssistanceCheckBox->isChecked());
-        if (game->getSettings().isRoundLimit() && game->getPlayedRounds() > 0 &&
-            game->getPlayedRounds() < game->getSettings().getMaxRounds()) {
-            if (!question("Resume previous game? (Y/N)")) {
+        if (game->getSettings().isRoundLimit()) {
+            if (game->getPlayedRounds() == 0 || game->getPlayedRounds() >= game->getSettings().getMaxRounds() || !question("Resume previous game? (Y/N)")) {
                 cleanPersonData();
                 game->setPlayedRounds(0);
             }
@@ -545,6 +551,7 @@ namespace Duel6 {
     }
 
     void Menu::beforeStart(Context *prevContext) {
+        loadPersonData(D6_FILE_PHIST);
         joyRescan();
         SDL_ShowCursor(SDL_ENABLE);
         SDL_StartTextInput();

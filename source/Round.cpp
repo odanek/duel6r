@@ -162,9 +162,7 @@ namespace Duel6 {
             gameOverWait = D6_GAME_OVER_WAIT;
 
             game.getResources().getGameOverSound().play();
-            if (isLast()) {
-                game.getMode().updateElo(world.getPlayers());
-            }
+            onRoundEnd();
         }
     }
 

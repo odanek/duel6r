@@ -50,6 +50,7 @@ namespace Duel6 {
         bool winner;
         std::vector<Player *> alivePlayers;
         Script::RoundScriptContext scriptContext;
+        std::function<void()> onRoundEnd;
 
     public:
         Round(Game &game, Int32 roundNumber, const std::string &levelPath, bool mirror);
@@ -85,6 +86,10 @@ namespace Duel6 {
         bool isOver() const;
 
         bool isLast() const;
+
+        void setOnRoundEnd(std::function<void()> callback) {
+            onRoundEnd = callback;
+        }
 
     private:
         void scriptStart();

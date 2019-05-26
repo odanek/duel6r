@@ -102,6 +102,7 @@ namespace Duel6 {
         std::vector<PlayerSkin> skins;
         std::unique_ptr<PlayerAnimations> playerAnimations;
         bool displayScoreTab = false;
+
     public:
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
 
@@ -212,6 +213,8 @@ namespace Duel6 {
         void nextRound();
 
         void endRound();
+
+        void onRoundEnd();
     };
 }
 
