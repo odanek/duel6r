@@ -244,10 +244,11 @@ namespace Duel6 {
             }
         });
 
-        globalAssistanceCheckBox = new Gui::CheckBox(gui);
+        globalAssistanceCheckBox = new Gui::CheckBox(gui, true);
         globalAssistanceCheckBox->setLabel("Assistance");
         globalAssistanceCheckBox->setPosition(11, -21, 130, 20);
-        quickLiquidCheckBox = new Gui::CheckBox(gui);
+
+        quickLiquidCheckBox = new Gui::CheckBox(gui, true);
         quickLiquidCheckBox->setLabel("Quick Liquid");
         quickLiquidCheckBox->setPosition(151, -21, 150, 20);
 

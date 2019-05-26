@@ -1,5 +1,7 @@
 volume      128   // Volume - maximum = 128
-music       on    // Hudba v menu - on/off
+music       on    // Menu music - on/off
 
-// Pokud chcete hru v anglictine odkomentujte nasledujici radek
-//lang        lang/english.lang
+gun 13 false
+gun 14 false
+gun 15 false
+gun 16 false

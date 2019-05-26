@@ -41,7 +41,7 @@ namespace Duel6 {
             std::string label;
 
         public:
-            explicit CheckBox(Desktop &desk);
+            CheckBox(Desktop &desk, bool value = false);
 
             ~CheckBox() = default;
 

@@ -29,9 +29,9 @@
 
 namespace Duel6 {
     namespace Gui {
-    CheckBox::CheckBox(Desktop &desk)
+    CheckBox::CheckBox(Desktop &desk, bool value)
                 : Control(desk) {
-            checked = false;
+            checked = value;
         }
 
         void CheckBox::setLabel(const std::string &label) {
