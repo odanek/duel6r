@@ -343,13 +343,12 @@ namespace Duel6 {
                 }
                 setFlag(FlagMoveUp);
             } else {
-                if (isOnGround() || isOnElevator()) {
-                    setFlag(FlagDoubleJumpDebounce);
-                }
                 unsetFlag(FlagDoubleJump);
                 unsetFlag(FlagMoveUp);
             }
-
+            if (collider.isOnHardSurface()) {
+                setFlag(FlagDoubleJumpDebounce);
+            }
             if (controllerState & ButtonPick) {
                 dropWeapon(world->getLevel());
                 pick();
@@ -374,6 +373,7 @@ namespace Duel6 {
 
         if (controllerState & ButtonDown) {
             fall();
+            setFlag(FlagDoubleJumpDebounce);
         }
     }
 
