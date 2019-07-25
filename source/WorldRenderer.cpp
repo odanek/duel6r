@@ -163,7 +163,7 @@ namespace Duel6 {
 
         renderer.quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
         font.print(x + 8, y, Color::WHITE,
-                   Format("Rounds: {0,3}|{1,3}") << game.getPlayedRounds() + 1 << game.getSettings().getMaxRounds());
+                   Format("Rounds: {0,3}|{1,3}") << game.getCurrentRound() + 1 << game.getSettings().getMaxRounds());
     }
 
     void WorldRenderer::fpsCounter() const {

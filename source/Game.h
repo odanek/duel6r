@@ -96,6 +96,8 @@ namespace Duel6 {
 
         std::vector<std::string> levels;
         std::vector<Size> backgrounds;
+
+        Int32 currentRound;
         Int32 playedRounds;
 
         std::vector<Player> players;
@@ -174,6 +176,8 @@ namespace Duel6 {
         void setPlayedRounds(Int32 playedRounds) {
             this->playedRounds = playedRounds;
         }
+
+        Int32 getCurrentRound() const;
 
         bool isOver() const {
             return getRound().isLast() && getRound().isOver();

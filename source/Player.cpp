@@ -146,10 +146,17 @@ namespace Duel6 {
             }
 
         }
-        if (hasFlag(FlagDoubleJump) && getBonus() == BonusType::FAST_MOVEMENT) {
-            if (collider.velocity.y > 0.0) {
+        // player can perform a double jump after the jump peak
+        // fast movement bonus unlocks super double jump
+        if (hasFlag(FlagDoubleJump)) {
+            if (collider.velocity.y < 0.0) {
+                collider.velocity.y = JUMP_ACCELERATION;
+            }
+            else if (getBonus() == BonusType::FAST_MOVEMENT) {
                 collider.acceleration.y += JUMP_ACCELERATION;
             }
+            unsetFlag(FlagDoubleJumpReset);
+            unsetFlag(FlagDoubleJumpDebounce);
         }
 
     }
@@ -334,22 +341,24 @@ namespace Duel6 {
             } else {
                 unsetFlag(FlagMoveRight);
             }
-
+            unsetFlag(FlagDoubleJump);
             if (controllerState & ButtonUp) {
-                unsetFlag(FlagDoubleJump);
-                if (hasFlag(FlagDoubleJumpDebounce) && !isOnGround() && !isOnElevator() && !hasFlag(FlagMoveUp)) {
+                if (hasFlag(FlagDoubleJumpDebounce | FlagDoubleJumpReset) && !isOnGround() && !isOnElevator() && !hasFlag(FlagMoveUp)) {
                     setFlag(FlagDoubleJump);
-                    unsetFlag(FlagDoubleJumpDebounce);
                 }
                 setFlag(FlagMoveUp);
             } else {
-                if (isOnGround() || isOnElevator()) {
-                    setFlag(FlagDoubleJumpDebounce);
-                }
-                unsetFlag(FlagDoubleJump);
                 unsetFlag(FlagMoveUp);
             }
-
+            if (collider.isOnHardSurface()) {
+                setFlag(FlagDoubleJumpReset);
+            }
+            if (collider.isOnHardSurface() || (collider.velocity.y < 0.0 && hasFlag(FlagMoveUp))) {
+                setFlag(FlagDoubleJumpDebounce);
+            }
+            if (collider.hasStartedFalling()) {
+                unsetFlag(FlagDoubleJumpDebounce);
+            }
             if (controllerState & ButtonPick) {
                 dropWeapon(world->getLevel());
                 pick();

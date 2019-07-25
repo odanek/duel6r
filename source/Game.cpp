@@ -130,6 +130,7 @@ namespace Duel6 {
     }
 
     void Game::startRound() {
+        currentRound = playedRounds;
         displayScoreTab = false;
 
         bool shuffle = settings.getLevelSelectionMode() == LevelSelectionMode::Shuffle;
@@ -163,5 +164,9 @@ namespace Duel6 {
     void Game::nextRound() {
         endRound();
         startRound();
+    }
+
+    Int32 Game::getCurrentRound() const {
+        return currentRound;
     }
 }

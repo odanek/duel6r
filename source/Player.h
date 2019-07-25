@@ -79,9 +79,10 @@ namespace Duel6 {
             FlagGhost = 0x400,
             FlagDoubleJumpDebounce = 0x800,
             FlagDoubleJump = 0x1000,
-            FlagShoot = 0x2000,
-            FlagShootDebounce = 0x4000,
-            FlagDying = 0x8000,
+            FlagDoubleJumpReset = 0x2000,
+            FlagShoot = 0x4000,
+            FlagShootDebounce = 0x8000,
+            FlagDying = 0x10000,
         };
 
         struct WaterState {
