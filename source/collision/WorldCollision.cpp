@@ -44,9 +44,6 @@ void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 ela
         }
     }
 }
-bool CollidingEntity::hasStartedFalling() const {
-    return startedFalling;
-}
 
 void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed) {
     static bool bleft = false, bright = false, bup = false, bdown = false;
@@ -65,7 +62,6 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
         lastCollisionCheck.clearForJump = !level.isWall(left, up, true) && !level.isWall(right, up, true);
     }
     lastCollisionCheck.inWall = level.isWall(Int32(getCollisionRect().getCentre().x), Int32(getCollisionRect().getCentre().y), true);
-    bool wasNotFalling = velocity.y > 0 || isOnHardSurface();
     if (!isOnElevator()) {
        velocity.y += GRAVITATIONAL_ACCELERATION * elapsedTime;    // gravity
     }
@@ -210,7 +206,6 @@ void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime,
 
     position.y += totalSpeed.y * speed; // the speed has the elapsedTime already factored in
     position.x += totalSpeed.x * D6_PLAYER_ACCEL * speed; // the speed has the elapsedTime already factored in
-    startedFalling = wasNotFalling && velocity.y <= 0;
     lastCollisionCheck.up = bup;
     lastCollisionCheck.right = bright;
     lastCollisionCheck.down = bdown;
