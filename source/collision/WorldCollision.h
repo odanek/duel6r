@@ -86,12 +86,10 @@ namespace Duel6 {
         bool isUnderHardSurface() const;
         bool isOnElevator() const;
         bool isOnGround() const;
-        bool hasStartedFalling() const;
 
     private:
         Vector boundingBoxHorizontal = {HORIZONTAL_DELTA, DELTA_HEIGHT};
         Vector boundingBoxVertical = {VERTICAL_DELTA, DELTA_HEIGHT};
-        bool startedFalling = false;
         void checkElevator(Float32 speed);
     };
 }

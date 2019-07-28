@@ -146,14 +146,13 @@ namespace Duel6 {
             }
 
         }
-        // player can perform a double jump after the jump peak
+        // player can perform a double jump
         // fast movement bonus unlocks super double jump
-        if (hasFlag(FlagDoubleJump)) {
-            if (collider.velocity.y < 0.0) {
-                collider.velocity.y = JUMP_ACCELERATION;
-            }
-            else if (getBonus() == BonusType::FAST_MOVEMENT) {
+        if (hasFlag(FlagDoubleJump) || (collider.velocity.y > 0 && hasFlag(FlagDoubleJumpDebounce | FlagDoubleJumpReset) && getBonus() == BonusType::FAST_MOVEMENT)) {
+            if (collider.velocity.y > 0 && getBonus() == BonusType::FAST_MOVEMENT) {
                 collider.acceleration.y += JUMP_ACCELERATION;
+            } else {
+                collider.velocity.y = JUMP_ACCELERATION;
             }
             unsetFlag(FlagDoubleJumpReset);
             unsetFlag(FlagDoubleJumpDebounce);
@@ -343,8 +342,12 @@ namespace Duel6 {
             }
             unsetFlag(FlagDoubleJump);
             if (controllerState & ButtonUp) {
-                if (hasFlag(FlagDoubleJumpDebounce | FlagDoubleJumpReset) && !isOnGround() && !isOnElevator() && !hasFlag(FlagMoveUp)) {
-                    setFlag(FlagDoubleJump);
+                if(!hasFlag(FlagMoveUp) && !collider.isOnHardSurface() && hasFlag(FlagDoubleJumpReset)) {
+                    if (hasFlag(FlagDoubleJumpDebounce)) {
+                        setFlag(FlagDoubleJump);
+                    } else {
+                        setFlag(FlagDoubleJumpDebounce);
+                    }
                 }
                 setFlag(FlagMoveUp);
             } else {
@@ -352,11 +355,6 @@ namespace Duel6 {
             }
             if (collider.isOnHardSurface()) {
                 setFlag(FlagDoubleJumpReset);
-            }
-            if (collider.isOnHardSurface() || (collider.velocity.y < 0.0 && hasFlag(FlagMoveUp))) {
-                setFlag(FlagDoubleJumpDebounce);
-            }
-            if (collider.hasStartedFalling()) {
                 unsetFlag(FlagDoubleJumpDebounce);
             }
             if (controllerState & ButtonPick) {
@@ -380,7 +378,6 @@ namespace Duel6 {
         }
 
         unsetFlag(FlagKnee);
-
         if (controllerState & ButtonDown) {
             fall();
         }
