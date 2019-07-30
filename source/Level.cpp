@@ -106,7 +106,7 @@ namespace Duel6 {
     }
 
     Water Level::getWaterType(Int32 x, Int32 y) const {
-        return getBlockMeta(x, y).getWaterType();
+        return isInside(x,y) ? getBlockMeta(x, y).getWaterType() : Water::NONE;
     }
 
     bool Level::isPossibleStartingPosition(Int32 x, Int32 y) {
