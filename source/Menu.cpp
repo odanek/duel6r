@@ -73,6 +73,8 @@ namespace Duel6 {
             personListBox->removeItem(name);
         }
 
+        updatePlayerCount();
+
         Int32 playedRounds = json.getOrDefault("rounds", Json::Value::makeNumber(0)).asInt();
         game->setPlayedRounds(playedRounds);
     }

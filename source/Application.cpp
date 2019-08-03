@@ -25,6 +25,12 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#if defined(__APPLE__)
+#include <SDL2_image/SDL_image.h>
+#else
+#include <SDL2/SDL_image.h>
+#endif
+
 #ifdef D6_SCRIPTING_LUA
     #include <lua.hpp>
 #endif
@@ -96,6 +102,10 @@ namespace Duel6 {
         const SDL_version *ttfVersion = TTF_Linked_Version();
         console.printLine(
                 Format("SDL_ttf version: {0}.{1}.{2}") << ttfVersion->major << ttfVersion->minor << ttfVersion->patch);
+
+        const SDL_version *imgVersion = IMG_Linked_Version();
+        console.printLine(
+                Format("SDL_image version: {0}.{1}.{2}") << imgVersion->major << imgVersion->minor << imgVersion->patch);
 
 #ifdef D6_SCRIPTING_LUA
         const lua_Number *luaVersion = lua_version(nullptr);
