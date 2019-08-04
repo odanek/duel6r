@@ -148,14 +148,13 @@ namespace Duel6 {
         }
         // player can perform a double jump
         // fast movement bonus unlocks super double jump
-        if (hasFlag(FlagDoubleJump) || (collider.velocity.y > 0 && hasFlag(FlagDoubleJumpDebounce | FlagDoubleJumpReset) && getBonus() == BonusType::FAST_MOVEMENT)) {
+        if (hasFlag(FlagDoubleJump)) {
             if (collider.velocity.y > 0 && getBonus() == BonusType::FAST_MOVEMENT) {
                 collider.acceleration.y += JUMP_ACCELERATION;
             } else {
                 collider.velocity.y = JUMP_ACCELERATION;
             }
             unsetFlag(FlagDoubleJumpReset);
-            unsetFlag(FlagDoubleJumpDebounce);
         }
 
     }
@@ -342,12 +341,8 @@ namespace Duel6 {
             }
             unsetFlag(FlagDoubleJump);
             if (controllerState & ButtonUp) {
-                if(!hasFlag(FlagMoveUp) && !collider.isOnHardSurface() && hasFlag(FlagDoubleJumpReset)) {
-                    if (hasFlag(FlagDoubleJumpDebounce)) {
-                        setFlag(FlagDoubleJump);
-                    } else {
-                        setFlag(FlagDoubleJumpDebounce);
-                    }
+                if (!hasFlag(FlagMoveUp) && !collider.isOnHardSurface() && hasFlag(FlagDoubleJumpReset)) {
+                    setFlag(FlagDoubleJump);
                 }
                 setFlag(FlagMoveUp);
             } else {
@@ -355,7 +350,6 @@ namespace Duel6 {
             }
             if (collider.isOnHardSurface()) {
                 setFlag(FlagDoubleJumpReset);
-                unsetFlag(FlagDoubleJumpDebounce);
             }
             if (controllerState & ButtonPick) {
                 dropWeapon(world->getLevel());
