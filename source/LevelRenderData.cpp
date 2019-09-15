@@ -31,9 +31,8 @@
 
 namespace Duel6 {
     LevelRenderData::LevelRenderData(const Level &level, Renderer &renderer, ScreenMode screenMode,
-                                     Float32 animationSpeed, Float32 waveHeight)
-            : level(level), renderer(renderer), screenMode(screenMode), animationSpeed(animationSpeed), animWait(0),
-              waveHeight(waveHeight) {}
+                                     Float32 animationSpeed)
+            : level(level), renderer(renderer), screenMode(screenMode), animationSpeed(animationSpeed), animWait(0) {}
 
     void LevelRenderData::generateFaces() {
         addWallFaces();

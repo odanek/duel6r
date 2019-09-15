@@ -29,10 +29,11 @@
 #include "GL1Buffer.h"
 #include "GL1Renderer.h"
 #include "../../FaceList.h"
+#include "../../Defines.h"
 
 namespace Duel6 {
     namespace {
-        const Float32 waveHeight = 0.1f;
+        const Float32 waveHeight = D6_WAVE_HEIGHT;
     }
 
     GL1Buffer::GL1Buffer(GL1Renderer &renderer, const FaceList &faceList)

@@ -63,7 +63,7 @@ namespace Duel6 {
 
             Texture getBonusTexture() const override { return Texture(); }
 
-            Int32 getBonusTextureIndex() const {
+            Int32 getBonusTextureIndex() const override {
                 return 0;
             }
 

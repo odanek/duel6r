@@ -486,23 +486,15 @@ else (WIN32) # Linux GCC
 endif (WIN32)
 
 # SDL
-if (APPLE)
-    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
-    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
-    find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf framework")
-    find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image framework")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
-else (APPLE) # MSVC, GCC or MINGW
-    find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
-    include_directories(${HEADERS_SDL2})
+find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
+include_directories(${HEADERS_SDL2})
 
-    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
-    find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
-    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
-    find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
-    find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
-endif (APPLE)
+find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
+find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
+find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
+find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
+find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image import library")
+target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
 
 # GLEW
 if (WIN32)

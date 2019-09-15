@@ -119,6 +119,8 @@ namespace Duel6 {
             };
 
         public:
+        	virtual ~Variable() = default;
+
             virtual void setValue(const std::string &val) = 0;
 
             virtual std::string getValue() const = 0;

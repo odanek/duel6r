@@ -41,6 +41,8 @@ namespace Duel6 {
 
     class BonusTypeImpl {
     public:
+    	virtual ~BonusTypeImpl() = default;
+
         virtual std::string getName() const = 0;
 
         virtual Int32 getTextureIndex() const = 0;

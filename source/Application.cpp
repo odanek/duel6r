@@ -25,12 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#if defined(__APPLE__)
-#include <SDL2_image/SDL_image.h>
-#else
 #include <SDL2/SDL_image.h>
-#endif
-
 #ifdef D6_SCRIPTING_LUA
     #include <lua.hpp>
 #endif

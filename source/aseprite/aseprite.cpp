@@ -510,7 +510,11 @@ bool FRAME::read(std::ifstream & s, PIXELTYPE pixelFormat) {
             WORD type;
             constexpr size_t CHUNK_HEADER_SIZE = sizeof(size) + sizeof(type);
             auto p = s.tellg();
-            result = result && s & size && s & type;
+            result = result && (s & size) && (s & type);
+            if (!result) {
+            	break;
+            }
+
             //auto p2 = s.tellg();
             //std::cout << std::hex << "0x" << p2 << ":DEBUG Chunk: size: " << size << " type: " << type << std::dec << "\n";
             switch (type) {

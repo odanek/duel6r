@@ -30,12 +30,7 @@
 
 #include <vector>
 
-#if defined(__APPLE__)
-#include <SDL2_ttf/SDL_ttf.h>
-#else
 #include <SDL2/SDL_ttf.h>
-#endif
-
 #include "Type.h"
 #include "Color.h"
 #include "Format.h"

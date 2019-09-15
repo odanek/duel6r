@@ -44,11 +44,9 @@ namespace Duel6 {
         FaceList water;
         Float32 animationSpeed;
         Float32 animWait;
-        Float32 waveHeight;
 
     public:
-        LevelRenderData(const Level &level, Renderer &renderer, ScreenMode screenMode, Float32 animationSpeed,
-                        Float32 waveHeight);
+        LevelRenderData(const Level &level, Renderer &renderer, ScreenMode screenMode, Float32 animationSpeed);
 
         void generateFaces();
 

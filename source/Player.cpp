@@ -85,7 +85,6 @@ namespace Duel6 {
         roundKills = 0;
         bodyAlpha = 1.0f;
         alpha = 1.0f;
-        this->view = view;
         water.headUnderWater = Water::NONE;
         water.feetInWater = Water::NONE;
 
