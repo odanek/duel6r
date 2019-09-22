@@ -459,7 +459,7 @@ endif (WIN32)
 set(D6R_APP_NAME "duel6r" CACHE STRING "Filename of the application.")
 set(D6R_APP_DEBUG_NAME "duel6rd" CACHE STRING "Filename of the debug version of the application.")
 add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
-set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 4.0.1 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
+set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 6.0.0 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
 
 add_custom_command(TARGET ${D6R_APP_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -520,15 +520,3 @@ if (D6R_WITH_LUA)
         include_directories(${HEADERS_LUA}/lua5.3)
     endif (WIN32)
 endif (D6R_WITH_LUA)
-
-
-########################
-#  Install application
-########################
-
-# install binary files
-install(TARGETS ${D6R_APP_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(DIRECTORY resources/data DESTINATION data)
-install(DIRECTORY resources/levels DESTINATION levels)
-install(DIRECTORY resources/sound DESTINATION sound)
-install(DIRECTORY resources/textures DESTINATION textures)
