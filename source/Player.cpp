@@ -153,9 +153,9 @@ namespace Duel6 {
             } else {
                 collider.velocity.y = JUMP_ACCELERATION;
             }
+            unsetFlag(FlagDoubleJump);
             unsetFlag(FlagDoubleJumpReset);
         }
-
     }
 
     void Player::fall() {
@@ -338,7 +338,6 @@ namespace Duel6 {
             } else {
                 unsetFlag(FlagMoveRight);
             }
-            unsetFlag(FlagDoubleJump);
             if (controllerState & ButtonUp) {
                 if (!hasFlag(FlagMoveUp) && !collider.isOnHardSurface() && hasFlag(FlagDoubleJumpReset)) {
                     setFlag(FlagDoubleJump);
