@@ -78,6 +78,7 @@ namespace Duel6 {
         life = D6_MAX_LIFE;
         air = D6_MAX_AIR;
         this->ammo = ammo;
+        timeSinceHit = 1.0f ;
         bonus = BonusType::INVULNERABILITY;
         bonusDuration = 2.0f;
         bonusRemainingTime = 2.0f;
@@ -484,7 +485,7 @@ namespace Duel6 {
         } else if (isPickingGun()) {
             animation = animations.getPick().get();
         } else if (isKneeling()) {
-            animation = animations.getDuck().get();
+            animation = timeSinceHit < 0.5f ? animations.getHitDuck().get() : animations.getDuck().get();
             sprite->setLooping(AnimationLooping::RepeatForever);
         } else if (isOnElevator()) {
             if (!isMoving()) {
@@ -504,7 +505,7 @@ namespace Duel6 {
             }
             sprite->setSpeed(getVelocity().length());
         } else if (!isMoving()) {
-            animation = animations.getStand().get();
+            animation = timeSinceHit < 0.5f ? animations.getHitStand().get() : animations.getStand().get();
         } else {
             sprite->setSpeed(getVelocity().length());
             animation = animations.getWalk().get();

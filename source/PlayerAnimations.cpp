@@ -44,10 +44,12 @@ namespace Duel6 {
     PlayerAnimations::PlayerAnimations(const animation::Animation &animation)
             : animation(animation),
               stand(animation, "Stand"),
+              hitStand(animation, "HIT_Stand"),
               walk(animation, "Walk"),
               fall(animation, "Fall"),
               jump(animation, "Jump"),
               duck(animation, "Duck"),
+              hitDuck(animation, "HIT_Duck"),
               deadFall(animation, "Dead_fall"),
               deadHit(animation, "Dead_hit"),
               deadLying(animation, "Dead_lying"),
@@ -57,10 +59,10 @@ namespace Duel6 {
     Texture PlayerAnimations::generateAnimationTexture(const TextureManager &textureManager,
                                                        const PlayerSkinColors &colors) const {
         animation::Palette substitution_table(animation.palette);
-        int dst[] = {4, 5, 8, 9, 12, 13, 16, 20, 24, 25, 36, 37}; //indexes to palette colors used in the man.ase
-        int src[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10};
+        int dst[] = {4, 5, 8, 9, 12, 13, 16, 20, 24, 36, 37}; //indexes to palette colors used in the man.ase
+        int src[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         auto &substitution = substitution_table.colors;
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 11; i++) {
             const auto &color = colors.get((PlayerSkinColors::BodyPart) src[i]);
             substitution[dst[i]].r = color.getRed();
             substitution[dst[i]].g = color.getGreen();
@@ -81,6 +83,10 @@ namespace Duel6 {
         return stand;
     }
 
+    const PlayerAnimation &PlayerAnimations::getHitStand() const {
+        return hitStand;
+    }
+
     const PlayerAnimation &PlayerAnimations::getWalk() const {
         return walk;
     }
@@ -95,6 +101,10 @@ namespace Duel6 {
 
     const PlayerAnimation &PlayerAnimations::getDuck() const {
         return duck;
+    }
+
+    const PlayerAnimation &PlayerAnimations::getHitDuck() const {
+        return hitDuck;
     }
 
     const PlayerAnimation &PlayerAnimations::getDeadFall() const {
