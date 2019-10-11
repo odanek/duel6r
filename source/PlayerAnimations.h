@@ -49,10 +49,12 @@ namespace Duel6 {
     private:
         const animation::Animation &animation;
         const PlayerAnimation stand;
+        const PlayerAnimation hitStand;
         const PlayerAnimation walk;
         const PlayerAnimation fall;
         const PlayerAnimation jump;
         const PlayerAnimation duck;
+        const PlayerAnimation hitDuck;
         const PlayerAnimation deadFall;
         const PlayerAnimation deadHit;
         const PlayerAnimation deadLying;
@@ -66,6 +68,8 @@ namespace Duel6 {
 
         const PlayerAnimation &getStand() const;
 
+        const PlayerAnimation &getHitStand() const;
+
         const PlayerAnimation &getWalk() const;
 
         const PlayerAnimation &getFall() const;
@@ -73,6 +77,8 @@ namespace Duel6 {
         const PlayerAnimation &getJump() const;
 
         const PlayerAnimation &getDuck() const;
+
+        const PlayerAnimation &getHitDuck() const;
 
         const PlayerAnimation &getDeadFall() const;
 

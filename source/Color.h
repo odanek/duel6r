@@ -75,6 +75,20 @@ namespace Duel6 {
                     getAlpha() != color.getAlpha());
         }
 
+        Color& add(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha) {
+            float alphaSrc = alpha / 255.0f;
+            float alphaDst = getAlpha() / 255.0f;
+            float a = alphaDst * (1.0f - alphaSrc);
+            float A = alphaSrc + a;
+            if (A > 1.0f || getAlpha() == 1) {
+                A = 1.0f;
+            }
+            float R = ((red / 255.0f) * alphaSrc + (getRed() / 255.0f) * a) / A;
+            float G = ((green / 255.0f) * alphaSrc + (getGreen() / 255.0f) * a) / A;
+            float B = ((blue / 255.0f) * alphaSrc + (getBlue() / 255.0f) * a) / A;
+            return set(R * 255.0f, G * 255.0f, B * 255.0f, A * 255.0f);
+        }
+
         Uint8 getRed() const {
             return color[0];
         }

@@ -110,8 +110,7 @@ namespace Duel6 {
                                 }
                                 case animation::Layer::BLEND_MODE::Normal:
                                 default:
-                                    frameImage.at((y + v) * animation.width + u + x).set(color.r, color.g, color.b,
-                                                                                         color.a);
+                                    dstColor.add(color.r, color.g, color.b, color.a);
                             }
                         }
                     }
