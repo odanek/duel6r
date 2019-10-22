@@ -32,6 +32,8 @@
 #include "renderer/gl1/GL1Renderer.h"
 #elif defined(D6_RENDERER_GLES2)
 #include "renderer/es2/GLES2Renderer.h"
+#elif defined(D6_RENDERER_GLES3)
+#include "renderer/es3/GLES3Renderer.h"
 #elif defined(D6_RENDERER_GL4)
 #include "renderer/gl4/GL4Renderer.h"
 #endif
@@ -138,6 +140,10 @@ namespace Duel6 {
         majorVersion = 2;
         minorVersion = 0;
         profile = SDL_GL_CONTEXT_PROFILE_ES;
+#elif defined(D6_RENDERER_GLES3)
+        majorVersion = 3;
+        minorVersion = 0;
+        profile = SDL_GL_CONTEXT_PROFILE_ES;
 #elif defined(D6_RENDERER_GL4)
         majorVersion = 4;
         minorVersion = 3;
@@ -187,6 +193,8 @@ namespace Duel6 {
         return std::make_unique<GL1Renderer>();
 #elif defined(D6_RENDERER_GLES2)
         return std::make_unique<GLES2Renderer>();
+#elif defined(D6_RENDERER_GLES3)
+        return std::make_unique<GLES3Renderer>();
 #elif defined(D6_RENDERER_GL4)
         return std::make_unique<GL4Renderer>();
 #endif

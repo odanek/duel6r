@@ -25,17 +25,53 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERERTYPES_H
-#define DUEL6_RENDERER_RENDERERTYPES_H
+#include <vector>
+#include "../../File.h"
+#include "../../Exception.h"
+#include "../../VideoException.h"
+#include "../../Format.h"
+#include "GLES3Shader.h"
 
-#if defined(D6_RENDERER_GL1)
-#include "gl1/GL1Types.h"
-#elif defined(D6_RENDERER_GLES2)
-#include "es2/GLES2Types.h"
-#elif defined(D6_RENDERER_GLES3)
-#include "es3/GLES3Types.h"
-#elif defined(D6_RENDERER_GL4)
-#include "gl4/GL4Types.h"
-#endif
+namespace Duel6 {
+    GLES3Shader::GLES3Shader(GLenum type, const std::string &path)
+            : type(type), id(0) {
+        id = glCreateShader(type);
 
-#endif
+        auto shaderData = File::load(path);
+        shaderData.push_back(0);
+        auto shaderText = (const char *)(shaderData.data());
+        glShaderSource(id, 1, &shaderText, nullptr);
+
+        glCompileShader(id);
+
+        GLint isCompiled = 0;
+        glGetShaderiv(id, GL_COMPILE_STATUS, &isCompiled);
+        if(isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
+
+            std::vector<GLchar> errorLog(maxLength);
+            glGetShaderInfoLog(id, maxLength, &maxLength, errorLog.data());
+
+            glDeleteShader(id);
+
+            D6_THROW(VideoException, Format("Shader compilation ({0}) failed:\n {1}\n") << path << (const char *)errorLog.data());
+        }
+    }
+
+    GLES3Shader::~GLES3Shader() {
+        if (id != 0) {
+            glDeleteShader(id);
+            id = 0;
+        }
+    }
+
+    GLuint GLES3Shader::getId() const {
+        return id;
+    }
+
+    GLenum GLES3Shader::getType() const {
+        return type;
+    }
+}

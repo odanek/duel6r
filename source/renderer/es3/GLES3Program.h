@@ -25,17 +25,38 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERERTYPES_H
-#define DUEL6_RENDERER_RENDERERTYPES_H
+#ifndef DUEL6_RENDERER_GLES3_PROGRAM_H
+#define DUEL6_RENDERER_GLES3_PROGRAM_H
 
-#if defined(D6_RENDERER_GL1)
-#include "gl1/GL1Types.h"
-#elif defined(D6_RENDERER_GLES2)
-#include "es2/GLES2Types.h"
-#elif defined(D6_RENDERER_GLES3)
-#include "es3/GLES3Types.h"
-#elif defined(D6_RENDERER_GL4)
-#include "gl4/GL4Types.h"
-#endif
+#include <GL/glew.h>
+#include "../../Type.h"
+#include "../../math/Matrix.h"
+#include "GLES3Shader.h"
+
+namespace Duel6 {
+    class GLES3Program {
+    private:
+        const GLES3Shader &vertexShader;
+        const GLES3Shader &fragmentShader;
+        GLuint id;
+
+    public:
+        GLES3Program(const GLES3Shader &vertexShader, const GLES3Shader &fragmentShader);
+        ~GLES3Program();
+
+        void bind();
+        GLint uniformLocation(const GLchar *name);
+
+        void setUniform(const GLchar *name, Int32 value);
+        void setUniform(const GLchar *name, Float32 value);
+        void setUniform(const GLchar *name, Float32 value[4]);
+        void setUniform(const GLchar *name, const Matrix &value);
+
+        GLuint getId() const;
+
+        const GLES3Shader &getVertexShader() const;
+        const GLES3Shader &getFragmentShader() const;
+    };
+}
 
 #endif
