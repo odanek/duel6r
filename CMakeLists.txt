@@ -59,7 +59,9 @@ endif (MINGW)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
 # Switches
-set(D6R_RENDERER "gl1")  # Renderer: gl1/gl4/es2
+set(D6R_RENDERERS gl1 gl4 es2 es3)
+set(D6R_RENDERER "es3" CACHE STRING "Renderer")  # Renderer: gl1/gl4/es2
+set_property (CACHE D6R_RENDERER PROPERTY STRINGS ${D6R_RENDERERS})
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
 #########################################################################
@@ -418,6 +420,24 @@ if (D6R_RENDERER STREQUAL "es2")
             source/renderer/es2/GLES2Renderer.cpp
             )
 endif (D6R_RENDERER STREQUAL "es2")
+
+if (D6R_RENDERER STREQUAL "es3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GLES3")
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/es3/GLES3Buffer.h
+            source/renderer/es3/GLES3Buffer.cpp
+            source/renderer/es3/GLES3Program.h
+            source/renderer/es3/GLES3Program.cpp
+
+            source/renderer/es3/GLES3Renderer.h
+            source/renderer/es3/GLES3Renderer.cpp
+            source/renderer/es3/GLES3Shader.h
+            source/renderer/es3/GLES3Shader.cpp
+
+            source/renderer/es3/GLES3Types.h
+            )
+endif (D6R_RENDERER STREQUAL "es3")
+
 
 if (D6R_RENDERER STREQUAL "gl4")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL4")

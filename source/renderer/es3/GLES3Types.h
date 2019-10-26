@@ -25,17 +25,24 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERERTYPES_H
-#define DUEL6_RENDERER_RENDERERTYPES_H
+#ifndef DUEL6_RENDERER_GLES3_TYPES_H
+#define DUEL6_RENDERER_GLES3_TYPES_H
 
-#if defined(D6_RENDERER_GL1)
-#include "gl1/GL1Types.h"
-#elif defined(D6_RENDERER_GLES2)
-#include "es2/GLES2Types.h"
-#elif defined(D6_RENDERER_GLES3)
-#include "es3/GLES3Types.h"
-#elif defined(D6_RENDERER_GL4)
-#include "gl4/GL4Types.h"
-#endif
+#include <GL/glew.h>
+
+namespace Duel6 {
+    typedef GLuint Texture;
+
+    enum class BlendFunc {
+        None,
+        SrcAlpha,
+        SrcColor
+    };
+
+    enum class TextureFilter {
+        Nearest,
+        Linear
+    };
+}
 
 #endif

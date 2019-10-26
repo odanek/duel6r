@@ -25,17 +25,37 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERERTYPES_H
-#define DUEL6_RENDERER_RENDERERTYPES_H
+#ifndef DUEL6_RENDERER_GLES3_BUFFER_H
+#define DUEL6_RENDERER_GLES3_BUFFER_H
 
-#if defined(D6_RENDERER_GL1)
-#include "gl1/GL1Types.h"
-#elif defined(D6_RENDERER_GLES2)
-#include "es2/GLES2Types.h"
-#elif defined(D6_RENDERER_GLES3)
-#include "es3/GLES3Types.h"
-#elif defined(D6_RENDERER_GL4)
-#include "gl4/GL4Types.h"
-#endif
+#include <GL/glew.h>
+#include "../RendererBuffer.h"
+#include "../../Vertex.h"
+#include "GLES3Program.h"
+
+namespace Duel6 {
+    class GLES3Buffer : public RendererBuffer {
+    private:
+        GLES3Program &program;
+        Uint32 vao;
+        Uint32 vertexVbo;
+        Uint32 textureIndexVbo;
+        Size elements;
+
+    public:
+        explicit GLES3Buffer(GLES3Program &program, const FaceList &faceList);
+
+        ~GLES3Buffer() override;
+
+        void update(const FaceList &faceList) override;
+
+        void render(const Material &material) override;
+
+    private:
+        void createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer);
+
+        void createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer);
+    };
+}
 
 #endif
