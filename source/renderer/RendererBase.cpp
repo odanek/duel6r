@@ -122,4 +122,8 @@ namespace Duel6 {
         line(p3, p4, width, color);
         line(p4, position, width, color);
     }
+
+    std::unique_ptr<RendererTarget> RendererBase::makeTarget(GLuint width, GLuint height) {
+        return std::make_unique<RendererTarget>(width, height);
+    }
 }

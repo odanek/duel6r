@@ -142,7 +142,7 @@ namespace Duel6 {
         profile = SDL_GL_CONTEXT_PROFILE_ES;
 #elif defined(D6_RENDERER_GLES3)
         majorVersion = 3;
-        minorVersion = 0;
+        minorVersion = 1;
         profile = SDL_GL_CONTEXT_PROFILE_ES;
 #elif defined(D6_RENDERER_GL4)
         majorVersion = 4;

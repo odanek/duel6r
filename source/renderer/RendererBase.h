@@ -29,7 +29,7 @@
 #define DUEL6_RENDERER_RENDERER_BASE_H
 
 #include "Renderer.h"
-
+#include "RendererTarget.h"
 namespace Duel6 {
 
     class RendererBase
@@ -71,6 +71,7 @@ namespace Duel6 {
                     const Vector &textureSize, const Material &material) override;
 
         void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
+        std::unique_ptr<RendererTarget> makeTarget(GLuint width, GLuint height) override;
     };
 }
 

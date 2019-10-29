@@ -38,7 +38,7 @@
 #include "FaceList.h"
 #include "ShotList.h"
 #include "Ranking.h"
-
+#include "renderer/RendererTarget.h"
 namespace Duel6 {
     class Game;
 
@@ -48,11 +48,13 @@ namespace Duel6 {
         const Video &video;
         const Game &game;
         Renderer &renderer;
-
+        std::unique_ptr<RendererTarget> target;
     public:
         WorldRenderer(AppService &appService, const Game &game);
 
         void render() const;
+
+        void prerenderBackground();
 
     private:
         void setView(const PlayerView &view) const;

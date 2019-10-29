@@ -52,6 +52,7 @@ namespace Duel6 {
         if (getRound().isOver()) {
             if (!getRound().isLast()) {
                 nextRound();
+
             }
         } else {
             getRound().update(elapsedTime);
@@ -147,6 +148,7 @@ namespace Duel6 {
             onRoundEnd();
         });
         round->start();
+        worldRenderer.prerenderBackground();
     }
 
     void Game::endRound() {

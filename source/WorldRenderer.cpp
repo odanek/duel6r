@@ -33,7 +33,8 @@
 
 namespace Duel6 {
     WorldRenderer::WorldRenderer(Duel6::AppService &appService, const Duel6::Game &game)
-        : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()) {}
+        : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()),
+          target(renderer.makeTarget(video.getScreen().getClientWidth(), video.getScreen().getClientHeight())) {}
 
     void WorldRenderer::setView(const PlayerView &view) const {
         setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());
@@ -410,6 +411,24 @@ namespace Duel6 {
         });
     }
 
+    void WorldRenderer::prerenderBackground() {
+        target->use();
+        target->clear();
+
+        const Player & player = game.getPlayers().front();
+        setView(player.getView());
+        background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
+        video.setMode(Video::Mode::Perspective);
+
+        const Camera &camera = player.getCamera();
+        Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
+        renderer.setViewMatrix(viewMatrix);
+        const World &world = game.getRound().getWorld();
+        walls(world.getLevelRenderData().getWalls());
+        sprites(world.getLevelRenderData().getSprites());
+        target->stopUse();
+    }
+
     void WorldRenderer::view(const Player &player) const {
         const Camera &camera = player.getCamera();
         Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
@@ -420,8 +439,7 @@ namespace Duel6 {
         }
 
         const World &world = game.getRound().getWorld();
-        walls(world.getLevelRenderData().getWalls());
-        sprites(world.getLevelRenderData().getSprites());
+
         world.getElevatorList().render(renderer);
         world.getBonusList().render(renderer);
         world.getSpriteList().render(renderer);
@@ -449,7 +467,7 @@ namespace Duel6 {
     void WorldRenderer::fullScreen() const {
         const Player &player = game.getPlayers().front();
         setView(player.getView());
-        background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
+        target->blit();
         video.setMode(Video::Mode::Perspective);
         view(player);
 
@@ -478,8 +496,6 @@ namespace Duel6 {
 
     void WorldRenderer::render() const {
         const GameSettings &settings = game.getSettings();
-
-        renderer.clearBuffers();
 
         if (settings.getScreenMode() == ScreenMode::FullScreen) {
             fullScreen();

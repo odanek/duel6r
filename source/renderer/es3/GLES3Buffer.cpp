@@ -122,8 +122,7 @@ namespace Duel6 {
         }
     }
 
-    void
-    GLES3Buffer::createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer) {
+    void GLES3Buffer::createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer) {
         const auto &faces = faceList.getFaces();
         textureIndexBuffer.reserve(faces.size() * 6);
 
