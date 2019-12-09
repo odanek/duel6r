@@ -122,6 +122,10 @@ namespace Duel6 {
             return personProfiles;
         }
 
+        std::vector<std::string> listMaps();
+
+        void play(std::vector<std::string> levels);
+
     private:
         void beforeStart(Context *prevContext) override;
 

@@ -116,6 +116,8 @@ namespace Duel6 {
 
         Color getGameOverOverlay() const;
 
+        Color getRoundStartFadeColor() const;
+
         void shotCollisionBox(const ShotList &shotList) const;
     };
 }

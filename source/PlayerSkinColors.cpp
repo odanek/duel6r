@@ -58,6 +58,13 @@ namespace Duel6 {
             this->color[i] = color;
         }
     }
+    PlayerSkinColors::PlayerSkinColors(const PlayerSkinColors &colors){
+        for (Size i = 0; i < 11; i++) {
+            this->color[i] = colors.color[i];
+        }
+        this->hair = colors.hair;
+        this->headBand = colors.headBand;
+    }
 
     PlayerSkinColors &PlayerSkinColors::operator=(const PlayerSkinColors &colors) {
         for (Size i = 0; i < 11; i++) {

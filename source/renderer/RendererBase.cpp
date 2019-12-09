@@ -124,6 +124,6 @@ namespace Duel6 {
     }
 
     std::unique_ptr<RendererTarget> RendererBase::makeTarget(GLuint width, GLuint height) {
-        return std::make_unique<RendererTarget>(width, height);
+        return std::make_unique<RendererTarget>(width, height, *this);
     }
 }

@@ -188,13 +188,13 @@ namespace Duel6 {
         for (const Player &player : game.getPlayers()) {
             Vector playerCentre = player.getCentre();
             playerCentre.z = 0.5;
-
+            Color c = player.getSkin().getColors().get(PlayerSkinColors::BodyPart::HairTop);
             Vector lastPoint;
             for (Int32 u = 0; u < 37; u++) {
                 Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
                 Vector pos = playerCentre + spike * radius * Vector::direction(u * 10);
                 if (u > 0) {
-                    renderer.line(lastPoint, pos, 3.0f, Color::YELLOW);
+                    renderer.line(lastPoint, pos, 3.0f, c);
                 }
                 lastPoint = pos;
             }
@@ -412,6 +412,7 @@ namespace Duel6 {
     }
 
     void WorldRenderer::prerenderBackground() {
+        renderer.clearBuffers();
         target->use();
         target->clear();
 
@@ -464,10 +465,25 @@ namespace Duel6 {
         return Color(128, 0, 0, Uint8(200 - 200 * overlay));
     }
 
+    Color  WorldRenderer::getRoundStartFadeColor() const {
+        if(game.getRound().getRemainingYouAreHere() <= 0) {
+            return Color::WHITE;
+        }
+        Float32 intensity =  4 * (game.getRound().getRemainingYouAreHere() / D6_YOU_ARE_HERE_DURATION);
+
+        Uint8 c = 255.0f * std::max(1.0f - intensity, 0.0f);
+        Color result = Color(c,c,100 + 155.0f * std::max(1.0f - intensity, 0.0f)); //Blue darkness
+        return result;
+    }
+
     void WorldRenderer::fullScreen() const {
         const Player &player = game.getPlayers().front();
         setView(player.getView());
-        target->blit();
+        renderer.enableDepthTest(false);
+        target->blitDepth();
+        Color c = getRoundStartFadeColor();
+        target->render(c);
+        renderer.enableDepthTest(true);
         video.setMode(Video::Mode::Perspective);
         view(player);
 

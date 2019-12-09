@@ -40,7 +40,7 @@
 #include "RendererTarget.h"
 namespace Duel6 {
     class FaceList;
-
+    class RendererTarget;
     class Renderer {
     public:
         struct Info {

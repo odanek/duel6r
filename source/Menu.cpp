@@ -438,6 +438,10 @@ namespace Duel6 {
     }
 
     void Menu::play() {
+        play(listMaps());
+    }
+
+    void Menu::play(std::vector<std::string> levels) {
         if (playerListBox->size() < 2) {
             showMessage("Can't play alone ...");
             SDL_Event event;
@@ -477,11 +481,6 @@ namespace Duel6 {
         }
         selectedMode.initializePlayers(playerDefinitions);
 
-        // Levels
-        std::vector<std::string> levels;
-        for (Size i = 0; i < levelList.getLength(); ++i) {
-            levels.push_back(levelList.getPath(i));
-        }
 
         // Game backgrounds
         std::vector<Size> backgrounds;
@@ -746,6 +745,14 @@ namespace Duel6 {
             playerListBox->addItem(players[pos]);
             controlSwitch[i]->setCurrent(controls[pos]);
         }
+    }
+
+    std::vector<std::string> Menu::listMaps() {
+        std::vector<std::string> levels;
+        for (Size i = 0; i < levelList.getLength(); ++i) {
+            levels.push_back(levelList.getPath(i));
+        }
+        return levels;
     }
 
     void Menu::eloShufflePlayers() {
