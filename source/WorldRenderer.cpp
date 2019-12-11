@@ -465,11 +465,11 @@ namespace Duel6 {
         return Color(128, 0, 0, Uint8(200 - 200 * overlay));
     }
 
-    Color  WorldRenderer::getRoundStartFadeColor() const {
-        if(game.getRound().getRemainingYouAreHere() <= 0) {
+    Color  WorldRenderer::getRoundStartFadeColor(Float32 remainingTime) const {
+        if(remainingTime <= 0) {
             return Color::WHITE;
         }
-        Float32 intensity =  4 * (game.getRound().getRemainingYouAreHere() / D6_YOU_ARE_HERE_DURATION);
+        Float32 intensity =  4 * (remainingTime / D6_YOU_ARE_HERE_DURATION);
 
         Uint8 c = 255.0f * std::max(1.0f - intensity, 0.0f);
         Color result = Color(c,c,100 + 155.0f * std::max(1.0f - intensity, 0.0f)); //Blue darkness
@@ -478,11 +478,16 @@ namespace Duel6 {
 
     void WorldRenderer::fullScreen() const {
         const Player &player = game.getPlayers().front();
+        Float32 remainingTime = game.getRound().getRemainingYouAreHere();
+        renderer.clearBuffers(); // attempt to resolve rendering issues in Alcatraz
         setView(player.getView());
         renderer.enableDepthTest(false);
-        target->blitDepth();
-        Color c = getRoundStartFadeColor();
-        target->render(c);
+        if(remainingTime > 0) {
+            Color c = getRoundStartFadeColor(remainingTime);
+            target->render(c); // render texture with color blending (slower)
+        } else {
+            target->blit(); // faster
+        }
         renderer.enableDepthTest(true);
         video.setMode(Video::Mode::Perspective);
         view(player);

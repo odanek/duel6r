@@ -42,7 +42,7 @@ namespace Duel6 {
             D6_THROW(Exception, "incomplete frameBuffer ");
         }
         GLCHECK
-        GLenum att[1] = {GL_COLOR_ATTACHMENT0};//,GL_DEPTH_ATTACHMENT};
+        GLenum att[1] = {GL_COLOR_ATTACHMENT0};
         glDrawBuffers(1, att);
         GLCHECK
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
