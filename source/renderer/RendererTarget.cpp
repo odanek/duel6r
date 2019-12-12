@@ -34,7 +34,7 @@ namespace Duel6 {
         GLCHECK
         glBindTexture(GL_TEXTURE_2D_ARRAY, depthTexture);
         GLCHECK
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT24, width, height, 1, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, width, height, 1, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
         GLCHECK
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0, 0);
         GLCHECK

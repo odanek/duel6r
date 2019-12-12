@@ -484,6 +484,7 @@ namespace Duel6 {
         renderer.enableDepthTest(false);
         if(remainingTime > 0) {
             Color c = getRoundStartFadeColor(remainingTime);
+            target->blitDepth();
             target->render(c); // render texture with color blending (slower)
         } else {
             target->blit(); // faster
