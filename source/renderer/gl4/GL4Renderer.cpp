@@ -44,8 +44,8 @@ namespace Duel6 {
     };
     static MaterialVertex materialPoints[4];
 
-    GL4Renderer::GL4Renderer()
-            : RendererBase(),
+    GL4Renderer::GL4Renderer(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat)
+            : RendererBase(depthBufferFormat),
               colorVertexShader(GL_VERTEX_SHADER, "shaders/gl4/colorVertex.glsl"),
               colorFragmentShader(GL_FRAGMENT_SHADER, "shaders/gl4/colorFragment.glsl"),
               materialVertexShader(GL_VERTEX_SHADER, "shaders/gl4/materialVertex.glsl"),

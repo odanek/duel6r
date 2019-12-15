@@ -95,7 +95,8 @@ namespace Duel6 {
         Float32 colorData[4] = {color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
                                 color.getAlpha() / 255.0f};
         program.setUniform("color", colorData);
-
+        Float32 effectColorData[4] = {0,0,0,0};
+        program.setUniform("effectColor", effectColorData);
         glDrawArrays(GL_TRIANGLES, 0, elements);
     }
 

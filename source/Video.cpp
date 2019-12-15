@@ -189,14 +189,26 @@ namespace Duel6 {
     }
 
     std::unique_ptr<Renderer> Video::createRenderer() {
+        int depthBufferBits;
+        SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depthBufferBits);
+        Renderer::DEPTH_BUFFER_FORMAT format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH;
+
 #if defined(D6_RENDERER_GL1)
         return std::make_unique<GL1Renderer>();
 #elif defined(D6_RENDERER_GLES2)
         return std::make_unique<GLES2Renderer>();
 #elif defined(D6_RENDERER_GLES3)
-        return std::make_unique<GLES3Renderer>();
+        switch(depthBufferBits){
+            case(16): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH16; break;
+            case(24): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH24; break;
+        }
+        return std::make_unique<GLES3Renderer>(format);
 #elif defined(D6_RENDERER_GL4)
-        return std::make_unique<GL4Renderer>();
+        switch(depthBufferBits){
+            case(16): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH16; break;
+            case(24): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH; break;
+        }
+        return std::make_unique<GL4Renderer>(format);
 #endif
 
         D6_THROW(VideoException, "Invalid renderer");

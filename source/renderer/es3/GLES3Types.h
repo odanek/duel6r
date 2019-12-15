@@ -30,6 +30,7 @@
 
 #include <GLES3/gl31.h>
 namespace Duel6 {
+    constexpr auto DEPTH_BUFFER_FORMAT = GL_DEPTH_COMPONENT24;
     typedef GLuint Texture;
 
     enum class BlendFunc {

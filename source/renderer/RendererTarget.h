@@ -6,17 +6,17 @@
 namespace Duel6 {
     class Renderer;
     class RendererTarget {
+    private:
+        GLuint fbo;
+
+        Texture texture;
+        Texture depthTexture;
+
+        GLuint width, height;
+        Renderer & renderer;
+
     public:
-    GLuint fbo;
-
-    Texture texture;
-    Texture depthTexture;
-
-    GLuint width, height;
-    Renderer & renderer;
-
-    public:
-        RendererTarget (GLuint width, GLuint height, Renderer & renderer);
+        RendererTarget (GLuint depthBufferFormat, GLuint width, GLuint height, Renderer & renderer);
 
         virtual ~RendererTarget ();
 

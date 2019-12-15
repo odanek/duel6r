@@ -51,7 +51,7 @@ namespace Duel6 {
         GLES3Program colorProgram;
         GLES3Program materialProgram;
     public:
-        GLES3Renderer();
+        GLES3Renderer(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat);
 
         Info getInfo() override;
 

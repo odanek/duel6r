@@ -5,7 +5,7 @@
 #define GLCHECK {auto e = glGetError(); if(e != GL_NO_ERROR){ D6_THROW(Exception, (std::string("errorrr ") + std::to_string(e)).c_str());}}
 
 namespace Duel6 {
-    RendererTarget::RendererTarget(GLuint width, GLuint height, Renderer & renderer)
+    RendererTarget::RendererTarget(const GLuint depthBufferFormat, GLuint width, GLuint height, Renderer & renderer)
         : width(width),
           height(height),
           renderer(renderer){
@@ -34,7 +34,7 @@ namespace Duel6 {
         GLCHECK
         glBindTexture(GL_TEXTURE_2D_ARRAY, depthTexture);
         GLCHECK
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, width, height, 1, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, depthBufferFormat, width, height, 1, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
         GLCHECK
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0, 0);
         GLCHECK

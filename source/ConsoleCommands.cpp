@@ -142,10 +142,10 @@ namespace Duel6 {
             std::vector<std::string> paths;
             auto maps = menu.listMaps();
             for(size_t i = 1 ; i < args.length(); i ++){
-                size_t index = -1;
+                size_t index = 0;
                 auto val = args.get(i);
                 std::istringstream(val) >> index;
-                if(index < 0 || index >= maps.size() || (index == 0 && val != "0")){
+                if(index >= maps.size() || (index == 0 && val != "0")){
                     console.printLine(Format("Invalid map index {0}") << val);
                     return;
                 }

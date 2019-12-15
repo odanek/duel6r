@@ -43,6 +43,11 @@ namespace Duel6 {
     class RendererTarget;
     class Renderer {
     public:
+        enum DEPTH_BUFFER_FORMAT {
+            DEPTH,    //ogl4
+            DEPTH16,  //ogl4 Intel
+            DEPTH24   //gles3
+        };
         struct Info {
             std::string vendor;
             std::string renderer;

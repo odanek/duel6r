@@ -35,13 +35,14 @@ namespace Duel6 {
     class RendererBase
             : public Renderer {
     protected:
+        const DEPTH_BUFFER_FORMAT depthBufferFormat;
         Matrix projectionMatrix;
         Matrix viewMatrix;
         Matrix modelMatrix;
         Matrix mvpMatrix;
 
     public:
-        RendererBase();
+        RendererBase(const DEPTH_BUFFER_FORMAT depthBufferFormat);
 
         void setProjectionMatrix(const Matrix &m) override;
 
