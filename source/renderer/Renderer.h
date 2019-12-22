@@ -35,19 +35,18 @@
 #include "../Color.h"
 #include "../Image.h"
 #include "../Material.h"
+#include "../ScreenParameters.h"
 #include "RendererTypes.h"
 #include "RendererBuffer.h"
 #include "RendererTarget.h"
+
 namespace Duel6 {
     class FaceList;
+
     class RendererTarget;
+
     class Renderer {
     public:
-        enum DEPTH_BUFFER_FORMAT {
-            DEPTH,    //ogl4
-            DEPTH16,  //ogl4 Intel
-            DEPTH24   //gles3
-        };
         struct Info {
             std::string vendor;
             std::string renderer;
@@ -104,7 +103,8 @@ namespace Duel6 {
                               const Vector &p3, const Vector &t3,
                               const Material &material) = 0;
 
-        virtual void quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) = 0;
+        virtual void
+        quad(const Vector &p1, const Vector &p2, const Vector &p3, const Vector &p4, const Color &color) = 0;
 
         virtual void quad(const Vector &p1, const Vector &t1,
                           const Vector &p2, const Vector &t2,
@@ -135,7 +135,7 @@ namespace Duel6 {
 
         virtual std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) = 0;
 
-        virtual std::unique_ptr<RendererTarget> makeTarget(GLuint width, GLuint height) = 0;
+        virtual std::unique_ptr<RendererTarget> makeTarget(ScreenParameters screenParameters) = 0;
     };
 }
 

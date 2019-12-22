@@ -28,10 +28,10 @@
 #ifndef DUEL6_RENDERER_GL4_GL4PROGRAM_H
 #define DUEL6_RENDERER_GL4_GL4PROGRAM_H
 
-#include <GL/glew.h>
-#include "GL4Shader.h"
 #include "../../Type.h"
 #include "../../math/Matrix.h"
+#include "GL4Types.h"
+#include "GL4Shader.h"
 
 namespace Duel6 {
     class GL4Program {

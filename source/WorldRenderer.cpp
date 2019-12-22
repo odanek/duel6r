@@ -34,7 +34,7 @@
 namespace Duel6 {
     WorldRenderer::WorldRenderer(Duel6::AppService &appService, const Duel6::Game &game)
         : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()),
-          target(renderer.makeTarget(video.getScreen().getClientWidth(), video.getScreen().getClientHeight())) {}
+          target(renderer.makeTarget(video.getScreen())) {}
 
     void WorldRenderer::setView(const PlayerView &view) const {
         setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());
@@ -411,11 +411,7 @@ namespace Duel6 {
         });
     }
 
-    void WorldRenderer::prerenderBackground() {
-        renderer.clearBuffers();
-        target->use();
-        target->clear();
-
+    void WorldRenderer::renderBackground() const {
         const Player & player = game.getPlayers().front();
         setView(player.getView());
         background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
@@ -427,7 +423,6 @@ namespace Duel6 {
         const World &world = game.getRound().getWorld();
         walls(world.getLevelRenderData().getWalls());
         sprites(world.getLevelRenderData().getSprites());
-        target->stopUse();
     }
 
     void WorldRenderer::view(const Player &player) const {
@@ -482,13 +477,10 @@ namespace Duel6 {
         renderer.clearBuffers(); // attempt to resolve rendering issues in Alcatraz
         setView(player.getView());
         renderer.enableDepthTest(false);
-        if(remainingTime > 0) {
-            Color c = getRoundStartFadeColor(remainingTime);
-            target->blitDepth();
-            target->render(c); // render texture with color blending (slower)
-        } else {
-            target->blit(); // faster
-        }
+
+        Color fadeColor = remainingTime > 0 ? getRoundStartFadeColor(remainingTime) : Color::WHITE;
+        target->apply(fadeColor);
+
         renderer.enableDepthTest(true);
         video.setMode(Video::Mode::Perspective);
         view(player);
@@ -514,6 +506,12 @@ namespace Duel6 {
                 screenCurtain(Color(255, 0, 0, 128));
             }
         }
+    }
+
+    void WorldRenderer::prerender() const {
+        target->record([this]() {
+            renderBackground();
+        });
     }
 
     void WorldRenderer::render() const {

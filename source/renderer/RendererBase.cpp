@@ -28,8 +28,8 @@
 #include "RendererBase.h"
 
 namespace Duel6 {
-    RendererBase::RendererBase(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat)
-            :depthBufferFormat(depthBufferFormat), projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
+    RendererBase::RendererBase()
+            : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
 
     void RendererBase::setProjectionMatrix(const Matrix &m) {
         projectionMatrix = m;
@@ -54,7 +54,7 @@ namespace Duel6 {
     Matrix RendererBase::getModelMatrix() const {
         return modelMatrix;
     }
-    
+
     void RendererBase::quadXY(const Vector &position, const Vector &size, const Color &color) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector p3(position.x + size.x, position.y + size.y, position.z);
@@ -63,8 +63,8 @@ namespace Duel6 {
     }
 
     void RendererBase::quadXY(const Vector &position, const Vector &size,
-                             const Vector &texturePosition, const Vector &textureSize,
-                             const Material &material) {
+                              const Vector &texturePosition, const Vector &textureSize,
+                              const Material &material) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector t2(texturePosition.x, texturePosition.y + textureSize.y, texturePosition.z);
         Vector p3(position.x + size.x, position.y + size.y, position.z);
@@ -82,8 +82,8 @@ namespace Duel6 {
     }
 
     void RendererBase::quadXZ(const Vector &position, const Vector &size,
-                             const Vector &texturePosition, const Vector &textureSize,
-                             const Material &material) {
+                              const Vector &texturePosition, const Vector &textureSize,
+                              const Material &material) {
         Vector p2(position.x + size.x, position.y, position.z);
         Vector t2(texturePosition.x + textureSize.x, texturePosition.y);
         Vector p3(position.x + size.x, position.y, position.z + size.z);
@@ -101,8 +101,8 @@ namespace Duel6 {
     }
 
     void RendererBase::quadYZ(const Vector &position, const Vector &size,
-                             const Vector &texturePosition, const Vector &textureSize,
-                             const Material &material) {
+                              const Vector &texturePosition, const Vector &textureSize,
+                              const Material &material) {
         Vector p2(position.x, position.y + size.y, position.z);
         Vector t2(texturePosition.x, texturePosition.y + textureSize.y);
         Vector p3(position.x, position.y + size.y, position.z + size.z);
@@ -121,15 +121,5 @@ namespace Duel6 {
         line(p2, p3, width, color);
         line(p3, p4, width, color);
         line(p4, position, width, color);
-    }
-
-    std::unique_ptr<RendererTarget> RendererBase::makeTarget(GLuint width, GLuint height) {
-        GLuint usedDepthBufferFormat;
-        switch(depthBufferFormat){
-            case(Renderer::DEPTH_BUFFER_FORMAT::DEPTH): usedDepthBufferFormat = GL_DEPTH_COMPONENT; break;
-            case(Renderer::DEPTH_BUFFER_FORMAT::DEPTH16): usedDepthBufferFormat = GL_DEPTH_COMPONENT16; break;
-            case(Renderer::DEPTH_BUFFER_FORMAT::DEPTH24): usedDepthBufferFormat = GL_DEPTH_COMPONENT24; break;
-        }
-        return std::make_unique<RendererTarget>(usedDepthBufferFormat, width, height, *this);
     }
 }

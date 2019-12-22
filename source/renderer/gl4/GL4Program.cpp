@@ -26,9 +26,9 @@
 */
 
 #include <vector>
-#include "GL4Program.h"
 #include "../../Exception.h"
 #include "../../VideoException.h"
+#include "GL4Program.h"
 
 namespace Duel6 {
     GL4Program::GL4Program(const GL4Shader &vertexShader, const GL4Shader &fragmentShader)

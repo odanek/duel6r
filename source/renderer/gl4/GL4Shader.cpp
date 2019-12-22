@@ -26,11 +26,11 @@
 */
 
 #include <vector>
-#include "GL4Shader.h"
 #include "../../File.h"
 #include "../../Exception.h"
 #include "../../VideoException.h"
 #include "../../Format.h"
+#include "GL4Shader.h"
 
 namespace Duel6 {
     GL4Shader::GL4Shader(GLenum type, const std::string &path)

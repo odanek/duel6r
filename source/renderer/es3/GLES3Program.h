@@ -28,9 +28,9 @@
 #ifndef DUEL6_RENDERER_GLES3_PROGRAM_H
 #define DUEL6_RENDERER_GLES3_PROGRAM_H
 
-#include <GL/glew.h>
 #include "../../Type.h"
 #include "../../math/Matrix.h"
+#include "GLES3Types.h"
 #include "GLES3Shader.h"
 
 namespace Duel6 {

@@ -86,6 +86,8 @@ namespace Duel6 {
 
         SDL_GLContext createContext(const ScreenParameters &params, Console &console);
 
+        ScreenParameters readScreenParameters(ScreenParameters &params, Console &console);
+
         std::unique_ptr<Renderer> createRenderer();
     };
 }

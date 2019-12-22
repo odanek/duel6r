@@ -49,10 +49,10 @@ namespace Duel6 {
     const Color Color::YELLOW(255, 255, 0);
 
     Color Color::scale(Float32 ratio) const {
-        Uint8 red = std::min(Uint8(255), Uint8(color[0] * ratio));
-        Uint8 green = std::min(Uint8(255), Uint8(color[1] * ratio));
-        Uint8 blue = std::min(Uint8(255), Uint8(color[2] * ratio));
-        return Color(red, green, blue, color[3]);
+        Uint8 r = std::min(Uint8(255), Uint8(red * ratio));
+        Uint8 g = std::min(Uint8(255), Uint8(green * ratio));
+        Uint8 b = std::min(Uint8(255), Uint8(blue * ratio));
+        return Color(r, g, b, alpha);
     }
 
     Color Color::fromString(const std::string &colStr) {

@@ -1,41 +1,18 @@
-#ifndef DUEL6_RENDERER_FRAMEBUFFER_H
-#define DUEL6_RENDERER_FRAMEBUFFER_H
+#ifndef DUEL6_RENDERER_TARGET_H
+#define DUEL6_RENDERER_TARGET_H
 
 #include "RendererTypes.h"
 #include "Renderer.h"
+
 namespace Duel6 {
-    class Renderer;
     class RendererTarget {
-    private:
-        GLuint fbo;
-
-        Texture texture;
-        Texture depthTexture;
-
-        GLuint width, height;
-        Renderer & renderer;
+    public:
+        using RenderCallback = std::function<void()>;
 
     public:
-        RendererTarget (GLuint depthBufferFormat, GLuint width, GLuint height, Renderer & renderer);
-
-        virtual ~RendererTarget ();
-
-        void use();
-
-        void stopUse();
-
-        void clear();
-
-        void blit();
-
-        void blitDepth();
-
-        void render(Color & color);
-
-        Texture getTexture();
-
-        Texture getDepthTexture();
-
+        virtual ~RendererTarget() = default;
+        virtual void record(RenderCallback renderCallback) = 0;
+        virtual void apply(const Color& modulateColor) = 0;
     };
 }
 #endif

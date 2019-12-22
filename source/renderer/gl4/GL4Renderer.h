@@ -28,8 +28,8 @@
 #ifndef DUEL6_RENDERER_GL4RENDERER_H
 #define DUEL6_RENDERER_GL4RENDERER_H
 
-#include <GL/glew.h>
 #include "../RendererBase.h"
+#include "GL4Types.h"
 #include "GL4Program.h"
 #include "GL4Shader.h"
 #include "GL4Buffer.h"
@@ -52,7 +52,7 @@ namespace Duel6 {
         GL4Program materialProgram;
 
     public:
-        GL4Renderer(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat);
+        GL4Renderer();
 
         Info getInfo() override;
 
@@ -104,6 +104,8 @@ namespace Duel6 {
                   const Material &material) override;
 
         std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) override;
+
+        std::unique_ptr<RendererTarget> makeTarget(ScreenParameters screenParameters) override;
 
     private:
         void enableOption(GLenum option, bool enable);

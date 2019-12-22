@@ -148,7 +148,7 @@ namespace Duel6 {
             onRoundEnd();
         });
         round->start();
-        worldRenderer.prerenderBackground();
+        worldRenderer.prerender();
     }
 
     void Game::endRound() {

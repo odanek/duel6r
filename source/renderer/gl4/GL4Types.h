@@ -31,7 +31,6 @@
 #include <GL/glew.h>
 
 namespace Duel6 {
-    constexpr auto DEPTH_BUFFER_FORMAT = GL_DEPTH_COMPONENT16;
     typedef GLuint Texture;
 
     enum class BlendFunc {

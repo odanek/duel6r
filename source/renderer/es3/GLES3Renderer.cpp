@@ -25,9 +25,10 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <GLES3/gl31.h>
-#include "GLES3Renderer.h"
 #include <string>
+#include "GLES3Renderer.h"
+#include "GLES3RendererTarget.h"
+
 namespace Duel6 {
     struct ColorVertex {
         Vector xyz;
@@ -41,8 +42,8 @@ namespace Duel6 {
     };
     static MaterialVertex materialPoints[4];
 
-    GLES3Renderer::GLES3Renderer(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat)
-            : RendererBase(depthBufferFormat),
+    GLES3Renderer::GLES3Renderer()
+            : RendererBase(),
               colorVertexShader(GL_VERTEX_SHADER, "shaders/gles3/colorVertex.glsl"),
               colorFragmentShader(GL_FRAGMENT_SHADER, "shaders/gles3/colorFragment.glsl"),
               materialVertexShader(GL_VERTEX_SHADER, "shaders/gles3/materialVertex.glsl"),
@@ -319,6 +320,10 @@ namespace Duel6 {
 
     std::unique_ptr<RendererBuffer> GLES3Renderer::makeBuffer(const FaceList &faceList) {
         return std::make_unique < GLES3Buffer > (materialProgram, faceList);
+    }
+
+    std::unique_ptr<RendererTarget> GLES3Renderer::makeTarget(ScreenParameters screenParameters) {
+        return std::make_unique<GLES3RendererTarget>(*this, screenParameters);
     }
 
     void GLES3Renderer::enableOption(GLenum option, bool enable) {

@@ -39,6 +39,7 @@
 #include "ShotList.h"
 #include "Ranking.h"
 #include "renderer/RendererTarget.h"
+
 namespace Duel6 {
     class Game;
 
@@ -49,12 +50,12 @@ namespace Duel6 {
         const Game &game;
         Renderer &renderer;
         std::unique_ptr<RendererTarget> target;
+
     public:
         WorldRenderer(AppService &appService, const Game &game);
 
         void render() const;
-
-        void prerenderBackground();
+        void prerender() const;
 
     private:
         void setView(const PlayerView &view) const;
@@ -77,9 +78,13 @@ namespace Duel6 {
 
         void playerRankings() const;
 
+        void renderBackground() const;
+
         Int32 renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength) const;
 
-        Int32 renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength, Float32 charHeight, bool extended) const;
+        Int32
+        renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength, Float32 charHeight,
+                           bool extended) const;
 
         void roundOverSummary() const;
 

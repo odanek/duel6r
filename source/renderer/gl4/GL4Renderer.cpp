@@ -25,11 +25,10 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "GL4Renderer.h"
 #include "../../FaceList.h"
 #include "../../Exception.h"
-#include "../../VideoException.h"
-#include "../../File.h"
+#include "GL4Renderer.h"
+#include "GL4RendererTarget.h"
 
 namespace Duel6 {
     struct ColorVertex {
@@ -44,8 +43,8 @@ namespace Duel6 {
     };
     static MaterialVertex materialPoints[4];
 
-    GL4Renderer::GL4Renderer(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat)
-            : RendererBase(depthBufferFormat),
+    GL4Renderer::GL4Renderer()
+            : RendererBase(),
               colorVertexShader(GL_VERTEX_SHADER, "shaders/gl4/colorVertex.glsl"),
               colorFragmentShader(GL_FRAGMENT_SHADER, "shaders/gl4/colorFragment.glsl"),
               materialVertexShader(GL_VERTEX_SHADER, "shaders/gl4/materialVertex.glsl"),
@@ -328,6 +327,10 @@ namespace Duel6 {
 
     std::unique_ptr<RendererBuffer> GL4Renderer::makeBuffer(const FaceList &faceList) {
         return std::make_unique<GL4Buffer>(materialProgram, faceList);
+    }
+
+    std::unique_ptr<RendererTarget> GL4Renderer::makeTarget(ScreenParameters screenParameters) {
+        return std::make_unique<GL4RendererTarget>(*this, screenParameters);
     }
 
     void GL4Renderer::enableOption(GLenum option, bool enable) {

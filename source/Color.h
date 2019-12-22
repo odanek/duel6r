@@ -35,7 +35,10 @@
 namespace Duel6 {
     class Color {
     private:
-        Uint8 color[4];
+        Uint8 red;
+        Uint8 green;
+        Uint8 blue;
+        Uint8 alpha;
 
     public:
         static const Color BLACK;
@@ -49,75 +52,66 @@ namespace Duel6 {
 
     public:
         Color()
-                : Color(0, 0, 0, 255) {}
+                : Color(0) {}
 
         explicit Color(Uint8 value)
                 : Color(value, value, value, 255) {}
 
-        Color(const Color & c) {
-            color[0] = c.color[0];
-            color[1] = c.color[1];
-            color[2] = c.color[2];
-            color[3] = c.color[3];
-        }
+        Color(const Color &c) = default;
 
         Color(Uint8 red, Uint8 green, Uint8 blue)
                 : Color(red, green, blue, 255) {}
 
-        Color(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha) {
-            set(red, green, blue, alpha);
-        }
+        Color(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
+                : red(red), green(green), blue(blue), alpha(alpha) {}
 
-        Color& operator = (const Color & c){
-            color[0] = c.color[0];
-            color[1] = c.color[1];
-            color[2] = c.color[2];
-            color[3] = c.color[3];
-            return *this;
-        }
+        Color &operator=(const Color &c) = default;
 
         bool operator==(const Color &color) const {
-            return (getRed() == color.getRed() &&
-                    getGreen() == color.getGreen() &&
-                    getBlue() == color.getBlue() &&
-                    getAlpha() == color.getAlpha());
+            return (red == color.red &&
+                    green == color.green &&
+                    blue == color.blue &&
+                    alpha == color.alpha);
         }
 
         bool operator!=(const Color &color) const {
-            return (getRed() != color.getRed() ||
-                    getGreen() != color.getGreen() ||
-                    getBlue() != color.getBlue() ||
-                    getAlpha() != color.getAlpha());
+            return !(*this == color);
         }
 
-        Color& add(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha) {
+        Color &add(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha) {
             float alphaSrc = alpha / 255.0f;
-            float alphaDst = getAlpha() / 255.0f;
+            float alphaDst = this->alpha / 255.0f;
             float a = alphaDst * (1.0f - alphaSrc);
             float A = alphaSrc + a;
-            if (A > 1.0f || getAlpha() == 1) {
+            if (A > 1.0f || this->alpha == 1) {
                 A = 1.0f;
             }
-            float R = ((red / 255.0f) * alphaSrc + (getRed() / 255.0f) * a) / A;
-            float G = ((green / 255.0f) * alphaSrc + (getGreen() / 255.0f) * a) / A;
-            float B = ((blue / 255.0f) * alphaSrc + (getBlue() / 255.0f) * a) / A;
-            return set(R * 255.0f, G * 255.0f, B * 255.0f, A * 255.0f);
+            float R = ((red / 255.0f) * alphaSrc + (this->red / 255.0f) * a) / A;
+            float G = ((green / 255.0f) * alphaSrc + (this->green / 255.0f) * a) / A;
+            float B = ((blue / 255.0f) * alphaSrc + (this->blue / 255.0f) * a) / A;
+
+            this->red = R * 255.0f;
+            this->green = G * 255.0f;
+            this->blue = B * 255.0f;
+            this->alpha = A * 255.0f;
+
+            return *this;
         }
 
         Uint8 getRed() const {
-            return color[0];
+            return red;
         }
 
         Uint8 getGreen() const {
-            return color[1];
+            return green;
         }
 
         Uint8 getBlue() const {
-            return color[2];
+            return blue;
         }
 
         Uint8 getAlpha() const {
-            return color[3];
+            return alpha;
         }
 
         Color &set(Uint8 red, Uint8 green, Uint8 blue) {
@@ -136,32 +130,27 @@ namespace Duel6 {
         }
 
         Color &setRed(Uint8 value) {
-            color[0] = value;
+            red = value;
             return *this;
         }
 
         Color &setGreen(Uint8 value) {
-            color[1] = value;
+            green = value;
             return *this;
         }
 
         Color &setBlue(Uint8 value) {
-            color[2] = value;
+            blue = value;
             return *this;
         }
 
         Color &setAlpha(Uint8 value) {
-            color[3] = value;
+            alpha = value;
             return *this;
         }
 
         Color withAlpha(Uint8 value) const {
-            return Color(color[0], color[1], color[2], value);
-        }
-
-        Color &set(Size index, Uint8 value) {
-            color[index] = value;
-            return *this;
+            return Color(red, green, blue, value);
         }
 
         Color scale(Float32 ratio) const;

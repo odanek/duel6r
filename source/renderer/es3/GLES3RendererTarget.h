@@ -25,54 +25,41 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_RENDERER_BASE_H
-#define DUEL6_RENDERER_RENDERER_BASE_H
+#ifndef DUEL6_GLES3_RENDERER_TARGET_H
+#define DUEL6_GLES3_RENDERER_TARGET_H
 
-#include "Renderer.h"
-#include "RendererTarget.h"
+#include "../../Color.h"
+#include "../RendererTarget.h"
+#include "GLES3Types.h"
 
 namespace Duel6 {
+    class GLES3Renderer;
 
-    class RendererBase
-            : public Renderer {
-    protected:
-        Matrix projectionMatrix;
-        Matrix viewMatrix;
-        Matrix modelMatrix;
-        Matrix mvpMatrix;
+    class GLES3RendererTarget : public RendererTarget {
+    private:
+        GLuint fbo;
+
+        Texture texture;
+        Texture depthTexture;
+
+        GLuint width, height;
+        GLES3Renderer &renderer;
 
     public:
-        RendererBase();
+        GLES3RendererTarget(GLES3Renderer &renderer, ScreenParameters screenParameters);
 
-        void setProjectionMatrix(const Matrix &m) override;
+        ~GLES3RendererTarget();
 
-        Matrix getProjectionMatrix() const override;
+        void record(RenderCallback renderCallback) override;
 
-        void setViewMatrix(const Matrix &m) override;
+        void apply(const Color &modulateColor) override;
 
-        Matrix getViewMatrix() const override;
+    private:
+        void blit();
 
-        void setModelMatrix(const Matrix &m) override;
+        void blitDepth();
 
-        Matrix getModelMatrix() const override;
-
-        void quadXY(const Vector &position, const Vector &size, const Color &color) override;
-
-        void quadXY(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material &material) override;
-
-        void quadXZ(const Vector &position, const Vector &size, const Color &color) override;
-
-        void quadXZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material &material) override;
-
-        void quadYZ(const Vector &position, const Vector &size, const Color &color) override;
-
-        void quadYZ(const Vector &position, const Vector &size, const Vector &texturePosition,
-                    const Vector &textureSize, const Material &material) override;
-
-        void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
+        void render(const Color &color);
     };
 }
-
 #endif

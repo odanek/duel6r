@@ -28,8 +28,8 @@
 #ifndef DUEL6_RENDERER_GLES3RENDERER_H
 #define DUEL6_RENDERER_GLES3RENDERER_H
 
-#include <GL/glew.h>
 #include "../RendererBase.h"
+#include "GLES3Types.h"
 #include "GLES3Program.h"
 #include "GLES3Shader.h"
 #include "GLES3Buffer.h"
@@ -51,7 +51,7 @@ namespace Duel6 {
         GLES3Program colorProgram;
         GLES3Program materialProgram;
     public:
-        GLES3Renderer(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat);
+        GLES3Renderer();
 
         Info getInfo() override;
 
@@ -103,6 +103,8 @@ namespace Duel6 {
                   const Material &material) override;
 
         std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) override;
+
+        std::unique_ptr<RendererTarget> makeTarget(ScreenParameters screenParameters) override;
 
     private:
         void enableOption(GLenum option, bool enable);

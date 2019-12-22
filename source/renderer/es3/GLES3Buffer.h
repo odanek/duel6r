@@ -28,10 +28,10 @@
 #ifndef DUEL6_RENDERER_GLES3_BUFFER_H
 #define DUEL6_RENDERER_GLES3_BUFFER_H
 
-#include "GLES3Types.h"
-#include "../RendererBuffer.h"
 #include "../../Vertex.h"
+#include "GLES3Types.h"
 #include "GLES3Program.h"
+#include "../RendererBuffer.h"
 
 namespace Duel6 {
     class GLES3Buffer : public RendererBuffer {

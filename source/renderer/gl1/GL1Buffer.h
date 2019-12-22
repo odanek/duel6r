@@ -28,10 +28,10 @@
 #ifndef DUEL6_RENDERER_GL1_GL1BUFFER_H
 #define DUEL6_RENDERER_GL1_GL1BUFFER_H
 
-#include <GL/glew.h>
 #include "../RendererBuffer.h"
 #include "../../Vertex.h"
 #include "../../math/Vector.h"
+#include "GL1Types.h"
 
 namespace Duel6 {
     class GL1Renderer;

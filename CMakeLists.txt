@@ -60,7 +60,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
 # Switches
 set(D6R_RENDERERS gl1 gl4 es2 es3)
-set(D6R_RENDERER "es3" CACHE STRING "Renderer")  # Renderer: gl1/gl4/es2
+set(D6R_RENDERER "gl4" CACHE STRING "Renderer")  # Renderer: gl1/gl4/es2
 set_property (CACHE D6R_RENDERER PROPERTY STRINGS ${D6R_RENDERERS})
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
@@ -307,11 +307,12 @@ set(D6R_SOURCES
         source/math/Vector.cpp
         source/math/Vector.h
 
-        source/renderer/RendererTypes.h
-        source/renderer/RendererTarget.h
-        source/renderer/RendererTarget.cpp
+        source/renderer/Renderer.h
         source/renderer/RendererBase.h
         source/renderer/RendererBase.cpp
+        source/renderer/RendererBuffer.h
+        source/renderer/RendererTarget.h
+        source/renderer/RendererTypes.h
 
         source/script/LevelScript.h
         source/script/PersonScript.h
@@ -406,11 +407,13 @@ set(D6R_SOURCES
 if (D6R_RENDERER STREQUAL "gl1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")
     set(D6R_SOURCES ${D6R_SOURCES}
-            source/renderer/gl1/GL1Types.h
-            source/renderer/gl1/GL1Renderer.h
-            source/renderer/gl1/GL1Renderer.cpp
             source/renderer/gl1/GL1Buffer.h
             source/renderer/gl1/GL1Buffer.cpp
+            source/renderer/gl1/GL1Renderer.h
+            source/renderer/gl1/GL1Renderer.cpp
+            source/renderer/gl1/GL1RendererTarget.h
+            source/renderer/gl1/GL1RendererTarget.cpp
+            source/renderer/gl1/GL1Types.h
             )
 endif (D6R_RENDERER STREQUAL "gl1")
 
@@ -430,12 +433,12 @@ if (D6R_RENDERER STREQUAL "es3")
             source/renderer/es3/GLES3Buffer.cpp
             source/renderer/es3/GLES3Program.h
             source/renderer/es3/GLES3Program.cpp
-
             source/renderer/es3/GLES3Renderer.h
             source/renderer/es3/GLES3Renderer.cpp
+            source/renderer/es3/GLES3RendererTarget.h
+            source/renderer/es3/GLES3RendererTarget.cpp
             source/renderer/es3/GLES3Shader.h
             source/renderer/es3/GLES3Shader.cpp
-
             source/renderer/es3/GLES3Types.h
             )
 endif (D6R_RENDERER STREQUAL "es3")
@@ -444,15 +447,17 @@ endif (D6R_RENDERER STREQUAL "es3")
 if (D6R_RENDERER STREQUAL "gl4")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL4")
     set(D6R_SOURCES ${D6R_SOURCES}
-            source/renderer/gl4/GL4Types.h
+            source/renderer/gl4/GL4Buffer.h
+            source/renderer/gl4/GL4Buffer.cpp
             source/renderer/gl4/GL4Renderer.h
             source/renderer/gl4/GL4Renderer.cpp
+            source/renderer/gl4/GL4RendererTarget.h
+            source/renderer/gl4/GL4RendererTarget.cpp
             source/renderer/gl4/GL4Shader.h
             source/renderer/gl4/GL4Shader.cpp
             source/renderer/gl4/GL4Program.h
             source/renderer/gl4/GL4Program.cpp
-            source/renderer/gl4/GL4Buffer.h
-            source/renderer/gl4/GL4Buffer.cpp
+            source/renderer/gl4/GL4Types.h
         )
 endif (D6R_RENDERER STREQUAL "gl4")
 
@@ -482,10 +487,6 @@ set(D6R_APP_NAME "duel6r" CACHE STRING "Filename of the application.")
 set(D6R_APP_DEBUG_NAME "duel6rd" CACHE STRING "Filename of the debug version of the application.")
 add_executable(${D6R_APP_NAME} ${D6R_SOURCES})
 set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 6.0.0 DEBUG_OUTPUT_NAME ${D6R_APP_DEBUG_NAME})
-
-add_custom_command(TARGET ${D6R_APP_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/resources/ $<TARGET_FILE_DIR:${D6R_APP_NAME}>)
 
 #########################################################################
 # External dependencies

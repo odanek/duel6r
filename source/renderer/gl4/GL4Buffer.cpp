@@ -26,9 +26,9 @@
 */
 
 #include <vector>
-#include "GL4Buffer.h"
 #include "../../Vertex.h"
 #include "../../FaceList.h"
+#include "GL4Buffer.h"
 
 namespace Duel6 {
     GL4Buffer::GL4Buffer(GL4Program &program, const FaceList &faceList)

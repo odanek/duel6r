@@ -28,8 +28,8 @@
 #ifndef DUEL6_RENDERER_GL1RENDERER_H
 #define DUEL6_RENDERER_GL1RENDERER_H
 
-#include <GL/glew.h>
 #include "../RendererBase.h"
+#include "GL1Types.h"
 
 namespace Duel6 {
     class GL1Renderer
@@ -92,6 +92,8 @@ namespace Duel6 {
                   const Material &material) override;
 
         std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) override;
+
+        std::unique_ptr<RendererTarget> makeTarget(ScreenParameters screenParameters) override;
 
     private:
         void enableOption(GLenum option, bool enable);

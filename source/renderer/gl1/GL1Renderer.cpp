@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include "GL1Renderer.h"
 #include "GL1Buffer.h"
+#include "GL1RendererTarget.h"
 
 namespace Duel6 {
     namespace {
@@ -341,6 +342,10 @@ namespace Duel6 {
 
     std::unique_ptr<RendererBuffer> GL1Renderer::makeBuffer(const FaceList &faceList) {
         return std::make_unique<GL1Buffer>(*this, faceList);
+    }
+
+    std::unique_ptr<RendererTarget> GL1Renderer::makeTarget(ScreenParameters screenParameters) {
+        return std::make_unique<GL1RendererTarget>(*this, screenParameters);
     }
 
     void GL1Renderer::enableOption(GLenum option, bool enable) {

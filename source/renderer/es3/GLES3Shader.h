@@ -28,8 +28,8 @@
 #ifndef DUEL6_RENDERER_GLES3_SHADER_H
 #define DUEL6_RENDERER_GLES3_SHADER_H
 
-#include <GL/glew.h>
 #include <string>
+#include "GLES3Types.h"
 
 namespace Duel6 {
     class GLES3Shader {

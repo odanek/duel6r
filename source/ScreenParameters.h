@@ -36,14 +36,16 @@ namespace Duel6 {
         Int32 clientWidth;
         Int32 clientHeight;
         Int32 bitsPerPixel;
+        Int32 depthBits;
         Int32 aaSamples;
         bool fullScreen;
 
     public:
         ScreenParameters() {}
 
-        ScreenParameters(Int32 width, Int32 height, Int32 bpp, Int32 aa, bool fullScreen)
-                : clientWidth(width), clientHeight(height), bitsPerPixel(bpp), aaSamples(aa), fullScreen(fullScreen) {}
+        ScreenParameters(Int32 width, Int32 height, Int32 bpp, Int32 depthBits, Int32 aa, bool fullScreen)
+                : clientWidth(width), clientHeight(height), bitsPerPixel(bpp), depthBits(depthBits), aaSamples(aa),
+                  fullScreen(fullScreen) {}
 
         Int32 getClientWidth() const {
             return clientWidth;
@@ -59,6 +61,10 @@ namespace Duel6 {
 
         Int32 getBitsPerPixel() const {
             return bitsPerPixel;
+        }
+
+        Int32 getDepthBits() const {
+            return depthBits;
         }
 
         Int32 getAntiAlias() const {

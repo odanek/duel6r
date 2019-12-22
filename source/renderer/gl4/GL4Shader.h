@@ -28,8 +28,8 @@
 #ifndef DUEL6_RENDERER_GL4_GLSHADER_H
 #define DUEL6_RENDERER_GL4_GLSHADER_H
 
-#include <GL/glew.h>
 #include <string>
+#include "GL4Types.h"
 
 namespace Duel6 {
     class GL4Shader {

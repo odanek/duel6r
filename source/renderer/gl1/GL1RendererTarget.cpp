@@ -25,37 +25,20 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_RENDERER_GL4_GL4BUFFER_H
-#define DUEL6_RENDERER_GL4_GL4BUFFER_H
-
-#include "../../Vertex.h"
-#include "../RendererBuffer.h"
-#include "GL4Types.h"
-#include "GL4Program.h"
+#include "GL1RendererTarget.h"
+#include "GL1Renderer.h"
 
 namespace Duel6 {
-    class GL4Buffer : public RendererBuffer {
-    private:
-        GL4Program &program;
-        Uint32 vao;
-        Uint32 vertexVbo;
-        Uint32 textureIndexVbo;
-        Size elements;
+    GL1RendererTarget::GL1RendererTarget(GL1Renderer &renderer, ScreenParameters screenParameters) {}
 
-    public:
-        explicit GL4Buffer(GL4Program &program, const FaceList &faceList);
+    GL1RendererTarget::~GL1RendererTarget() {}
 
-        ~GL4Buffer() override;
+    void GL1RendererTarget::record(RenderCallback renderCallback) {
+        callback = renderCallback;
+    }
 
-        void update(const FaceList &faceList) override;
-
-        void render(const Material &material) override;
-
-    private:
-        void createFaceListVertexBuffer(const FaceList &faceList, std::vector<Vertex> &vertexBuffer);
-
-        void createFaceListTextureIndexBuffer(const FaceList &faceList, std::vector<Float32> &textureIndexBuffer);
-    };
+    void GL1RendererTarget::apply(const Color &modulateColor) {
+        // TODO: use modulateColor
+        callback();
+    }
 }
-
-#endif

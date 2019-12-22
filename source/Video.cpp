@@ -35,7 +35,9 @@
 #elif defined(D6_RENDERER_GLES3)
 #include "renderer/es3/GLES3Renderer.h"
 #elif defined(D6_RENDERER_GL4)
+
 #include "renderer/gl4/GL4Renderer.h"
+
 #endif
 
 namespace Duel6 {
@@ -51,17 +53,18 @@ namespace Duel6 {
 
 #ifdef D6_DEBUG
         // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
-        screen = ScreenParameters(1280, 900, 32, 0, false);
+        auto requestedScreenParameters = ScreenParameters(1280, 900, 32, 24, 0, false);
 #else
-        screen = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 0, true);
+        auto requestedScreenParameters = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 24, 0, true);
 #endif
 
-        window = createWindow(name, icon, screen, console);
-        glContext = createContext(screen, console);
+        window = createWindow(name, icon, requestedScreenParameters, console);
+        glContext = createContext(requestedScreenParameters, console);
+        screen = readScreenParameters(requestedScreenParameters, console);
 
         GLenum err = glewInit();
         if (GLEW_OK != err) {
-            D6_THROW(VideoException, (const char *)glewGetErrorString(err));
+            D6_THROW(VideoException, (const char *) glewGetErrorString(err));
         }
 
         renderer = createRenderer();
@@ -170,48 +173,43 @@ namespace Duel6 {
             D6_THROW(VideoException, std::string("Unable to create OpenGL context: ") + SDL_GetError());
         }
 
-        // Retrieve final video parameters
-        int val[7];
-        SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &val[0]);
-        SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &val[1]);
-        SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &val[2]);
-        SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &val[3]);
-        SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &val[4]);
-        SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &val[5]);
-        SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &val[6]);
-
-        console.printLine(Format("...RGB ({0}, {1}, {2})") << val[0] << val[1] << val[2]);
-        console.printLine(
-                Format("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})") << val[3] << val[4]
-                                                                                             << val[5] << val[6]);
-
         return glc;
     }
 
     std::unique_ptr<Renderer> Video::createRenderer() {
-        int depthBufferBits;
-        SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depthBufferBits);
-        Renderer::DEPTH_BUFFER_FORMAT format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH;
-
 #if defined(D6_RENDERER_GL1)
         return std::make_unique<GL1Renderer>();
 #elif defined(D6_RENDERER_GLES2)
         return std::make_unique<GLES2Renderer>();
 #elif defined(D6_RENDERER_GLES3)
-        switch(depthBufferBits){
-            case(16): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH16; break;
-            case(24): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH24; break;
-        }
-        return std::make_unique<GLES3Renderer>(format);
+        return std::make_unique<GLES3Renderer>();
 #elif defined(D6_RENDERER_GL4)
-        switch(depthBufferBits){
-            case(16): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH16; break;
-            case(24): format = Renderer::DEPTH_BUFFER_FORMAT::DEPTH; break;
-        }
-        return std::make_unique<GL4Renderer>(format);
+        return std::make_unique<GL4Renderer>();
 #endif
 
         D6_THROW(VideoException, "Invalid renderer");
+    }
+
+    ScreenParameters Video::readScreenParameters(ScreenParameters &params, Console &console) {
+        // Retrieve final video parameters
+        int redBits, greenBits, blueBits, bitsPerPixel, depthBits, alphaBits, stencilBits;
+        SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
+        SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenBits);
+        SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &blueBits);
+        SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE, &bitsPerPixel);
+        SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depthBits);
+        SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &alphaBits);
+        SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencilBits);
+
+        console.printLine(Format("...RGB ({0}, {1}, {2})") << redBits << greenBits << blueBits);
+        console.printLine(
+                Format("...Color ({0}), Z-buffer ({1}), Alpha channel ({2}), Stencil ({3})") << bitsPerPixel
+                                                                                             << depthBits
+                                                                                             << alphaBits
+                                                                                             << stencilBits);
+
+        return ScreenParameters(params.getClientWidth(), params.getClientHeight(), bitsPerPixel, depthBits,
+                                params.getAntiAlias(), params.isFullScreen());
     }
 
     void Video::setMode(Mode mode) const {

@@ -24,7 +24,7 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <GLES3/gl31.h>
+
 #include <vector>
 #include "../../Exception.h"
 #include "../../VideoException.h"
@@ -68,27 +68,22 @@ namespace Duel6 {
     }
 
     GLint GLES3Program::uniformLocation(const GLchar *name) {
-        #undef glGetUniformLocation // GLEW does not work with GLES
         return glGetUniformLocation(id, name);
     }
 
     void GLES3Program::setUniform(const GLchar *name, Int32 value) {
-        #undef glProgramUniform1i
         glProgramUniform1i(id, uniformLocation(name), value);
     }
 
     void GLES3Program::setUniform(const GLchar *name, Float32 value) {
-        #undef glProgramUniform1f
         glProgramUniform1f(id, uniformLocation(name), value);
     }
 
     void GLES3Program::setUniform(const GLchar *name, Float32 value[4]) {
-        #undef glProgramUniform4fv
         glProgramUniform4fv(id, uniformLocation(name), 1, value);
     }
 
     void GLES3Program::setUniform(const GLchar *name, const Matrix &value) {
-        #undef glProgramUniformMatrix4fv
         glProgramUniformMatrix4fv(id, uniformLocation(name), 1, GL_FALSE, value.getStorage());
     }
 
