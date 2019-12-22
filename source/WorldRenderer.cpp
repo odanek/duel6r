@@ -188,13 +188,12 @@ namespace Duel6 {
         for (const Player &player : game.getPlayers()) {
             Vector playerCentre = player.getCentre();
             playerCentre.z = 0.5;
-            Color c = player.getSkin().getColors().get(PlayerSkinColors::BodyPart::HairTop);
             Vector lastPoint;
             for (Int32 u = 0; u < 37; u++) {
                 Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
                 Vector pos = playerCentre + spike * radius * Vector::direction(u * 10);
                 if (u > 0) {
-                    renderer.line(lastPoint, pos, 3.0f, c);
+                    renderer.line(lastPoint, pos, 3.0f, Color::YELLOW);
                 }
                 lastPoint = pos;
             }
@@ -423,6 +422,8 @@ namespace Duel6 {
         const World &world = game.getRound().getWorld();
         walls(world.getLevelRenderData().getWalls());
         sprites(world.getLevelRenderData().getSprites());
+
+        video.setMode(Video::Mode::Orthogonal);
     }
 
     void WorldRenderer::view(const Player &player) const {
@@ -474,10 +475,9 @@ namespace Duel6 {
     void WorldRenderer::fullScreen() const {
         const Player &player = game.getPlayers().front();
         Float32 remainingTime = game.getRound().getRemainingYouAreHere();
-        renderer.clearBuffers(); // attempt to resolve rendering issues in Alcatraz
         setView(player.getView());
-        renderer.enableDepthTest(false);
 
+        renderer.clearBuffers(); // attempt to resolve rendering issues in Alcatraz
         Color fadeColor = remainingTime > 0 ? getRoundStartFadeColor(remainingTime) : Color::WHITE;
         target->apply(fadeColor);
 

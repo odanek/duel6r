@@ -38,6 +38,8 @@ namespace Duel6 {
     class GL1RendererTarget : public RendererTarget {
     private:
         RendererTarget::RenderCallback callback;
+        GLuint width, height;
+        GL1Renderer &renderer;
 
     public:
         GL1RendererTarget(GL1Renderer &renderer, ScreenParameters screenParameters);

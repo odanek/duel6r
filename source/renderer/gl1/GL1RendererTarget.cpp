@@ -29,7 +29,9 @@
 #include "GL1Renderer.h"
 
 namespace Duel6 {
-    GL1RendererTarget::GL1RendererTarget(GL1Renderer &renderer, ScreenParameters screenParameters) {}
+    GL1RendererTarget::GL1RendererTarget(GL1Renderer &renderer, ScreenParameters screenParameters)
+            : width(screenParameters.getClientWidth()), height(screenParameters.getClientHeight()),
+              renderer(renderer) {}
 
     GL1RendererTarget::~GL1RendererTarget() {}
 
@@ -38,7 +40,11 @@ namespace Duel6 {
     }
 
     void GL1RendererTarget::apply(const Color &modulateColor) {
-        // TODO: use modulateColor
         callback();
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+        renderer.quadXY(Vector::ZERO, Vector(Float32(width), Float32(height), 5.0f), modulateColor);
+        glDisable(GL_BLEND);
     }
 }
