@@ -33,8 +33,8 @@
 
 namespace Duel6 {
     WorldRenderer::WorldRenderer(Duel6::AppService &appService, const Duel6::Game &game)
-        : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()),
-          target(renderer.makeTarget(video.getScreen())) {}
+            : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()),
+              target(renderer.makeTarget(video.getScreen())) {}
 
     void WorldRenderer::setView(const PlayerView &view) const {
         setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());
@@ -86,13 +86,14 @@ namespace Duel6 {
         }
     }
 
-    Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength, Float32 charHeight, bool extended) const {
+    Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength,
+                                            Float32 charHeight, bool extended) const {
         if (extended) {
             maxLength += 20;
         }
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
         Color fontColor(entry.fontColor);
-        renderer.quadXY(Vector(posX, posY + 1), Vector((charHeight/2) * maxLength, charHeight), entry.bcgColor);
+        renderer.quadXY(Vector(posX, posY + 1), Vector((charHeight / 2) * maxLength, charHeight), entry.bcgColor);
 
         Int32 paddingLeft = entry.isSuperEntry() ? 0 : 5;
         renderer.setBlendFunc(BlendFunc::None);
@@ -100,13 +101,16 @@ namespace Duel6 {
 
         if (extended) {
             renderer.setBlendFunc(BlendFunc::SrcColor);
-            if(!entry.isSuperEntry()) {
+            if (!entry.isSuperEntry()) {
                 fontColor = Color::YELLOW;
             }
             auto killsToDeaths = Person::getKillsToDeathsRatio(entry.kills, entry.deaths);
-            font.print(posX + (charHeight / 2) * (maxLength - 23), posY, 0.0f, fontColor, (Format("|{0,3}|{1,3}|{2,3}|{3,5}|{4,4}") << entry.kills  << entry.assistances << entry.deaths << killsToDeaths << entry.points), charHeight);
+            font.print(posX + (charHeight / 2) * (maxLength - 23), posY, 0.0f, fontColor,
+                       (Format("|{0,3}|{1,3}|{2,3}|{3,5}|{4,4}") << entry.kills << entry.assistances << entry.deaths
+                                                                 << killsToDeaths << entry.points), charHeight);
         } else {
-            font.print(posX + (charHeight / 2) * (maxLength - 5), posY, 0.0f, fontColor, (Format("|{0,4}") << entry.points), charHeight);
+            font.print(posX + (charHeight / 2) * (maxLength - 5), posY, 0.0f, fontColor,
+                       (Format("|{0,4}") << entry.points), charHeight);
         }
         return posY - charHeight;
     }
@@ -132,10 +136,13 @@ namespace Duel6 {
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
-        renderer.quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + 2 * fontWidth, height + 2 * fontSize), Color(255, 255, 255, 80));
-        renderer.quadXY(Vector(x - fontWidth + 2, y - fontSize + 2), Vector(width + 2 * fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
+        renderer.quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + 2 * fontWidth, height + 2 * fontSize),
+                        Color(255, 255, 255, 80));
+        renderer.quadXY(Vector(x - fontWidth + 2, y - fontSize + 2),
+                        Vector(width + 2 * fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
 
-        renderer.quadXY(Vector(x - fontWidth - 5, height + y - fontSize), Vector(width + 2 * fontWidth + 10,fontSize + 4), Color(0, 0, 255, 255));
+        renderer.quadXY(Vector(x - fontWidth - 5, height + y - fontSize),
+                        Vector(width + 2 * fontWidth + 10, fontSize + 4), Color(0, 0, 255, 255));
         renderer.setBlendFunc(BlendFunc::SrcColor);
 
         Int32 posX = video.getScreen().getClientWidth() / 2 - tableWidth / 2;;
@@ -144,7 +151,8 @@ namespace Duel6 {
         Color fontColor = Color::WHITE;
 
         font.print(x + (width - scoreWidth) / 2, y + height - fontSize, 0.0f, fontColor, score, fontSize);
-        font.print(x + width - kadWidth, y + height - 2 * fontSize, 0.0f, fontColor, "  K   A   D   K/D  PTS", fontSize);
+        font.print(x + width - kadWidth, y + height - 2 * fontSize, 0.0f, fontColor, "  K   A   D   K/D  PTS",
+                   fontSize);
         for (const auto &entry : ranking.entries) {
             posY = renderRankingEntry(entry, posX, posY, maxLength, fontSize, true);
             for (const auto &nestedRankingEntry : entry.entries) {
@@ -265,7 +273,8 @@ namespace Duel6 {
     WorldRenderer::bonusIndicator(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
         auto bonusType = player.getBonus();
-        Material material = Material::makeColoredTexture(game.getResources().getBonusTextures(), Color::WHITE.withAlpha(alpha));
+        Material material = Material::makeColoredTexture(game.getResources().getBonusTextures(),
+                                                         Color::WHITE.withAlpha(alpha));
 
         Float32 size = 0.3f;
         Float32 X = xOfs - size / 2;
@@ -273,7 +282,8 @@ namespace Duel6 {
 
         renderer.enableDepthWrite(false);
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
-        renderer.quadXY(Vector(X, Y, 0.5f), Vector(size, size), Vector(0.3f, 0.7f, Float32(bonusType.getTextureIndex())), Vector(0.4f, -0.4f), material);
+        renderer.quadXY(Vector(X, Y, 0.5f), Vector(size, size),
+                        Vector(0.3f, 0.7f, Float32(bonusType.getTextureIndex())), Vector(0.4f, -0.4f), material);
         renderer.setBlendFunc(BlendFunc::None);
         renderer.enableDepthWrite(true);
     }
@@ -410,33 +420,38 @@ namespace Duel6 {
         });
     }
 
-    void WorldRenderer::renderBackground() const {
-        const Player & player = game.getPlayers().front();
-        setView(player.getView());
-        background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
-        video.setMode(Video::Mode::Perspective);
-
+    void WorldRenderer::setPlayerCamera(const Player &player) const {
         const Camera &camera = player.getCamera();
         Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
         renderer.setViewMatrix(viewMatrix);
-        const World &world = game.getRound().getWorld();
-        walls(world.getLevelRenderData().getWalls());
-        sprites(world.getLevelRenderData().getSprites());
-
-        video.setMode(Video::Mode::Orthogonal);
     }
 
-    void WorldRenderer::view(const Player &player) const {
-        const Camera &camera = player.getCamera();
-        Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
-        renderer.setViewMatrix(viewMatrix);
-
+    void WorldRenderer::renderStaticGeometry() const {
         if (game.getSettings().isWireframe()) {
             renderer.enableWireframe(true);
         }
 
         const World &world = game.getRound().getWorld();
+        walls(world.getLevelRenderData().getWalls());
+        sprites(world.getLevelRenderData().getSprites());
 
+        renderer.enableWireframe(false);
+    }
+
+    void WorldRenderer::renderBackground() const {
+        const Player &player = game.getPlayers().front();
+        setView(player.getView());
+        background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
+        video.setMode(Video::Mode::Perspective);
+
+        setPlayerCamera(player);
+        renderStaticGeometry();
+
+        video.setMode(Video::Mode::Orthogonal);
+    }
+
+    void WorldRenderer::view(const Player &player) const {
+        const World &world = game.getRound().getWorld();
         world.getElevatorList().render(renderer);
         world.getBonusList().render(renderer);
         world.getSpriteList().render(renderer);
@@ -450,10 +465,6 @@ namespace Duel6 {
         //shotCollisionBox(world.getShotList());
 
         world.getExplosionList().render(renderer);
-
-        if (game.getSettings().isWireframe()) {
-            renderer.enableWireframe(false);
-        }
     }
 
     Color WorldRenderer::getGameOverOverlay() const {
@@ -461,14 +472,14 @@ namespace Duel6 {
         return Color(128, 0, 0, Uint8(200 - 200 * overlay));
     }
 
-    Color  WorldRenderer::getRoundStartFadeColor(Float32 remainingTime) const {
-        if(remainingTime <= 0) {
+    Color WorldRenderer::getRoundStartFadeColor(Float32 remainingTime) const {
+        if (remainingTime <= 0) {
             return Color::WHITE;
         }
-        Float32 intensity =  4 * (remainingTime / D6_YOU_ARE_HERE_DURATION);
+        Float32 intensity = 4 * (remainingTime / D6_YOU_ARE_HERE_DURATION);
 
         Uint8 c = 255.0f * std::max(1.0f - intensity, 0.0f);
-        Color result = Color(c,c,100 + 155.0f * std::max(1.0f - intensity, 0.0f)); //Blue darkness
+        Color result = Color(c, c, 100 + 155.0f * std::max(1.0f - intensity, 0.0f)); //Blue darkness
         return result;
     }
 
@@ -483,6 +494,7 @@ namespace Duel6 {
 
         renderer.enableDepthTest(true);
         video.setMode(Video::Mode::Perspective);
+        setPlayerCamera(player);
         view(player);
 
         if (game.getRound().hasWinner()) {
@@ -492,6 +504,8 @@ namespace Duel6 {
     }
 
     void WorldRenderer::splitScreen() const {
+        renderer.clearBuffers();
+
         for (const Player &player : game.getPlayers()) {
             video.setMode(Video::Mode::Orthogonal);
             splitBox(player.getView());
@@ -500,6 +514,8 @@ namespace Duel6 {
             background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
 
             video.setMode(Video::Mode::Perspective);
+            setPlayerCamera(player);
+            renderStaticGeometry();
             view(player);
 
             if (!player.isAlive()) {

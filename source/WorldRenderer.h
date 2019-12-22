@@ -124,6 +124,10 @@ namespace Duel6 {
         Color getRoundStartFadeColor(Float32) const;
 
         void shotCollisionBox(const ShotList &shotList) const;
+
+        void setPlayerCamera(const Player &player) const;
+
+        void renderStaticGeometry() const;
     };
 }
 
