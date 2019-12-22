@@ -130,6 +130,35 @@ namespace Duel6 {
         }
     }
 
+    void ConsoleCommands::listMaps(Console &console, const Console::Arguments &args, Menu &menu) {
+        auto i = 0;
+        for(auto & path : menu.listMaps()){
+            console.printLine(Format("{0}: {1}") << i++ << path);
+        }
+        console.printLine(Format("^^ (use the map index in 'map' command)"));
+    }
+    void ConsoleCommands::runMap(Console &console, const Console::Arguments &args, Menu &menu) {
+        if (args.length() > 1) {
+            std::vector<std::string> paths;
+            auto maps = menu.listMaps();
+            for(size_t i = 1 ; i < args.length(); i ++){
+                size_t index = 0;
+                auto val = args.get(i);
+                std::istringstream(val) >> index;
+                if(index >= maps.size() || (index == 0 && val != "0")){
+                    console.printLine(Format("Invalid map index {0}") << val);
+                    return;
+                }
+                std::string path = menu.listMaps()[index] ;
+                console.printLine(Format(": run {1}") << path);
+                paths.push_back(path);
+            }
+            if(console.isActive()) {
+                console.toggle();
+            }
+            menu.play(paths);
+        }
+    }
     void ConsoleCommands::loadSkin(Console &console, const Console::Arguments &args, Menu &menu) {
         auto &profileMap = menu.getPersonProfiles();
         std::string bodyParts[] = {"Hair top", "Hair bottom", "Body outer", "Body inner", "Arm outer", "Arm inner",
@@ -286,6 +315,12 @@ namespace Duel6 {
         });
         console.registerCommand("skin", [&menu](Console &con, const Console::Arguments &args) {
             loadSkin(con, args, menu);
+        });
+        console.registerCommand("maps", [&menu](Console &con, const Console::Arguments &args) {
+            listMaps(con, args, menu);
+        });
+        console.registerCommand("map", [&menu](Console &con, const Console::Arguments &args) {
+            runMap(con, args, menu);
         });
         console.registerCommand("gun", [&gameSettings](Console &con, const Console::Arguments &args) {
             enableWeapon(con, args, gameSettings);

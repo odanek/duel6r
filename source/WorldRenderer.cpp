@@ -33,7 +33,8 @@
 
 namespace Duel6 {
     WorldRenderer::WorldRenderer(Duel6::AppService &appService, const Duel6::Game &game)
-        : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()) {}
+        : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()),
+          target(renderer.makeTarget(video.getScreen().getClientWidth(), video.getScreen().getClientHeight())) {}
 
     void WorldRenderer::setView(const PlayerView &view) const {
         setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());
@@ -187,13 +188,13 @@ namespace Duel6 {
         for (const Player &player : game.getPlayers()) {
             Vector playerCentre = player.getCentre();
             playerCentre.z = 0.5;
-
+            Color c = player.getSkin().getColors().get(PlayerSkinColors::BodyPart::HairTop);
             Vector lastPoint;
             for (Int32 u = 0; u < 37; u++) {
                 Float32 spike = (u % 2 == 0) ? 0.95f : 1.05f;
                 Vector pos = playerCentre + spike * radius * Vector::direction(u * 10);
                 if (u > 0) {
-                    renderer.line(lastPoint, pos, 3.0f, Color::YELLOW);
+                    renderer.line(lastPoint, pos, 3.0f, c);
                 }
                 lastPoint = pos;
             }
@@ -410,6 +411,25 @@ namespace Duel6 {
         });
     }
 
+    void WorldRenderer::prerenderBackground() {
+        renderer.clearBuffers();
+        target->use();
+        target->clear();
+
+        const Player & player = game.getPlayers().front();
+        setView(player.getView());
+        background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
+        video.setMode(Video::Mode::Perspective);
+
+        const Camera &camera = player.getCamera();
+        Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
+        renderer.setViewMatrix(viewMatrix);
+        const World &world = game.getRound().getWorld();
+        walls(world.getLevelRenderData().getWalls());
+        sprites(world.getLevelRenderData().getSprites());
+        target->stopUse();
+    }
+
     void WorldRenderer::view(const Player &player) const {
         const Camera &camera = player.getCamera();
         Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
@@ -420,8 +440,7 @@ namespace Duel6 {
         }
 
         const World &world = game.getRound().getWorld();
-        walls(world.getLevelRenderData().getWalls());
-        sprites(world.getLevelRenderData().getSprites());
+
         world.getElevatorList().render(renderer);
         world.getBonusList().render(renderer);
         world.getSpriteList().render(renderer);
@@ -446,10 +465,31 @@ namespace Duel6 {
         return Color(128, 0, 0, Uint8(200 - 200 * overlay));
     }
 
+    Color  WorldRenderer::getRoundStartFadeColor(Float32 remainingTime) const {
+        if(remainingTime <= 0) {
+            return Color::WHITE;
+        }
+        Float32 intensity =  4 * (remainingTime / D6_YOU_ARE_HERE_DURATION);
+
+        Uint8 c = 255.0f * std::max(1.0f - intensity, 0.0f);
+        Color result = Color(c,c,100 + 155.0f * std::max(1.0f - intensity, 0.0f)); //Blue darkness
+        return result;
+    }
+
     void WorldRenderer::fullScreen() const {
         const Player &player = game.getPlayers().front();
+        Float32 remainingTime = game.getRound().getRemainingYouAreHere();
+        renderer.clearBuffers(); // attempt to resolve rendering issues in Alcatraz
         setView(player.getView());
-        background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
+        renderer.enableDepthTest(false);
+        if(remainingTime > 0) {
+            Color c = getRoundStartFadeColor(remainingTime);
+            target->blitDepth();
+            target->render(c); // render texture with color blending (slower)
+        } else {
+            target->blit(); // faster
+        }
+        renderer.enableDepthTest(true);
         video.setMode(Video::Mode::Perspective);
         view(player);
 
@@ -478,8 +518,6 @@ namespace Duel6 {
 
     void WorldRenderer::render() const {
         const GameSettings &settings = game.getSettings();
-
-        renderer.clearBuffers();
 
         if (settings.getScreenMode() == ScreenMode::FullScreen) {
             fullScreen();

@@ -308,6 +308,8 @@ set(D6R_SOURCES
         source/math/Vector.h
 
         source/renderer/RendererTypes.h
+        source/renderer/RendererTarget.h
+        source/renderer/RendererTarget.cpp
         source/renderer/RendererBase.h
         source/renderer/RendererBase.cpp
 

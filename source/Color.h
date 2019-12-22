@@ -54,11 +54,26 @@ namespace Duel6 {
         explicit Color(Uint8 value)
                 : Color(value, value, value, 255) {}
 
+        Color(const Color & c) {
+            color[0] = c.color[0];
+            color[1] = c.color[1];
+            color[2] = c.color[2];
+            color[3] = c.color[3];
+        }
+
         Color(Uint8 red, Uint8 green, Uint8 blue)
                 : Color(red, green, blue, 255) {}
 
         Color(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha) {
             set(red, green, blue, alpha);
+        }
+
+        Color& operator = (const Color & c){
+            color[0] = c.color[0];
+            color[1] = c.color[1];
+            color[2] = c.color[2];
+            color[3] = c.color[3];
+            return *this;
         }
 
         bool operator==(const Color &color) const {

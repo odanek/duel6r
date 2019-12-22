@@ -29,19 +29,20 @@
 #define DUEL6_RENDERER_RENDERER_BASE_H
 
 #include "Renderer.h"
-
+#include "RendererTarget.h"
 namespace Duel6 {
 
     class RendererBase
             : public Renderer {
     protected:
+        const DEPTH_BUFFER_FORMAT depthBufferFormat;
         Matrix projectionMatrix;
         Matrix viewMatrix;
         Matrix modelMatrix;
         Matrix mvpMatrix;
 
     public:
-        RendererBase();
+        RendererBase(const DEPTH_BUFFER_FORMAT depthBufferFormat);
 
         void setProjectionMatrix(const Matrix &m) override;
 
@@ -71,6 +72,7 @@ namespace Duel6 {
                     const Vector &textureSize, const Material &material) override;
 
         void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) override;
+        std::unique_ptr<RendererTarget> makeTarget(GLuint width, GLuint height) override;
     };
 }
 

@@ -28,7 +28,7 @@
 #ifndef DUEL6_RENDERER_GLES3_BUFFER_H
 #define DUEL6_RENDERER_GLES3_BUFFER_H
 
-#include <GL/glew.h>
+#include "GLES3Types.h"
 #include "../RendererBuffer.h"
 #include "../../Vertex.h"
 #include "GLES3Program.h"

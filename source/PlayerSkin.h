@@ -39,6 +39,7 @@
 namespace Duel6 {
     class PlayerSkin {
     private:
+        PlayerSkinColors colors;
         const PlayerAnimations &animations;
         Texture textures;
 
@@ -47,6 +48,8 @@ namespace Duel6 {
                    const PlayerAnimations &animations);
 
         Texture getTexture() const;
+
+        const PlayerSkinColors &getColors() const;
 
         const PlayerAnimations &getAnimations() const;
     };

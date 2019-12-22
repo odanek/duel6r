@@ -37,12 +37,17 @@
 #include "../Material.h"
 #include "RendererTypes.h"
 #include "RendererBuffer.h"
-
+#include "RendererTarget.h"
 namespace Duel6 {
     class FaceList;
-
+    class RendererTarget;
     class Renderer {
     public:
+        enum DEPTH_BUFFER_FORMAT {
+            DEPTH,    //ogl4
+            DEPTH16,  //ogl4 Intel
+            DEPTH24   //gles3
+        };
         struct Info {
             std::string vendor;
             std::string renderer;
@@ -129,6 +134,8 @@ namespace Duel6 {
         virtual void frame(const Vector &position, const Vector &size, Float32 width, const Color &color) = 0;
 
         virtual std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) = 0;
+
+        virtual std::unique_ptr<RendererTarget> makeTarget(GLuint width, GLuint height) = 0;
     };
 }
 

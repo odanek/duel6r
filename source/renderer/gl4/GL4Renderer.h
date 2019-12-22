@@ -52,7 +52,7 @@ namespace Duel6 {
         GL4Program materialProgram;
 
     public:
-        GL4Renderer();
+        GL4Renderer(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat);
 
         Info getInfo() override;
 

@@ -491,7 +491,7 @@ namespace Duel6 {
             if (!isMoving()) {
                 animation = animations.getStand().get();
             } else {
-                sprite->setSpeed(getSpeed());
+                sprite->setSpeed(getVelocity().length());
                 animation = animations.getWalk().get();
                 sprite->setLooping(AnimationLooping::RepeatForever);
             }

@@ -28,8 +28,8 @@
 #include "RendererBase.h"
 
 namespace Duel6 {
-    RendererBase::RendererBase()
-            : projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
+    RendererBase::RendererBase(const Renderer::DEPTH_BUFFER_FORMAT depthBufferFormat)
+            :depthBufferFormat(depthBufferFormat), projectionMatrix(Matrix::IDENTITY), viewMatrix(Matrix::IDENTITY), modelMatrix(Matrix::IDENTITY) {}
 
     void RendererBase::setProjectionMatrix(const Matrix &m) {
         projectionMatrix = m;
@@ -121,5 +121,15 @@ namespace Duel6 {
         line(p2, p3, width, color);
         line(p3, p4, width, color);
         line(p4, position, width, color);
+    }
+
+    std::unique_ptr<RendererTarget> RendererBase::makeTarget(GLuint width, GLuint height) {
+        GLuint usedDepthBufferFormat;
+        switch(depthBufferFormat){
+            case(Renderer::DEPTH_BUFFER_FORMAT::DEPTH): usedDepthBufferFormat = GL_DEPTH_COMPONENT; break;
+            case(Renderer::DEPTH_BUFFER_FORMAT::DEPTH16): usedDepthBufferFormat = GL_DEPTH_COMPONENT16; break;
+            case(Renderer::DEPTH_BUFFER_FORMAT::DEPTH24): usedDepthBufferFormat = GL_DEPTH_COMPONENT24; break;
+        }
+        return std::make_unique<RendererTarget>(usedDepthBufferFormat, width, height, *this);
     }
 }
