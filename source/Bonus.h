@@ -56,7 +56,8 @@ namespace Duel6 {
         virtual void onExpire(Player &player, World &world) const = 0;
     };
 
-    class BonusType final {
+
+    class BonusType final{
     private:
         typedef std::unique_ptr<BonusTypeImpl> BonusTypeImplPtr;
 
@@ -121,12 +122,14 @@ namespace Duel6 {
 
     public:
         Bonus(BonusType type, Int32 duration, const Vector &position, Int32 textureIndex);
+        Bonus(const Bonus& bonus) = default;
+        Bonus(Bonus&& bonus) = default;
+        Bonus & operator = (const Bonus & bonus) = default;
+        Bonus & operator = (Bonus && bonus) = default;
 
         void render(Renderer &renderer, Texture texture) const;
 
-        const BonusType &getType() const {
-            return bonus;
-        }
+        const BonusType &getType(const Player & victim) const;
 
         Int32 getDuration() const {
             return duration;

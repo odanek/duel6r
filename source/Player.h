@@ -90,6 +90,7 @@ namespace Duel6 {
         };
 
     public:
+        typedef Uint32 ControllerState;
         enum ControllerButton {
             ButtonLeft = 0x01,
             ButtonRight = 0x02,
@@ -133,14 +134,22 @@ namespace Duel6 {
         Float32 bodyAlpha;
         clock_t roundStartTime;
         PlayerIndicators indicators;
-        Uint32 controllerState;
+        ControllerState controllerState;
         CollidingEntity collider;
-
+        bool trolled = false;
     public:
         Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
 
         ~Player();
-
+        bool isBeingTrolled() const {
+            return trolled;
+        }
+        void setBeingTrolled(bool val) {
+            trolled = val;
+        }
+        ControllerState getControllerState() const {
+            return controllerState;
+        }
         bool is(const Player &player) const {
             return (this == &player);
         }
@@ -397,7 +406,7 @@ namespace Duel6 {
             unsetFlag(FlagLying);
         }
 
-        void pressButton(Uint32 button) {
+        void pressButton(ControllerButton button) {
             controllerState |= button;
         }
 

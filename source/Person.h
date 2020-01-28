@@ -59,7 +59,7 @@ namespace Duel6 {
         Int32 eloTrend;
         Int32 eloGames;
         PersonProfile *profile;
-
+        Int32 trollVictim = 0;
     public:
         Person()
                 : shots(0), hits(0), kills(0), deaths(0), assistances(0), wins(0), penalties(0), games(0), timeAlive(0), totalGameTime(0),
@@ -249,6 +249,10 @@ namespace Duel6 {
         }
 
         Person &reset();
+
+        Int32 getTrollVictim() const {
+            return trollVictim;
+        }
 
         Json::Value toJson() const;
 

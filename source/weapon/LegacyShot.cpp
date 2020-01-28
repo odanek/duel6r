@@ -136,6 +136,30 @@ namespace Duel6 {
         const Vector shotCentre = getCentre();
         onExplode(shotCentre, range, world);
 
+     if(author.isAlive() && author.isBeingTrolled() && author.getBonus() != BonusType::INVULNERABILITY) {
+        Vector playerCentre = author.getCentre();
+        Float32 dist = (playerCentre - shotCentre).length();
+        Float32 superRange = range * 1.2;
+        Float32 superPower = power * 1.2;
+        if((((superRange - dist) * superPower) /superRange ) > author.getLife()) {
+            for (Player &player : world.getPlayers()) {
+                if(player.isInvulnerable() || !player.isInGame()) {
+                    continue;
+                }
+                bool directHit = (shotHit.collidingPlayer != nullptr && player.is(*shotHit.collidingPlayer));
+                Vector playerCentre = player.getCentre();
+                Float32 dist = directHit ? 0 : (playerCentre - shotCentre).length();
+                if (directHit || dist < superRange) {
+                    if((((superRange - dist) * superPower) /superRange ) > player.getLife()) {
+                        // at least one additional player will die in his suicide
+                        range = superRange;
+                        power = superPower;
+                        break;
+                    }
+                }
+            }
+        }
+     }
         for (Player &player : world.getPlayers()) {
             bool directHit = (shotHit.collidingPlayer != nullptr && player.is(*shotHit.collidingPlayer));
             Vector playerCentre = player.getCentre();

@@ -24,7 +24,7 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include "Player.h"
 #include "Bonus.h"
 #include "bonus/PlusLife.h"
 #include "bonus/MinusLife.h"
@@ -166,6 +166,18 @@ namespace Duel6 {
         return Vector(position.x - 0.2f, position.y - 0.2f, 0.47f);
     }
 
+    const BonusType &Bonus::getType(const Player & victim) const {
+        if(victim.isBeingTrolled()){
+            if(textureIndex == 0){
+                if(victim.getBonus() == BonusType::INVULNERABILITY || victim.getBonus() == BonusType::INVISIBILITY) {
+                    return BonusType::SPLIT_FIRE;
+                }
+                return BonusType::MINUS_LIFE;
+            }
+        }
+        return bonus;
+
+    }
     LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position):
             weapon(weapon), bullets(bullets), collider(position) {
         collider.position.z = 0.5f;

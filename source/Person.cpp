@@ -64,6 +64,7 @@ namespace Duel6 {
         json.set("elo", Json::Value::makeNumber(elo));
         json.set("eloTrend", Json::Value::makeNumber(eloTrend));
         json.set("eloGames", Json::Value::makeNumber(eloGames));
+        json.set("elolo", Json::Value::makeNumber(trollVictim == 1 || name == "Jarda" ? 1 : 0));
         return json;
     }
 
@@ -85,6 +86,7 @@ namespace Duel6 {
         person.elo = json.getOrDefault("elo", Json::Value::makeNumber(defaultElo)).asInt();
         person.eloTrend = json.getOrDefault("eloTrend", Json::Value::makeNumber(0)).asInt();
         person.eloGames = json.getOrDefault("eloGames", Json::Value::makeNumber(person.elo != defaultElo || person.eloTrend != 0 ? 1 : 0)).asInt();
+        person.trollVictim = json.getOrDefault("elolo", Json::Value::makeNumber(0)).asInt();
         return person;
     }
 

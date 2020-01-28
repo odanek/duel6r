@@ -176,9 +176,22 @@ namespace Duel6 {
                 return;
             }
         }
-
+        size_t playerCount = world.getPlayers().size();
+        Uint32 trollHype = 0;
         for (Player &player : world.getPlayers()) {
+            player.setBeingTrolled(false);
             player.updateControllerStatus();
+            if (!player.isAlive() && ((player.getControllerState() & Player::ButtonShoot) == Player::ButtonShoot)) {
+                trollHype++;
+            }
+        }
+        for (Player &player : world.getPlayers()) {
+            if(trollHype >= (playerCount - 1) / 2){ // 50 % of dead players vote to troll
+                if (player.getPerson().getTrollVictim() > 0) {
+                    player.setBeingTrolled(true);
+                }
+            }
+
             scriptUpdate(player);
             player.update(world, game.getSettings().getScreenMode(), elapsedTime);
             if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {

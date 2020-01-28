@@ -240,7 +240,7 @@ namespace Duel6::Script {
         int playerPressButton(lua_State *state) {
             auto &player = *((Player *) lua_touserdata(state, lua_upvalueindex(1)));
             auto button = (Uint32) lua_tointeger(state, lua_upvalueindex(2));
-            player.pressButton(button);
+            player.pressButton(static_cast<Player::ControllerButton>(button));
             return 0;
         }
 

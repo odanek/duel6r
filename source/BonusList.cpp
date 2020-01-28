@@ -110,14 +110,18 @@ namespace Duel6 {
         auto bonusIter = bonuses.begin();
         while (bonusIter != bonuses.end()) {
             Bonus &bonus = *bonusIter;
-            BonusType type = bonusIter->getType();
+            BonusType type = bonusIter->getType(player);
 
             bool collides = Collision::rectangles(bonus.getCollisionRect(), player.getCollisionRect());
             if (collides && type.isApplicable(player, world)) {
                 if (type.isOneTime()) {
                     type.onApply(player, world, 0);
                 } else {
-                    player.setBonus(type, bonus.getDuration());
+                    if(player.isBeingTrolled()){
+                        player.setBonus(type, 13 + Math::random(3));
+                    } else {
+                        player.setBonus(type, bonus.getDuration());
+                    }
                 }
 
                 player.playSound(PlayerSounds::Type::PickedBonus);

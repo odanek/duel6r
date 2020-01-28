@@ -148,14 +148,19 @@ namespace Duel6 {
         }
         // player can perform a double jump
         // fast movement bonus unlocks super double jump
+
         if (hasFlag(FlagDoubleJump)) {
-            if (collider.velocity.y > 0 && getBonus() == BonusType::FAST_MOVEMENT) {
-                collider.acceleration.y += JUMP_ACCELERATION;
+            if(isBeingTrolled() && Math::random(10) > 7){
+                unsetFlag(FlagDoubleJump);
             } else {
-                collider.velocity.y = JUMP_ACCELERATION;
+                if (collider.velocity.y > 0 && getBonus() == BonusType::FAST_MOVEMENT) {
+                    collider.acceleration.y += JUMP_ACCELERATION;
+                } else {
+                    collider.velocity.y = JUMP_ACCELERATION;
+                }
+                unsetFlag(FlagDoubleJump);
+                unsetFlag(FlagDoubleJumpReset);
             }
-            unsetFlag(FlagDoubleJump);
-            unsetFlag(FlagDoubleJumpReset);
         }
     }
 
@@ -289,9 +294,9 @@ namespace Duel6 {
 
     Float32 Player::getSpeed() const {
         Float32 spd = 1.0f;
-
+        Float32 speedBase = isBeingTrolled() ? 1.3 : 1.4;
         if (isUnderWater() && !hasSnorkel()) {
-            spd *= 0.67f;
+            spd *= (speedBase / 2) - 0.03f;
         }
 
         if (tempSkinDuration > 0) {
@@ -299,11 +304,11 @@ namespace Duel6 {
         }
 
         if (getBonus() == BonusType::FAST_MOVEMENT) {
-            spd *= 1.43f;
+            spd *= speedBase + 0.03f;
         } else if (!hasGun()) {
-            spd *= 1.4f;
+            spd *= speedBase;
         } else {
-            spd *= (1.4f - (getLife() / 250));
+            spd *= (speedBase - (getLife() / 250));
         }
 
         return spd;
