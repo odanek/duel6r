@@ -48,6 +48,9 @@
 #include "gui/TextBox.h"
 #include "gui/Spinner.h"
 #include "GameMode.h"
+#include "net/ClientGameProxy.h"
+
+using Duel6::net::ClientGameProxy;
 
 namespace Duel6 {
     class Game; // Forward, TODO: Remove
@@ -61,9 +64,10 @@ namespace Duel6 {
         Renderer &renderer;
         Sound &sound;
         Game *game;
+        ClientGameProxy *clientGameProxy;
         std::vector<std::unique_ptr<GameMode>> gameModes;
         Gui::Desktop gui;
-        PlayerControlsManager controlsManager;
+        PlayerControlsManager& controlsManager;
         PersonProfileList personProfiles;
         PlayerSounds defaultPlayerSounds;
         LevelList levelList;
@@ -90,6 +94,10 @@ namespace Duel6 {
 
         void setGameReference(Game &game) {
             this->game = &game;
+        }
+
+        void setClientGameProxyReference(ClientGameProxy &clientGameProxy){
+            this->clientGameProxy = &clientGameProxy;
         }
 
         void initialize();
@@ -172,6 +180,11 @@ namespace Duel6 {
         void shufflePlayers();
 
         void eloShufflePlayers();
+
+
+        void startServer();
+
+        void joinServer();
     };
 }
 

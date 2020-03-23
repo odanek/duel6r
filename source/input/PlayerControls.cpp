@@ -30,6 +30,7 @@
 
 namespace Duel6 {
     std::vector<std::unique_ptr<PlayerControls>> PlayerControlsManager::controls;
+    std::unique_ptr<PlayerControls> PlayerControlsManager::noopControls;
 
     bool KeyboardButton::isPressed() const {
         return input.isPressed(keyCode);
@@ -51,7 +52,11 @@ namespace Duel6 {
     bool ComplexControl::isPressed() const {
         return control1->isPressed() || control2->isPressed();
     }
-
+    std::unique_ptr<PlayerControls>
+    PlayerControls::noOpControls(const std::string &name) {
+        auto _ = new NoOpControl();
+        return std::make_unique<PlayerControls>(name, _, _, _, _, _, _, _);
+    }
     std::unique_ptr<PlayerControls>
     PlayerControls::keyboardControls(const std::string &name, const Input &input, SDL_Keycode left, SDL_Keycode right,
                                      SDL_Keycode up, SDL_Keycode down, SDL_Keycode shoot, SDL_Keycode pick,
@@ -111,6 +116,7 @@ namespace Duel6 {
                 PlayerControls::keyboardControls("K6: /879", input, SDLK_KP_7, SDLK_KP_9, SDLK_KP_DIVIDE, SDLK_KP_8,
                                                  SDLK_PAGEDOWN,
                                                  SDLK_PAGEUP, SDLK_END));
+        noopControls = PlayerControls::noOpControls("no-op");
     }
 
     void PlayerControlsManager::detectJoypads() {

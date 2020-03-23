@@ -36,7 +36,8 @@
 #include "ConsoleCommands.h"
 #include "Application.h"
 #include "FontException.h"
-
+#include "net/NetHost.h"
+#include "net/NetClient.h"
 namespace Duel6 {
     namespace {
         const Float64 updateTime = 1.0 / D6_UPDATE_FREQUENCY;
@@ -116,19 +117,30 @@ namespace Duel6 {
         console.printLine("\n===Font initialization===");
         font = std::make_unique<Font>(video->getRenderer());
         font->load(D6_FILE_TTF_FONT, console);
+        clientGameProxy = std::make_unique<net::ClientGameProxy>();
+        serverGameProxy = std::make_unique<net::ServerGameProxy>();
+        netHost = std::make_unique<net::NetHost>(*clientGameProxy, *serverGameProxy);
+        netClient = std::make_unique<net::NetClient>(*clientGameProxy, *serverGameProxy);
+        net = std::make_unique<net::Net>();
 
-        service = std::make_unique<AppService>(*font, console, *textureManager, *video, input, controlsManager, sound, scriptManager);
+      //  netHost->setGameProxyReference(*clientGameProxy, *serverGameProxy);
+        service = std::make_unique<AppService>(*font, console, *textureManager, *video, input, controlsManager, sound, scriptManager, *netHost, *netClient);
 
         gameResources.load(console, sound, *textureManager);
 
         menu = std::make_unique<Menu>(*service);
         game = std::make_unique<Game>(*service, gameResources, gameSettings);
-
+        clientGameProxy->setGameReference(*game);
         menu->setGameReference(*game);
+        menu->setClientGameProxyReference(*clientGameProxy);
         game->setMenuReference(*menu);
-
+        game->setGameProxyReference(*serverGameProxy);
         FireList::initialize();
-
+        console.printLine("\n===Initialize net subsystem===");
+        if(!net->initialize()){
+            console.printLine("\n===Failed to initialize net subsystem===");
+            D6_THROW(Exception, Format("Unable initialize net"));
+        }
         for (Weapon weapon : Weapon::values()) {
             gameSettings.enableWeapon(weapon, true);
         }
@@ -281,8 +293,29 @@ namespace Duel6 {
     void Application::run() {
         Context::push(*menu);
 
+       // netHost.listen();
         while (Context::exists() && !requestClose) {
             Context &context = Context::getCurrent();
+            netHost->poll();
+            netClient->poll();
+//            if(netHost.isConnected()){
+//                netClient.connect("localhost", 2020);
+//            }
+            if(/* is host */ true){
+                /*
+
+                     NetHost.processEvents()
+
+
+                 */
+            }
+
+            if(/* is client (i.e. dedicated server is not a client)*/ true){
+                /*
+                    NetClient.processEvents()
+                 */
+            }
+
             processEvents(context);
             syncUpdateAndRender(context);
 

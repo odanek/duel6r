@@ -51,6 +51,7 @@
 #include "PlayerView.h"
 
 namespace Duel6 {
+
     // Forward declarations
     class Elevator;
 
@@ -137,6 +138,14 @@ namespace Duel6 {
         CollidingEntity collider;
 
     public:
+        Uint32 getControllerState(){
+            return controllerState;
+        }
+
+        void setControllerState(Uint32 controllerState){
+            this->controllerState = controllerState;
+        }
+
         Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
 
         ~Player();
@@ -404,8 +413,10 @@ namespace Duel6 {
         void die();
 
         const CollidingEntity &getCollider() const;
-
+        void setPosition(float x, float y, float z);
     private:
+
+
         void makeMove(const Level &level, Float32 elapsedTime);
 
         void moveHorizontal(const Level &level, Float32 elapsedTime, Float32 speed);

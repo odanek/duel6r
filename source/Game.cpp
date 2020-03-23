@@ -56,6 +56,7 @@ namespace Duel6 {
             }
         } else {
             getRound().update(elapsedTime);
+            gameProxy->sendGameState(*this);
         }
     }
 
@@ -162,10 +163,16 @@ namespace Duel6 {
         }
         menu->savePersonData();
     }
-
-    void Game::nextRound() {
+    void Game::onNextRound() {
         endRound();
         startRound();
+    }
+
+    void Game::nextRound() {
+        if(isServer){
+            gameProxy->nextRound();
+            onNextRound();
+        }
     }
 
     Int32 Game::getCurrentRound() const {

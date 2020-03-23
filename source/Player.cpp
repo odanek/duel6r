@@ -183,6 +183,7 @@ namespace Duel6 {
     }
 
     void Player::shoot() {
+        /** TODO NETCODE */
         if ((!getAmmo() && getBonus() != BonusType::INFINITE_AMMO) || !hasGun())
             return;
 
@@ -200,6 +201,7 @@ namespace Duel6 {
 
         if (getBonus() != BonusType::INFINITE_AMMO) {
             indicators.getBullets().show();
+            /** TODO NETCODE */
             ammo--;
         }
         gunSprite->setFrame(0);
@@ -404,6 +406,7 @@ namespace Duel6 {
     void Player::update(World &world, ScreenMode screenMode, Float32 elapsedTime) {
         checkWater(world, elapsedTime);
         if (isAlive()) {
+            /* TODO: NETCODE */
             world.getBonusList().checkBonus(*this);
         }
 
@@ -795,7 +798,9 @@ namespace Duel6 {
         indicators.getBonus().show(bonusDuration);
         return *this;
     }
-
+    void Player::setPosition(float x, float y, float z){
+        collider.initPosition(x,y,z);
+    }
     void Player::die() {
         setFlag(FlagDying | FlagLying);
         unsetFlag(FlagMoveUp | FlagMoveDown | FlagMoveLeft | FlagMoveRight | FlagKnee | FlagPick);

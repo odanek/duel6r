@@ -44,14 +44,16 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "Round.h"
-
+#include "net/GameProxy.h"
 namespace Duel6 {
     class GameMode;
 
     class Menu;
 
     class Game : public Context {
+
     public:
+        bool isServer = false;
         class PlayerDefinition {
         private:
             Person &person;
@@ -86,11 +88,13 @@ namespace Duel6 {
         };
 
     private:
+        friend class net::ClientGameProxy;
         AppService &appService;
         GameResources &resources;
         GameSettings &settings;
         GameMode *gameMode;
         std::unique_ptr<Round> round;
+        net::GameProxy * gameProxy;
         WorldRenderer worldRenderer;
         const Menu *menu;
 
@@ -107,7 +111,9 @@ namespace Duel6 {
 
     public:
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
-
+        void setGameProxyReference(net::GameProxy & serverGameProxy) {
+            this->gameProxy = &serverGameProxy;
+        }
         void start(const std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
                    const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode);
 
@@ -207,6 +213,7 @@ namespace Duel6 {
             this->menu = &menu;
         }
 
+        void onNextRound();
     private:
         void beforeStart(Context *prevContext) override;
 

@@ -41,7 +41,7 @@ endif (MSVC)
 
 # gnu compiler or clang
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -ggdb3 -std=c++17")
     if (D6R_PLATFORM STREQUAL "x86")
 
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
@@ -76,6 +76,48 @@ set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
 # set the list of source files
 set(D6R_SOURCES
+
+        source/net/binarystream/BinaryDeserializer.h
+        source/net/binarystream/BinarySerializer.h
+        source/net/binarystream/BinaryStream.cpp
+        source/net/binarystream/BinaryStream.h
+        source/net/binarystream/BinaryStreamBase.h
+        source/net/binarystream/FileBinaryStream.h
+        source/net/binarystream/traits.h
+
+        source/net/event/events.h
+        source/net/event/GameState.h
+        source/net/event/RequestGameState.h
+
+        source/net/object/objects.h
+        source/net/object/Client.h
+        source/net/object/Player.h
+        source/net/object/Shot.h
+        source/net/object/Vector.h
+
+        source/net/ClientGameProxy.cpp
+        source/net/ClientGameProxy.h
+        source/net/Event.h
+        source/net/GameProxy.cpp
+        source/net/GameProxy.h
+
+        source/net/Message.h
+        source/net/Net.cpp
+        source/net/Net.h
+        source/net/NetClient.cpp
+        source/net/NetClient.h
+        source/net/NetHost.cpp
+        source/net/NetHost.h
+        source/net/Object.h
+        source/net/Peer.cpp
+        source/net/Peer.h
+        
+        source/net/ServerGameProxy.cpp
+        source/net/ServerGameProxy.h
+        source/net/Service.h
+        source/net/Service.cpp
+        source/net/Type.h
+
         source/AnimationLooping.h
         source/Application.cpp
         source/Application.h
@@ -518,6 +560,12 @@ find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
 find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
 find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image import library")
 target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
+
+
+find_path(HEADERS_ENET enet/enet.h DOC "Path to ENet headers")
+include_directories(${HEADERS_ENET})
+find_library(LIB_ENET ENET DOC "Path to ENet library")
+target_link_libraries(${D6R_APP_NAME} ${LIB_ENET})
 
 # GLEW
 if (WIN32)

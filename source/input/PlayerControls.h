@@ -45,7 +45,11 @@ namespace Duel6 {
             return false;
         }
     };
-
+    class NoOpControl: public Control {
+        bool isPressed() const override {
+            return false;
+        }
+    };
 
     class ComplexControl: public Control {
     private:
@@ -162,11 +166,13 @@ namespace Duel6 {
         keyboardControls(const std::string &name, const Input &input, SDL_Keycode left, SDL_Keycode right, SDL_Keycode up, SDL_Keycode down,
                          SDL_Keycode shoot, SDL_Keycode pick, SDL_Keycode status);
         static std::unique_ptr<PlayerControls> joypadControls(const std::string& name, const GameController & gameController);
+        static std::unique_ptr<PlayerControls> noOpControls(const std::string& name);
     };
 
     class PlayerControlsManager {
     private:
         static std::vector<std::unique_ptr<PlayerControls>> controls;
+        static std::unique_ptr<PlayerControls> noopControls;
         const Input &input;
 
     public:

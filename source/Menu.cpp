@@ -163,6 +163,20 @@ namespace Duel6 {
             }
         });
 
+        auto startServerB = new Gui::Button(gui);
+
+        startServerB->setPosition(10, 600, 50, 50);
+        startServerB->setCaption("Server");
+        startServerB->onClick([this](Gui::Button &) {
+            startServer();
+        });
+        auto connect = new Gui::Button(gui);
+
+        connect->setPosition(70, 600, 50, 50);
+        connect->setCaption("Connect");
+        connect->onClick([this](Gui::Button &) {
+            joinServer();
+        });
         auto quitButton = new Gui::Button(gui);
         quitButton->setPosition(660, 0, 150, 50);
         quitButton->setCaption("Quit (ESC)");
@@ -255,7 +269,7 @@ namespace Duel6 {
         globalAssistanceCheckBox->setLabel("Assistance");
         globalAssistanceCheckBox->setPosition(11, -21, 130, 20);
 
-        quickLiquidCheckBox = new Gui::CheckBox(gui, true);
+        quickLiquidCheckBox = new Gui::CheckBox(gui, false);
         quickLiquidCheckBox->setLabel("Quick Liquid");
         quickLiquidCheckBox->setPosition(151, -21, 150, 20);
 
@@ -500,6 +514,7 @@ namespace Duel6 {
         // Start
         Context::push(*game);
         game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
+
     }
 
     void Menu::addPlayer(Int32 index) {
@@ -634,6 +649,17 @@ namespace Duel6 {
         SDL_StopTextInput();
         sound.stopMusic();
         savePersonData();
+    }
+
+    void Menu::startServer(){
+        play();
+        game->isServer = true;
+        appService.getNetHost().listen(*game);
+    }
+
+    void Menu::joinServer(){
+        play();
+        appService.getNetClient().connect("localhost", 2020);
     }
 
     void Menu::enableMusic(bool enable) {
