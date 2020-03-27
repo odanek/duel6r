@@ -37,12 +37,14 @@ namespace Duel6 {
         bool globalAssistances;
 
     public:
-        void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) override {}
+        void initializePlayer(Game::PlayerDefinition &definition) override {}
 
         void initializeGame(Game &game, std::vector<Player> &players, bool quickLiquid, bool globalAssistances) override {
             this->quickLiquid = quickLiquid;
             this->globalAssistances = globalAssistances;
         }
+
+        void initializePlayersMidGame(std::vector<Player> &players) override {};
 
         void initializeRound(Game &game, std::vector<Player> &players, World &world) override {}
 

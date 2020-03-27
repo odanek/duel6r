@@ -42,6 +42,7 @@ namespace Duel6 {
         std::string getName() const override {
             return "Deathmatch";
         }
+        void initializePlayersMidGame(std::vector<Player> &players) override;
 
         void initializeRound(Game &game, std::vector<Player> &players, World &world) override;
 

@@ -42,7 +42,17 @@ namespace Duel6 {
 
         virtual std::string getName() const = 0;
 
-        virtual void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) = 0;
+        virtual void initializePlayer(Game::PlayerDefinition &definition) = 0;
+        void initializePlayers(std::vector<Game::PlayerDefinition> &&definitions){
+            initializePlayers(definitions);
+        }
+        void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) {
+            for(auto & def: definitions){
+                initializePlayer(def);
+            }
+        }
+
+        virtual void initializePlayersMidGame(std::vector<Player> &players) = 0;
 
         virtual void initializeGame(Game &game, std::vector<Player> &players, bool quickLiquid = false, bool globalAssistances = false) = 0;
 

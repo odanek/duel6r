@@ -114,7 +114,7 @@ namespace Duel6 {
         });
 
         eloListBox = new Gui::ListBox(gui, true);
-        eloListBox->setPosition(594, 539, 24, 19, 16);
+        eloListBox->setPosition(630, 539, 24, 19, 16);
 
         loadPersonProfiles(D6_FILE_PROFILES);
 
@@ -190,7 +190,7 @@ namespace Duel6 {
                 "    Name   |   Elo | Pts | Win | Kill | Assist | Pen | Death |  K/D | Shot | Acc. | GmTm |  Dmg ");
 
         auto eloLabel = new Gui::Label(gui);
-        eloLabel->setPosition(594, 560, 210, 18);
+        eloLabel->setPosition(630, 560, 210, 18);
         eloLabel->setCaption("Elo scoreboard");
 
         auto personsLabel = new Gui::Label(gui);
@@ -248,6 +248,27 @@ namespace Duel6 {
             }
         });
 
+        auto teamSelectorLabel = new Gui::Label(gui);
+        teamSelectorLabel->setPosition(550, 560, 60, 18);
+        teamSelectorLabel->setCaption("Team");
+
+        // Player teams
+        for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
+            teamControlSwitch[i] = new Gui::Spinner(gui);
+            teamControlSwitch[i]->setPosition(550, 539 - Int32(i) * 18, 60, 0);
+            teamControlSwitch[i]->addItem("", 0, false);
+            teamControlSwitch[i]->addItem("", 1, false);
+            teamControlSwitch[i]->addItem("", 2, false);
+            teamControlSwitch[i]->addItem("", 3, false);
+            teamControlSwitch[i]->addItem("", 4, false);
+            teamControlSwitch[i]->onColorize([i](Int32 index, const std::string &item) {
+                if(index == 0) {
+                    return Gui::Spinner::defaultColorize(index, item);
+                }
+                return Gui::Spinner::ItemColor{Color::BLACK, TEAMS[(index - 1) % 4].color};
+            });
+        }
+
         initializeGameModes();
         gameModeSwitch = new Gui::Spinner(gui);
         for (auto &gameMode : gameModes) {
@@ -255,13 +276,22 @@ namespace Duel6 {
         }
         gameModeSwitch->setPosition(10, 0, 330, 20);
         gameModeSwitch->onToggled([this](Int32 selectedIndex) {
-            if (selectedIndex < 2) {
-                playerListBox->onColorize(Gui::ListBox::defaultColorize);
-            } else {
-                Int32 teamCount = 1 + selectedIndex / 2;
-                playerListBox->onColorize([teamCount](Int32 index, const std::string &label) {
-                    return Gui::ListBox::ItemColor{Color::BLACK, TEAMS[index % teamCount].color};
-                });
+            Int32 teamCount = 1 + selectedIndex / 2;
+//            if (selectedIndex < 2) {
+//                playerListBox->onColorize(Gui::ListBox::defaultColorize);
+//            } else {
+//
+//                playerListBox->onColorize([teamCount](Int32 index, const std::string &label) {
+//                    return Gui::ListBox::ItemColor{Color::BLACK, TEAMS[index % teamCount].color};
+//                });
+//            }
+
+            for(size_t i = 0; i < playerListBox->size(); i++){
+                if(selectedIndex < 2){
+                    teamControlSwitch[i]->setCurrent(0);
+                } else {
+                    teamControlSwitch[i]->setCurrent(i % teamCount + 1);
+                }
             }
         });
 
@@ -491,9 +521,9 @@ namespace Duel6 {
             const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentValue().first);
             PlayerSkinColors colors = profile ? profile->getSkinColors() : PlayerSkinColors::makeRandom();
             const PlayerSounds &sounds = profile ? profile->getSounds() : defaultPlayerSounds;
-            playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls));
+            playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls, teamControlSwitch[i]->currentValue().first));
         }
-        selectedMode.initializePlayers(playerDefinitions);
+        //selectedMode.initializePlayers(playerDefinitions);
 
 
         // Game backgrounds
@@ -786,12 +816,14 @@ namespace Duel6 {
 
         std::vector<const Person *> players;
         std::unordered_map<std::string, Int32> controls;
+        std::unordered_map<std::string, Int32> team;
 
         for (Size i = 0; i < playerCount; i++) {
             std::string name = playerListBox->getItem(i);
             Person &person = persons.getByName(name);
             players.push_back(&person);
             controls[name] = controlSwitch[i]->currentItem();
+            team[name] = teamControlSwitch[i]->currentItem();
         }
 
         std::sort(players.begin(), players.end(), [](const Person *left, const Person *right) {
@@ -817,6 +849,7 @@ namespace Duel6 {
             std::string name = players[pos]->getName();
             playerListBox->addItem(name);
             controlSwitch[i]->setCurrent(controls[name]);
+            teamControlSwitch[i]->setCurrent(team[name]);
         }
     }
 }

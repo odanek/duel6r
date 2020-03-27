@@ -102,14 +102,15 @@ namespace Duel6 {
         };
 
     private:
-        Person &person;
+        bool deleted = false;
+        Person *person;
         PlayerSkin skin;
         Camera camera;
         Vector cameraFov;
         Vector cameraTolerance;
-        const PlayerAnimations &animations;
-        const PlayerSounds &sounds;
-        const PlayerControls &controls;
+        const PlayerAnimations *animations;
+        const PlayerSounds *sounds;
+        const PlayerControls *controls;
         PlayerView view;
         WaterState water;
         SpriteList::Iterator sprite;
@@ -136,6 +137,8 @@ namespace Duel6 {
         PlayerIndicators indicators;
         Uint32 controllerState;
         CollidingEntity collider;
+        Int32 id;
+        Int32 team;
 
     public:
         Uint32 getControllerState(){
@@ -146,8 +149,9 @@ namespace Duel6 {
             this->controllerState = controllerState;
         }
 
-        Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
-
+        Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls, Int32 id, Int32 team);
+        Player(Player &&) = default; //fingers crossed
+        Player & operator=(Player &&) = default; //fingers crossed
         ~Player();
 
         bool is(const Player &player) const {
@@ -222,11 +226,11 @@ namespace Duel6 {
         }
 
         Person &getPerson() {
-            return person;
+            return *person;
         }
 
         const Person &getPerson() const {
-            return person;
+            return *person;
         }
 
         const Camera &getCamera() const {
@@ -348,7 +352,7 @@ namespace Duel6 {
         }
 
         bool isInGame() const {
-            return isAlive() || isLying();
+            return !deleted && (isAlive() || isLying());
         }
 
         bool isInvulnerable() const {
@@ -394,7 +398,7 @@ namespace Duel6 {
         }
 
         void playSound(PlayerSounds::Type type) const {
-            sounds.getRandomSample(type).play();
+            sounds->getRandomSample(type).play();
         }
 
         void setBodyAlpha(Float32 alpha) {
@@ -413,7 +417,21 @@ namespace Duel6 {
         void die();
 
         const CollidingEntity &getCollider() const;
+
         void setPosition(float x, float y, float z);
+
+        bool isDeleted() const;
+
+        void setDeleted(bool value);
+
+        Int32 getId() const;
+
+        void setId(Int32 id);
+
+        Int32 getTeam() const;
+
+        void setTeam(Int32 id);
+
     private:
 
 

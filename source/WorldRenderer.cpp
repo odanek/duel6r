@@ -291,7 +291,7 @@ namespace Duel6 {
     void WorldRenderer::playerStatus(const Player &player) const {
         const auto &indicators = player.getIndicators();
 
-        if (player.isAlive()) {
+        if (player.isAlive() && player.isInGame()) {
             Rectangle rect = player.getCollisionRect();
             Float32 xOfs = rect.getCentre().x;
             Float32 yOfs = rect.right.y + 0.15f;

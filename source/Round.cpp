@@ -148,7 +148,7 @@ namespace Duel6 {
 
         // todo: rewrite to copy_if if it is possible to do it that way without billion lines of compile errors:-)
         for (Player &player : allPlayers) {
-            if (player.isAlive()) {
+            if (player.isAlive() && player.isInGame()) {
                 alivePlayers.push_back(&player);
             }
         }

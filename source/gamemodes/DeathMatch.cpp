@@ -28,11 +28,14 @@
 #include "DeathMatch.h"
 
 namespace Duel6 {
-    void DeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
-        eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
+    void DeathMatch::initializePlayersMidGame(std::vector<Player> &players){
         for (auto &player : players) {
             player.setEventListener(*eventListener);
         }
+    };
+    void DeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
+        eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
+        initializePlayersMidGame(players);
     }
 
     bool DeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {

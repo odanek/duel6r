@@ -49,13 +49,16 @@ namespace Duel6 {
     // Very important fun aspect!
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
-    Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
-            : person(person),
+    Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls,
+                   Int32 id, Int32 team)
+            : person(&person),
               skin(skin),
-              animations(skin.getAnimations()),
-              sounds(sounds),
-              controls(controls),
-              orientation(Orientation::Left) {
+              animations(&skin.getAnimations()),
+              sounds(&sounds),
+              controls(&controls),
+              orientation(Orientation::Left),
+              id(id),
+              team(team){
         camera.rotate(180.0, 0.0, 0.0);
     }
 
@@ -66,9 +69,8 @@ namespace Duel6 {
         this->world = &world;
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
 
-        sprite = world.getSpriteList().add(animations.getStand().get(), skin.getTexture());
+        sprite = world.getSpriteList().add(animations->getStand().get(), skin.getTexture());
         sprite->setPosition(getSpritePosition(), 0.5f);
-
         this->weapon = weapon;
         gunSprite = weapon.makeSprite(world.getSpriteList());
 
@@ -99,6 +101,9 @@ namespace Duel6 {
     }
 
     void Player::endRound() {
+        if(!isInGame()){
+            return;
+        }
         Int32 gameTime = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
         getPerson().addTotalGameTime(gameTime);
         if (isAlive()) {
@@ -317,6 +322,10 @@ namespace Duel6 {
     }
 
     void Player::checkKeys() {
+        if (!isInGame()){
+            return;
+        }
+
         if (!isAlive() && !isGhost()) {
             return;
         }
@@ -380,6 +389,7 @@ namespace Duel6 {
 
     void Player::updateControllerStatus() {
         controllerState = 0;
+        const PlayerControls & controls = *this->controls;
         if (controls.getLeft().isPressed()) {
             controllerState |= ButtonLeft;
         }
@@ -456,6 +466,7 @@ namespace Duel6 {
 
     void Player::setAnm() {
         Animation animation;
+        const PlayerAnimations & animations = *this->animations;
         sprite->setSpeed(1.0f);
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
@@ -646,7 +657,7 @@ namespace Duel6 {
     }
 
     bool Player::hit(Float32 amount) {
-        if (isInvulnerable() || !isAlive()) {
+        if (isInvulnerable() || !isAlive() || !isInGame()) {
             return false;
         }
 
@@ -814,4 +825,30 @@ namespace Duel6 {
     const CollidingEntity &Player::getCollider() const {
         return collider;
     }
+
+    Int32 Player::getTeam() const{
+        return team;
+    }
+
+    void Player::setTeam(Int32 team) {
+        this->team = team;
+    }
+
+    Int32 Player::getId() const
+    {
+        return id;
+    }
+
+    void Player::setId(Int32 id) {
+        this->id = id;
+    }
+
+    bool Player::isDeleted() const {
+        return deleted;
+    }
+
+    void Player::setDeleted(bool value) {
+        this->deleted = value;
+    }
+
 }

@@ -32,9 +32,16 @@
 #include "GameMode.h"
 
 namespace Duel6 {
+#define MAX_PLAYERS 32 // because resizing vectors screwes up pointers to players gamemodes
+
     Game::Game(AppService &appService, GameResources &resources, GameSettings &settings)
-            : appService(appService), resources(resources), settings(settings), worldRenderer(appService, *this),
-              playedRounds(0) {}
+        : appService(appService),
+          resources(resources),
+          settings(settings),
+          worldRenderer(appService, *this),
+          playedRounds(0) {
+        players.reserve(MAX_PLAYERS);
+    }
 
     void Game::beforeStart(Context *prevContext) {
         SDL_ShowCursor(SDL_DISABLE);
@@ -83,20 +90,27 @@ namespace Duel6 {
         getRound().keyEvent(event);
     }
 
-    void Game::textInputEvent(const TextInputEvent &event) {}
+    void Game::textInputEvent(const TextInputEvent &event) {
+    }
 
-    void Game::mouseButtonEvent(const MouseButtonEvent &event) {}
+    void Game::mouseButtonEvent(const MouseButtonEvent &event) {
+    }
 
-    void Game::mouseMotionEvent(const MouseMotionEvent &event) {}
+    void Game::mouseMotionEvent(const MouseMotionEvent &event) {
+    }
 
-    void Game::mouseWheelEvent(const MouseWheelEvent &event) {}
+    void Game::mouseWheelEvent(const MouseWheelEvent &event) {
+    }
 
-    void Game::joyDeviceAddedEvent(const JoyDeviceAddedEvent &event) {}
+    void Game::joyDeviceAddedEvent(const JoyDeviceAddedEvent &event) {
+    }
 
-    void Game::joyDeviceRemovedEvent(const JoyDeviceRemovedEvent &event) {}
+    void Game::joyDeviceRemovedEvent(const JoyDeviceRemovedEvent &event) {
+    }
 
-    void Game::start(const std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
-                     const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom,
+    void Game::start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
+                     const std::vector<Size> &backgrounds,
+                     ScreenMode screenMode, Int32 screenZoom,
                      GameMode &gameMode) {
         Console &console = appService.getConsole();
         console.printLine("\n=== Starting new game ===");
@@ -108,16 +122,20 @@ namespace Duel6 {
             textureManager.dispose(skin.getTexture());
         }
         skins.clear();
-
-        Size playerIndex = 0;
-        players.reserve(playerDefinitions.size());
+        gameMode.initializePlayers(playerDefinitions);
+        maxPlayerId = 0;
+        //players.reserve(playerDefinitions.size());
         playerAnimations = std::make_unique<PlayerAnimations>(resources.getPlayerAnimation());
         for (const PlayerDefinition &playerDef : playerDefinitions) {
             console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
             skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, *playerAnimations));
             players.emplace_back(
-                    playerDef.getPerson(), skins.back(), playerDef.getSounds(), playerDef.getControls());
-            playerIndex++;
+                playerDef.getPerson(),
+                skins.back(),
+                playerDef.getSounds(),
+                playerDef.getControls(),
+                maxPlayerId++,
+                playerDef.getTeam());
         }
 
         this->levels = levels;
@@ -129,6 +147,52 @@ namespace Duel6 {
         settings.setScreenZoom(screenZoom);
         gameMode.initializeGame(*this, players, settings.isQuickLiquid(), settings.isGlobalAssistances());
         startRound();
+    }
+    void Game::joinPlayers(std::vector<PlayerDefinition> &playerDefinitions) {
+        gameMode->initializePlayers(playerDefinitions);
+        for(auto & d : playerDefinitions){
+            joinPlayer(d);
+        }
+        gameMode->initializePlayersMidGame(players);
+    }
+
+    void Game::joinPlayer(PlayerDefinition &playerDefinition) { // TODO private
+
+        Console &console = appService.getConsole();
+        TextureManager &textureManager = appService.getTextureManager();
+        console.printLine(Format("...Player joined ... Generating player for person: {0}") << playerDefinition.getPerson().getName());
+        Int32 pos = 0;
+        for (const auto &player : players) {
+            if (player.isDeleted()) {
+                skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations);
+                players[pos] = {playerDefinition.getPerson(),
+                    skins[pos],
+                    playerDefinition.getSounds(),
+                    playerDefinition.getControls(),
+                    maxPlayerId++,
+                    playerDefinition.getTeam()};
+                return;
+            }
+            pos++;
+        }
+        skins.push_back(PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations));
+        players.emplace_back(playerDefinition.getPerson(),
+            skins.back(),
+            playerDefinition.getSounds(),
+            playerDefinition.getControls(),
+            maxPlayerId++,
+            playerDefinition.getTeam());
+
+    }
+
+    void Game::disconnectPlayers(std::vector<Int32> ids) {
+        for(auto & id: ids) {
+            for (auto &player : players) {
+                if(player.getId() == id) {
+                    player.setDeleted(true);
+                }
+            }
+        }
     }
 
     void Game::startRound() {
@@ -169,7 +233,7 @@ namespace Duel6 {
     }
 
     void Game::nextRound() {
-        if(isServer){
+        if (isServer) {
             gameProxy->nextRound();
             onNextRound();
         }

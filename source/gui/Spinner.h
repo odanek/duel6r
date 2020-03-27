@@ -36,7 +36,13 @@ namespace Duel6 {
         class Spinner
                 : public Control {
         public:
+            struct ItemColor {
+                Color font;
+                Color background;
+            };
+
             typedef std::function<void(Int32 selectedIndex)> ToggleCallback;
+            typedef std::function<ItemColor(Int32 index, const std::string& label)> ColorizeCallback;
 
         private:
             std::vector<ToggleCallback> toggleListeners;
@@ -45,6 +51,7 @@ namespace Duel6 {
             Int32 width;
             std::vector<std::pair<Int32, std::string> > items;
             Float32 repeatWait;
+            ColorizeCallback colorizeCallback = defaultColorize;
 
         public:
             explicit Spinner(Desktop &desk);
@@ -71,6 +78,12 @@ namespace Duel6 {
                 toggleListeners.push_back(listener);
                 return *this;
             }
+
+            Spinner &onColorize(ColorizeCallback callback) {
+                colorizeCallback = callback;
+                return *this;
+            }
+            static ItemColor defaultColorize(Int32 index, const std::string& item);
 
         protected:
             void update(Float32 elapsedTime) override;

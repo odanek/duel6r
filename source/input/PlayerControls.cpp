@@ -54,8 +54,14 @@ namespace Duel6 {
     }
     std::unique_ptr<PlayerControls>
     PlayerControls::noOpControls(const std::string &name) {
-        auto _ = new NoOpControl();
-        return std::make_unique<PlayerControls>(name, _, _, _, _, _, _, _);
+        return std::make_unique<PlayerControls>(name,
+            new NoOpControl(),
+            new NoOpControl(),
+            new NoOpControl(),
+            new NoOpControl(),
+            new NoOpControl(),
+            new NoOpControl(),
+            new NoOpControl());
     }
     std::unique_ptr<PlayerControls>
     PlayerControls::keyboardControls(const std::string &name, const Input &input, SDL_Keycode left, SDL_Keycode right,

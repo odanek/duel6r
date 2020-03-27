@@ -114,6 +114,9 @@ namespace Duel6 {
             drawFrame(renderer, x + 20, y, width - 40, 18, true);
             renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
 
+
+
+
             Int32 px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
             Int32 py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
             renderer.triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);
@@ -124,8 +127,17 @@ namespace Duel6 {
 
             if (items.empty())
                 return;
+            ItemColor colors = colorizeCallback(selectedIndex, items[selectedIndex].second);
 
-            font.print(x + 25, y - 15, Color::BLACK, items[selectedIndex].second);
+            Color fontColor = colors.font;
+            Color bcgColor =  colors.background;
+
+            renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15),bcgColor);
+            font.print(x + 25, y - 15, fontColor, items[selectedIndex].second);
+        }
+
+        Spinner::ItemColor Spinner::defaultColorize(Int32 index, const std::string& item) {
+            return {Color::BLACK, Color::WHITE};
         }
     }
 }

@@ -45,6 +45,7 @@
 #include "GameResources.h"
 #include "Round.h"
 #include "net/GameProxy.h"
+
 namespace Duel6 {
     class GameMode;
 
@@ -60,11 +61,11 @@ namespace Duel6 {
             PlayerSkinColors colors;
             const PlayerSounds &sounds;
             const PlayerControls &controls;
-
+            Int32 team;
         public:
             PlayerDefinition(Person &person, const PlayerSkinColors &colors, const PlayerSounds &sounds,
-                             const PlayerControls &controls)
-                    : person(person), colors(colors), sounds(sounds), controls(controls) {}
+                             const PlayerControls &controls, Int32 team)
+                    : person(person), colors(colors), sounds(sounds), controls(controls), team(team) {}
 
             Person &getPerson() const {
                 return person;
@@ -84,6 +85,10 @@ namespace Duel6 {
 
             const PlayerControls &getControls() const {
                 return controls;
+            }
+
+            Int32 getTeam() const {
+                return team;
             }
         };
 
@@ -108,14 +113,20 @@ namespace Duel6 {
         std::vector<PlayerSkin> skins;
         std::unique_ptr<PlayerAnimations> playerAnimations;
         bool displayScoreTab = false;
-
+        Int32 maxPlayerId = 0;
     public:
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
         void setGameProxyReference(net::GameProxy & serverGameProxy) {
             this->gameProxy = &serverGameProxy;
         }
-        void start(const std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
+        void start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
                    const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode);
+
+        void joinPlayer(PlayerDefinition &playerDefinitions);
+
+        void joinPlayers(std::vector<PlayerDefinition> &playerDefinitions);
+
+        void disconnectPlayers(std::vector<Int32> ids);
 
         void keyEvent(const KeyPressEvent &event) override;
 
