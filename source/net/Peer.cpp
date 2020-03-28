@@ -107,7 +107,8 @@ namespace Duel6 {
             return true;
         }
         void Peer::requestGameState() {
-            send(RequestGameState());
+
+            send(gameProxy->getRequestGameState());
         }
         bool Peer::onDisconnected(ENetPeer *me, enet_uint32 reason) {
             if (state == PeerState::DISCONNECTED) {

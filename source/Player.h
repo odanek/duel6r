@@ -141,6 +141,8 @@ namespace Duel6 {
         Int32 team;
 
     public:
+        bool local = false;
+
         Uint32 getControllerState(){
             return controllerState;
         }

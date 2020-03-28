@@ -62,7 +62,9 @@ namespace Duel6 {
         void end();
 
         void keyEvent(const KeyPressEvent &event);
-
+        World &getWorld() {
+            return world;
+        }
         const World &getWorld() const {
             return world;
         }

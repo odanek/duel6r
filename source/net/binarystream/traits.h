@@ -16,13 +16,19 @@
 template <typename Container>
 struct is_serializable_container : std::false_type { };
 
-template <typename... Ts> struct is_serializable_container<std::array<Ts...> > : std::true_type { };
+template <typename T, std::size_t S> struct is_serializable_container<std::array<T, S> > : std::true_type { };
 template <typename... Ts> struct is_serializable_container<std::deque<Ts...> > : std::true_type { };
 template <typename... Ts> struct is_serializable_container<std::forward_list<Ts...> > : std::true_type { };
 template <typename... Ts> struct is_serializable_container<std::list<Ts...> > : std::true_type { };
 template <typename... Ts> struct is_serializable_container<std::set<Ts...> > : std::true_type { };
+
 template <typename... Ts> struct is_serializable_container<std::queue<Ts...> > : std::true_type { };
 template <typename... Ts> struct is_serializable_container<std::vector<Ts...> > : std::true_type { };
+
+template<typename Container>
+struct is_array: std::false_type {};
+template<typename Ts, std::size_t Sz>
+struct is_array<std::array<Ts,Sz>> : std::true_type {};
 
 //has push_back
 template <typename Container>
@@ -37,6 +43,7 @@ template <typename Container>
 struct is_set_container : std::false_type { };
 
 template <typename... Ts> struct is_set_container<std::set<Ts...> > : std::true_type { };
+template <typename T> struct is_set_container<std::set<T> > : std::true_type { };
 
 template <typename Container>
 struct is_associative_container : std::false_type { };

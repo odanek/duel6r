@@ -10,6 +10,7 @@
 #include "object/objects.h"
 #include "event/events.h"
 #include "Peer.h"
+
 namespace Duel6 {
     class Game;
     namespace net {

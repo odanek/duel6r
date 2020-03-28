@@ -7,9 +7,9 @@
 
 #ifndef SOURCE_NET_CLIENTGAMEPROXY_H_
 #define SOURCE_NET_CLIENTGAMEPROXY_H_
-
+#include <list>
 #include "GameProxy.h"
-
+#include "../Person.h"
 namespace Duel6 {
     class Game;
     class Player;
@@ -17,7 +17,9 @@ namespace Duel6 {
 
         class ClientGameProxy: public GameProxy {
             Game *game;
-            public:
+            std::list<Person> persons;
+
+        public:
             ClientGameProxy();
             virtual ~ClientGameProxy();
 
@@ -41,7 +43,9 @@ namespace Duel6 {
             void handle(Peer &peer, RequestGameState &r) override;
             void handle(ObjectBase &o) override;
             void handle(EventBase &e) override;
-            protected:
+
+            RequestGameState getRequestGameState();
+        protected:
             void nextRound() override;
 
         };

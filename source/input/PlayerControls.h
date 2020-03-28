@@ -189,6 +189,9 @@ namespace Duel6 {
         const PlayerControls &get(Size index) const {
             return *controls[index];
         }
+        static const PlayerControls &getNoop() {
+            return *PlayerControlsManager::noopControls;
+        }
     };
 }
 

@@ -204,7 +204,13 @@ public:
         write(s.c_str(), size);
         return good();
     }
+    bool operator <<(const std::string & s) {
+        uint32_t size = s.length();
+        writeSize(size);
 
+        write(s.c_str(), size);
+        return good();
+    }
     bool operator <<(std::u16string & s) {
         uint32_t size = s.length();
         writeSize(size);
@@ -383,35 +389,6 @@ public:
         return true;
     }
 
-    template<typename T, typename std::enable_if<is_serializable_container<T>::value && !is_associative_container<T>{}, int>::type = 0>
-    bool operator <<(T & s) {
-        writeSize(s.size());
-        for (auto & t : s) {
-            *this << t;
-            if (!good()) {
-                return false;
-            }
-        }
-        return good();
-    }
-
-    template<typename T, typename std::enable_if<is_serializable_container<T>{} && !is_associative_container<T>{} && !is_set_container<T>{}, int>::type = 0>
-    bool operator >>(T & l) {
-        l.clear();
-        uint32_t size = readSize();
-
-        for (uint32_t i = 0; i < size; ++i) {
-            if (!good()) return false;
-            typename T::value_type t;
-            *this >> t;
-            if (!good()) {
-                return false;
-            }
-            l.push_back(t);
-        }
-        return true;
-    }
-
     template<typename T, typename std::enable_if<is_set_container<T>::value, int>::type = 0>
     bool operator >>(T & l) {
         l.clear();
@@ -428,6 +405,71 @@ public:
         }
         return true;
     }
+    template<typename T, typename std::enable_if<is_serializable_container<T>{} && !is_associative_container<T>{} && !is_set_container<T>{}, int>::type = 0>
+    bool operator <<(T & s) {
+        writeSize(s.size());
+        for (auto & t : s) {
+            *this << t;
+            if (!good()) {
+                return false;
+            }
+        }
+        return good();
+    }
+    template<typename T, typename std::enable_if<is_set_container<T>::value && !is_associative_container<T>{}, int>::type = 0>
+    bool operator <<(T & s) {
+        writeSize(s.size());
+        for (auto & t : s) {
+            *this << t;
+            if (!good()) {
+                return false;
+            }
+        }
+        return good();
+    }
+    template<typename T, typename std::enable_if<is_set_container<T>::value && !is_associative_container<T>{}, int>::type = 0>
+    bool operator <<(const T & s) {
+        writeSize(s.size());
+        for (auto & t : s) {
+            *this << t;
+            if (!good()) {
+                return false;
+            }
+        }
+        return good();
+    }
+    template<typename T, typename std::enable_if<is_array<T>{}, int>::type = 0>
+    bool operator >>(T & l) {
+        uint32_t size = readSize();
+
+        for (uint32_t i = 0; i < size; ++i) {
+            if (!good()) return false;
+            typename T::value_type t;
+            *this >> t;
+            if (!good()) {
+                return false;
+            }
+            l[i] = t;
+        }
+        return true;
+    }
+    template<typename T, typename std::enable_if<is_serializable_container<T>{} && !is_associative_container<T>{} && !is_set_container<T>{} && !is_array<T>{}, int>::type = 0>
+    bool operator >>(T & l) {
+        l.clear();
+        uint32_t size = readSize();
+
+        for (uint32_t i = 0; i < size; ++i) {
+            if (!good()) return false;
+            typename T::value_type t;
+            *this >> t;
+            if (!good()) {
+                return false;
+            }
+            l.push_back(t);
+        }
+        return true;
+    }
+
 
     template<typename F, typename S>
     bool operator << (std::pair<F, S> & p){
@@ -454,7 +496,7 @@ public:
         return serialize(b, c);
     }
 
-    template<typename C, typename std::enable_if<(std::is_class<C> {} || std::is_enum<C> {}) && !is_serializable_container<C> {} && !is_associative_container<C> {}, int>::type = 0>
+    template<typename C, typename std::enable_if<(std::is_class<C> {} || std::is_enum<C> {}) && !is_serializable_container<C>::value && !is_associative_container<C> {}, int>::type = 0>
     bool operator <<(C & c) {
         BinarySerializer<streamtype> b(*this);
         return serialize(b, c);

@@ -129,13 +129,14 @@ namespace Duel6 {
         for (const PlayerDefinition &playerDef : playerDefinitions) {
             console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
             skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, *playerAnimations));
-            players.emplace_back(
+            Player & p = players.emplace_back(
                 playerDef.getPerson(),
                 skins.back(),
                 playerDef.getSounds(),
                 playerDef.getControls(),
                 maxPlayerId++,
                 playerDef.getTeam());
+            p.local = true;
         }
 
         this->levels = levels;
@@ -154,6 +155,7 @@ namespace Duel6 {
             joinPlayer(d);
         }
         gameMode->initializePlayersMidGame(players);
+        gameMode->initializePlayerPositions(*this, players, this->round->getWorld() );
     }
 
     void Game::joinPlayer(PlayerDefinition &playerDefinition) { // TODO private
