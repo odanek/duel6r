@@ -210,11 +210,16 @@ namespace Duel6 {
         console.printLine(Format("\n===Loading level {0}===") << levelPath);
         console.printLine(Format("...Parameters: mirror: {0}") << mirror);
 
-        round = std::make_unique<Round>(*this, playedRounds, levelPath, mirror);
+        std::unique_ptr<Level> levelData;
+        levelData = std::make_unique<Level>(levelPath, mirror, resources.getBlockMeta());
+ // todo netgame
+
+        round = std::make_unique<Round>(*this, playedRounds, std::move(levelData));
         round->setOnRoundEnd([this]() {
             onRoundEnd();
         });
         round->start();
+        //TODO NET send roundstart (players pos)
         worldRenderer.prerender();
     }
 

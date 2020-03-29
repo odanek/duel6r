@@ -14,6 +14,7 @@ namespace Duel6::net {
         PLAYER,
         SHOT,
         CLIENT,
+        WORLD,
         MAX_COUNT
     };
 

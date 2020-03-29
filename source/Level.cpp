@@ -32,9 +32,29 @@
 #include "GameException.h"
 
 namespace Duel6 {
+    Level::Level(const Int32 width, const Int32 height,
+                 const std::vector<Uint16> & levelData,
+                 const Uint16 waterBlock,
+                 const Block::Meta &blockMeta,
+                 const std::string & background,
+                 const std::vector<Elevator> & elevators)
+        : blockMeta(blockMeta),
+          width(width),
+          height(height),
+          background(background),
+          waterBlock(waterBlock),
+          levelData(levelData),
+          raisingWater(false),
+          elevators(elevators) {
+        waterLevel = findWaterLevel(waterBlock);
+    }
     Level::Level(const std::string &path, bool mirror, const Block::Meta &blockMeta)
             : blockMeta(blockMeta), raisingWater(false) {
         load(path, mirror);
+    }
+
+    const std::vector<Elevator> &Level::getElevators() {
+        return elevators;
     }
 
     void Level::load(const std::string &path, bool mirror) {
@@ -58,6 +78,22 @@ namespace Duel6 {
         }
         waterBlock = findWaterType();
         waterLevel = findWaterLevel(waterBlock);
+
+        Size elevators = root.get("elevators").getLength();
+        this->elevators.reserve(elevators);
+        for (Size i = 0; i < elevators; i++) {
+            Json::Value definition = root.get("elevators").get(i);
+            bool circular = definition.getOrDefault("circular", Json::Value::makeBoolean(false)).asBoolean();
+            Elevator elevator(circular);
+            Json::Value points = definition.get("controlPoints");
+            for (Size j = 0; j < points.getLength(); j++) {
+                Int32 x = points.get(j).get("x").asInt();
+                Int32 y = points.get(j).get("y").asInt();
+                Int32 wait = points.get(j).getOrDefault("wait", Json::Value::makeNumber(0)).asInt();
+                elevator.addControlPoint(Elevator::ControlPoint(mirror ? width - 1 - x : x, height - y, wait));
+            }
+            this->elevators.push_back(elevator);
+        }
     }
 
     void Level::mirrorLevelData() {

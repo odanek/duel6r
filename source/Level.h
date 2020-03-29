@@ -33,7 +33,8 @@
 #include <vector>
 #include "Block.h"
 #include "Water.h"
-
+#include "Elevator.h"
+#include "Type.h"
 namespace Duel6 {
     class Game;
 
@@ -47,12 +48,20 @@ namespace Duel6 {
         Int32 width;
         Int32 height;
         std::string background;
-        std::vector<Uint16> levelData;
         Uint16 waterBlock;
+        std::vector<Uint16> levelData;
         Int32 waterLevel;
         bool raisingWater;
+        std::vector<Elevator> elevators;
 
     public:
+        Level(const Int32 width, const Int32 height,
+              const std::vector<Uint16> & levelData,
+              const Uint16 waterBlock,
+              const Block::Meta & blockMeta,
+              const std::string & background,
+              const std::vector<Elevator> & elevators);
+
         Level(const std::string &path, bool mirror, const Block::Meta &blockMeta);
 
         Int32 getWidth() const {
@@ -63,9 +72,19 @@ namespace Duel6 {
             return height;
         }
 
+        const std::vector<Uint16> &getLevelData() const {
+            return levelData;
+        }
+
+        Uint16 getWaterBlock() const {
+            return waterBlock;
+        }
+
         std::string getBackground() const {
             return background;
         }
+
+        const std::vector<Elevator> &getElevators();
 
         bool isEmpty(Int32 x, Int32 y) const {
             return isInside(x, y) ? getBlockMeta(x, y).is(Block::Type::EmptySpace) : false;

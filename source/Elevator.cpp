@@ -36,6 +36,9 @@ namespace Duel6 {
             : circular(circular) {}
 
     void Elevator::start() {
+        if(started){
+            return;
+        }
         position = controlPoints[0].getLocation();
         section = 0;
         forward = true;
@@ -48,6 +51,7 @@ namespace Duel6 {
             travelled = 0;
             velocity = Vector::ZERO;
         }
+        started = true;
     }
 
     void Elevator::update(Float32 elapsedTime) {
@@ -108,6 +112,26 @@ namespace Duel6 {
         }
 
         startSection();
+    }
+
+    Elevator::Elevator(const std::vector<ControlPoint> &controlPoints,
+                       bool circular,
+                       Size section,
+                       Float32 remainingWait,
+                       bool forward,
+                       Float32 distance,
+                       Float32 travelled,
+                       Vector &position,
+                       Vector &velocity)
+        : controlPoints(controlPoints),
+          circular(circular),
+          section(section),
+          remainingWait(remainingWait),
+          forward(forward),
+          distance(distance),
+          travelled(travelled),
+          position(position),
+          velocity(velocity) {
     }
 
     void Elevator::startSection() {

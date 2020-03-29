@@ -30,17 +30,18 @@
 #include "Weapon.h"
 
 namespace Duel6 {
-    World::World(Game &game, const std::string &levelPath, bool mirror)
+    World::World(Game &game, std::unique_ptr<Level> levelData)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
-              level(levelPath, mirror, game.getResources().getBlockMeta()),
-              levelRenderData(level, game.getAppService().getVideo().getRenderer(), gameSettings.getScreenMode(),
+              level(std::move(levelData)),
+//              level(levelPath, mirror, game.getResources().getBlockMeta()),
+              levelRenderData(*level, game.getAppService().getVideo().getRenderer(), gameSettings.getScreenMode(),
                               D6_ANM_SPEED), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game.getResources(), *this),
               elevatorList(game.getResources().getElevatorTextures()), time(0) {
         Console &console = game.getAppService().getConsole();
-        console.printLine(Format("...Width   : {0}") << level.getWidth());
-        console.printLine(Format("...Height  : {0}") << level.getHeight());
+        console.printLine(Format("...Width   : {0}") << level->getWidth());
+        console.printLine(Format("...Height  : {0}") << level->getHeight());
         console.printLine("...Preparing faces");
         levelRenderData.generateFaces();
         console.printLine(Format("...Walls   : {0}") << levelRenderData.getWalls().getFaces().size());
@@ -49,8 +50,8 @@ namespace Duel6 {
 
         console.printLine("...Level initialization");
         console.printLine("...Loading elevators");
-        elevatorList.load(levelPath, mirror);
-        fireList.find(level);
+        elevatorList.load(level->getElevators());
+        fireList.find(*level);
         background = findBackground(game.getResources().getBcgTextures());
     }
 

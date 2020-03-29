@@ -44,7 +44,7 @@ namespace Duel6 {
     private:
         const GameSettings &gameSettings;
         std::vector<Player> &players;
-        Level level;
+        std::unique_ptr<Level> level;
         std::string background;
         LevelRenderData levelRenderData;
         InfoMessageQueue messageQueue;
@@ -57,7 +57,7 @@ namespace Duel6 {
         Float32 time;
 
     public:
-        World(Game &game, const std::string &levelPath, bool mirror);
+        World(Game &game, std::unique_ptr<Level> && levelData);
 
         void update(Float32 elapsedTime);
 
@@ -76,11 +76,11 @@ namespace Duel6 {
         }
 
         Level &getLevel() {
-            return level;
+            return *level;
         }
 
         const Level &getLevel() const {
-            return level;
+            return *level;
         }
 
         LevelRenderData &getLevelRenderData() {

@@ -47,6 +47,8 @@ namespace Duel6 {
 
         void load(const std::string &path, bool mirror);
 
+        void load(const std::vector<Elevator> & elevators);
+
         void add(Elevator &elevator);
 
         void update(Float32 elapsedTime);

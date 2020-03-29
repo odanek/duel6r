@@ -33,8 +33,8 @@
 #include "PersonProfile.h"
 
 namespace Duel6 {
-    Round::Round(Game &game, Int32 roundNumber, const std::string &levelPath, bool mirror)
-            : game(game), roundNumber(roundNumber), world(game, levelPath, mirror),
+    Round::Round(Game &game, Int32 roundNumber, std::unique_ptr<Level> && level)
+            : game(game), roundNumber(roundNumber), world(game, std::move(level)),
               suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
               winner(false), scriptContext(world) {}
 

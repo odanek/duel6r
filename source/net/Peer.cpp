@@ -27,6 +27,8 @@ namespace Duel6 {
                 break;
             case ObjectType::CLIENT:
                 break;
+            case ObjectType::WORLD:
+                break;
             case ObjectType::MAX_COUNT:
                 break;
             }

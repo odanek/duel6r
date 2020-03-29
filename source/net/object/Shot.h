@@ -16,7 +16,7 @@ namespace Duel6::net {
     class Shot: public Object<Shot, ObjectType::SHOT> {
     public:
         object_id_t id = 0;
-        Vector_Net position;
+        Vector position;
 
         Shot() {
         }

@@ -10,7 +10,7 @@
 
 #include <array>
 #include "../Event.h"
-
+#include "../../Type.h"
 namespace Duel6::net {
 
 

@@ -53,7 +53,7 @@ namespace Duel6 {
         std::function<void()> onRoundEnd;
 
     public:
-        Round(Game &game, Int32 roundNumber, const std::string &levelPath, bool mirror);
+        Round(Game &game, Int32 roundNumber, std::unique_ptr<Level> && level);
 
         void start();
 

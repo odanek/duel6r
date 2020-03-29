@@ -35,7 +35,11 @@
 #include "renderer/Renderer.h"
 
 namespace Duel6 {
+    namespace net {
+        class Elevator;
+    }
     class Elevator {
+        friend class Duel6::net::Elevator;
     public:
         class ControlPoint {
         private:
@@ -65,9 +69,20 @@ namespace Duel6 {
         Float32 travelled;
         Vector position;
         Vector velocity;
+        bool started = false;
 
     public:
         explicit Elevator(bool circular);
+
+        Elevator(const std::vector<ControlPoint> &controlPoints,
+                 bool circular,
+                 Size section,
+                 Float32 remainingWait,
+                 bool forward,
+                 Float32 distance,
+                 Float32 travelled,
+                 Vector &position,
+                 Vector &velocity);
 
         Elevator &addControlPoint(const ControlPoint &point) {
             controlPoints.push_back(point);

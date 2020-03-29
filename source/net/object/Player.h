@@ -14,7 +14,7 @@ namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
         object_id_t id = 0;
-        Vector_Net position;
+        Vector position;
         uint32_t controls;
         Player() {
         }

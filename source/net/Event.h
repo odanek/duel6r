@@ -8,7 +8,6 @@
 #ifndef SOURCE_NET_MESSAGE_MESSAGEBASE_H_
 #define SOURCE_NET_MESSAGE_MESSAGEBASE_H_
 #include "Type.h"
-#include "../Type.h"
 #include "Message.h"
 namespace Duel6 {
     namespace net {
