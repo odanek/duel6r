@@ -49,6 +49,9 @@ namespace Duel6 {
 
     void Game::beforeClose(Context *nextContext) {
         endRound();
+        if(isServer){
+            appService.getNetHost().die();
+        }
     }
 
     void Game::render() const {

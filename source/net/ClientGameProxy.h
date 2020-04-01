@@ -10,6 +10,7 @@
 #include <list>
 #include "GameProxy.h"
 #include "../Person.h"
+#include "../PlayerSounds.h"
 namespace Duel6 {
     class Game;
     class Player;
@@ -20,15 +21,13 @@ namespace Duel6 {
             std::list<Person> persons;
             std::map<Int32, Int32> idmap; //player mapping
             std::map<Int32, Int32> idmapBack; //player mapping
-
+            PlayerSounds defaultSounds;
             Int32 clientId = 0; // will be set upon receiving gamestate from server
         public:
             ClientGameProxy();
             virtual ~ClientGameProxy();
 
-            void setGameReference(Game &g) {
-                game = &g;
-            }
+            void setGameReference(Game &g);
 
             void handle(Player &p);
             void handle(GameState &s);

@@ -146,8 +146,9 @@ namespace Duel6 {
         std::vector<PlayerSkin> skins;
         std::unique_ptr<PlayerAnimations> playerAnimations;
         bool displayScoreTab = false;
-        Int32 maxPlayerId = 0;
+
     public:
+        Int32 maxPlayerId = 0;
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
         void setGameProxyReference(net::GameProxy & serverGameProxy) {
             this->gameProxy = &serverGameProxy;

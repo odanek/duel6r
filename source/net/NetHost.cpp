@@ -64,6 +64,12 @@ namespace Duel6 {
             for (auto &peer : peers) {
                 peer->disconnect();
             }
+            for (const auto &p : peers) {
+                if (p->getState() != PeerState::DISCONNECTED) {
+                    return;
+                }
+            }
+            stopped();
         }
 
         void NetHost::onStopped() {

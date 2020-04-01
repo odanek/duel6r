@@ -22,12 +22,20 @@ namespace Duel6 {
         {
             // TODO Auto-generated destructor stub
         }
-
+        void ClientGameProxy::setGameReference(Game &g) {
+            game = &g;
+            defaultSounds = PlayerSounds::makeDefault(game->getAppService().getSound());
+        }
         void ClientGameProxy::handle(Player &p) {
             auto &position = p.position;
             auto pos = idmap[p.id]; /// ASI NECO BLBE
-            game->players[pos].setPosition(position.x, position.y, position.z);
-            game->players[pos].setControllerState(p.controls);
+
+            if(!game->isServer){
+                game->players[pos].setPosition(position.x, position.y, position.z);
+            }
+            if(!game->players[pos].local){
+                game->players[pos].setControllerState(p.controls);
+            }
         }
         void ClientGameProxy::handle(GameStateUpdate &gsu) {
             for(auto & p : gsu.players){
@@ -67,7 +75,7 @@ namespace Duel6 {
                 w.raisingWater,
                 elevators
                 ));
-
+            game->maxPlayerId = 0; // todo: reset players counter
             std::vector<Game::PlayerDefinition> playerDefinitions;
                         playerDefinitions.reserve(sr.players.size());
 
@@ -97,7 +105,7 @@ namespace Duel6 {
                             playerDefinitions.emplace_back(
                                 person,
                                 colors,
-                                PlayerSounds::makeDefault(game->getAppService().getSound()),
+                                defaultSounds,
                                 PlayerControlsManager::getNoop(),
                                 p.team,
                                 p.clientId,
@@ -137,7 +145,7 @@ namespace Duel6 {
                 playerDefinitions.emplace_back(
                     person,
                     colors,
-                    PlayerSounds::makeDefault(game->getAppService().getSound()),
+                    defaultSounds,
                     PlayerControlsManager::getNoop(),
                     p.team,
                     peer.getIncomingPeerID() + 100,

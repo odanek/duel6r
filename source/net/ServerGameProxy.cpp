@@ -81,12 +81,15 @@ namespace Duel6 {
             gsu.players.reserve(game.getPlayers().size());
 
             for (auto &player : game.getPlayers()) {
+
                 Player p;
                 p.id = player.getId();
                 p.clientLocalId = player.getClientLocalId();
                 const auto &playerPosition = player.getPosition();
                 p.position = { playerPosition.x, playerPosition.y, playerPosition.z };
-                p.controls = player.getControllerState();
+                if(player.local){
+                    p.controls = player.getControllerState();
+                }
                 gsu.players.push_back(p);
             }
 

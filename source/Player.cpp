@@ -394,7 +394,9 @@ namespace Duel6 {
     }
 
     void Player::updateControllerStatus() {
-        controllerState = 0;
+        if(local){
+            controllerState = 0;
+        }
         const PlayerControls & controls = *this->controls;
         if (controls.getLeft().isPressed()) {
             controllerState |= ButtonLeft;
