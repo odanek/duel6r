@@ -45,6 +45,23 @@ namespace Duel6 {
         }
     }
 
+    void GameModeBase::joinPlayers(Game &game, std::vector<Player> &players, std::vector<size_t> joined, World &world) {
+        game.getAppService().getConsole().printLine("...Preparing base players");
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
+        std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
+
+        Size playerIndex = 0;
+        for (Player &player : players) {
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
+            Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];
+            player.startRound(world, position.first, position.second, ammo,
+                Weapon::getRandomEnabled(game.getSettings()));
+            playerIndex++;
+        }
+    }
+
     Ranking GameModeBase::getRanking(const std::vector<Player> &players) const {
         std::vector<const Player *> ranking;
         for (const Player &player : players) {

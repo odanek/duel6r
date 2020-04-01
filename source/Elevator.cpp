@@ -122,7 +122,8 @@ namespace Duel6 {
                        Float32 distance,
                        Float32 travelled,
                        Vector &position,
-                       Vector &velocity)
+                       Vector &velocity,
+                       bool started)
         : controlPoints(controlPoints),
           circular(circular),
           section(section),
@@ -131,9 +132,30 @@ namespace Duel6 {
           distance(distance),
           travelled(travelled),
           position(position),
-          velocity(velocity) {
+          velocity(velocity),
+          started(started){
     }
-
+    Elevator::Elevator(std::vector<ControlPoint> &&controlPoints,
+                           bool circular,
+                           Size section,
+                           Float32 remainingWait,
+                           bool forward,
+                           Float32 distance,
+                           Float32 travelled,
+                           Vector &&position,
+                           Vector &&velocity,
+                           bool started)
+            : controlPoints(controlPoints),
+              circular(circular),
+              section(section),
+              remainingWait(remainingWait),
+              forward(forward),
+              distance(distance),
+              travelled(travelled),
+              position(position),
+              velocity(velocity),
+              started(started){
+        }
     void Elevator::startSection() {
         Size pointCount = controlPoints.size();
         Size startIndex = section;

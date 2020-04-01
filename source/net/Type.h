@@ -15,6 +15,7 @@ namespace Duel6 {
         typedef uint8_t  type_t; //for enums
         typedef uint16_t port_t;
         typedef uint16_t object_id_t;
+        typedef uint16_t peer_id_t;
     }
 }
 

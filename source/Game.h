@@ -47,14 +47,19 @@
 #include "net/GameProxy.h"
 
 namespace Duel6 {
+    namespace net {
+        class ClientGameProxy;
+    }
     class GameMode;
 
     class Menu;
 
-    class Game : public Context {
+    class Game: public Context {
+        friend class Duel6::net::ClientGameProxy;
 
     public:
         bool isServer = false;
+        bool isRunning = false;
         class PlayerDefinition {
         private:
             Person &person;
@@ -62,10 +67,21 @@ namespace Duel6 {
             const PlayerSounds &sounds;
             const PlayerControls &controls;
             Int32 team;
+            Int32 playerId;
+            Int32 clientId;
+            Int32 clientLocalId;
         public:
+            Int32 playerPos;
             PlayerDefinition(Person &person, const PlayerSkinColors &colors, const PlayerSounds &sounds,
-                             const PlayerControls &controls, Int32 team)
-                    : person(person), colors(colors), sounds(sounds), controls(controls), team(team) {}
+                             const PlayerControls &controls, Int32 team, Int32 clientId, Int32 clientLocalId)
+                : person(person),
+                  colors(colors),
+                  sounds(sounds),
+                  controls(controls),
+                  team(team),
+                  clientId(clientId),
+                  clientLocalId(clientLocalId) {
+            }
 
             Person &getPerson() const {
                 return person;
@@ -90,9 +106,26 @@ namespace Duel6 {
             Int32 getTeam() const {
                 return team;
             }
+
+            Int32 getClientId() const {
+                return clientId;
+            }
+
+            Int32 getClientLocalId() const {
+                return clientLocalId;
+            }
+
+            Int32 getPlayerId() const {
+                return playerId;
+            }
+
+            void setPlayerId(Int32 playerId) {
+                this->playerId = playerId;
+            }
         };
 
     private:
+        friend class net::GameProxy;
         friend class net::ClientGameProxy;
         AppService &appService;
         GameResources &resources;
@@ -122,7 +155,7 @@ namespace Duel6 {
         void start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
                    const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode);
 
-        void joinPlayer(PlayerDefinition &playerDefinitions);
+        size_t joinPlayer(PlayerDefinition &playerDefinitions);
 
         void joinPlayers(std::vector<PlayerDefinition> &playerDefinitions);
 
@@ -230,7 +263,11 @@ namespace Duel6 {
 
         void beforeClose(Context *nextContext) override;
 
+        void onStartRound(std::unique_ptr<Level> && levelData);
+
         void startRound();
+
+        void startRound(std::unique_ptr<Level> && levelData, std::function<void()> callback);
 
         void nextRound();
 

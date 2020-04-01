@@ -39,7 +39,7 @@ namespace Duel6 {
            // Service *service;
             std::unique_ptr<ENetPeer> peer;
             size_t pos = 0;
-
+            peer_id_t incomingPeerID = 0;
             // SomeAppObject callbacks
         public:
 
@@ -89,6 +89,9 @@ namespace Duel6 {
             }
 
             void requestGameState();
+
+            peer_id_t getIncomingPeerID();
+
         protected:
             void disconnect(bool now);
 

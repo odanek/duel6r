@@ -30,7 +30,7 @@
 #include "Weapon.h"
 
 namespace Duel6 {
-    World::World(Game &game, std::unique_ptr<Level> levelData)
+    World::World(Game &game, std::unique_ptr<Level> && levelData)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
               level(std::move(levelData)),
 //              level(levelPath, mirror, game.getResources().getBlockMeta()),
@@ -74,12 +74,12 @@ namespace Duel6 {
     }
 
     void World::raiseWater() {
-        level.raiseWater();
+        level->raiseWater();
         levelRenderData.generateWater();
     }
 
     std::string World::findBackground(const GameResources::BackgroundList &backgrounds) {
-        const std::string &levelBackground = level.getBackground();
+        const std::string &levelBackground = level->getBackground();
         auto &bcgDict = backgrounds.getTextures();
         if (levelBackground.size() && bcgDict.find(levelBackground) != bcgDict.end()) {
             return levelBackground;

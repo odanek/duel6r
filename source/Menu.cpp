@@ -521,7 +521,7 @@ namespace Duel6 {
             const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentValue().first);
             PlayerSkinColors colors = profile ? profile->getSkinColors() : PlayerSkinColors::makeRandom();
             const PlayerSounds &sounds = profile ? profile->getSounds() : defaultPlayerSounds;
-            playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls, teamControlSwitch[i]->currentValue().first));
+            playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls, teamControlSwitch[i]->currentValue().first, 0, i));
         }
         //selectedMode.initializePlayers(playerDefinitions);
 
@@ -682,8 +682,9 @@ namespace Duel6 {
     }
 
     void Menu::startServer(){
-        play();
         game->isServer = true;
+        play();
+
         appService.getNetHost().listen(*game);
     }
 

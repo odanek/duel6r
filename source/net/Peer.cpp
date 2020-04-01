@@ -27,6 +27,8 @@ namespace Duel6 {
                 break;
             case ObjectType::CLIENT:
                 break;
+            case ObjectType::LEVEL:
+                break;
             case ObjectType::WORLD:
                 break;
             case ObjectType::MAX_COUNT:
@@ -50,7 +52,12 @@ namespace Duel6 {
                 gameProxy->handle(gs);
                 break;
             }
-
+            case EventType::GAME_STATE_UPDATE: {
+                GameStateUpdate gs;
+                s >> gs;
+                gameProxy->handle(gs);
+                break;
+            }
             case EventType::NEXT_ROUND:{
                 NextRound nr;
                 s >> nr;
@@ -67,7 +74,12 @@ namespace Duel6 {
             case EventType::GAME_END:break;
 
             case EventType::ROUND_END:break;
-            case EventType::ROUND_START:break;
+            case EventType::ROUND_START: {
+                    StartRound sr;
+                    s >> sr;
+                    gameProxy->handle(sr);
+                    break;
+                }
             case EventType::ROUND_SET:break;
 
             case EventType::SHOT_UPDATE:break;
@@ -104,6 +116,7 @@ namespace Duel6 {
             if (me != peer.get()) {
                 return false;
             }
+            incomingPeerID = me->incomingPeerID;
             state = PeerState::CONNECTED;
 
             return true;
@@ -132,6 +145,10 @@ namespace Duel6 {
             return true;
         }
 
+        peer_id_t Peer::getIncomingPeerID() {
+            return incomingPeerID;
+        }
+
         void Peer::destroy() {
             state = PeerState::DISCONNECTED;
             if (peer.get() != nullptr) {
@@ -147,16 +164,16 @@ namespace Duel6 {
               peer(peer),
               pos(pos) {
             peer->data = new PeerRef{pos, this};
+            incomingPeerID = peer->incomingPeerID;
             serverGameProxy.add(this);
             state = PeerState::CONNECTED;
         }
         Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer)
-            : gameProxy(&gameProxy),
-              serverGameProxy(&serverGameProxy),
-              peer(peer) {
-            peer->data = new PeerRef{pos, this};
-            serverGameProxy.add(this);
-            state = PeerState::CONNECTING;
+            : Peer(gameProxy,
+                   serverGameProxy,
+                   peer,
+                   0){
+
         }
     } /* namespace net */
 } /* namespace Duel6 */

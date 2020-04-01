@@ -139,10 +139,12 @@ namespace Duel6 {
         CollidingEntity collider;
         Int32 id;
         Int32 team;
+        Int32 clientId;
+        Int32 clientLocalId;
 
     public:
         bool local = false;
-
+        size_t pos;
         Uint32 getControllerState(){
             return controllerState;
         }
@@ -151,7 +153,10 @@ namespace Duel6 {
             this->controllerState = controllerState;
         }
 
-        Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls, Int32 id, Int32 team);
+        Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls, Int32 id, Int32 team,
+               Int32 clientId,
+               Int32 clientLocalId,
+               size_t pos);
         Player(Player &&) = default; //fingers crossed
         Player & operator=(Player &&) = default; //fingers crossed
         ~Player();
@@ -434,6 +439,13 @@ namespace Duel6 {
 
         void setTeam(Int32 id);
 
+        Int32 getClientId() const;
+
+        void setClientId(Int32 id);
+
+        Int32 getClientLocalId() const;
+
+        void setClientLocalId(Int32 id);
     private:
 
 

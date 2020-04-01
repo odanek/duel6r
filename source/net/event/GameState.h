@@ -11,8 +11,11 @@
 #include <list>
 #include "../Event.h"
 #include "../object/Client.h"
+#include "../object/World.h"
+#include "../object/Player.h"
+#include "PlayerProfile.h"
 namespace Duel6::net {
-    enum class GameStateState : uint8_t{
+    enum class GameStateState : type_t {
         WAITING_FOR_PLAYERS,
         RUNNING,
         MAX_COUNT
@@ -36,6 +39,9 @@ namespace Duel6::net {
     public:
         GameStateState state = GameStateState::RUNNING;
     //    std::vector<Client> clients;
+        Int32 clientId;
+        World world;
+        std::vector<PlayerProfile> playerProfiles;
         std::vector<Player> players;
         GameState() {
 
@@ -44,7 +50,9 @@ namespace Duel6::net {
         template<typename Stream>
         bool serialize(Stream &s) {
             return s & state // @suppress("Suggested parenthesis around expression")
-        //        && s & clients // @suppress("Suggested parenthesis around expression")
+                && s & clientId // @suppress("Suggested parenthesis around expression")
+                && s & world // @suppress("Suggested parenthesis around expression")
+                && s & playerProfiles // @suppress("Suggested parenthesis around expression")
                 && s & players; // @suppress("Suggested parenthesis around expression")
         }
     };

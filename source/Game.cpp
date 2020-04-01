@@ -52,10 +52,12 @@ namespace Duel6 {
     }
 
     void Game::render() const {
+        if(!isRunning) return;
         worldRenderer.render();
     }
 
     void Game::update(Float32 elapsedTime) {
+        if(!isRunning) return;
         if (getRound().isOver()) {
             if (!getRound().isLast()) {
                 nextRound();
@@ -63,11 +65,12 @@ namespace Duel6 {
             }
         } else {
             getRound().update(elapsedTime);
-            gameProxy->sendGameState(*this);
+            gameProxy->sendGameStateUpdate(*this);
         }
     }
 
     void Game::keyEvent(const KeyPressEvent &event) {
+        if(!isRunning) return;
         if (event.getCode() == SDLK_ESCAPE && (isOver() || event.withShift())) {
             close();
             return;
@@ -134,8 +137,10 @@ namespace Duel6 {
                 skins.back(),
                 playerDef.getSounds(),
                 playerDef.getControls(),
-                maxPlayerId++,
-                playerDef.getTeam());
+                maxPlayerId,
+                playerDef.getTeam(), 0, maxPlayerId, maxPlayerId);
+            maxPlayerId++;
+
             p.local = true;
         }
 
@@ -147,23 +152,29 @@ namespace Duel6 {
         settings.setScreenMode(screenMode);
         settings.setScreenZoom(screenZoom);
         gameMode.initializeGame(*this, players, settings.isQuickLiquid(), settings.isGlobalAssistances());
-        startRound();
+        if(isServer){
+
+            startRound();
+           // gameProxy->startRound();
+        }
     }
     void Game::joinPlayers(std::vector<PlayerDefinition> &playerDefinitions) {
         gameMode->initializePlayers(playerDefinitions);
+        std::vector<size_t> added;
+        added.reserve(playerDefinitions.size());
         for(auto & d : playerDefinitions){
-            joinPlayer(d);
+            added.push_back(joinPlayer(d));
         }
-        gameMode->initializePlayersMidGame(players);
-        gameMode->initializePlayerPositions(*this, players, this->round->getWorld() );
+        gameMode->joinPlayers(*this, players, added, this->round->getWorld());
+     //   gameMode->initializePlayerPositions(*this, players, this->round->getWorld() );
     }
 
-    void Game::joinPlayer(PlayerDefinition &playerDefinition) { // TODO private
+    size_t Game::joinPlayer(PlayerDefinition &playerDefinition) { // TODO private
 
         Console &console = appService.getConsole();
         TextureManager &textureManager = appService.getTextureManager();
         console.printLine(Format("...Player joined ... Generating player for person: {0}") << playerDefinition.getPerson().getName());
-        Int32 pos = 0;
+        size_t pos = 0;
         for (const auto &player : players) {
             if (player.isDeleted()) {
                 skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations);
@@ -172,8 +183,14 @@ namespace Duel6 {
                     playerDefinition.getSounds(),
                     playerDefinition.getControls(),
                     maxPlayerId++,
-                    playerDefinition.getTeam()};
-                return;
+                    playerDefinition.getTeam(),
+                    playerDefinition.getClientId(),
+                    playerDefinition.getClientLocalId(),
+                    pos
+                };
+                playerDefinition.setPlayerId(maxPlayerId - 1);
+                playerDefinition.playerPos = pos;
+                return pos;
             }
             pos++;
         }
@@ -183,7 +200,15 @@ namespace Duel6 {
             playerDefinition.getSounds(),
             playerDefinition.getControls(),
             maxPlayerId++,
-            playerDefinition.getTeam());
+            playerDefinition.getTeam(),
+            playerDefinition.getClientId(),
+            playerDefinition.getClientLocalId(),
+            pos);
+
+        playerDefinition.setPlayerId(maxPlayerId - 1);
+        playerDefinition.playerPos = pos;
+
+        return pos;
 
     }
 
@@ -196,11 +221,25 @@ namespace Duel6 {
             }
         }
     }
+    //client
+    void Game::onStartRound(std::unique_ptr<Level> && levelData) {
+        levelData->setBlockMeta(resources.getBlockMeta());
+        startRound(std::move(levelData), [](){});
+    }
 
-    void Game::startRound() {
+    void Game::startRound(std::unique_ptr<Level> && levelData, std::function<void()> callback){
+
         currentRound = playedRounds;
         displayScoreTab = false;
-
+        round = std::make_unique<Round>(*this, playedRounds, std::move(levelData));
+        round->setOnRoundEnd(callback);
+        round->start();
+        isRunning = true;
+        //TODO NET send roundstart (players pos)
+        worldRenderer.prerender();
+    }
+    //server
+    void Game::startRound() {
         bool shuffle = settings.getLevelSelectionMode() == LevelSelectionMode::Shuffle;
         Int32 level = shuffle ? playedRounds % Int32(levels.size()) : Math::random(Int32(levels.size()));
         const std::string levelPath = levels[level];
@@ -212,15 +251,14 @@ namespace Duel6 {
 
         std::unique_ptr<Level> levelData;
         levelData = std::make_unique<Level>(levelPath, mirror, resources.getBlockMeta());
- // todo netgame
 
-        round = std::make_unique<Round>(*this, playedRounds, std::move(levelData));
-        round->setOnRoundEnd([this]() {
+        if(isServer){
+            gameProxy->startRound(*levelData);
+        }
+        startRound(std::move(levelData), [this]() {
             onRoundEnd();
         });
-        round->start();
-        //TODO NET send roundstart (players pos)
-        worldRenderer.prerender();
+        // todo netgame
     }
 
     void Game::endRound() {
@@ -236,14 +274,16 @@ namespace Duel6 {
     }
     void Game::onNextRound() {
         endRound();
-        startRound();
+        if (isServer) {
+            startRound();
+        }
     }
 
     void Game::nextRound() {
         if (isServer) {
             gameProxy->nextRound();
-            onNextRound();
         }
+        onNextRound();
     }
 
     Int32 Game::getCurrentRound() const {

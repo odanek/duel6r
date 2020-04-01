@@ -14,6 +14,7 @@ namespace Duel6 {
         enum class EventType : type_t {
             REQUEST_GAME_STATE,
             GAME_STATE,
+            GAME_STATE_UPDATE,
             NEXT_ROUND,
             CLIENT_JOINED,
             CLIENT_DISCONNECTED,

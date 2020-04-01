@@ -52,7 +52,7 @@ namespace Duel6 {
             }
         }
 
-        virtual void initializePlayersMidGame(std::vector<Player> &players) = 0;
+        virtual void joinPlayers(Game &game, std::vector<Player> &players, std::vector<size_t> joined, World &world) = 0;
 
         virtual void initializeGame(Game &game, std::vector<Player> &players, bool quickLiquid = false, bool globalAssistances = false) = 0;
 

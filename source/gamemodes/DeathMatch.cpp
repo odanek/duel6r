@@ -28,14 +28,30 @@
 #include "DeathMatch.h"
 
 namespace Duel6 {
-    void DeathMatch::initializePlayersMidGame(std::vector<Player> &players){
-        for (auto &player : players) {
+    void DeathMatch::joinPlayers(Game &game, std::vector<Player> &players, std::vector<size_t> joined, World &world){
+
+        game.getAppService().getConsole().printLine("...Preparing base players");
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
+        std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
+
+        Size playerIndex = 0;
+        for(size_t i : joined){
+            Player & player = players[i];
             player.setEventListener(*eventListener);
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
+            Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];
+            player.startRound(world, position.first, position.second, ammo,
+                              Weapon::getRandomEnabled(game.getSettings()));
+            playerIndex++;
         }
     };
     void DeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
         eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
-        initializePlayersMidGame(players);
+        for (auto &player : players) {
+            player.setEventListener(*eventListener);
+        }
     }
 
     bool DeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {

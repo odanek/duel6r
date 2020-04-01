@@ -33,27 +33,41 @@
 
 namespace Duel6 {
     Level::Level(const Int32 width, const Int32 height,
-                 const std::vector<Uint16> & levelData,
-                 const Uint16 waterBlock,
-                 const Block::Meta &blockMeta,
                  const std::string & background,
+                 const Uint16 waterBlock,
+                 const std::vector<Uint16> & levelData,
+                 Int32 waterLevel,
+                 bool raisingWater,
                  const std::vector<Elevator> & elevators)
-        : blockMeta(blockMeta),
-          width(width),
+        : width(width),
           height(height),
           background(background),
           waterBlock(waterBlock),
           levelData(levelData),
+          waterLevel(waterLevel),
           raisingWater(false),
           elevators(elevators) {
-        waterLevel = findWaterLevel(waterBlock);
     }
-    Level::Level(const std::string &path, bool mirror, const Block::Meta &blockMeta)
-            : blockMeta(blockMeta), raisingWater(false) {
+
+    Level::Level(Level && l):width(l.width),
+        height(l.height),
+        background(l.background),
+        waterBlock(l.waterBlock),
+        levelData(l.levelData),
+        waterLevel(l.waterLevel),
+        raisingWater(false),
+        elevators(l.elevators)
+    {
+
+    }
+
+
+    Level::Level(const std::string &path, bool mirror, Block::Meta &blockMeta)
+            : blockMeta(&blockMeta), raisingWater(false) {
         load(path, mirror);
     }
 
-    const std::vector<Elevator> &Level::getElevators() {
+    std::vector<Elevator> &Level::getElevators() {
         return elevators;
     }
 

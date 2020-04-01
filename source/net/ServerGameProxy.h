@@ -22,7 +22,9 @@ namespace Duel6 {
         public:
             void add(Peer *);
             void remove(Peer *);
+            void startRound(Duel6::Level & level) override;
             void sendGameState(Game & game) override;
+            void sendGameStateUpdate(Game & game) override;
             void nextRound() override;
             void handle(ObjectBase &o) override;
             void handle(EventBase &e) override;

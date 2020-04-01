@@ -81,7 +81,40 @@ namespace Duel6 {
         }
     }
 
-    void TeamDeathMatch::initializePlayersMidGame(std::vector<Player> &players) {
+    void TeamDeathMatch::joinPlayers(Game &game, std::vector<Player> &players, std::vector<size_t> joined, World &world) {
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
+
+        Int32 layerSpan = Int32(startingPositions.size()) / teamsCount;
+        Int32 randomizer = Math::random(teamsCount);
+
+        for (size_t i : joined) {
+            Player &player = players[i];
+            player.setEventListener(*eventListener);
+
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
+            if (player.getTeam() == 0) {
+                Level::StartingPosition position = startingPositions[i % startingPositions.size()];
+                player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
+                continue;
+            }
+            const Team &team = getPlayerTeam(player.getTeam() - 1);
+            teamMap.insert(std::make_pair(&player, &team));
+
+            Int32 playerTeam = (player.getTeam() - 1 + randomizer) % teamsCount;
+            Int32 playerTeamIndex = Math::random(layerSpan);
+            Int32 index = (layerSpan * playerTeam) + playerTeamIndex % layerSpan;
+
+            Level::StartingPosition position = startingPositions[index];
+            player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
+        }
+    }
+
+    void TeamDeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
+        teamMap.clear();
+        eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(),
+            friendlyFire, teamMap, globalAssistances);
         for (auto &player : players) {
             player.setEventListener(*eventListener);
             if (player.getTeam() == 0) {
@@ -90,13 +123,6 @@ namespace Duel6 {
             const Team &team = getPlayerTeam(player.getTeam() - 1);
             teamMap.insert(std::make_pair(&player, &team));
         }
-    }
-    void TeamDeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
-        teamMap.clear();
-        eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(),
-                                                                            friendlyFire, teamMap, globalAssistances);
-        initializePlayersMidGame(players);
-
     }
 
     bool TeamDeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {

@@ -9,7 +9,9 @@
 #define SOURCE_NET_EVENT_EVENTS_H_
 
 #include "GameState.h"
+#include "GameStateUpdate.h"
 #include "NextRound.h"
 #include "RequestGameState.h"
+#include "StartRound.h"
 
 #endif /* SOURCE_NET_EVENT_EVENTS_H_ */

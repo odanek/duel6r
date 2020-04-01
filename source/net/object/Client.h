@@ -9,7 +9,7 @@
 #define SOURCE_NET_OBJECT_CLIENT_H_
 
 #include <list>
-#include "Player.h"
+#include "../Object.h"
 namespace Duel6::net {
     class Client: public Object<Client, ObjectType::CLIENT> {
     public:

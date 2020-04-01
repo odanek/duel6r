@@ -118,4 +118,8 @@ namespace Duel6 {
         }
         return nullptr;
     }
+
+    std::vector<Elevator>& ElevatorList::getElevators() {
+        return elevators;
+    }
 }

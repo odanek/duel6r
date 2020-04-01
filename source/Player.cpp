@@ -50,7 +50,10 @@ namespace Duel6 {
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
     Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls,
-                   Int32 id, Int32 team)
+                   Int32 id, Int32 team,
+                   Int32 clientId,
+                   Int32 clientLocalId,
+                   size_t pos)
             : person(&person),
               skin(skin),
               animations(&skin.getAnimations()),
@@ -58,7 +61,10 @@ namespace Duel6 {
               controls(&controls),
               orientation(Orientation::Left),
               id(id),
-              team(team){
+              team(team),
+              clientId(clientId),
+              clientLocalId(clientLocalId),
+              pos(pos){
         camera.rotate(180.0, 0.0, 0.0);
     }
 
@@ -92,7 +98,7 @@ namespace Duel6 {
         water.feetInWater = Water::NONE;
 
         indicators.hideAll(false);
-        indicators.getName().show(4.0f);
+        indicators.getName().show(400.0f);
         indicators.getBonus().show(bonusDuration);
         indicators.getBullets().show(4.0f);
 
@@ -832,6 +838,22 @@ namespace Duel6 {
 
     void Player::setTeam(Int32 team) {
         this->team = team;
+    }
+
+    Int32 Player::getClientId() const{
+        return clientId;
+    }
+
+    void Player::setClientId(Int32 clientId) {
+        this->clientId = clientId;
+    }
+
+    Int32 Player::getClientLocalId() const{
+        return clientLocalId;
+    }
+
+    void Player::setClientLocalId(Int32 clientLocalId) {
+        this->clientLocalId = clientLocalId;
     }
 
     Int32 Player::getId() const

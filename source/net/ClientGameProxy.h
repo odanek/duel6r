@@ -18,7 +18,10 @@ namespace Duel6 {
         class ClientGameProxy: public GameProxy {
             Game *game;
             std::list<Person> persons;
+            std::map<Int32, Int32> idmap; //player mapping
+            std::map<Int32, Int32> idmapBack; //player mapping
 
+            Int32 clientId = 0; // will be set upon receiving gamestate from server
         public:
             ClientGameProxy();
             virtual ~ClientGameProxy();
@@ -29,7 +32,9 @@ namespace Duel6 {
 
             void handle(Player &p);
             void handle(GameState &s);
+            void handle(GameStateUpdate &s);
             void handle(NextRound &nr);
+            void handle(StartRound &sr);
 
             template<typename ObjectTypeName>
             void handleObject(ObjectTypeName &o) {
@@ -47,7 +52,7 @@ namespace Duel6 {
             RequestGameState getRequestGameState();
         protected:
             void nextRound() override;
-
+            void startRound(Duel6::Level & level) override {};
         };
 
     } /* namespace net */

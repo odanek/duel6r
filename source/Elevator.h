@@ -37,11 +37,15 @@
 namespace Duel6 {
     namespace net {
         class Elevator;
+        class ControlPoint;
+        class ServerGameProxy;
     }
     class Elevator {
         friend class Duel6::net::Elevator;
+        friend class Duel6::net::ServerGameProxy;
     public:
         class ControlPoint {
+            friend class Duel6::net::ControlPoint;
         private:
             Vector location;
             Float32 wait;
@@ -72,7 +76,13 @@ namespace Duel6 {
         bool started = false;
 
     public:
-        explicit Elevator(bool circular);
+        Elevator() = default;
+        Elevator(const Elevator &) = default;
+        Elevator& operator=(const Elevator &) = default;
+        Elevator(Elevator &&) = default;
+        Elevator& operator=(Elevator &&) = default;
+
+        Elevator(bool circular);
 
         Elevator(const std::vector<ControlPoint> &controlPoints,
                  bool circular,
@@ -82,13 +92,25 @@ namespace Duel6 {
                  Float32 distance,
                  Float32 travelled,
                  Vector &position,
-                 Vector &velocity);
-
+                 Vector &velocity,
+                 bool started);
+        Elevator(std::vector<ControlPoint> &&controlPoints,
+                 bool circular,
+                 Size section,
+                 Float32 remainingWait,
+                 bool forward,
+                 Float32 distance,
+                 Float32 travelled,
+                 Vector &&position,
+                 Vector &&velocity,
+                 bool started);
         Elevator &addControlPoint(const ControlPoint &point) {
             controlPoints.push_back(point);
             return *this;
         }
-
+~Elevator(){
+    //?
+}
         void start();
 
         void update(Float32 elapsedTime);

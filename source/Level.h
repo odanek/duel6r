@@ -36,15 +36,23 @@
 #include "Elevator.h"
 #include "Type.h"
 namespace Duel6 {
+    namespace net{
+        class Level;
+        class ClientGameProxy;
+        class ServerGameProxy;
+    }
     class Game;
 
     class Level {
+        friend class Duel6::net::Level;
+        friend class Duel6::net::ClientGameProxy;
+        friend class Duel6::net::ServerGameProxy;
     public:
         typedef std::pair<Int32, Int32> StartingPosition;
         typedef std::vector<StartingPosition> StartingPositionList;
 
     private:
-        const Block::Meta &blockMeta;
+        Block::Meta *blockMeta;
         Int32 width;
         Int32 height;
         std::string background;
@@ -55,15 +63,22 @@ namespace Duel6 {
         std::vector<Elevator> elevators;
 
     public:
+        void setBlockMeta(Block::Meta & ref){
+            blockMeta = &ref;
+        }
+        Level(Level &&);
         Level(const Int32 width, const Int32 height,
-              const std::vector<Uint16> & levelData,
-              const Uint16 waterBlock,
-              const Block::Meta & blockMeta,
               const std::string & background,
+              const Uint16 waterBlock,
+              const std::vector<Uint16> & levelData,
+              Int32 waterLevel,
+              bool raisingWater,
               const std::vector<Elevator> & elevators);
 
-        Level(const std::string &path, bool mirror, const Block::Meta &blockMeta);
-
+        Level(const std::string &path, bool mirror, Block::Meta &blockMeta);
+~Level() {
+    //waat
+}
         Int32 getWidth() const {
             return width;
         }
@@ -84,7 +99,7 @@ namespace Duel6 {
             return background;
         }
 
-        const std::vector<Elevator> &getElevators();
+        std::vector<Elevator> &getElevators();
 
         bool isEmpty(Int32 x, Int32 y) const {
             return isInside(x, y) ? getBlockMeta(x, y).is(Block::Type::EmptySpace) : false;
@@ -109,7 +124,7 @@ namespace Duel6 {
         }
 
         const Block &getBlockMeta(Int32 x, Int32 y) const {
-            return blockMeta[getBlock(x, y)];
+            return (*blockMeta)[getBlock(x, y)];
         }
 
         const Water *getWaterType(Int32 x, Int32 y) const;

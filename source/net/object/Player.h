@@ -14,6 +14,7 @@ namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
         object_id_t id = 0;
+        Int32 clientLocalId = 0;
         Vector position;
         uint32_t controls;
         Player() {
@@ -21,6 +22,7 @@ namespace Duel6::net {
         template<class Stream>
         bool serialize(Stream &s) {
             return s & id // @suppress("Suggested parenthesis around expression")
+                && s & clientLocalId // @suppress("Suggested parenthesis around expression")
                 && s & position // @suppress("Suggested parenthesis around expression")
                 && s & controls; // @suppress("Suggested parenthesis around expression")
         }
