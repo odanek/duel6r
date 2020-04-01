@@ -29,12 +29,13 @@ namespace Duel6 {
         void ClientGameProxy::handle(Player &p) {
             auto &position = p.position;
             auto pos = idmap[p.id]; /// ASI NECO BLBE
-
+            auto &player = game->players[pos];
             if(!game->isServer){
-                game->players[pos].setPosition(position.x, position.y, position.z);
+                player.setPosition(position.x, position.y, position.z);
             }
-            if(!game->players[pos].local){
-                game->players[pos].setControllerState(p.controls);
+            if(!player.local){
+                player.setControllerState(p.controls);
+                player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
             }
         }
         void ClientGameProxy::handle(GameStateUpdate &gsu) {

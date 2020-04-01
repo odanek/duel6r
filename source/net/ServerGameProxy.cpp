@@ -87,6 +87,7 @@ namespace Duel6 {
                 p.clientLocalId = player.getClientLocalId();
                 const auto &playerPosition = player.getPosition();
                 p.position = { playerPosition.x, playerPosition.y, playerPosition.z };
+                p.orientationLeft = {player.getOrientation() == Orientation::Left};
                 if(player.local){
                     p.controls = player.getControllerState();
                 }

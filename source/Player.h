@@ -264,6 +264,10 @@ namespace Duel6 {
             return orientation;
         }
 
+        void setOrientation(Orientation orientation) {
+            this->orientation = orientation;
+        }
+
         Player &setAlpha(Float32 alpha) {
             this->alpha = alpha;
             return *this;

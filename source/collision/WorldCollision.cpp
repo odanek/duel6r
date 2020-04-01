@@ -220,7 +220,20 @@ void CollidingEntity::initPosition(Float32 x, Float32 y, Float32 z) {
     externalForcesSpeed = {0, 0};
     lastCollisionCheck = {true, true, true, true, true, true, false};
 }
+void CollidingEntity::setPosition(Float32 x, Float32 y, Float32 z) {
+    Float32 deltaX = position.x - x;
+    Float32 deltaY = position.y - y;
+    if((deltaX * deltaX + deltaY * deltaY) < 0.1){
 
+        return;
+    } else {
+        externalForces.x -= 0.5 * deltaX; //rubberbanding
+        externalForces.y -= 0.5 * deltaY;
+    }
+    if((deltaX * deltaX + deltaY * deltaY) > 0.9){
+        position = {x, y, z};
+    }
+}
 Rectangle CollidingEntity::getCollisionRect() const {
     return Rectangle::fromCornerAndSize(position, dimensions);
 }

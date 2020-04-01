@@ -818,7 +818,7 @@ namespace Duel6 {
         return *this;
     }
     void Player::setPosition(float x, float y, float z){
-        collider.initPosition(x,y,z);
+        collider.setPosition(x,y,z);
     }
     void Player::die() {
         setFlag(FlagDying | FlagLying);

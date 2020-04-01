@@ -80,6 +80,7 @@ namespace Duel6 {
         void collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed = 1.0f);
         void collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed = 1.0f);
         void initPosition(Float32 x, Float32 y, Float32 z = 0.0f);
+        void setPosition(Float32 x, Float32 y, Float32 z = 0.0f);
 
         bool isInWall() const;
         bool isOnHardSurface() const;

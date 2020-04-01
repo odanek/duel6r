@@ -39,7 +39,7 @@ namespace Duel6 {
                 const auto &playerPosition = player.getPosition();
                 p.position = { playerPosition.x, playerPosition.y, playerPosition.z };
                 p.controls = player.getControllerState();
-
+                p.orientationLeft = player.getOrientation() == Orientation::Left;
                 s.players.push_back(p);
 
                 PlayerProfile pp;

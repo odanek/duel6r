@@ -17,6 +17,7 @@ namespace Duel6::net {
         Int32 clientLocalId = 0;
         Vector position;
         uint32_t controls;
+        bool orientationLeft;
         Player() {
         }
         template<class Stream>
@@ -24,7 +25,8 @@ namespace Duel6::net {
             return s & id // @suppress("Suggested parenthesis around expression")
                 && s & clientLocalId // @suppress("Suggested parenthesis around expression")
                 && s & position // @suppress("Suggested parenthesis around expression")
-                && s & controls; // @suppress("Suggested parenthesis around expression")
+                && s & controls // @suppress("Suggested parenthesis around expression")
+                && s & orientationLeft; // @suppress("Suggested parenthesis around expression")
         }
     };
 }
