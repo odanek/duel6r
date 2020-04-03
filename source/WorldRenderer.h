@@ -45,6 +45,7 @@ namespace Duel6 {
 
     class WorldRenderer {
     private:
+        Camera camera;
         const Font &font;
         const Video &video;
         const Game &game;
@@ -58,11 +59,15 @@ namespace Duel6 {
         void prerender() const;
 
     private:
+        Camera createCamera() const;
+
+        void setView(Camera &camera) const;
+
         void setView(const PlayerView &view) const;
 
         void setView(int x, int y, int width, int height) const;
 
-        void view(const Player &player) const;
+        void view() const;
 
         void fullScreen() const;
 

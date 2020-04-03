@@ -74,9 +74,8 @@ namespace Duel6 {
         Ranking ranking = game.getMode().getRanking(game.getPlayers());
         Int32 maxNameLength = ranking.getMaxLength() + 6;
 
-        const PlayerView &view = game.getPlayers().front().getView();
-        Int32 posX = view.getX() + view.getWidth() - fontWidth * maxNameLength - 3;
-        Int32 posY = view.getY() + view.getHeight() - 20;
+        Int32 posX = video.getScreen().getClientWidth() - fontWidth * maxNameLength - 3;
+        Int32 posY = video.getScreen().getClientHeight() - 20;
 
         for (const auto &entry : ranking.entries) {
             posY = renderRankingEntry(entry, posX, posY, maxNameLength, fontSize, false);
@@ -438,19 +437,61 @@ namespace Duel6 {
         renderer.enableWireframe(false);
     }
 
+    void WorldRenderer::setView(Camera &camera) const {
+        Matrix viewMatrix = Matrix::lookAt(camera.getPosition(), camera.getFront(), camera.getUp());
+        renderer.setViewMatrix(viewMatrix);
+    }
+
+    Camera WorldRenderer::createCamera() const {
+        auto screenMode = game.getSettings().getScreenMode();
+        auto zoom = game.getSettings().getScreenZoom();
+        auto levelSizeX = game.getRound().getWorld().getLevel().getWidth();
+        auto levelSizeY = game.getRound().getWorld().getLevel().getHeight();
+
+        Float32 fovX, fovY, mZ, dX = 0.0, dY = 0.0;
+        fovY = Math::degTan(video.getView().getFieldOfView() / 2.0f);
+        fovX = video.getScreen().getAspect() * fovY;
+
+        if (screenMode == ScreenMode::FullScreen) {
+            if (levelSizeX > video.getScreen().getAspect() * levelSizeY)
+                dX = (Float32) levelSizeX;
+            else
+                dY = (Float32) levelSizeY;
+        } else {
+            dX = (Float32) std::min(zoom, std::max(levelSizeX, levelSizeY));
+        }
+
+        if (dX == 0.0) {
+            mZ = dY / (2.0f * fovY);
+            dX = 2.0f * fovX * mZ;
+        } else {
+            mZ = dX / (2.0f * fovX);
+            dY = 2.0f * fovY * mZ;
+        }
+
+        Vector position;
+        position.x = levelSizeX / 2.0f;
+        position.y = levelSizeY / 2.0f;
+        position.z = mZ + 1.0f;
+        Camera camera;
+        camera.rotate(180.0, 0.0, 0.0);
+        camera.setPosition(position);
+        return camera;
+    }
+
     void WorldRenderer::renderBackground() const {
-        const Player &player = game.getPlayers().front(); //TODO 0-players game not working
-        setView(player.getView());
+        setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
         background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
         video.setMode(Video::Mode::Perspective);
+        Camera camera = createCamera();
+        setView(camera);
 
-        setPlayerCamera(player);
         renderStaticGeometry();
 
         video.setMode(Video::Mode::Orthogonal);
     }
 
-    void WorldRenderer::view(const Player &player) const {
+    void WorldRenderer::view() const {
         const World &world = game.getRound().getWorld();
         world.getElevatorList().render(renderer);
         world.getBonusList().render(renderer);
@@ -484,18 +525,18 @@ namespace Duel6 {
     }
 
     void WorldRenderer::fullScreen() const {
-        const Player &player = game.getPlayers().front();
         Float32 remainingTime = game.getRound().getRemainingYouAreHere();
-        setView(player.getView());
 
+        setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
         renderer.clearBuffers(); // attempt to resolve rendering issues in Alcatraz
         Color fadeColor = remainingTime > 0 ? getRoundStartFadeColor(remainingTime) : Color::WHITE;
         target->apply(fadeColor);
 
         renderer.enableDepthTest(true);
         video.setMode(Video::Mode::Perspective);
-        setPlayerCamera(player);
-        view(player);
+        Camera camera = createCamera();
+        setView(camera);
+        view();
 
         if (game.getRound().hasWinner()) {
             Color overlayColor = getGameOverOverlay();
@@ -516,7 +557,7 @@ namespace Duel6 {
             video.setMode(Video::Mode::Perspective);
             setPlayerCamera(player);
             renderStaticGeometry();
-            view(player);
+            view();
 
             if (!player.isAlive()) {
                 screenCurtain(Color(255, 0, 0, 128));
