@@ -55,6 +55,9 @@ namespace Duel6 {
     }
 
     bool DeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {
+        if(world.getPlayers().size() < 2){ //TODO check isInGame
+            return false;
+        }
         if (alivePlayers.size() == 1) {
             for (Player *player : alivePlayers) {
                 world.getMessageQueue().add(*player, "You have won!");

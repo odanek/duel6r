@@ -126,6 +126,9 @@ namespace Duel6 {
     }
 
     bool TeamDeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {
+        if(world.getPlayers().size() < 2){
+            return false;
+        }
         if (alivePlayers.empty()) {
             for (const Player &player : world.getPlayers()) {
                 world.getMessageQueue().add(player, "End of round - no winner");

@@ -486,18 +486,6 @@ namespace Duel6 {
     }
 
     void Menu::play(std::vector<std::string> levels) {
-        if (playerListBox->size() < 2) {
-            showMessage("Can't play alone ...");
-            SDL_Event event;
-            while (true) {
-                if (SDL_PollEvent(&event)) {
-                    break;
-                }
-            }
-
-            consumeInputEvents();
-            return;
-        }
         game->getSettings().setQuickLiquid(quickLiquidCheckBox->isChecked());
         game->getSettings().setGlobalAssistances(globalAssistanceCheckBox->isChecked());
         if (game->getSettings().isRoundLimit()) {

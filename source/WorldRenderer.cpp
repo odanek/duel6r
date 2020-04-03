@@ -230,7 +230,7 @@ namespace Duel6 {
     }
 
     void WorldRenderer::playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
-        const std::string &name = Format("{0} {1} {2}") << player.getPerson().getName() << player.getClientId() << player.getId();
+        const std::string &name = Format("{0}") << player.getPerson().getName();
 
         Float32 width = 0.15f * name.size();
         Float32 X = xOfs - width / 2;
@@ -439,7 +439,7 @@ namespace Duel6 {
     }
 
     void WorldRenderer::renderBackground() const {
-        const Player &player = game.getPlayers().front();
+        const Player &player = game.getPlayers().front(); //TODO 0-players game not working
         setView(player.getView());
         background(game.getResources().getBcgTextures().at(game.getRound().getWorld().getBackground()));
         video.setMode(Video::Mode::Perspective);

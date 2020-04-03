@@ -33,7 +33,6 @@ namespace Duel6 {
     World::World(Game &game, std::unique_ptr<Level> && levelData)
             : gameSettings(game.getSettings()), players(game.getPlayers()),
               level(std::move(levelData)),
-//              level(levelPath, mirror, game.getResources().getBlockMeta()),
               levelRenderData(*level, game.getAppService().getVideo().getRenderer(), gameSettings.getScreenMode(),
                               D6_ANM_SPEED), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
