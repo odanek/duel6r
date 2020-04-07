@@ -31,34 +31,10 @@
 #include "World.h"
 
 namespace Duel6 {
-    class WaterImpl {
-    public:
-        virtual ~WaterImpl() = default;
-
-        virtual std::string getName() const = 0;
-
-        virtual void onEnter(Player &player, const Vector &location, World &world) const = 0;
-
-        virtual void onUnder(Player &player, Float32 elapsedTime) const = 0;
-    };
-
     namespace {
         AnimationEntry splashAnimation[] = {0, 82, 1, 82, 2, 82, 3, 82, 4, 82, 5, 82, 6, 82, 7, 82, 8, 82, 9, 82, -1, 0};
 
-        class NoneWater : public WaterImpl {
-        public:
-            std::string getName() const override {
-                return "none";
-            }
-
-            void onEnter(Player &player, const Vector &location, World &world) const override {}
-
-            void onUnder(Player &player, Float32 elapsedTime) const override {}
-        };
-
-        NoneWater NONE_WATER;
-
-        class WaterBase : public WaterImpl {
+        class WaterBase : public Water {
         private:
             Sound::Sample splashSample;
             Texture textures;
@@ -140,49 +116,14 @@ namespace Duel6 {
         };
     }
 
-    const Water Water::NONE;
-    const Water Water::BLUE;
-    const Water Water::RED;
-    const Water Water::GREEN;
-    std::vector<Water> Water::types;
-    std::vector<Water::WaterImplPtr> Water::implementations;
-
-    Water::Water()
-            : impl(&NONE_WATER) {}
-
-    const std::vector<Water> &Water::values() {
-        return types;
-    }
-
-    std::string Water::getName() const {
-        return impl->getName();
-    }
-
-    void Water::onEnter(Player &player, const Vector &location, World &world) {
-        impl->onEnter(player, location, world);
-    }
-
-    void Water::onUnder(Player &player, Float32 elapsedTime) {
-        impl->onUnder(player, elapsedTime);
-    }
-
-    void Water::assign(WaterImplPtr &&impl) const {
-        this->impl = impl.get();
-        implementations.push_back(std::forward<WaterImplPtr>(impl));
-        types.push_back(*this);
-    }
+    const Water *Water::NONE = nullptr;
+    const Water *Water::BLUE;
+    const Water *Water::RED;
+    const Water *Water::GREEN;
 
     void Water::initialize(Sound &sound, TextureManager &textureManager) {
-        BLUE.assign(std::make_unique<BlueWater>(sound, textureManager));
-        RED.assign(std::make_unique<RedWater>(sound, textureManager));
-        GREEN.assign(std::make_unique<GreenWater>(sound, textureManager));
-    }
-
-    bool Water::operator==(const Water &water) const {
-        return impl == water.impl;
-    }
-
-    bool Water::operator!=(const Water &water) const {
-        return impl != water.impl;
+        BLUE = new BlueWater(sound, textureManager);
+        RED = new RedWater(sound, textureManager);
+        GREEN = new GreenWater(sound, textureManager);
     }
 }

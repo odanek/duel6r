@@ -85,8 +85,8 @@ namespace Duel6 {
         };
 
         struct WaterState {
-            Water headUnderWater;
-            Water feetInWater;
+            const Water *headUnderWater;
+            const Water *feetInWater;
         };
 
     public:

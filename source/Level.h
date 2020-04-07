@@ -93,7 +93,7 @@ namespace Duel6 {
             return blockMeta[getBlock(x, y)];
         }
 
-        Water getWaterType(Int32 x, Int32 y) const;
+        const Water *getWaterType(Int32 x, Int32 y) const;
 
         void raiseWater();
 

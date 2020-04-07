@@ -70,7 +70,7 @@ namespace Duel6 {
             return type;
         }
 
-        Water getWaterType() const {
+        const Water *getWaterType() const {
             if (is(Type::Water)) {
                 if (index == 4) {
                     return Water::BLUE;

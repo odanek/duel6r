@@ -257,10 +257,12 @@ namespace Duel6::Script {
             const Block &block = level.getBlockMeta(x, y);
 
             lua_newtable(state);
+
+            const Water *water = block.getWaterType();
             Lua::pushProperty(state, "wall", block.is(Block::Type::Wall));
             Lua::pushProperty(state, "water", block.is(Block::Type::Water));
             Lua::pushProperty(state, "waterfall", block.is(Block::Type::Waterfall));
-            Lua::pushProperty(state, "waterType", block.getWaterType().getName());
+            Lua::pushProperty(state, "waterType", water == Water::NONE ? "none" : water->getName());
 
             return 1;
         }

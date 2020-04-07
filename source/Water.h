@@ -35,45 +35,27 @@
 #include "math/Vector.h"
 
 namespace Duel6 {
-    class WaterImpl;
-
     class Player;
 
     class World;
 
-    class Water final {
-    private:
-        typedef std::unique_ptr<WaterImpl> WaterImplPtr;
+    class Water {
+    public:
+        static const Water *NONE;
+        static const Water *BLUE;
+        static const Water *RED;
+        static const Water *GREEN;
 
     public:
-        static const Water NONE;
-        static const Water BLUE;
-        static const Water RED;
-        static const Water GREEN;
+        virtual ~Water() = default;
 
-    private:
-        mutable WaterImpl *impl;
-        static std::vector<Water> types;
-        static std::vector<WaterImplPtr> implementations;
+        virtual std::string getName() const = 0;
 
-        void assign(WaterImplPtr &&impl) const;
+        virtual void onEnter(Player &player, const Vector &location, World &world) const = 0;
+
+        virtual void onUnder(Player &player, Float32 elapsedTime) const = 0;
 
     public:
-        Water();
-
-        std::string getName() const;
-
-        void onEnter(Player &player, const Vector &location, World &world);
-
-        void onUnder(Player &player, Float32 elapsedTime);
-
-        bool operator==(const Water &water) const;
-
-        bool operator!=(const Water &water) const;
-
-    public:
-        static const std::vector<Water> &values();
-
         static void initialize(Sound &sound, TextureManager &textureManager);
     };
 }

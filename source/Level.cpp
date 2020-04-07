@@ -105,7 +105,7 @@ namespace Duel6 {
         return getHeight() - 1;
     }
 
-    Water Level::getWaterType(Int32 x, Int32 y) const {
+    const Water *Level::getWaterType(Int32 x, Int32 y) const {
         return isInside(x,y) ? getBlockMeta(x, y).getWaterType() : Water::NONE;
     }
 

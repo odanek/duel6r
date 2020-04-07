@@ -717,18 +717,18 @@ namespace Duel6 {
         Float32 feetY = rect.left.y + rect.getSize().y * 0.1f;
         Float32 bottomY = rect.left.y;
 
-        Water headWater = world.getLevel().getWaterType(Int32(centerX), Int32(headY));
+        const Water *headWater = world.getLevel().getWaterType(Int32(centerX), Int32(headY));
         water.headUnderWater = headWater;
 
         if (headWater != Water::NONE) {
             water.feetInWater = headWater;
-            headWater.onUnder(*this, elapsedTime);
+            headWater->onUnder(*this, elapsedTime);
         } else {
             airHit(-2 * D6_AIR_RECHARGE_SPEED * elapsedTime);
 
-            Water feetWater = world.getLevel().getWaterType(Int32(centerX), Int32(feetY));
+            const Water *feetWater = world.getLevel().getWaterType(Int32(centerX), Int32(feetY));
             if (feetWater != Water::NONE && water.feetInWater == Water::NONE) {
-                feetWater.onEnter(*this, Vector(centerX, bottomY), world);
+                feetWater->onEnter(*this, Vector(centerX, bottomY), world);
             }
             water.feetInWater = feetWater;
         }
