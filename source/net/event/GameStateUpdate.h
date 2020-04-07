@@ -14,10 +14,14 @@
 namespace Duel6::net {
     class GameStateUpdate : public Event<GameStateUpdate, EventType::GAME_STATE_UPDATE>{
     public:
+        tick_t inputTick;
+        tick_t confirmInputTick;
         std::vector<Player> players;
         template<typename Stream>
         bool serialize(Stream &s) {
-            return s & players;
+            return s & inputTick
+                && s & confirmInputTick
+                && s & players;
         }
     };
 }

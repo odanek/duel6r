@@ -37,7 +37,8 @@ namespace Duel6 {
                               D6_ANM_SPEED), messageQueue(D6_INFO_DURATION),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game.getResources(), *this),
-              elevatorList(game.getResources().getElevatorTextures()), time(0) {
+              elevatorList(game.getResources().getElevatorTextures()),
+              unconfirmedElevatorList(game.getResources().getElevatorTextures(), level->getElevators()), time(0) {
         Console &console = game.getAppService().getConsole();
         console.printLine(Format("...Width   : {0}") << level->getWidth());
         console.printLine(Format("...Height  : {0}") << level->getHeight());
@@ -52,6 +53,12 @@ namespace Duel6 {
         elevatorList.load(level->getElevators());
         fireList.find(*level);
         background = findBackground(game.getResources().getBcgTextures());
+    }
+
+    void World::confirmElevators(Uint16 ticks, Float32 elapsedTime) {
+        for(int i = 0; i < ticks; i++) {
+            unconfirmedElevatorList.update(elapsedTime);
+        }
     }
 
     void World::update(Float32 elapsedTime) {

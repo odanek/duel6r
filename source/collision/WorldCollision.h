@@ -76,11 +76,14 @@ namespace Duel6 {
         const Elevator *elevator = nullptr;
         CollisionCheckResult lastCollisionCheck;
         Rectangle getCollisionRect() const;
+        Vector getPosition() const;
+
         // aka update
         void collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed = 1.0f);
         void collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed = 1.0f);
         void initPosition(Float32 x, Float32 y, Float32 z = 0.0f);
         void setPosition(Float32 x, Float32 y, Float32 z = 0.0f);
+        void setPosition(const Vector & position);
 
         bool isInWall() const;
         bool isOnHardSurface() const;

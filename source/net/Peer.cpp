@@ -42,6 +42,7 @@ namespace Duel6 {
                 RequestGameState r;
                 s >> r;
                 /** if server **/
+                receivedInputsTick = gameProxy->getTick();
                 gameProxy->handle(*this, r);
                 /** else not possible **/
                 break;
@@ -49,13 +50,25 @@ namespace Duel6 {
             case EventType::GAME_STATE: {
                 GameState gs;
                 s >> gs;
+                receivedInputsTick = gs.tick;
                 gameProxy->handle(gs);
                 break;
             }
             case EventType::GAME_STATE_UPDATE: {
                 GameStateUpdate gs;
                 s >> gs;
-                gameProxy->handle(gs);
+                // these are sent as unreliable unsequenced packets,
+                // we must discard those received out of order
+                // we must deal with wrap-around of the tick counter (16 bit) - so lets say 30000
+                if( ((gs.inputTick > receivedInputsTick) && (gs.inputTick - receivedInputsTick < 30000))
+                    || receivedInputsTick - gs.inputTick >= 30000){
+                    receivedInputsTick = gs.inputTick;
+
+                    gameProxy->handle(gs);
+                } else {
+                    gameProxy->lateReceive(gs.inputTick);
+                    //out of order / late receive
+                }
                 break;
             }
             case EventType::NEXT_ROUND:{
@@ -158,9 +171,10 @@ namespace Duel6 {
             peer.release();
             serverGameProxy->remove(this);
         }
-        Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, size_t pos)
+        Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, ENetHost *host,  size_t pos)
             : gameProxy(&gameProxy),
               serverGameProxy(&serverGameProxy),
+              host(host),
               peer(peer),
               pos(pos) {
             peer->data = new PeerRef{pos, this};
@@ -168,10 +182,11 @@ namespace Duel6 {
             serverGameProxy.add(this);
             state = PeerState::CONNECTED;
         }
-        Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer)
+        Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, ENetHost *host)
             : Peer(gameProxy,
                    serverGameProxy,
                    peer,
+                   host,
                    0){
 
         }

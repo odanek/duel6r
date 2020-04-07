@@ -28,8 +28,6 @@ namespace Duel6 {
             world.elevators.reserve(level.elevators.size());
             for(auto & e: level.elevators){
                 std::vector<Duel6::net::ControlPoint> controlPoints = container_cast<std::vector<Duel6::net::ControlPoint>>(e.controlPoints);
-//                e.circular = elevator.circular;
-//                e.distance = elevator.distance;
                 Elevator elevator(controlPoints,
                            e.circular,
                            e.section,
@@ -41,7 +39,6 @@ namespace Duel6 {
                            Vector(e.velocity.x,e.velocity.y,e.velocity.z),
                            e.started);
                 sr.world.elevators.emplace_back(std::move(elevator));
-             //   Duel6::net::ControlPoint
             }
             world.width = level.width;
             world.height = level.height;
@@ -78,24 +75,49 @@ namespace Duel6 {
 
         void ServerGameProxy::sendGameStateUpdate(Game &game) {
             GameStateUpdate gsu;
+            gsu.inputTick = game.tick;
             gsu.players.reserve(game.getPlayers().size());
 
             for (auto &player : game.getPlayers()) {
-
+                if (!(player.local || game.isServer)){
+                    continue;
+                }
                 Player p;
                 p.id = player.getId();
                 p.clientLocalId = player.getClientLocalId();
-                const auto &playerPosition = player.getPosition();
-                p.position = { playerPosition.x, playerPosition.y, playerPosition.z };
-                p.orientationLeft = {player.getOrientation() == Orientation::Left};
-                if(player.local){
+
+                if (player.local) {
+                    player.unconfirmedInputs[game.tick % 128] = player.getControllerState();
+                    for(size_t i = 0; i < 16 ; i++){
+                        p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) % 128];
+                    }
                     p.controls = player.getControllerState();
+                }
+                if (game.isServer) {
+                    const auto &collidingEntity = player.getCollider();
+                    const auto &position = collidingEntity.position;
+                    const auto &externalForces = collidingEntity.externalForces;
+                    const auto &externalForcesSpeed = collidingEntity.externalForcesSpeed;
+                    const auto &velocity = collidingEntity.velocity;
+                    const auto &acceleration = collidingEntity.acceleration;
+                    p.position = { position.x, position.y, position.z };
+                    p.externalForces = { externalForces.x, externalForces.y, externalForces.z };
+                    p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, externalForcesSpeed.z };
+                    p.velocity = { velocity.x, velocity.y, velocity.z };
+                    p.acceleration = { acceleration.x, acceleration.y, acceleration.z };
+                    p.flags = player.getFlags();
+                    p.life = player.getLife();
+                    p.air = player.getAir();
+                    p.ammo = player.getAmmo();
+                    p.weaponId = player.getWeapon().getId();
+                    p.orientationLeft = { player.getOrientation() == Orientation::Left };
                 }
                 gsu.players.push_back(p);
             }
 
             for (auto &peer : peers) {
-                peer->send(gsu); // @suppress("Ambiguous problem")
+                gsu.confirmInputTick = peer->receivedInputsTick;
+                peer->sendUnreliable(gsu); // @suppress("Ambiguous problem")
             }
         }
         void ServerGameProxy::sendGameState(Game &game) {

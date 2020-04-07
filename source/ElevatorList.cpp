@@ -32,6 +32,13 @@
 namespace Duel6 {
     ElevatorList::ElevatorList(Texture texture)
             : texture(texture) {}
+    ElevatorList::ElevatorList(Texture texture, const std::vector<Elevator> & elevators)
+            : texture(texture),
+              elevators(elevators) {
+        for(auto & elevator: this->elevators) {
+            elevator.start();
+        }
+    }
 
     void ElevatorList::add(Elevator &elevator) {
         elevators.push_back(elevator);

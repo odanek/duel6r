@@ -66,6 +66,8 @@ namespace Duel6 {
               clientLocalId(clientLocalId),
               pos(pos){
         camera.rotate(180.0, 0.0, 0.0);
+        controllerState = 0;
+        unconfirmedInputs.fill(0);
     }
 
     Player::~Player() {
@@ -73,6 +75,7 @@ namespace Duel6 {
 
     void Player::startRound(World &world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon &weapon) {
         this->world = &world;
+        unconfirmedInputs.fill(0);
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
 
         sprite = world.getSpriteList().add(animations->getStand().get(), skin.getTexture());
@@ -242,7 +245,7 @@ namespace Duel6 {
         setFlag(FlagPick);
         unsetFlag(FlagMoveLeft | FlagMoveRight);
 
-        this->weapon = weapon;
+        replaceWeapon(weapon);
         ammo = bullets;
         if (weapon.isChargeable()) {
             timeToReload = getReloadInterval();
@@ -252,18 +255,23 @@ namespace Duel6 {
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
         indicators.getBullets().show();
 
-        world->getSpriteList().remove(gunSprite);
-        gunSprite = weapon.makeSprite(world->getSpriteList());
+
 
         return *this;
     }
 
-    void Player::makeMove(const Level &level, Float32 elapsedTime) {
+    void Player::replaceWeapon(Weapon weapon){
+        this->weapon = weapon;
+        world->getSpriteList().remove(gunSprite);
+        gunSprite = weapon.makeSprite(world->getSpriteList());
+    }
+
+    void Player::makeMove(const Level &level, ElevatorList &elevators, Float32 elapsedTime) {
         Float32 speed = getSpeed() * elapsedTime;
 
         moveVertical(level, elapsedTime, speed);
         moveHorizontal(level, elapsedTime, speed);
-        collider.collideWithElevators(world->getElevatorList(), elapsedTime, speed);
+        collider.collideWithElevators(elevators, elapsedTime, speed);
         collider.collideWithLevel(level, elapsedTime, speed);
 
         if (isPickingGun() && sprite->isFinished()) {
@@ -421,17 +429,39 @@ namespace Duel6 {
         }
     }
 
+    void Player::updateLoop(World &world, ElevatorList &elevators, Float32 elapsedTime) {
+        checkKeys();
+        updateDimensions();
+        makeMove(world.getLevel(), elevators, elapsedTime);
+        setAnm();
+    }
+
+    void Player::compensateLag(World &world,  uint16_t gameTick, uint16_t confirmedTick, Float32 elapsedTime) {
+        if(!local) {
+            return;
+        }
+        uint16_t ticks = gameTick - confirmedTick;
+        //collider.setPosition(lastConfirmedPos);
+        auto tmp = controllerState;
+        isCompensating = true;
+        for (auto i = 1; i < ticks; i++) {
+            controllerState = unconfirmedInputs[(confirmedTick + i) % 128];
+//            updateLoop(world, world.getUnconfirmedElevatorList(), elapsedTime, true);
+            updateLoop(world, world.getElevatorList(), elapsedTime);
+        }
+        isCompensating = false;
+        controllerState = tmp;
+    }
+
     void Player::update(World &world, ScreenMode screenMode, Float32 elapsedTime) {
+        tick++;
         checkWater(world, elapsedTime);
         if (isAlive()) {
             /* TODO: NETCODE */
             world.getBonusList().checkBonus(*this);
         }
 
-        checkKeys();
-        updateDimensions();
-        makeMove(world.getLevel(), elapsedTime);
-        setAnm();
+        updateLoop(world, world.getElevatorList(), elapsedTime);
 
         // Drop gun if still has it and died
         if (isLying() && hasGun()) {
@@ -714,6 +744,10 @@ namespace Duel6 {
     }
 
     void Player::dropWeapon(const Level &level) {
+        if(isCompensating) {
+            return;
+        }
+
         if (!hasGun()) {
             return;
         }
@@ -819,6 +853,7 @@ namespace Duel6 {
     }
     void Player::setPosition(float x, float y, float z){
         collider.setPosition(x,y,z);
+        lastConfirmedPos = collider.getPosition(); //todo add acceleration, velocity etc.
     }
     void Player::die() {
         setFlag(FlagDying | FlagLying);
@@ -831,6 +866,10 @@ namespace Duel6 {
     }
 
     const CollidingEntity &Player::getCollider() const {
+        return collider;
+    }
+
+    CollidingEntity &Player::getCollider() {
         return collider;
     }
 

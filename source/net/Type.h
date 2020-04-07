@@ -16,6 +16,7 @@ namespace Duel6 {
         typedef uint16_t port_t;
         typedef uint16_t object_id_t;
         typedef uint16_t peer_id_t;
+        typedef uint16_t tick_t;
     }
 }
 

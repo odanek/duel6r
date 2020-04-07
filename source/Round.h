@@ -51,11 +51,13 @@ namespace Duel6 {
         std::vector<Player *> alivePlayers;
         Script::RoundScriptContext scriptContext;
         std::function<void()> onRoundEnd;
-
+        bool isCompensatingLag = false;
     public:
         Round(Game &game, Int32 roundNumber, std::unique_ptr<Level> && level);
 
         void start();
+
+        void compensateLag(uint16_t gameTick, uint16_t confirmedTick);
 
         void update(Float32 elapsedTime);
 

@@ -277,7 +277,9 @@ namespace Duel6 {
         static Float64 accumulatedTime = 0.0f;
         Uint32 lastTime = curTime;
 
-        context.render();
+        if(accumulatedTime < updateTime){
+            context.render();
+        }
         video->screenUpdate(console, *font);
 
         curTime = SDL_GetTicks();
@@ -285,8 +287,11 @@ namespace Duel6 {
         accumulatedTime += elapsedTime;
 
         while (accumulatedTime > updateTime) {
+            netHost->poll();
+            netClient->poll();
             context.update(Float32(updateTime));
             accumulatedTime -= updateTime;
+
         }
     }
 
@@ -296,8 +301,8 @@ namespace Duel6 {
        // netHost.listen();
         while (Context::exists() && !requestClose) {
             Context &context = Context::getCurrent();
-            netHost->poll();
-            netClient->poll();
+
+
 //            if(netHost.isConnected()){
 //                netClient.connect("localhost", 2020);
 //            }

@@ -244,12 +244,20 @@ namespace Duel6 {
             return true;
         }
         std::vector<Uint32> teamCounts(teamsCount + 1, 0);
+        Uint32 inGame = 0;
 
         for (auto const &player: world.getPlayers()) {
+            if(! player.isInGame()) {
+                continue;
+            }
+            inGame++;
             Size teamIndex = (player.getTeam()) % teamsCount;
-            if (player.isAlive() && player.isInGame()) {
+            if (player.isAlive()) {
                 teamCounts[teamIndex]++;
             }
+        }
+        if(inGame == alivePlayers.size()){
+            return false; //don't raise water when everybody is still alive;
         }
         for (auto count: teamCounts) {
             if (count < 2) {

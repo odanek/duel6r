@@ -145,6 +145,13 @@ namespace Duel6 {
     public:
         bool local = false;
         size_t pos;
+        uint16_t tick = 0;
+        uint16_t lastConfirmedTick = 0;
+        uint16_t lateTicks = 0; //debug
+        Vector lastConfirmedPos; // for client-side prediction
+        std::array<Uint32, 128> unconfirmedInputs;
+        bool isCompensating = false;
+
         Uint32 getControllerState(){
             return controllerState;
         }
@@ -174,6 +181,8 @@ namespace Duel6 {
         void setView(const PlayerView &view);
 
         void updateControllerStatus();
+
+        void compensateLag(World &world,uint16_t gameTick, uint16_t confirmedTick, Float32 elapsedTime);
 
         void update(World &world, ScreenMode screenMode, Float32 elapsedTime);
 
@@ -429,6 +438,8 @@ namespace Duel6 {
 
         const CollidingEntity &getCollider() const;
 
+        CollidingEntity &getCollider();
+
         void setPosition(float x, float y, float z);
 
         bool isDeleted() const;
@@ -450,10 +461,32 @@ namespace Duel6 {
         Int32 getClientLocalId() const;
 
         void setClientLocalId(Int32 id);
+
+
+        void setFlags(Uint32 flags) {
+            this->flags = flags;
+        }
+
+        Uint32 getFlags() {
+            return flags;
+        }
+        void setLife(Float32 life) {
+            this->life = life;
+        }
+        void setAir(Float32 air) {
+            this->air = air;
+        }
+        void setAmmo(Int32 ammo) {
+            this->ammo = ammo;
+        }
+        void setWeapon(Uint8 weaponId) {
+            replaceWeapon(Weapon::getById(weaponId));
+        }
     private:
 
+        void replaceWeapon(Weapon weapon);
 
-        void makeMove(const Level &level, Float32 elapsedTime);
+        void makeMove(const Level &level, ElevatorList &elevators, Float32 elapsedTime);
 
         void moveHorizontal(const Level &level, Float32 elapsedTime, Float32 speed);
 
@@ -488,12 +521,22 @@ namespace Duel6 {
         }
 
         void setFlag(Uint32 flag) {
+            if(isCompensating) {
+                return;
+            }
             flags |= flag;
         }
 
         void unsetFlag(Uint32 flag) {
+            if(isCompensating) {
+                return;
+            }
+
             flags &= ~flag;
         }
+
+    private:
+        void updateLoop(World &world, ElevatorList &elevators, Float32 elapsedTime);
     };
 }
 

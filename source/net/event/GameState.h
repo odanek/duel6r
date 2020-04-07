@@ -40,17 +40,16 @@ namespace Duel6::net {
         GameStateState state = GameStateState::RUNNING;
     //    std::vector<Client> clients;
         Int32 clientId;
+        tick_t tick;
         World world;
         std::vector<PlayerProfile> playerProfiles;
         std::vector<Player> players;
-        GameState() {
-
-        }
-
+        GameState() = default;
         template<typename Stream>
         bool serialize(Stream &s) {
             return s & state // @suppress("Suggested parenthesis around expression")
                 && s & clientId // @suppress("Suggested parenthesis around expression")
+                && s & tick // @suppress("Suggested parenthesis around expression")
                 && s & world // @suppress("Suggested parenthesis around expression")
                 && s & playerProfiles // @suppress("Suggested parenthesis around expression")
                 && s & players; // @suppress("Suggested parenthesis around expression")

@@ -61,15 +61,16 @@ namespace Duel6 {
 
     void Game::update(Float32 elapsedTime) {
         if(!isRunning) return;
+        tick++;
         if (getRound().isOver()) {
             if (!getRound().isLast()) {
                 nextRound();
-
             }
         } else {
             getRound().update(elapsedTime);
             gameProxy->sendGameStateUpdate(*this);
         }
+
     }
 
     void Game::keyEvent(const KeyPressEvent &event) {
@@ -223,6 +224,12 @@ namespace Duel6 {
                 }
             }
         }
+    }
+    void Game::compensateLag(uint16_t confirmInputTick) {
+        isCompensatingLag = true;
+
+        round->compensateLag(tick, confirmInputTick);
+        isCompensatingLag = false;
     }
     //client
     void Game::onStartRound(std::unique_ptr<Level> && levelData) {

@@ -84,22 +84,13 @@ namespace Duel6 {
             size_t i = 0;
             for (std::unique_ptr<Peer> &p : peers) {
                 if (p.get() == nullptr) {
-
-//                    //TODO MEM LEAK HERE
-//                    ClientGameProxy * proxy = new ClientGameProxy();
-//                    proxy->setGameReference(*game);
-//                    //
-                    p = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, i);
+                    p = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, serviceHost.get(), i);
 
                     return;
                 }
                 i++;
             }
-//            //TODO MEM LEAK HERE
-//            ClientGameProxy * proxy = new ClientGameProxy();
-//            proxy->setGameReference(*game);
-//            //
-            peers.emplace_back(std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, i));
+            peers.emplace_back(std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, serviceHost.get(), i));
         }
 
         void NetHost::onPeerDisconnected(ENetPeer *peer, enet_uint32 reason) {

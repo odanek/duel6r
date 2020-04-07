@@ -58,6 +58,7 @@ namespace Duel6 {
         friend class Duel6::net::ClientGameProxy;
 
     public:
+        uint16_t tick = 0;
         bool isServer = false;
         bool isRunning = false;
         class PlayerDefinition {
@@ -149,6 +150,9 @@ namespace Duel6 {
 
     public:
         Int32 maxPlayerId = 0;
+        bool isCompensatingLag = false ;
+        void compensateLag(uint16_t confirmInputTick);
+
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
         void setGameProxyReference(net::GameProxy & serverGameProxy) {
             this->gameProxy = &serverGameProxy;

@@ -16,6 +16,7 @@
 #include "Service.h"
 
 #define CHANNEL 0
+#define UNRELIABLE_CHANNEL 1
 namespace Duel6 {
     namespace net {
         class ClientGameProxy;
@@ -29,28 +30,29 @@ namespace Duel6 {
         };
         struct PeerRef { // gets recorded in ENets' peer->data
             size_t pos;
-            Peer * peer;
+            Peer *peer;
         };
         class Peer {
         private:
             PeerState state = PeerState::DISCONNECTED;
-            ClientGameProxy * gameProxy = nullptr;
-            ServerGameProxy * serverGameProxy = nullptr; //parent
-           // Service *service;
+            ClientGameProxy *gameProxy = nullptr;
+            ServerGameProxy *serverGameProxy = nullptr; //parent
+            ENetHost *host = nullptr;
+            // Service *service;
             std::unique_ptr<ENetPeer> peer;
             size_t pos = 0;
             peer_id_t incomingPeerID = 0;
             // SomeAppObject callbacks
         public:
-
-            Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, size_t pos);
-            Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer);
+            uint16_t confirmedInputsTick = 0; //TODO private
+            uint16_t receivedInputsTick = 0;
+            Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, size_t pos);
+            Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host);
             Peer() = default;
             Peer(const Peer &peer) = delete;
             Peer(Peer &&peer) = delete;
             Peer& operator =(Peer &&peer) = default;
             Peer& operator =(const Peer &peer) = default;
-
 
             void reset();
 
@@ -60,25 +62,32 @@ namespace Duel6 {
             void handle(MessageType type, Stream &s) {
 
             }
-
             template<typename MessageObject>
-            void send(MessageObject & msg){
+            void sendReliable(MessageObject &msg, uint8_t channel = CHANNEL, bool reliable = true) {
+                send(msg, CHANNEL, true);
+            }
+            template<typename MessageObject>
+            void sendUnreliable(MessageObject &msg) {
+                send(msg, UNRELIABLE_CHANNEL, false);
+                enet_host_flush(host);
+            }
+            template<typename MessageObject>
+            void send(MessageObject &msg, uint8_t channel = CHANNEL, bool reliable = true) {
                 binarystream bs;
                 msg.send(bs);
                 std::string dataStr = bs.str();
-                const char * data = dataStr.c_str();
+                const char *data = dataStr.c_str();
                 size_t dataLen = dataStr.length();
-                ENetPacket * packet = enet_packet_create(data, dataLen, ENET_PACKET_FLAG_RELIABLE);
-                enet_peer_send(peer.get(), CHANNEL, packet );
+                ENetPacket *packet = enet_packet_create(data, dataLen, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
+                enet_peer_send(peer.get(), channel, packet);
             }
             template<typename MessageObject>
-            void send(MessageObject && msg){
+            void send(MessageObject &&msg) {
                 send(msg);
             }
             bool onConnected(ENetPeer *me);
 
             bool onDisconnected(ENetPeer *me, enet_uint32 reason);
-
 
             virtual ~Peer() {
                 destroy();

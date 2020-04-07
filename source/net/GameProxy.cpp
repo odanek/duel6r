@@ -30,16 +30,34 @@ namespace Duel6 {
         }
         void GameProxy::sendGameState(std::list<Peer*> &peers, Game &game) {
             GameState s;
+            s.tick = game.tick;
             s.players.reserve(game.getPlayers().size());
             s.playerProfiles.reserve(s.players.size());
             for (auto &player : game.getPlayers()) {
                 Player p;
                 p.id = player.getId();
                 p.clientLocalId = player.getClientLocalId();
-                const auto &playerPosition = player.getPosition();
-                p.position = { playerPosition.x, playerPosition.y, playerPosition.z };
+
+                const auto &collidingEntity = player.getCollider();
+                const auto &position = collidingEntity.position;
+                const auto &externalForces = collidingEntity.externalForces;
+                const auto &externalForcesSpeed = collidingEntity.externalForcesSpeed;
+                const auto &velocity = collidingEntity.velocity;
+                const auto &acceleration = collidingEntity.acceleration;
+                p.position = { position.x, position.y, position.z };
+                p.externalForces = { externalForces.x, externalForces.y, externalForces.z };
+                p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, externalForcesSpeed.z };
+                p.velocity = { velocity.x, velocity.y, velocity.z };
+                p.acceleration = { acceleration.x, acceleration.y, acceleration.z };
+
                 p.controls = player.getControllerState();
-                p.orientationLeft = player.getOrientation() == Orientation::Left;
+                p.flags = player.getFlags();
+                p.life = player.getLife();
+                p.air = player.getAir();
+                p.ammo = player.getAmmo();
+                p.weaponId = player.getWeapon().getId();
+                p.orientationLeft = { player.getOrientation() == Orientation::Left };
+
                 s.players.push_back(p);
 
                 PlayerProfile pp;

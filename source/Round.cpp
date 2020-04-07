@@ -166,6 +166,22 @@ namespace Duel6 {
         }
     }
 
+    void Round::compensateLag(uint16_t gameTick, uint16_t confirmedTick) {
+        static const Float64 elapsedTime = 1.0f / D6_UPDATE_FREQUENCY; // TODO
+        isCompensatingLag = true;
+        uint16_t ticks = gameTick - confirmedTick;
+        if(ticks > 10) {
+            //debug
+        }
+//        world.confirmElevators(ticks, elapsedTime);
+        for (Player &player : world.getPlayers()) {
+
+            player.compensateLag(world, gameTick, confirmedTick, elapsedTime);
+        }
+
+        isCompensatingLag = false;
+    }
+
     void Round::update(Float32 elapsedTime) {
         // Check if there's a winner
         if (!hasWinner()) {
@@ -178,11 +194,23 @@ namespace Duel6 {
         }
 
         for (Player &player : world.getPlayers()) {
-            player.updateControllerStatus();
-            scriptUpdate(player);
-            player.update(world, game.getSettings().getScreenMode(), elapsedTime);
-            if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
-                player.makeGhost();
+            if(player.local){ //remote players get their tik updated by GameStateUpdates
+                player.updateControllerStatus();
+                scriptUpdate(player);
+
+                player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+                if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
+                    player.makeGhost();
+                }
+            } else {
+                while(player.tick <= player.lastConfirmedTick){
+                    scriptUpdate(player);
+                    player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
+                    player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+                    if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
+                        player.makeGhost();
+                    }
+                }
             }
         }
 

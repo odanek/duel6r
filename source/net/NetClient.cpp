@@ -52,7 +52,7 @@ namespace Duel6 {
             ENetAddress address;
             enet_address_set_host(&address, host.c_str());
             address.port = port;
-            peer = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, enet_host_connect(serviceHost.get(), &address, 2, 42));
+            peer = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, enet_host_connect(serviceHost.get(), &address, 2, 42), serviceHost.get());
         }
 
         void NetClient::onStopping() {

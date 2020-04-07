@@ -26,6 +26,7 @@ namespace Duel6 {
             std::string host;
             port_t port;
             std::unique_ptr<Peer> peer;
+            ENetHost *nethost;
 
         public:
             NetClient(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy);
