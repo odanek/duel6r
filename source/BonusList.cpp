@@ -64,11 +64,11 @@ namespace Duel6 {
             Int32 bullets = Math::random(10) + 10;
             weapons.push_back(LyingWeapon(Weapon::getRandomEnabled(settings), bullets, Vector(x, y)));
         } else {
-            BonusType type = BonusType::values()[Math::random(BonusType::values().size())];
+            const BonusType *type = BonusType::ALL[Math::random(BonusType::ALL.size())];
             bool random = Math::random(RANDOM_BONUS_FREQUENCY) == 0;
-            Int32 duration = type.isOneTime() ? 0 : 13 + Math::random(17);
+            Int32 duration = type->isOneTime() ? 0 : 13 + Math::random(17);
             bonuses.push_back(
-                    Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? 0 : type.getTextureIndex()));
+                    Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? 0 : type->getTextureIndex()));
         }
     }
 
@@ -110,12 +110,12 @@ namespace Duel6 {
         auto bonusIter = bonuses.begin();
         while (bonusIter != bonuses.end()) {
             Bonus &bonus = *bonusIter;
-            BonusType type = bonusIter->getType();
+            const BonusType *type = bonusIter->getType();
 
             bool collides = Collision::rectangles(bonus.getCollisionRect(), player.getCollisionRect());
-            if (collides && type.isApplicable(player, world)) {
-                if (type.isOneTime()) {
-                    type.onApply(player, world, 0);
+            if (collides && type->isApplicable(player, world)) {
+                if (type->isOneTime()) {
+                    type->onApply(player, world, 0);
                 } else {
                     player.setBonus(type, bonus.getDuration());
                 }

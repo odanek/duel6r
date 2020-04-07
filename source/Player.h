@@ -118,7 +118,7 @@ namespace Duel6 {
         Float32 life;
         Float32 air;
         Int32 ammo;
-        BonusType bonus;
+        const BonusType *bonus;
         Int32 roundKills;
         Float32 timeToReload;
         Float32 bonusRemainingTime;
@@ -249,7 +249,7 @@ namespace Duel6 {
             return *this;
         }
 
-        Player &setBonus(BonusType type, Int32 duration);
+        Player &setBonus(const BonusType *type, Int32 duration);
 
         Float32 getLife() const {
             return life;
@@ -270,7 +270,7 @@ namespace Duel6 {
             return 1.0f - timeToReload / getReloadInterval();
         }
 
-        BonusType getBonus() const {
+        const BonusType *getBonus() const {
             return bonus;
         }
 

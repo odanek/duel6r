@@ -283,7 +283,7 @@ namespace Duel6 {
         renderer.enableDepthWrite(false);
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
         renderer.quadXY(Vector(X, Y, 0.5f), Vector(size, size),
-                        Vector(0.3f, 0.7f, Float32(bonusType.getTextureIndex())), Vector(0.4f, -0.4f), material);
+                        Vector(0.3f, 0.7f, Float32(bonusType->getTextureIndex())), Vector(0.4f, -0.4f), material);
         renderer.setBlendFunc(BlendFunc::None);
         renderer.enableDepthWrite(true);
     }
@@ -341,7 +341,7 @@ namespace Duel6 {
                 bulletIndicator(player, bullets, bulletX, yOfs);
             }
 
-            if (bonus.isVisible()) {
+            if (bonus.isVisible() && player.getBonus() != BonusType::NONE) {
                 Float32 bonusX = xStart + nameWidth + bulletWidth + bonusWidth / 2;
                 bonusIndicator(player, bonus, bonusX, yOfs);
             }

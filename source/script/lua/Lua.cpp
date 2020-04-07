@@ -213,7 +213,7 @@ namespace Duel6::Script {
                     lua_pushnil(state);
                 } else {
                     lua_newtable(state);
-                    Lua::pushProperty(state, "name", bonus.getName());
+                    Lua::pushProperty(state, "name", bonus->getName());
                     Lua::pushProperty(state, "remainingTime", player.getBonusRemainingTime());
                 }
                 return 1;

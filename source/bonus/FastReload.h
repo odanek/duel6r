@@ -32,7 +32,7 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        class FastReload : public BonusTypeImpl {
+        class FastReload : public BonusType {
         public:
             std::string getName() const override {
                 return "fastReload";

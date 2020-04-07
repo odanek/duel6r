@@ -34,14 +34,15 @@
 #include "Rectangle.h"
 #include "Weapon.h"
 #include "collision/WorldCollision.h"
+
 namespace Duel6 {
     class Player;
 
     class World;
 
-    class BonusTypeImpl {
+    class BonusType {
     public:
-    	virtual ~BonusTypeImpl() = default;
+        virtual ~BonusType() = default;
 
         virtual std::string getName() const = 0;
 
@@ -54,78 +55,41 @@ namespace Duel6 {
         virtual void onApply(Player &player, World &world, Int32 duration) const = 0;
 
         virtual void onExpire(Player &player, World &world) const = 0;
-    };
-
-    class BonusType final {
-    private:
-        typedef std::unique_ptr<BonusTypeImpl> BonusTypeImplPtr;
 
     public:
-        static const BonusType NONE;
-        static const BonusType PLUS_LIFE;
-        static const BonusType MINUS_LIFE;
-        static const BonusType FULL_LIFE;
-        static const BonusType FAST_RELOAD;
-        static const BonusType POWERFUL_SHOTS;
-        static const BonusType INVULNERABILITY;
-        static const BonusType BULLETS;
-        static const BonusType FAST_MOVEMENT;
-        static const BonusType INVISIBILITY;
-        static const BonusType SPLIT_FIRE;
-        static const BonusType VAMPIRE_SHOTS;
-        static const BonusType INFINITE_AMMO;
-        static const BonusType SNORKEL;
-
-    private:
-        mutable BonusTypeImpl *impl;
-
-        void assign(BonusTypeImplPtr &&impl) const;
-
-    private:
-        static std::vector<BonusType> types;
-        static std::vector<BonusTypeImplPtr> implementations;
+        static const BonusType *const NONE;
+        static const BonusType *const PLUS_LIFE;
+        static const BonusType *const MINUS_LIFE;
+        static const BonusType *const FULL_LIFE;
+        static const BonusType *const FAST_RELOAD;
+        static const BonusType *const POWERFUL_SHOTS;
+        static const BonusType *const INVULNERABILITY;
+        static const BonusType *const BULLETS;
+        static const BonusType *const FAST_MOVEMENT;
+        static const BonusType *const INVISIBILITY;
+        static const BonusType *const SPLIT_FIRE;
+        static const BonusType *const VAMPIRE_SHOTS;
+        static const BonusType *const INFINITE_AMMO;
+        static const BonusType *const SNORKEL;
 
     public:
-        BonusType();
-
-        BonusType(const BonusType &bonusType);
-
-        std::string getName() const;
-
-        Int32 getTextureIndex() const;
-
-        bool isOneTime() const;
-
-        bool isApplicable(Player &player, World &world) const;
-
-        void onApply(Player &player, World &world, Int32 duration) const;
-
-        void onExpire(Player &player, World &world) const;
-
-        bool operator==(const BonusType &bonus) const;
-
-        bool operator!=(const BonusType &bonus) const;
-
-    public:
-        static const std::vector<BonusType> &values();
-
-        static void initialize();
+        static const std::vector<const BonusType *> ALL;
     };
 
     class Bonus {
     private:
-        BonusType bonus;
+        const BonusType *type;
         Int32 duration;
         Vector position;
         Int32 textureIndex;
 
     public:
-        Bonus(BonusType type, Int32 duration, const Vector &position, Int32 textureIndex);
+        Bonus(const BonusType *type, Int32 duration, const Vector &position, Int32 textureIndex);
 
         void render(Renderer &renderer, Texture texture) const;
 
-        const BonusType &getType() const {
-            return bonus;
+        const BonusType *getType() const {
+            return type;
         }
 
         Int32 getDuration() const {

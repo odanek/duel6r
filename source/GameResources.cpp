@@ -66,8 +66,5 @@ namespace Duel6 {
 
         Texture burn = textureManager.loadStack("textures/fire/burn/", TextureFilter::Linear, true);
         burningTexture = burn;
-
-        console.printLine("\n...Bonus initialization");
-        BonusType::initialize();
     }
 }

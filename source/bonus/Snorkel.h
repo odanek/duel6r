@@ -32,7 +32,7 @@
 
 namespace Duel6 {
     namespace Bonuses {
-        class Snorkel : public BonusTypeImpl {
+        class Snorkel : public BonusType {
         public:
             std::string getName() const override {
                 return "snorkel";

@@ -777,17 +777,21 @@ namespace Duel6 {
         }
     }
 
-    Player &Player::setBonus(BonusType type, Int32 duration) {
+    Player &Player::setBonus(const BonusType *type, Int32 duration) {
         if (type == bonus) {
             bonusRemainingTime += Float32(duration) / 2;
             bonusDuration += Float32(duration) / 2;
         } else {
-            bonus.onExpire(*this, *world);
+            if (bonus != BonusType::NONE) {
+                bonus->onExpire(*this, *world);
+            }
             bonus = type;
             bonusRemainingTime = Float32(duration);
             bonusDuration = Float32(duration);
         }
-        bonus.onApply(*this, *world, Int32(bonusDuration));
+        if (bonus != BonusType::NONE) {
+            bonus->onApply(*this, *world, Int32(bonusDuration));
+        }
         indicators.getBonus().show(bonusDuration);
         return *this;
     }
