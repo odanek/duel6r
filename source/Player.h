@@ -148,7 +148,7 @@ namespace Duel6 {
         uint16_t tick = 0;
         uint16_t lastConfirmedTick = 0;
         uint16_t lateTicks = 0; //debug
-        Vector lastConfirmedPos; // for client-side prediction
+     //   Vector lastConfirmedPos; // for client-side prediction
         std::array<Uint32, 128> unconfirmedInputs;
         bool isCompensating = false;
 
@@ -164,8 +164,8 @@ namespace Duel6 {
                Int32 clientId,
                Int32 clientLocalId,
                size_t pos);
-        Player(Player &&) = default; //fingers crossed
-        Player & operator=(Player &&) = default; //fingers crossed
+        Player(Player &&); //fingers crossed
+        Player & operator=(Player &&);
         ~Player();
 
         bool is(const Player &player) const {

@@ -1,6 +1,7 @@
 #ifndef BINARYSTREAMS_TRAITS_H
 #define BINARYSTREAMS_TRAITS_H
 #include <array>
+#include <bitset>
 #include <deque>
 #include <forward_list>
 #include <list>
@@ -29,6 +30,11 @@ template<typename Container>
 struct is_array: std::false_type {};
 template<typename Ts, std::size_t Sz>
 struct is_array<std::array<Ts,Sz>> : std::true_type {};
+
+template<typename Container>
+struct is_bitset: std::false_type {};
+template<std::size_t Sz>
+struct is_bitset<std::bitset<Sz>> : std::true_type {};
 
 //has push_back
 template <typename Container>

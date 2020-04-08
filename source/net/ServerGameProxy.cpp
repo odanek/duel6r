@@ -69,53 +69,68 @@ namespace Duel6 {
         }
         void ServerGameProxy::nextRound() {
             for (auto &peer : peers) {
+                for(auto &s : peer->snapshot){
+                    s.clear();
+                }
                 peer->send(NextRound());
             }
         }
 
         void ServerGameProxy::sendGameStateUpdate(Game &game) {
-            GameStateUpdate gsu;
-            gsu.inputTick = game.tick;
-            gsu.players.reserve(game.getPlayers().size());
-
-            for (auto &player : game.getPlayers()) {
-                if (!(player.local || game.isServer)){
-                    continue;
-                }
-                Player p;
-                p.id = player.getId();
-                p.clientLocalId = player.getClientLocalId();
-
-                if (player.local) {
-                    player.unconfirmedInputs[game.tick % 128] = player.getControllerState();
-                    for(size_t i = 0; i < 16 ; i++){
-                        p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) % 128];
-                    }
-                    p.controls = player.getControllerState();
-                }
-                if (game.isServer) {
-                    const auto &collidingEntity = player.getCollider();
-                    const auto &position = collidingEntity.position;
-                    const auto &externalForces = collidingEntity.externalForces;
-                    const auto &externalForcesSpeed = collidingEntity.externalForcesSpeed;
-                    const auto &velocity = collidingEntity.velocity;
-                    const auto &acceleration = collidingEntity.acceleration;
-                    p.position = { position.x, position.y, position.z };
-                    p.externalForces = { externalForces.x, externalForces.y, externalForces.z };
-                    p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, externalForcesSpeed.z };
-                    p.velocity = { velocity.x, velocity.y, velocity.z };
-                    p.acceleration = { acceleration.x, acceleration.y, acceleration.z };
-                    p.flags = player.getFlags();
-                    p.life = player.getLife();
-                    p.air = player.getAir();
-                    p.ammo = player.getAmmo();
-                    p.weaponId = player.getWeapon().getId();
-                    p.orientationLeft = { player.getOrientation() == Orientation::Left };
-                }
-                gsu.players.push_back(p);
-            }
-
             for (auto &peer : peers) {
+                GameStateUpdate gsu;
+                gsu.inputTick = game.tick;
+                gsu.players.reserve(game.getPlayers().size());
+
+                for (auto &player : game.getPlayers()) {
+                    if (!(player.local || game.isServer)){
+                        continue;
+                    }
+                    Player p;
+                    p.id = player.getId();
+                    p.clientLocalId = player.getClientLocalId();
+
+                    if (player.local) {
+                        player.unconfirmedInputs[game.tick % 128] = player.getControllerState();
+                        for(size_t i = 0; i < 16 ; i++){
+                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) % 128];
+                        }
+                        p.changed[Player::FIELDS::CONTROLS] = true;
+                        p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
+                        p.controls = player.getControllerState();
+                    }
+                    if (game.isServer) {
+                        const auto &collidingEntity = player.getCollider();
+                        const auto &position = collidingEntity.position;
+                        const auto &externalForces = collidingEntity.externalForces;
+                        const auto &externalForcesSpeed = collidingEntity.externalForcesSpeed;
+                        const auto &velocity = collidingEntity.velocity;
+                        const auto &acceleration = collidingEntity.acceleration;
+                        p.position = { position.x, position.y};
+                        p.externalForces = { externalForces.x, externalForces.y };
+                        p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y};
+                        p.velocity = { velocity.x, velocity.y};
+                        p.acceleration = { acceleration.x, acceleration.y};
+                        p.flags = player.getFlags();
+                        p.life = player.getLife();
+                        p.air = player.getAir();
+                        p.ammo = player.getAmmo();
+                        p.weaponId = player.getWeapon().getId();
+                        p.orientationLeft = { player.getOrientation() == Orientation::Left };
+                        peer->snapshot[game.tick % 32][p.id] = p;
+                    }
+
+
+                    if( game.isServer && (std::abs(game.tick - peer->receivedInputsTick % 32000) < 32 || peer->snapshot[peer->receivedInputsTick % 32].count(p.id) > 0)){
+                        Player result = Player::diff(p, peer->snapshot[peer->receivedInputsTick % 32][p.id]);
+                        gsu.players.push_back(result);
+                    } else {
+                        gsu.players.push_back(p);
+                    }
+
+                }
+
+
                 gsu.confirmInputTick = peer->receivedInputsTick;
                 peer->sendUnreliable(gsu); // @suppress("Ambiguous problem")
             }

@@ -14,7 +14,7 @@
 #include "Event.h"
 //#include "GameProxy.h"
 #include "Service.h"
-
+#include "object/Player.h"
 #define CHANNEL 0
 #define UNRELIABLE_CHANNEL 1
 namespace Duel6 {
@@ -42,8 +42,11 @@ namespace Duel6 {
             std::unique_ptr<ENetPeer> peer;
             size_t pos = 0;
             peer_id_t incomingPeerID = 0;
+
             // SomeAppObject callbacks
         public:
+            Uint32 getRTT() const;
+            std::array<std::map<Uint32, Player>, 32> snapshot;
             uint16_t confirmedInputsTick = 0; //TODO private
             uint16_t receivedInputsTick = 0;
             Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, size_t pos);

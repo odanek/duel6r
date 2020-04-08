@@ -65,6 +65,7 @@ namespace Duel6 {
               clientId(clientId),
               clientLocalId(clientLocalId),
               pos(pos){
+        flags = 0;
         camera.rotate(180.0, 0.0, 0.0);
         controllerState = 0;
         unconfirmedInputs.fill(0);
@@ -148,7 +149,104 @@ namespace Duel6 {
             }
         }
     }
+     Player::Player(Player &&r):
+          deleted(r.deleted),
+          person(r.person),
+          skin(r.skin),
+          camera(r.camera),
+          cameraFov(r.cameraFov),
+          cameraTolerance(r.cameraTolerance),
+          animations(r.animations),
+          sounds(r.sounds),
+          controls(r.controls),
+          view(r.view),
+          water(r.water),
+          sprite(r.sprite),
+          gunSprite(r.gunSprite),
+          flags(r.flags),
+          orientation(r.orientation),
+          life(r.life),
+          air(r.air),
+          ammo(r.ammo),
+          bonus(r.bonus),
+          roundKills(r.roundKills),
+          timeToReload(r.timeToReload),
+          bonusRemainingTime(r.bonusRemainingTime),
+          bonusDuration(r.bonusDuration),
+          timeSinceHit(r.timeSinceHit),
+          timeStuckInWall(r.timeStuckInWall),
+          tempSkinDuration(r.tempSkinDuration),
+          alpha(r.alpha),
+          weapon(r.weapon),
+          eventListener(r.eventListener),
+          world(r.world),
+          bodyAlpha(r.bodyAlpha),
+          roundStartTime(r.roundStartTime),
+          indicators(r.indicators),
+          controllerState(r.controllerState),
+          collider(r.collider),
+          id(r.id),
+          team(r.team),
+          clientId(r.clientId),
+          clientLocalId(r.clientLocalId),
+          local(r.local),
+          pos(r.pos),
+          tick(r.tick),
+          lastConfirmedTick(r.lastConfirmedTick),
+          lateTicks(r.lateTicks),
+          unconfirmedInputs(r.unconfirmedInputs),
+          isCompensating(r.isCompensating) {
+        }
 
+    Player & Player::operator=(Player &&r){
+        deleted = r.deleted;
+        person = r.person;
+        skin = r.skin;
+        camera = r.camera;
+        cameraFov = r.cameraFov;
+        cameraTolerance = r.cameraTolerance;
+        animations = r.animations;
+        sounds = r.sounds;
+        controls = r.controls;
+        view = r.view;
+        water = r.water;
+        sprite = r.sprite;
+        gunSprite = r.gunSprite;
+        flags = r.flags;
+        orientation = r.orientation;
+        life = r.life;
+        air = r.air;
+        ammo = r.ammo;
+        bonus = r.bonus;
+        roundKills = r.roundKills;
+        timeToReload = r.timeToReload;
+        bonusRemainingTime = r.bonusRemainingTime;
+        bonusDuration = r.bonusDuration;
+        timeSinceHit = r.timeSinceHit;
+        timeStuckInWall = r.timeStuckInWall;
+        tempSkinDuration = r.tempSkinDuration;
+        alpha = r.alpha;
+        weapon = r.weapon;
+        eventListener = r.eventListener;
+        world = r.world;
+        bodyAlpha = r.bodyAlpha;
+        roundStartTime = r.roundStartTime;
+        indicators = r.indicators;
+        controllerState = r.controllerState;
+        collider = r.collider;
+        id = r.id;
+        team = r.team;
+        clientId = r.clientId;
+        clientLocalId = r.clientLocalId;
+        local = r.local;
+        pos = r.pos;
+        tick = r.tick;
+        lastConfirmedTick = r.lastConfirmedTick;
+        lateTicks = r.lateTicks;
+        unconfirmedInputs = r.unconfirmedInputs;
+        isCompensating = r.isCompensating;
+        return *this;
+    }
     void Player::moveVertical(const Level &level, Float32 elapsedTime, Float32 speed) {
         if (hasFlag(FlagMoveUp) && this->collider.velocity.y <= 0 && (collider.isOnHardSurface())) {
             if (!collider.isUnderHardSurface()) {
@@ -437,9 +535,9 @@ namespace Duel6 {
     }
 
     void Player::compensateLag(World &world,  uint16_t gameTick, uint16_t confirmedTick, Float32 elapsedTime) {
-        if(!local) {
-            return;
-        }
+//        if(!local) {
+//            return;
+//        }
         uint16_t ticks = gameTick - confirmedTick;
         //collider.setPosition(lastConfirmedPos);
         auto tmp = controllerState;
@@ -853,7 +951,7 @@ namespace Duel6 {
     }
     void Player::setPosition(float x, float y, float z){
         collider.setPosition(x,y,z);
-        lastConfirmedPos = collider.getPosition(); //todo add acceleration, velocity etc.
+      //  lastConfirmedPos = collider.getPosition(); //todo add acceleration, velocity etc.
     }
     void Player::die() {
         setFlag(FlagDying | FlagLying);

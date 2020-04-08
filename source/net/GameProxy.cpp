@@ -44,11 +44,11 @@ namespace Duel6 {
                 const auto &externalForcesSpeed = collidingEntity.externalForcesSpeed;
                 const auto &velocity = collidingEntity.velocity;
                 const auto &acceleration = collidingEntity.acceleration;
-                p.position = { position.x, position.y, position.z };
-                p.externalForces = { externalForces.x, externalForces.y, externalForces.z };
-                p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, externalForcesSpeed.z };
-                p.velocity = { velocity.x, velocity.y, velocity.z };
-                p.acceleration = { acceleration.x, acceleration.y, acceleration.z };
+                p.position = { position.x, position.y};
+                p.externalForces = { externalForces.x, externalForces.y};
+                p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y};
+                p.velocity = { velocity.x, velocity.y};
+                p.acceleration = { acceleration.x, acceleration.y};
 
                 p.controls = player.getControllerState();
                 p.flags = player.getFlags();

@@ -9,6 +9,7 @@
 #define SOURCE_NET_CLIENTGAMEPROXY_H_
 #include <list>
 #include "GameProxy.h"
+#include "Peer.h"
 #include "../Person.h"
 #include "../PlayerSounds.h"
 namespace Duel6 {
@@ -17,6 +18,7 @@ namespace Duel6 {
     namespace net {
 
         class ClientGameProxy: public GameProxy {
+            Peer *peer;
             Game *game;
             std::list<Person> persons;
             std::map<Int32, Int32> idmap; //player mapping
@@ -30,6 +32,7 @@ namespace Duel6 {
             virtual ~ClientGameProxy();
 
             void setGameReference(Game &g);
+            void setPeerReference(Peer &peer);
 
             void handle(Player &p);
             void handle(GameState &s);

@@ -240,6 +240,57 @@ public:
         return good();
     }
 
+    template<std::size_t S>
+    bool operator >>(std::bitset<S> &bs) {
+        std::bitset<bs.size()> &b = bs; //TODO remove
+        b.reset();
+        size_t numBits = b.size();
+        uint8_t read = 0;
+        size_t bit = 0;
+        uint8_t pos = 1;
+
+        for (; bit < numBits; bit++) {
+            if (bit % 8 == 0) {
+                pos = 1;
+                if (!(*this >> read)) {
+                    return false;
+                }
+            } else {
+                pos *= 2;
+            }
+            bs >>= 1;
+            bs[numBits - 1] = (read & (pos)) > 0;
+
+        }
+
+        return good();
+    }
+    template<std::size_t S>
+    bool operator <<(std::bitset<S> &bs) {
+        std::bitset<bs.size()> &b = bs; //TODO remove
+        size_t numBits = b.size();
+        uint8_t write = 0;
+        size_t bit = 0;
+        uint8_t pos = 1;
+        for (; bit < numBits; bit++) {
+            write |= (pos & (bs[bit] ? 0xff : 0));
+            if (bit % 8 == 7) {
+                if (!(*this << write)) {
+                    return false;
+                }
+                pos = 1;
+                write = 0;
+            } else {
+                pos *= 2;
+            }
+        }
+        if (bit % 8 != 0) {
+            if (!(*this << write)) {
+                return false;
+            }
+        }
+        return good();
+    }
 
     template<typename T, typename std::enable_if<is_serializable_container<T>::value, int>::type = 0>
     bool s_read(T& l, const uint32_t size_min, const uint32_t size_max) {

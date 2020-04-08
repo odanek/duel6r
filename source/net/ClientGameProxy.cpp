@@ -22,6 +22,11 @@ namespace Duel6 {
         {
             // TODO Auto-generated destructor stub
         }
+
+        void ClientGameProxy::setPeerReference(Peer &peer) {
+            this->peer = &peer;
+        }
+
         void ClientGameProxy::setGameReference(Game &g) {
             game = &g;
             defaultSounds = PlayerSounds::makeDefault(game->getAppService().getSound());
@@ -32,7 +37,7 @@ namespace Duel6 {
             auto &player = game->players[pos];
 
             if (!game->isServer) {
-                player.setPosition(position.x, position.y, position.z);
+                player.setPosition(position.x, position.y, 0);
                 //TODO lag compensation
                 //        player.lastConfirmedPos = player.getPosition();
             }
@@ -56,6 +61,10 @@ namespace Duel6 {
                 auto &player = game->players[pos];
                 player.lastConfirmedTick = gsu.confirmInputTick;
                 if (!game->isServer) {
+                    if(peer->snapshot[gsu.confirmInputTick % 32].count(p.id) > 0){
+                        Player & confirmed = peer->snapshot[gsu.confirmInputTick % 32][p.id];
+                        Player::fillinFromPreviousConfirmed(confirmed, p);
+                    }
                     auto & position = p.position;
                     auto & externalForces = p.externalForces;
                     auto & externalForcesSpeed = p.externalForcesSpeed;
@@ -63,36 +72,35 @@ namespace Duel6 {
                     auto & acceleration = p.acceleration;
 
                     auto & collidingEntity = player.getCollider();
-                    collidingEntity.position = {position.x, position.y, position.z};
-                    collidingEntity.externalForces = {externalForces.x, externalForces.y, externalForces.z};
-                    collidingEntity.externalForcesSpeed = {externalForcesSpeed.x, externalForcesSpeed.y, externalForcesSpeed.z};
-                    collidingEntity.velocity = {velocity.x, velocity.y, velocity.z};
-                    collidingEntity.acceleration = {acceleration.x, acceleration.y, acceleration.z};
+                        collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
+                        collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
+                        collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
+                        collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
+                        collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
 
-
-                   // player.setPosition(position.x, position.y, position.z);
-                    player.setFlags(p.flags);
-                    player.setLife(p.life);
-                    player.setAir(p.air);
-                    player.setAmmo(p.ammo);
-                    // player.setWeapon(p.weaponId);
-                    player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
-                    if( player.local && game->tick - gsu.confirmInputTick < 16) { // cap it at 16 frames to avoid run-away of death
-                      game->compensateLag(gsu.confirmInputTick); // run client-side prediction
+                        player.setFlags(p.flags);
+                        player.setLife(p.life);
+                        player.setAir(p.air);
+                        player.setAmmo(p.ammo);
+                        player.setWeapon(p.weaponId);
+                        player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
+                    if (player.local && game->tick - gsu.confirmInputTick < 16) { // cap it at 16 frames to avoid run-away of death
+                        Uint32 ms = 1000/90;
+                        Uint32 drift = peer->getRTT() / ms;
+                        game->compensateLag(game->tick - drift  /2 /*gsu.confirmInputTick */); // run client-side prediction
                     }
+                    peer->snapshot[gsu.inputTick % 32][p.id] = p;
                 } else {
 
                 }
                 if (!player.local) {
                     size_t missed = player.lastConfirmedTick - player.tick;
-                    if(missed > 15){
-                        missed = 15;
+                    if(missed > 16){
+                        missed = 16;
                     }
-                    for(size_t i = 0; i <= missed; i++){
-                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[15 - missed + i];
+                    for(size_t i = 0; i < missed; i++){
+                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[16 - missed + i];
                     }
-                    //player.unconfirmedInputs[player.tick % 128] = p.controls;
-                   // player.setControllerState(p.controls);
                 }
             }
         }
@@ -141,10 +149,7 @@ namespace Duel6 {
 
             for (auto &p : sr.playerProfiles) {
                 if (clientId == p.clientId) { // player local to the client
-
-                    /// TADY JE NECO ROZESRANYHO //
                     idmap[p.playerId] = p.clientLocalId;
-
                     game->players[p.clientLocalId].setId(p.playerId);
                     game->players[p.clientLocalId].setClientId(p.clientId);
                     idmapBack[p.clientLocalId] = p.playerId;
@@ -188,11 +193,11 @@ namespace Duel6 {
                 auto & acceleration = p.acceleration;
 
                 auto & collidingEntity = player.getCollider();
-                collidingEntity.position = {position.x, position.y, position.z};
-                collidingEntity.externalForces = {externalForces.x, externalForces.y, externalForces.z};
-                collidingEntity.externalForcesSpeed = {externalForcesSpeed.x, externalForcesSpeed.y, externalForcesSpeed.z};
-                collidingEntity.velocity = {velocity.x, velocity.y, velocity.z};
-                collidingEntity.acceleration = {acceleration.x, acceleration.y, acceleration.z};
+                collidingEntity.position = {position.x, position.y, collidingEntity.position.z};
+                collidingEntity.externalForces = {externalForces.x, externalForces.y, collidingEntity.externalForces.z};
+                collidingEntity.externalForcesSpeed = {externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z};
+                collidingEntity.velocity = {velocity.x, velocity.y, collidingEntity.velocity.z};
+                collidingEntity.acceleration = {acceleration.x, acceleration.y, collidingEntity.acceleration.z};
 
              //   game->compensateLag(gsu.confirmInputTick); // run client-side prediction
                 player.setFlags(p.flags);
@@ -207,6 +212,9 @@ namespace Duel6 {
         }
 
         void ClientGameProxy::handle(NextRound &nr) {
+            for(auto & s : peer->snapshot){
+                s.clear();
+            }
             game->onNextRound();
         }
         tick_t ClientGameProxy::getTick() const {

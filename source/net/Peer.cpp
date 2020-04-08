@@ -162,6 +162,9 @@ namespace Duel6 {
             return incomingPeerID;
         }
 
+        Uint32 Peer::getRTT() const {
+            return peer->roundTripTime;
+        }
         void Peer::destroy() {
             state = PeerState::DISCONNECTED;
             if (peer.get() != nullptr) {
@@ -180,6 +183,7 @@ namespace Duel6 {
             peer->data = new PeerRef{pos, this};
             incomingPeerID = peer->incomingPeerID;
             serverGameProxy.add(this);
+            gameProxy.setPeerReference(*this);
             state = PeerState::CONNECTED;
         }
         Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, ENetHost *host)
@@ -188,7 +192,7 @@ namespace Duel6 {
                    peer,
                    host,
                    0){
-
+            gameProxy.setPeerReference(*this);
         }
     } /* namespace net */
 } /* namespace Duel6 */

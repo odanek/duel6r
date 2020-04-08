@@ -189,6 +189,9 @@ namespace Duel6 {
         } else {
             gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
             if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
+                for (Player &player : world.getPlayers()) {
+                    player.tick++;
+                }
                 return;
             }
         }
@@ -203,7 +206,7 @@ namespace Duel6 {
                     player.makeGhost();
                 }
             } else {
-                while(player.tick <= player.lastConfirmedTick){
+                while(player.tick < player.lastConfirmedTick){
                     scriptUpdate(player);
                     player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
                     player.update(world, game.getSettings().getScreenMode(), elapsedTime);
