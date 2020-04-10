@@ -57,19 +57,32 @@ namespace Duel6 {
                 }
                 auto pos = idmap[p.id];
                 auto &player = game->players[pos];
-                player.lastConfirmedTick = gsu.confirmInputTick;
+
                 if (!game->isServer) {
                     uint16_t xor_32768 = 32767;
                     uint16_t xor_32 = 31;
+                    bool shoulLoadSnapshot = false;
+                    if(p.changed[0] || p.changed.count() != Player::FIELDS::_SIZE - 1){
+                        shoulLoadSnapshot = true;
+                    }
                     if (((gsu.inputTick - gsu.confirmInputTick) & xor_32768) < 32
                         && peer->snapshot[gsu.confirmInputTick & xor_32].count(p.id) > 0) {
                         if (peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick) {
                             Player &confirmed = peer->snapshot[gsu.confirmInputTick & xor_32][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
+                            shoulLoadSnapshot = false;
                         } else {
                             /* debug */
                         }
                     }
+                    if(shoulLoadSnapshot){
+                        // correct snapshot not found,
+                        // wait out the server to send full copy
+                        continue; // skip this player to not screw things
+                    } else {
+                        player.lastConfirmedTick = gsu.confirmInputTick;
+                    }
+
                     auto &position = p.position;
                     auto &externalForces = p.externalForces;
                     auto &externalForcesSpeed = p.externalForcesSpeed;
@@ -77,17 +90,17 @@ namespace Duel6 {
                     auto &acceleration = p.acceleration;
 
                     auto &collidingEntity = player.getCollider();
-                    Vector2D diff = {
-                        position.x - collidingEntity.position.x,
-                        position.y - collidingEntity.position.y
-                    };
-                     if(diff.x * diff.x + diff.y * diff.y > 0.9){
+//                    Vector2D diff = {
+//                        position.x - collidingEntity.position.x,
+//                        position.y - collidingEntity.position.y
+//                    };
+//                     if(diff.x * diff.x + diff.y * diff.y > 0.9){
                          collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
                          collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
-                     } else {
-                         collidingEntity.externalForcesSpeed.x += diff.x / 2;
-                         collidingEntity.externalForcesSpeed.y += diff.y / 2;
-                     }
+//                     } else {
+//                         collidingEntity.externalForcesSpeed.x += diff.x / 2;
+//                         collidingEntity.externalForcesSpeed.y += diff.y / 2;
+//                     }
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                     collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                     collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
@@ -103,11 +116,14 @@ namespace Duel6 {
                     //TODO handle 16bit wrap-around
                     if (player.local && game->tick - gsu.confirmInputTick < 3) { // cap it at 3 frames to avoid run-away of death
                         Uint32 ms = 1000 / 90;
-                        Uint32 drift = peer->getRTT() / ms;
-                        game->compensateLag(gsu.confirmInputTick); // run client-side prediction
+                        Uint32 drift = player.rtt / ms;
+
+//                        game->compensateLag(gsu.confirmInputTick); // run client-side prediction
+                    //    game->compensateLag(game->tick - drift  /2); // run client-side prediction
                     }
                     peer->snapshot[gsu.inputTick & xor_32][p.id] = p;
                 } else {
+                    player.lastConfirmedTick = gsu.confirmInputTick;
                     player.rtt = peer->getRTT();
                 }
                 if (!player.local) {
@@ -144,7 +160,7 @@ namespace Duel6 {
                     vel,
                     e.started);
             }
-//
+
             game->getSettings().setEnabledWeapons(sr.world.gameSettings.enabledWeapons);
             game->getSettings().setMaxRounds(sr.world.gameSettings.maxRounds);
             game->currentRound = sr.world.currentRound;
@@ -286,9 +302,6 @@ namespace Duel6 {
 
             r.connectingPlayers.reserve(game->getPlayers().size());
             for (auto &player : game->getPlayers()) {
-//                if (!player.local) {
-//                    continue;
-//                }
                 PlayerProfile cp;
                 PlayerProfile::Skin &skin = cp.skin;
                 cp.playerId = player.getId();

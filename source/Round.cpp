@@ -206,6 +206,7 @@ namespace Duel6 {
                     player.makeGhost();
                 }
             } else {
+                auto tmp = player.getControllerState();
                 while(player.tick < player.lastConfirmedTick){
                     scriptUpdate(player);
                     player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
@@ -214,6 +215,7 @@ namespace Duel6 {
                         player.makeGhost();
                     }
                 }
+                player.setControllerState(tmp); // put it back to not replay inputs
             }
         }
 

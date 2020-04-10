@@ -25,14 +25,13 @@ namespace Duel6::net {
         Vector2D velocity;
 
         Uint8 controls;
-        Uint32 flags;
+        Uint16 flags;
         Uint8 life;
         Uint8 air;
         Int16 ammo;
         Uint8 weaponId;
-        std::array<Uint32, 16> unconfirmedInputs;
+        std::array<Uint8, 16> unconfirmedInputs;
         bool orientationLeft;
-
 
         enum FIELDS {
             NO_CHANGE, // 1 means no other values should be de-/serialized
@@ -55,16 +54,9 @@ namespace Duel6::net {
         };
         std::bitset<FIELDS::_SIZE> changed;
 
-        Player(const Player &r);
-        Player& operator=(const Player &r);
-
-
-#define D(POS, FIELD) result.FIELD = snapshot.FIELD; if(!(confirmed.FIELD == snapshot.FIELD)) result.changed.set(POS)
-
-        static Player diff(const Player &snapshot, const Player &confirmed){
-            Player result;
-            result.id = snapshot.id;
-            result.changed.reset();
+#define D(POS, FIELD) if(!(confirmed.FIELD == snapshot.FIELD)) snapshot.changed.set(POS)
+        static void diff(Player &snapshot, const Player &confirmed) {
+            snapshot.changed.reset();
             D(CLIENTLOCALID, clientLocalId);
             D(POSITION, position);
             D(ACCELERATION, acceleration);
@@ -79,39 +71,37 @@ namespace Duel6::net {
             D(WEAPONID, weaponId);
             D(UNCONFIRMEDINPUTS, unconfirmedInputs);
             D(ORIENTATIONLEFT, orientationLeft);
-            if(result.changed.none()){
-                result.changed.set(NO_CHANGE);
+            if (snapshot.changed.none()) {
+                snapshot.changed.set(NO_CHANGE);
             }
-
-            return result;
         }
 
 #define R(POS, FIELD) if(unchanged || !received.changed[POS]) received.FIELD = confirmed.FIELD;
-        static void fillinFromPreviousConfirmed(const Player &confirmed, Player &received){
-                    //result.changed.reset();
-                    bool unchanged = received.changed[NO_CHANGE];
-                    R(CLIENTLOCALID, clientLocalId);
-                    R(POSITION, position);
-                    R(ACCELERATION, acceleration);
-                    R(EXTERNALFORCES, externalForces);
-                    R(EXTERNALFORCESSPEED, externalForcesSpeed);
-                    R(VELOCITY, velocity);
-                    R(CONTROLS, controls);
-                    R(FLAGS, flags);
-                    R(LIFE, life);
-                    R(AIR, air);
-                    R(AMMO, ammo);
-                    R(WEAPONID, weaponId);
-                    R(UNCONFIRMEDINPUTS, unconfirmedInputs);
-                    R(ORIENTATIONLEFT, orientationLeft);
-                }
+        static void fillinFromPreviousConfirmed(const Player &confirmed, Player &received) {
+            //result.changed.reset();
+            bool unchanged = received.changed[NO_CHANGE];
+            R(CLIENTLOCALID, clientLocalId);
+            R(POSITION, position);
+            R(ACCELERATION, acceleration);
+            R(EXTERNALFORCES, externalForces);
+            R(EXTERNALFORCESSPEED, externalForcesSpeed);
+            R(VELOCITY, velocity);
+            R(CONTROLS, controls);
+            R(FLAGS, flags);
+            R(LIFE, life);
+            R(AIR, air);
+            R(AMMO, ammo);
+            R(WEAPONID, weaponId);
+            R(UNCONFIRMEDINPUTS, unconfirmedInputs);
+            R(ORIENTATIONLEFT, orientationLeft);
+        }
         Player() {
             debug = 12345;
             changed.set();
             changed.set(NO_CHANGE, false);
         }
 
-        bool operator==(const Player & r){
+        bool operator==(const Player &r) {
             return id == r.id
                 && clientLocalId == r.clientLocalId
                 && position == r.position
@@ -133,25 +123,25 @@ namespace Duel6::net {
         template<class Stream>
         bool serialize(Stream &s) {
             bool result = s & id;
-                result &= s & debug;
-                result &= s & rtt;
-                result &= s & changed;
-                if(changed[NO_CHANGE]) return result;
-                S(CLIENTLOCALID, clientLocalId);
-                S(POSITION, position);
-                S(ACCELERATION, acceleration);
-                S(EXTERNALFORCES, externalForces);
-                S(EXTERNALFORCESSPEED, externalForcesSpeed);
-                S(VELOCITY, velocity);
-                S(CONTROLS, controls);
-                S(FLAGS, flags);
-                S(LIFE, life);
-                S(AIR, air);
-                S(AMMO, ammo);
-                S(WEAPONID, weaponId);
-                S(UNCONFIRMEDINPUTS, unconfirmedInputs);
-                S(ORIENTATIONLEFT, orientationLeft);
-        return result;
+            result &= s & debug;
+            result &= s & rtt;
+            result &= s & changed;
+            if (changed[NO_CHANGE]) return result;
+            S(CLIENTLOCALID, clientLocalId);
+            S(POSITION, position);
+            S(ACCELERATION, acceleration);
+            S(EXTERNALFORCES, externalForces);
+            S(EXTERNALFORCESSPEED, externalForcesSpeed);
+            S(VELOCITY, velocity);
+            S(CONTROLS, controls);
+            S(FLAGS, flags);
+            S(LIFE, life);
+            S(AIR, air);
+            S(AMMO, ammo);
+            S(WEAPONID, weaponId);
+            S(UNCONFIRMEDINPUTS, unconfirmedInputs);
+            S(ORIENTATIONLEFT, orientationLeft);
+            return result;
         }
 
     };

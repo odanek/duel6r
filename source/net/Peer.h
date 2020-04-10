@@ -26,7 +26,8 @@ namespace Duel6 {
             CONNECTING,
             CONNECTED,
             DISCONNECTING,
-            DISCONNECTED
+            DISCONNECTED,
+            DESTROYED
         };
         struct PeerRef { // gets recorded in ENets' peer->data
             size_t pos;

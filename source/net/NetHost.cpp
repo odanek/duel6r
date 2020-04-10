@@ -44,7 +44,10 @@ namespace Duel6 {
             }
             setGameReference(game);
             ENetAddress address;
-            enet_address_set_host(&address, host.c_str());
+            address.host = ENET_HOST_ANY;
+            if(host != "any") {
+                enet_address_set_host(&address, host.c_str());
+            }
             address.port = port;
             ENetHost *nethost = enet_host_create(&address, MAX_PEERS, CHANNELS, 0, 0);
             if (nethost == nullptr) {
@@ -112,10 +115,13 @@ namespace Duel6 {
                 return;
             }
             if (state != ServiceState::STOPPING) {
+                // this server is not stopping
                 return;
             }
             for (const auto &p : peers) {
-                if (p->getState() != PeerState::DISCONNECTED) {
+                if (p->getState() != PeerState::DISCONNECTED &&
+                    p->getState() != PeerState::DESTROYED) {
+                    // some peer still connected
                     return;
                 }
             }

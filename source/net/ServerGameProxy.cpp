@@ -121,6 +121,7 @@ namespace Duel6 {
                         p.ammo = player.getAmmo();
                         p.weaponId = player.getWeapon().getId();
                         p.orientationLeft = { player.getOrientation() == Orientation::Left };
+
                         peer->snapshot[game.tick % 32][p.id] = p;
                     }
 
@@ -135,8 +136,8 @@ auto xor_32  = 31;
                             //debug - detected difference in snapshot tick and lastConfirmedInputTick
                             p.ammo = player.getAmmo();;
                         }
-                        Player result = Player::diff(p, peer->snapshot[gsu.confirmInputTick & xor_32][p.id]);
-                        gsu.players.push_back(result);
+                        Player::diff(p, peer->snapshot[gsu.confirmInputTick & xor_32][p.id]);
+                        gsu.players.push_back(p);
                     } else {
                         gsu.players.push_back(p);
                     }

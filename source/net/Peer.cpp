@@ -4,7 +4,7 @@
  *  Created on: Mar 9, 2020
  *      Author: fanick
  */
-
+#include <iostream>
 #include "Peer.h"
 #include "event/events.h"
 #include "object/objects.h"
@@ -56,7 +56,9 @@ namespace Duel6 {
             }
             case EventType::GAME_STATE_UPDATE: {
                 GameStateUpdate gs;
-                s >> gs;
+                if(!( s >> gs)){
+                    std::cerr << "failed to deserialize GameStateUpdate object \n";
+                }
                 // these are sent as unreliable unsequenced packets,
                 // we must discard those received out of order
                 // we must deal with wrap-around of the tick counter (16 bit) - so lets say 30000
@@ -139,7 +141,7 @@ namespace Duel6 {
             send(gameProxy->getRequestGameState());
         }
         bool Peer::onDisconnected(ENetPeer *me, enet_uint32 reason) {
-            if (state == PeerState::DISCONNECTED) {
+            if (state == PeerState::DISCONNECTED || state == PeerState::DESTROYED) {
                 return true;
             }
             if (me != peer.get()) {
@@ -166,7 +168,10 @@ namespace Duel6 {
             return peer->roundTripTime;
         }
         void Peer::destroy() {
-            state = PeerState::DISCONNECTED;
+            if(state == PeerState::DESTROYED){
+                return;
+            }
+            state = PeerState::DESTROYED;
             if (peer.get() != nullptr) {
                 delete (PeerRef*) (peer.get()->data);
                 enet_peer_reset(peer.get());
