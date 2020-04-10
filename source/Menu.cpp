@@ -50,6 +50,28 @@ namespace Duel6 {
               controlsManager(appService.getControlsManager()),
               defaultPlayerSounds(PlayerSounds::makeDefault(sound)), playMusic(false) {}
 
+    void Menu::loadNetworkSettings(const std::string &filePath) {
+        if (!File::exists(filePath)) {
+            host->setText("localhost");
+            port->setText("5900");
+            return;
+        }
+        Json::Parser parser;
+        Json::Value json = parser.parse(filePath);
+        Json::Value host = json.getOrDefault("host", Json::Value::makeString("localhost"));
+        Json::Value port = json.getOrDefault("port", Json::Value::makeString("5900"));
+        this->host->setText(host.asString());
+        this->port->setText(port.asString());
+    }
+
+    void Menu::saveNetworkSettings() {
+        Json::Value json = Json::Value::makeObject();
+        json.set("host", Json::Value::makeString(this->host->getText()));
+        json.set("port", Json::Value::makeString(this->port->getText()));
+        Json::Writer writer(true);
+        writer.writeToFile(D6_FILE_NETWORK_SETTINGS, json);
+    }
+
     void Menu::loadPersonData(const std::string &filePath) {
         if (!File::exists(filePath)) {
             return;
@@ -595,6 +617,7 @@ namespace Duel6 {
     }
 
     void Menu::beforeStart(Context *prevContext) {
+        loadNetworkSettings(D6_FILE_NETWORK_SETTINGS);
         loadPersonData(D6_FILE_PHIST);
         joyRescan();
         SDL_ShowCursor(SDL_ENABLE);
@@ -677,6 +700,7 @@ namespace Duel6 {
         SDL_StopTextInput();
         sound.stopMusic();
         savePersonData();
+        saveNetworkSettings();
     }
 
     void Menu::startServer(){

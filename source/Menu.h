@@ -156,6 +156,10 @@ namespace Duel6 {
 
         void loadPersonData(const std::string &filePath);
 
+        void loadNetworkSettings(const std::string &filePath);
+
+        void saveNetworkSettings();
+
         PersonProfile *getPersonProfile(const std::string &name);
 
         void cleanPersonData();
