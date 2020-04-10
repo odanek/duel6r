@@ -28,6 +28,7 @@
 #include <algorithm>
 #include "ListBox.h"
 #include "../Video.h"
+#include "Desktop.h"
 
 namespace Duel6 {
     namespace {
@@ -37,6 +38,7 @@ namespace Duel6 {
     namespace Gui {
         ListBox::ListBox(Desktop &desk, bool sb)
                 : Control(desk) {
+            focusable = true;
             listPos.items = 0;
             listPos.start = 0;
             selected = -1;
@@ -65,6 +67,7 @@ namespace Duel6 {
         }
 
         ListBox &ListBox::selectItem(Int32 index) {
+            if(index < 0 || index >= items.size()) return *this;
             if (index != selected) {
                 selected = index;
                 for (auto &listener : selectListeners) {
@@ -75,7 +78,19 @@ namespace Duel6 {
         }
 
         ListBox &ListBox::scrollToView(Int32 index) {
-            listPos.start = selected - listPos.showCount / 2;
+//            if(index > listPos.start && index < listPos.start + listPos.showCount){
+//                return *this;
+//            }
+
+            if(index > listPos.start + listPos.showCount){
+                listPos.start += index - selected;
+            } else
+                if (index < listPos.start) {
+                    listPos.start -= selected - index;
+                }
+            if(listPos.start < 0) {
+                listPos.start = 0;
+            }
             return *this;
         }
 
@@ -128,6 +143,7 @@ namespace Duel6 {
         void ListBox::mouseButtonEvent(const MouseButtonEvent &event) {
             if (items.size() > 0 && Control::mouseIn(event, x, y, width, height) &&
                 event.getButton() == SysEvent::MouseButton::LEFT && event.isPressed()) {
+                this->parent->focus(this);
                 Int32 itemIndex = std::max(listPos.start + ((y - event.getY()) / itemHeight), 0);
 
                 if (itemIndex >= listPos.items) {
@@ -152,9 +168,32 @@ namespace Duel6 {
                 listPos.start = itemIndex;
             }
         }
+        void ListBox::keyEvent(const KeyPressEvent &event) {
+            switch (event.getCode()) {
+            case (SDLK_UP): {
+                selectItem(selected - 1);
+                scrollToView(selected - 1);
+                break;
+            }
+            case (SDLK_DOWN): {
+                selectItem(selected + 1);
+                scrollToView(selected + 1);
+                break;
+            }
+            case (SDLK_RETURN):
+                case (SDLK_KP_ENTER):
+                case (SDLK_SPACE):
+                case (SDLK_KP_SPACE): {
+                for (auto &listener : doubleClickListeners) {
+                    listener(selected, items[selected]);
+                }
+                break;
+            }
+            }
+        }
 
         void ListBox::draw(Renderer &renderer, const Font &font) const {
-            drawFrame(renderer, x - 2, y + 2, width + 4, height + 4, true);
+            drawFrame(renderer, x - 2, y + 2, width + 4, height + 4, true, focused);
             renderer.quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
 
             if (items.empty())
@@ -163,7 +202,7 @@ namespace Duel6 {
             Int32 Y = y;
             Int32 shift = 15 + (itemHeight - 16) / 2;
 
-            Int32 firstIndex = listPos.start;
+            Int32 firstIndex = std::max(listPos.start, 0);
             Int32 visibleCount = listPos.showCount;
 
             for (Int32 index = firstIndex; index < firstIndex + visibleCount; index++, Y -= itemHeight) {

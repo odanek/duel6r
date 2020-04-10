@@ -53,8 +53,14 @@ namespace Duel6 {
 
         protected:
             Int32 x, y;
-
+            Desktop * parent;
+            bool focusable = false;
+            bool focused = false;
         public:
+            void setFocusable(bool value);
+
+            void setParent(Desktop * desktop);
+
             Control(Desktop &desk);
 
             virtual ~Control() {}
@@ -67,6 +73,14 @@ namespace Duel6 {
 
             Int32 getY() const {
                 return y;
+            }
+
+            bool isFocused() const {
+                return focused;
+            }
+
+            void setFocused(bool val) {
+                focused = val;
             }
 
         protected:
@@ -85,7 +99,9 @@ namespace Duel6 {
             virtual void mouseWheelEvent(const MouseWheelEvent &event) {}
 
         protected:
-            static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p);
+            static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
+
+            static void drawFocusFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h);
 
             static bool mouseIn(const MouseEvent &event, Int32 x, Int32 y, Int32 w, Int32 h) {
                 return event.getX() >= x && event.getX() < x + w && event.getY() <= y && event.getY() > y - h;

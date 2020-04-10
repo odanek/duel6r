@@ -28,11 +28,13 @@
 #include <SDL2/SDL_keycode.h>
 #include "TextBox.h"
 #include "../Video.h"
+#include "Desktop.h"
 
 namespace Duel6 {
     namespace Gui {
         Textbox::Textbox(Desktop &desk)
                 : Control(desk) {
+            focusable = true;
         }
 
         Textbox::~Textbox() {
@@ -54,6 +56,13 @@ namespace Duel6 {
             }
         }
 
+        void Textbox::mouseButtonEvent(const Duel6::MouseButtonEvent &event) {
+            int w = (width << 3) + 8;
+            if (Control::mouseIn(event, x, y, w, height)) {
+                parent->focus(this);
+            }
+        }
+
         void Textbox::textInputEvent(const TextInputEvent &event) {
             const std::string &newText = event.getText();
             for (auto iter = newText.cbegin(); iter != newText.cend(); ++iter) {
@@ -62,6 +71,10 @@ namespace Duel6 {
                     text.push_back(letter);
                 }
             }
+        }
+
+        void Textbox::setText(const std::string & value) {
+            text = value;
         }
 
         const std::string &Textbox::getText() const {
@@ -75,9 +88,9 @@ namespace Duel6 {
         void Textbox::draw(Renderer &renderer, const Font &font) const {
             int w = (width << 3) + 8;
 
-            drawFrame(renderer, x - 2, y + 2, w + 4, 22, true);
-            renderer.quadXY(Vector(x, y - 17), Vector(w, 17), Color::WHITE);
-            font.print(x, y - 16, Color(0), text + "_");
+            drawFrame(renderer, x - 2, y + 2, w + 4, height + 4, true, focused);
+            renderer.quadXY(Vector(x, y - (height - 1)), Vector(w, height - 1), Color::WHITE);
+            font.print(x, y - (height - 2), Color(0), text + "_");
         }
     }
 }

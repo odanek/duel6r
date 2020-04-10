@@ -79,6 +79,8 @@ namespace Duel6 {
         Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
         Gui::Spinner *teamControlSwitch[D6_MAX_PLAYERS];
         Gui::Textbox *textbox;
+        Gui::Textbox *host;
+        Gui::Textbox *port;
         Gui::Spinner *gameModeSwitch;
         Gui::CheckBox *globalAssistanceCheckBox;
         Gui::CheckBox *quickLiquidCheckBox;

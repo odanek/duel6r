@@ -30,7 +30,8 @@ namespace Duel6 {
             NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy);
           //  void setGameProxyReference(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy);
 
-            void listen(Game &game);
+            void listen(Game &game, const std::string &host,
+                        const Duel6::net::port_t port);
             void die();
 
             virtual ~NetHost();

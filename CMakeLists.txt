@@ -92,6 +92,7 @@ set(D6R_SOURCES
         source/net/object/objects.h
         source/net/object/Client.h
         source/net/object/Player.h
+        source/net/object/Player.cpp
         source/net/object/Shot.h
         source/net/object/Vector.h
 

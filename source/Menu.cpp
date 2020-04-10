@@ -163,6 +163,14 @@ namespace Duel6 {
             }
         });
 
+        host = new Gui::Textbox(gui);
+        host->setPosition(10, 630, 14, 20, D6_ALL_CHR);
+        host->setText("localhost");
+
+        port = new Gui::Textbox(gui);
+        port->setPosition(140, 630, 14, 20, D6_ALL_CHR);
+        port->setText("5900");
+
         auto startServerB = new Gui::Button(gui);
 
         startServerB->setPosition(10, 600, 50, 50);
@@ -227,7 +235,9 @@ namespace Duel6 {
         for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
             controlSwitch[i] = new Gui::Spinner(gui);
             controlSwitch[i]->setPosition(330, 539 - Int32(i) * 18, 192, 0);
+        }
 
+        for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
             Gui::Button *button = new Gui::Button(gui);
             button->setCaption("D");
             button->setPosition(526, 537 - Int32(i) * 18, 17, 17);
@@ -673,12 +683,12 @@ namespace Duel6 {
         game->isServer = true;
         play();
 
-        appService.getNetHost().listen(*game);
+        appService.getNetHost().listen(*game, host->getText(), std::stoi(port->getText()));
     }
 
     void Menu::joinServer(){
         play();
-        appService.getNetClient().connect("localhost", 2020);
+        appService.getNetClient().connect(host->getText(), std::stoi(port->getText()));
     }
 
     void Menu::enableMusic(bool enable) {

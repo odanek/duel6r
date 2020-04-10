@@ -27,6 +27,7 @@
 #include "../Video.h"
 #include <algorithm>
 #include "Slider.h"
+#include "Desktop.h"
 
 namespace Duel6 {
     namespace Gui {
@@ -38,8 +39,10 @@ namespace Duel6 {
                 : Control(desk) {
             up = new Button(desk);
             up->setCaption(" ");
+            up->setFocusable(false);
             down = new Button(desk);
             down->setCaption(" ");
+            down->setFocusable(false);
             pos = nullptr;
         }
 
@@ -77,6 +80,7 @@ namespace Duel6 {
         void Slider::mouseButtonEvent(const MouseButtonEvent &event) {
             if (Control::mouseIn(event, x, y, 16, height) && event.getButton() == SysEvent::MouseButton::LEFT &&
                 event.isPressed()) {
+                parent->focus(this);
                 scroll(event.getY());
             }
         }

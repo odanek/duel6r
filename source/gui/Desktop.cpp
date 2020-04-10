@@ -42,6 +42,7 @@ namespace Duel6 {
         }
 
         void Desktop::addControl(Control *control) {
+            control->setParent(this);
             controls.push_back(std::unique_ptr<Control>(control));
         }
 
@@ -68,16 +69,60 @@ namespace Duel6 {
 
             renderer.setViewMatrix(Matrix::IDENTITY);
         }
+        void Desktop::advanceFocus(bool backwards){
+            Control *first = nullptr;
+            Control *previous = (*controls.rbegin()).get();
+            for (auto &control : controls) {
+                if (!control->focusable) {
+                    continue;
+                }
+                if(first == nullptr && focused != control.get()){
+                    first = control.get();
+                }
+                if (backwards) {
+                    if (focused == nullptr || focused == control.get()) {
+                        focus(previous);
+                        return;
+                    }
+                } else {
+                    if (focused == nullptr || focused == previous) {
+                        focus(control.get());
+                        return;
+                    }
+                }
+                previous = control.get();
+            }
+            if(backwards){
+                focus(previous);
+            } else {
+                focus(first);
+            }
+        }
+        void Desktop::focusPrevious() {
+            advanceFocus(true);
+        }
+
+        void Desktop::focusNext() {
+            advanceFocus(false);
+        }
 
         void Desktop::keyEvent(const KeyPressEvent &event) {
-            for (auto &control : controls) {
-                control->keyEvent(event);
+            if(event.getCode() == SDLK_TAB){
+                if(event.withShift()){
+                    focusPrevious();
+                } else {
+                    focusNext();
+                }
+                return;
+            }
+            if(focused != nullptr){
+                focused->keyEvent(event);
             }
         }
 
         void Desktop::textInputEvent(const TextInputEvent &event) {
-            for (auto &control : controls) {
-                control->textInputEvent(event);
+            if(focused != nullptr){
+                focused->textInputEvent(event);
             }
         }
 

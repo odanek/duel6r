@@ -42,17 +42,28 @@ namespace Duel6 {
             Int32 trX; // x translation
             Int32 trY; // y translation
             std::vector<std::unique_ptr<Control>> controls;
-
+            Control * focused = nullptr;
         public:
             Desktop(Renderer &renderer);
 
             ~Desktop();
 
+            void focus(Control * control){
+                if(focused != nullptr){
+                    focused->setFocused(false);
+                }
+                focused = control;
+                focused->setFocused(true);
+            }
             void screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY);
 
             void update(Float32 elpasedTime);
 
             void draw(const Font &font) const;
+
+            void focusNext();
+
+            void focusPrevious();
 
             void keyEvent(const KeyPressEvent &event);
 
@@ -65,6 +76,9 @@ namespace Duel6 {
             void mouseWheelEvent(const MouseWheelEvent &event);
 
             void addControl(Control *control);
+        private:
+
+            void advanceFocus(bool backwards = false);
         };
     }
 }

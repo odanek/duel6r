@@ -37,6 +37,7 @@ namespace Duel6 {
                 : public Control {
         private:
             Int32 max, width;
+            const Int32 height = 18;
             std::string text;
             std::string allowedCharacters;
 
@@ -46,6 +47,8 @@ namespace Duel6 {
             ~Textbox();
 
             void setPosition(int X, int Y, int W, int M, const std::string &allowed);
+
+            void setText(const std::string & value);
 
             const std::string &getText() const;
 
@@ -60,6 +63,9 @@ namespace Duel6 {
             Control::Type getType() const override {
                 return Control::Type::Textbox;
             }
+
+        protected:
+            void mouseButtonEvent(const Duel6::MouseButtonEvent &event) override;
         };
     }
 }

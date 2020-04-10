@@ -145,6 +145,7 @@ namespace Duel6 {
     public:
         bool local = false;
         size_t pos;
+        uint32_t rtt = 0;
         uint16_t tick = 0;
         uint16_t lastConfirmedTick = 0;
         uint16_t lateTicks = 0; //debug
@@ -482,6 +483,8 @@ namespace Duel6 {
         void setWeapon(Uint8 weaponId) {
             replaceWeapon(Weapon::getById(weaponId));
         }
+
+        void checkKeys();
     private:
 
         void replaceWeapon(Weapon weapon);
@@ -492,7 +495,6 @@ namespace Duel6 {
 
         void moveVertical(const Level &level, Float32 elapsedTime, Float32 speed);
 
-        void checkKeys();
 
         void checkWater(World &world, Float32 elapsedTime);
 

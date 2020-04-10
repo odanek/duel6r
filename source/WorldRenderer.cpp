@@ -229,7 +229,7 @@ namespace Duel6 {
     }
 
     void WorldRenderer::playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
-        const std::string &name = Format("{0} {1} {2}") << player.getPerson().getName() << player.getId() << (game.tick - player.tick);
+        const std::string &name = Format("{0} {1} {2} {3}") << player.getPerson().getName() << player.getId() << (game.tick - player.tick) << player.rtt;
 
         Float32 width = 0.15f * name.size();
         Float32 X = xOfs - width / 2;

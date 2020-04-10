@@ -15,6 +15,7 @@ namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
         tick_t debug = 12345;
+        uint32_t rtt = 0;
         object_id_t id = 0;
         Int32 clientLocalId = 0;
         Vector2D position;
@@ -24,12 +25,12 @@ namespace Duel6::net {
         Vector2D velocity;
 
         Uint8 controls;
-        Uint16 flags;
+        Uint32 flags;
         Uint8 life;
         Uint8 air;
         Int16 ammo;
         Uint8 weaponId;
-        std::array<Uint8, 16> unconfirmedInputs;
+        std::array<Uint32, 16> unconfirmedInputs;
         bool orientationLeft;
 
 
@@ -53,6 +54,10 @@ namespace Duel6::net {
             _SIZE
         };
         std::bitset<FIELDS::_SIZE> changed;
+
+        Player(const Player &r);
+        Player& operator=(const Player &r);
+
 
 #define D(POS, FIELD) result.FIELD = snapshot.FIELD; if(!(confirmed.FIELD == snapshot.FIELD)) result.changed.set(POS)
 
@@ -129,6 +134,7 @@ namespace Duel6::net {
         bool serialize(Stream &s) {
             bool result = s & id;
                 result &= s & debug;
+                result &= s & rtt;
                 result &= s & changed;
                 if(changed[NO_CHANGE]) return result;
                 S(CLIENTLOCALID, clientLocalId);

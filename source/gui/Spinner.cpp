@@ -28,17 +28,19 @@
 #include <utility>
 #include "../Video.h"
 #include "Spinner.h"
-
+#include "Desktop.h"
 namespace Duel6 {
     namespace Gui {
         Spinner::Spinner(Desktop &desk)
                 : Control(desk) {
             selectedIndex = -1;
-
+            focusable = true;
             left = new Button(desk);
             left->setCaption(" ");
             right = new Button(desk);
             right->setCaption(" ");
+            left->setFocusable(false);
+            right->setFocusable(false);
         }
 
         void Spinner::clear() {
@@ -134,6 +136,34 @@ namespace Duel6 {
 
             renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15),bcgColor);
             font.print(x + 25, y - 15, fontColor, items[selectedIndex].second);
+            if(focused){
+                drawFocusFrame(renderer, x-1,y-1, width, 18);
+            }
+        }
+        void Spinner::mouseButtonEvent(const MouseButtonEvent &event){
+            if (Control::mouseIn(event, x, y, width, 20)) {
+                this->parent->focus(this);
+            }
+        }
+        void Spinner::keyEvent(const KeyPressEvent &event) {
+            switch (event.getCode()) {
+                case (SDLK_LEFT): {
+                    setCurrent(selectedIndex - 1);
+                    break;
+                }
+                case (SDLK_RIGHT): {
+                    setCurrent(selectedIndex + 1);
+                    break;
+                }
+                case (SDLK_UP): {
+                    parent->focusPrevious();
+                    break;
+                }
+                case (SDLK_DOWN): {
+                    parent->focusNext();
+                    break;
+                }
+            }
         }
 
         Spinner::ItemColor Spinner::defaultColorize(Int32 index, const std::string& item) {

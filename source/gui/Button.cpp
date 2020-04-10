@@ -26,11 +26,13 @@
 */
 
 #include "Button.h"
+#include "Desktop.h"
 
 namespace Duel6 {
     namespace Gui {
         Button::Button(Desktop &desk)
                 : Control(desk) {
+            focusable = true;
             pressed = false;
         }
 
@@ -48,9 +50,32 @@ namespace Duel6 {
             height = H;
         }
 
+        void Button::keyEvent(const KeyPressEvent &event) {
+            switch (event.getCode()) {
+                case (SDLK_RETURN):
+                case (SDLK_KP_ENTER):
+                case (SDLK_SPACE):
+                case (SDLK_KP_SPACE): {
+                    fireClickListeners();
+                    firePressListeners(true);
+                    break;
+                }
+            case (SDLK_LEFT):
+            case (SDLK_UP): {
+                parent->focusPrevious();
+                break;
+            }
+            case (SDLK_RIGHT):
+            case (SDLK_DOWN): {
+                parent->focusNext();
+                break;
+            }
+            }
+        }
         void Button::mouseButtonEvent(const MouseButtonEvent &event) {
             if (Control::mouseIn(event, x, y, width, height)) {
                 if (event.getButton() == SysEvent::MouseButton::LEFT) {
+                    this->parent->focus(this);
                     if (!pressed && event.isPressed()) {
                         pressed = true;
                         firePressListeners(true);
@@ -73,7 +98,7 @@ namespace Duel6 {
         void Button::draw(Renderer &renderer, const Font &font) const {
             Int32 px, py;
 
-            drawFrame(renderer, x, y, width, height, pressed);
+            drawFrame(renderer, x, y, width, height, pressed, focused);
             px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
             py = y - (height >> 1) - 7 - pressed;
             font.print(px, py, Color(0), caption);

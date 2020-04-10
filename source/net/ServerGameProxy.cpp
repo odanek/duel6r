@@ -88,6 +88,7 @@ namespace Duel6 {
                         continue;
                     }
                     Player p;
+                    p.rtt = peer->getRTT();
                     p.id = player.getId();
                     p.clientLocalId = player.getClientLocalId();
                     p.debug = game.tick;
@@ -100,6 +101,7 @@ namespace Duel6 {
                         p.changed[Player::FIELDS::CONTROLS] = true;
                         p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
                         p.controls = player.getControllerState();
+                        p.rtt = 0;
                     }
                     if (game.isServer) {
                         const auto &collidingEntity = player.getCollider();
@@ -119,7 +121,6 @@ namespace Duel6 {
                         p.ammo = player.getAmmo();
                         p.weaponId = player.getWeapon().getId();
                         p.orientationLeft = { player.getOrientation() == Orientation::Left };
-
                         peer->snapshot[game.tick % 32][p.id] = p;
                     }
 
