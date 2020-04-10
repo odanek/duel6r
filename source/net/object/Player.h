@@ -14,7 +14,7 @@
 namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
-
+        tick_t debug = 12345;
         object_id_t id = 0;
         Int32 clientLocalId = 0;
         Vector2D position;
@@ -101,6 +101,7 @@ namespace Duel6::net {
                     R(ORIENTATIONLEFT, orientationLeft);
                 }
         Player() {
+            debug = 12345;
             changed.set();
             changed.set(NO_CHANGE, false);
         }
@@ -121,14 +122,13 @@ namespace Duel6::net {
                 && weaponId == r.weaponId
                 && unconfirmedInputs == r.unconfirmedInputs
                 && orientationLeft == r.orientationLeft;
-
-
         }
 
 #define S(POS, FIELD) if(changed[POS]) result &= s & FIELD
         template<class Stream>
         bool serialize(Stream &s) {
             bool result = s & id;
+                result &= s & debug;
                 result &= s & changed;
                 if(changed[NO_CHANGE]) return result;
                 S(CLIENTLOCALID, clientLocalId);

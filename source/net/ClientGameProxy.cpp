@@ -61,9 +61,16 @@ namespace Duel6 {
                 auto &player = game->players[pos];
                 player.lastConfirmedTick = gsu.confirmInputTick;
                 if (!game->isServer) {
-                    if(peer->snapshot[gsu.confirmInputTick % 32].count(p.id) > 0){
-                        Player & confirmed = peer->snapshot[gsu.confirmInputTick % 32][p.id];
-                        Player::fillinFromPreviousConfirmed(confirmed, p);
+uint16_t xor_32768 = 32767;
+uint16_t xor_32 = 31;
+                    if (((gsu.inputTick - gsu.confirmInputTick) & xor_32768) < 32
+                        && peer->snapshot[gsu.confirmInputTick & xor_32].count(p.id) > 0){
+                        if( peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick) {
+                            Player & confirmed = peer->snapshot[gsu.confirmInputTick & xor_32][p.id];
+                            Player::fillinFromPreviousConfirmed(confirmed, p);
+                        }else{
+                            /* debug */
+                        }
                     }
                     auto & position = p.position;
                     auto & externalForces = p.externalForces;
@@ -77,19 +84,20 @@ namespace Duel6 {
                         collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
                         collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                         collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
-
                         player.setFlags(p.flags);
                         player.setLife(p.life);
                         player.setAir(p.air);
                         player.setAmmo(p.ammo);
-                        player.setWeapon(p.weaponId);
+                        if (player.getWeapon().getId() != p.weaponId) {
+                            player.setWeapon(p.weaponId); //resets animation
+                        }
                         player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
-                    if (player.local && game->tick - gsu.confirmInputTick < 16) { // cap it at 16 frames to avoid run-away of death
+                    if (player.local && game->tick - gsu.confirmInputTick < 8) { // cap it at 8 frames to avoid run-away of death
                         Uint32 ms = 1000/90;
                         Uint32 drift = peer->getRTT() / ms;
                         game->compensateLag(game->tick - drift  /2 /*gsu.confirmInputTick */); // run client-side prediction
                     }
-                    peer->snapshot[gsu.inputTick % 32][p.id] = p;
+                    peer->snapshot[gsu.inputTick & xor_32][p.id] = p;
                 } else {
 
                 }
@@ -204,9 +212,11 @@ namespace Duel6 {
                 player.setLife(p.life);
                 player.setAir(p.air);
                 player.setAmmo(p.ammo);
-                // player.setWeapon(p.weaponId);
+                player.setWeapon(p.weaponId);
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                 player.setControllerState(p.controls);
+
+                peer->snapshot[sr.tick % 32][p.id] = p;
             }
 
         }

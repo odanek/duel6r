@@ -79,6 +79,7 @@ namespace Duel6 {
         void ServerGameProxy::sendGameStateUpdate(Game &game) {
             for (auto &peer : peers) {
                 GameStateUpdate gsu;
+                gsu.confirmInputTick = peer->receivedInputsTick;
                 gsu.inputTick = game.tick;
                 gsu.players.reserve(game.getPlayers().size());
 
@@ -89,11 +90,12 @@ namespace Duel6 {
                     Player p;
                     p.id = player.getId();
                     p.clientLocalId = player.getClientLocalId();
-
+                    p.debug = game.tick;
+                    auto xor_128 = 127; // % operator yields also negative results
                     if (player.local) {
-                        player.unconfirmedInputs[game.tick % 128] = player.getControllerState();
+                        player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
                         for(size_t i = 0; i < 16 ; i++){
-                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) % 128];
+                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) & xor_128];
                         }
                         p.changed[Player::FIELDS::CONTROLS] = true;
                         p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
@@ -117,12 +119,22 @@ namespace Duel6 {
                         p.ammo = player.getAmmo();
                         p.weaponId = player.getWeapon().getId();
                         p.orientationLeft = { player.getOrientation() == Orientation::Left };
+
                         peer->snapshot[game.tick % 32][p.id] = p;
                     }
 
-
-                    if( game.isServer && (std::abs(game.tick - peer->receivedInputsTick % 32000) < 32 || peer->snapshot[peer->receivedInputsTick % 32].count(p.id) > 0)){
-                        Player result = Player::diff(p, peer->snapshot[peer->receivedInputsTick % 32][p.id]);
+auto xor_32768 = 0x7fff;
+auto xor_32  = 31;
+                    if( game.isServer &&
+                        (((gsu.inputTick - gsu.confirmInputTick) & xor_32768) < 32
+                            && peer->snapshot[gsu.confirmInputTick & xor_32].count(p.id) > 0
+                            && peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick)
+                            ){
+                        if(peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug != gsu.confirmInputTick){
+                            //debug - detected difference in snapshot tick and lastConfirmedInputTick
+                            p.ammo = player.getAmmo();;
+                        }
+                        Player result = Player::diff(p, peer->snapshot[gsu.confirmInputTick & xor_32][p.id]);
                         gsu.players.push_back(result);
                     } else {
                         gsu.players.push_back(p);
@@ -131,7 +143,6 @@ namespace Duel6 {
                 }
 
 
-                gsu.confirmInputTick = peer->receivedInputsTick;
                 peer->sendUnreliable(gsu); // @suppress("Ambiguous problem")
             }
         }

@@ -71,7 +71,7 @@ namespace Duel6 {
 
     SpriteList::Iterator LegacyWeapon::makeSprite(SpriteList &spriteList) const {
         auto sprite = spriteList.add(definition.animation, textures.gun);
-        sprite->setFrame(6).setLooping(AnimationLooping::OnceAndStop);
+        sprite->setFrame(0).setLooping(AnimationLooping::OnceAndStop);
         return sprite;
     }
 

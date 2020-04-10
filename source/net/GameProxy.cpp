@@ -35,6 +35,7 @@ namespace Duel6 {
             s.playerProfiles.reserve(s.players.size());
             for (auto &player : game.getPlayers()) {
                 Player p;
+                p.debug = game.tick;
                 p.id = player.getId();
                 p.clientLocalId = player.getClientLocalId();
 
