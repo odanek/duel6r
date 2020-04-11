@@ -24,20 +24,20 @@ namespace Duel6 {
 
         void ServerGameProxy::startRound(Duel6::Level &level) {
             StartRound sr;
-            auto & world = sr.world;
+            auto &world = sr.world;
             world.elevators.reserve(level.elevators.size());
-            for(auto & e: level.elevators){
+            for (auto &e : level.elevators) {
                 std::vector<Duel6::net::ControlPoint> controlPoints = container_cast<std::vector<Duel6::net::ControlPoint>>(e.controlPoints);
                 Elevator elevator(controlPoints,
-                           e.circular,
-                           e.section,
-                           e.remainingWait,
-                           e.forward,
-                           e.distance,
-                           e.travelled,
-                           Vector(e.position.x,e.position.y,e.position.z),
-                           Vector(e.velocity.x,e.velocity.y,e.velocity.z),
-                           e.started);
+                    e.circular,
+                    e.section,
+                    e.remainingWait,
+                    e.forward,
+                    e.distance,
+                    e.travelled,
+                    Vector(e.position.x, e.position.y, e.position.z),
+                    Vector(e.velocity.x, e.velocity.y, e.velocity.z),
+                    e.started);
                 sr.world.elevators.emplace_back(std::move(elevator));
             }
             world.width = level.width;
@@ -69,7 +69,7 @@ namespace Duel6 {
         }
         void ServerGameProxy::nextRound() {
             for (auto &peer : peers) {
-                for(auto &s : peer->snapshot){
+                for (auto &s : peer->snapshot) {
                     s.clear();
                 }
                 peer->send(NextRound());
@@ -84,7 +84,7 @@ namespace Duel6 {
                 gsu.players.reserve(game.getPlayers().size());
 
                 for (auto &player : game.getPlayers()) {
-                    if (!(player.local || game.isServer)){
+                    if (!(player.local || game.isServer)) {
                         continue;
                     }
                     Player p;
@@ -95,7 +95,7 @@ namespace Duel6 {
                     auto xor_128 = 127; // % operator yields also negative results
                     if (player.local) {
                         player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
-                        for(size_t i = 0; i < 16 ; i++){
+                        for (size_t i = 0; i < 16; i++) {
                             p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) & xor_128];
                         }
                         p.changed[Player::FIELDS::CONTROLS] = true;
@@ -110,11 +110,11 @@ namespace Duel6 {
                         const auto &externalForcesSpeed = collidingEntity.externalForcesSpeed;
                         const auto &velocity = collidingEntity.velocity;
                         const auto &acceleration = collidingEntity.acceleration;
-                        p.position = { position.x, position.y};
+                        p.position = { position.x, position.y };
                         p.externalForces = { externalForces.x, externalForces.y };
-                        p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y};
-                        p.velocity = { velocity.x, velocity.y};
-                        p.acceleration = { acceleration.x, acceleration.y};
+                        p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y };
+                        p.velocity = { velocity.x, velocity.y };
+                        p.acceleration = { acceleration.x, acceleration.y };
                         p.flags = player.getFlags();
                         p.life = player.getLife();
                         p.air = player.getAir();
@@ -125,27 +125,18 @@ namespace Duel6 {
                         peer->snapshot[game.tick % 32][p.id] = p;
                     }
 
-auto xor_32768 = 0x7fff;
-auto xor_32  = 31;
-                    if( game.isServer &&
+                    auto xor_32768 = 0x7fff;
+                    auto xor_32 = 31;
+                    if (game.isServer &&
                         (((gsu.inputTick - gsu.confirmInputTick) & xor_32768) < 32
                             && peer->snapshot[gsu.confirmInputTick & xor_32].count(p.id) > 0
-                            && peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick)
-                            ){
-                        if(peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug != gsu.confirmInputTick){
-                            //debug - detected difference in snapshot tick and lastConfirmedInputTick
-                            p.ammo = player.getAmmo();;
-                        }
+                            && peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick)) {
                         Player::diff(p, peer->snapshot[gsu.confirmInputTick & xor_32][p.id]);
-                        gsu.players.push_back(p);
-                    } else {
-                        gsu.players.push_back(p);
                     }
+                    gsu.players.push_back(p);
 
                 }
-
-
-                peer->sendUnreliable(gsu); // @suppress("Ambiguous problem")
+                peer->sendUnreliable(gsu);
             }
         }
         void ServerGameProxy::sendGameState(Game &game) {

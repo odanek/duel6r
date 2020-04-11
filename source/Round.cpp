@@ -169,10 +169,6 @@ namespace Duel6 {
     void Round::compensateLag(uint16_t gameTick, uint16_t confirmedTick) {
         static const Float64 elapsedTime = 1.0f / D6_UPDATE_FREQUENCY; // TODO
         isCompensatingLag = true;
-        uint16_t ticks = gameTick - confirmedTick;
-        if(ticks > 10) {
-            //debug
-        }
 //        world.confirmElevators(ticks, elapsedTime);
         for (Player &player : world.getPlayers()) {
 
@@ -207,7 +203,7 @@ namespace Duel6 {
                 }
             } else {
                 auto tmp = player.getControllerState();
-                while(player.tick < player.lastConfirmedTick){
+                while(player.lastConfirmedTick - player.tick > 0){
                     scriptUpdate(player);
                     player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
                     player.update(world, game.getSettings().getScreenMode(), elapsedTime);

@@ -90,17 +90,17 @@ namespace Duel6 {
                     auto &acceleration = p.acceleration;
 
                     auto &collidingEntity = player.getCollider();
-//                    Vector2D diff = {
-//                        position.x - collidingEntity.position.x,
-//                        position.y - collidingEntity.position.y
-//                    };
-//                     if(diff.x * diff.x + diff.y * diff.y > 0.9){
+                    Vector2D diff = {
+                        position.x - collidingEntity.position.x,
+                        position.y - collidingEntity.position.y
+                    };
+                     if(diff.x * diff.x + diff.y * diff.y > 0.9){
                          collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
                          collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
-//                     } else {
-//                         collidingEntity.externalForcesSpeed.x += diff.x / 2;
-//                         collidingEntity.externalForcesSpeed.y += diff.y / 2;
-//                     }
+                     } else {
+                         collidingEntity.externalForcesSpeed.x += diff.x;
+                         collidingEntity.externalForcesSpeed.y += diff.y;
+                     }
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                     collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                     collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
@@ -114,12 +114,10 @@ namespace Duel6 {
                     }
                     player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                     //TODO handle 16bit wrap-around
-                    if (player.local && game->tick - gsu.confirmInputTick < 3) { // cap it at 3 frames to avoid run-away of death
+                    if (player.local && ((game->tick - gsu.confirmInputTick) & xor_32768 < 8)) { // cap it at 8 frames to avoid run-away of death
                         Uint32 ms = 1000 / 90;
                         Uint32 drift = player.rtt / ms;
-
-//                        game->compensateLag(gsu.confirmInputTick); // run client-side prediction
-                    //    game->compensateLag(game->tick - drift  /2); // run client-side prediction
+                        game->compensateLag(game->tick - (game->tick -  gsu.confirmInputTick) / 2 ); // run client-side prediction
                     }
                     peer->snapshot[gsu.inputTick & xor_32][p.id] = p;
                 } else {
