@@ -565,7 +565,7 @@ target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MI
 
 find_path(HEADERS_ENET enet/enet.h DOC "Path to ENet headers")
 include_directories(${HEADERS_ENET})
-find_library(LIB_ENET ENET DOC "Path to ENet library")
+find_library(LIB_ENET NAMES enet enet_static libenet libenet_static DOC "Path to ENet library")
 target_link_libraries(${D6R_APP_NAME} ${LIB_ENET})
 
 # GLEW
