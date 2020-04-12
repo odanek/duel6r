@@ -27,6 +27,7 @@ namespace Duel6 {
             Int32 clientId = 0; // will be set upon receiving gamestate from server
         public:
             void lateReceive(tick_t lateTick);
+            void netStopped();
             tick_t getTick() const;
             ClientGameProxy();
             virtual ~ClientGameProxy();

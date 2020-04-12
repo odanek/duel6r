@@ -83,6 +83,10 @@ namespace Duel6 {
                 const char *data = dataStr.c_str();
                 size_t dataLen = dataStr.length();
                 ENetPacket *packet = enet_packet_create(data, dataLen, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
+                if(packet == nullptr){
+                    D6_THROW(Exception, "Cannot allocate packet");
+                    return;
+                }
                 enet_peer_send(peer.get(), channel, packet);
             }
             template<typename MessageObject>

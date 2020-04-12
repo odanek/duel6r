@@ -243,6 +243,9 @@ namespace Duel6 {
             }
 
         }
+        void ClientGameProxy::netStopped() {
+            Context::pop();
+        }
 
         void ClientGameProxy::handle(NextRound &nr) {
             for (auto &s : peer->snapshot) {

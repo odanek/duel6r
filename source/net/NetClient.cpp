@@ -63,6 +63,7 @@ namespace Duel6 {
         }
 
         void NetClient::onStopped() {
+            clientGameProxy->netStopped();
             peer.reset();
         }
         void NetClient::disconnect() {

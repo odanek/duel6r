@@ -292,6 +292,9 @@ namespace Duel6 {
         }
 
         Uint32 residual = (updateTime - accumulatedTime) * 1000;
+        if(residual > 10){
+            residual = 10;
+        }
         netHost->poll(residual);
         netClient->poll(residual);
     }

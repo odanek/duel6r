@@ -121,9 +121,13 @@ namespace Duel6 {
                 return;
             }
             state = PeerState::DISCONNECTING;
-            enet_peer_disconnect_later(peer.get(), 0);
-            if(now){
-                enet_peer_disconnect(peer.get(), 0);
+            if (peer.get() != nullptr) {
+                enet_peer_disconnect_later(peer.get(), 0);
+            }
+            if (now) {
+                if (peer.get() != nullptr) {
+                    enet_peer_disconnect(peer.get(), 0);
+                }
                 state = PeerState::DISCONNECTED;
             }
         }
@@ -177,7 +181,6 @@ namespace Duel6 {
                 enet_peer_reset(peer.get());
             }
             peer.release();
-            serverGameProxy->remove(this);
         }
         Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, ENetHost *host,  size_t pos)
             : gameProxy(&gameProxy),

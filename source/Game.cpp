@@ -272,6 +272,7 @@ namespace Duel6 {
     }
 
     void Game::endRound() {
+        if(!isRunning) return;
         round->end();
     }
 

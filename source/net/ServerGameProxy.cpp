@@ -55,7 +55,7 @@ namespace Duel6 {
 
         ServerGameProxy::~ServerGameProxy()
         {
-            // TODO Auto-generated destructor stub
+            peers.clear();
         }
 //        void ServerGameProxy::gameState(GameState & gameState){
 //
