@@ -78,35 +78,32 @@ namespace Duel6 {
         Int32 posY = video.getScreen().getClientHeight() - 20;
 
         for (const auto &entry : ranking.entries) {
-            posY = renderRankingEntry(entry, posX, posY, maxNameLength, fontSize, false);
+            posY = renderRankingEntry(entry, posX, posY, maxNameLength, fontSize, 0);
             for (const auto &nestedRankingEntry : entry.entries) {
-                posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxNameLength, fontSize, false);
+                posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxNameLength, fontSize, 0);
             }
         }
     }
 
     Int32 WorldRenderer::renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength,
-                                            Float32 charHeight, bool extended) const {
-        if (extended) {
-            maxLength += 20;
-        }
+                                            Float32 charHeight, Int32 extendWidth) const {
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
         Color fontColor(entry.fontColor);
-        renderer.quadXY(Vector(posX, posY + 1), Vector((charHeight / 2) * maxLength, charHeight), entry.bcgColor);
+        renderer.quadXY(Vector(posX, posY + 1), Vector((charHeight / 2) * (maxLength) + extendWidth, charHeight), entry.bcgColor);
 
         Int32 paddingLeft = entry.isSuperEntry() ? 0 : 5;
         renderer.setBlendFunc(BlendFunc::None);
         font.print(posX + paddingLeft, posY, 0.0f, fontColor, entry.name, charHeight);
 
-        if (extended) {
+        if (extendWidth > 0) {
             renderer.setBlendFunc(BlendFunc::SrcColor);
             if (!entry.isSuperEntry()) {
                 fontColor = Color::YELLOW;
             }
             auto killsToDeaths = Person::getKillsToDeathsRatio(entry.kills, entry.deaths);
-            font.print(posX + (charHeight / 2) * (maxLength - 23), posY, 0.0f, fontColor,
-                       (Format("|{0,3}|{1,3}|{2,3}|{3,5}|{4,4}") << entry.kills << entry.assistances << entry.deaths
-                                                                 << killsToDeaths << entry.points), charHeight);
+            font.print(posX + (charHeight / 2) * (maxLength), posY, 0.0f, fontColor,
+                       (Format("|{0,3}|{1,3}|{2,3}|{3,5}|{4,4}|{5,4}") << entry.kills << entry.assistances << entry.deaths
+                                                                 << killsToDeaths << entry.points << entry.rtt), charHeight);
         } else {
             font.print(posX + (charHeight / 2) * (maxLength - 5), posY, 0.0f, fontColor,
                        (Format("|{0,4}") << entry.points), charHeight);
@@ -119,23 +116,24 @@ namespace Duel6 {
         Float32 fontWidth = fontSize / 2;
         Ranking ranking = game.getMode().getRanking(game.getPlayers());
         Int32 maxLength = ranking.getMaxLength() + 6;
-        Int32 maxNameLength = maxLength + 20;
+        Int32 maxNameLength = maxLength;
         int height = fontSize * 3; // reserve for 'SCORE'
         int tableWidth = maxNameLength * (fontWidth);
-        int width = std::max(tableWidth, 200);
+        int width = std::max(tableWidth, 100);
         for (const auto &entry : ranking.entries) {
             height += fontSize * (1 + entry.entries.size());
         }
         const auto score = "---SCORE---";
-        const auto kad = " K    A   D  K/D  PTS  ";
+        const std::string kad = "  K   A   D   K/D  PTS  PING[ms]";
         const auto kadWidth = font.getTextWidth(kad, fontSize);
         const auto scoreWidth = font.getTextWidth(score, fontSize);
-
-        int x = video.getScreen().getClientWidth() / 2 - width / 2;
+        width +=  kadWidth;
+        int x = video.getScreen().getClientWidth() / 2 - width / 2 ;
         int y = video.getScreen().getClientHeight() / 2 - height / 2;
 
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
-        renderer.quadXY(Vector(x - fontWidth, y - fontSize), Vector(width + 2 * fontWidth, height + 2 * fontSize),
+        renderer.quadXY(Vector(x - fontWidth, y - fontSize),
+                        Vector(width + 2 * fontWidth, height + 2 * fontSize),
                         Color(255, 255, 255, 80));
         renderer.quadXY(Vector(x - fontWidth + 2, y - fontSize + 2),
                         Vector(width + 2 * fontWidth - 4, height + 2 * fontSize - 4), Color(0, 0, 255, 80));
@@ -150,12 +148,11 @@ namespace Duel6 {
         Color fontColor = Color::WHITE;
 
         font.print(x + (width - scoreWidth) / 2, y + height - fontSize, 0.0f, fontColor, score, fontSize);
-        font.print(x + width - kadWidth, y + height - 2 * fontSize, 0.0f, fontColor, "  K   A   D   K/D  PTS",
-                   fontSize);
+        font.print(x + tableWidth, y + height - 2 * fontSize, 0.0f, fontColor, kad, fontSize);
         for (const auto &entry : ranking.entries) {
-            posY = renderRankingEntry(entry, posX, posY, maxLength, fontSize, true);
+            posY = renderRankingEntry(entry, x, posY, maxNameLength, fontSize, kadWidth);
             for (const auto &nestedRankingEntry : entry.entries) {
-                posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxLength, fontSize, true);
+                posY = renderRankingEntry(nestedRankingEntry, x, posY, maxNameLength, fontSize, kadWidth);
             }
         }
     }
@@ -229,8 +226,10 @@ namespace Duel6 {
     }
 
     void WorldRenderer::playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
-        const std::string &name = Format("{0} {1} {2} {3}") << player.getPerson().getName() << player.getId() << (game.tick - player.tick) << player.rtt;
+        const std::string &name = Format("{0} id:{1}") << player.getPerson().getName() << player.getId();
+        const std::string &netstat = Format("ping/lag:{0}/{1}") << player.rtt << (game.tick - player.tick);
 
+        Float32 netstatWidth = 0.15f * netstat.size();
         Float32 width = 0.15f * name.size();
         Float32 X = xOfs - width / 2;
         Float32 Y = yOfs;
@@ -240,9 +239,11 @@ namespace Duel6 {
         renderer.enableDepthWrite(false);
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
         renderer.quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::BLUE.withAlpha(alpha));
+        renderer.quadXY(Vector(X, Y + 0.3f, 0.5f), Vector(netstatWidth, 0.3f), Color::BLUE.withAlpha(alpha));
         renderer.setBlendFunc(BlendFunc::None);
 
         font.print(X, Y, 0.5f, Color::YELLOW.withAlpha(alpha), name, 0.3f);
+        font.print(X, Y + 0.3f, 0.5f, Color::YELLOW.withAlpha(alpha), netstat, 0.3f);
 
         renderer.enableDepthWrite(true);
     }

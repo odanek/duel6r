@@ -85,11 +85,8 @@ namespace Duel6 {
 
         void renderBackground() const;
 
-        Int32 renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength) const;
-
-        Int32
-        renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength, Float32 charHeight,
-                           bool extended) const;
+        Int32 renderRankingEntry(const Ranking::Entry &entry, Int32 posX, Int32 posY, Int32 maxLength, Float32 charHeight,
+                                 Int32 extendWidth) const;
 
         void roundOverSummary() const;
 

@@ -45,6 +45,7 @@ namespace Duel6 {
             Int32 deaths = 0;
             Int32 assistances = 0;
             Int32 penalties = 0;
+            Int32 rtt = 0;
             Color fontColor;
             Color bcgColor;
             std::vector<Entry> entries;

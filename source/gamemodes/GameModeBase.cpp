@@ -83,6 +83,7 @@ namespace Duel6 {
             entry.deaths = player->getPerson().getDeaths();
             entry.penalties = player->getPerson().getPenalties();
             entry.assistances = player->getPerson().getAssistances();
+            entry.rtt = player->rtt;
             result.entries.push_back(entry);
         }
 

@@ -114,6 +114,10 @@ namespace Duel6 {
             case EventType::PLAYER_KILLED:break;
             case EventType::MAX_COUNT:
                 break;
+            default: {
+                D6_THROW(Exception, "Cannot deserialize ANYTHING");
+                return;
+            }
             }
         }
 
@@ -167,7 +171,7 @@ namespace Duel6 {
             } else {
                 //callbacks.onDisconnected
             }
-
+            serverGameProxy->remove(this);
             destroy();
             return true;
         }
@@ -177,8 +181,9 @@ namespace Duel6 {
         }
 
         Uint32 Peer::getRTT() const {
-            return peer->roundTripTime;
+            return peer->lastRoundTripTime;
         }
+
         void Peer::destroy() {
             if (state == PeerState::DESTROYED) {
                 return;
@@ -210,6 +215,7 @@ namespace Duel6 {
                 peer,
                 host,
                 0) {
+            enet_peer_timeout(peer, 32, 1000, 5000);
             gameProxy.setPeerReference(*this);
         }
     } /* namespace net */
