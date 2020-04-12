@@ -50,6 +50,9 @@ namespace Duel6 {
         void setPressed(SDL_Keycode keyCode, bool pressed);
 
         bool isPressed(SDL_Keycode keyCode) const {
+            if(console.isActive()) {
+                return false;
+            }
             return pressedKeys.find(keyCode) != pressedKeys.end();
         }
 

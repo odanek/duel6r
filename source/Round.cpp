@@ -193,7 +193,7 @@ namespace Duel6 {
         }
 
         for (Player &player : world.getPlayers()) {
-            if(player.local){ //remote players get their tik updated by GameStateUpdates
+            if(player.local){
                 player.updateControllerStatus();
                 scriptUpdate(player);
 

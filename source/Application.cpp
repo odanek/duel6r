@@ -287,12 +287,13 @@ namespace Duel6 {
         accumulatedTime += elapsedTime;
 
         while (accumulatedTime > updateTime) {
-            netHost->poll();
-            netClient->poll();
             context.update(Float32(updateTime));
             accumulatedTime -= updateTime;
-
         }
+
+        Uint32 residual = (updateTime - accumulatedTime) * 1000;
+        netHost->poll(residual);
+        netClient->poll(residual);
     }
 
     void Application::run() {

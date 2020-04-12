@@ -21,6 +21,7 @@ namespace Duel6 {
             if(Net::initialized){
                 enet_deinitialize();
             }
+            Net::initialized = false;
         }
         bool Net::initialize(){
             if(Net::initialized){
