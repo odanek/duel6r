@@ -156,7 +156,7 @@ namespace Duel6 {
             if(console.isActive()) {
                 console.toggle();
             }
-            menu.play(paths);
+            menu.play(paths, false);
         }
     }
     void ConsoleCommands::loadSkin(Console &console, const Console::Arguments &args, Menu &menu) {

@@ -135,9 +135,12 @@ namespace Duel6 {
 
         std::vector<std::string> listMaps();
 
-        void play(std::vector<std::string> levels);
+        bool play(std::vector<std::string> levels, bool networkGame);
 
     private:
+
+        void quit();
+
         void beforeStart(Context *prevContext) override;
 
         void beforeClose(Context *nextContext) override;
@@ -146,9 +149,9 @@ namespace Duel6 {
 
         void showMessage(const std::string &message);
 
-        void detectControls(Size playerIndex);
+        bool detectControls(Size playerIndex);
 
-        void play();
+        bool play(bool networkGame);
 
         void playPlayersSound(const std::string &name);
 
@@ -178,9 +181,13 @@ namespace Duel6 {
 
         bool question(const std::string &question);
 
+        bool question(const std::string &question, bool &cancel);
+
         bool deleteQuestion();
 
         int processEvents(bool single = true);
+
+        int processEvents(bool single, bool & cancelled);
 
         void consumeInputEvents();
 

@@ -61,6 +61,7 @@ namespace Duel6 {
         uint16_t tick = 0;
         bool isServer = false;
         bool isRunning = false;
+        bool networkGame = false;
         class PlayerDefinition {
         private:
             Person &person;
@@ -158,7 +159,8 @@ namespace Duel6 {
             this->gameProxy = &serverGameProxy;
         }
         void start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
-                   const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode);
+                   const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode,
+                   bool networkGame);
 
         size_t joinPlayer(PlayerDefinition &playerDefinitions);
 

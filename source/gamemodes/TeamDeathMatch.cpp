@@ -191,7 +191,7 @@ namespace Duel6 {
         for (Int32 teamIndex = 0; teamIndex < teamsCount; teamIndex++) {
             const Team &team = TEAMS[teamIndex];
             Color bcgColor = team.color.withAlpha(178);
-            auto entry = Ranking::Entry{team.name, 0, Color::BLACK, bcgColor};
+            auto entry = Ranking::Entry{team.name, 0, Color::BLACK, bcgColor, true};
             ranking.entries.push_back(entry);
         }
         for (const auto &player : players) {
@@ -204,7 +204,7 @@ namespace Duel6 {
         Int32 index = 0;
 
         for (const auto &player : players) {
-            if(!player.isInGame()){
+            if(player.isDeleted()){
                 continue;
             }
             Int32 teamIndex = (player.getTeam() - 1) % teamsCount;

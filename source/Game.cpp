@@ -118,7 +118,9 @@ namespace Duel6 {
     void Game::start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
                      const std::vector<Size> &backgrounds,
                      ScreenMode screenMode, Int32 screenZoom,
-                     GameMode &gameMode) {
+                     GameMode &gameMode,
+                     bool networkGame) {
+        this->networkGame = networkGame;
         Console &console = appService.getConsole();
         console.printLine("\n=== Starting new game ===");
         console.printLine(Format("...Rounds: {0}") << settings.getMaxRounds());
@@ -156,10 +158,8 @@ namespace Duel6 {
         settings.setScreenMode(screenMode);
         settings.setScreenZoom(screenZoom);
         gameMode.initializeGame(*this, players, settings.isQuickLiquid(), settings.isGlobalAssistances());
-        if(isServer){
-
+        if(isServer || !networkGame){
             startRound();
-           // gameProxy->startRound();
         }
     }
     void Game::joinPlayers(std::vector<PlayerDefinition> &playerDefinitions) {
@@ -238,7 +238,6 @@ namespace Duel6 {
     }
 
     void Game::startRound(std::unique_ptr<Level> && levelData, std::function<void()> callback){
-
         currentRound = playedRounds;
         displayScoreTab = false;
         round = std::make_unique<Round>(*this, playedRounds, std::move(levelData));
@@ -285,7 +284,7 @@ namespace Duel6 {
     }
     void Game::onNextRound() {
         endRound();
-        if (isServer) {
+        if (isServer || !networkGame) {
             startRound();
         }
     }

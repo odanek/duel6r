@@ -42,6 +42,7 @@ namespace Duel6 {
 
             for (auto &p : gsu.players) {
                 if (idmap.count(p.id) == 0) {
+                    std::cerr << "Player id " << p.id << " not found, skipping\n";
                     continue;
                 }
                 auto pos = idmap[p.id];
@@ -50,21 +51,21 @@ namespace Duel6 {
                 if (!game->isServer) {
                     uint16_t xor_32768 = 32767;
                     uint16_t xor_32 = 31;
-                    bool shoulLoadSnapshot = false;
+                    bool shouldLoadSnapshot = false;
                     if(p.changed[0] || p.changed.count() != Player::FIELDS::_SIZE - 1){
-                        shoulLoadSnapshot = true;
+                        shouldLoadSnapshot = true;
                     }
                     if (((gsu.inputTick - gsu.confirmInputTick) & xor_32768) < 32
                         && peer->snapshot[gsu.confirmInputTick & xor_32].count(p.id) > 0) {
                         if (peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick) {
                             Player &confirmed = peer->snapshot[gsu.confirmInputTick & xor_32][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
-                            shoulLoadSnapshot = false;
+                            shouldLoadSnapshot = false;
                         } else {
                             /* debug */
                         }
                     }
-                    if(shoulLoadSnapshot){
+                    if(shouldLoadSnapshot){
                         // correct snapshot not found,
                         // wait out the server to send full copy
                         continue; // skip this player to not screw things

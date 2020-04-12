@@ -65,7 +65,7 @@ namespace Duel6 {
     Ranking GameModeBase::getRanking(const std::vector<Player> &players) const {
         std::vector<const Player *> ranking;
         for (const Player &player : players) {
-            if(player.isInGame()) {
+            if (!player.isDeleted()) {
                 ranking.push_back(&player);
             }
         }

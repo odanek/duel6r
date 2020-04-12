@@ -78,7 +78,11 @@ namespace Duel6 {
         Int32 posY = video.getScreen().getClientHeight() - 20;
 
         for (const auto &entry : ranking.entries) {
+            if(entry.isGroup && entry.entries.size() == 0) { //skip empty team
+                continue;
+            }
             posY = renderRankingEntry(entry, posX, posY, maxNameLength, fontSize, 0);
+
             for (const auto &nestedRankingEntry : entry.entries) {
                 posY = renderRankingEntry(nestedRankingEntry, posX, posY, maxNameLength, fontSize, 0);
             }
@@ -121,6 +125,9 @@ namespace Duel6 {
         int tableWidth = maxNameLength * (fontWidth);
         int width = std::max(tableWidth, 100);
         for (const auto &entry : ranking.entries) {
+            if(entry.isGroup && entry.entries.size() == 0) {
+                continue;
+            }
             height += fontSize * (1 + entry.entries.size());
         }
         const auto score = "---SCORE---";
@@ -142,7 +149,6 @@ namespace Duel6 {
                         Vector(width + 2 * fontWidth + 10, fontSize + 4), Color(0, 0, 255, 255));
         renderer.setBlendFunc(BlendFunc::SrcColor);
 
-        Int32 posX = video.getScreen().getClientWidth() / 2 - tableWidth / 2;;
         Int32 posY = y + height - fontSize * 3;
 
         Color fontColor = Color::WHITE;
@@ -150,6 +156,9 @@ namespace Duel6 {
         font.print(x + (width - scoreWidth) / 2, y + height - fontSize, 0.0f, fontColor, score, fontSize);
         font.print(x + tableWidth, y + height - 2 * fontSize, 0.0f, fontColor, kad, fontSize);
         for (const auto &entry : ranking.entries) {
+            if(entry.isGroup && entry.entries.size() == 0) { //skip empty teams
+                continue;
+            }
             posY = renderRankingEntry(entry, x, posY, maxNameLength, fontSize, kadWidth);
             for (const auto &nestedRankingEntry : entry.entries) {
                 posY = renderRankingEntry(nestedRankingEntry, x, posY, maxNameLength, fontSize, kadWidth);
@@ -172,7 +181,7 @@ namespace Duel6 {
     }
 
     void WorldRenderer::fpsCounter() const {
-        std::string fpsCount = Format("FPS - {0}") << Int32(video.getFps());
+        std::string fpsCount = Format("tick: {0,6} FPS - {1}") << game.tick << Int32(video.getFps());
         Int32 width = 8 * Int32(fpsCount.size()) + 2;
 
         Int32 x = Int32(video.getScreen().getClientWidth()) - width;
@@ -227,7 +236,7 @@ namespace Duel6 {
 
     void WorldRenderer::playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
         const std::string &name = Format("{0} id:{1}") << player.getPerson().getName() << player.getId();
-        const std::string &netstat = Format("ping/lag:{0}/{1}") << player.rtt << (game.tick - player.tick);
+        const std::string &netstat = Format("net:{0}/{1}/{2}/{3}") << player.rtt << player.tick << player.lastConfirmedTick << (game.tick - player.tick);
 
         Float32 netstatWidth = 0.15f * netstat.size();
         Float32 width = 0.15f * name.size();

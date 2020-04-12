@@ -49,10 +49,10 @@ namespace Duel6 {
             Color fontColor;
             Color bcgColor;
             std::vector<Entry> entries;
-
+            bool isGroup = false;
         public:
-            Entry(const std::string &name, Int32 points, const Color &fontColor, const Color &bcgColor)
-                    : name(name), points(points), fontColor(fontColor), bcgColor(bcgColor), entries() {}
+            Entry(const std::string &name, Int32 points, const Color &fontColor, const Color &bcgColor, bool isGroup = false)
+                    : name(name), points(points), fontColor(fontColor), bcgColor(bcgColor), entries(), isGroup(isGroup) {}
 
             void addSubEntry(const Entry &subEntry) {
                 entries.push_back(subEntry);

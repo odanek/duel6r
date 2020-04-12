@@ -173,7 +173,7 @@ namespace Duel6 {
         playButton->setPosition(350, 0, 150, 50);
         playButton->setCaption("Play (F1)");
         playButton->onClick([this](Gui::Button &) {
-            play();
+            play(false);
         });
 
         auto clearButton = new Gui::Button(gui);
@@ -211,7 +211,7 @@ namespace Duel6 {
         quitButton->setPosition(660, 0, 150, 50);
         quitButton->setCaption("Quit (ESC)");
         quitButton->onClick([this](Gui::Button &) {
-            close();
+            quit();
         });
 
         auto scoreLabel = new Gui::Label(gui);
@@ -276,7 +276,9 @@ namespace Duel6 {
             joyRescan();
             Size curPlayersCount = playerListBox->size();
             for (Size j = 0; j < curPlayersCount; j++) {
-                detectControls(j);
+                if(!detectControls(j)){
+                    break;
+                }
             }
         });
 
@@ -309,15 +311,6 @@ namespace Duel6 {
         gameModeSwitch->setPosition(10, 0, 330, 20);
         gameModeSwitch->onToggled([this](Int32 selectedIndex) {
             Int32 teamCount = 1 + selectedIndex / 2;
-//            if (selectedIndex < 2) {
-//                playerListBox->onColorize(Gui::ListBox::defaultColorize);
-//            } else {
-//
-//                playerListBox->onColorize([teamCount](Int32 index, const std::string &label) {
-//                    return Gui::ListBox::ItemColor{Color::BLACK, TEAMS[index % teamCount].color};
-//                });
-//            }
-
             for(size_t i = 0; i < playerListBox->size(); i++){
                 if(selectedIndex < 2){
                     teamControlSwitch[i]->setCurrent(0);
@@ -427,18 +420,26 @@ namespace Duel6 {
     }
 
     void Menu::showMessage(const std::string &message) {
-        Int32 width = Int32(message.size()) * 8 + 60;
+        const Float32 fontHeight = 32;
+        const std::string cancel = "[ESC] to cancel";
+        Int32 width = font.getTextWidth(message, fontHeight) + 60;
+        Int32 cancelWidth = font.getTextWidth(cancel, fontHeight);
+        Int32 height = fontHeight * 2; //2 lines
         Int32 x = video.getScreen().getClientWidth() / 2 - width / 2,
-                y = video.getScreen().getClientHeight() / 2 - 10;
+            y = video.getScreen().getClientHeight() / 2 - height / 2;
 
-        renderer.quadXY(Vector(x, y), Vector(width, 20), Color(255, 204, 204));
-        renderer.frame(Vector(x, y), Vector(width, 20), 2, Color::BLACK);
+        renderer.quadXY(Vector(x, y), Vector(width, height + 4), Color(255, 204, 204));
+        renderer.frame(Vector(x, y), Vector(width, height + 4), 2, Color::BLACK);
 
-        font.print(x + 30, y + 2, Color::RED, message);
+        font.print(x + 30, y + 32, 0.5f, Color::RED, message, fontHeight);
+        font.print(x + (width - cancelWidth) / 2.0f, y + 2, 0.5f, Color::RED, cancel, fontHeight);
         video.screenUpdate(appService.getConsole(), font);
     }
-
-    bool Menu::question(const std::string &question) {
+    bool Menu::question(const std::string &q) {
+        bool cancel;
+        return question(q, cancel);
+    }
+    bool Menu::question(const std::string &question, bool & cancel) {
         showMessage(question);
         SDL_Event event;
         bool answer;
@@ -451,6 +452,10 @@ namespace Duel6 {
                         break;
                     } else if (event.key.keysym.sym == SDLK_n) {
                         answer = false;
+                        break;
+                    } else if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        answer = false;
+                        cancel = true;
                         break;
                     }
                 }
@@ -473,19 +478,19 @@ namespace Duel6 {
         savePersonData();
     }
 
-    void Menu::detectControls(Size playerIndex) {
+    bool Menu::detectControls(Size playerIndex) {
         render();
         if (playerIndex >= playerListBox->size()) {
-            return;
+            return false;
         }
         const std::string &name = playerListBox->getItem(playerIndex);
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);
 
         bool detected = false;
-
-        while (!detected) {
-            if (processEvents(true)) {
+        bool cancelled = false;
+        while (!detected && !cancelled) {
+            if (processEvents(true, cancelled)) {
                 for (Size i = 0; i < controlsManager.getNumAvailable(); i++) {
                     const PlayerControls &pc = controlsManager.get(i);
 
@@ -503,6 +508,7 @@ namespace Duel6 {
         }
 
         consumeInputEvents();
+        return !cancelled;
     }
 
     void Menu::playPlayersSound(const std::string &name) {
@@ -513,11 +519,11 @@ namespace Duel6 {
         }
     }
 
-    void Menu::play() {
-        play(listMaps());
+    bool Menu::play(bool networkGame) {
+       return play(listMaps(), networkGame);
     }
 
-    void Menu::play(std::vector<std::string> levels) {
+    bool Menu::play(std::vector<std::string> levels, bool networkGame) {
         game->getSettings().setQuickLiquid(quickLiquidCheckBox->isChecked());
         game->getSettings().setGlobalAssistances(globalAssistanceCheckBox->isChecked());
         if (game->getSettings().isRoundLimit()) {
@@ -526,9 +532,13 @@ namespace Duel6 {
                 game->setPlayedRounds(0);
             }
         } else {
-            if (question("Clear statistics? (Y/N)")) {
+            bool cancelled = false;
+            if (question("Clear statistics? (Y/N)", cancelled)) {
                 cleanPersonData();
                 game->setPlayedRounds(0);
+            }
+            if(cancelled){
+                return false;
             }
         }
 
@@ -563,8 +573,8 @@ namespace Duel6 {
 
         // Start
         Context::push(*game);
-        game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
-
+        game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode, networkGame);
+        return true;
     }
 
     void Menu::addPlayer(Int32 index) {
@@ -658,7 +668,7 @@ namespace Duel6 {
         }
 
         if (event.getCode() == SDLK_F1) {
-            play();
+            play(false);
         }
 
         if (event.getCode() == SDLK_F3) {
@@ -668,6 +678,12 @@ namespace Duel6 {
         }
 
         if (event.getCode() == SDLK_ESCAPE) {
+            quit();
+        }
+    }
+
+    void Menu::quit() {
+        if (Menu::question("Quit now ? Y/N")) {
             close();
         }
     }
@@ -705,13 +721,17 @@ namespace Duel6 {
 
     void Menu::startServer(){
         game->isServer = true;
-        play();
-
+        if(!play(true)){
+            return;
+        }
         appService.getNetHost().listen(*game, host->getText(), std::stoi(port->getText()));
     }
 
     void Menu::joinServer(){
-        play();
+        game->isServer = false;
+        if(!play(true)){
+            return;
+        }
         appService.getNetClient().connect(host->getText(), std::stoi(port->getText()));
     }
 
@@ -753,6 +773,11 @@ namespace Duel6 {
     }
 
     int Menu::processEvents(bool single) {
+        bool cancelled = false;
+        return processEvents(single, cancelled);
+    }
+
+    int Menu::processEvents(bool single, bool & cancelled) {
         SDL_Event event;
         int result = 0;
         //TODO This logic duplicates event processing logic in Application. Should be refactored.
@@ -761,6 +786,9 @@ namespace Duel6 {
                 case SDL_KEYDOWN: {
                     auto key = event.key.keysym;
                     appService.getInput().setPressed(key.sym, true);
+                    if(key.sym == SDLK_ESCAPE){
+                        cancelled = true;
+                    }
                     break;
                 }
                 case SDL_KEYUP: {
