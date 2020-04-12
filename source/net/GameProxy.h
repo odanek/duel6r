@@ -15,12 +15,14 @@ namespace Duel6 {
     class Level;
     class Game;
     namespace net {
+
         template <typename To, typename From>
         To container_cast(From && from) {
-            using std::begin; using std::end; // Koenig lookup enabled
+            using std::begin; using std::end;
             return To(begin(from), end(from));
         }
         class Peer;
+
         class GameProxy {
         private:
 

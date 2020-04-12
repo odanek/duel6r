@@ -35,14 +35,14 @@ namespace Duel6 {
             ServiceState state = ServiceState::UNINITIALIZED;
             std::unique_ptr<ENetHost> serviceHost;
             Game *game = nullptr;
-            public:
+
+        public:
             ClientGameProxy *clientGameProxy;
             ServerGameProxy *serverGameProxy;
+
             Service(ClientGameProxy &c, ServerGameProxy &s)
-                :
-                  clientGameProxy(&c),
-                  serverGameProxy(&s)
-            {
+                : clientGameProxy(&c),
+                  serverGameProxy(&s) {
             }
 
             virtual ~Service() {
@@ -94,10 +94,8 @@ namespace Duel6 {
             virtual void onStopped() = 0;
 
             virtual void onPeerConnected(ENetPeer*) = 0;
-            virtual void onPeerDisconnected(ENetPeer*, enet_uint32 reason) = 0;
 
-//            virtual void onPeerHandle(ENetPeer *peer, ObjectType, binarystream &bs) = 0;
-//            virtual void onPeerHandle(ENetPeer *peer, EventType, binarystream &bs) = 0;
+            virtual void onPeerDisconnected(ENetPeer*, enet_uint32 reason) = 0;
 
             void tearDown() {
                 if (serviceHost.get() != nullptr) {

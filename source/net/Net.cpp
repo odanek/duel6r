@@ -12,9 +12,7 @@
 namespace Duel6 {
     namespace net {
 
-        Net::Net()
-        {
-            // TODO Auto-generated constructor stub
+        Net::Net() {
 
         }
         void Net::deinitialize(){

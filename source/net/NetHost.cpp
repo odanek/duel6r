@@ -13,31 +13,19 @@ namespace Duel6 {
     namespace net {
 #define MAX_PEERS 15
 #define CHANNELS 4
-//
-//        void NetHost::onPeerHandle(ENetPeer* peer, ObjectType, binarystream & bs) {
-//
-//        }
-//        void NetHost::onPeerHandle(ENetPeer* peer, EventType, binarystream & bs){
-//
-//        }
-//        void NetHost::setGameProxyReference(ClientGameProxy & clientGameProxy /*, GameProxy & serverGameProxy*/) {
-//            this->clientGameProxy = &clientGameProxy;
-//           // this->serverGameProxy = &serverGameProxy;
-//        }
+
         NetHost::NetHost(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy)
             : Service(clientGameProxy, serverGameProxy)
         {
-            // TODO Auto-generated constructor stub
 
         }
 
         NetHost::~NetHost()
         {
             die();
-            // TODO Auto-generated destructor stub
         }
 
-        void NetHost::listen(Game &game,const std::string &host,
+        void NetHost::listen(Game &game, const std::string &host,
                              const Duel6::net::port_t port) {
             if (state != ServiceState::UNINITIALIZED) {
                 D6_THROW(Exception, "starting server that is not uninitialized");
@@ -45,7 +33,7 @@ namespace Duel6 {
             setGameReference(game);
             ENetAddress address;
             address.host = ENET_HOST_ANY;
-            if(host != "any") {
+            if (host != "any") {
                 enet_address_set_host(&address, host.c_str());
             }
             address.port = port;

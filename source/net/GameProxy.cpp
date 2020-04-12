@@ -103,9 +103,7 @@ namespace Duel6 {
 
         }
         void GameProxy::sendGameState(Peer &peer, Game &game) {
-
             sendGameState(std::list<Peer*>(1, &peer), game);
-
         }
     } /* namespace net */
 } /* namespace Duel6 */

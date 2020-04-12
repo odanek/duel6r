@@ -16,13 +16,14 @@ namespace Duel6 {
         template<>
         void Peer::handle(ObjectType objectType, binarystream &s) {
             switch (objectType) {
-            case ObjectType::PLAYER:{
+            case ObjectType::PLAYER: {
                 Player p;
-                if(s >> p){
+                if (s >> p) {
                     gameProxy->handle(p);
                 }
 
-                break;}
+                break;
+            }
             case ObjectType::SHOT:
                 break;
             case ObjectType::CLIENT:
@@ -40,7 +41,9 @@ namespace Duel6 {
             switch (eventType) {
             case EventType::REQUEST_GAME_STATE: {
                 RequestGameState r;
-                s >> r;
+                if (!(s >> r)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::REQUEST_GAME_STATE");
+                }
                 /** if server **/
                 receivedInputsTick = gameProxy->getTick();
                 gameProxy->handle(*this, r);
@@ -49,21 +52,24 @@ namespace Duel6 {
             }
             case EventType::GAME_STATE: {
                 GameState gs;
-                s >> gs;
+                if (!(s >> gs)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::GAME_STATE");
+                }
+
                 receivedInputsTick = gs.tick;
                 gameProxy->handle(gs);
                 break;
             }
             case EventType::GAME_STATE_UPDATE: {
                 GameStateUpdate gs;
-                if(!( s >> gs)){
-                    std::cerr << "failed to deserialize GameStateUpdate object \n";
+                if (!(s >> gs)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::GAME_STATE_UPDATE");
                 }
                 // these are sent as unreliable unsequenced packets,
                 // we must discard those received out of order
                 // we must deal with wrap-around of the tick counter (16 bit) - so lets say 30000
-                if( ((gs.inputTick > receivedInputsTick) && (gs.inputTick - receivedInputsTick < 30000))
-                    || receivedInputsTick - gs.inputTick >= 30000){
+                if (((gs.inputTick > receivedInputsTick) && (gs.inputTick - receivedInputsTick < 30000))
+                    || receivedInputsTick - gs.inputTick >= 30000) {
                     receivedInputsTick = gs.inputTick;
 
                     gameProxy->handle(gs);
@@ -73,9 +79,11 @@ namespace Duel6 {
                 }
                 break;
             }
-            case EventType::NEXT_ROUND:{
+            case EventType::NEXT_ROUND: {
                 NextRound nr;
-                s >> nr;
+                if (!(s >> nr)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::NEXT_ROUND");
+                }
                 gameProxy->handle(nr);
                 break;
             }
@@ -172,7 +180,7 @@ namespace Duel6 {
             return peer->roundTripTime;
         }
         void Peer::destroy() {
-            if(state == PeerState::DESTROYED){
+            if (state == PeerState::DESTROYED) {
                 return;
             }
             state = PeerState::DESTROYED;
@@ -182,24 +190,26 @@ namespace Duel6 {
             }
             peer.release();
         }
-        Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, ENetHost *host,  size_t pos)
+
+        Peer::Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, size_t pos)
             : gameProxy(&gameProxy),
               serverGameProxy(&serverGameProxy),
               host(host),
               peer(peer),
               pos(pos) {
-            peer->data = new PeerRef{pos, this};
+            peer->data = new PeerRef { pos, this };
             incomingPeerID = peer->incomingPeerID;
             serverGameProxy.add(this);
             gameProxy.setPeerReference(*this);
             state = PeerState::CONNECTED;
         }
-        Peer::Peer(ClientGameProxy & gameProxy, ServerGameProxy & serverGameProxy, ENetPeer *peer, ENetHost *host)
+
+        Peer::Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host)
             : Peer(gameProxy,
-                   serverGameProxy,
-                   peer,
-                   host,
-                   0){
+                serverGameProxy,
+                peer,
+                host,
+                0) {
             gameProxy.setPeerReference(*this);
         }
     } /* namespace net */

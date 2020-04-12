@@ -9,24 +9,13 @@
 
 namespace Duel6 {
     namespace net {
-//        void NetClient::onPeerHandle(ENetPeer *peer, ObjectType, binarystream &bs) {
-//
-//        }
-//        void NetClient::onPeerHandle(ENetPeer *peer, EventType, binarystream &bs) {
-//
-//        }
-        NetClient::NetClient(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy):
-            Service(clientGameProxy, serverGameProxy)
-        {
-            //  client.
-            // TODO Auto-generated constructor stub
 
+        NetClient::NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy)
+            : Service(clientGameProxy, serverGameProxy) {
         }
 
-        NetClient::~NetClient()
-        {
+        NetClient::~NetClient() {
             disconnect();
-            // TODO Auto-generated destructor stub
         }
 
         void NetClient::connect(const std::string &host,
@@ -52,11 +41,14 @@ namespace Duel6 {
             ENetAddress address;
             enet_address_set_host(&address, host.c_str());
             address.port = port;
-            peer = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, enet_host_connect(serviceHost.get(), &address, 2, 42), serviceHost.get());
+            peer = std::make_unique<Peer>(*clientGameProxy,
+                *serverGameProxy,
+                enet_host_connect(serviceHost.get(), &address, 2, 42),
+                serviceHost.get());
         }
 
         void NetClient::onStopping() {
-            if(peer.get() == nullptr) {
+            if (peer.get() == nullptr) {
                 return;
             }
             peer->disconnect();

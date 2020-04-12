@@ -45,34 +45,32 @@ namespace Duel6::net {
     void Service::onPeerReceived(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {
         {
             binarystream bs(packet->data, packet->dataLength);
-            MessageType type;
-            if(!(bs >> type)){
-                return;
+            MessageType type = MessageType::MAX_COUNT;
+            if (!(bs >> type)) {
+                D6_THROW(Exception, "Service::onPeerReceived");
             }
-
             switch (type) {
             case MessageType::OBJECT: {
-                ObjectType type;
-                if (!(bs >> type)){
-                    return;
+                ObjectType objectType;
+                if (!((bs >> objectType) == true)) {
+                    D6_THROW(Exception, "Cannot deserialize MessageType::OBJECT");
                 }
-                PeerRef * ref = (PeerRef *) peer->data;
-                ref->peer->handle(type, bs);
-               // onPeerHandle(peer, type, bs);
+                PeerRef *ref = (PeerRef*) peer->data;
+                ref->peer->handle(objectType, bs);
                 break;
             }
             case MessageType::EVENT: {
-                EventType type;
-
-                if (!(bs >> type)){
-                    return;
+                EventType eventType;
+                if (!(bs >> eventType) == true){
+                    D6_THROW(Exception, "Cannot deserialize MessageType::EVENT");
                 }
-                PeerRef * ref = (PeerRef *) peer->data;
-                ref->peer->handle(type, bs);
-             //   onPeerHandle(peer, type, bs);
+                PeerRef *ref = (PeerRef*) peer->data;
+                ref->peer->handle(eventType, bs);
                 break;
             }
             case MessageType::MAX_COUNT:
+            default:
+                D6_THROW(Exception, "Unexpected deserialization");
                 break;
             }
         }

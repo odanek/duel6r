@@ -29,8 +29,8 @@ namespace Duel6 {
             void lateReceive(tick_t lateTick);
             void netStopped();
             tick_t getTick() const;
-            ClientGameProxy();
-            virtual ~ClientGameProxy();
+            ClientGameProxy() = default;
+            virtual ~ClientGameProxy() = default;
 
             void setGameReference(Game &g);
             void setPeerReference(Peer &peer);

@@ -22,14 +22,13 @@ namespace Duel6 {
          */
         class NetClient: public Service {
         private:
-            //ClientGameProxy *proxy;
             std::string host;
             port_t port;
             std::unique_ptr<Peer> peer;
             ENetHost *nethost;
 
         public:
-            NetClient(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy);
+            NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy);
             virtual ~NetClient();
 
             void connect(const std::string &host, const Duel6::net::port_t port);
@@ -38,15 +37,14 @@ namespace Duel6 {
         private:
 
             void onStarting() override;
+
             void onStopping() override;
+
             void onStopped() override;
 
             void onPeerConnected(ENetPeer*) override;
-            void onPeerDisconnected(ENetPeer*, enet_uint32 reason) override;
-//
-//            void onPeerHandle(ENetPeer *peer, ObjectType, binarystream &bs) override;
-//            void onPeerHandle(ENetPeer *peer, EventType, binarystream &bs) override;
 
+            void onPeerDisconnected(ENetPeer*, enet_uint32 reason) override;
         };
 
     } /* namespace net */

@@ -21,10 +21,10 @@ namespace Duel6 {
         };
 
         template<typename Stream>
-        bool serialize(Stream & s, MessageType & o){
-            if(s.isDeserializer()){
+        bool serialize(Stream &s, MessageType &o) {
+            if (s.isDeserializer()) {
                 type_t r;
-                if(!s.safe_max(r, (type_t) (static_cast<type_t>(MessageType::MAX_COUNT) - 1))){
+                if (!s.safe_max(r, (type_t) (static_cast<type_t>(MessageType::MAX_COUNT) - 1))) {
                     return false;
                 }
                 o = static_cast<MessageType>(r);
@@ -34,17 +34,21 @@ namespace Duel6 {
                 return s & r;
             }
         }
+
         class MessageBase {
         public:
             bool send(binarystream &bs) {
                 return (bs << messageType)
                     && onSendMessage(bs);
             }
+
             virtual ~MessageBase() {
             }
+
         protected:
             MessageType messageType;
-            public:
+
+        public:
             MessageBase(MessageType messageType)
                 : messageType(messageType) {
             }
@@ -52,6 +56,7 @@ namespace Duel6 {
             MessageType getType() {
                 return messageType;
             }
+
             virtual bool onSendMessage(binarystream &bs) = 0;
         };
 
@@ -66,13 +71,9 @@ namespace Duel6 {
             }
 
             virtual ~Message() {
-
             }
+
         private:
-            //            template<class Stream>
-//            bool send(Stream &s) {
-//                return s << *static_cast<MessageImpl*>(this);
-//            }
 
             virtual bool onSendMessage(binarystream &bs) override {
                 return sendMessage(bs);

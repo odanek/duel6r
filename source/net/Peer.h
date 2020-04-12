@@ -9,11 +9,10 @@
 #define SOURCE_NET_PEER_H_
 #include <memory>
 #include <enet/enet.h>
+#include "../Exception.h"
 #include "binarystream/BinaryStream.h"
 #include "Object.h"
 #include "Event.h"
-//#include "GameProxy.h"
-#include "Service.h"
 #include "object/Player.h"
 #define CHANNEL 0
 #define UNRELIABLE_CHANNEL 1
@@ -39,7 +38,6 @@ namespace Duel6 {
             ClientGameProxy *gameProxy = nullptr;
             ServerGameProxy *serverGameProxy = nullptr; //parent
             ENetHost *host = nullptr;
-            // Service *service;
             std::unique_ptr<ENetPeer> peer;
             size_t pos = 0;
             peer_id_t incomingPeerID = 0;
@@ -66,6 +64,7 @@ namespace Duel6 {
             void handle(MessageType type, Stream &s) {
 
             }
+
             template<typename MessageObject>
             void sendReliable(MessageObject &msg, uint8_t channel = CHANNEL, bool reliable = true) {
                 send(msg, CHANNEL, true);

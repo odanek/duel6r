@@ -57,9 +57,6 @@ namespace Duel6 {
         {
             peers.clear();
         }
-//        void ServerGameProxy::gameState(GameState & gameState){
-//
-//        }
 
         void ServerGameProxy::handle(ObjectBase &o) {
             ;

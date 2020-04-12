@@ -12,17 +12,6 @@
 namespace Duel6 {
     namespace net {
 
-        ClientGameProxy::ClientGameProxy()
-        {
-            // TODO Auto-generated constructor stub
-
-        }
-
-        ClientGameProxy::~ClientGameProxy()
-        {
-            // TODO Auto-generated destructor stub
-        }
-
         void ClientGameProxy::setPeerReference(Peer &peer) {
             this->peer = &peer;
         }
@@ -246,7 +235,6 @@ namespace Duel6 {
         void ClientGameProxy::netStopped() {
             Context::pop();
         }
-
         void ClientGameProxy::handle(NextRound &nr) {
             for (auto &s : peer->snapshot) {
                 s.clear();
