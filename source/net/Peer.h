@@ -110,6 +110,13 @@ namespace Duel6 {
 
             void destroy();
         };
+
+        template<>
+        void Peer::handle(EventType eventType, binarystream &s);
+
+        template<>
+        void Peer::handle(ObjectType objectType, binarystream &s);
+
     } /* namespace net */
 } /* namespace Duel6 */
 
