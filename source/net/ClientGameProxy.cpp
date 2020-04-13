@@ -11,7 +11,8 @@
 #include "../Level.h"
 namespace Duel6 {
     namespace net {
-
+        const uint16_t xor_32768 = 32767;
+        const uint16_t xor_32 = 31;
         void ClientGameProxy::setPeerReference(Peer &peer) {
             this->peer = &peer;
         }
@@ -38,7 +39,77 @@ namespace Duel6 {
                 player.lateTicks++;
             }
         }
+
+        void ClientGameProxy::handle(PlayerInputsUpdate &giu) {
+
+            if(!game->isServer){
+                return;
+            }
+            switch (peer->peerUpdateState) {
+            case PeerUpdateState::WAITING_FOR_REQUEST: {
+                return;
+                break;
+            }
+            case PeerUpdateState::REQUESTED_GAMESTATE: {
+                if (game->isServer) {
+                    peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;
+                } else {
+                    return;
+                }
+                break;
+            }
+            case PeerUpdateState::GAMESTATE_RECEIVED: {
+                peer->peerUpdateState = PeerUpdateState::RUNNING;
+                break;
+            }
+            case PeerUpdateState::RUNNING: {
+                break;
+            }
+            }
+
+            for (auto &p : giu.playersInputs) {
+                if (idmap.count(p.id) == 0) {
+                    std::cerr << "Player id " << p.id << " not found, skipping\n";
+                    continue;
+                }
+                auto pos = idmap[p.id];
+                auto &player = game->players[pos];
+
+                if (!player.local) {
+                    player.lastConfirmedTick = giu.confirmInputTick;
+                    uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
+                    if (missed > 16) {
+                        missed = 16;
+                    }
+                    for (size_t i = 0; i < missed; i++) {
+                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[16 - missed + i];
+                    }
+                }
+            }
+        }
+
         void ClientGameProxy::handle(GameStateUpdate &gsu) {
+            switch (peer->peerUpdateState) {
+            case PeerUpdateState::WAITING_FOR_REQUEST: {
+                return;
+                break;
+            }
+            case PeerUpdateState::REQUESTED_GAMESTATE: {
+                if(game->isServer){
+                    peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;
+                } else {
+                    return;
+                }
+                break;
+            }
+            case PeerUpdateState::GAMESTATE_RECEIVED: {
+                peer->peerUpdateState = PeerUpdateState::RUNNING;
+                break;
+            }
+            case PeerUpdateState::RUNNING: {
+                break;
+            }
+            }
 
             for (auto &p : gsu.players) {
                 if (idmap.count(p.id) == 0) {
@@ -49,16 +120,15 @@ namespace Duel6 {
                 auto &player = game->players[pos];
 
                 if (!game->isServer) {
-                    uint16_t xor_32768 = 32767;
-                    uint16_t xor_32 = 31;
+
                     bool shouldLoadSnapshot = false;
                     if(p.changed[0] || p.changed.count() != Player::FIELDS::_SIZE - 1){
                         shouldLoadSnapshot = true;
                     }
-                    if (((gsu.inputTick - gsu.confirmInputTick) & xor_32768) < 32
-                        && peer->snapshot[gsu.confirmInputTick & xor_32].count(p.id) > 0) {
-                        if (peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick) {
-                            Player &confirmed = peer->snapshot[gsu.confirmInputTick & xor_32][p.id];
+                    if (/*( (gsu.inputTick - gsu.snapshotTick) & xor_32768) < 32*/
+                        /*&&*/ peer->snapshot[gsu.snapshotTick & xor_32].count(p.id) > 0) {
+                        if (peer->snapshot[gsu.snapshotTick & xor_32][p.id].debug == gsu.snapshotTick) {
+                            Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_32][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
                             shouldLoadSnapshot = false;
                         } else {
@@ -68,6 +138,8 @@ namespace Duel6 {
                     if(shouldLoadSnapshot){
                         // correct snapshot not found,
                         // wait out the server to send full copy
+                        peer->confirmedInputsTick = player.lastConfirmedTick;
+
                         continue; // skip this player to not screw things
                     } else {
                         player.lastConfirmedTick = gsu.confirmInputTick;
@@ -115,7 +187,7 @@ namespace Duel6 {
                     player.rtt = peer->getRTT();
                 }
                 if (!player.local) {
-                    size_t missed = player.lastConfirmedTick - player.tick;
+                    uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
                     if (missed > 16) {
                         missed = 16;
                     }
@@ -229,8 +301,9 @@ namespace Duel6 {
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                 player.setControllerState(p.controls);
 
-                peer->snapshot[sr.tick % 32][p.id] = p;
+                peer->snapshot[sr.tick & xor_32][p.id] = p;
             }
+            peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;
 
         }
         void ClientGameProxy::netStopped() {
@@ -247,6 +320,7 @@ namespace Duel6 {
         }
         //this should only happen on the server side when the client called us with this request
         void ClientGameProxy::handle(Peer &peer, RequestGameState &r) {
+            peer.peerUpdateState = PeerUpdateState::REQUESTED_GAMESTATE;
             std::vector<Game::PlayerDefinition> playerDefinitions;
             playerDefinitions.reserve(r.connectingPlayers.size());
 
@@ -285,6 +359,10 @@ namespace Duel6 {
         }
         void ClientGameProxy::handle(EventBase &e) {
             handleEvent(e);
+        }
+
+        bool ClientGameProxy::gameIsServer(){
+            return game->isServer;
         }
 
         RequestGameState ClientGameProxy::getRequestGameState() {

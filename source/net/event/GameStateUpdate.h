@@ -16,11 +16,13 @@ namespace Duel6::net {
     public:
         tick_t inputTick;
         tick_t confirmInputTick;
+        tick_t snapshotTick;
         std::vector<Player> players;
         template<typename Stream>
         bool serialize(Stream &s) {
             return s & inputTick
                 && s & confirmInputTick
+                && s & snapshotTick
                 && s & players;
         }
     };

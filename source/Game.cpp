@@ -49,8 +49,10 @@ namespace Duel6 {
 
     void Game::beforeClose(Context *nextContext) {
         endRound();
-        if(isServer){
+        isRunning = false;
+        if(networkGame){
             appService.getNetHost().die();
+            appService.getNetClient().disconnect();
         }
     }
 

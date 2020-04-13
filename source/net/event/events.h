@@ -13,5 +13,5 @@
 #include "NextRound.h"
 #include "RequestGameState.h"
 #include "StartRound.h"
-
+#include "PlayerInputsUpdate.h"
 #endif /* SOURCE_NET_EVENT_EVENTS_H_ */

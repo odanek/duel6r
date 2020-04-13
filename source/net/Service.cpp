@@ -17,12 +17,13 @@ namespace Duel6::net {
     }
 
     void Service::poll(Uint32 timeout) {
-        if (state == ServiceState::UNINITIALIZED || state == ServiceState::STOPPED) {
+        if (!(state == ServiceState::STARTED || state == ServiceState::STARTING || state == ServiceState::STOPPING)) {
             return;
         }
         ENetEvent event;
         ENetHost *netHost = serviceHost.get();
         while (enet_host_service(netHost, &event, timeout) > 0) {
+            timeout = 0;
             switch (event.type) {
             case ENetEventType::ENET_EVENT_TYPE_NONE:
                 break;

@@ -24,6 +24,8 @@ namespace Duel6 {
 
                 break;
             }
+            case ObjectType::PLAYER_INPUTS:
+                break;
             case ObjectType::SHOT:
                 break;
             case ObjectType::CLIENT:
@@ -57,6 +59,7 @@ namespace Duel6 {
                 }
 
                 receivedInputsTick = gs.tick;
+                confirmedInputsTick = gs.tick;
                 gameProxy->handle(gs);
                 break;
             }
@@ -71,12 +74,22 @@ namespace Duel6 {
                 if (((gs.inputTick > receivedInputsTick) && (gs.inputTick - receivedInputsTick < 30000))
                     || receivedInputsTick - gs.inputTick >= 30000) {
                     receivedInputsTick = gs.inputTick;
-
+                    confirmedInputsTick = gs.confirmInputTick;
                     gameProxy->handle(gs);
                 } else {
                     gameProxy->lateReceive(gs.inputTick);
                     //out of order / late receive
                 }
+                break;
+            }
+            case EventType::PLAYER_INPUTS_UPDATE: {
+                PlayerInputsUpdate piu;
+                if (!(s >> piu)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::PLAYER_INPUTS_UPDATE");
+                }
+                receivedInputsTick = piu.inputTick;
+                confirmedInputsTick = piu.confirmInputTick;
+                gameProxy->handle(piu);
                 break;
             }
             case EventType::NEXT_ROUND: {
@@ -149,11 +162,13 @@ namespace Duel6 {
             }
             incomingPeerID = me->incomingPeerID;
             state = PeerState::CONNECTED;
-
+            if(!gameProxy->gameIsServer()){
+                requestGameState();
+            }
             return true;
         }
         void Peer::requestGameState() {
-
+            peerUpdateState = PeerUpdateState::REQUESTED_GAMESTATE;
             send(gameProxy->getRequestGameState());
         }
         bool Peer::onDisconnected(ENetPeer *me, enet_uint32 reason) {

@@ -195,18 +195,22 @@ namespace Duel6 {
 
         auto startServerB = new Gui::Button(gui);
 
-        startServerB->setPosition(10, 600, 50, 50);
+        startServerB->setPosition(10, 600, 60, 50);
         startServerB->setCaption("Server");
         startServerB->onClick([this](Gui::Button &) {
             startServer();
         });
         auto connect = new Gui::Button(gui);
 
-        connect->setPosition(70, 600, 50, 50);
+        connect->setPosition(90, 600, 60, 50);
         connect->setCaption("Connect");
         connect->onClick([this](Gui::Button &) {
             joinServer();
         });
+        reverseConnection = new Gui::CheckBox(gui);
+        reverseConnection->setPosition(150, 600, 60, 50);
+        reverseConnection->setLabel("Reverse connection");
+
         auto quitButton = new Gui::Button(gui);
         quitButton->setPosition(660, 0, 150, 50);
         quitButton->setCaption("Quit (ESC)");
@@ -720,7 +724,7 @@ namespace Duel6 {
     }
 
     void Menu::startServer(){
-        game->isServer = true;
+        game->isServer = true && !reverseConnection->isChecked();
         if(!play(true)){
             return;
         }
@@ -728,11 +732,11 @@ namespace Duel6 {
     }
 
     void Menu::joinServer(){
-        game->isServer = false;
+        game->isServer = false || reverseConnection->isChecked();
         if(!play(true)){
             return;
         }
-        appService.getNetClient().connect(host->getText(), std::stoi(port->getText()));
+        appService.getNetClient().connect(*game, host->getText(), std::stoi(port->getText()));
     }
 
     void Menu::enableMusic(bool enable) {

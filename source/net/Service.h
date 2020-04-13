@@ -74,6 +74,9 @@ namespace Duel6 {
             }
 
             void stop() {
+                if(state != ServiceState::STARTED){
+                    return;
+                }
                 state = ServiceState::STOPPING;
                 onStopping();
             }

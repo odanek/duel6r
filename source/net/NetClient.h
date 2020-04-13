@@ -31,7 +31,7 @@ namespace Duel6 {
             NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy);
             virtual ~NetClient();
 
-            void connect(const std::string &host, const Duel6::net::port_t port);
+            void connect(Game &game, const std::string &host, const Duel6::net::port_t port);
             void disconnect();
 
         private:

@@ -31,6 +31,8 @@ namespace Duel6 {
             void gameState(Game & game);
             ServerGameProxy();
             virtual ~ServerGameProxy();
+        private:
+            void sendInputs(Game &game);
         };
 
     } /* namespace net */

@@ -87,14 +87,22 @@ set(D6R_SOURCES
 
         source/net/event/events.h
         source/net/event/GameState.h
+        source/net/event/GameStateUpdate.h
+        source/net/event/NextRound.h
+        source/net/event/PlayerInputsUpdate.h
+        source/net/event/PlayerProfile.h
         source/net/event/RequestGameState.h
 
         source/net/object/objects.h
         source/net/object/Client.h
-        source/net/object/Player.h
+        source/net/object/Level.h
         source/net/object/Player.cpp
+        source/net/object/Player.h
+        source/net/object/PlayerInputs.h
         source/net/object/Shot.h
         source/net/object/Vector.h
+        source/net/object/Vector2d.h
+        source/net/object/World.h
 
         source/net/ClientGameProxy.cpp
         source/net/ClientGameProxy.h

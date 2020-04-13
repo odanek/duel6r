@@ -14,7 +14,7 @@
 #include "Shot.h"
 #include "Vector.h"
 #include "World.h"
-
+#include "PlayerInputs.h"
 
 
 #endif /* SOURCE_NET_OBJECT_OBJECTS_H_ */

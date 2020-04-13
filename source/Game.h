@@ -44,7 +44,7 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "Round.h"
-#include "net/GameProxy.h"
+#include "net/ServerGameProxy.h"
 
 namespace Duel6 {
     namespace net {
@@ -134,7 +134,7 @@ namespace Duel6 {
         GameSettings &settings;
         GameMode *gameMode;
         std::unique_ptr<Round> round;
-        net::GameProxy * gameProxy;
+        net::ServerGameProxy * gameProxy;
         WorldRenderer worldRenderer;
         const Menu *menu;
 
@@ -155,7 +155,7 @@ namespace Duel6 {
         void compensateLag(uint16_t confirmInputTick);
 
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
-        void setGameProxyReference(net::GameProxy & serverGameProxy) {
+        void setGameProxyReference(net::ServerGameProxy & serverGameProxy) {
             this->gameProxy = &serverGameProxy;
         }
         void start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,

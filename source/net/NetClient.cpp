@@ -18,11 +18,12 @@ namespace Duel6 {
             disconnect();
         }
 
-        void NetClient::connect(const std::string &host,
+        void NetClient::connect(Game &game, const std::string &host,
                                 const Duel6::net::port_t port) {
             if (state != ServiceState::UNINITIALIZED) {
                 D6_THROW(Exception, "connecting client that is not uninitialized");
             }
+            setGameReference(game);
             this->host = host;
             this->port = port;
             ENetHost *nethost = enet_host_create(nullptr,
@@ -67,7 +68,6 @@ namespace Duel6 {
                 return;
             }
             started();
-            peer->requestGameState();
         }
 
         void NetClient::onPeerDisconnected(ENetPeer *me, enet_uint32 reason) {

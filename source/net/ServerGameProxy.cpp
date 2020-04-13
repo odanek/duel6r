@@ -10,6 +10,10 @@
 #include "event/events.h"
 namespace Duel6 {
     namespace net {
+        uint8_t xor_128 = 127; // % operator yields also negative results
+        auto xor_32768 = 0x7fff;
+        auto xor_32 = 31;
+
         void ServerGameProxy::add(Peer *p) {
             peers.push_back(p);
         }
@@ -73,10 +77,46 @@ namespace Duel6 {
             }
         }
 
-        void ServerGameProxy::sendGameStateUpdate(Game &game) {
+        void ServerGameProxy::sendInputs(Game &game) {
             for (auto &peer : peers) {
+                if(!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)){
+                    continue;
+                }
+                PlayerInputsUpdate piu;
+                auto & players = game.getPlayers();
+
+                piu.confirmInputTick = peer->confirmedInputsTick;
+                piu.inputTick = game.tick;
+
+                piu.playersInputs.reserve(players.size());
+                for(auto & player: players){
+                    if(!player.local){
+                        continue;
+                    }
+                    PlayerInputs pi;
+                    pi.id = player.getId();
+                    player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
+                    for (size_t i = 0; i < 16; i++) {
+                        pi.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) & xor_128];
+                    }
+                    piu.playersInputs.push_back(pi);
+                }
+                peer->sendUnreliable(piu);
+            }
+        }
+
+        void ServerGameProxy::sendGameStateUpdate(Game &game) {
+            if(!game.isServer){
+                sendInputs(game);
+                return;
+            }
+            for (auto &peer : peers) {
+                if(!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)){
+                    continue;
+                }
                 GameStateUpdate gsu;
                 gsu.confirmInputTick = peer->receivedInputsTick;
+                gsu.snapshotTick = peer->confirmedInputsTick;
                 gsu.inputTick = game.tick;
                 gsu.players.reserve(game.getPlayers().size());
 
@@ -89,7 +129,7 @@ namespace Duel6 {
                     p.id = player.getId();
                     p.clientLocalId = player.getClientLocalId();
                     p.debug = game.tick;
-                    auto xor_128 = 127; // % operator yields also negative results
+
                     if (player.local) {
                         player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
                         for (size_t i = 0; i < 16; i++) {
@@ -119,19 +159,16 @@ namespace Duel6 {
                         p.weaponId = player.getWeapon().getId();
                         p.orientationLeft = { player.getOrientation() == Orientation::Left };
 
-                        peer->snapshot[game.tick % 32][p.id] = p;
+                        peer->snapshot[game.tick & xor_32][p.id] = p;
                     }
 
-                    auto xor_32768 = 0x7fff;
-                    auto xor_32 = 31;
                     if (game.isServer &&
-                        (((gsu.inputTick - gsu.confirmInputTick) & xor_32768) < 32
-                            && peer->snapshot[gsu.confirmInputTick & xor_32].count(p.id) > 0
-                            && peer->snapshot[gsu.confirmInputTick & xor_32][p.id].debug == gsu.confirmInputTick)) {
-                        Player::diff(p, peer->snapshot[gsu.confirmInputTick & xor_32][p.id]);
+                        (((gsu.inputTick - gsu.snapshotTick) & xor_32768) < 32
+                            && peer->snapshot[gsu.snapshotTick & xor_32].count(p.id) > 0
+                            && peer->snapshot[gsu.snapshotTick & xor_32][p.id].debug == gsu.snapshotTick)) {
+                        Player::diff(p, peer->snapshot[gsu.snapshotTick & xor_32][p.id]);
                     }
                     gsu.players.push_back(p);
-
                 }
                 peer->sendUnreliable(gsu);
             }

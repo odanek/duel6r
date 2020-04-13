@@ -12,6 +12,7 @@
 namespace Duel6::net {
     enum class ObjectType : type_t {
         PLAYER,
+        PLAYER_INPUTS,
         SHOT,
         CLIENT,
         LEVEL,

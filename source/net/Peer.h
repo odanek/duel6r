@@ -21,6 +21,12 @@ namespace Duel6 {
         class ClientGameProxy;
         class ServerGameProxy;
         class Peer;
+        enum class PeerUpdateState {
+            WAITING_FOR_REQUEST,
+            REQUESTED_GAMESTATE,
+            GAMESTATE_RECEIVED,
+            RUNNING
+        };
         enum class PeerState {
             CONNECTING,
             CONNECTED,
@@ -34,6 +40,7 @@ namespace Duel6 {
         };
         class Peer {
         private:
+
             PeerState state = PeerState::DISCONNECTED;
             ClientGameProxy *gameProxy = nullptr;
             ServerGameProxy *serverGameProxy = nullptr; //parent
@@ -44,6 +51,7 @@ namespace Duel6 {
 
             // SomeAppObject callbacks
         public:
+            PeerUpdateState peerUpdateState = PeerUpdateState::WAITING_FOR_REQUEST;
             Uint32 getRTT() const;
             std::array<std::map<Uint32, Player>, 32> snapshot;
             uint16_t confirmedInputsTick = 0; //TODO private

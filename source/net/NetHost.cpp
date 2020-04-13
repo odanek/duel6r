@@ -8,7 +8,7 @@
 #include <string>
 #include "NetHost.h"
 #include "ClientGameProxy.h"
-
+#include "../Game.h"
 namespace Duel6 {
     namespace net {
 #define MAX_PEERS 15
@@ -59,9 +59,9 @@ namespace Duel6 {
                 peer->disconnect();
             }
             for (const auto &p : peers) {
-                if (p->getState() != PeerState::DISCONNECTED) {
-                    return;
-                }
+//                if (p->getState() != PeerState::DISCONNECTED) {
+//                    return;
+//                }
             }
             stopped();
         }
@@ -79,12 +79,13 @@ namespace Duel6 {
             for (std::unique_ptr<Peer> &p : peers) {
                 if (p.get() == nullptr) {
                     p = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, serviceHost.get(), i);
-
+                    p->onConnected(peer);
                     return;
                 }
                 i++;
             }
-            peers.emplace_back(std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, serviceHost.get(), i));
+            auto &p = peers.emplace_back(std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, serviceHost.get(), i));
+            p->onConnected(peer);
         }
 
         void NetHost::onPeerDisconnected(ENetPeer *peer, enet_uint32 reason) {

@@ -26,6 +26,7 @@ namespace Duel6 {
             PlayerSounds defaultSounds;
             Int32 clientId = 0; // will be set upon receiving gamestate from server
         public:
+            bool gameIsServer();
             void lateReceive(tick_t lateTick);
             void netStopped();
             tick_t getTick() const;
@@ -38,6 +39,7 @@ namespace Duel6 {
             void handle(Player &p);
             void handle(GameState &s);
             void handle(GameStateUpdate &s);
+            void handle(PlayerInputsUpdate &piu);
             void handle(NextRound &nr);
             void handle(StartRound &sr);
 
