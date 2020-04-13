@@ -97,8 +97,8 @@ namespace Duel6 {
                     PlayerInputs pi;
                     pi.id = player.getId();
                     player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
-                    for (size_t i = 0; i < 16; i++) {
-                        pi.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) & xor_128];
+                    for (size_t i = 0; i < 64; i++) {
+                        pi.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 63 + i) & xor_128];
                     }
                     piu.playersInputs.push_back(pi);
                 }

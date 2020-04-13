@@ -79,11 +79,11 @@ namespace Duel6 {
                 if (!player.local) {
                     player.lastConfirmedTick = piu.confirmInputTick;
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
-                    if (missed > 16) {
-                        missed = 16;
+                    if (missed > 64) {
+                        missed = 64;
                     }
                     for (size_t i = 0; i < missed; i++) {
-                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[16 - missed + i];
+                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[64 - missed + i];
                     }
                 }
             }
@@ -157,13 +157,13 @@ namespace Duel6 {
                         position.x - collidingEntity.position.x,
                         position.y - collidingEntity.position.y
                     };
-                     if(diff.x * diff.x + diff.y * diff.y > 0.9){
+                 //    if(diff.x * diff.x + diff.y * diff.y > 0.9){
                          collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
                          collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
-                     } else {
-                         collidingEntity.externalForcesSpeed.x += diff.x;
-                         collidingEntity.externalForcesSpeed.y += diff.y;
-                     }
+                //     } else {
+                 //        collidingEntity.externalForcesSpeed.x += diff.x;
+                 //        collidingEntity.externalForcesSpeed.y += diff.y;
+                 //    }
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                     collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                     collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };

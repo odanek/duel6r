@@ -8,7 +8,7 @@ namespace Duel6::net {
     public:
         object_id_t id = 0;
         Uint8 controls;
-        std::array<Uint8, 16> unconfirmedInputs;
+        std::array<Uint8, 64> unconfirmedInputs;
 
         template<class Stream>
         bool serialize(Stream &s) {
