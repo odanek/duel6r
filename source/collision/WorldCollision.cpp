@@ -31,9 +31,7 @@ namespace Duel6 {
 //TODO Duplicity
 static const float GRAVITATIONAL_ACCELERATION = -11.0f;
 
-void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed) {
-    elevator = elevators.checkCollider(*this, elapsedTime * speed);
-
+void CollidingEntity::collideWithElevator(Float32 elapsedTime, Float32 speed) {
     if(elevator != nullptr) {
         position.y = elevator->getPosition().y;
         position += elevator->getVelocity() * elapsedTime;
@@ -43,6 +41,10 @@ void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 ela
             velocity.x = 0.0f;
         }
     }
+}
+void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed) {
+    elevator = elevators.checkCollider(*this, elapsedTime * speed);
+    collideWithElevator(elapsedTime, speed);
 }
 
 void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed) {

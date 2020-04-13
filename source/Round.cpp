@@ -203,13 +203,18 @@ namespace Duel6 {
                 }
             } else {
                 auto tmp = player.getControllerState();
+                bool runElevators = player.lastConfirmedTick == player.tick;
                 while(player.lastConfirmedTick - player.tick > 0){
                     scriptUpdate(player);
                     player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
+                    player.unconfirmedInputs[player.tick % 128] = 0;
                     player.update(world, game.getSettings().getScreenMode(), elapsedTime);
                     if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
                         player.makeGhost();
                     }
+                }
+                if(runElevators){
+                    player.getCollider().collideWithElevator(0.0, 1.0);
                 }
                 player.setControllerState(tmp); // put it back to not replay inputs
             }

@@ -41,7 +41,7 @@ namespace Duel6 {
             }
         }
 
-        void ClientGameProxy::handle(PlayerInputsUpdate &giu) {
+        void ClientGameProxy::handle(PlayerInputsUpdate &piu) {
 
             if(!game->isServer){
                 return;
@@ -68,7 +68,7 @@ namespace Duel6 {
             }
             }
 
-            for (auto &p : giu.playersInputs) {
+            for (auto &p : piu.playersInputs) {
                 if (idmap.count(p.id) == 0) {
                     std::cerr << "Player id " << p.id << " not found, skipping\n";
                     continue;
@@ -77,7 +77,7 @@ namespace Duel6 {
                 auto &player = game->players[pos];
 
                 if (!player.local) {
-                    player.lastConfirmedTick = giu.confirmInputTick;
+                    player.lastConfirmedTick = piu.confirmInputTick;
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
                     if (missed > 16) {
                         missed = 16;

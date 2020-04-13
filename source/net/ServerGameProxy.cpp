@@ -118,7 +118,15 @@ namespace Duel6 {
                 GameStateUpdate gsu;
                 gsu.confirmInputTick = peer->receivedInputsTick;
                 gsu.snapshotTick = peer->confirmedInputsTick;
+
                 gsu.inputTick = game.tick;
+                if(gsu.inputTick - gsu.snapshotTick < 16){
+                    // crazy trick that actually solves problem with snapshot divergence
+                    // we assume that game state updates get through the network most of the time.
+                    // If the peer->confirmedInputsTick starts to diverge (client didn't find correct snapshot and
+                    // waits for us to serve him fresh copy of the state), we use that one as the last known snapshot
+                    gsu.snapshotTick = gsu.confirmInputTick;
+                }
                 gsu.players.reserve(game.getPlayers().size());
 
                 for (auto &player : game.getPlayers()) {
@@ -162,9 +170,9 @@ namespace Duel6 {
 
                         peer->snapshot[game.tick & xor_64][p.id] = p;
                     }
-
+                    player.rtt = p.rtt;
                     if (game.isServer &&
-                        (((gsu.inputTick - gsu.snapshotTick) & xor_32768) < 32
+                        (((gsu.inputTick - gsu.snapshotTick) & xor_32768) < 64
                             && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0
                             && peer->snapshot[gsu.snapshotTick & xor_64][p.id].debug == gsu.snapshotTick)) {
                         Player::diff(p, peer->snapshot[gsu.snapshotTick & xor_64][p.id]);
