@@ -13,6 +13,7 @@ namespace Duel6 {
     namespace net {
         const uint16_t xor_32768 = 32767;
         const uint16_t xor_32 = 31;
+        const uint16_t xor_64 = 63;
         void ClientGameProxy::setPeerReference(Peer &peer) {
             this->peer = &peer;
         }
@@ -126,9 +127,9 @@ namespace Duel6 {
                         shouldLoadSnapshot = true;
                     }
                     if (/*( (gsu.inputTick - gsu.snapshotTick) & xor_32768) < 32*/
-                        /*&&*/ peer->snapshot[gsu.snapshotTick & xor_32].count(p.id) > 0) {
-                        if (peer->snapshot[gsu.snapshotTick & xor_32][p.id].debug == gsu.snapshotTick) {
-                            Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_32][p.id];
+                        /*&&*/ peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0) {
+                        if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].debug == gsu.snapshotTick) {
+                            Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_64][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
                             shouldLoadSnapshot = false;
                         } else {
@@ -176,23 +177,23 @@ namespace Duel6 {
                     }
                     player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                     //TODO handle 16bit wrap-around
-                    if (player.local && ((game->tick - gsu.confirmInputTick) & xor_32768 < 8)) { // cap it at 8 frames to avoid run-away of death
+                    if (player.local && ((game->tick - gsu.confirmInputTick) & xor_32768 < 32)) { // cap it at 8 frames to avoid run-away of death
                         Uint32 ms = 1000 / 90;
                         Uint32 drift = player.rtt / ms;
-                        game->compensateLag(game->tick - (game->tick -  gsu.confirmInputTick) / 2 ); // run client-side prediction
+                        game->compensateLag(gsu.confirmInputTick);//game->tick - (game->tick -  gsu.confirmInputTick) / 2 ); // run client-side prediction
                     }
-                    peer->snapshot[gsu.inputTick & xor_32][p.id] = p;
+                    peer->snapshot[gsu.inputTick & xor_64][p.id] = p;
                 } else {
                     player.lastConfirmedTick = gsu.confirmInputTick;
                     player.rtt = peer->getRTT();
                 }
                 if (!player.local) {
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
-                    if (missed > 16) {
-                        missed = 16;
+                    if (missed > 64) {
+                        missed = 64;
                     }
                     for (size_t i = 0; i < missed; i++) {
-                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[16 - missed + i];
+                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[64 - missed + i];
                     }
                 }
             }
@@ -291,8 +292,6 @@ namespace Duel6 {
                 collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
                 collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                 collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
-
-                //   game->compensateLag(gsu.confirmInputTick); // run client-side prediction
                 player.setFlags(p.flags);
                 player.setLife(p.life);
                 player.setAir(p.air);
@@ -301,7 +300,7 @@ namespace Duel6 {
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                 player.setControllerState(p.controls);
 
-                peer->snapshot[sr.tick & xor_32][p.id] = p;
+                peer->snapshot[sr.tick & xor_64][p.id] = p;
             }
             peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;
 

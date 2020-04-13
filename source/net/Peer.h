@@ -16,6 +16,7 @@
 #include "object/Player.h"
 #define CHANNEL 0
 #define UNRELIABLE_CHANNEL 1
+#define SNAPSHOTS 64
 namespace Duel6 {
     namespace net {
         class ClientGameProxy;
@@ -53,7 +54,7 @@ namespace Duel6 {
         public:
             PeerUpdateState peerUpdateState = PeerUpdateState::WAITING_FOR_REQUEST;
             Uint32 getRTT() const;
-            std::array<std::map<Uint32, Player>, 32> snapshot;
+            std::array<std::map<Uint32, Player>, SNAPSHOTS> snapshot;
             uint16_t confirmedInputsTick = 0; //TODO private
             uint16_t receivedInputsTick = 0;
             Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, size_t pos);

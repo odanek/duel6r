@@ -30,7 +30,7 @@ namespace Duel6::net {
         Uint8 air;
         Int16 ammo;
         Uint8 weaponId;
-        std::array<Uint8, 16> unconfirmedInputs;
+        std::array<Uint8, 64> unconfirmedInputs;
         bool orientationLeft;
 
         enum FIELDS {

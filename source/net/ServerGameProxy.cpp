@@ -13,6 +13,7 @@ namespace Duel6 {
         uint8_t xor_128 = 127; // % operator yields also negative results
         auto xor_32768 = 0x7fff;
         auto xor_32 = 31;
+        const uint16_t xor_64 = 63;
 
         void ServerGameProxy::add(Peer *p) {
             peers.push_back(p);
@@ -132,8 +133,8 @@ namespace Duel6 {
 
                     if (player.local) {
                         player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
-                        for (size_t i = 0; i < 16; i++) {
-                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 15 + i) & xor_128];
+                        for (size_t i = 0; i < 64; i++) {
+                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 63 + i) & xor_128];
                         }
                         p.changed[Player::FIELDS::CONTROLS] = true;
                         p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
@@ -159,14 +160,14 @@ namespace Duel6 {
                         p.weaponId = player.getWeapon().getId();
                         p.orientationLeft = { player.getOrientation() == Orientation::Left };
 
-                        peer->snapshot[game.tick & xor_32][p.id] = p;
+                        peer->snapshot[game.tick & xor_64][p.id] = p;
                     }
 
                     if (game.isServer &&
                         (((gsu.inputTick - gsu.snapshotTick) & xor_32768) < 32
-                            && peer->snapshot[gsu.snapshotTick & xor_32].count(p.id) > 0
-                            && peer->snapshot[gsu.snapshotTick & xor_32][p.id].debug == gsu.snapshotTick)) {
-                        Player::diff(p, peer->snapshot[gsu.snapshotTick & xor_32][p.id]);
+                            && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0
+                            && peer->snapshot[gsu.snapshotTick & xor_64][p.id].debug == gsu.snapshotTick)) {
+                        Player::diff(p, peer->snapshot[gsu.snapshotTick & xor_64][p.id]);
                     }
                     gsu.players.push_back(p);
                 }
