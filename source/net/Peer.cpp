@@ -100,6 +100,23 @@ namespace Duel6 {
                 gameProxy->handle(nr);
                 break;
             }
+            case EventType::PLAYERS_DISCONNECTED: {
+                PlayersDisconnected pd;
+                if(!(s>>pd)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::PLAYERS_DISCONNECTED");
+                }
+                gameProxy->handle(pd);
+                break;
+            }
+            case EventType::PLAYERS_JOINED: {
+                PlayersJoined pj;
+                if(!(s>>pj)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::PLAYERS_JOINED");
+                }
+                gameProxy->handle(pj);
+                break;
+            }
+
             case EventType::CLIENT_JOINED:break;
             case EventType::CLIENT_DISCONNECTED:break;
             case EventType::CLIENT_DISCONNECT:break;
@@ -186,6 +203,7 @@ namespace Duel6 {
             } else {
                 //callbacks.onDisconnected
             }
+            gameProxy->peerDisconnected(*this);
             serverGameProxy->remove(this);
             destroy();
             return true;
@@ -193,6 +211,10 @@ namespace Duel6 {
 
         peer_id_t Peer::getIncomingPeerID() {
             return incomingPeerID;
+        }
+
+        peer_id_t Peer::getClientID() {
+            return incomingPeerID + 100;
         }
 
         Uint32 Peer::getRTT() const {

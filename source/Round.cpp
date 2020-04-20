@@ -148,7 +148,7 @@ namespace Duel6 {
 
         // todo: rewrite to copy_if if it is possible to do it that way without billion lines of compile errors:-)
         for (Player &player : allPlayers) {
-            if (player.isAlive() && player.isInGame()) {
+            if (player.isAlive() && !player.isDeleted()) {
                 alivePlayers.push_back(&player);
             }
         }
@@ -171,7 +171,9 @@ namespace Duel6 {
         isCompensatingLag = true;
 //        world.confirmElevators(ticks, elapsedTime);
         for (Player &player : world.getPlayers()) {
-
+            if(player.isDeleted()){
+                continue;
+            }
             player.compensateLag(world, gameTick, confirmedTick, elapsedTime);
         }
 
@@ -186,6 +188,9 @@ namespace Duel6 {
             gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
             if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
                 for (Player &player : world.getPlayers()) {
+                    if (player.isDeleted()) {
+                        continue;
+                    }
                     player.tick++;
                 }
                 return;
@@ -193,6 +198,9 @@ namespace Duel6 {
         }
 
         for (Player &player : world.getPlayers()) {
+            if(player.isDeleted()){
+                continue;
+            }
             if(player.local){
                 player.updateControllerStatus();
                 scriptUpdate(player);
@@ -202,7 +210,7 @@ namespace Duel6 {
                     player.makeGhost();
                 }
             } else {
-                auto tmp = player.getControllerState();
+              //  auto tmp = player.getControllerState();
                 bool runElevators = player.lastConfirmedTick == player.tick;
                 while(player.lastConfirmedTick - player.tick > 0){
                     scriptUpdate(player);
@@ -216,7 +224,7 @@ namespace Duel6 {
                 if(runElevators){
                     player.getCollider().collideWithElevator(0.0, 1.0);
                 }
-                player.setControllerState(tmp); // put it back to not replay inputs
+            //    player.setControllerState(tmp); // put it back to not replay inputs // commented out - this stops propagating controls between clients from server
             }
         }
 

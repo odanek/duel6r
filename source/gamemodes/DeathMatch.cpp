@@ -50,12 +50,19 @@ namespace Duel6 {
     void DeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
         eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
         for (auto &player : players) {
+            if(player.isDeleted()) continue;
             player.setEventListener(*eventListener);
         }
     }
 
     bool DeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {
-        if(world.getPlayers().size() < 2){ //TODO check isInGame
+        int playersInGame = 0;
+        for(const auto & p : world.getPlayers()){
+            if(!p.isDeleted()){
+                playersInGame ++;
+            }
+        }
+        if(playersInGame < 2){
             return false;
         }
         if (alivePlayers.size() == 1) {

@@ -117,6 +117,8 @@ namespace Duel6 {
 
             peer_id_t getIncomingPeerID();
 
+            peer_id_t getClientID();
+
         protected:
             void disconnect(bool now);
 

@@ -50,7 +50,7 @@ namespace Duel6 {
 
         void joinPlayers(Game &game, std::vector<Player> &players, std::vector<size_t> joined, World &world) override;
 
-        void initializePlayer(Game::PlayerDefinition &definition) override;
+        void initializePlayer(PlayerDefinition &definition) override;
 
         void initializeRound(Game &game, std::vector<Player> &players, World &world) override;
 

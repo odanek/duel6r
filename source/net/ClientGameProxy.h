@@ -26,6 +26,7 @@ namespace Duel6 {
             PlayerSounds defaultSounds;
             Int32 clientId = 0; // will be set upon receiving gamestate from server
         public:
+            void peerDisconnected(Peer &peer);
             bool gameIsServer();
             void lateReceive(tick_t lateTick);
             void netStopped();
@@ -41,6 +42,8 @@ namespace Duel6 {
             void handle(GameStateUpdate &s);
             void handle(PlayerInputsUpdate &piu);
             void handle(NextRound &nr);
+            void handle(PlayersDisconnected &pd);
+            void handle(PlayersJoined &pj);
             void handle(StartRound &sr);
 
             template<typename ObjectTypeName>
@@ -60,6 +63,8 @@ namespace Duel6 {
         protected:
             void nextRound() override;
             void startRound(Duel6::Level & level) override {};
+        private:
+            void joinPlayers(std::vector<PlayerProfile> &playerProfiles);
         };
 
     } /* namespace net */

@@ -111,7 +111,7 @@ namespace Duel6 {
     }
 
     void Player::endRound() {
-        if(!isInGame()){
+        if(isDeleted()){
             return;
         }
         Int32 gameTime = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
@@ -434,7 +434,7 @@ namespace Duel6 {
     }
 
     void Player::checkKeys() {
-        if (!isInGame()){
+        if (isDeleted()){
             return;
         }
 
@@ -502,6 +502,8 @@ namespace Duel6 {
     void Player::updateControllerStatus() {
         if(local){
             controllerState = 0;
+        } else {
+            return;
         }
         const PlayerControls & controls = *this->controls;
         if (controls.getLeft().isPressed()) {
@@ -756,7 +758,7 @@ namespace Duel6 {
             estimatedShotVector.x = shotVector.x;    //makes sure that close-up shots have the right effect
         }
         collider.externalForces += estimatedShotVector.unit() * amount * SHOT_FORCE_FACTOR;
-        if (isInvulnerable() || !isInGame()) {
+        if (isInvulnerable() || isDeleted()) {
             return false;
         } else if (!isAlive()) {
             shot.onHitPlayer(*this, directHit, hitPoint, *world);
@@ -793,7 +795,7 @@ namespace Duel6 {
     }
 
     bool Player::hit(Float32 amount) {
-        if (isInvulnerable() || !isAlive() || !isInGame()) {
+        if (isInvulnerable() || !isAlive() || isDeleted()) {
             return false;
         }
 
@@ -1009,6 +1011,8 @@ namespace Duel6 {
     }
 
     void Player::setDeleted(bool value) {
+        die();
+        sprite->setDraw(false);
         this->deleted = value;
     }
 

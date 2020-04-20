@@ -79,7 +79,7 @@ namespace Duel6 {
                 Entry lastEntry = entryList.back();
                 entryList.pop_back();
                 entryMap.erase(lastEntry.text);
-                renderer.freeTexture(lastEntry.texture);
+                renderer.freeTexture(lastEntry.texture); //TADY TO OBCAS VYLITNE pri intenzivni zatezi
             }
         }
 

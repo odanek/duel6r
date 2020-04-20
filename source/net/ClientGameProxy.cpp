@@ -81,10 +81,14 @@ namespace Duel6 {
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
                     if (missed > 64) {
                         missed = 64;
+                        for(auto & val : player.unconfirmedInputs){
+                            val = 0;
+                        }
                     }
                     for (size_t i = 0; i < missed; i++) {
                         player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[64 - missed + i];
                     }
+                    player.setControllerState(player.unconfirmedInputs[63]);
                 }
             }
         }
@@ -177,11 +181,11 @@ namespace Duel6 {
                     }
                     player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                     //TODO handle 16bit wrap-around
-                    if (player.local && ((game->tick - gsu.confirmInputTick) & xor_32768 < 32)) { // cap it at 8 frames to avoid run-away of death
-                        Uint32 ms = 1000 / 90;
-                        Uint32 drift = player.rtt / ms;
-                        game->compensateLag(gsu.confirmInputTick);//game->tick - (game->tick -  gsu.confirmInputTick) / 2 ); // run client-side prediction
-                    }
+//                    if (player.local && ((game->tick - gsu.confirmInputTick) & xor_32768 < 32)) { // cap it at 8 frames to avoid run-away of death
+//                        Uint32 ms = 1000 / 90;
+//                        Uint32 drift = player.rtt / ms;
+//                        game->compensateLag(gsu.confirmInputTick);//game->tick - (game->tick -  gsu.confirmInputTick) / 2 ); // run client-side prediction
+//                    }
                     peer->snapshot[gsu.inputTick & xor_64][p.id] = p;
                 } else {
                     player.lastConfirmedTick = gsu.confirmInputTick;
@@ -197,6 +201,25 @@ namespace Duel6 {
                     }
                 }
             }
+
+//            if (!game->isServer) {
+//                if ((game->tick - gsu.confirmInputTick) & xor_32 < 16) {
+//                    Uint32 ms = 1000 / 90;
+//                    Uint32 drift = peer->getRTT() / ms;
+//                    game->compensateLag(game->tick - (game->tick - gsu.confirmInputTick) / 2);
+//                }
+//            }
+        }
+        void ClientGameProxy::peerDisconnected(Peer &peer){
+            std::vector<Int32> removedIds;
+            removedIds.reserve(game->players.size());
+            for(const auto & p : game->players){
+                if(p.getClientId() == peer.getClientID()){
+                    removedIds.push_back(p.getId());
+                }
+            }
+            game->disconnectPlayers(removedIds);
+
         }
         void ClientGameProxy::handle(GameState &sr) {
             clientId = sr.clientId;
@@ -237,8 +260,8 @@ namespace Duel6 {
                 w.raisingWater,
                 elevators
                 ));
-            game->maxPlayerId = 0; // todo: reset players counter
-            std::vector<Game::PlayerDefinition> playerDefinitions;
+    //        game->maxPlayerId = 0; // todo: reset players counter
+            std::vector<PlayerDefinition> playerDefinitions;
             playerDefinitions.reserve(sr.players.size());
 
             for (auto &p : sr.playerProfiles) {
@@ -267,6 +290,7 @@ namespace Duel6 {
                     defaultSounds,
                     PlayerControlsManager::getNoop(),
                     p.team,
+                    p.playerId,
                     p.clientId,
                     p.playerId);
             }
@@ -306,7 +330,22 @@ namespace Duel6 {
 
         }
         void ClientGameProxy::netStopped() {
-            Context::pop();
+            if(game == &Context::getCurrent()){
+                //go back to menu
+                game->appService.getConsole().printLine("Connection network stopped. (server disconnected ?)");
+                Context::pop();
+            }
+
+        }
+        void ClientGameProxy::handle(PlayersDisconnected &pd) {
+            for(auto id: pd.disconnectedId){
+                idmap.erase(id);
+            }
+
+            game->disconnectPlayers(pd.disconnectedId);
+        }
+        void ClientGameProxy::handle(PlayersJoined &pj) {
+            joinPlayers(pj.playerProfiles);
         }
         void ClientGameProxy::handle(NextRound &nr) {
             for (auto &s : peer->snapshot) {
@@ -317,13 +356,12 @@ namespace Duel6 {
         tick_t ClientGameProxy::getTick() const {
             return game->tick;
         }
-        //this should only happen on the server side when the client called us with this request
-        void ClientGameProxy::handle(Peer &peer, RequestGameState &r) {
-            peer.peerUpdateState = PeerUpdateState::REQUESTED_GAMESTATE;
-            std::vector<Game::PlayerDefinition> playerDefinitions;
-            playerDefinitions.reserve(r.connectingPlayers.size());
 
-            for (auto &p : r.connectingPlayers) {
+        void ClientGameProxy::joinPlayers(std::vector<PlayerProfile> &playerProfiles){
+            std::vector<PlayerDefinition> playerDefinitions;
+            playerDefinitions.reserve(playerProfiles.size());
+
+            for (auto &p : playerProfiles) {
                 Person &person = persons.emplace_back(p.name, nullptr);
                 PlayerSkinColors colors;
                 colors.setHair(p.skin.hair);
@@ -342,7 +380,8 @@ namespace Duel6 {
                     defaultSounds,
                     PlayerControlsManager::getNoop(),
                     p.team,
-                    peer.getIncomingPeerID() + 100,
+                    p.playerId,
+                    p.clientId,
                     p.clientLocalId);
             }
             game->joinPlayers(playerDefinitions);
@@ -350,6 +389,16 @@ namespace Duel6 {
                 idmap[d.getPlayerId()] = d.playerPos;
                 idmapBack[d.playerPos] = d.getPlayerId();
             }
+        }
+
+        //this should only happen on the server side when the client called us with this request
+        void ClientGameProxy::handle(Peer &peer, RequestGameState &r) {
+            peer.peerUpdateState = PeerUpdateState::REQUESTED_GAMESTATE;
+            for (auto &p : r.connectingPlayers) {
+                p.clientId = peer.getClientID();
+            }
+
+            joinPlayers(r.connectingPlayers);
             sendGameState(peer, *game);
         }
 

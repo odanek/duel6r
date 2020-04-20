@@ -42,11 +42,11 @@ namespace Duel6 {
 
         virtual std::string getName() const = 0;
 
-        virtual void initializePlayer(Game::PlayerDefinition &definition) = 0;
-        void initializePlayers(std::vector<Game::PlayerDefinition> &&definitions){
+        virtual void initializePlayer(PlayerDefinition &definition) = 0;
+        void initializePlayers(std::vector<PlayerDefinition> &&definitions){
             initializePlayers(definitions);
         }
-        void initializePlayers(std::vector<Game::PlayerDefinition> &definitions) {
+        void initializePlayers(std::vector<PlayerDefinition> &definitions) {
             for(auto & def: definitions){
                 initializePlayer(def);
             }

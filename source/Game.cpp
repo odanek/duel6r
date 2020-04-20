@@ -163,6 +163,10 @@ namespace Duel6 {
         if(isServer || !networkGame){
             startRound();
         }
+        if(networkGame && !isServer){
+            appService.getConsole().printLine("Awaiting server to accept connection.");
+//display some message
+        }
     }
     void Game::joinPlayers(std::vector<PlayerDefinition> &playerDefinitions) {
         gameMode->initializePlayers(playerDefinitions);
@@ -173,14 +177,18 @@ namespace Duel6 {
         }
         gameMode->joinPlayers(*this, players, added, this->round->getWorld());
      //   gameMode->initializePlayerPositions(*this, players, this->round->getWorld() );
+        if(isServer){
+            gameProxy->playersJoined(playerDefinitions);
+        }
     }
 
     size_t Game::joinPlayer(PlayerDefinition &playerDefinition) { // TODO private
-
         Console &console = appService.getConsole();
         TextureManager &textureManager = appService.getTextureManager();
         console.printLine(Format("...Player joined ... Generating player for person: {0}") << playerDefinition.getPerson().getName());
         size_t pos = 0;
+        bool authoritative = isServer || !networkGame;
+        Int32 playerId = authoritative ? maxPlayerId++ : playerDefinition.getPlayerId();
         for (const auto &player : players) {
             if (player.isDeleted()) {
                 skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations);
@@ -188,13 +196,15 @@ namespace Duel6 {
                     skins[pos],
                     playerDefinition.getSounds(),
                     playerDefinition.getControls(),
-                    maxPlayerId++,
+                    playerId,
                     playerDefinition.getTeam(),
                     playerDefinition.getClientId(),
                     playerDefinition.getClientLocalId(),
                     pos
                 };
-                playerDefinition.setPlayerId(maxPlayerId - 1);
+                if(authoritative){
+                    playerDefinition.setPlayerId(playerId);
+                }
                 playerDefinition.playerPos = pos;
                 return pos;
             }
@@ -205,26 +215,31 @@ namespace Duel6 {
             skins.back(),
             playerDefinition.getSounds(),
             playerDefinition.getControls(),
-            maxPlayerId++,
+            playerId,
             playerDefinition.getTeam(),
             playerDefinition.getClientId(),
             playerDefinition.getClientLocalId(),
             pos);
 
-        playerDefinition.setPlayerId(maxPlayerId - 1);
+        if(authoritative){
+            playerDefinition.setPlayerId(playerId);
+        }
         playerDefinition.playerPos = pos;
 
         return pos;
 
     }
 
-    void Game::disconnectPlayers(std::vector<Int32> ids) {
+    void Game::disconnectPlayers(const std::vector<Int32> & ids) {
         for(auto & id: ids) {
             for (auto &player : players) {
                 if(player.getId() == id) {
                     player.setDeleted(true);
                 }
             }
+        }
+        if(isServer){
+            gameProxy->playersDisconnected(ids);
         }
     }
     void Game::compensateLag(uint16_t confirmInputTick) {

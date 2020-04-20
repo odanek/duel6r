@@ -6,8 +6,8 @@
  */
 
 #include "ServerGameProxy.h"
-#include "../Game.h"
 #include "event/events.h"
+#include "../Game.h"
 namespace Duel6 {
     namespace net {
         uint8_t xor_128 = 127; // % operator yields also negative results
@@ -80,18 +80,21 @@ namespace Duel6 {
 
         void ServerGameProxy::sendInputs(Game &game) {
             for (auto &peer : peers) {
-                if(!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)){
+                if (!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)) {
                     continue;
                 }
                 PlayerInputsUpdate piu;
-                auto & players = game.getPlayers();
+                auto &players = game.getPlayers();
 
                 piu.confirmInputTick = peer->confirmedInputsTick;
                 piu.inputTick = game.tick;
 
                 piu.playersInputs.reserve(players.size());
-                for(auto & player: players){
-                    if(!player.local){
+                for (auto &player : players) {
+                    if(player.isDeleted()){
+                        peer->snapshot[game.tick & xor_64].erase(player.getId());
+                    }
+                    if (!player.local || player.isDeleted()) {
                         continue;
                     }
                     PlayerInputs pi;
@@ -107,12 +110,12 @@ namespace Duel6 {
         }
 
         void ServerGameProxy::sendGameStateUpdate(Game &game) {
-            if(!game.isServer){
+            if (!game.isServer) {
                 sendInputs(game);
                 return;
             }
             for (auto &peer : peers) {
-                if(!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)){
+                if (!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)) {
                     continue;
                 }
                 GameStateUpdate gsu;
@@ -120,7 +123,7 @@ namespace Duel6 {
                 gsu.snapshotTick = peer->confirmedInputsTick;
 
                 gsu.inputTick = game.tick;
-                if(gsu.inputTick - gsu.snapshotTick < 16){
+                if (gsu.inputTick - gsu.snapshotTick < 32) {
                     // crazy trick that actually solves problem with snapshot divergence
                     // we assume that game state updates get through the network most of the time.
                     // If the peer->confirmedInputsTick starts to diverge (client didn't find correct snapshot and
@@ -130,7 +133,10 @@ namespace Duel6 {
                 gsu.players.reserve(game.getPlayers().size());
 
                 for (auto &player : game.getPlayers()) {
-                    if (!(player.local || game.isServer)) {
+                    if(player.isDeleted()){
+                        peer->snapshot[game.tick & xor_64].erase(player.getId());
+                    }
+                    if (!(player.local || game.isServer) || player.isDeleted()) {
                         continue;
                     }
                     Player p;
@@ -139,16 +145,16 @@ namespace Duel6 {
                     p.clientLocalId = player.getClientLocalId();
                     p.debug = game.tick;
 
-                    if (player.local) {
+//                    if (player.local) {
                         player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
                         for (size_t i = 0; i < 64; i++) {
                             p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 63 + i) & xor_128];
                         }
-                        p.changed[Player::FIELDS::CONTROLS] = true;
-                        p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
+//                        p.changed[Player::FIELDS::CONTROLS] = true;
+//                        p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
                         p.controls = player.getControllerState();
-                        p.rtt = 0;
-                    }
+//                        p.rtt = 0;
+//                    }
                     if (game.isServer) {
                         const auto &collidingEntity = player.getCollider();
                         const auto &position = collidingEntity.position;
@@ -182,11 +188,50 @@ namespace Duel6 {
                 peer->sendUnreliable(gsu);
             }
         }
-        void ServerGameProxy::sendGameState(Game &game) {
-            GameProxy::sendGameState(peers, game);
+
+        void ServerGameProxy::playersJoined(std::vector<PlayerDefinition> &playerDefinitions) {
+            PlayersJoined pj;
+            pj.playerProfiles.reserve(playerDefinitions.size());
+            Int32 clientId = 0;
+            for (auto &player : playerDefinitions) {
+                PlayerProfile cp;
+                PlayerProfile::Skin &skin = cp.skin;
+                cp.playerId = player.getPlayerId();
+                cp.clientLocalId = player.getClientLocalId();
+                cp.name = player.getPerson().getName();
+                cp.team = player.getTeam();
+                cp.clientId = player.getClientId();
+                clientId = cp.clientId;
+                const PlayerSkinColors &colors = player.getColors();
+                skin.hair = (PlayerProfile::Hair) colors.getHair();
+                skin.headBand = colors.hasHeadBand();
+                size_t i = 0;
+                for (auto &c : skin.colors) {
+                    PlayerSkinColors::BodyPart bp = (PlayerSkinColors::BodyPart) i;
+                    c.red = colors.get(bp).getRed();
+                    c.green = colors.get(bp).getGreen();
+                    c.blue = colors.get(bp).getBlue();
+                    c.alpha = colors.get(bp).getAlpha();
+
+                    i++;
+                }
+                pj.playerProfiles.push_back(cp);
+            }
+
+            for (auto &peer : peers) {
+                if(peer->getClientID() != clientId){
+                    peer->sendReliable(pj);
+                }
+            }
         }
-        void ServerGameProxy::gameState(Game &game) {
-            GameProxy::sendGameState(peers, game);
+
+        void ServerGameProxy::playersDisconnected(const std::vector<Int32> &ids) {
+            PlayersDisconnected pd;
+            pd.disconnectedId = ids;
+            for (auto &peer : peers) {
+                peer->sendReliable(pd);
+            }
         }
+
     } /* namespace net */
 } /* namespace Duel6 */

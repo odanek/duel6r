@@ -36,6 +36,7 @@ namespace Duel6 {
 
         Size playerIndex = 0;
         for (Player &player : players) {
+            if(player.isDeleted()) continue;
             auto &ammoRange = game.getSettings().getAmmoRange();
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
             Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];

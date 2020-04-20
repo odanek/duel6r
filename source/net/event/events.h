@@ -11,7 +11,10 @@
 #include "GameState.h"
 #include "GameStateUpdate.h"
 #include "NextRound.h"
+#include "PlayerInputsUpdate.h"
+#include "PlayersDisconnected.h"
+#include "PlayersJoined.h"
 #include "RequestGameState.h"
 #include "StartRound.h"
-#include "PlayerInputsUpdate.h"
+
 #endif /* SOURCE_NET_EVENT_EVENTS_H_ */

@@ -548,14 +548,14 @@ namespace Duel6 {
 
         GameMode &selectedMode = *gameModes[gameModeSwitch->currentItem()];
 
-        std::vector<Game::PlayerDefinition> playerDefinitions;
+        std::vector<PlayerDefinition> playerDefinitions;
         for (Size i = 0; i < playerListBox->size(); i++) {
             Person &person = persons.getByName(playerListBox->getItem(i));
             auto profile = getPersonProfile(person.getName());
             const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentValue().first);
             PlayerSkinColors colors = profile ? profile->getSkinColors() : PlayerSkinColors::makeRandom();
             const PlayerSounds &sounds = profile ? profile->getSounds() : defaultPlayerSounds;
-            playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls, teamControlSwitch[i]->currentValue().first, 0, i));
+            playerDefinitions.push_back(PlayerDefinition(person, colors, sounds, controls, teamControlSwitch[i]->currentValue().first, i, 0, i));
         }
         //selectedMode.initializePlayers(playerDefinitions);
 

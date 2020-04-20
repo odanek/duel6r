@@ -47,7 +47,7 @@ namespace Duel6 {
         return TEAMS[playerTeam];
     }
 
-    void TeamDeathMatch::initializePlayer(Game::PlayerDefinition &definition) {
+    void TeamDeathMatch::initializePlayer(PlayerDefinition &definition) {
         const Team &team = getPlayerTeam(definition.getTeam() - 1);
         PlayerSkinColors &colors = definition.getColors();
         auto hair = colors.getHair();
@@ -68,6 +68,7 @@ namespace Duel6 {
         Int32 randomizer = Math::random(teamsCount);
         Int32 playerIndex = 0;
         for (Player &player : players) {
+            if(player.isDeleted()) continue;
             auto &ammoRange = game.getSettings().getAmmoRange();
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
 
@@ -116,6 +117,7 @@ namespace Duel6 {
         eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(),
             friendlyFire, teamMap, globalAssistances);
         for (auto &player : players) {
+            if(player.isDeleted()) continue;
             player.setEventListener(*eventListener);
             if (player.getTeam() == 0) {
                 continue;

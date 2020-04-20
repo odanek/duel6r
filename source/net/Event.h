@@ -17,6 +17,8 @@ namespace Duel6 {
             GAME_STATE_UPDATE,
             PLAYER_INPUTS_UPDATE,
             NEXT_ROUND,
+            PLAYERS_DISCONNECTED,
+            PLAYERS_JOINED,
             CLIENT_JOINED,
             CLIENT_DISCONNECTED,
             CLIENT_DISCONNECT,
