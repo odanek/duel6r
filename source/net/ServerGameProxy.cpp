@@ -74,6 +74,7 @@ namespace Duel6 {
                 for (auto &s : peer->snapshot) {
                     s.clear();
                 }
+                peer->choke = 64;
                 peer->send(NextRound());
             }
         }
@@ -114,14 +115,16 @@ namespace Duel6 {
                 sendInputs(game);
                 return;
             }
+
             for (auto &peer : peers) {
+                game.netstat.choke = peer->choke;
                 if (!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)) {
                     continue;
                 }
                 GameStateUpdate gsu;
                 gsu.confirmInputTick = peer->receivedInputsTick;
                 gsu.snapshotTick = peer->confirmedInputsTick;
-
+                gsu.hasWinner = game.getRound().hasWinner();
                 gsu.inputTick = game.tick;
                 if (gsu.inputTick - gsu.snapshotTick < 32) {
                     // crazy trick that actually solves problem with snapshot divergence
@@ -129,7 +132,12 @@ namespace Duel6 {
                     // If the peer->confirmedInputsTick starts to diverge (client didn't find correct snapshot and
                     // waits for us to serve him fresh copy of the state), we use that one as the last known snapshot
                     gsu.snapshotTick = gsu.confirmInputTick;
+                } else {
+                    if(peer->choke < 32){
+                        peer->choke = 32;
+                    }
                 }
+
                 gsu.players.reserve(game.getPlayers().size());
 
                 for (auto &player : game.getPlayers()) {
@@ -147,8 +155,9 @@ namespace Duel6 {
 
 //                    if (player.local) {
                         player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
-                        for (size_t i = 0; i < 64; i++) {
-                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 63 + i) & xor_128];
+                        const size_t maxInputs = Player::INPUTS;
+                        for (size_t i = 0; i < maxInputs; i++) { //TODO: figure out if it should be game.tick - (maxInputs) or game.tick - (maxInputs - 1)
+                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - (maxInputs - 1) + i) & xor_128];
                         }
 //                        p.changed[Player::FIELDS::CONTROLS] = true;
 //                        p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
@@ -177,14 +186,27 @@ namespace Duel6 {
                         peer->snapshot[game.tick & xor_64][p.id] = p;
                     }
                     player.rtt = p.rtt;
+
+                    if(peer->choke > 0){
+                        p.changed.set();
+                        p.changed[Player::FIELDS::NO_CHANGE] = false;
+                    } else
                     if (game.isServer &&
                         (((gsu.inputTick - gsu.snapshotTick) & xor_32768) < 64
                             && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0
                             && peer->snapshot[gsu.snapshotTick & xor_64][p.id].debug == gsu.snapshotTick)) {
                         Player::diff(p, peer->snapshot[gsu.snapshotTick & xor_64][p.id]);
                     }
-                    gsu.players.push_back(p);
+                //    if(!p.changed[Player::FIELDS::NO_CHANGE]){
+                        gsu.players.push_back(p);
+                  //  }
+
                 }
+                if(peer->choke > 0) {
+                    peer-> choke --;
+                }
+
+                //peer->sendReliable(gsu);
                 peer->sendUnreliable(gsu);
             }
         }

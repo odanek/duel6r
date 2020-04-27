@@ -17,13 +17,15 @@ namespace Duel6::net {
         tick_t inputTick;
         tick_t confirmInputTick;
         tick_t snapshotTick;
+        bool hasWinner = false;
         std::vector<Player> players;
         template<typename Stream>
         bool serialize(Stream &s) {
             return s & inputTick
                 && s & confirmInputTick
                 && s & snapshotTick
-                && s & players;
+                && s & players
+                && s & hasWinner;
         }
     };
 }

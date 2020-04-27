@@ -158,14 +158,16 @@ namespace Duel6 {
         }
 
         if (game.getMode().checkRoundOver(world, alivePlayers)) {
-            winner = true;
-            gameOverWait = D6_GAME_OVER_WAIT;
-
-            game.getResources().getGameOverSound().play();
-            onRoundEnd();
+            roundOver();
         }
     }
+    void Round::roundOver() {
+        winner = true;
+        gameOverWait = D6_GAME_OVER_WAIT;
 
+        game.getResources().getGameOverSound().play();
+        onRoundEnd();
+    }
     void Round::compensateLag(uint16_t gameTick, uint16_t confirmedTick) {
         static const Float64 elapsedTime = 1.0f / D6_UPDATE_FREQUENCY; // TODO
         isCompensatingLag = true;
@@ -182,18 +184,20 @@ namespace Duel6 {
 
     void Round::update(Float32 elapsedTime) {
         // Check if there's a winner
-        if (!hasWinner()) {
-            checkWinner();
-        } else {
-            gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
-            if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
-                for (Player &player : world.getPlayers()) {
-                    if (player.isDeleted()) {
-                        continue;
+        if (game.isServer || !game.networkGame) {
+            if (!hasWinner()) {
+                checkWinner();
+            } else {
+                gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
+                if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
+                    for (Player &player : world.getPlayers()) {
+                        if (player.isDeleted()) {
+                            continue;
+                        }
+                        player.tick++;
                     }
-                    player.tick++;
+                    return;
                 }
-                return;
             }
         }
 

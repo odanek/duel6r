@@ -64,14 +64,15 @@ namespace Duel6 {
     void Game::update(Float32 elapsedTime) {
         if(!isRunning) return;
         tick++;
-        if (getRound().isOver()) {
+
+        if ((isServer || !networkGame) && getRound().isOver()) {
             if (!getRound().isLast()) {
                 nextRound();
             }
         } else {
             getRound().update(elapsedTime);
-            gameProxy->sendGameStateUpdate(*this);
         }
+        gameProxy->sendGameStateUpdate(*this);
 
     }
 

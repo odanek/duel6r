@@ -44,6 +44,8 @@ namespace Duel6 {
 
         static void toggleShowFps(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
 
+        static void toggleNetStat(Console &console, const Console::Arguments &args, GameSettings &gameSettings);
+
         static void musicOnOff(Console &console, const Console::Arguments &args, Menu &menu);
 
         static void joyScan(Console &console, const Console::Arguments &args, Menu &menu);

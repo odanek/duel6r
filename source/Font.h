@@ -46,7 +46,8 @@ namespace Duel6 {
         TTF_Font *font;
         Renderer &renderer;
         FontCache fontCache;
-
+        FontCache fontCacheOutlined;
+        Int32 charHeight;
     public:
         Font(Renderer &renderer);
 
@@ -55,8 +56,10 @@ namespace Duel6 {
         void load(const std::string &fontFile, Console &console);
 
         void print(Int32 x, Int32 y, const Color &color, const std::string &str) const;
+        void printWrapped(Int32 x, Int32 y, const Color &color, const std::string &str, Uint32 maxWidth, Vector &resultSize) const;
 
-        void print(Float32 x, Float32 y, Float32 z, const Color &color, const std::string &str, Float32 height) const;
+        void print(Float32 x, Float32 y, Float32 z, const Color &color, const std::string &str, Float32 fontHeight) const;
+        void printWrapped(Float32 x, Float32 y, Float32 z, const Color &color, const std::string &str, Float32 fontHeight, Uint32 , Vector &resultSize) const;
 
         Float32 getTextWidth(const std::string &str, Float32 height) const;
 
@@ -67,13 +70,17 @@ namespace Duel6 {
         }
 
         Int32 getCharHeight() const {
-            return 16;
+            return charHeight;
         }
 
     private:
         Texture getTexture(const std::string &text) const;
 
+        Texture getTexture(const std::string &text, Uint32 maxWidth, Vector &resultSize) const;
+
         Texture renderText(const std::string &text) const;
+
+        Texture renderTextWrapped(const std::string &text, Uint32 maxWidth, Vector &resultSize) const;
     };
 }
 

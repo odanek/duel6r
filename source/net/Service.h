@@ -96,6 +96,7 @@ namespace Duel6 {
             virtual void onStopping() = 0;
             virtual void onStopped() = 0;
 
+            virtual void recordPeerNetStats(ENetPeer *peer){};
             virtual void onPeerConnected(ENetPeer*) = 0;
 
             virtual void onPeerDisconnected(ENetPeer*, enet_uint32 reason) = 0;

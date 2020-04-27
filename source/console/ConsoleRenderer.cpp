@@ -38,9 +38,9 @@ Popis: Vykresleni konzoly
 namespace Duel6 {
     namespace {
         Color conCol[4] = {
-                Color(0, 0, 0),          // Font
-                Color(238, 221, 221),    // Background top
-                Color(238, 221, 0),      // Background bottom
+                Color(255, 165, 0),          // Font
+                Color(100, 100, 100),    // Background top
+                Color(200, 200, 200),      // Background bottom
                 Color(255, 0, 0)         // Separator
         };
     }

@@ -6,7 +6,7 @@
  */
 #include "Peer.h"
 #include "NetClient.h"
-
+#include "../Game.h"
 namespace Duel6 {
     namespace net {
 
@@ -78,5 +78,34 @@ namespace Duel6 {
             stopped();
         }
 
+        void NetClient::recordPeerNetStats(ENetPeer *me) {
+            if(game == nullptr){
+                return;
+            }
+            auto & netstat = game->netstat;
+            const auto & enetPeer = peer->getEnetPeer();
+            netstat.inBandwidth = enetPeer.incomingBandwidth;
+            netstat.outBandwidth = enetPeer.outgoingBandwidth;
+            netstat.inThrottleEpoch = enetPeer.incomingBandwidthThrottleEpoch;
+            netstat.outThrottleEpoch = enetPeer.outgoingBandwidthThrottleEpoch;
+            netstat.inDataTotal = enetPeer.incomingDataTotal;
+            netstat.outDataTotal = enetPeer.outgoingDataTotal;
+            netstat.packetLoss = enetPeer.packetLoss;
+            netstat.packetLossVariance = enetPeer.packetLossVariance;
+            netstat.packetThrottle = enetPeer.packetThrottle;
+            netstat.packetThrottleLimit = enetPeer.packetThrottleLimit;
+            netstat.packetThrottleCounter = enetPeer.packetThrottleCounter;
+            netstat.packetThrottleInterval = enetPeer.packetThrottleInterval;
+            netstat.lastRTT = enetPeer.lastRoundTripTime;
+            netstat.lowestRTT = enetPeer.lowestRoundTripTime;
+            netstat.lastRTTVariance = enetPeer.lastRoundTripTimeVariance;
+            netstat.highestRTTVariance = enetPeer.highestRoundTripTimeVariance;
+            netstat.rtt = enetPeer.roundTripTime;
+            netstat.rttVariance = enetPeer.roundTripTimeVariance;
+            netstat.mtu = enetPeer.mtu;
+            netstat.windowSize = enetPeer.windowSize;
+            netstat.totalWaitingData = enetPeer.totalWaitingData;
+
+        }
     } /* namespace net */
 } /* namespace Duel6 */

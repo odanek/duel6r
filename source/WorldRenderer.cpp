@@ -191,6 +191,54 @@ namespace Duel6 {
         font.print(x, y, Color::WHITE, fpsCount);
     }
 
+    void WorldRenderer::netStat() const {
+        const auto &netstat = game.netstat;
+        const auto fontSize = 6;
+        const std::string &ns1 =
+            Format(" ____________________________________________________\n"
+                "|   var   |  last   |  highest  |  loss  |  variance |\n"
+                "|{0,5} ms |{1,5} ms |  {2,5} ms | {6,5}  |   {7,5}   |\n"
+                "|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~~~~\n"
+                "|  ping   |  last   |  lowest   |  throt |      |choke |\n"
+                "|{3,5} ms |{4,5} ms |  {5,5} ms |  {8,5} |      |{10,6}|\n"
+                "|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|\n"
+                "| in throt|out throt| mtu  |throt:c| :intrvl| :limit |\n"
+                "|  {11,6} |  {12,6} |{13,6}| {14,6}| {15,6} | {16,6} |\n"
+                " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ") <<
+                netstat.rttVariance <<
+                netstat.lastRTTVariance <<
+                netstat.highestRTTVariance <<
+                netstat.rtt <<
+                netstat.lastRTT <<
+                netstat.lowestRTT <<
+                netstat.packetLoss <<
+                netstat.packetLossVariance <<
+                netstat.packetThrottle <<
+                netstat.inBandwidth <<
+                netstat.choke <<
+                netstat.inThrottleEpoch <<
+                netstat.outThrottleEpoch <<
+                netstat.mtu <<
+                netstat.packetThrottleCounter <<
+                netstat.packetThrottleInterval <<
+                netstat.packetThrottleLimit;
+
+        Int32 X = 20;
+        Int32 Y = 20;
+        Vector size1, size2;
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+        font.printWrapped(X, Y, 0.5f, Color::WHITE, ns1, fontSize, 3050, size1);
+        Float32 height1 = size1.y;
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+
+        renderer.quadXY(Vector(X, Y), Vector(size1.x, size1.y), Color::WHITE.withAlpha(40));
+        renderer.setBlendFunc(BlendFunc::SrcColor);
+
+        Float32 ns1Width = size1.x;
+        renderer.setBlendFunc(BlendFunc::SrcAlpha);
+
+    }
+
     void WorldRenderer::youAreHere() const {
         Float32 remainingTime = game.getRound().getRemainingYouAreHere();
         if (remainingTime <= 0) return;
@@ -199,6 +247,9 @@ namespace Duel6 {
 
         Float32 radius = 0.5f + 0.5f * std::abs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
         for (const Player &player : game.getPlayers()) {
+            if(player.isDeleted()){
+                continue;
+            }
             Vector playerCentre = player.getCentre();
             playerCentre.z = 0.5;
             Vector lastPoint;
@@ -236,9 +287,9 @@ namespace Duel6 {
 
     void WorldRenderer::playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
         const std::string &name = Format("{0} id:{1}") << player.getPerson().getName() << player.getId();
-        const std::string &netstat = Format("net:{0}/{1}/{2}/{3}") << player.rtt << player.tick << player.lastConfirmedTick << (game.tick - player.tick);
+       // const std::string &netstat = Format("net:{0}/{1}/{2}/{3}") << player.rtt << player.tick << player.lastConfirmedTick << (game.tick - player.tick);
 
-        Float32 netstatWidth = 0.15f * netstat.size();
+   //     Float32 netstatWidth = 0.15f * netstat.size();
         Float32 width = 0.15f * name.size();
         Float32 X = xOfs - width / 2;
         Float32 Y = yOfs;
@@ -248,11 +299,11 @@ namespace Duel6 {
         renderer.enableDepthWrite(false);
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
         renderer.quadXY(Vector(X, Y, 0.5f), Vector(width, 0.3f), Color::BLUE.withAlpha(alpha));
-        renderer.quadXY(Vector(X, Y + 0.3f, 0.5f), Vector(netstatWidth, 0.3f), Color::BLUE.withAlpha(alpha));
+       // renderer.quadXY(Vector(X, Y + 0.3f, 0.5f), Vector(netstatWidth, 0.3f), Color::BLUE.withAlpha(alpha));
         renderer.setBlendFunc(BlendFunc::None);
 
         font.print(X, Y, 0.5f, Color::YELLOW.withAlpha(alpha), name, 0.3f);
-        font.print(X, Y + 0.3f, 0.5f, Color::YELLOW.withAlpha(alpha), netstat, 0.3f);
+       // font.print(X, Y + 0.3f, 0.5f, Color::YELLOW.withAlpha(alpha), netstat, 0.3f);
 
         renderer.enableDepthWrite(true);
     }
@@ -598,6 +649,10 @@ namespace Duel6 {
 
         if (settings.isShowFps()) {
             fpsCounter();
+        }
+
+        if (settings.isShowNetStat()) {
+            netStat();
         }
 
         if (settings.isShowRanking() && settings.getScreenMode() == ScreenMode::FullScreen) {

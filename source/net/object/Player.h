@@ -14,6 +14,7 @@
 namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
+        static constexpr const size_t INPUTS = 16;
         tick_t debug = 12345;
         uint32_t rtt = 0;
         object_id_t id = 0;
@@ -30,7 +31,7 @@ namespace Duel6::net {
         Uint8 air;
         Int16 ammo;
         Uint8 weaponId;
-        std::array<Uint8, 64> unconfirmedInputs;
+        std::array<Uint8, INPUTS> unconfirmedInputs;
         bool orientationLeft;
 
         enum FIELDS {

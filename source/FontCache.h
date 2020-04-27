@@ -41,6 +41,8 @@ namespace Duel6 {
         struct Entry {
             std::string text;
             Texture texture;
+            Uint32 width;
+            Uint32 height;
         };
         typedef std::list <Entry> EntryList;
         typedef std::unordered_map <std::string, EntryList::iterator> EntryMap;
@@ -71,7 +73,16 @@ namespace Duel6 {
             iter->second = entryList.begin();
             return entry.texture;
         }
-
+        Texture get(const std::string &text, Float32 &width, Float32 &height) const {
+            auto iter = entryMap.find(text);
+            Entry entry = *iter->second;
+            entryList.erase(iter->second);
+            entryList.push_front(entry);
+            iter->second = entryList.begin();
+            width = entry.width;
+            height = entry.height;
+            return entry.texture;
+        }
         void add(const std::string &text, Texture texture) const {
             entryList.push_front(Entry{text, texture});
             entryMap.insert(std::make_pair(text, entryList.begin()));
@@ -82,7 +93,16 @@ namespace Duel6 {
                 renderer.freeTexture(lastEntry.texture); //TADY TO OBCAS VYLITNE pri intenzivni zatezi
             }
         }
-
+        void add(const std::string &text, Texture texture, Float32 width, Float32 height) const {
+            entryList.push_front(Entry{text, texture, (Uint32)width, (Uint32)height});
+            entryMap.insert(std::make_pair(text, entryList.begin()));
+            if (entryList.size() > maxEntries) {
+                Entry lastEntry = entryList.back();
+                entryList.pop_back();
+                entryMap.erase(lastEntry.text);
+                renderer.freeTexture(lastEntry.texture);
+            }
+        }
         void empty() {
             for (const Entry &entry : entryList) {
                 renderer.freeTexture(entry.texture);

@@ -96,6 +96,8 @@ namespace Duel6 {
 
         void fpsCounter() const;
 
+        void netStat() const;
+
         void youAreHere() const;
 
         void roundKills(const Player &player, Float32 xOfs, Float32 yOfs) const;

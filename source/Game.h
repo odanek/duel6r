@@ -57,7 +57,33 @@ namespace Duel6 {
     class Game: public Context {
         friend class Duel6::net::ClientGameProxy;
 
+        class NetStat {
+        public:
+            uint32_t inBandwidth = 0;
+            uint32_t outBandwidth = 0;
+            uint32_t inThrottleEpoch = 0;
+            uint32_t outThrottleEpoch = 0;
+            uint32_t inDataTotal = 0;
+            uint32_t outDataTotal = 0;
+            uint32_t packetLoss = 0;
+            uint32_t packetLossVariance = 0;
+            uint32_t packetThrottle = 0;
+            uint32_t packetThrottleLimit = 0;
+            uint32_t packetThrottleCounter = 0;
+            uint32_t packetThrottleInterval = 0;
+            uint32_t lastRTT = 0;
+            uint32_t lowestRTT = 0;
+            uint32_t lastRTTVariance = 0;
+            uint32_t highestRTTVariance = 0;
+            uint32_t rtt = 0;
+            uint32_t rttVariance = 0;
+            uint32_t mtu = 0;
+            uint32_t windowSize = 0;
+            size_t totalWaitingData = 0;
+            size_t choke = 0;
+        };
     public:
+        NetStat netstat;
         uint16_t tick = 0;
         bool isServer = false;
         bool isRunning = false;

@@ -61,6 +61,7 @@ namespace Duel6 {
         bool ghostMode;
         bool quickLiquid;
         bool globalAssistances;
+        bool showNetStat = false;
         ShotCollisionSetting shotCollision;
         EnabledWeapons enabledWeapons;
         LevelSelectionMode levelSelectionMode;
@@ -141,6 +142,15 @@ namespace Duel6 {
 
         GameSettings &setShowFps(bool showFps) {
             this->showFps = showFps;
+            return *this;
+        }
+
+        bool isShowNetStat() const {
+            return showNetStat;
+        }
+
+        GameSettings &setShowNetStat(bool showNetStat) {
+            this->showNetStat = showNetStat;
             return *this;
         }
 

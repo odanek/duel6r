@@ -115,7 +115,15 @@ namespace Duel6 {
             console.printLine("Fps counter hidden");
         }
     }
+    void ConsoleCommands::toggleNetStat(Console &console, const Console::Arguments &args, GameSettings &gameSettings) {
+        gameSettings.setShowNetStat(!gameSettings.isShowNetStat());
 
+        if (gameSettings.isShowNetStat()) {
+            console.printLine("net stat shown");
+        } else {
+            console.printLine("net stat hidden");
+        }
+    }
     void ConsoleCommands::musicOnOff(Console &console, const Console::Arguments &args, Menu &menu) {
         if (args.length() == 2) {
             if (args.get(1) == "on" || args.get(1) == "off") {
@@ -284,6 +292,9 @@ namespace Duel6 {
         });
         console.registerCommand("show_fps", [&gameSettings](Console &con, const Console::Arguments &args) {
             toggleShowFps(con, args, gameSettings);
+        });
+        console.registerCommand("net_stat", [&gameSettings](Console &con, const Console::Arguments &args) {
+            toggleNetStat(con, args, gameSettings);
         });
         console.registerCommand("gl_info", [&appService](Console &con, const Console::Arguments &args) {
             openGLInfo(con, args, appService.getVideo().getRenderer());

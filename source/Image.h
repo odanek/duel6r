@@ -40,7 +40,9 @@ namespace Duel6 {
         std::vector<Color> data;
 
     public:
-        Image() : Image(0, 0, 0) {}
+        Image() : Image(0, 0, (Size)0) {}
+
+        Image(Size width, Size height, void * data);
 
         Image(Size width, Size height, Size depth = 1);
 

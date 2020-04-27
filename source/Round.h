@@ -75,6 +75,14 @@ namespace Duel6 {
             return winner;
         }
 
+        void setWinner(bool value) {
+            if(!winner && value){
+                roundOver();
+            } else {
+                winner = value;
+            }
+        }
+
         Float32 getRemainingYouAreHere() const {
             return showYouAreHere;
         }
@@ -109,6 +117,8 @@ namespace Duel6 {
         void splitScreenView(Player &player, Int32 x, Int32 y);
 
         void switchScreenMode();
+
+        void roundOver();
     };
 }
 

@@ -87,9 +87,12 @@ namespace Duel6 {
                 if (!(s >> piu)) {
                     D6_THROW(Exception, "Cannot deserialize EventType::PLAYER_INPUTS_UPDATE");
                 }
-                receivedInputsTick = piu.inputTick;
-                confirmedInputsTick = piu.confirmInputTick;
-                gameProxy->handle(piu);
+                if(piu.inputTick > receivedInputsTick || receivedInputsTick - piu.inputTick > 30000)
+                {
+                    receivedInputsTick = piu.inputTick;
+                    confirmedInputsTick = piu.confirmInputTick;
+                    gameProxy->handle(piu);
+                }
                 break;
             }
             case EventType::NEXT_ROUND: {
@@ -244,6 +247,8 @@ namespace Duel6 {
             serverGameProxy.add(this);
             gameProxy.setPeerReference(*this);
             state = PeerState::CONNECTED;
+            enet_peer_timeout(peer, 50, 1000, 5000);
+            enet_peer_throttle_configure(peer, 5000, 2, 2 ); // default: 5000 2 2
         }
 
         Peer::Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host)
@@ -252,7 +257,8 @@ namespace Duel6 {
                 peer,
                 host,
                 0) {
-            enet_peer_timeout(peer, 32, 1000, 5000);
+            enet_peer_timeout(peer, 500, 1000, 5000);
+            enet_peer_throttle_configure(peer, 5000, 2, 2 );
             gameProxy.setPeerReference(*this);
         }
     } /* namespace net */

@@ -35,6 +35,7 @@ namespace Duel6 {
             void disconnect();
 
         private:
+            void recordPeerNetStats(ENetPeer *peer) override;
 
             void onStarting() override;
 

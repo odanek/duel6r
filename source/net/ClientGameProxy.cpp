@@ -88,7 +88,7 @@ namespace Duel6 {
                     for (size_t i = 0; i < missed; i++) {
                         player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[64 - missed + i];
                     }
-                    player.setControllerState(player.unconfirmedInputs[63]);
+                    player.setControllerState(p.unconfirmedInputs[63]);
                 }
             }
         }
@@ -115,7 +115,7 @@ namespace Duel6 {
                 break;
             }
             }
-
+            bool missingSnapshot = false;
             for (auto &p : gsu.players) {
                 if (idmap.count(p.id) == 0) {
                     std::cerr << "Player id " << p.id << " not found, skipping\n";
@@ -125,26 +125,24 @@ namespace Duel6 {
                 auto &player = game->players[pos];
 
                 if (!game->isServer) {
-
-                    bool shouldLoadSnapshot = false;
-                    if(p.changed[0] || p.changed.count() != Player::FIELDS::_SIZE - 1){
-                        shouldLoadSnapshot = true;
+                    game->getRound().setWinner(gsu.hasWinner);
+                    missingSnapshot = false;
+                    bool loadSnapshot = false;
+                    if(p.changed[0] || p.changed.count() != Player::FIELDS::_SIZE - 1){ // -1 for _SIZE and NO_CHANGE
+                        loadSnapshot = true;
                     }
-                    if (/*( (gsu.inputTick - gsu.snapshotTick) & xor_32768) < 32*/
-                        /*&&*/ peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0) {
+                    if (loadSnapshot && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0) {
                         if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].debug == gsu.snapshotTick) {
                             Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_64][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
-                            shouldLoadSnapshot = false;
                         } else {
-                            /* debug */
+                            missingSnapshot = true;
                         }
                     }
-                    if(shouldLoadSnapshot){
+                    if(missingSnapshot){
                         // correct snapshot not found,
                         // wait out the server to send full copy
                         peer->confirmedInputsTick = player.lastConfirmedTick;
-
                         continue; // skip this player to not screw things
                     } else {
                         player.lastConfirmedTick = gsu.confirmInputTick;
@@ -161,13 +159,13 @@ namespace Duel6 {
                         position.x - collidingEntity.position.x,
                         position.y - collidingEntity.position.y
                     };
-                 //    if(diff.x * diff.x + diff.y * diff.y > 0.9){
+                     if(diff.x * diff.x + diff.y * diff.y > 0.9){
                          collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
                          collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
-                //     } else {
-                 //        collidingEntity.externalForcesSpeed.x += diff.x;
-                 //        collidingEntity.externalForcesSpeed.y += diff.y;
-                 //    }
+                     } else {
+                         collidingEntity.externalForcesSpeed.x += diff.x / 2;
+                         collidingEntity.externalForcesSpeed.y += diff.y / 2;
+                     }
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                     collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                     collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
@@ -192,23 +190,25 @@ namespace Duel6 {
                     player.rtt = peer->getRTT();
                 }
                 if (!player.local) {
+                    const size_t maxMissed = Player::INPUTS;
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
-                    if (missed > 64) {
-                        missed = 64;
+                    if (missed > maxMissed) {
+                        missed = maxMissed;
                     }
-                    for (size_t i = 0; i < missed; i++) {
-                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[64 - missed + i];
+                    for (size_t i = 0; i < maxMissed; i++) {
+                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[maxMissed - missed + i];
                     }
                 }
             }
 
-//            if (!game->isServer) {
-//                if ((game->tick - gsu.confirmInputTick) & xor_32 < 16) {
-//                    Uint32 ms = 1000 / 90;
-//                    Uint32 drift = peer->getRTT() / ms;
+            if (!game->isServer) {
+                if ((game->tick - gsu.confirmInputTick) & xor_32 < 16) {
+                    Uint32 ms = 1000 / 90;
+                    Uint32 drift = peer->getRTT() / ms;
+                    game->compensateLag(gsu.confirmInputTick);
 //                    game->compensateLag(game->tick - (game->tick - gsu.confirmInputTick) / 2);
-//                }
-//            }
+                }
+            }
         }
         void ClientGameProxy::peerDisconnected(Peer &peer){
             std::vector<Int32> removedIds;
@@ -260,7 +260,6 @@ namespace Duel6 {
                 w.raisingWater,
                 elevators
                 ));
-    //        game->maxPlayerId = 0; // todo: reset players counter
             std::vector<PlayerDefinition> playerDefinitions;
             playerDefinitions.reserve(sr.players.size());
 

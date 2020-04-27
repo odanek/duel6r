@@ -52,8 +52,12 @@ namespace Duel6 {
 
             // SomeAppObject callbacks
         public:
+            const ENetPeer& getEnetPeer() const {
+                return *peer;
+            }
             PeerUpdateState peerUpdateState = PeerUpdateState::WAITING_FOR_REQUEST;
             Uint32 getRTT() const;
+            size_t choke = 64; // 0..64
             std::array<std::map<Uint32, Player>, SNAPSHOTS> snapshot;
             uint16_t confirmedInputsTick = 0; //TODO private
             uint16_t receivedInputsTick = 0;
