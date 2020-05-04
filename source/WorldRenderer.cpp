@@ -195,7 +195,8 @@ namespace Duel6 {
         const auto &netstat = game.netstat;
         const auto fontSize = 6;
         const std::string &ns1 =
-            Format(" ____________________________________________________\n"
+            Format(
+                " ____________________________________________________\n"
                 "|   var   |  last   |  highest  |  loss  |  variance |\n"
                 "|{0,5} ms |{1,5} ms |  {2,5} ms | {6,5}  |   {7,5}   |\n"
                 "|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~~~~\n"
@@ -290,7 +291,7 @@ namespace Duel6 {
        // const std::string &netstat = Format("net:{0}/{1}/{2}/{3}") << player.rtt << player.tick << player.lastConfirmedTick << (game.tick - player.tick);
 
    //     Float32 netstatWidth = 0.15f * netstat.size();
-        Float32 width = 0.15f * name.size();
+        Float32 width = font.getTextWidth(name, 0.3f);
         Float32 X = xOfs - width / 2;
         Float32 Y = yOfs;
 

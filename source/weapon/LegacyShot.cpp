@@ -191,7 +191,7 @@ namespace Duel6 {
         const Rectangle shotBox = getCollisionRect();
 
         for (Player &player : players) {
-            if (player.isDeleted() || player.getBonus() == BonusType::INVISIBILITY || player.is(getPlayer())) {
+            if (!player.isInGame() || player.getBonus() == BonusType::INVISIBILITY || player.is(getPlayer())) {
                 continue;
             }
 
