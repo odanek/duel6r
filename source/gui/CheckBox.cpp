@@ -61,7 +61,7 @@ namespace Duel6 {
             drawFrame(renderer, x, y, 16, 16, checked);
             px = x + 32;
             py = y - (height >> 1) - 7;
-            font.print(px, py, Color(0), label);
+            font.print(px, py, Color::BLACK, label);
         }
 
     }

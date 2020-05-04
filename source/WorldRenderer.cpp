@@ -69,13 +69,13 @@ namespace Duel6 {
     }
 
     void WorldRenderer::playerRankings() const {
-        Float32 fontSize = 16;
+        Float32 fontSize = 20;
         Float32 fontWidth = fontSize / 2;
         Ranking ranking = game.getMode().getRanking(game.getPlayers());
-        Int32 maxNameLength = ranking.getMaxLength() + 6;
+        Int32 maxNameLength = ranking.getMaxLength() + 10;
 
-        Int32 posX = video.getScreen().getClientWidth() - fontWidth * maxNameLength - 3;
-        Int32 posY = video.getScreen().getClientHeight() - 20;
+        Int32 posX = video.getScreen().getClientWidth() - fontWidth * maxNameLength - 5;
+        Int32 posY = video.getScreen().getClientHeight() - 30;
 
         for (const auto &entry : ranking.entries) {
             if(entry.isGroup && entry.entries.size() == 0) { //skip empty team
@@ -97,7 +97,7 @@ namespace Duel6 {
 
         Int32 paddingLeft = entry.isSuperEntry() ? 0 : 5;
         renderer.setBlendFunc(BlendFunc::None);
-        font.print(posX + paddingLeft, posY, 0.0f, fontColor, entry.name, charHeight);
+        font.print(posX + paddingLeft, posY, 0.0f, fontColor, entry.name, charHeight, true);
 
         if (extendWidth > 0) {
             renderer.setBlendFunc(BlendFunc::SrcColor);
@@ -107,10 +107,10 @@ namespace Duel6 {
             auto killsToDeaths = Person::getKillsToDeathsRatio(entry.kills, entry.deaths);
             font.print(posX + (charHeight / 2) * (maxLength), posY, 0.0f, fontColor,
                        (Format("|{0,3}|{1,3}|{2,3}|{3,5}|{4,4}|{5,4}") << entry.kills << entry.assistances << entry.deaths
-                                                                 << killsToDeaths << entry.points << entry.rtt), charHeight);
+                                                                 << killsToDeaths << entry.points << entry.rtt), charHeight, true);
         } else {
             font.print(posX + (charHeight / 2) * (maxLength - 5), posY, 0.0f, fontColor,
-                       (Format("|{0,4}") << entry.points), charHeight);
+                       (Format("|{0,3}") << entry.points), charHeight, true);
         }
         return posY - charHeight;
     }
@@ -153,8 +153,8 @@ namespace Duel6 {
 
         Color fontColor = Color::WHITE;
 
-        font.print(x + (width - scoreWidth) / 2, y + height - fontSize, 0.0f, fontColor, score, fontSize);
-        font.print(x + tableWidth, y + height - 2 * fontSize, 0.0f, fontColor, kad, fontSize);
+        font.print(x + (width - scoreWidth) / 2, y + height - fontSize, 0.0f, fontColor, score, fontSize, true);
+        font.print(x + tableWidth, y + height - 2 * fontSize, 0.0f, fontColor, kad, fontSize, true);
         for (const auto &entry : ranking.entries) {
             if(entry.isGroup && entry.entries.size() == 0) { //skip empty teams
                 continue;
@@ -227,7 +227,7 @@ namespace Duel6 {
         Int32 Y = 20;
         Vector size1, size2;
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
-        font.printWrapped(X, Y, 0.5f, Color::WHITE, ns1, fontSize, 3050, size1);
+        font.printWrapped(X, Y, 0.5f, Color::WHITE, ns1, fontSize, 3050, size1, true);
         Float32 height1 = size1.y;
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
 

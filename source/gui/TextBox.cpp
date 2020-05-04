@@ -90,7 +90,7 @@ namespace Duel6 {
 
             drawFrame(renderer, x - 2, y + 2, w + 4, height + 4, true, focused);
             renderer.quadXY(Vector(x, y - (height - 1)), Vector(w, height - 1), Color::WHITE);
-            font.print(x, y - (height - 2), Color(0), text + "_");
+            font.print(x, y - (height - 2), Color::BLACK, focused ? text + "_" : text);
         }
     }
 }

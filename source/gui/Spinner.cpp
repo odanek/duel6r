@@ -115,10 +115,6 @@ namespace Duel6 {
         void Spinner::draw(Renderer &renderer, const Font &font) const {
             drawFrame(renderer, x + 20, y, width - 40, 18, true);
             renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
-
-
-
-
             Int32 px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
             Int32 py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
             renderer.triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);

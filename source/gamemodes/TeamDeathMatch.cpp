@@ -193,7 +193,9 @@ namespace Duel6 {
         for (Int32 teamIndex = 0; teamIndex < teamsCount; teamIndex++) {
             const Team &team = TEAMS[teamIndex];
             Color bcgColor = team.color.withAlpha(178);
-            auto entry = Ranking::Entry{team.name, 0, Color::BLACK, bcgColor, true};
+            Color color = team.color;
+            color.add(255,255,255,150);
+            auto entry = Ranking::Entry{team.name, 0, color, bcgColor, true};
             ranking.entries.push_back(entry);
         }
         for (const auto &player : players) {

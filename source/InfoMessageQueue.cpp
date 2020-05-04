@@ -71,9 +71,9 @@ namespace Duel6 {
 
     void InfoMessageQueue::renderMessage(Renderer &renderer, Int32 x, Int32 y, const std::string &msg, const Font &font) {
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
-        renderer.quadXY(Vector(x, y + 1), Vector(8 * Uint32(msg.length()), 14), Color(0, 0, 255, 178));
+        renderer.quadXY(Vector(x, y + 1), Vector(font.getTextWidth(msg, 16), 14), Color(0, 0, 255, 178));
         renderer.setBlendFunc(BlendFunc::None);
-        font.print(x, y, Color::YELLOW, msg);
+        font.print(x, y, Color::YELLOW, msg, true);
     }
 
     void InfoMessageQueue::clear() {

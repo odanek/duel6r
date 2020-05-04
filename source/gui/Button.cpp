@@ -101,7 +101,7 @@ namespace Duel6 {
             drawFrame(renderer, x, y, width, height, pressed, focused);
             px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
             py = y - (height >> 1) - 7 - pressed;
-            font.print(px, py, Color(0), caption);
+            font.print(px, py, Color::BLACK, caption);
         }
 
         void Button::firePressListeners(bool pressed) {

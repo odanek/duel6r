@@ -40,7 +40,7 @@ namespace Duel6 {
         Color conCol[4] = {
                 Color(255, 165, 0),          // Font
                 Color(100, 100, 100),    // Background top
-                Color(200, 200, 200),      // Background bottom
+                Color(50, 50, 50),      // Background bottom
                 Color(255, 0, 0)         // Separator
         };
     }
