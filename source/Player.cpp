@@ -615,6 +615,7 @@ namespace Duel6 {
                     }
                     animation = animations.getDying().get();
                 } else { //dead
+                    animation = animations.getDying().get();
                     if (!collider.isOnHardSurface()) {
                         animation = animations.getDeadFall().get();
                     } else {
@@ -622,11 +623,7 @@ namespace Duel6 {
                             animation = animations.getDeadHit().get();
                             sprite->setLooping(AnimationLooping::OnceAndStop);
                         } else {
-                            if (sprite->isFinished()) {
-                                animation = animations.getDeadLying().get();
-                            } else {
-                                animation = sprite->getAnimation();
-                            }
+                            animation = animations.getDeadLying().get();
                         }
                     }
                 }
