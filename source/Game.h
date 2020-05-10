@@ -227,6 +227,13 @@ namespace Duel6 {
         }
 
         void onNextRound();
+        void spawnWeapon(LyingWeapon &&weapon);
+
+        void spawnBonus(Bonus &&bonus);
+
+        void pickWeapon(Player &player, unsigned int weaponId);
+
+        void pickBonus(Player &player, unsigned int bonusId);
     private:
         void beforeStart(Context *prevContext) override;
 
@@ -243,6 +250,8 @@ namespace Duel6 {
         void endRound();
 
         void onRoundEnd();
+
+
     };
 }
 

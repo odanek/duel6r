@@ -79,14 +79,16 @@ namespace Duel6 {
             }
 
             template<typename MessageObject>
-            void sendReliable(MessageObject &msg, uint8_t channel = CHANNEL, bool reliable = true) {
+            void sendReliable(MessageObject &msg, uint8_t channel = CHANNEL) {
                 send(msg, CHANNEL, true);
             }
+
             template<typename MessageObject>
             void sendUnreliable(MessageObject &msg) {
                 send(msg, UNRELIABLE_CHANNEL, false);
                 enet_host_flush(host);
             }
+
             template<typename MessageObject>
             void send(MessageObject &msg, uint8_t channel = CHANNEL, bool reliable = true) {
                 binarystream bs;
@@ -101,10 +103,12 @@ namespace Duel6 {
                 }
                 enet_peer_send(peer.get(), channel, packet);
             }
+
             template<typename MessageObject>
             void send(MessageObject &&msg) {
                 send(msg);
             }
+
             bool onConnected(ENetPeer *me);
 
             bool onDisconnected(ENetPeer *me, enet_uint32 reason);

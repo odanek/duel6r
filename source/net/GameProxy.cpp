@@ -33,6 +33,28 @@ namespace Duel6 {
             s.tick = game.tick;
             s.players.reserve(game.getPlayers().size());
             s.playerProfiles.reserve(s.players.size());
+            auto & bonusList = game.getRound().getWorld().getBonusList();
+            s.bonuses.reserve(bonusList.getBonuses().size());
+            s.weapons.reserve(bonusList.getLyingWeapons().size());
+            for(const auto & bonus : bonusList.getBonuses()){
+                Bonus b;
+                b.type = static_cast<BonusType>(bonus.getType()->getId());
+                b.duration = bonus.getDuration();
+                b.position = {bonus.getPosition().x, bonus.getPosition().y};
+                b.textureIndex = bonus.getTextureIndex();
+                b.bonusId = bonus.getId();
+                s.bonuses.push_back(b);
+            }
+            for(const auto & weapon : bonusList.getLyingWeapons()){
+                Weapon w;
+                w.type = static_cast<WeaponType>(weapon.getWeapon().getId());
+                w.bullets = weapon.getBullets();
+                w.position = {weapon.getPosition().x, weapon.getPosition().y};
+                w.weaponId = weapon.getId();
+                w.pickTimeout = weapon.pickTimeout;
+                w.remainingReloadTime = weapon.remainingReloadTime;
+                s.weapons.push_back(w);
+            }
             for (auto &player : game.getPlayers()) {
                 Player p;
                 p.debug = game.tick;

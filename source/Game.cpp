@@ -317,4 +317,32 @@ namespace Duel6 {
     Int32 Game::getCurrentRound() const {
         return currentRound;
     }
+
+    void Game::spawnBonus(Bonus &&bonus) {
+        if (isServer) {
+            gameProxy->spawnBonus(bonus);
+        }
+        round->getWorld().getBonusList().spawnBonus(std::move(bonus));
+    }
+
+    void Game::spawnWeapon(LyingWeapon &&weapon) {
+        if (isServer) {
+            gameProxy->spawnWeapon(weapon);
+        }
+        round->getWorld().getBonusList().spawnWeapon(std::move(weapon));
+    }
+
+    void Game::pickWeapon(Player &player, unsigned int weaponId) {
+        if (isServer) {
+            gameProxy->pickWeapon(player, weaponId);
+        }
+        round->getWorld().getBonusList().pickWeapon(player, weaponId);
+    }
+
+    void Game::pickBonus(Player &player, unsigned int bonusId) {
+        if (isServer) {
+            gameProxy->pickBonus(player, bonusId);
+        }
+        round->getWorld().getBonusList().pickBonus(player, bonusId);
+    }
 }

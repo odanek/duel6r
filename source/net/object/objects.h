@@ -15,6 +15,6 @@
 #include "Vector.h"
 #include "World.h"
 #include "PlayerInputs.h"
-
+#include "Bonus.h"
 
 #endif /* SOURCE_NET_OBJECT_OBJECTS_H_ */

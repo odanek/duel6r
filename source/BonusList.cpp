@@ -30,10 +30,10 @@
 #include "BonusList.h"
 #include "World.h"
 #include "collision/Collision.h"
-
+#include "Game.h"
 namespace Duel6 {
-    BonusList::BonusList(const GameSettings &settings, const GameResources &resources, World &world)
-            : settings(settings), texture(resources.getBonusTextures()), world(world) {}
+    BonusList::BonusList(const GameSettings &settings, Game &game, const GameResources &resources, World &world)
+            : settings(settings), texture(resources.getBonusTextures()), world(world), game(game) {}
 
     void BonusList::render(Renderer &renderer) const {
         for (const Bonus &bonus : bonuses) {
@@ -46,6 +46,9 @@ namespace Duel6 {
     }
 
     void BonusList::addRandomBonus() {
+        if (!game.isServer && game.networkGame){
+            return;
+        }
         const Level &level = world.getLevel();
         bool weapon = (Math::random(2) == 1);
         Int32 x, y, attempts = 0;
@@ -62,13 +65,24 @@ namespace Duel6 {
 
         if (weapon) {
             Int32 bullets = Math::random(10) + 10;
-            weapons.push_back(LyingWeapon(Weapon::getRandomEnabled(settings), bullets, Vector(x, y)));
+            addWeapon(LyingWeapon(Weapon::getRandomEnabled(settings), bullets, Vector(x, y)));
         } else {
-            const BonusType *type = BonusType::ALL[Math::random(BonusType::ALL.size())];
+            const BonusType *type = BonusType::getRandom();
             bool random = Math::random(RANDOM_BONUS_FREQUENCY) == 0;
             Int32 duration = type->isOneTime() ? 0 : 13 + Math::random(17);
-            bonuses.push_back(
-                    Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? 0 : type->getTextureIndex()));
+            addBonus(Bonus(type, duration, Vector(x + 0.2f, y + 0.2f), random ? 0 : type->getTextureIndex()));
+        }
+    }
+
+    void BonusList::addWeapon(LyingWeapon &&lyingWeapon) {
+        if (game.isServer || !game.networkGame) {
+            game.spawnWeapon(std::move(lyingWeapon));
+        }
+    }
+
+    void BonusList::addBonus(Bonus &&bonus) {
+        if (game.isServer || !game.networkGame) {
+            game.spawnBonus(std::move(bonus));
         }
     }
 
@@ -103,10 +117,81 @@ namespace Duel6 {
     }
 
     void BonusList::addPlayerGun(Player &player, const CollidingEntity &playerCollider) {
-        weapons.push_back(LyingWeapon(player.getWeapon(), player.getAmmo(), player.getReloadTime(), playerCollider));
+        if (!game.isServer && game.networkGame){
+            return;
+        }
+        addWeapon(LyingWeapon(player.getWeapon(), player.getAmmo(), player.getReloadTime(), playerCollider));
+    }
+
+    void BonusList::spawnBonus(Bonus &&bonus) {
+        bonuses.push_back(std::move(bonus));
+    }
+
+    void BonusList::spawnWeapon(LyingWeapon &&lyingWeapon) {
+        weapons.push_back(std::move(lyingWeapon));
+    }
+
+    void BonusList::despawnBonus(unsigned int id) {
+        auto bonusIter = bonuses.begin();
+        while (bonusIter != bonuses.end()) {
+            if(bonusIter->getId() == id){
+                bonuses.erase(bonusIter);
+                return;
+            }
+            bonusIter++;
+        }
+    }
+
+    void BonusList::despawnWeapon(unsigned int id) {
+        auto weaponIter = weapons.begin();
+        while (weaponIter != weapons.end()) {
+            if(weaponIter->id == id){
+                weapons.erase(weaponIter);
+                return;
+            }
+            weaponIter++;
+        }
+    }
+
+    void BonusList::pickWeapon(Player &player, unsigned int weaponId) {
+        auto weaponIter = weapons.begin();
+        while (weaponIter != weapons.end()) {
+            if(weaponIter->id == weaponId){
+                LyingWeapon &weapon = *weaponIter;
+                Weapon type = weapon.getWeapon();
+                player.pickWeapon(type, weapon.getBullets(), weapon.remainingReloadTime);
+                world.getMessageQueue().add(player, Format("You picked up gun {0}") << type.getName());
+                weapons.erase(weaponIter);
+                return;
+            }
+            weaponIter++;
+        }
+    }
+
+    void BonusList::pickBonus(Player &player, unsigned int bonusId) {
+        auto bonusIter = bonuses.begin();
+        while (bonusIter != bonuses.end()) {
+            Bonus &bonus = *bonusIter;
+            const BonusType *type = bonus.getType();
+            if(bonus.getId() == bonusId){
+                if (type->isOneTime()) {
+                    type->onApply(player, world, 0);
+                } else {
+                    player.setBonus(type, bonus.getDuration());
+                }
+                player.playSound(PlayerSounds::Type::PickedBonus);
+                bonuses.erase(bonusIter);
+                return;
+            }
+            bonusIter++;
+        }
     }
 
     void BonusList::checkBonus(Player &player) {
+        if (!game.isServer && game.networkGame){
+            return;
+        }
+
         auto bonusIter = bonuses.begin();
         while (bonusIter != bonuses.end()) {
             Bonus &bonus = *bonusIter;
@@ -114,14 +199,8 @@ namespace Duel6 {
 
             bool collides = Collision::rectangles(bonus.getCollisionRect(), player.getCollisionRect());
             if (collides && type->isApplicable(player, world)) {
-                if (type->isOneTime()) {
-                    type->onApply(player, world, 0);
-                } else {
-                    player.setBonus(type, bonus.getDuration());
-                }
-
-                player.playSound(PlayerSounds::Type::PickedBonus);
-                bonusIter = bonuses.erase(bonusIter);
+                game.pickBonus(player, bonus.getId());
+                return; // return to avoid erase-while-iterating blow-up // any remaining bonuses will be hit in following frames
             } else {
                 ++bonusIter;
             }
@@ -139,6 +218,9 @@ namespace Duel6 {
     }
 
     void BonusList::checkWeapon(Player &player) {
+        if (!game.isServer && game.networkGame){
+            return;
+        }
         auto weaponIter = weapons.begin();
         while (weaponIter != weapons.end()) {
             LyingWeapon &weapon = *weaponIter;
@@ -150,15 +232,21 @@ namespace Duel6 {
                     // Leave the current weapon at the same place
                     addPlayerGun(player, player.getCollider());
                 }
+                game.pickWeapon(player, weapon.getId());
 
-                player.pickWeapon(type, weapon.getBullets(), weapon.remainingReloadTime);
-                world.getMessageQueue().add(player, Format("You picked up gun {0}") << type.getName());
-
-                weapons.erase(weaponIter);
                 return;
             } else {
                 ++weaponIter;
             }
         }
     }
+
+    const std::list<Bonus>& BonusList::getBonuses() const {
+        return bonuses;
+    }
+
+    const std::list<LyingWeapon>& BonusList::getLyingWeapons() const {
+        return weapons;
+    }
+
 }

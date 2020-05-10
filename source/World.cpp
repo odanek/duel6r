@@ -35,8 +35,9 @@ namespace Duel6 {
               level(std::move(levelData)),
               levelRenderData(*level, game.getAppService().getVideo().getRenderer(), gameSettings.getScreenMode(),
                               D6_ANM_SPEED), messageQueue(D6_INFO_DURATION),
+                              shotList(game),
               explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
-              bonusList(game.getSettings(), game.getResources(), *this),
+              bonusList(game.getSettings(), game, game.getResources(), *this),
               elevatorList(game.getResources().getElevatorTextures()),
               unconfirmedElevatorList(game.getResources().getElevatorTextures(), level->getElevators()), time(0) {
         Console &console = game.getAppService().getConsole();

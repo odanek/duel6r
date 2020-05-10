@@ -42,6 +42,10 @@ namespace Duel6 {
 
     class BonusType {
     public:
+        BonusType();
+
+        unsigned int getId() const;
+
         virtual ~BonusType() = default;
 
         virtual std::string getName() const = 0;
@@ -73,7 +77,14 @@ namespace Duel6 {
         static const BonusType *const SNORKEL;
 
     public:
-        static const std::vector<const BonusType *> ALL;
+        static const BonusType * getById(unsigned int id);
+
+        static const BonusType * getRandom();
+    protected:
+        static unsigned int counter;
+    private:
+        unsigned int id;
+        static std::vector<const BonusType *> ALL;
     };
 
     class Bonus {
@@ -82,11 +93,20 @@ namespace Duel6 {
         Int32 duration;
         Vector position;
         Int32 textureIndex;
-
+    private:
+        static unsigned int counter;
+    private:
+        unsigned int id;
     public:
         Bonus(const BonusType *type, Int32 duration, const Vector &position, Int32 textureIndex);
 
+        Bonus(unsigned int id, unsigned int bonusTypeId, Int32 duration, const Vector &position, Int32 textureIndex);
+
         void render(Renderer &renderer, Texture texture) const;
+
+        unsigned int getId() const;
+
+        Int32 getTextureIndex() const;
 
         const BonusType *getType() const {
             return type;
@@ -114,7 +134,10 @@ namespace Duel6 {
     class LyingWeapon {
         Weapon weapon;
         Int32 bullets;
+    private:
+        static unsigned int counter;
     public:
+        size_t id;
         CollidingEntity collider;
         Float32 pickTimeout = 0.5f;
         Float32 remainingReloadTime = 0.0f;
@@ -123,7 +146,11 @@ namespace Duel6 {
 
         LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position);
 
+        LyingWeapon(unsigned int weaponId, unsigned int id, Int32 bullets, const Vector &position);
+
         void render(Renderer &renderer) const;
+
+        unsigned int getId() const;
 
         const Weapon &getWeapon() const {
             return weapon;
@@ -137,6 +164,9 @@ namespace Duel6 {
             return collider.position;
         }
 
+        const CollidingEntity &getCollider() const {
+            return collider;
+        }
         Vector getDimensions() const {
             return Vector(1.0f, 1.0f);
         }

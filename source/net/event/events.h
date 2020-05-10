@@ -15,6 +15,8 @@
 #include "PlayersDisconnected.h"
 #include "PlayersJoined.h"
 #include "RequestGameState.h"
+#include "SpawnBonus.h"
+#include "SpawnWeapon.h"
 #include "StartRound.h"
 
 #endif /* SOURCE_NET_EVENT_EVENTS_H_ */

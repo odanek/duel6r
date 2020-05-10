@@ -13,6 +13,8 @@
 #include "../object/Client.h"
 #include "../object/World.h"
 #include "../object/Player.h"
+#include "../object/Bonus.h"
+#include "../object/Weapon.h"
 #include "PlayerProfile.h"
 namespace Duel6::net {
     enum class GameStateState : type_t {
@@ -22,19 +24,19 @@ namespace Duel6::net {
     };
 
     template<typename Stream>
-           bool serialize(Stream & s, GameStateState & o){
-               if(s.isDeserializer()){
-                   type_t r;
-                   if(!s.safe_max(r, (type_t) (static_cast<type_t>(GameStateState::MAX_COUNT) - 1))){
-                       return false;
-                   }
-                   o = static_cast<GameStateState>(r);
-                   return true;
-               } else {
-                   type_t r = static_cast<type_t>(o);
-                   return s & r;
-               }
-           }
+    bool serialize(Stream &s, GameStateState &o) {
+        if (s.isDeserializer()) {
+            type_t r;
+            if (!s.safe_max(r, (type_t) (static_cast<type_t>(GameStateState::MAX_COUNT) - 1))) {
+                return false;
+            }
+            o = static_cast<GameStateState>(r);
+            return true;
+        } else {
+            type_t r = static_cast<type_t>(o);
+            return s & r;
+        }
+    }
     class GameState: public Event<GameState, EventType::GAME_STATE> {
     public:
         GameStateState state = GameStateState::RUNNING;
@@ -44,6 +46,8 @@ namespace Duel6::net {
         World world;
         std::vector<PlayerProfile> playerProfiles;
         std::vector<Player> players;
+        std::vector<Bonus> bonuses;
+        std::vector<Weapon> weapons;
         GameState() = default;
         template<typename Stream>
         bool serialize(Stream &s) {
@@ -52,7 +56,9 @@ namespace Duel6::net {
                 && s & tick // @suppress("Suggested parenthesis around expression")
                 && s & world // @suppress("Suggested parenthesis around expression")
                 && s & playerProfiles // @suppress("Suggested parenthesis around expression")
-                && s & players; // @suppress("Suggested parenthesis around expression")
+                && s & players // @suppress("Suggested parenthesis around expression")
+                && s & bonuses // @suppress("Suggested parenthesis around expression")
+                && s & weapons; // @suppress("Suggested parenthesis around expression")
         }
     };
 }

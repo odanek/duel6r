@@ -119,6 +119,38 @@ namespace Duel6 {
                 gameProxy->handle(pj);
                 break;
             }
+            case EventType::SPAWN_BONUS: {
+                SpawnBonus sb;
+                if(!(s>>sb)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::SPAWN_BONUS");
+                }
+                gameProxy->handle(sb);
+                break;
+            }
+            case EventType::SPAWN_WEAPON: {
+                SpawnWeapon sw;
+                if(!(s>>sw)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::SPAWN_WEAPON");
+                }
+                gameProxy->handle(sw);
+                break;
+            }
+            case EventType::PICK_BONUS: {
+//                SpawnBonus sb; //TODO
+//                if(!(s>>sb)){
+//                    D6_THROW(Exception, "Cannot deserialize EventType::PICK_BONUS");
+//                }
+//                gameProxy->handle(sb);
+                break;
+            }
+            case EventType::PICK_WEAPON: {
+//                SpawnBonus sb; //TODO
+//                if(!(s>>sb)){
+//                    D6_THROW(Exception, "Cannot deserialize EventType::PICK_WEAPON");
+//                }
+//                gameProxy->handle(sb);
+                break;
+            }
 
             case EventType::CLIENT_JOINED:break;
             case EventType::CLIENT_DISCONNECTED:break;

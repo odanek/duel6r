@@ -149,7 +149,6 @@ namespace Duel6 {
         uint16_t tick = 0;
         uint16_t lastConfirmedTick = 0;
         uint16_t lateTicks = 0; //debug
-     //   Vector lastConfirmedPos; // for client-side prediction
         std::array<Uint32, 128> unconfirmedInputs;
         bool isCompensating = false;
 

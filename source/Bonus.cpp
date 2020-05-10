@@ -42,6 +42,7 @@
 #include "Video.h"
 
 namespace Duel6 {
+    std::vector<const BonusType *> BonusType::ALL = {};
     const BonusType *const BonusType::NONE = nullptr;
     const BonusType *const BonusType::PLUS_LIFE = new Bonuses::PlusLife();
     const BonusType *const BonusType::MINUS_LIFE = new Bonuses::MinusLife();
@@ -57,16 +58,40 @@ namespace Duel6 {
     const BonusType *const BonusType::INFINITE_AMMO = new Bonuses::InfiniteAmmo();
     const BonusType *const BonusType::SNORKEL = new Bonuses::Snorkel();
 
-    const std::vector<const BonusType *> BonusType::ALL = {BonusType::PLUS_LIFE, BonusType::MINUS_LIFE,
-                                                           BonusType::FULL_LIFE, BonusType::FAST_RELOAD,
-                                                           BonusType::POWERFUL_SHOTS, BonusType::INVULNERABILITY,
-                                                           BonusType::BULLETS, BonusType::FAST_MOVEMENT,
-                                                           BonusType::INVISIBILITY, BonusType::SPLIT_FIRE,
-                                                           BonusType::VAMPIRE_SHOTS, BonusType::INFINITE_AMMO,
-                                                           BonusType::SNORKEL};
+
+    const BonusType * BonusType::getById(unsigned int id) {
+        if(id >= BonusType::counter){
+            return nullptr;
+        }
+        return BonusType::ALL[id];
+    }
+    const BonusType * BonusType::getRandom() {
+        return BonusType::ALL[Math::random(BonusType::ALL.size())];
+    }
+    unsigned int BonusType::counter = 0;
+    unsigned int Bonus::counter = 0;
+    unsigned int LyingWeapon::counter = 0;
+
+    BonusType::BonusType() {
+        BonusType::ALL.push_back((const BonusType *)this);
+        this->id = BonusType::counter;
+        BonusType::counter++;
+    }
+    unsigned int BonusType::getId() const {
+        return id;
+    }
 
     Bonus::Bonus(const BonusType *type, Int32 duration, const Vector &position, Int32 textureIndex)
-            : type(type), duration(duration), position(position), textureIndex(textureIndex) {
+            : type(type), duration(duration), position(position), textureIndex(textureIndex), id(counter++) {
+        this->position.z = 0.5f;
+    }
+
+    unsigned int Bonus::getId() const {
+        return id;
+    }
+
+    Bonus::Bonus(unsigned int id, unsigned int bonusTypeId, Int32 duration, const Vector &position, Int32 textureIndex)
+    : type(BonusType::getById(bonusTypeId)), duration(duration), position(position), textureIndex(textureIndex), id(id){
         this->position.z = 0.5f;
     }
 
@@ -77,21 +102,33 @@ namespace Duel6 {
                         material);
     }
 
+    Int32 Bonus::getTextureIndex() const {
+        return textureIndex;
+    }
+
     Vector Bonus::getSpritePosition() const {
         return Vector(position.x - 0.2f, position.y - 0.2f, 0.47f);
     }
 
     LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position) :
-            weapon(weapon), bullets(bullets), collider(position) {
+            weapon(weapon), bullets(bullets), id(counter++), collider(position) {
         collider.position.z = 0.5f;
     }
 
     LyingWeapon::LyingWeapon(Weapon weapon, Int32 bullets, Float32 remainingReloadTime,
                              const CollidingEntity &playerCollider)
-            : weapon(weapon), bullets(bullets), collider(playerCollider), remainingReloadTime(remainingReloadTime) {
+            : weapon(weapon), bullets(bullets), id(counter++), collider(playerCollider), remainingReloadTime(remainingReloadTime) {
         collider.position.z = 0.5f;
         collider.velocity.x *= 2;
         collider.velocity.y *= 2;
+    }
+
+    LyingWeapon::LyingWeapon(unsigned int weaponId, unsigned int id, Int32 bullets, const Vector &position)
+        : weapon(Weapon::getById(weaponId)),
+          bullets(bullets),
+          id(id),
+          collider(position) {
+        collider.position.z = 0.5f;
     }
 
     void LyingWeapon::render(Renderer &renderer) const {
@@ -99,6 +136,10 @@ namespace Duel6 {
         Material material = Material::makeMaskedTexture(weapon.getBonusTexture());
         renderer.quadXY(pos, Vector(1.0f, 1.0f), Vector(0.1f, 0.9f, Float32(weapon.getBonusTextureIndex())),
                         Vector(0.8f, -0.8f), material);
+    }
+
+    unsigned int LyingWeapon::getId() const {
+        return id;
     }
 
     Vector LyingWeapon::getSpritePosition() const {

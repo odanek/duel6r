@@ -17,6 +17,8 @@ namespace Duel6::net {
         CLIENT,
         LEVEL,
         WORLD,
+        BONUS,
+        WEAPON,
         MAX_COUNT
     };
 

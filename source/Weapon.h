@@ -86,9 +86,11 @@ namespace Duel6 {
 
     public:
         Weapon();
+
         bool operator==(const Weapon &rhs) {
             return impl->getId() == rhs.impl->getId();
         }
+
         std::string getName() const;
 
         Uint8 getId() const;

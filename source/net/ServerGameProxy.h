@@ -14,25 +14,30 @@
 #include "GameProxy.h"
 #include "event/GameState.h"
 namespace Duel6 {
-
+    class Bonus;
+    class LyingWeapon;
+    class Player;
     namespace net {
 
         class ServerGameProxy: public GameProxy {
         private:
             std::list<Peer *> peers;
         public:
+            void spawnBonus(Duel6::Bonus &bonus);
+            void spawnWeapon(Duel6::LyingWeapon &lyingWeapon);
+            void pickWeapon(Duel6::Player &player, unsigned int weaponId);
+            void pickBonus(Duel6::Player &player, unsigned int bonusId);
+
             void playersJoined(std::vector<PlayerDefinition> & playerDefinitions);
             void playersDisconnected(const std::vector<Int32> & ids);
             void playersConnected(const std::vector<Int32> & ids);
             void add(Peer *);
             void remove(Peer *);
             void startRound(Duel6::Level & level) override;
-//            void sendGameState(Game & game) override;
             void sendGameStateUpdate(Game & game) override;
             void nextRound() override;
             void handle(ObjectBase &o) override;
             void handle(EventBase &e) override;
-//            void gameState(Game & game);
             ServerGameProxy();
             virtual ~ServerGameProxy();
         private:

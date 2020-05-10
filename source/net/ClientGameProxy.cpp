@@ -260,6 +260,24 @@ namespace Duel6 {
                 w.raisingWater,
                 elevators
                 ));
+
+
+            for (Bonus &b : sr.bonuses) {
+                Vector position = { b.position.x, b.position.y, 0.5f };
+                game->spawnBonus(Duel6::Bonus(b.bonusId,
+                    static_cast<unsigned int>(b.type),
+                    b.duration,
+                    position,
+                    b.textureIndex));
+            }
+            for (Weapon &w : sr.weapons) {
+                Vector position = { w.position.x, w.position.y, 0.5f };
+                game->spawnWeapon(Duel6::LyingWeapon(
+                    static_cast<unsigned int>(w.type),
+                    w.weaponId,
+                    w.bullets,
+                    position));
+            }
             std::vector<PlayerDefinition> playerDefinitions;
             playerDefinitions.reserve(sr.players.size());
 
@@ -475,7 +493,24 @@ namespace Duel6 {
                 elevators
                 ));
         }
-
+        void ClientGameProxy::handle(SpawnBonus &sb) {
+            Bonus &b = sb.bonus;
+            Vector position = {b.position.x, b.position.y, 0.5f};
+            game->spawnBonus(Duel6::Bonus(b.bonusId,
+                static_cast<unsigned int>(b.type),
+                b.duration,
+                position,
+                b.textureIndex));
+        }
+        void ClientGameProxy::handle(SpawnWeapon &sw) {
+            Weapon &w = sw.weapon;
+            Vector position = {w.position.x, w.position.y, 0.5f};
+            game->spawnWeapon(Duel6::LyingWeapon(
+                static_cast<unsigned int>(w.type),
+                w.weaponId,
+                w.bullets,
+                position));
+        }
         void ClientGameProxy::nextRound() {
             game->onNextRound();
         }

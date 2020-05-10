@@ -29,9 +29,12 @@
 #include "World.h"
 #include "Weapon.h"
 #include "Player.h"
+#include "Game.h"
 
 namespace Duel6 {
-    ShotList::ShotList() {}
+    ShotList::ShotList(Game &game)
+        : game(game) {
+    }
 
     void ShotList::addShot(ShotPointer &&shot) {
         shots.push_back(std::forward<ShotPointer>(shot));

@@ -254,6 +254,37 @@ namespace Duel6 {
                 peer->sendReliable(pd);
             }
         }
+        void ServerGameProxy::spawnBonus(Duel6::Bonus &bonus) {
+            SpawnBonus sb;
+            Bonus &b = sb.bonus;
+            b.type = static_cast<BonusType>(bonus.getType()->getId());
+            b.duration = bonus.getDuration();
+            b.position = {bonus.getPosition().x, bonus.getPosition().y};
+            b.textureIndex = bonus.getTextureIndex();
+            b.bonusId = bonus.getId();
 
+            for (auto &peer : peers) {
+                peer->sendReliable(sb);
+            }
+        }
+        void ServerGameProxy::spawnWeapon(LyingWeapon &weapon){
+            SpawnWeapon sw;
+            Weapon &w = sw.weapon;
+            w.type = static_cast<WeaponType>(weapon.getWeapon().getId());
+            w.bullets = weapon.getBullets();
+            w.position = {weapon.getPosition().x, weapon.getPosition().y};
+            w.weaponId = weapon.getId();
+            w.pickTimeout = weapon.pickTimeout;
+            w.remainingReloadTime = weapon.remainingReloadTime;
+            for (auto &peer : peers) {
+                peer->sendReliable(sw);
+            }
+        }
+        void ServerGameProxy::pickWeapon(Duel6::Player &player, unsigned int weaponId){
+
+        }
+        void ServerGameProxy::pickBonus(Duel6::Player &player, unsigned int bonusId){
+
+        }
     } /* namespace net */
 } /* namespace Duel6 */

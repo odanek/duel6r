@@ -36,7 +36,7 @@
 
 namespace Duel6 {
     class World;
-
+    class Game;
     class ShotList {
     private:
         typedef std::unique_ptr<Shot> ShotPointer;
@@ -44,8 +44,9 @@ namespace Duel6 {
     private:
         std::list<ShotPointer> shots;
 
+        Game &game;
     public:
-        ShotList();
+        ShotList(Game &game);
 
         void addShot(ShotPointer &&shot);
 
