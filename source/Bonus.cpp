@@ -43,7 +43,7 @@
 
 namespace Duel6 {
     std::vector<const BonusType *> BonusType::ALL = {};
-    const BonusType *const BonusType::NONE = nullptr;
+    const BonusType *const BonusType::NONE = new Bonuses::None();
     const BonusType *const BonusType::PLUS_LIFE = new Bonuses::PlusLife();
     const BonusType *const BonusType::MINUS_LIFE = new Bonuses::MinusLife();
     const BonusType *const BonusType::FULL_LIFE = new Bonuses::FullLife();
@@ -66,7 +66,7 @@ namespace Duel6 {
         return BonusType::ALL[id];
     }
     const BonusType * BonusType::getRandom() {
-        return BonusType::ALL[Math::random(BonusType::ALL.size())];
+        return BonusType::ALL[1 + Math::random(BonusType::ALL.size() - 1)]; // exclude none
     }
     unsigned int BonusType::counter = 0;
     unsigned int Bonus::counter = 0;
@@ -123,12 +123,13 @@ namespace Duel6 {
         collider.velocity.y *= 2;
     }
 
-    LyingWeapon::LyingWeapon(unsigned int weaponId, unsigned int id, Int32 bullets, const Vector &position)
+    LyingWeapon::LyingWeapon(unsigned int weaponId, unsigned int id, Int32 bullets, Float32 remainingReloadTime, const CollidingEntity &collider)
         : weapon(Weapon::getById(weaponId)),
           bullets(bullets),
           id(id),
-          collider(position) {
-        collider.position.z = 0.5f;
+          collider(collider),
+          remainingReloadTime(remainingReloadTime){
+        this->collider.position.z = 0.5f;
     }
 
     void LyingWeapon::render(Renderer &renderer) const {

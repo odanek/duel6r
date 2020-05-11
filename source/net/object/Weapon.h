@@ -14,6 +14,8 @@
 #include "../../Type.h"
 #include "../Object.h"
 #include "../object/Vector2d.h"
+#include "../object/Collider.h"
+
 namespace Duel6::net {
     enum class WeaponType : type_t {
         PISTOL,
@@ -55,7 +57,7 @@ namespace Duel6::net {
     public:
         WeaponType type;
         Int32 bullets;
-        Vector2D position;
+        Collider collider;
         Int32 weaponId;
         Float32 pickTimeout;
         Float32 remainingReloadTime;
@@ -64,7 +66,7 @@ namespace Duel6::net {
         bool serialize(Stream &s) {
             return s & type
                 && s & bullets
-                && s & position
+                && s & collider
                 && s & weaponId
                 && s & pickTimeout
                 && s & remainingReloadTime;

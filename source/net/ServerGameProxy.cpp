@@ -14,7 +14,7 @@ namespace Duel6 {
         auto xor_32768 = 0x7fff;
         auto xor_32 = 31;
         const uint16_t xor_64 = 63;
-
+        void loadNetWeapon(Weapon &w, const LyingWeapon &weapon);
         void ServerGameProxy::add(Peer *p) {
             peers.push_back(p);
         }
@@ -115,8 +115,23 @@ namespace Duel6 {
                 sendInputs(game);
                 return;
             }
-
+            Weapon w;
+            bool weaponChosen = false;
+            for(const auto & weapon : game.getRound().getWorld().getBonusList().getLyingWeapons()){
+                if(weapon.id > lastSyncedWeapon){
+                    lastSyncedWeapon = weapon.id;
+                    weaponChosen = true;
+                    loadNetWeapon(w, weapon);
+                    break;
+                }
+            }
+            if(!weaponChosen){
+                lastSyncedWeapon = -1;
+            }
             for (auto &peer : peers) {
+                if(weaponChosen){
+                    peer->sendUnreliable(w);
+                }
                 game.netstat.choke = peer->choke;
                 if (!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)) {
                     continue;
@@ -182,7 +197,11 @@ namespace Duel6 {
                         p.ammo = player.getAmmo();
                         p.weaponId = player.getWeapon().getId();
                         p.orientationLeft = { player.getOrientation() == Orientation::Left };
-
+                        p.bonusType = static_cast<BonusType>(player.getBonus()->getId());
+                        p.bonusRemainingTime = player.getBonusRemainingTime();
+                        p.bonusDuration = player.getBonusDuration();
+                        p.alpha = player.getAlpha();
+                        p.bodyAlpha = player.getBodyAlpha();
                         peer->snapshot[game.tick & xor_64][p.id] = p;
                     }
                     player.rtt = p.rtt;
@@ -270,21 +289,41 @@ namespace Duel6 {
         void ServerGameProxy::spawnWeapon(LyingWeapon &weapon){
             SpawnWeapon sw;
             Weapon &w = sw.weapon;
-            w.type = static_cast<WeaponType>(weapon.getWeapon().getId());
-            w.bullets = weapon.getBullets();
-            w.position = {weapon.getPosition().x, weapon.getPosition().y};
-            w.weaponId = weapon.getId();
-            w.pickTimeout = weapon.pickTimeout;
-            w.remainingReloadTime = weapon.remainingReloadTime;
+            loadNetWeapon(w, weapon);
             for (auto &peer : peers) {
                 peer->sendReliable(sw);
             }
         }
         void ServerGameProxy::pickWeapon(Duel6::Player &player, unsigned int weaponId){
-
+            PickWeapon pw;
+            pw.playerId = player.getId();
+            pw.weaponId = weaponId;
+            for (auto &peer : peers) {
+                peer->sendReliable(pw);
+            }
         }
         void ServerGameProxy::pickBonus(Duel6::Player &player, unsigned int bonusId){
+            PickBonus pb;
+            pb.playerId = player.getId();
+            pb.bonusId = bonusId;
+            for (auto &peer : peers) {
+                peer->sendReliable(pb);
+            }
+        }
+        void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
+            Collider &c = w.collider;
+            const auto & collider = weapon.getCollider();
+            w.type = static_cast<WeaponType>(weapon.getWeapon().getId());
+            w.bullets = weapon.getBullets();
 
+            c.position = {collider.position.x, collider.position.y};
+            c.acceleration = {collider.acceleration.x, collider.acceleration.y};
+            c.externalForces = {collider.externalForces.x, collider.externalForces.y};
+            c.externalForcesSpeed = {collider.externalForcesSpeed.x, collider.externalForcesSpeed.y};
+            c.velocity = {collider.velocity.x, collider.velocity.y};
+            w.weaponId = weapon.getId();
+            w.pickTimeout = weapon.pickTimeout;
+            w.remainingReloadTime = weapon.remainingReloadTime;
         }
     } /* namespace net */
 } /* namespace Duel6 */

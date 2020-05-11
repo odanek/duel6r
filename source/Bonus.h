@@ -86,7 +86,34 @@ namespace Duel6 {
         unsigned int id;
         static std::vector<const BonusType *> ALL;
     };
+    namespace Bonuses {
+        class None: public BonusType {
+        public:
+            std::string getName() const override {
+                return "none";
+            }
 
+            Int32 getTextureIndex() const override {
+                return 0;
+            }
+
+            bool isOneTime() const override {
+                return true;
+            }
+
+            bool isApplicable(Player &player, World &world) const override {
+                return false;
+            }
+
+            void onApply(Player &player, World &world, Int32 duration) const override {
+                return;
+            }
+
+            void onExpire(Player &player, World &world) const override {
+                return;
+            }
+        };
+    }
     class Bonus {
     private:
         const BonusType *type;
@@ -146,7 +173,7 @@ namespace Duel6 {
 
         LyingWeapon(Weapon weapon, Int32 bullets, const Vector &position);
 
-        LyingWeapon(unsigned int weaponId, unsigned int id, Int32 bullets, const Vector &position);
+        LyingWeapon(unsigned int weaponId, unsigned int id, Int32 bullets, Float32 remainingReloadTime, const CollidingEntity &collider);
 
         void render(Renderer &renderer) const;
 

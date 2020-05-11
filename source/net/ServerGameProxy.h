@@ -22,6 +22,7 @@ namespace Duel6 {
         class ServerGameProxy: public GameProxy {
         private:
             std::list<Peer *> peers;
+            Int32 lastSyncedWeapon = -1; // for eventual periodical lying weapon sync
         public:
             void spawnBonus(Duel6::Bonus &bonus);
             void spawnWeapon(Duel6::LyingWeapon &lyingWeapon);

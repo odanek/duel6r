@@ -34,6 +34,15 @@ namespace Duel6 {
                 break;
             case ObjectType::WORLD:
                 break;
+            case ObjectType::BONUS:
+                break;
+            case ObjectType::WEAPON: {
+                Weapon w;
+                if (s >> w) {
+                    gameProxy->handle(w);
+                }
+                break;
+            }
             case ObjectType::MAX_COUNT:
                 break;
             }
@@ -136,19 +145,19 @@ namespace Duel6 {
                 break;
             }
             case EventType::PICK_BONUS: {
-//                SpawnBonus sb; //TODO
-//                if(!(s>>sb)){
-//                    D6_THROW(Exception, "Cannot deserialize EventType::PICK_BONUS");
-//                }
-//                gameProxy->handle(sb);
+                PickBonus pb;
+                if(!(s>>pb)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::PICK_BONUS");
+                }
+                gameProxy->handle(pb);
                 break;
             }
             case EventType::PICK_WEAPON: {
-//                SpawnBonus sb; //TODO
-//                if(!(s>>sb)){
-//                    D6_THROW(Exception, "Cannot deserialize EventType::PICK_WEAPON");
-//                }
-//                gameProxy->handle(sb);
+                PickWeapon pw;
+                if(!(s>>pw)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::PICK_WEAPON");
+                }
+                gameProxy->handle(pw);
                 break;
             }
 

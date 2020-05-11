@@ -224,8 +224,6 @@ namespace Duel6 {
         auto weaponIter = weapons.begin();
         while (weaponIter != weapons.end()) {
             LyingWeapon &weapon = *weaponIter;
-            Weapon type = weapon.getWeapon();
-
             bool collides = Collision::rectangles(weapon.getCollisionRect(), player.getCollisionRect());
             if (weapon.pickTimeout <= 0.0f && collides) {
                 if (player.hasGun() && player.getAmmo() > 0) {

@@ -38,6 +38,8 @@ namespace Duel6 {
             void setPeerReference(Peer &peer);
 
             void handle(Player &p);
+            void handle(Weapon &w);
+
             void handle(GameState &s);
             void handle(GameStateUpdate &s);
             void handle(PlayerInputsUpdate &piu);
@@ -47,6 +49,8 @@ namespace Duel6 {
             void handle(StartRound &sr);
             void handle(SpawnBonus &sb);
             void handle(SpawnWeapon &sb);
+            void handle(PickBonus &pb);
+            void handle(PickWeapon &pw);
 
             template<typename ObjectTypeName>
             void handleObject(ObjectTypeName &o) { //todo I think these are superfluous and can be removed

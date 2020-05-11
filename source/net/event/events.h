@@ -11,6 +11,8 @@
 #include "GameState.h"
 #include "GameStateUpdate.h"
 #include "NextRound.h"
+#include "PickBonus.h"
+#include "PickWeapon.h"
 #include "PlayerInputsUpdate.h"
 #include "PlayersDisconnected.h"
 #include "PlayersJoined.h"

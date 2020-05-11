@@ -47,9 +47,17 @@ namespace Duel6 {
             }
             for(const auto & weapon : bonusList.getLyingWeapons()){
                 Weapon w;
+                Collider &c = w.collider;
+                const auto &collider = weapon.getCollider();
                 w.type = static_cast<WeaponType>(weapon.getWeapon().getId());
                 w.bullets = weapon.getBullets();
-                w.position = {weapon.getPosition().x, weapon.getPosition().y};
+
+                c.position = {collider.position.x, collider.position.y};
+                c.acceleration = {collider.acceleration.x, collider.acceleration.y};
+                c.externalForces = {collider.externalForces.x, collider.externalForces.y};
+                c.externalForcesSpeed = {collider.externalForcesSpeed.x, collider.externalForcesSpeed.y};
+                c.velocity = {collider.velocity.x, collider.velocity.y};
+
                 w.weaponId = weapon.getId();
                 w.pickTimeout = weapon.pickTimeout;
                 w.remainingReloadTime = weapon.remainingReloadTime;
@@ -80,6 +88,12 @@ namespace Duel6 {
                 p.ammo = player.getAmmo();
                 p.weaponId = player.getWeapon().getId();
                 p.orientationLeft = { player.getOrientation() == Orientation::Left };
+
+                p.bonusType = static_cast<BonusType>(player.getBonus()->getId());
+                p.bonusRemainingTime = player.getBonusRemainingTime();
+                p.bonusDuration = player.getBonusDuration();
+                p.alpha = player.getAlpha();
+                p.bodyAlpha = player.getBodyAlpha();
 
                 s.players.push_back(p);
 

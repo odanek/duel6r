@@ -930,6 +930,13 @@ namespace Duel6 {
         }
     }
 
+    void Player::updateBonus(const BonusType *type, Float32 duration, Float32 remainingTime) {
+        bonus = type;
+        bonusRemainingTime = remainingTime;
+        bonusDuration = duration;
+        indicators.getBonus().show(bonusDuration);
+    }
+
     Player &Player::setBonus(const BonusType *type, Int32 duration) {
         if (type == bonus) {
             bonusRemainingTime += Float32(duration) / 2;
@@ -1011,6 +1018,15 @@ namespace Duel6 {
         die();
         sprite->setDraw(false);
         this->deleted = value;
+    }
+
+
+    Float32 Player::getAlpha() const {
+        return alpha;
+    }
+
+    Float32 Player::getBodyAlpha() const {
+        return bodyAlpha;
     }
 
 }

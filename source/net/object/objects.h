@@ -13,6 +13,7 @@
 #include "Player.h"
 #include "Shot.h"
 #include "Vector.h"
+#include "Vector2d.h"
 #include "World.h"
 #include "PlayerInputs.h"
 #include "Bonus.h"

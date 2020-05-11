@@ -10,7 +10,7 @@
 #include <bitset>
 #include "../Object.h"
 #include "Vector2d.h"
-
+#include "Bonus.h"
 namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
@@ -31,6 +31,14 @@ namespace Duel6::net {
         Uint8 air;
         Int16 ammo;
         Uint8 weaponId;
+
+        BonusType bonusType;
+        Float32 bonusRemainingTime;
+        Float32 bonusDuration;
+
+        Float32 alpha;
+        Float32 bodyAlpha;
+
         std::array<Uint8, INPUTS> unconfirmedInputs;
         bool orientationLeft;
 
@@ -51,6 +59,11 @@ namespace Duel6::net {
             WEAPONID,
             UNCONFIRMEDINPUTS,
             ORIENTATIONLEFT,
+            BONUS_TYPE,
+            BONUS_REMAINING_TIME,
+            BONUS_DURATION,
+            ALPHA,
+            BODY_ALPHA,
             _SIZE
         };
         std::bitset<FIELDS::_SIZE> changed;
@@ -72,6 +85,11 @@ namespace Duel6::net {
             D(WEAPONID, weaponId);
             D(UNCONFIRMEDINPUTS, unconfirmedInputs);
             D(ORIENTATIONLEFT, orientationLeft);
+            D(BONUS_TYPE, bonusType);
+            D(BONUS_REMAINING_TIME, bonusRemainingTime);
+            D(BONUS_DURATION, bonusDuration);
+            D(ALPHA, alpha);
+            D(BODY_ALPHA, bodyAlpha);
             if (snapshot.changed.none()) {
                 snapshot.changed.set(NO_CHANGE);
             }
@@ -95,6 +113,11 @@ namespace Duel6::net {
             R(WEAPONID, weaponId);
             R(UNCONFIRMEDINPUTS, unconfirmedInputs);
             R(ORIENTATIONLEFT, orientationLeft);
+            R(BONUS_TYPE, bonusType);
+            R(BONUS_REMAINING_TIME, bonusRemainingTime);
+            R(BONUS_DURATION, bonusDuration);
+            R(ALPHA, alpha);
+            R(BODY_ALPHA, bodyAlpha);
         }
         Player() {
             debug = 12345;
@@ -117,7 +140,12 @@ namespace Duel6::net {
                 && ammo == r.ammo
                 && weaponId == r.weaponId
                 && unconfirmedInputs == r.unconfirmedInputs
-                && orientationLeft == r.orientationLeft;
+                && orientationLeft == r.orientationLeft
+                && bonusType == r.bonusType
+                && bonusRemainingTime == r.bonusRemainingTime
+                && bonusDuration == r.bonusDuration
+                && alpha == r.alpha
+                && bodyAlpha == r.bodyAlpha;
         }
 
 #define S(POS, FIELD) if(changed[POS]) result &= s & FIELD
@@ -142,6 +170,11 @@ namespace Duel6::net {
             S(WEAPONID, weaponId);
             S(UNCONFIRMEDINPUTS, unconfirmedInputs);
             S(ORIENTATIONLEFT, orientationLeft);
+            S(BONUS_TYPE, bonusType);
+            S(BONUS_REMAINING_TIME, bonusRemainingTime);
+            S(BONUS_DURATION, bonusDuration);
+            S(ALPHA, alpha);
+            S(BODY_ALPHA, bodyAlpha);
             return result;
         }
 

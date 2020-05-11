@@ -29,9 +29,8 @@ namespace Duel6::net {
 
         template<class Stream>
         bool serialize(Stream &s) {
-            bool result = s & x &&
-                s & y;
-            return result;
+            return s & x
+               &&  s & y;
         }
     };
 }

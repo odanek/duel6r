@@ -120,7 +120,7 @@ namespace Duel6 {
         Float32 life;
         Float32 air;
         Int32 ammo;
-        const BonusType *bonus;
+        const BonusType *bonus = BonusType::NONE;
         Int32 roundKills;
         Float32 timeToReload;
         Float32 bonusRemainingTime;
@@ -281,6 +281,8 @@ namespace Duel6 {
             this->alpha = alpha;
             return *this;
         }
+
+        void updateBonus(const BonusType *type, Float32 duration, Float32 remainingTime);
 
         Player &setBonus(const BonusType *type, Int32 duration);
 
@@ -484,6 +486,11 @@ namespace Duel6 {
         }
 
         void checkKeys();
+
+        Float32 getAlpha() const;
+
+        Float32 getBodyAlpha() const;
+
     private:
 
         void replaceWeapon(Weapon weapon);

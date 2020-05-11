@@ -35,6 +35,15 @@ namespace Duel6 {
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
             }
         }
+        //periodical update of lying weapons
+        void ClientGameProxy::handle(Weapon &w) {
+            for(auto & weapon: game->getRound().getWorld().getBonusList().getLyingWeapons()){
+                if(weapon.getId() == w.weaponId){
+                    weapon.getCollider().getPosition().set(w.collider.position.x, w.collider.position.y);
+                    break;
+                }
+            }
+        }
         void ClientGameProxy::lateReceive(tick_t lateTick) {
             for (auto &player : game->players) {
                 player.lateTicks++;
@@ -178,6 +187,9 @@ namespace Duel6 {
                         player.setWeapon(p.weaponId); //resets animation
                     }
                     player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
+                    player.updateBonus(Duel6::BonusType::getById(static_cast<unsigned int>(p.bonusType)), p.bonusDuration, p.bonusRemainingTime);
+                    player.setBodyAlpha(p.bodyAlpha);
+                    player.setAlpha(p.alpha);
                     //TODO handle 16bit wrap-around
 //                    if (player.local && ((game->tick - gsu.confirmInputTick) & xor_32768 < 32)) { // cap it at 8 frames to avoid run-away of death
 //                        Uint32 ms = 1000 / 90;
@@ -271,12 +283,21 @@ namespace Duel6 {
                     b.textureIndex));
             }
             for (Weapon &w : sr.weapons) {
-                Vector position = { w.position.x, w.position.y, 0.5f };
+                Collider &c = w.collider;
+                CollidingEntity collider;
+                collider.position.set(c.position.x, c.position.y);
+                collider.acceleration.set(c.acceleration.x, c.acceleration.y);
+                collider.externalForces.set(c.externalForces.x, c.externalForces.y);
+                collider.externalForcesSpeed.set(c.externalForcesSpeed.x, c.externalForcesSpeed.y);
+                collider.velocity.set(c.velocity.x, c.velocity.y);
+
+                //Vector position = { w.position.x, w.position.y, 0.5f };
                 game->spawnWeapon(Duel6::LyingWeapon(
                     static_cast<unsigned int>(w.type),
                     w.weaponId,
                     w.bullets,
-                    position));
+                    w.remainingReloadTime,
+                    collider));
             }
             std::vector<PlayerDefinition> playerDefinitions;
             playerDefinitions.reserve(sr.players.size());
@@ -340,7 +361,9 @@ namespace Duel6 {
                 player.setWeapon(p.weaponId);
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                 player.setControllerState(p.controls);
-
+                player.updateBonus(Duel6::BonusType::getById(static_cast<unsigned int>(p.bonusType)), p.bonusDuration, p.bonusRemainingTime);
+                player.setBodyAlpha(p.bodyAlpha);
+                player.setAlpha(p.alpha);
                 peer->snapshot[sr.tick & xor_64][p.id] = p;
             }
             peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;
@@ -504,13 +527,36 @@ namespace Duel6 {
         }
         void ClientGameProxy::handle(SpawnWeapon &sw) {
             Weapon &w = sw.weapon;
-            Vector position = {w.position.x, w.position.y, 0.5f};
+            Collider &c = w.collider;
+            CollidingEntity collider;
+            collider.position.set(c.position.x, c.position.y);
+            collider.acceleration.set(c.acceleration.x, c.acceleration.y);
+            collider.externalForces.set(c.externalForces.x, c.externalForces.y);
+            collider.externalForcesSpeed.set(c.externalForcesSpeed.x, c.externalForcesSpeed.y);
+            collider.velocity.set(c.velocity.x, c.velocity.y);
+
             game->spawnWeapon(Duel6::LyingWeapon(
                 static_cast<unsigned int>(w.type),
                 w.weaponId,
                 w.bullets,
-                position));
+                w.remainingReloadTime,
+                collider));
         }
+        void ClientGameProxy::handle(PickBonus &pb){
+            for(auto & player : game->players){
+                if(player.getId() == pb.playerId){
+                    game->pickBonus(player, pb.bonusId);
+                }
+            }
+        }
+        void ClientGameProxy::handle(PickWeapon &pw){
+            for(auto & player : game->players){
+                if(player.getId() == pw.playerId){
+                    game->pickWeapon(player, pw.weaponId);
+                }
+            }
+        }
+
         void ClientGameProxy::nextRound() {
             game->onNextRound();
         }
