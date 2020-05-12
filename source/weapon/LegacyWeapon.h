@@ -70,6 +70,14 @@ namespace Duel6 {
 
         virtual Int32 getShotPower(Float32 coefficient) const;
 
+        void shoot(Player &player, Orientation orientation, World &world,
+                                   const Weapon &weapon,
+                                   Uint32 shotId,
+                                   bool powerful,
+                                   Int32 power, Float32 bulletSpeed,
+                                   Vector &position,
+                                   Vector &velocity) const override;
+
         void shoot(Player &player, Orientation orientation, World &world) const override;
 
         SpriteList::Iterator makeSprite(SpriteList &spriteList) const override;
@@ -89,6 +97,13 @@ namespace Duel6 {
         virtual Float32 getBulletSpeed() const = 0;
 
     protected:
+        virtual std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation,
+                                               const Weapon &weapon,
+                                               Uint32 shotId,
+                                               bool powerful,
+                                               Int32 power, Float32 bulletSpeed,
+                                               Vector &position,
+                                               Vector &velocity) const = 0;
         virtual std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation) const = 0;
     };
 }

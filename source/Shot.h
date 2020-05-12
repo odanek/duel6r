@@ -78,6 +78,8 @@ namespace Duel6 {
         virtual void onKillPlayer(Player &player, bool directHit, const Vector &hitPoint, World &world) = 0;
 
         virtual ShotHit getShotHit() = 0;
+
+        virtual Uint32 getId() const = 0;
     };
 }
 

@@ -33,6 +33,13 @@
 namespace Duel6 {
     class BowShot : public LegacyShot {
     public:
+        BowShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Orientation shotOrientation,
+                    const Weapon &weapon,
+                    Uint32 shotId,
+                    bool powerful,
+                    Int32 power, Float32 bulletSpeed,
+                    Vector &position,
+                    Vector &velocity);
         BowShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation shotOrientation);
     };
 }

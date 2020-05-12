@@ -57,6 +57,14 @@ namespace Duel6 {
 
             Float32 getReloadInterval() const override { return 0.0f; }
 
+            void shoot(Player &player, Orientation orientation, World &world,
+                                       const Weapon &weapon,
+                                       Uint32 shotId,
+                                       bool powerful,
+                                       Int32 power, Float32 bulletSpeed,
+                                       Vector &position,
+                                       Vector &velocity) const override {};
+
             void shoot(Player &player, Orientation orientation, World &world) const override {}
 
             SpriteList::Iterator makeSprite(SpriteList &spriteList) const override { return SpriteList::Iterator(); }
@@ -102,6 +110,15 @@ namespace Duel6 {
 
     Float32 Weapon::getReloadInterval() const {
         return impl->getReloadInterval();
+    }
+    void Weapon::shoot(Player &player, Orientation orientation, World &world,
+                       Uint32 shotId,
+                       bool powerful,
+                       Int32 power, Float32 bulletSpeed,
+                       Vector &position,
+                       Vector &velocity) const {
+        impl->shoot(player, orientation, world,
+            *this, shotId, powerful, power, bulletSpeed, position, velocity);
     }
 
     void Weapon::shoot(Player &player, Orientation orientation, World &world) const {

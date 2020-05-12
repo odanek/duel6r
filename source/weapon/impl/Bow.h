@@ -40,6 +40,13 @@ namespace Duel6 {
         bool isChargeable() const override;
 
     protected:
+        std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation,
+                                       const Weapon &weapon,
+                                       Uint32 shotId,
+                                       bool powerful,
+                                       Int32 power, Float32 bulletSpeed,
+                                       Vector &position,
+                                       Vector &velocity) const override;
         std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation) const override;
     };
 }

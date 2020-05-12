@@ -40,6 +40,7 @@ namespace Duel6 {
     class World;
     class GameSettings;
     class Player;
+    class Weapon;
 
     class WeaponImpl {
     private:
@@ -50,6 +51,14 @@ namespace Duel6 {
         virtual std::string getName() const = 0;
 
         virtual Float32 getReloadInterval() const = 0;
+
+        virtual void shoot(Player &player, Orientation orientation, World &world,
+                           const Weapon &weapon,
+                           Uint32 shotId,
+                           bool powerful,
+                           Int32 power, Float32 bulletSpeed,
+                           Vector &position,
+                           Vector &velocity) const = 0;
 
         virtual void shoot(Player &player, Orientation orientation, World &world) const = 0;
 
@@ -96,6 +105,13 @@ namespace Duel6 {
         Uint8 getId() const;
 
         Float32 getReloadInterval() const;
+
+        void shoot(Player &player, Orientation orientation, World &world,
+                           Uint32 shotId,
+                           bool powerful,
+                           Int32 power, Float32 bulletSpeed,
+                           Vector &position,
+                           Vector &velocity) const;
 
         void shoot(Player &player, Orientation orientation, World &world) const;
 

@@ -28,8 +28,16 @@
 #include "ShotBase.h"
 
 namespace Duel6 {
+    Uint32 ShotBase::counter = 0;
+
+    ShotBase::ShotBase(const Weapon &weapon, Player &player, Uint32 id)
+        : weapon(weapon),
+          player(player),
+          id(id) {
+    }
+
     ShotBase::ShotBase(const Weapon &weapon, Player &player)
-            : weapon(weapon), player(player) {}
+            : ShotBase(weapon, player, counter++) {}
 
     Player &ShotBase::getPlayer() {
         return player;
@@ -41,5 +49,9 @@ namespace Duel6 {
 
     const Weapon &ShotBase::getWeapon() const {
         return weapon;
+    }
+
+    Uint32 ShotBase::getId() const{
+        return id;
     }
 }

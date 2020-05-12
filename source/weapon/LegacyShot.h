@@ -55,6 +55,17 @@ namespace Duel6 {
         Int32 power;
 
     public:
+        //for networked shot
+        LegacyShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Animation shotAnimation,
+                   Animation boomAnimation,
+                   Orientation orientation, const Rectangle &collisionRect,
+                   const Weapon &weapon,
+                   Uint32 shotId,
+                   bool powerful,
+                   Int32 power, Float32 bulletSpeed,
+                   Vector &position,
+                   Vector &velocity);
+
         LegacyShot(Player &player, World &world, const LegacyWeapon &weapon, Animation shotAnimation,
                    Animation boomAnimation, Orientation orientation, const Rectangle &collisionRect);
 

@@ -33,6 +33,14 @@
 namespace Duel6 {
     class DoubleLaserShot : public LegacyShot {
     public:
+        DoubleLaserShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Orientation shotOrientation,
+                    const Weapon &weapon,
+                    Uint32 shotId,
+                    bool powerful,
+                    Int32 power, Float32 bulletSpeed,
+                    Vector &position,
+                    Vector &velocity);
+
         DoubleLaserShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation shotOrientation);
 
         bool hasPlayerExplosion() const override;

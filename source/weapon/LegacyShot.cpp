@@ -30,6 +30,34 @@
 #include "LegacyShot.h"
 
 namespace Duel6 {
+
+    LegacyShot::LegacyShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Animation shotAnimation,
+                           Animation boomAnimation,
+                           Orientation orientation, const Rectangle &collisionRect,
+                           const Weapon &weapon,
+                           Uint32 shotId,
+                           bool powerful,
+                           Int32 power, Float32 bulletSpeed,
+                           Vector &position,
+                           Vector &velocity)
+        : ShotBase(weapon, owner, shotId),
+          textures(legacyWeapon.getTextures()),
+          samples(legacyWeapon.getSamples()),
+          animationShot(shotAnimation),
+          animationBoom(boomAnimation),
+          collisionRect(collisionRect),
+          orientation(orientation),
+          position(position),
+          velocity(velocity),
+          powerful(powerful),
+          shotHit( { false, nullptr, nullptr }),
+          bulletSpeed(bulletSpeed),
+          power(power)
+
+    {
+        sprite = makeSprite(world.getSpriteList());
+    }
+
     LegacyShot::LegacyShot(Player &player, World &world, const LegacyWeapon &weapon, Animation shotAnimation,
                            Animation boomAnimation, Orientation orientation, const Rectangle &collisionRect)
             : ShotBase(player.getWeapon(), player), textures(weapon.getTextures()),
