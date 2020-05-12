@@ -63,16 +63,17 @@ namespace Duel6 {
             return definition.power;
         }
     }
-    void LegacyWeapon::shoot(Player &player, Orientation orientation, World &world,
+    std::unique_ptr<Shot> LegacyWeapon::shoot(Player &player, Orientation orientation, World &world,
                              const Weapon &weapon,
                              Uint32 shotId,
                              bool powerful,
                              Int32 power, Float32 bulletSpeed,
                              Vector &position,
                              Vector &velocity) const {
-        world.getShotList().addShot(makeShot(player, world, orientation, weapon, shotId,
-            powerful, power, bulletSpeed, position, velocity));
-        samples.shot.play();
+       // samples.shot.play();
+        return makeShot(player, world, orientation, weapon, shotId,
+            powerful, power, bulletSpeed, position, velocity);
+
     }
     void LegacyWeapon::shoot(Player &player, Orientation orientation, World &world) const {
         world.getShotList().addShot(makeShot(player, world, orientation));

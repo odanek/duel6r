@@ -38,8 +38,11 @@
 #include "ShotBase.h"
 
 namespace Duel6 {
+    class Game;
+
     class LegacyShot : public ShotBase {
     private:
+        bool discarded = false;
         const LegacyWeapon::WeaponTextures &textures;
         const LegacyWeapon::WeaponSamples &samples;
         const Animation animationShot;
@@ -64,12 +67,12 @@ namespace Duel6 {
                    bool powerful,
                    Int32 power, Float32 bulletSpeed,
                    Vector &position,
-                   Vector &velocity);
+                   Vector &velocity); //TODO remove Velocity as it is constant -1 or +1 in x axis
 
         LegacyShot(Player &player, World &world, const LegacyWeapon &weapon, Animation shotAnimation,
                    Animation boomAnimation, Orientation orientation, const Rectangle &collisionRect);
 
-        bool update(Float32 elapsedTime, World &world) override;
+        bool update(Float32 elapsedTime, World &world, Game &game) override;
 
         Rectangle getCollisionRect() const override {
             return Rectangle::fromCornerAndSize(getPosition(), getDimensions());
@@ -95,9 +98,19 @@ namespace Duel6 {
             return velocity * bulletSpeed;
         }
 
+        Vector getVelocityVector() const override {
+            return velocity;
+        }
+
         virtual bool isColliding() const;
 
         bool isPowerful() const override;
+
+        Float32 getBulletSpeed() const override;
+
+        Orientation getOrientation() const override;
+
+        Float32 getPower() const override;
 
         Float32 getPowerFactor() const;
 
@@ -110,6 +123,12 @@ namespace Duel6 {
         Animation getShotAnimation() const;
 
         Animation getBoomAnimation() const;
+
+        void discard() override; //hack
+
+        bool isDiscarded() const override;
+
+        Vector getPositionVector() const override;
 
     protected:
         virtual void onExplode(const Vector &centre, Float32 range, World &world);

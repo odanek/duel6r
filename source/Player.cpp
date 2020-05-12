@@ -295,7 +295,6 @@ namespace Duel6 {
     }
 
     void Player::shoot() {
-        /** TODO NETCODE */
         if ((!getAmmo() && getBonus() != BonusType::INFINITE_AMMO) || !hasGun())
             return;
 
@@ -313,7 +312,6 @@ namespace Duel6 {
 
         if (getBonus() != BonusType::INFINITE_AMMO) {
             indicators.getBullets().show();
-            /** TODO NETCODE */
             ammo--;
         }
         gunSprite->setFrame(0);
@@ -352,8 +350,6 @@ namespace Duel6 {
         }
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
         indicators.getBullets().show();
-
-
 
         return *this;
     }

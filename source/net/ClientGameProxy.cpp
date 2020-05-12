@@ -525,6 +525,31 @@ namespace Duel6 {
                 position,
                 b.textureIndex));
         }
+        void ClientGameProxy::handle(SpawnShot &ss) {
+             const Duel6::Weapon & weapon = Duel6::Weapon::getById(ss.weaponId);
+             if (idmap.count(ss.playerId) == 0) {
+                 std::cerr << "Player id " << ss.playerId << " not found, skipping spawned shot\n";
+                 return;
+             }
+            auto pos = idmap[ss.playerId];
+            auto &player = game->players[pos];
+            Uint32 id = ss.shot.id;
+            Duel6::Vector position(ss.shot.position.x, ss.shot.position.y);
+            Duel6::Vector velocity(ss.velocity.x, ss.velocity.y);
+            std::unique_ptr<Duel6::Shot> x = weapon.shoot(
+                player,
+                ss.orientationLeft ? Orientation::Left : Orientation::Right,
+                game->getRound().getWorld(),
+                id,
+                ss.powerful,
+                ss.power,
+                ss.bulletSpeed,
+                position,
+                velocity
+           );
+            game->spawnShot(std::move(x));
+
+         }
         void ClientGameProxy::handle(SpawnWeapon &sw) {
             Weapon &w = sw.weapon;
             Collider &c = w.collider;

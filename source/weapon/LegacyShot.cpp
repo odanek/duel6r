@@ -55,6 +55,11 @@ namespace Duel6 {
           power(power)
 
     {
+        if (orientation == Orientation::Left) {
+            velocity = Vector(-1.0f, 0.0f);
+        } else {
+            velocity = Vector(1.0f, 0.0f);
+        }
         sprite = makeSprite(world.getSpriteList());
     }
 
@@ -92,6 +97,22 @@ namespace Duel6 {
         return powerful;
     }
 
+    Float32 LegacyShot::getBulletSpeed() const {
+        return bulletSpeed;
+    }
+
+    Orientation LegacyShot::getOrientation() const {
+        return orientation;
+    }
+
+    Float32 LegacyShot::getPower() const {
+        return power;
+    }
+
+    Vector LegacyShot::getPositionVector() const {
+        return  position;
+    }
+
     Float32 LegacyShot::getPowerFactor() const {
         return (powerful ? 2.0f : 1.0f);
     }
@@ -124,7 +145,11 @@ namespace Duel6 {
         return animationBoom;
     }
 
-    bool LegacyShot::update(Float32 elapsedTime, World &world) {
+    bool LegacyShot::update(Float32 elapsedTime, World &world, Game &game) {
+        if (discarded) { //dirty hack to remove shot twin on the client side
+            world.getSpriteList().remove(sprite);
+            return false;
+        }
         move(elapsedTime);
 
         if (!shotHit.hit) {
@@ -143,6 +168,12 @@ namespace Duel6 {
         return true;
     }
 
+    void LegacyShot::discard() {
+        discarded = true;
+    }
+    bool LegacyShot::isDiscarded() const {
+        return discarded;
+    }
     bool LegacyShot::requestCollision(Shot &otherShot) {
         if (Collision::rectangles(this->getCollisionRect(), otherShot.getCollisionRect())) {
             shotHit = {true, nullptr, &otherShot.getPlayer()};
@@ -252,7 +283,7 @@ namespace Duel6 {
         if (collisionSetting == ShotCollisionSetting::All ||
             (collisionSetting == ShotCollisionSetting::Large && isColliding())) {
             shotList.forEach([this, &hit](Shot &otherShot) -> bool {
-                if (this != &otherShot && otherShot.requestCollision(*this)) {
+                if (this != &otherShot && !otherShot.isDiscarded() && otherShot.requestCollision(*this)) {
                     hit.hit = true;
                     hit.collidingShotPlayer = &otherShot.getPlayer();
                     return false;

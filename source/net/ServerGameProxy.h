@@ -17,6 +17,7 @@ namespace Duel6 {
     class Bonus;
     class LyingWeapon;
     class Player;
+    class Shot;
     namespace net {
 
         class ServerGameProxy: public GameProxy {
@@ -26,6 +27,8 @@ namespace Duel6 {
         public:
             void spawnBonus(Duel6::Bonus &bonus);
             void spawnWeapon(Duel6::LyingWeapon &lyingWeapon);
+            void spawnShot(std::unique_ptr<Duel6::Shot> &shot);
+
             void pickWeapon(Duel6::Player &player, unsigned int weaponId);
             void pickBonus(Duel6::Player &player, unsigned int bonusId);
 

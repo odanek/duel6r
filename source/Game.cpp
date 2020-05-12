@@ -324,7 +324,12 @@ namespace Duel6 {
         }
         round->getWorld().getBonusList().spawnBonus(std::move(bonus));
     }
-
+    void Game::spawnShot(std::unique_ptr<Shot> && shot) {
+        if (isServer) {
+            gameProxy->spawnShot(shot);
+        }
+        round->getWorld().getShotList().spawnShot(std::move(shot));
+    }
     void Game::spawnWeapon(LyingWeapon &&weapon) {
         if (isServer) {
             gameProxy->spawnWeapon(weapon);

@@ -23,7 +23,7 @@ namespace Duel6 {
             SPAWN_WEAPON,
             PICK_BONUS,
             PICK_WEAPON,
-
+            SPAWN_SHOT,
             CLIENT_JOINED,
             CLIENT_DISCONNECTED,
             CLIENT_DISCONNECT,
@@ -38,7 +38,7 @@ namespace Duel6 {
             ROUND_SET,
 
             SHOT_UPDATE,
-            SHOT_ADD,
+
             SHOT_HIT,
             PLAYER_HIT,
             PLAYER_SPAWN,

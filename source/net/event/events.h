@@ -18,6 +18,7 @@
 #include "PlayersJoined.h"
 #include "RequestGameState.h"
 #include "SpawnBonus.h"
+#include "SpawnShot.h"
 #include "SpawnWeapon.h"
 #include "StartRound.h"
 

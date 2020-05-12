@@ -310,6 +310,28 @@ namespace Duel6 {
                 peer->sendReliable(pb);
             }
         }
+
+        void ServerGameProxy::spawnShot(std::unique_ptr<Duel6::Shot> &shotPtr) {
+            SpawnShot ss;
+            auto & shot = *shotPtr.get();
+            auto position = shot.getPositionVector();
+            auto velocity = shot.getVelocityVector();
+
+            ss.weaponId = shot.getWeapon().getId();
+            ss.playerId = shot.getPlayer().getId();
+            ss.shot.id = shot.getId();
+            ss.shot.position.x = position.x;
+            ss.shot.position.y = position.y;
+            ss.orientationLeft = shot.getOrientation() == Orientation::Left;
+            ss.powerful = shot.isPowerful();
+            ss.power = shot.getPower();
+            ss.bulletSpeed = shot.getBulletSpeed();
+            ss.velocity.x = velocity.x;
+            ss.velocity.y = velocity.y;
+            for (auto &peer : peers) {
+                peer->sendReliable(ss);
+            }
+        }
         void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
             Collider &c = w.collider;
             const auto & collider = weapon.getCollider();

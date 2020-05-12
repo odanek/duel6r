@@ -160,7 +160,14 @@ namespace Duel6 {
                 gameProxy->handle(pw);
                 break;
             }
-
+            case EventType::SPAWN_SHOT: {
+                SpawnShot ss;
+                if(!(s>>ss)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::SPAWN_SHOT");
+                }
+                gameProxy->handle(ss);
+                break;
+            }
             case EventType::CLIENT_JOINED:break;
             case EventType::CLIENT_DISCONNECTED:break;
             case EventType::CLIENT_DISCONNECT:break;
@@ -180,7 +187,7 @@ namespace Duel6 {
             case EventType::ROUND_SET:break;
 
             case EventType::SHOT_UPDATE:break;
-            case EventType::SHOT_ADD:break;
+
             case EventType::SHOT_HIT:break;
             case EventType::PLAYER_HIT:break;
             case EventType::PLAYER_SPAWN:break;

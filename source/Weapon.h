@@ -41,7 +41,7 @@ namespace Duel6 {
     class GameSettings;
     class Player;
     class Weapon;
-
+    class Shot;
     class WeaponImpl {
     private:
         Uint8 id;
@@ -52,7 +52,7 @@ namespace Duel6 {
 
         virtual Float32 getReloadInterval() const = 0;
 
-        virtual void shoot(Player &player, Orientation orientation, World &world,
+        virtual std::unique_ptr<Shot> shoot(Player &player, Orientation orientation, World &world,
                            const Weapon &weapon,
                            Uint32 shotId,
                            bool powerful,
@@ -106,7 +106,7 @@ namespace Duel6 {
 
         Float32 getReloadInterval() const;
 
-        void shoot(Player &player, Orientation orientation, World &world,
+        std::unique_ptr<Shot> shoot(Player &player, Orientation orientation, World &world,
                            Uint32 shotId,
                            bool powerful,
                            Int32 power, Float32 bulletSpeed,

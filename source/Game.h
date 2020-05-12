@@ -227,6 +227,7 @@ namespace Duel6 {
         }
 
         void onNextRound();
+
         void spawnWeapon(LyingWeapon &&weapon);
 
         void spawnBonus(Bonus &&bonus);
@@ -234,6 +235,8 @@ namespace Duel6 {
         void pickWeapon(Player &player, unsigned int weaponId);
 
         void pickBonus(Player &player, unsigned int bonusId);
+
+        void spawnShot(std::unique_ptr<Shot> && shot);
     private:
         void beforeStart(Context *prevContext) override;
 

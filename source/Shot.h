@@ -37,11 +37,15 @@ namespace Duel6 {
 
     class World;
 
+    class Game;
+
     class Weapon;
 
     class World;
 
     class Shot;
+
+    enum class Orientation;
 
     struct ShotHit {
         bool hit; // TODO: Remove and use C++17 std::optional
@@ -67,7 +71,7 @@ namespace Duel6 {
 
         virtual const Player &getPlayer() const = 0;
 
-        virtual bool update(Float32 elapsedTime, World &world) = 0;
+        virtual bool update(Float32 elapsedTime, World &world, Game &game) = 0;
 
         virtual Rectangle getCollisionRect() const = 0;
 
@@ -80,6 +84,22 @@ namespace Duel6 {
         virtual ShotHit getShotHit() = 0;
 
         virtual Uint32 getId() const = 0;
+
+        virtual Float32 getBulletSpeed() const = 0;
+
+        virtual Orientation getOrientation() const = 0;
+
+        virtual Vector getVelocityVector() const = 0;
+
+        virtual Vector getPositionVector() const = 0;
+
+        virtual Float32 getPower() const = 0;
+
+        virtual void discard() = 0; //hack
+
+        virtual bool isDiscarded() const = 0; //hack
+
+
     };
 }
 

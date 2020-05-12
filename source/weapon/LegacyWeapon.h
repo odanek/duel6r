@@ -70,7 +70,7 @@ namespace Duel6 {
 
         virtual Int32 getShotPower(Float32 coefficient) const;
 
-        void shoot(Player &player, Orientation orientation, World &world,
+        std::unique_ptr<Shot> shoot(Player &player, Orientation orientation, World &world,
                                    const Weapon &weapon,
                                    Uint32 shotId,
                                    bool powerful,
