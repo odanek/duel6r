@@ -283,6 +283,12 @@ namespace Duel6 {
         }
     }
 
+    void ConsoleCommands::dedicatedServer(Console &console, const Console::Arguments &args, Menu &menu) {
+        console.printLine(Format("Starting server, listening on 0.0.0.0, port 5900"));
+        menu.startDedicatedServer("any", "5900");
+        console.printLine(Format("Started"));
+    }
+
     void ConsoleCommands::registerCommands(Console &console, AppService &appService, Menu &menu,
                                            GameSettings &gameSettings) {
         // Set some console functions
@@ -338,6 +344,9 @@ namespace Duel6 {
         });
         console.registerCommand("start_ammo_range", [&gameSettings](Console &con, const Console::Arguments &args) {
             ammoRange(con, args, gameSettings);
+        });
+        console.registerCommand("dedicated", [&menu](Console &con, const Console::Arguments &args) {
+            dedicatedServer(con, args, menu);
         });
     }
 }

@@ -30,7 +30,7 @@
     #include <lua.hpp>
 #endif
 #include "VideoException.h"
-#include "InfoMessageQueue.h"
+
 #include "Game.h"
 #include "Menu.h"
 #include "ConsoleCommands.h"
@@ -78,9 +78,11 @@ namespace Duel6 {
             : console(Console::ExpandFlag), input(console), controlsManager(input), sound(20, console),
               scriptContext(console, sound, gameSettings), scriptManager(scriptContext),
               requestClose(false) {
+#ifndef D6_RENDERER_HEADLESS
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
             D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());
         }
+#endif
         if (TTF_Init() != 0) {
             D6_THROW(FontException, Format("Unable to initialize font subsystem: {0}") << TTF_GetError());
         }
@@ -111,7 +113,8 @@ namespace Duel6 {
         Console::registerBasicCommands(console);
 
         console.printLine("\n===Video initialization==");
-        video = std::make_unique<Video>(APP_NAME, APP_FILE_ICON, console);
+        std::string windowTitle = argv[0];
+        video = std::make_unique<Video>(windowTitle, APP_FILE_ICON, console);
         textureManager = std::make_unique<TextureManager>(video->getRenderer());
 
         console.printLine("\n===Font initialization===");
@@ -119,7 +122,7 @@ namespace Duel6 {
         font->load(D6_FILE_TTF_FONT, console);
         clientGameProxy = std::make_unique<net::ClientGameProxy>();
         serverGameProxy = std::make_unique<net::ServerGameProxy>();
-        netHost = std::make_unique<net::NetHost>(*clientGameProxy, *serverGameProxy);
+        netHost = std::make_unique<net::NetHost>(*clientGameProxy, *serverGameProxy, console);
         netClient = std::make_unique<net::NetClient>(*clientGameProxy, *serverGameProxy);
         net = std::make_unique<net::Net>();
 
@@ -147,14 +150,14 @@ namespace Duel6 {
 
         scriptManager.registerLoaders();
         menu->initialize();
-
+        Context::push(*menu); //have menu pushed here for the headless server to able to start the game straight from the command line
         // Execute config script and command line arguments
         console.printLine("\n===Config===");
         ConsoleCommands::registerCommands(console, *service, *menu, gameSettings);
         console.exec(std::string("exec ") + D6_FILE_CONFIG);
 
         for (int i = 1; i < argc; i++) {
-            console.exec(argv[i]);
+            console.exec(argv[i]); // 'duel6r-headless dedicated' starts the server
         }
     }
 
@@ -264,6 +267,7 @@ namespace Duel6 {
                     break;
                 }
                 case SDL_QUIT:
+                    console.printLine("Received SDL_QUIT");
                     requestClose = true;
                     break;
                 default:
@@ -300,30 +304,8 @@ namespace Duel6 {
     }
 
     void Application::run() {
-        Context::push(*menu);
-
-       // netHost.listen();
         while (Context::exists() && !requestClose) {
             Context &context = Context::getCurrent();
-
-
-//            if(netHost.isConnected()){
-//                netClient.connect("localhost", 2020);
-//            }
-            if(/* is host */ true){
-                /*
-
-                     NetHost.processEvents()
-
-
-                 */
-            }
-
-            if(/* is client (i.e. dedicated server is not a client)*/ true){
-                /*
-                    NetClient.processEvents()
-                 */
-            }
 
             processEvents(context);
             syncUpdateAndRender(context);

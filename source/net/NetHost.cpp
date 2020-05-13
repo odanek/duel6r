@@ -9,13 +9,14 @@
 #include "NetHost.h"
 #include "ClientGameProxy.h"
 #include "../Game.h"
+#include "../console/Console.h"
 namespace Duel6 {
     namespace net {
 #define MAX_PEERS 15
 #define CHANNELS 4
 
-        NetHost::NetHost(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy)
-            : Service(clientGameProxy, serverGameProxy)
+        NetHost::NetHost(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
+            : Service(clientGameProxy, serverGameProxy), console(console)
         {
 
         }
@@ -41,20 +42,24 @@ namespace Duel6 {
             if (nethost == nullptr) {
                 D6_THROW(Exception, "cannot start server");
             }
+            console.printLine("NetHost::listen start");
             start(nethost);
+            console.printLine("NetHost::listen started ");
             started();
         }
 
         void NetHost::die() {
+            console.printLine("NetHost::die ");
             stop();
 
         }
 
         void NetHost::onStarting() {
-
+            console.printLine("NetHost::onStarting ");
         }
 
         void NetHost::onStopping() {
+            console.printLine("NetHost::onStopping ");
             for (auto &peer : peers) {
                 peer->disconnect();
             }
@@ -67,10 +72,12 @@ namespace Duel6 {
         }
 
         void NetHost::onStopped() {
+            console.printLine("NetHost::onStopped()");
             peers.clear();
         }
 
         void NetHost::onPeerConnected(ENetPeer *peer) {
+            console.printLine("NetHost::onPeerConnected");
             if (state != ServiceState::STARTED) {
                 enet_peer_disconnect_now(peer, 42);
             }
@@ -89,6 +96,7 @@ namespace Duel6 {
         }
 
         void NetHost::onPeerDisconnected(ENetPeer *peer, enet_uint32 reason) {
+            console.printLine("NetHost::onPeerDisconnected");
             PeerRef *peerRef = (PeerRef*) (peer->data);
 
             if (peerRef->pos > peers.size() - 1) {

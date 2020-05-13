@@ -27,9 +27,14 @@
 
 #include "Font.h"
 #include "InfoMessageQueue.h"
-
+#if defined(D6_RENDERER_HEADLESS)
+#include <iostream>
+#endif
 namespace Duel6 {
     InfoMessageQueue &InfoMessageQueue::add(const Player &player, const std::string &msg) {
+#if defined(D6_RENDERER_HEADLESS)
+        std::cout << msg << std::endl;
+#endif
         messages.push_back(InfoMessage(player, msg, duration));
         return *this;
     }

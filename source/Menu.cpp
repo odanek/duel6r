@@ -445,6 +445,10 @@ namespace Duel6 {
     }
     bool Menu::question(const std::string &question, bool & cancel) {
         showMessage(question);
+        appService.getConsole().printLine(question);
+#ifdef D6_RENDERER_HEADLESS
+        return true;
+#endif
         SDL_Event event;
         bool answer;
 
@@ -722,7 +726,15 @@ namespace Duel6 {
         savePersonData();
         saveNetworkSettings();
     }
-
+    void Menu::startDedicatedServer(const std::string &host, const std::string &port){
+        game->isServer = true && !reverseConnection->isChecked();
+        playerListBox->clear(); // remove any players that might be accidentaly set
+        if(!play(true)){
+            appService.getConsole().printLine("Cannot play");
+            return;
+        }
+        appService.getNetHost().listen(*game, host, std::stoi(port));
+    }
     void Menu::startServer(){
         game->isServer = true && !reverseConnection->isChecked();
         if(!play(true)){

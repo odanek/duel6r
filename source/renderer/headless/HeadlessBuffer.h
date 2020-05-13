@@ -25,79 +25,25 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUEL6_SOUND_H
-#define DUEL6_SOUND_H
+#ifndef DUEL6_RENDERER_HEADLESS_HEADLESSBUFFER_H
+#define DUEL6_RENDERER_HEADLESS_HEADLESSBUFFER_H
 
-#include <string>
-#include <vector>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
-#include "Type.h"
-#include "console/Console.h"
+#include "../RendererBuffer.h"
+#include "HeadlessTypes.h"
 
 namespace Duel6 {
-    class Sound {
-    public:
-        class Sample {
-        private:
-            friend class Sound;
+    class HeadlessRenderer;
 
-            Sound *sound;
-            Mix_Chunk *chunk;
-
-        private:
-            Sample(Sound *sound, Mix_Chunk *chunk);
-
-        public:
-            Sample();
-
-            ~Sample();
-
-            void play() const;
-        };
-
-        class Track {
-        private:
-            friend class Sound;
-
-            Sound *sound;
-            Mix_Music *module;
-
-        private:
-            Track(Sound *sound, Mix_Music *module);
-
-        public:
-            Track();
-
-            ~Track();
-
-            void play(bool loop) const;
-        };
-
+    class HeadlessBuffer : public RendererBuffer {
     private:
-        Console &console;
-        Int32 channels;
-        bool playing;
-        std::vector<Mix_Music *> modules;
-        std::vector<Mix_Chunk *> samples;
-        bool headless = false;
+
     public:
-        Sound(Int32 channels, Console &console);
+        explicit HeadlessBuffer() = default;
 
-        ~Sound();
+        void update(const FaceList &faceList) override;
 
-        Track loadModule(const std::string &fileName);
+        void render(const Material &material) override;
 
-        Sample loadSample(const std::string &fileName);
-
-        void volume(Int32 volume);
-
-        void stopMusic();
-
-    private:
-        void startMusic(Mix_Music *music, bool loop);
-
-        void playSample(Mix_Chunk *chunk);
     };
 }
 

@@ -59,7 +59,7 @@ endif (MINGW)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
 # Switches
-set(D6R_RENDERERS gl1 gl4 es2 es3)
+set(D6R_RENDERERS gl1 gl4 es2 es3 headless)
 set(D6R_RENDERER "gl4" CACHE STRING "Renderer")  # Renderer: gl1/gl4/es2
 set_property (CACHE D6R_RENDERER PROPERTY STRINGS ${D6R_RENDERERS})
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
@@ -511,7 +511,18 @@ if (D6R_RENDERER STREQUAL "gl4")
             source/renderer/gl4/GL4Types.h
         )
 endif (D6R_RENDERER STREQUAL "gl4")
-
+if (D6R_RENDERER STREQUAL "headless")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_HEADLESS")
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/headless/HeadlessBuffer.h
+            source/renderer/headless/HeadlessBuffer.cpp
+            source/renderer/headless/HeadlessRenderer.h
+            source/renderer/headless/HeadlessRenderer.cpp
+            source/renderer/headless/HeadlessRendererTarget.h
+            source/renderer/headless/HeadlessRendererTarget.cpp
+            source/renderer/headless/HeadlessTypes.h
+            )
+endif (D6R_RENDERER STREQUAL "headless")
 if (D6R_WITH_LUA)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_SCRIPTING_LUA")
     set(D6R_SOURCES ${D6R_SOURCES}

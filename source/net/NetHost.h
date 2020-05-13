@@ -17,17 +17,19 @@
 //#include "GameProxy.h"
 namespace Duel6 {
     class Game;
+    class Console;
+
     namespace net {
         class ClientGameProxy;
         class ServerGameProxy;
 
         class NetHost: public Service {
         private:
-
+            Console &console;
             std::vector<std::unique_ptr<Peer>> peers;
 
         public:
-            NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy);
+            NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy, Console &console);
           //  void setGameProxyReference(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy);
 
             void listen(Game &game, const std::string &host,

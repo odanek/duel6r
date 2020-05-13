@@ -166,7 +166,6 @@ namespace Duel6 {
         }
         if(networkGame && !isServer){
             appService.getConsole().printLine("Awaiting server to accept connection.");
-//display some message
         }
     }
     void Game::joinPlayers(std::vector<PlayerDefinition> &playerDefinitions) {

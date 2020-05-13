@@ -138,6 +138,7 @@ namespace Duel6 {
 
         bool play(std::vector<std::string> levels, bool networkGame);
 
+        void startDedicatedServer(const std::string &host, const std::string &port);
     private:
 
         void quit();
@@ -196,8 +197,7 @@ namespace Duel6 {
 
         void eloShufflePlayers();
 
-
-        void startServer();
+        void startServer( );
 
         void joinServer();
     };
