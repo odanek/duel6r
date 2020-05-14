@@ -36,11 +36,6 @@
 
 namespace Duel6 {
 
-    Image::Image(Size width, Size height, void * d):
-        dimensions { width, height, 1 },
-        data((Color*)d, (Color*) d + 4*(width*height)){
-    }
-
     Image::Image(Size width, Size height, Size depth)
         :dimensions { width, height, depth },
           data(width * height * depth) {
@@ -145,9 +140,6 @@ namespace Duel6 {
     }
 
     Image Image::fromSurface(SDL_Surface *surface) {
-        if(surface->format->BytesPerPixel == 4 && surface->format->format == SDL_PIXELFORMAT_RGBA32){
-            return Image(surface->w, surface->h, surface->pixels);
-        }
         SDL_LockSurface(surface);
 
         auto width = surface->w;

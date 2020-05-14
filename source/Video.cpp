@@ -78,8 +78,10 @@ namespace Duel6 {
     }
 
     Video::~Video() {
+#ifndef D6_RENDERER_HEADLESS
         SDL_GL_DeleteContext(glContext);
         SDL_DestroyWindow(window);
+#endif
     }
 
     void Video::screenUpdate(Console &console, const Font &font) {
@@ -94,7 +96,9 @@ namespace Duel6 {
     }
 
     void Video::swapBuffers() {
+#ifndef D6_RENDERER_HEADLESS
         SDL_GL_SwapWindow(window);
+#endif
         calculateFps();
     }
 

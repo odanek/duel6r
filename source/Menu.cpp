@@ -42,7 +42,7 @@
 #include "gamemodes/Predator.h"
 
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
-
+#define D6_DIGITS_CHR "1234567890"
 namespace Duel6 {
     Menu::Menu(AppService &appService)
             : appService(appService), font(appService.getFont()), video(appService.getVideo()),
@@ -186,29 +186,29 @@ namespace Duel6 {
         });
 
         host = new Gui::Textbox(gui);
-        host->setPosition(10, 630, 14, 20, D6_ALL_CHR);
+        host->setPosition(10, 630, 18, 20, D6_ALL_CHR);
         host->setText("localhost");
 
         port = new Gui::Textbox(gui);
-        port->setPosition(140, 630, 14, 20, D6_ALL_CHR);
+        port->setPosition(180, 630, 12, 20, D6_DIGITS_CHR);
         port->setText("5900");
 
         auto startServerB = new Gui::Button(gui);
 
-        startServerB->setPosition(10, 600, 60, 50);
+        startServerB->setPosition(10, 600, 80, 50);
         startServerB->setCaption("Server");
         startServerB->onClick([this](Gui::Button &) {
             startServer();
         });
         auto connect = new Gui::Button(gui);
 
-        connect->setPosition(90, 600, 60, 50);
+        connect->setPosition(110, 600, 80, 50);
         connect->setCaption("Connect");
         connect->onClick([this](Gui::Button &) {
             joinServer();
         });
         reverseConnection = new Gui::CheckBox(gui);
-        reverseConnection->setPosition(150, 600, 60, 50);
+        reverseConnection->setPosition(190, 600, 60, 50);
         reverseConnection->setLabel("Reverse connection");
 
         auto quitButton = new Gui::Button(gui);
