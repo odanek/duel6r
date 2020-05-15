@@ -88,7 +88,7 @@ namespace Duel6 {
 
             virtual void draw(Renderer &renderer, const Font &font) const = 0;
 
-            virtual void keyEvent(const KeyPressEvent &event) {}
+            virtual bool keyEvent(const KeyPressEvent &event) {return false;}
 
             virtual void textInputEvent(const TextInputEvent &event) {}
 
@@ -98,10 +98,12 @@ namespace Duel6 {
 
             virtual void mouseWheelEvent(const MouseWheelEvent &event) {}
 
+            virtual void onBlur() {}
+
         protected:
             static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
 
-            static void drawFocusFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h);
+            static void drawFocusFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, Float32 lineWidth = 2.0f);
 
             static bool mouseIn(const MouseEvent &event, Int32 x, Int32 y, Int32 w, Int32 h) {
                 return event.getX() >= x && event.getX() < x + w && event.getY() <= y && event.getY() > y - h;

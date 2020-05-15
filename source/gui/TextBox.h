@@ -33,14 +33,21 @@
 
 namespace Duel6 {
     namespace Gui {
-        class Textbox
-                : public Control {
+        class Textbox : public Control {
+
+        public:
+            typedef std::function<void(Textbox &textBox)> OnEnterCallback;
+
         private:
+            std::vector<OnEnterCallback> onEnterListeners;
             Int32 max, width;
             const Int32 height = 18;
             std::string text;
+            std::string confirmedText;
             std::string allowedCharacters;
-
+            Int32 cursorPos = 0;
+            Float32 blinkCountDown = 0.5f;
+            std::string placeholder = "";
         public:
             Textbox(Desktop &desk);
 
@@ -50,6 +57,8 @@ namespace Duel6 {
 
             void setText(const std::string & value);
 
+            void setPlaceholder(const std::string &placeholder);
+
             const std::string &getText() const;
 
             void flush();
@@ -58,14 +67,32 @@ namespace Duel6 {
 
             void textInputEvent(const TextInputEvent &event) override;
 
-            void keyEvent(const KeyPressEvent &event) override;
+            bool keyEvent(const KeyPressEvent &event) override;
 
             Control::Type getType() const override {
                 return Control::Type::Textbox;
             }
+            Textbox &onEnter(OnEnterCallback listener) {
+                onEnterListeners.push_back(listener);
+                return *this;
+            }
+
+            void update(Float32 elapsedTime) override;
 
         protected:
             void mouseButtonEvent(const Duel6::MouseButtonEvent &event) override;
+
+            void onBlur() override;
+
+            void mouseMotionEvent(const MouseMotionEvent &event) override;
+        private:
+            void confirmValue();
+
+            void fireOnEnterListeners();
+
+            void moveCursorRight();
+
+            void moveCursorLeft();
         };
     }
 }

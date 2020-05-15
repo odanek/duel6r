@@ -48,8 +48,13 @@ namespace Duel6 {
         }
 
         void Label::draw(Renderer &renderer, const Font &font) const {
-            renderer.quadXY(Vector(x, y - height + 1), Vector(width - 1, height - 1), Color(170, 170, 170));
-            font.print(x, y - 15, Color::BLACK, text);
+            Float32 w = font.getTextWidth(text, 16);
+
+            if(width > w) {
+                w = width;
+            }
+            renderer.quadXY(Vector(x, y - height + 1), Vector(w - 1.0f, height - 1.0f), Color(170, 170, 170));
+            font.print(x + 1, y - 16, Color::BLACK, text);
         }
     }
 }

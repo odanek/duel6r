@@ -193,7 +193,7 @@ namespace Duel6 {
 
     void WorldRenderer::netStat() const {
         const auto &netstat = game.netstat;
-        const auto fontSize = 6;
+        const auto fontSize = 16;
         const std::string &ns1 =
             Format(
                 " ____________________________________________________\n"

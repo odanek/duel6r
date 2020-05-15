@@ -32,23 +32,29 @@
 namespace Duel6 {
     namespace Gui {
         namespace {
-            Color frameLightColor(235, 235, 235), frameDarkColor(0, 0, 0), frameFocusColor(0,50,255, 127);
+            Color frameLightColor(235, 235, 235), frameDarkColor(0, 0, 0), frameFocusColor(0,50,255, 50);
         }
 
         Control::Control(Desktop &desk) {
             desk.addControl(this);
         }
 
-        void Control::drawFocusFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h) {
-            auto l = x - 1;
-            auto r = x + w + 1;
-            auto b = y - h - 1;
-            auto t = y - 1;
-            auto z = 0.5;
-            renderer.line(Vector(l, t, z), Vector(r, t, z), 4.0f, frameFocusColor);
-            renderer.line(Vector(l, b, z), Vector(r, b, z), 4.0f, frameFocusColor);
-            renderer.line(Vector(l, t, z), Vector(l, b, z), 4.0f, frameFocusColor);
-            renderer.line(Vector(r, t, z), Vector(r, b, z), 4.0f, frameFocusColor);
+        void Control::drawFocusFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, Float32 lineWidth) {
+            Float32 d = lineWidth / 2;
+            Float32 l = x ;
+            Float32 r = x + w + d;
+            Float32 b = y - h - d;
+            Float32 t = y;
+            Float32 z = 0.5f;
+            renderer.line(Vector(l, t, z), Vector(r, t, z), lineWidth, frameFocusColor);
+            renderer.line(Vector(l, b, z), Vector(r, b, z), lineWidth, frameFocusColor);
+            renderer.line(Vector(l, t, z), Vector(l, b, z), lineWidth, frameFocusColor);
+            renderer.line(Vector(r, t, z), Vector(r, b, z), lineWidth, frameFocusColor);
+
+            renderer.point(Vector(l, t, z), lineWidth, frameFocusColor);
+            renderer.point(Vector(l, b, z), lineWidth, frameFocusColor);
+            renderer.point(Vector(r, t, z), lineWidth, frameFocusColor);
+            renderer.point(Vector(r, b, z), lineWidth, frameFocusColor);
         }
         void Control::drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus) {
             w--;
@@ -68,7 +74,7 @@ namespace Duel6 {
             renderer.line(Vector(x + w, y - h + 1), Vector(x + 1, y - h + 1), 1.0f, bottomColor);
 
             if(focus){
-                drawFocusFrame(renderer,x,y,w,h);
+                drawFocusFrame(renderer, x, y, w, h, 2.0f + p * 2.0f);
             }
         }
 

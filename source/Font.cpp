@@ -95,7 +95,7 @@ namespace Duel6 {
         if (str.length() < 1) {
             return;
         }
-        Float32 scale = fontHeight / getCharHeight();
+        Float64 scale = fontHeight / 32.0f;
         Texture texture = getTexture(str, outline, maxWidth, resultSize);
         resultSize.x *= scale;
         resultSize.y *= scale;

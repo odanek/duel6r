@@ -78,7 +78,7 @@ namespace Duel6 {
 
             void mouseMotionEvent(const MouseMotionEvent &event) override;
 
-            void keyEvent(const KeyPressEvent &event) override;
+            bool keyEvent(const KeyPressEvent &event) override;
 
         private:
             void firePressListeners(bool pressed);

@@ -141,25 +141,30 @@ namespace Duel6 {
                 this->parent->focus(this);
             }
         }
-        void Spinner::keyEvent(const KeyPressEvent &event) {
+        bool Spinner::keyEvent(const KeyPressEvent &event) {
             switch (event.getCode()) {
                 case (SDLK_LEFT): {
                     setCurrent(selectedIndex - 1);
+                    return true;
                     break;
                 }
                 case (SDLK_RIGHT): {
                     setCurrent(selectedIndex + 1);
+                    return true;
                     break;
                 }
                 case (SDLK_UP): {
                     parent->focusPrevious();
+                    return true;
                     break;
                 }
                 case (SDLK_DOWN): {
                     parent->focusNext();
+                    return true;
                     break;
                 }
             }
+            return false;
         }
 
         Spinner::ItemColor Spinner::defaultColorize(Int32 index, const std::string& item) {

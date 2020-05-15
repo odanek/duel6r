@@ -50,7 +50,7 @@ namespace Duel6 {
             height = H;
         }
 
-        void Button::keyEvent(const KeyPressEvent &event) {
+        bool Button::keyEvent(const KeyPressEvent &event) {
             switch (event.getCode()) {
                 case (SDLK_RETURN):
                 case (SDLK_KP_ENTER):
@@ -58,19 +58,23 @@ namespace Duel6 {
                 case (SDLK_KP_SPACE): {
                     fireClickListeners();
                     firePressListeners(true);
+                    return true;
                     break;
                 }
             case (SDLK_LEFT):
             case (SDLK_UP): {
                 parent->focusPrevious();
+                return true;
                 break;
             }
             case (SDLK_RIGHT):
             case (SDLK_DOWN): {
                 parent->focusNext();
+                return true;
                 break;
             }
             }
+            return false;
         }
         void Button::mouseButtonEvent(const MouseButtonEvent &event) {
             if (Control::mouseIn(event, x, y, width, height)) {
@@ -97,10 +101,10 @@ namespace Duel6 {
 
         void Button::draw(Renderer &renderer, const Font &font) const {
             Int32 px, py;
-
+            Int32 captionWidth = font.getTextWidth(caption, 16);
             drawFrame(renderer, x, y, width, height, pressed, focused);
-            px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
-            py = y - (height >> 1) - 7 - pressed;
+            px = x + (width / 2) - (captionWidth / 2) + -1 + pressed;
+            py = y - (height / 2) - 8 - pressed;
             font.print(px, py, Color::BLACK, caption);
         }
 

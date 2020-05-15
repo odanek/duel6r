@@ -88,7 +88,7 @@ namespace Duel6 {
         protected:
             void mouseButtonEvent(const MouseButtonEvent &event) override;
 
-            void keyEvent(const KeyPressEvent &event) override;
+            bool keyEvent(const KeyPressEvent &event) override;
 
             void update(Float32 elapsedTime) override;
 

@@ -37,23 +37,34 @@ namespace Duel6 {
         class Desktop {
         private:
             Renderer &renderer;
+            Font &font;
             Int32 screenWidth;
             Int32 screenHeight;
             Int32 trX; // x translation
             Int32 trY; // y translation
             std::vector<std::unique_ptr<Control>> controls;
             Control * focused = nullptr;
+            SDL_Cursor* cursorArrow;
+            SDL_Cursor* cursorIBeam;
         public:
-            Desktop(Renderer &renderer);
+            Desktop(Renderer &renderer, Font &font);
 
             ~Desktop();
 
             void focus(Control * control){
-                if(focused != nullptr){
-                    focused->setFocused(false);
+                if(control != focused) {
+                    blur(focused);
                 }
                 focused = control;
                 focused->setFocused(true);
+            }
+
+            void blur(Control * control) {
+                if(focused != nullptr){
+                    focused->onBlur();
+                    focused->setFocused(false);
+                    focused = nullptr;
+                }
             }
             void screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY);
 
@@ -65,7 +76,7 @@ namespace Duel6 {
 
             void focusPrevious();
 
-            void keyEvent(const KeyPressEvent &event);
+            bool keyEvent(const KeyPressEvent &event);
 
             void textInputEvent(const TextInputEvent &event);
 
@@ -76,6 +87,10 @@ namespace Duel6 {
             void mouseWheelEvent(const MouseWheelEvent &event);
 
             void addControl(Control *control);
+
+            Font& getFont();
+
+            void setIBeamCursor();
         private:
 
             void advanceFocus(bool backwards = false);

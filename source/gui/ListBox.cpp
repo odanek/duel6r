@@ -47,6 +47,8 @@ namespace Duel6 {
             if (sb) {
                 slider = new Slider(desk);
                 slider->connect(&listPos);
+            } else {
+                slider = nullptr;
             }
         }
 
@@ -67,7 +69,7 @@ namespace Duel6 {
         }
 
         ListBox &ListBox::selectItem(Int32 index) {
-            if(index < 0 || index >= items.size()) return *this;
+            if(index < 0 || (size_t) index >= items.size()) return *this;
             if (index != selected) {
                 selected = index;
                 for (auto &listener : selectListeners) {
@@ -168,34 +170,39 @@ namespace Duel6 {
                 listPos.start = itemIndex;
             }
         }
-        void ListBox::keyEvent(const KeyPressEvent &event) {
+        bool ListBox::keyEvent(const KeyPressEvent &event) {
             switch (event.getCode()) {
             case (SDLK_UP): {
                 selectItem(selected - 1);
                 scrollToView(selected - 1);
+                return true;
                 break;
             }
             case (SDLK_DOWN): {
                 selectItem(selected + 1);
                 scrollToView(selected + 1);
+                return true;
                 break;
             }
             case (SDLK_RETURN):
-                case (SDLK_KP_ENTER):
-                case (SDLK_SPACE):
-                case (SDLK_KP_SPACE): {
+            case (SDLK_KP_ENTER):
+            case (SDLK_SPACE):
+            case (SDLK_KP_SPACE): {
                 for (auto &listener : doubleClickListeners) {
                     listener(selected, items[selected]);
                 }
+                return true;
                 break;
             }
             }
+            return false;
         }
 
         void ListBox::draw(Renderer &renderer, const Font &font) const {
-            drawFrame(renderer, x - 2, y + 2, width + 4, height + 4, true, focused);
+            drawFrame(renderer, x - 2, y + 2, width + 4, height + 4, true, false);
             renderer.quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
 
+            if(focused)drawFrame(renderer, x - 2, y + 2, width + (slider != nullptr ? 16 : 0) + 4, height + 4, true, focused);
             if (items.empty())
                 return;
 

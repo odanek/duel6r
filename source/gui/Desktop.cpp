@@ -35,10 +35,18 @@ namespace Duel6 {
             Color bcgColor(192, 192, 192);
         }
 
-        Desktop::Desktop(Renderer &renderer)
-                : renderer(renderer) {}
+        Desktop::Desktop(Renderer &renderer, Font &font)
+                : renderer(renderer),
+                  font(font) {
+            cursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+            cursorIBeam = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+            SDL_SetCursor(cursorArrow);
+        }
 
         Desktop::~Desktop() {
+            SDL_FreeCursor(cursorArrow);
+            SDL_FreeCursor(cursorIBeam);
+
         }
 
         void Desktop::addControl(Control *control) {
@@ -87,6 +95,7 @@ namespace Duel6 {
                 } else {
                     if (focused == nullptr || focused == previous) {
                         focus(control.get());
+
                         return;
                     }
                 }
@@ -106,18 +115,25 @@ namespace Duel6 {
             advanceFocus(false);
         }
 
-        void Desktop::keyEvent(const KeyPressEvent &event) {
+        bool Desktop::keyEvent(const KeyPressEvent &event) {
             if(event.getCode() == SDLK_TAB){
                 if(event.withShift()){
                     focusPrevious();
                 } else {
                     focusNext();
                 }
-                return;
+                return true;
             }
             if(focused != nullptr){
-                focused->keyEvent(event);
+                if(focused->keyEvent(event)){
+                    return true;
+                }
+                if(event.getCode() == SDLK_ESCAPE){
+                    blur(focused);
+                    return true;
+                }
             }
+            return false;
         }
 
         void Desktop::textInputEvent(const TextInputEvent &event) {
@@ -134,6 +150,7 @@ namespace Duel6 {
         }
 
         void Desktop::mouseMotionEvent(const MouseMotionEvent &event) {
+            SDL_SetCursor(cursorArrow);
             MouseMotionEvent translatedEvent = event.translate(-trX, -trY);
             for (auto &control : controls) {
                 control->mouseMotionEvent(translatedEvent);
@@ -145,6 +162,12 @@ namespace Duel6 {
             for (auto &control : controls) {
                 control->mouseWheelEvent(translatedEvent);
             }
+        }
+        Font& Desktop::getFont() {
+            return font;
+        }
+        void Desktop::setIBeamCursor() {
+            SDL_SetCursor(cursorIBeam);
         }
     }
 }
