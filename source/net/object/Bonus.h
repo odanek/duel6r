@@ -9,7 +9,7 @@
 #define SOURCE_NET_OBJECT_BONUS_H_
 
 
-#include "../Event.h"
+#include "../Object.h"
 #include "../Type.h"
 #include "../../Type.h"
 #include "../object/Vector2d.h"

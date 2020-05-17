@@ -284,7 +284,7 @@ namespace Duel6 {
         levelData = std::make_unique<Level>(levelPath, mirror, resources.getBlockMeta());
 
         if(isServer){
-            gameProxy->startRound(*levelData);
+            gameProxy->startRound(playedRounds, *levelData);
         }
         startRound(std::move(levelData), [this]() {
             onRoundEnd();

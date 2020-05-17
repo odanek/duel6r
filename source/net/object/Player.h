@@ -11,6 +11,8 @@
 #include "../Object.h"
 #include "Vector2d.h"
 #include "Bonus.h"
+#include "PlayerScore.h"
+
 namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
@@ -39,7 +41,7 @@ namespace Duel6::net {
 
         Float32 alpha;
         Float32 bodyAlpha;
-
+        PlayerScore score;
         std::array<Uint8, INPUTS> unconfirmedInputs;
         bool orientationLeft;
 
@@ -66,6 +68,7 @@ namespace Duel6::net {
             TIME_SINCE_HIT,
             ALPHA,
             BODY_ALPHA,
+            SCORE,
             _SIZE
         };
         std::bitset<FIELDS::_SIZE> changed;
@@ -93,6 +96,7 @@ namespace Duel6::net {
             D(TIME_SINCE_HIT, timeSinceHit);
             D(ALPHA, alpha);
             D(BODY_ALPHA, bodyAlpha);
+            D(SCORE, score);
             if (snapshot.changed.none()) {
                 snapshot.changed.set(NO_CHANGE);
             }
@@ -122,6 +126,7 @@ namespace Duel6::net {
             R(TIME_SINCE_HIT, timeSinceHit);
             R(ALPHA, alpha);
             R(BODY_ALPHA, bodyAlpha);
+            R(SCORE, score);
         }
         Player() {
             debug = 12345;
@@ -180,6 +185,7 @@ namespace Duel6::net {
             S(TIME_SINCE_HIT, timeSinceHit);
             S(ALPHA, alpha);
             S(BODY_ALPHA, bodyAlpha);
+            S(SCORE, score);
             return result;
         }
 

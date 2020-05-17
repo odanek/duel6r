@@ -73,7 +73,6 @@ namespace Duel6 {
             RequestGameState getRequestGameState();
         protected:
             void nextRound() override;
-            void startRound(Duel6::Level & level) override {};
         private:
             void joinPlayers(std::vector<PlayerProfile> &playerProfiles);
         };

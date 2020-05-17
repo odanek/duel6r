@@ -27,8 +27,9 @@ namespace Duel6 {
 
         }
 
-        void ServerGameProxy::startRound(Duel6::Level &level) {
+        void ServerGameProxy::startRound(Int32 playedRounds, Duel6::Level &level) {
             StartRound sr;
+            sr.round = playedRounds;
             auto &world = sr.world;
             world.elevators.reserve(level.elevators.size());
             for (auto &e : level.elevators) {
@@ -59,9 +60,6 @@ namespace Duel6 {
         }
 
         void ServerGameProxy::gameEnded() {
-//            for(auto & peer: peers){
-//                peer->reset();
-//            }
             peers.clear();
         }
 
@@ -175,17 +173,14 @@ namespace Duel6 {
                     p.clientLocalId = player.getClientLocalId();
                     p.debug = game.tick;
 
-//                    if (player.local) {
-                        player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
-                        const size_t maxInputs = Player::INPUTS;
-                        for (size_t i = 0; i < maxInputs; i++) { //TODO: figure out if it should be game.tick - (maxInputs) or game.tick - (maxInputs - 1)
-                            p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - (maxInputs - 1) + i) & xor_128];
-                        }
-//                        p.changed[Player::FIELDS::CONTROLS] = true;
-//                        p.changed[Player::FIELDS::UNCONFIRMEDINPUTS] = true;
-                        p.controls = player.getControllerState();
+                    player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
+                    const size_t maxInputs = Player::INPUTS;
+                    for (size_t i = 0; i < maxInputs; i++) { //TODO: figure out if it should be game.tick - (maxInputs) or game.tick - (maxInputs - 1)
+                        p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - (maxInputs - 1) + i) & xor_128];
+                    }
+
+                    p.controls = player.getControllerState();
 //                        p.rtt = 0;
-//                    }
                     if (game.isServer) {
                         const auto &collidingEntity = player.getCollider();
                         const auto &position = collidingEntity.position;
@@ -210,6 +205,7 @@ namespace Duel6 {
                         p.timeSinceHit = player.getTimeSinceHit();
                         p.alpha = player.getAlpha();
                         p.bodyAlpha = player.getBodyAlpha();
+                        p.score.loadFromPlayer(player);
                         peer->snapshot[game.tick & xor_64][p.id] = p;
                     }
                     player.rtt = p.rtt;

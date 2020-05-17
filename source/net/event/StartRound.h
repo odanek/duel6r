@@ -14,11 +14,13 @@
 namespace Duel6::net {
     class StartRound: public Event<StartRound, EventType::ROUND_START>{
     public:
+        Int32 round;
         Level world;
 
         template<class Stream>
         bool serialize(Stream &s) {
-            return s & world;
+            return s & round
+                && s & world;
         }
     };
 }

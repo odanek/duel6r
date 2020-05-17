@@ -94,7 +94,7 @@ namespace Duel6 {
                 p.bonusDuration = player.getBonusDuration();
                 p.alpha = player.getAlpha();
                 p.bodyAlpha = player.getBodyAlpha();
-
+                p.score.loadFromPlayer(player);
                 s.players.push_back(p);
 
                 PlayerProfile pp;

@@ -44,7 +44,7 @@ namespace Duel6 {
             void eraseShot(Uint16 id);
             void spawnExplosion(Explosion &explosion);
             void playSample(Int32 playerId, PlayerSounds::Type type);
-            void startRound(Duel6::Level & level) override;
+            void startRound(Int32 playedRounds, Duel6::Level & level) override;
             void sendGameStateUpdate(Game & game) override;
             void nextRound() override;
             void handle(ObjectBase &o) override;

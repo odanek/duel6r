@@ -191,6 +191,7 @@ namespace Duel6 {
                     player.setTimeSinceHit(p.timeSinceHit);
                     player.setBodyAlpha(p.bodyAlpha);
                     player.setAlpha(p.alpha);
+                    p.score.unloadToPlayer(player);
                     //TODO handle 16bit wrap-around
 //                    if (player.local && ((game->tick - gsu.confirmInputTick) & xor_32768 < 32)) { // cap it at 8 frames to avoid run-away of death
 //                        Uint32 ms = 1000 / 90;
@@ -366,6 +367,7 @@ namespace Duel6 {
                 player.setBodyAlpha(p.bodyAlpha);
                 player.setTimeSinceHit(p.timeSinceHit);
                 player.setAlpha(p.alpha);
+                p.score.unloadToPlayer(player);
                 peer->snapshot[sr.tick & xor_64][p.id] = p;
             }
             peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;
@@ -509,6 +511,7 @@ namespace Duel6 {
             }
 
             auto &w = sr.world;
+            game->setPlayedRounds(sr.round);
             game->onStartRound(std::make_unique<Duel6::Level>(
                 w.width,
                 w.height,

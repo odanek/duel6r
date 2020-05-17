@@ -38,7 +38,7 @@ namespace Duel6 {
             virtual void nextRound(){
                 ;
             }
-            virtual void startRound(Duel6::Level & level) = 0;
+            virtual void startRound(Int32 round, Duel6::Level & level){};
             virtual void handle(Peer & peer, RequestGameState & r);
             virtual void handle(ObjectBase &o) = 0;
             virtual void handle(EventBase &e) = 0;

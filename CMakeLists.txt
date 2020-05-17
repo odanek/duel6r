@@ -85,23 +85,39 @@ set(D6R_SOURCES
         source/net/binarystream/FileBinaryStream.h
         source/net/binarystream/traits.h
 
+        source/net/event/Color.h
+        source/net/event/EraseShot.h
         source/net/event/events.h
         source/net/event/GameState.h
         source/net/event/GameStateUpdate.h
         source/net/event/NextRound.h
+        source/net/event/PickBonus.h
+        source/net/event/PickWeapon.h
         source/net/event/PlayerInputsUpdate.h
         source/net/event/PlayerProfile.h
+        source/net/event/PlayersDisconnected.h
+        source/net/event/PlayersJoined.h
+        source/net/event/PlaySample.h
+        source/net/event/RaiseWaterLevel.h
         source/net/event/RequestGameState.h
+        source/net/event/SpawnBonus.h
+        source/net/event/SpawnWeapon.h
+        source/net/event/StartRound.h
 
-        source/net/object/objects.h
+        source/net/object/Bonus.h
         source/net/object/Client.h
+        source/net/object/Collider.h
         source/net/object/Level.h
+        source/net/object/objects.h
         source/net/object/Player.cpp
         source/net/object/Player.h
         source/net/object/PlayerInputs.h
+        source/net/object/PlayerScore.cpp
+        source/net/object/PlayerScore.h
         source/net/object/Shot.h
         source/net/object/Vector.h
         source/net/object/Vector2d.h
+        source/net/object/Weapon.h
         source/net/object/World.h
 
         source/net/ClientGameProxy.cpp
