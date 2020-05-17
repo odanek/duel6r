@@ -128,6 +128,14 @@ namespace Duel6 {
                 gameProxy->handle(pj);
                 break;
             }
+            case EventType::RAISE_WATER: {
+                RaiseWaterLevel rwl;
+                if(!(s>>rwl)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::RAISE_WATER");
+                }
+                gameProxy->handle(rwl);
+                break;
+            }
             case EventType::SPAWN_BONUS: {
                 SpawnBonus sb;
                 if(!(s>>sb)){

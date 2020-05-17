@@ -483,7 +483,9 @@ namespace Duel6 {
             }
             return r;
         }
-
+        void ClientGameProxy::handle(RaiseWaterLevel &rwl){
+            game->raiseWater();
+        }
         void ClientGameProxy::handle(StartRound &sr) {
             std::vector<Duel6::Elevator> elevators;
             elevators.reserve(sr.world.elevators.size());

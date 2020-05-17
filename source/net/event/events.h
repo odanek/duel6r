@@ -16,6 +16,7 @@
 #include "PlayerInputsUpdate.h"
 #include "PlayersDisconnected.h"
 #include "PlayersJoined.h"
+#include "RaiseWaterLevel.h"
 #include "RequestGameState.h"
 #include "SpawnBonus.h"
 #include "SpawnShot.h"

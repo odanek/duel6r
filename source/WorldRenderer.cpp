@@ -248,7 +248,7 @@ namespace Duel6 {
 
         Float32 radius = 0.5f + 0.5f * std::abs(D6_YOU_ARE_HERE_DURATION / 2 - remainingTime);
         for (const Player &player : game.getPlayers()) {
-            if(player.isDeleted()){
+            if(player.isDeleted() || !player.local){
                 continue;
             }
             Vector playerCentre = player.getCentre();
@@ -439,7 +439,7 @@ namespace Duel6 {
 
     void WorldRenderer::invulRings(const std::vector<Player> &players) const {
         for (const Player &player : players) {
-            if (player.isInvulnerable()) {
+            if (!player.isDeleted() && player.isInvulnerable()) {
                 invulRing(player);
             }
         }

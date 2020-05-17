@@ -19,6 +19,7 @@ namespace Duel6 {
             NEXT_ROUND,
             PLAYERS_DISCONNECTED,
             PLAYERS_JOINED,
+            RAISE_WATER,
             SPAWN_BONUS,
             SPAWN_WEAPON,
             PICK_BONUS,

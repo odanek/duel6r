@@ -341,7 +341,10 @@ namespace Duel6 {
         }
 
         void ServerGameProxy::raiseWater(){
-            //TODO
+            RaiseWaterLevel rwl;
+            for (auto &peer : peers) {
+                peer->sendReliable(rwl);
+            }
         }
 
         void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
