@@ -16,14 +16,12 @@ namespace Duel6 {
 #define CHANNELS 4
 
         NetHost::NetHost(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
-            : Service(clientGameProxy, serverGameProxy), console(console)
-        {
+            : Service(clientGameProxy, serverGameProxy), console(console) {
 
         }
 
-        NetHost::~NetHost()
-        {
-            die();
+        NetHost::~NetHost() {
+            stop();
         }
 
         void NetHost::listen(Game &game, const std::string &host,
@@ -40,18 +38,12 @@ namespace Duel6 {
             address.port = port;
             ENetHost *nethost = enet_host_create(&address, MAX_PEERS, CHANNELS, 0, 0);
             if (nethost == nullptr) {
-                D6_THROW(Exception, "cannot start server");
+                D6_THROW(Exception, "cannot start server (port taken?)");
             }
             console.printLine("NetHost::listen start");
             start(nethost);
             console.printLine("NetHost::listen started ");
             started();
-        }
-
-        void NetHost::die() {
-            console.printLine("NetHost::die ");
-            stop();
-
         }
 
         void NetHost::onStarting() {
@@ -63,12 +55,9 @@ namespace Duel6 {
             for (auto &peer : peers) {
                 peer->disconnect();
             }
-            for (const auto &p : peers) {
-//                if (p->getState() != PeerState::DISCONNECTED) {
-//                    return;
-//                }
+            if(peers.size() == 0) {
+                stopped();
             }
-            stopped();
         }
 
         void NetHost::onStopped() {
@@ -111,18 +100,10 @@ namespace Duel6 {
             if (!p->onDisconnected(peer, reason)) {
                 return;
             }
-            if (state != ServiceState::STOPPING) {
-                // this server is not stopping
-                return;
+            if (state == ServiceState::STOPPING) {
+                // this server is stopping
+                stopped();
             }
-            for (const auto &p : peers) {
-                if (p->getState() != PeerState::DISCONNECTED &&
-                    p->getState() != PeerState::DESTROYED) {
-                    // some peer still connected
-                    return;
-                }
-            }
-            stopped();
         }
     } /* namespace net */
 } /* namespace Duel6 */

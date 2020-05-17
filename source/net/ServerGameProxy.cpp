@@ -58,6 +58,13 @@ namespace Duel6 {
             }
         }
 
+        void ServerGameProxy::gameEnded() {
+//            for(auto & peer: peers){
+//                peer->reset();
+//            }
+            peers.clear();
+        }
+
         ServerGameProxy::~ServerGameProxy()
         {
             peers.clear();
@@ -332,6 +339,11 @@ namespace Duel6 {
                 peer->sendReliable(ss);
             }
         }
+
+        void ServerGameProxy::raiseWater(){
+            //TODO
+        }
+
         void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
             Collider &c = w.collider;
             const auto & collider = weapon.getCollider();

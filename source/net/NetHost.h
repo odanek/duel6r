@@ -27,16 +27,12 @@ namespace Duel6 {
         private:
             Console &console;
             std::vector<std::unique_ptr<Peer>> peers;
-
         public:
             NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy, Console &console);
-          //  void setGameProxyReference(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy);
-
-            void listen(Game &game, const std::string &host,
-                        const Duel6::net::port_t port);
-            void die();
 
             virtual ~NetHost();
+
+            void listen(Game &game, const std::string &host, const Duel6::net::port_t port);
 
         private:
             void onStarting() override;
@@ -45,10 +41,6 @@ namespace Duel6 {
 
             void onPeerConnected(ENetPeer*) override;
             void onPeerDisconnected(ENetPeer*, enet_uint32 reason) override;
-
-//            void onPeerHandle(ENetPeer *peer, ObjectType, binarystream &bs) override;
-//            void onPeerHandle(ENetPeer *peer, EventType, binarystream &bs) override;
-
         };
 
     } /* namespace net */

@@ -123,7 +123,7 @@ namespace Duel6 {
         clientGameProxy = std::make_unique<net::ClientGameProxy>();
         serverGameProxy = std::make_unique<net::ServerGameProxy>();
         netHost = std::make_unique<net::NetHost>(*clientGameProxy, *serverGameProxy, console);
-        netClient = std::make_unique<net::NetClient>(*clientGameProxy, *serverGameProxy);
+        netClient = std::make_unique<net::NetClient>(*clientGameProxy, *serverGameProxy, console);
         net = std::make_unique<net::Net>();
 
       //  netHost->setGameProxyReference(*clientGameProxy, *serverGameProxy);

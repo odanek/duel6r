@@ -15,6 +15,7 @@
 #include "Peer.h"
 #include "ClientGameProxy.h"
 namespace Duel6 {
+    class Console;
     namespace net {
 
         /**
@@ -26,14 +27,12 @@ namespace Duel6 {
             port_t port;
             std::unique_ptr<Peer> peer;
             ENetHost *nethost;
-
+            Console &console;
         public:
-            NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy);
+            NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console);
             virtual ~NetClient();
 
             void connect(Game &game, const std::string &host, const Duel6::net::port_t port);
-            void disconnect();
-
         private:
             void recordPeerNetStats(ENetPeer *peer) override;
 
@@ -46,6 +45,8 @@ namespace Duel6 {
             void onPeerConnected(ENetPeer*) override;
 
             void onPeerDisconnected(ENetPeer*, enet_uint32 reason) override;
+
+            void onConnectionLost() override;
         };
 
     } /* namespace net */

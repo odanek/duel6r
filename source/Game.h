@@ -84,7 +84,7 @@ namespace Duel6 {
         };
     public:
         NetStat netstat;
-        uint16_t tick = 0;
+        uint16_t tick = 65000;
         bool isServer = false;
         bool isRunning = false;
         bool networkGame = false;
@@ -237,6 +237,9 @@ namespace Duel6 {
         void pickBonus(Player &player, unsigned int bonusId);
 
         void spawnShot(std::unique_ptr<Shot> && shot);
+
+        void raiseWater();
+
     private:
         void beforeStart(Context *prevContext) override;
 

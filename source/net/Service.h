@@ -35,7 +35,8 @@ namespace Duel6 {
             ServiceState state = ServiceState::UNINITIALIZED;
             std::unique_ptr<ENetHost> serviceHost;
             Game *game = nullptr;
-
+        private:
+            bool stopRequested = false;
         public:
             ClientGameProxy *clientGameProxy;
             ServerGameProxy *serverGameProxy;
@@ -48,7 +49,8 @@ namespace Duel6 {
             virtual ~Service() {
             }
 
-            void stopNow();
+            //stop on next poll
+            void requestStop();
 
             void poll(Uint32 timeout);
 
@@ -61,7 +63,9 @@ namespace Duel6 {
             void setGameReference(Game &game) {
                 this->game = &game;
             }
+
             void start(ENetHost *nethost) {
+                stopRequested = false;
                 serviceHost.reset(nethost);
                 state = ServiceState::INITIALIZED;
 
@@ -70,11 +74,14 @@ namespace Duel6 {
             }
 
             void started() {
+                if(state != ServiceState::STARTING){
+                    D6_THROW(Exception, "called Service::started() while not starting");
+                }
                 state = ServiceState::STARTED;
             }
 
             void stop() {
-                if(state != ServiceState::STARTED){
+                if(state != ServiceState::STARTED || state == ServiceState::STOPPED){
                     return;
                 }
                 state = ServiceState::STOPPING;
@@ -82,6 +89,9 @@ namespace Duel6 {
             }
 
             void stopped() {
+                if(state != ServiceState::STOPPING){
+                    onConnectionLost();
+                }
                 state = ServiceState::STOPPED;
                 onStopped();
                 tearDown();
@@ -95,6 +105,8 @@ namespace Duel6 {
             virtual void onStarting() = 0;
             virtual void onStopping() = 0;
             virtual void onStopped() = 0;
+
+            virtual void onConnectionLost(){}
 
             virtual void recordPeerNetStats(ENetPeer *peer){};
             virtual void onPeerConnected(ENetPeer*) = 0;

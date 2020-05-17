@@ -37,6 +37,10 @@ namespace Duel6 {
             void playersConnected(const std::vector<Int32> & ids);
             void add(Peer *);
             void remove(Peer *);
+            void gameEnded();
+
+            void raiseWater();
+
             void startRound(Duel6::Level & level) override;
             void sendGameStateUpdate(Game & game) override;
             void nextRound() override;

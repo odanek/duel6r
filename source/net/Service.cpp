@@ -12,8 +12,8 @@
 #include "Peer.h"
 namespace Duel6::net {
 
-    void Service::stopNow() {
-
+    void Service::requestStop() {
+        stopRequested = true;
     }
 
     void Service::poll(Uint32 timeout) {
@@ -41,6 +41,9 @@ namespace Duel6::net {
             if (state == ServiceState::UNINITIALIZED) {
                 break;
             }
+        }
+        if(stopRequested){
+            stop();
         }
     }
     void Service::onPeerReceived(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {

@@ -51,8 +51,11 @@ namespace Duel6 {
         endRound();
         isRunning = false;
         if(networkGame){
-            appService.getNetHost().die();
-            appService.getNetClient().disconnect();
+            if(isServer){
+                gameProxy->gameEnded();
+            }
+            appService.getNetHost().requestStop();
+            appService.getNetClient().requestStop();
         }
     }
 
@@ -123,6 +126,7 @@ namespace Duel6 {
                      ScreenMode screenMode, Int32 screenZoom,
                      GameMode &gameMode,
                      bool networkGame) {
+        tick = 65000; // debug
         this->networkGame = networkGame;
         Console &console = appService.getConsole();
         console.printLine("\n=== Starting new game ===");
@@ -348,5 +352,12 @@ namespace Duel6 {
             gameProxy->pickBonus(player, bonusId);
         }
         round->getWorld().getBonusList().pickBonus(player, bonusId);
+    }
+
+    void Game::raiseWater() {
+        if (isServer) {
+            gameProxy->raiseWater();
+        }
+        round->getWorld().raiseWater();
     }
 }

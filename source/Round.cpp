@@ -153,12 +153,14 @@ namespace Duel6 {
             }
         }
 
-        if (!suddenDeathMode && game.getMode().checkForSuddenDeathMode(world, alivePlayers)) {
-            suddenDeathMode = true;
-        }
+        if (!game.networkGame || game.isServer){
+            if (!suddenDeathMode && game.getMode().checkForSuddenDeathMode(world, alivePlayers)) {
+                suddenDeathMode = true;
+            }
 
-        if (game.getMode().checkRoundOver(world, alivePlayers)) {
-            roundOver();
+            if (game.getMode().checkRoundOver(world, alivePlayers)) {
+                roundOver();
+            }
         }
     }
     void Round::roundOver() {
@@ -216,7 +218,8 @@ namespace Duel6 {
             } else {
               //  auto tmp = player.getControllerState();
                 bool runElevators = player.lastConfirmedTick == player.tick;
-                while(player.lastConfirmedTick - player.tick > 0){
+                //Converted to Uint16 to deal with the counter wrap-around at 65535
+                while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
                     scriptUpdate(player);
                     player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
                     player.unconfirmedInputs[player.tick % 128] = 0;
@@ -239,7 +242,7 @@ namespace Duel6 {
             waterFillWait += elapsedTime;
             if (waterFillWait > D6_RAISE_WATER_WAIT) {
                 waterFillWait = 0;
-                world.raiseWater();
+                game.raiseWater();
             }
         }
 

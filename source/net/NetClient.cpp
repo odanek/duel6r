@@ -10,12 +10,12 @@
 namespace Duel6 {
     namespace net {
 
-        NetClient::NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy)
-            : Service(clientGameProxy, serverGameProxy) {
+        NetClient::NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
+            : Service(clientGameProxy, serverGameProxy), console(console) {
         }
 
         NetClient::~NetClient() {
-            disconnect();
+            stop();
         }
 
         void NetClient::connect(Game &game, const std::string &host,
@@ -59,9 +59,6 @@ namespace Duel6 {
             clientGameProxy->netStopped();
             peer.reset();
         }
-        void NetClient::disconnect() {
-            stop();
-        }
 
         void NetClient::onPeerConnected(ENetPeer *me) {
             if (!peer->onConnected(me)) {
@@ -78,6 +75,9 @@ namespace Duel6 {
             stopped();
         }
 
+        void NetClient::onConnectionLost() {
+            console.printLine("NetClient::onConnectionLost");
+        }
         void NetClient::recordPeerNetStats(ENetPeer *me) {
             if(game == nullptr){
                 return;
