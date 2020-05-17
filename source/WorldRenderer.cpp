@@ -171,18 +171,18 @@ namespace Duel6 {
     }
 
     void WorldRenderer::roundsPlayed() const {
-        int width = 134;
+        std::string rounds = Format("Rounds: {0,3}|{1,3}") << game.getCurrentRound() + 1 << game.getSettings().getMaxRounds();
+        int width = font.getTextWidth(rounds, 16);
         int x = video.getScreen().getClientWidth() / 2 - width / 2;
         int y = video.getScreen().getClientHeight() - 20;
 
-        renderer.quadXY(Vector(x - 1, y - 1), Vector(width + 2, 18), Color::BLACK);
-        font.print(x + 8, y, Color::WHITE,
-                   Format("Rounds: {0,3}|{1,3}") << game.getCurrentRound() + 1 << game.getSettings().getMaxRounds());
+        renderer.quadXY(Vector(x - 1, y - 1), Vector(width + 10, 18), Color::BLACK);
+        font.print(x + 8, y, Color::WHITE, rounds);
     }
 
     void WorldRenderer::fpsCounter() const {
         std::string fpsCount = Format("tick: {0,6} FPS - {1}") << game.tick << Int32(video.getFps());
-        Int32 width = 8 * Int32(fpsCount.size()) + 2;
+        Int32 width = font.getTextWidth(fpsCount, 16);
 
         Int32 x = Int32(video.getScreen().getClientWidth()) - width;
         Int32 y = Int32(video.getScreen().getClientHeight()) - 20;
@@ -287,7 +287,7 @@ namespace Duel6 {
     }
 
     void WorldRenderer::playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
-        const std::string &name = Format("{0} id:{1}") << player.getPerson().getName() << player.getId();
+        const std::string &name = Format("{0}") << player.getPerson().getName();
        // const std::string &netstat = Format("net:{0}/{1}/{2}/{3}") << player.rtt << player.tick << player.lastConfirmedTick << (game.tick - player.tick);
 
    //     Float32 netstatWidth = 0.15f * netstat.size();

@@ -134,28 +134,7 @@ namespace Duel6::net {
             changed.set(NO_CHANGE, false);
         }
 
-        bool operator==(const Player &r) {
-            return id == r.id
-                && clientLocalId == r.clientLocalId
-                && position == r.position
-                && acceleration == r.acceleration
-                && externalForces == r.externalForces
-                && externalForcesSpeed == r.externalForcesSpeed
-                && velocity == r.velocity
-                && controls == r.controls
-                && flags == r.flags
-                && life == r.life
-                && air == r.air
-                && ammo == r.ammo
-                && weaponId == r.weaponId
-                && unconfirmedInputs == r.unconfirmedInputs
-                && orientationLeft == r.orientationLeft
-                && bonusType == r.bonusType
-                && bonusRemainingTime == r.bonusRemainingTime
-                && bonusDuration == r.bonusDuration
-                && alpha == r.alpha
-                && bodyAlpha == r.bodyAlpha;
-        }
+
 
 #define S(POS, FIELD) if(changed[POS]) result &= s & FIELD
         template<class Stream>

@@ -53,6 +53,8 @@ namespace Duel6 {
         void NetHost::onStopping() {
             console.printLine("NetHost::onStopping ");
             for (auto &peer : peers) {
+                peer->disconnect();
+                flush(); // send out the disconnects, don't wait for any replies
                 peer->reset();
             }
             flush(); // send out the disconnects, don't wait for any replies

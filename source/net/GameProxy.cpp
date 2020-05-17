@@ -64,6 +64,9 @@ namespace Duel6 {
                 s.weapons.push_back(w);
             }
             for (auto &player : game.getPlayers()) {
+                if(player.isDeleted()){
+                    continue;
+                }
                 Player p;
                 p.debug = game.tick;
                 p.id = player.getId();
