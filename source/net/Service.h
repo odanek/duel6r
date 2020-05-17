@@ -60,6 +60,8 @@ namespace Duel6 {
             }
 
         protected:
+            void flush();
+
             void setGameReference(Game &game) {
                 this->game = &game;
             }

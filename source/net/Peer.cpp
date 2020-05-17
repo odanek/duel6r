@@ -242,7 +242,7 @@ namespace Duel6 {
             disconnect(false);
         }
         void Peer::disconnect(bool now) {
-            if (state == PeerState::DISCONNECTED) {
+            if (state == PeerState::DISCONNECTED || state == PeerState::DESTROYED) {
                 return;
             }
             state = PeerState::DISCONNECTING;
