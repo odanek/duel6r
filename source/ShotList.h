@@ -57,6 +57,8 @@ namespace Duel6 {
         void forEach(std::function<bool(Shot &)> handler);
 
         void spawnShot(ShotPointer &&shot);
+
+        void eraseShot(Uint16 id);
     };
 }
 

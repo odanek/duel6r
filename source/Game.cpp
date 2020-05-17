@@ -360,4 +360,12 @@ namespace Duel6 {
         }
         round->getWorld().raiseWater();
     }
+
+    void Game::eraseShot(Uint16 id) {
+        if(isServer){
+            gameProxy->eraseShot(id);
+        } else {
+            round->getWorld().getShotList().eraseShot(id);
+        }
+    }
 }

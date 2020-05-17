@@ -8,6 +8,7 @@
 #ifndef SOURCE_NET_EVENT_EVENTS_H_
 #define SOURCE_NET_EVENT_EVENTS_H_
 
+#include "EraseShot.h"
 #include "GameState.h"
 #include "GameStateUpdate.h"
 #include "NextRound.h"

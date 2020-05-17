@@ -240,6 +240,8 @@ namespace Duel6 {
 
         void raiseWater();
 
+        void eraseShot(Uint16 id);
+
     private:
         void beforeStart(Context *prevContext) override;
 

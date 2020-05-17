@@ -40,6 +40,7 @@ namespace Duel6 {
             void gameEnded();
 
             void raiseWater();
+            void eraseShot(Uint16 id);
 
             void startRound(Duel6::Level & level) override;
             void sendGameStateUpdate(Game & game) override;

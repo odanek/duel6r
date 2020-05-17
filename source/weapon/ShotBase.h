@@ -35,9 +35,9 @@ namespace Duel6 {
     protected:
         const Weapon &weapon;
         Player &player;
-        Uint32 id = 0;
+        Uint16 id = 0;
     public:
-        ShotBase(const Weapon &weapon, Player &player, Uint32 id);
+        ShotBase(const Weapon &weapon, Player &player, Uint16 id);
 
         ShotBase(const Weapon &weapon, Player &player);
 
@@ -47,9 +47,9 @@ namespace Duel6 {
 
         const Weapon &getWeapon() const override;
 
-        Uint32 getId() const override;
+        Uint16 getId() const override;
     private:
-        static Uint32 counter;
+        static Uint16 counter;
     };
 }
 

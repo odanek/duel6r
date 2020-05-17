@@ -584,6 +584,10 @@ namespace Duel6 {
             }
         }
 
+        void ClientGameProxy::handle(EraseShot &es){
+            game->eraseShot(es.id);
+        }
+
         void ClientGameProxy::nextRound() {
             game->onNextRound();
         }

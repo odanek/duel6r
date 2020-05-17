@@ -196,6 +196,14 @@ namespace Duel6 {
 
             case EventType::SHOT_UPDATE:break;
 
+            case EventType::SHOT_ERASE: {
+                EraseShot es;
+                if (!(s >> es)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::SHOT_ERASE");
+                }
+                gameProxy->handle(es);
+                break;
+            }
             case EventType::SHOT_HIT:break;
             case EventType::PLAYER_HIT:break;
             case EventType::PLAYER_SPAWN:break;

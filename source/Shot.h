@@ -83,7 +83,7 @@ namespace Duel6 {
 
         virtual ShotHit getShotHit() = 0;
 
-        virtual Uint32 getId() const = 0;
+        virtual Uint16 getId() const = 0;
 
         virtual Float32 getBulletSpeed() const = 0;
 

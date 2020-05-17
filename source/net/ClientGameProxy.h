@@ -53,6 +53,8 @@ namespace Duel6 {
             void handle(PickBonus &pb);
             void handle(PickWeapon &pw);
             void handle(SpawnShot &ss);
+            void handle(EraseShot &es);
+
             template<typename ObjectTypeName>
             void handleObject(ObjectTypeName &o) { //todo I think these are superfluous and can be removed
 

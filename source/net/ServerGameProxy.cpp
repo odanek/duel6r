@@ -346,6 +346,13 @@ namespace Duel6 {
                 peer->sendReliable(rwl);
             }
         }
+        void ServerGameProxy::eraseShot(Uint16 id){
+            EraseShot es;
+            es.id = id;
+            for (auto &peer : peers) {
+                peer->sendReliable(es);
+            }
+        }
 
         void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
             Collider &c = w.collider;

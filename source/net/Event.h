@@ -39,8 +39,9 @@ namespace Duel6 {
             ROUND_SET,
 
             SHOT_UPDATE,
-
+            SHOT_ERASE,
             SHOT_HIT,
+
             PLAYER_HIT,
             PLAYER_SPAWN,
             PLAYER_DIED,

@@ -28,7 +28,7 @@
 #include "../World.h"
 #include "../collision/Collision.h"
 #include "LegacyShot.h"
-
+#include "../Game.h"
 namespace Duel6 {
 
     LegacyShot::LegacyShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Animation shotAnimation,
@@ -152,18 +152,20 @@ namespace Duel6 {
         }
         move(elapsedTime);
 
-        if (!shotHit.hit) {
-            shotHit = evaluateShotHit(world);
-        }
+        if(!game.networkGame || game.isServer){
+            if (!shotHit.hit) {
+                shotHit = evaluateShotHit(world);
+            }
 
-        if (shotHit.hit) {
-            explode(world);
+            if (shotHit.hit) {
+                explode(world);
 
-            makeBoomSprite(world.getSpriteList());
-            samples.boom.play();
-
-            world.getSpriteList().remove(sprite);
-            return false;
+                makeBoomSprite(world.getSpriteList());
+                samples.boom.play();
+                game.eraseShot(getId());
+                world.getSpriteList().remove(sprite);
+                return false;
+            }
         }
         return true;
     }
