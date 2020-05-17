@@ -188,6 +188,7 @@ namespace Duel6 {
                     }
                     player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
                     player.updateBonus(Duel6::BonusType::getById(static_cast<unsigned int>(p.bonusType)), p.bonusDuration, p.bonusRemainingTime);
+                    player.setTimeSinceHit(p.timeSinceHit);
                     player.setBodyAlpha(p.bodyAlpha);
                     player.setAlpha(p.alpha);
                     //TODO handle 16bit wrap-around
@@ -319,7 +320,7 @@ namespace Duel6 {
                     if (cid > 10) {
                         return;
                     }
-                    Color color { c.red, c.green, c.blue, c.alpha };
+                    Duel6::Color color { c.red, c.green, c.blue, c.alpha };
                     colors.set((PlayerSkinColors::BodyPart) cid++, color);
                 }
                 playerDefinitions.emplace_back(
@@ -363,6 +364,7 @@ namespace Duel6 {
                 player.setControllerState(p.controls);
                 player.updateBonus(Duel6::BonusType::getById(static_cast<unsigned int>(p.bonusType)), p.bonusDuration, p.bonusRemainingTime);
                 player.setBodyAlpha(p.bodyAlpha);
+                player.setTimeSinceHit(p.timeSinceHit);
                 player.setAlpha(p.alpha);
                 peer->snapshot[sr.tick & xor_64][p.id] = p;
             }
@@ -411,7 +413,7 @@ namespace Duel6 {
                     if (cid > 10) {
                         return;
                     }
-                    Color color { c.red, c.green, c.blue, c.alpha };
+                    Duel6::Color color { c.red, c.green, c.blue, c.alpha };
                     colors.set((PlayerSkinColors::BodyPart) cid++, color);
                 }
                 playerDefinitions.emplace_back(
@@ -552,6 +554,24 @@ namespace Duel6 {
             game->spawnShot(std::move(x));
 
          }
+        void ClientGameProxy::handle(PlaySample &ps) {
+            if (idmap.count(ps.playerId) == 0) {
+                std::cerr << "Player id " << ps.playerId << " not found, skipping\n";
+                return;
+            }
+            auto pos = idmap[ps.playerId];
+            auto &player = game->players[pos];
+            game->playSample(player, static_cast<PlayerSounds::Type>(ps.sample));
+        }
+        void ClientGameProxy::handle(SpawnExplosion &ss) {
+            Duel6::Explosion explosion;
+            explosion.centre = { ss.centre.x, ss.centre.y, 0.0f };
+            explosion.now = ss.now;
+            explosion.max = ss.max;
+            explosion.color.set(ss.color.red, ss.color.green, ss.color.blue, ss.color.alpha);
+            game->spawnExplosion(std::move(explosion));
+        }
+
         void ClientGameProxy::handle(SpawnWeapon &sw) {
             Weapon &w = sw.weapon;
             Collider &c = w.collider;

@@ -58,7 +58,7 @@ namespace Duel6 {
 
         void spawnShot(ShotPointer &&shot);
 
-        void eraseShot(Uint16 id);
+        void eraseShot(Uint16 id, World &world);
     };
 }
 

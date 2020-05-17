@@ -99,7 +99,7 @@ namespace Duel6 {
 
         virtual bool isDiscarded() const = 0; //hack
 
-
+        virtual void hit(World &world) = 0;
     };
 }
 

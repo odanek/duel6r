@@ -39,7 +39,7 @@
 #include "math/Math.h"
 #include "Video.h"
 #include "PlayerEventListener.h"
-
+#include "Game.h"
 namespace Duel6 {
     //TODO: This still needs further fine-tuning for good jumping experience
     static const float GRAVITATIONAL_ACCELERATION = -11.0f;
@@ -49,12 +49,13 @@ namespace Duel6 {
     // Very important fun aspect!
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
-    Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls,
+    Player::Player(Game *game, Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls,
                    Int32 id, Int32 team,
                    Int32 clientId,
                    Int32 clientLocalId,
                    size_t pos)
-            : person(&person),
+            : game(game),
+              person(&person),
               skin(skin),
               animations(&skin.getAnimations()),
               sounds(&sounds),
@@ -150,6 +151,7 @@ namespace Duel6 {
         }
     }
      Player::Player(Player &&r):
+          game(r.game),
           deleted(r.deleted),
           person(r.person),
           skin(r.skin),
@@ -199,6 +201,7 @@ namespace Duel6 {
         }
 
     Player & Player::operator=(Player &&r){
+        game = r.game;
         deleted = r.deleted;
         person = r.person;
         skin = r.skin;
@@ -995,6 +998,10 @@ namespace Duel6 {
 
     void Player::setClientLocalId(Int32 clientLocalId) {
         this->clientLocalId = clientLocalId;
+    }
+
+    void Player::playSound(PlayerSounds::Type type) const {
+        game->playSample(*this, type);
     }
 
     Int32 Player::getId() const

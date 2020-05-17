@@ -46,6 +46,7 @@ namespace Duel6 {
             void handle(NextRound &nr);
             void handle(PlayersDisconnected &pd);
             void handle(PlayersJoined &pj);
+            void handle(PlaySample &ps);
             void handle(RaiseWaterLevel &rwl);
             void handle(StartRound &sr);
             void handle(SpawnBonus &sb);
@@ -53,6 +54,7 @@ namespace Duel6 {
             void handle(PickBonus &pb);
             void handle(PickWeapon &pw);
             void handle(SpawnShot &ss);
+            void handle(SpawnExplosion &ss);
             void handle(EraseShot &es);
 
             template<typename ObjectTypeName>

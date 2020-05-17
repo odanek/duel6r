@@ -18,6 +18,7 @@ namespace Duel6 {
     class LyingWeapon;
     class Player;
     class Shot;
+    class Explosion;
     namespace net {
 
         class ServerGameProxy: public GameProxy {
@@ -41,7 +42,8 @@ namespace Duel6 {
 
             void raiseWater();
             void eraseShot(Uint16 id);
-
+            void spawnExplosion(Explosion &explosion);
+            void playSample(Int32 playerId, PlayerSounds::Type type);
             void startRound(Duel6::Level & level) override;
             void sendGameStateUpdate(Game & game) override;
             void nextRound() override;

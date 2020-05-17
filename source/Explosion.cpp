@@ -26,10 +26,10 @@
 */
 
 #include "Explosion.h"
-
+#include "Game.h"
 namespace Duel6 {
-    ExplosionList::ExplosionList(const GameResources &resources, Float32 speed)
-            : textures(resources.getExplosionTextures()), speed(speed) {
+    ExplosionList::ExplosionList(const GameResources &resources, Game &game, Float32 speed)
+            : textures(resources.getExplosionTextures()), game(game), speed(speed) {
     }
 
     void ExplosionList::update(Float32 elapsedTime) {
@@ -59,11 +59,10 @@ namespace Duel6 {
     }
 
     void ExplosionList::add(const Vector &centre, Float32 startSize, Float32 maxSize, const Color &color) {
-        Explosion explosion;
-        explosion.centre = centre;
-        explosion.now = startSize;
-        explosion.max = maxSize;
-        explosion.color = color;
-        explosions.push_back(explosion);
+        game.spawnExplosion({centre, startSize, maxSize, color});
+    }
+
+    void ExplosionList::spawn(Explosion &&explosion) {
+        explosions.push_back(std::move(explosion));
     }
 }

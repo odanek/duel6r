@@ -159,12 +159,8 @@ namespace Duel6 {
 
             if (shotHit.hit) {
                 explode(world);
-
-                makeBoomSprite(world.getSpriteList());
-                samples.boom.play();
                 game.eraseShot(getId());
-                world.getSpriteList().remove(sprite);
-                return false;
+                return true;
             }
         }
         return true;
@@ -195,7 +191,6 @@ namespace Duel6 {
         Float32 power = getExplosionPower() * powerFactor;
 
         const Vector shotCentre = getCentre();
-        onExplode(shotCentre, range, world);
 
         for (Player &player : world.getPlayers()) {
             bool directHit = (shotHit.collidingPlayer != nullptr && player.is(*shotHit.collidingPlayer));
@@ -312,6 +307,14 @@ namespace Duel6 {
         return shotHit;
     }
 
+    void LegacyShot::hit(World &world) {
+        Float32 powerFactor = getPowerFactor();
+        Float32 range = getExplosionRange() * powerFactor;
+        const Vector shotCentre = getCentre();
+        onExplode(shotCentre, range, world);
+        makeBoomSprite(world.getSpriteList());
+        samples.boom.play();
+    }
     SpriteList::Iterator LegacyShot::makeSprite(SpriteList &spriteList) {
         sprite = spriteList.add(getShotAnimation(), textures.shot);
         sprite->setPosition(getSpritePosition(), 0.6f).setOrientation(this->orientation);

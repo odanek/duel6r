@@ -176,6 +176,22 @@ namespace Duel6 {
                 gameProxy->handle(ss);
                 break;
             }
+            case EventType::SPAWN_EXPLOSION: {
+                SpawnExplosion se;
+                if(!(s>>se)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::SPAWN_EXPLOSION");
+                }
+                gameProxy->handle(se);
+                break;
+            }
+            case EventType::PLAY_SAMPLE: {
+                PlaySample ps;
+                if(!(s>>ps)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::PLAY_SAMPLE");
+                }
+                gameProxy->handle(ps);
+                break;
+            }
             case EventType::CLIENT_JOINED:break;
             case EventType::CLIENT_DISCONNECTED:break;
             case EventType::CLIENT_DISCONNECT:break;

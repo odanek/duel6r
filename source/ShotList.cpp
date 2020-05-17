@@ -49,9 +49,10 @@ namespace Duel6 {
         shots.push_back(std::forward<ShotPointer>(shot));
     }
 
-    void ShotList::eraseShot(Uint16 id) {
+    void ShotList::eraseShot(Uint16 id, World &world) {
         for(auto & shot: shots){
             if(shot->getId() == id){
+                shot->hit(world);
                 shot->discard(); // will get erased in next update loop
             }
         }

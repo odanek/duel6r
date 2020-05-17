@@ -169,6 +169,8 @@ namespace Duel6 {
         SpriteList::Iterator makeSprite(SpriteList &spriteList);
 
         virtual SpriteList::Iterator makeBoomSprite(SpriteList &spriteList);
+
+        void hit(World &world) override;
     };
 }
 

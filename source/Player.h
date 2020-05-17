@@ -65,6 +65,8 @@ namespace Duel6 {
 
     class PlayerEventListener;
 
+    class Game;
+
     class Player {
     private:
         enum Flags {
@@ -102,6 +104,7 @@ namespace Duel6 {
         };
 
     private:
+        Game *game;
         bool deleted = false;
         Person *person;
         PlayerSkin skin;
@@ -160,7 +163,7 @@ namespace Duel6 {
             this->controllerState = controllerState;
         }
 
-        Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls, Int32 id, Int32 team,
+        Player(Game *game, Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls, Int32 id, Int32 team,
                Int32 clientId,
                Int32 clientLocalId,
                size_t pos);
@@ -317,6 +320,14 @@ namespace Duel6 {
             return bonusDuration;
         }
 
+        void setTimeSinceHit(Float32 timeSinceHit) {
+            this->timeSinceHit = timeSinceHit;
+        }
+
+        Float32 getTimeSinceHit() const {
+            return timeSinceHit;
+        }
+
         Player &addLife(Float32 life, bool showHpBar = true);
 
         Player &setFullLife() {
@@ -419,10 +430,11 @@ namespace Duel6 {
             return water;
         }
 
-        void playSound(PlayerSounds::Type type) const {
+        void playSound(PlayerSounds::Type type) const;
+
+        void playSample(PlayerSounds::Type type) const {
             sounds->getRandomSample(type).play();
         }
-
         void setBodyAlpha(Float32 alpha) {
             bodyAlpha = alpha;
             setAlpha(1.0f);
@@ -473,7 +485,11 @@ namespace Duel6 {
             return flags;
         }
         void setLife(Float32 life) {
+            Float32 oldLife = this->life;
             this->life = life;
+            if(std::abs(oldLife - this->life) > 1.0f){
+                indicators.getHealth().show();
+            }
         }
         void setAir(Float32 air) {
             this->air = air;

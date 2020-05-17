@@ -145,7 +145,7 @@ namespace Duel6 {
         for (const PlayerDefinition &playerDef : playerDefinitions) {
             console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
             skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, *playerAnimations));
-            Player & p = players.emplace_back(
+            Player & p = players.emplace_back(this,
                 playerDef.getPerson(),
                 skins.back(),
                 playerDef.getSounds(),
@@ -196,7 +196,7 @@ namespace Duel6 {
         for (const auto &player : players) {
             if (player.isDeleted()) {
                 skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations);
-                players[pos] = {playerDefinition.getPerson(),
+                players[pos] = {this, playerDefinition.getPerson(),
                     skins[pos],
                     playerDefinition.getSounds(),
                     playerDefinition.getControls(),
@@ -215,7 +215,8 @@ namespace Duel6 {
             pos++;
         }
         skins.push_back(PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations));
-        players.emplace_back(playerDefinition.getPerson(),
+        players.emplace_back(this,
+            playerDefinition.getPerson(),
             skins.back(),
             playerDefinition.getSounds(),
             playerDefinition.getControls(),
@@ -364,8 +365,21 @@ namespace Duel6 {
     void Game::eraseShot(Uint16 id) {
         if(isServer){
             gameProxy->eraseShot(id);
-        } else {
-            round->getWorld().getShotList().eraseShot(id);
         }
+        round->getWorld().getShotList().eraseShot(id, round->getWorld());
+    }
+
+    void Game::spawnExplosion(Explosion &&explosion) {
+        if (isServer) {
+            gameProxy->spawnExplosion(explosion);
+        }
+        round->getWorld().getExplosionList().spawn(std::move(explosion));
+    }
+
+    void Game::playSample(const Player &player, PlayerSounds::Type type) {
+        if (isServer) {
+            gameProxy->playSample(player.getId(), type);
+        }
+        player.playSample(type);
     }
 }

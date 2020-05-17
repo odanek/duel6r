@@ -36,7 +36,7 @@ namespace Duel6 {
               levelRenderData(*level, game.getAppService().getVideo().getRenderer(), gameSettings.getScreenMode(),
                               D6_ANM_SPEED), messageQueue(D6_INFO_DURATION),
                               shotList(game),
-              explosionList(game.getResources(), D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
+              explosionList(game.getResources(), game, D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game, game.getResources(), *this),
               elevatorList(game.getResources().getElevatorTextures()),
               unconfirmedElevatorList(game.getResources().getElevatorTextures(), level->getElevators()), time(0) {

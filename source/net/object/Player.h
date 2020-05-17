@@ -35,6 +35,7 @@ namespace Duel6::net {
         BonusType bonusType;
         Float32 bonusRemainingTime;
         Float32 bonusDuration;
+        Float32 timeSinceHit;
 
         Float32 alpha;
         Float32 bodyAlpha;
@@ -62,6 +63,7 @@ namespace Duel6::net {
             BONUS_TYPE,
             BONUS_REMAINING_TIME,
             BONUS_DURATION,
+            TIME_SINCE_HIT,
             ALPHA,
             BODY_ALPHA,
             _SIZE
@@ -88,6 +90,7 @@ namespace Duel6::net {
             D(BONUS_TYPE, bonusType);
             D(BONUS_REMAINING_TIME, bonusRemainingTime);
             D(BONUS_DURATION, bonusDuration);
+            D(TIME_SINCE_HIT, timeSinceHit);
             D(ALPHA, alpha);
             D(BODY_ALPHA, bodyAlpha);
             if (snapshot.changed.none()) {
@@ -116,6 +119,7 @@ namespace Duel6::net {
             R(BONUS_TYPE, bonusType);
             R(BONUS_REMAINING_TIME, bonusRemainingTime);
             R(BONUS_DURATION, bonusDuration);
+            R(TIME_SINCE_HIT, timeSinceHit);
             R(ALPHA, alpha);
             R(BODY_ALPHA, bodyAlpha);
         }
@@ -173,6 +177,7 @@ namespace Duel6::net {
             S(BONUS_TYPE, bonusType);
             S(BONUS_REMAINING_TIME, bonusRemainingTime);
             S(BONUS_DURATION, bonusDuration);
+            S(TIME_SINCE_HIT, timeSinceHit);
             S(ALPHA, alpha);
             S(BODY_ALPHA, bodyAlpha);
             return result;

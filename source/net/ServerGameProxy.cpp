@@ -207,6 +207,7 @@ namespace Duel6 {
                         p.bonusType = static_cast<BonusType>(player.getBonus()->getId());
                         p.bonusRemainingTime = player.getBonusRemainingTime();
                         p.bonusDuration = player.getBonusDuration();
+                        p.timeSinceHit = player.getTimeSinceHit();
                         p.alpha = player.getAlpha();
                         p.bodyAlpha = player.getBodyAlpha();
                         peer->snapshot[game.tick & xor_64][p.id] = p;
@@ -353,7 +354,27 @@ namespace Duel6 {
                 peer->sendReliable(es);
             }
         }
-
+        void ServerGameProxy::spawnExplosion(Explosion &explosion){
+            SpawnExplosion se;
+            se.centre = {explosion.centre.x, explosion.centre.y};
+            se.max = explosion.max;
+            se.now = explosion.now;
+            se.color.red = explosion.color.getRed();
+            se.color.green = explosion.color.getGreen();
+            se.color.blue = explosion.color.getBlue();
+            se.color.alpha = explosion.color.getAlpha();
+            for (auto &peer : peers) {
+                peer->sendReliable(se);
+            }
+        }
+        void ServerGameProxy::playSample(Int32 playerId, PlayerSounds::Type type){
+            PlaySample ps;
+            ps.playerId = playerId;
+            ps.sample = static_cast<SampleType>(static_cast<type_t>(type));
+            for (auto &peer : peers) {
+                peer->sendReliable(ps);
+            }
+        }
         void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
             Collider &c = w.collider;
             const auto & collider = weapon.getCollider();

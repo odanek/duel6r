@@ -25,6 +25,8 @@ namespace Duel6 {
             PICK_BONUS,
             PICK_WEAPON,
             SPAWN_SHOT,
+            SPAWN_EXPLOSION,
+            PLAY_SAMPLE,
             CLIENT_JOINED,
             CLIENT_DISCONNECTED,
             CLIENT_DISCONNECT,
