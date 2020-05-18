@@ -151,7 +151,9 @@ namespace Duel6 {
                     // we assume that game state updates get through the network most of the time.
                     // If the peer->confirmedInputsTick starts to diverge (client didn't find correct snapshot and
                     // waits for us to serve him fresh copy of the state), we use that one as the last known snapshot
-                    gsu.snapshotTick = gsu.confirmInputTick;
+
+                    // it actually screws things when order delivered out-of - client then lacks the snapshot
+                    //   gsu.snapshotTick = gsu.confirmInputTick;
                 } else {
                     if(peer->choke < 32){
                         peer->choke = 32;
@@ -223,16 +225,12 @@ namespace Duel6 {
                             && peer->snapshot[gsu.snapshotTick & xor_64][p.id].debug == gsu.snapshotTick)) {
                         Player::diff(p, peer->snapshot[gsu.snapshotTick & xor_64][p.id]);
                     }
-                //    if(!p.changed[Player::FIELDS::NO_CHANGE]){
-                        gsu.players.push_back(p);
-                  //  }
-
+                    gsu.players.push_back(p);
                 }
                 if(peer->choke > 0) {
                     peer-> choke --;
                 }
 
-                //peer->sendReliable(gsu);
                 peer->sendUnreliable(gsu);
             }
         }
