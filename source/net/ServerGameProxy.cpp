@@ -168,7 +168,10 @@ namespace Duel6 {
                         continue;
                     }
                     Player p;
-                    p.rtt = peer->getRTT();
+                    if(player.getClientId() == peer->getClientID()){
+                        player.rtt = peer->getRTT();
+                    }
+                    p.rtt = player.rtt;
                     p.id = player.getId();
                     p.clientLocalId = player.getClientLocalId();
                     p.debug = game.tick;
