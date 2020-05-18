@@ -242,9 +242,8 @@ public:
 
     template<std::size_t S>
     bool operator >>(std::bitset<S> &bs) {
-        std::bitset<bs.size()> &b = bs; //TODO remove
-        b.reset();
-        size_t numBits = b.size();
+        bs.reset();
+        size_t numBits = S;
         uint8_t read = 0;
         size_t bit = 0;
         uint8_t pos = 1;
@@ -267,8 +266,7 @@ public:
     }
     template<std::size_t S>
     bool operator <<(std::bitset<S> &bs) {
-        std::bitset<bs.size()> &b = bs; //TODO remove
-        size_t numBits = b.size();
+        size_t numBits = S;
         uint8_t write = 0;
         size_t bit = 0;
         uint8_t pos = 1;
