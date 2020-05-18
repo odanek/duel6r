@@ -164,20 +164,24 @@ namespace Duel6 {
                     auto &acceleration = p.acceleration;
 
                     auto &collidingEntity = player.getCollider();
+
                     Vector2D diff = {
                         position.x - collidingEntity.position.x,
                         position.y - collidingEntity.position.y
                     };
-                     if(diff.x * diff.x + diff.y * diff.y > 0.9){
-                         collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
-                         collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
-                     } else {
-                         collidingEntity.externalForcesSpeed.x += diff.x / 2;
-                         collidingEntity.externalForcesSpeed.y += diff.y / 2;
-                     }
+                    if (diff.x * diff.x + diff.y * diff.y > 0.9) {
+                        collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
+                        collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y,
+                        collidingEntity.externalForcesSpeed.z };
+                    } else {
+                        collidingEntity.externalForcesSpeed.x += diff.x / 2;
+                        collidingEntity.externalForcesSpeed.y += diff.y / 2;
+                    }
+
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                     collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                     collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
+
                     player.setFlags(p.flags);
                     player.setLife(p.life);
                     player.setAir(p.air);

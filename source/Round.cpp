@@ -201,6 +201,8 @@ namespace Duel6 {
                     return;
                 }
             }
+        } else {
+            gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
         }
 
         for (Player &player : world.getPlayers()) {
@@ -210,8 +212,11 @@ namespace Duel6 {
             if(player.local){
                 player.updateControllerStatus();
                 scriptUpdate(player);
-
-                player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+                if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT) ){
+                    player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+                } else {
+                    player.tick++;
+                }
                 if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
                     player.makeGhost();
                 }
@@ -223,7 +228,12 @@ namespace Duel6 {
                     scriptUpdate(player);
                     player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
                     player.unconfirmedInputs[player.tick % 128] = 0;
-                    player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+                    if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)){
+                        player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+                    } else {
+                        player.tick++;
+                    }
+
                     if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
                         player.makeGhost();
                     }
@@ -234,8 +244,9 @@ namespace Duel6 {
             //    player.setControllerState(tmp); // put it back to not replay inputs // commented out - this stops propagating controls between clients from server
             }
         }
-
-        world.update(elapsedTime);
+        if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT) ){
+            world.update(elapsedTime);
+        }
         game.getAppService().getVideo().getRenderer().setGlobalTime(world.getTime());
 
         if (suddenDeathMode) {
