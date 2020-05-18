@@ -941,7 +941,7 @@ namespace Duel6 {
             bonusRemainingTime += Float32(duration) / 2;
             bonusDuration += Float32(duration) / 2;
         } else {
-            if (bonus != BonusType::NONE) {
+            if (bonus != BonusType::NONE && bonus != nullptr) { //TODO figure out why this is sometimes nullptr
                 bonus->onExpire(*this, *world);
             }
             bonus = type;

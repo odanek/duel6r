@@ -120,7 +120,7 @@ namespace Duel6 {
 
         flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN  /*| SDL_WINDOW_INPUT_GRABBED*/;
         if (params.isFullScreen()) {
-           // flags |= SDL_WINDOW_FULLSCREEN;
+            flags |= SDL_WINDOW_FULLSCREEN;
         }
 
         console.printLine(

@@ -334,6 +334,10 @@ namespace Duel6 {
     WorldRenderer::bonusIndicator(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
         auto bonusType = player.getBonus();
+        if(bonusType == nullptr){
+            int x;//debug;
+            return;
+        }
         Material material = Material::makeColoredTexture(game.getResources().getBonusTextures(),
                                                          Color::WHITE.withAlpha(alpha));
 
