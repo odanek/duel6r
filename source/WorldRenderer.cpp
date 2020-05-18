@@ -442,11 +442,13 @@ namespace Duel6 {
     }
 
     void WorldRenderer::invulRings(const std::vector<Player> &players) const {
+        renderer.enableDepthTest(false);
         for (const Player &player : players) {
             if (!player.isDeleted() && player.isInvulnerable()) {
                 invulRing(player);
             }
         }
+        renderer.enableDepthTest(true);
     }
 
     void WorldRenderer::splitBox(const PlayerView &view) const {
