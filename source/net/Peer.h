@@ -96,7 +96,7 @@ namespace Duel6 {
                 std::string dataStr = bs.str();
                 const char *data = dataStr.c_str();
                 size_t dataLen = dataStr.length();
-                ENetPacket *packet = enet_packet_create(data, dataLen, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
+                ENetPacket *packet = enet_packet_create(data, dataLen, reliable ? ENET_PACKET_FLAG_RELIABLE : ENET_PACKET_FLAG_UNSEQUENCED | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
                 if(packet == nullptr){
                     D6_THROW(Exception, "Cannot allocate packet");
                     return;
