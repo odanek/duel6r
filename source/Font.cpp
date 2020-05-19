@@ -80,6 +80,9 @@ namespace Duel6 {
         if (str.length() < 1) {
             return;
         }
+#ifdef D6_RENDERER_GL1  //performance fix pro Milana
+        outline = false;
+#endif
         Texture texture = getTexture(str, outline);
         Material material = Material::makeColoredTexture(texture, color);
         Float32 width = getTextWidth(str, height);
@@ -95,6 +98,10 @@ namespace Duel6 {
         if (str.length() < 1) {
             return;
         }
+#ifdef D6_RENDERER_GL1 //performance fix pro Milana
+        outline = false;
+#endif
+
         Float64 scale = fontHeight / 32.0f;
         Texture texture = getTexture(str, outline, maxWidth, resultSize);
         resultSize.x *= scale;

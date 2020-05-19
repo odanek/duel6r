@@ -53,12 +53,12 @@ namespace Duel6 {
         }
 
 
-//#ifdef D6_DEBUG
+#ifdef D6_DEBUG
         // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
-        auto requestedScreenParameters = ScreenParameters(960, 900, 32, 24, 0, false);
-//#else
-//        auto requestedScreenParameters = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 24, 0, true);
-//#endif
+       auto requestedScreenParameters = ScreenParameters(960, 900, 32, 24, 4, false);
+#else
+      auto requestedScreenParameters = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 24, 0, true);
+#endif
 
 
         window = createWindow(name, icon, requestedScreenParameters, console);
