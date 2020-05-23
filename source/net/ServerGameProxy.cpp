@@ -192,12 +192,14 @@ namespace Duel6 {
                         const auto &externalForces = collidingEntity.externalForces;
                         const auto &externalForcesSpeed = collidingEntity.externalForcesSpeed;
                         const auto &velocity = collidingEntity.velocity;
+                        const auto &lastCollisionCheck = collidingEntity.lastCollisionCheck;
                         const auto &acceleration = collidingEntity.acceleration;
                         p.position = { position.x, position.y };
                         p.externalForces = { externalForces.x, externalForces.y };
                         p.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y };
                         p.velocity = { velocity.x, velocity.y };
                         p.acceleration = { acceleration.x, acceleration.y };
+                        p.lastCollisionCheck = lastCollisionCheck.onGround; //TODO all values
                         p.flags = player.getFlags();
                         p.life = player.getLife();
                         p.air = player.getAir();

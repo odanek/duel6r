@@ -182,6 +182,7 @@ namespace Duel6 {
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                     collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                     collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
+                    collidingEntity.lastCollisionCheck.onGround = p.lastCollisionCheck; //TODO all values
 
                     player.setFlags(p.flags);
                     player.setLife(p.life);

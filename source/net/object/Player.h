@@ -26,6 +26,7 @@ namespace Duel6::net {
         Vector2D externalForces;
         Vector2D externalForcesSpeed;
         Vector2D velocity;
+        Uint8 lastCollisionCheck;
 
         Uint8 controls;
         Uint16 flags;
@@ -54,6 +55,7 @@ namespace Duel6::net {
             EXTERNALFORCES,
             EXTERNALFORCESSPEED,
             VELOCITY,
+            LAST_COLLISION_CHECK,
             CONTROLS,
             FLAGS,
             LIFE,
@@ -82,6 +84,7 @@ namespace Duel6::net {
             D(EXTERNALFORCES, externalForces);
             D(EXTERNALFORCESSPEED, externalForcesSpeed);
             D(VELOCITY, velocity);
+            D(LAST_COLLISION_CHECK, lastCollisionCheck);
             D(CONTROLS, controls);
             D(FLAGS, flags);
             D(LIFE, life);
@@ -112,6 +115,7 @@ namespace Duel6::net {
             R(EXTERNALFORCES, externalForces);
             R(EXTERNALFORCESSPEED, externalForcesSpeed);
             R(VELOCITY, velocity);
+            R(LAST_COLLISION_CHECK, lastCollisionCheck);
             R(CONTROLS, controls);
             R(FLAGS, flags);
             R(LIFE, life);
@@ -150,6 +154,7 @@ namespace Duel6::net {
             S(EXTERNALFORCES, externalForces);
             S(EXTERNALFORCESSPEED, externalForcesSpeed);
             S(VELOCITY, velocity);
+            S(LAST_COLLISION_CHECK, lastCollisionCheck);
             S(CONTROLS, controls);
             S(FLAGS, flags);
             S(LIFE, life);
