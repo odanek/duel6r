@@ -105,7 +105,7 @@ namespace Duel6 {
                     }
                     PlayerInputs pi;
                     pi.id = player.getId();
-                    player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
+                    player.unconfirmedInputs[player.tick & xor_128] = player.getControllerState();
                     for (size_t i = 0; i < 64; i++) {
                         pi.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - 63 + i) & xor_128];
                     }
@@ -178,7 +178,7 @@ namespace Duel6 {
                     p.clientLocalId = player.getClientLocalId();
                     p.debug = game.tick;
 
-                    player.unconfirmedInputs[game.tick & xor_128] = player.getControllerState();
+                    player.unconfirmedInputs[player.tick & xor_128] = player.getControllerState();
                     const size_t maxInputs = Player::INPUTS;
                     for (size_t i = 0; i < maxInputs; i++) { //TODO: figure out if it should be game.tick - (maxInputs) or game.tick - (maxInputs - 1)
                         p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - (maxInputs - 1) + i) & xor_128];

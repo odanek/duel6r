@@ -140,22 +140,30 @@ namespace Duel6 {
         PlayerIndicators indicators;
         Uint32 controllerState;
         CollidingEntity collider;
+
         Int32 id;
         Int32 team;
         Int32 clientId;
         Int32 clientLocalId;
 
     public:
+        CollidingEntity confirmedCollider; //for lag compensation
+        Orientation confirmedOrientation;
+        Uint32 confirmedFlags = 0;
+        Float32 confirmedLife = 100;
         bool local = false;
         size_t pos;
         uint32_t rtt = 0;
         uint16_t tick = 0;
         uint16_t lastConfirmedTick = 0;
+        uint16_t compensatedUntilTick = 0;
         uint16_t lateTicks = 0; //debug
         std::array<Uint32, 128> unconfirmedInputs;
+        std::array<CollidingEntity, 128> compensationResults;
+        std::array<CollidingEntity, 128> realPos;
         bool isCompensating = false;
 
-        Uint32 getControllerState(){
+        Uint32 getControllerState() const {
             return controllerState;
         }
 
@@ -185,13 +193,14 @@ namespace Duel6 {
 
         void updateControllerStatus();
 
-        void compensateLag(World &world,uint16_t gameTick, uint16_t confirmedTick, Float32 elapsedTime);
+        void compensateLag(World &world, Float32 elapsedTime);
 
         void update(World &world, ScreenMode screenMode, Float32 elapsedTime);
 
         void prepareCam(const Video &video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 
         bool hit(Float32 pw); // Returns true if the shot caused the player to die
+
         bool hitByShot(Float32 pw, Shot &s, bool directHit, const Vector &hitPoint, const Vector &shotVector);
 
         bool airHit(Float32 amount);
@@ -517,7 +526,6 @@ namespace Duel6 {
 
         void moveVertical(const Level &level, Float32 elapsedTime, Float32 speed);
 
-
         void checkWater(World &world, Float32 elapsedTime);
 
         void fall();
@@ -540,24 +548,11 @@ namespace Duel6 {
 
         void checkStuck(const Level &level, Float32 elapsedTime);
 
-        bool hasFlag(Uint32 flag) const {
-            return (flags & flag) == flag;
-        }
+        bool hasFlag(Uint32 flag) const;
 
-        void setFlag(Uint32 flag) {
-            if(isCompensating) {
-                return;
-            }
-            flags |= flag;
-        }
+        void setFlag(Uint32 flag);
 
-        void unsetFlag(Uint32 flag) {
-            if(isCompensating) {
-                return;
-            }
-
-            flags &= ~flag;
-        }
+        void unsetFlag(Uint32 flag);
 
     private:
         void updateLoop(World &world, ElevatorList &elevators, Float32 elapsedTime);

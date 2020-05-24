@@ -170,19 +170,6 @@ namespace Duel6 {
         game.getResources().getGameOverSound().play();
         onRoundEnd();
     }
-    void Round::compensateLag(uint16_t gameTick, uint16_t confirmedTick) {
-        static const Float64 elapsedTime = 1.0f / D6_UPDATE_FREQUENCY; // TODO
-        isCompensatingLag = true;
-//        world.confirmElevators(ticks, elapsedTime);
-        for (Player &player : world.getPlayers()) {
-            if(player.isDeleted()){
-                continue;
-            }
-            player.compensateLag(world, gameTick, confirmedTick, elapsedTime);
-        }
-
-        isCompensatingLag = false;
-    }
 
     void Round::update(Float32 elapsedTime) {
         // Check if there's a winner
@@ -210,13 +197,18 @@ namespace Duel6 {
                 continue;
             }
             if(player.local){
+                if(!game.isServer && game.networkGame){
+                    player.compensateLag(world, elapsedTime);
+                }
                 player.updateControllerStatus();
                 scriptUpdate(player);
+
                 if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT) ){
                     player.update(world, game.getSettings().getScreenMode(), elapsedTime);
                 } else {
                     player.tick++;
                 }
+
                 if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
                     player.makeGhost();
                 }
@@ -226,8 +218,8 @@ namespace Duel6 {
                 //Converted to Uint16 to deal with the counter wrap-around at 65535
                 while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
                     scriptUpdate(player);
-                    player.setControllerState(player.unconfirmedInputs[player.tick % 128]);
-                    player.unconfirmedInputs[player.tick % 128] = 0;
+                    player.setControllerState(player.unconfirmedInputs[player.tick & 127]);
+                    player.unconfirmedInputs[player.tick & 127] = 0;
                     if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)){
                         player.update(world, game.getSettings().getScreenMode(), elapsedTime);
                     } else {

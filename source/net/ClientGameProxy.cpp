@@ -95,7 +95,7 @@ namespace Duel6 {
                         }
                     }
                     for (size_t i = 0; i < missed; i++) {
-                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[64 - missed + i];
+                        player.unconfirmedInputs[(player.tick + i) & 127] = p.unconfirmedInputs[64 - missed + i];
                     }
                     player.setControllerState(p.unconfirmedInputs[63]);
                 }
@@ -163,47 +163,38 @@ namespace Duel6 {
                     auto &velocity = p.velocity;
                     auto &acceleration = p.acceleration;
 
-                    auto &collidingEntity = player.getCollider();
+                    auto &collidingEntity =  player.confirmedCollider;
 
-                    Vector2D diff = {
-                        position.x - collidingEntity.position.x,
-                        position.y - collidingEntity.position.y
-                    };
-                   // if (diff.x * diff.x + diff.y * diff.y > 0.9) {
-                        collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
-                        collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y,
-                        collidingEntity.externalForcesSpeed.z };
-//                    } else
-//                    {
-//                        collidingEntity.externalForcesSpeed.x += diff.x / 4;
-//                        collidingEntity.externalForcesSpeed.y += diff.y / 4;
-//                    }
-
+                    auto oldposition = collidingEntity.position;
+                    auto oldexternalForces = collidingEntity.externalForces;
+                    auto oldvelocity = collidingEntity.velocity;
+                    auto oldacceleration = collidingEntity.acceleration;
+                    auto oldexternalforcesspeed = collidingEntity.externalForcesSpeed;
+                    collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
+                    collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z};
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                     collidingEntity.velocity = { velocity.x, velocity.y, collidingEntity.velocity.z };
                     collidingEntity.acceleration = { acceleration.x, acceleration.y, collidingEntity.acceleration.z };
                     collidingEntity.lastCollisionCheck.onGround = p.lastCollisionCheck; //TODO all values
-
-                    player.setFlags(p.flags);
-                    player.setLife(p.life);
+                    player.confirmedFlags = p.flags;
+                    player.confirmedLife = p.life;
                     player.setAir(p.air);
                     player.setAmmo(p.ammo);
                     player.rtt = p.rtt;
                     if (player.getWeapon().getId() != p.weaponId) {
                         player.setWeapon(p.weaponId); //resets animation
                     }
-                    player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
+                    player.confirmedOrientation = p.orientationLeft ? Orientation::Left : Orientation::Right;
                     player.updateBonus(Duel6::BonusType::getById(static_cast<unsigned int>(p.bonusType)), p.bonusDuration, p.bonusRemainingTime);
                     player.setTimeSinceHit(p.timeSinceHit);
                     player.setBodyAlpha(p.bodyAlpha);
                     player.setAlpha(p.alpha);
                     p.score.unloadToPlayer(player);
 
-                    if (player.local && (((Uint16) (game->tick - gsu.confirmInputTick) & xor_32768) < 128)) { // cap it at 128 frames to avoid run-away of death
-                        static const Float64 elapsedTime = 1.0f / D6_UPDATE_FREQUENCY; // TODO
-                        player.compensateLag(game->getRound().getWorld(), game->tick, gsu.confirmInputTick, elapsedTime);// run client-side prediction
-                    }
                     peer->snapshot[gsu.inputTick & xor_64][p.id] = p;
+                    if((gsu.confirmInputTick - player.lastConfirmedTick) > 0){
+                        player.lastConfirmedTick = gsu.confirmInputTick;
+                    }
                 } else {
                     player.lastConfirmedTick = gsu.confirmInputTick;
                     player.rtt = peer->getRTT();
@@ -215,10 +206,11 @@ namespace Duel6 {
                         missed = maxMissed;
                     }
                     for (size_t i = 0; i < maxMissed; i++) {
-                        player.unconfirmedInputs[(player.tick + i) % 128] = p.unconfirmedInputs[maxMissed - missed + i];
+                        player.unconfirmedInputs[(player.tick + i) & 127] = p.unconfirmedInputs[maxMissed - missed + i];
                     }
                 }
             }
+
         }
         void ClientGameProxy::peerDisconnected(Peer &peer){
             std::vector<Int32> removedIds;
@@ -346,14 +338,18 @@ namespace Duel6 {
                 auto &velocity = p.velocity;
                 auto &acceleration = p.acceleration;
 
-                auto &collidingEntity = player.getCollider();
+                CollidingEntity collidingEntity;
                 collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
                 collidingEntity.externalForces = {0,0,0}; //{ externalForces.x, externalForces.y, collidingEntity.externalForces.z };
                 collidingEntity.externalForcesSpeed = {0,0,0};//{ externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z };
                 collidingEntity.velocity = {0,0,0};//{ velocity.x, velocity.y, collidingEntity.velocity.z };
                 collidingEntity.acceleration = {0,0,0};//{ acceleration.x, acceleration.y, collidingEntity.acceleration.z };
+                player.getCollider() = collidingEntity;
+                player.confirmedCollider = collidingEntity;
                 player.setFlags(p.flags);
+                player.confirmedFlags = p.flags;
                 player.setLife(p.life);
+                player.confirmedLife = p.life;
                 player.setAir(p.air);
                 player.setAmmo(p.ammo);
                 player.setWeapon(p.weaponId);

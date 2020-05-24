@@ -41,7 +41,7 @@ namespace Duel6::net {
                 break;
             }
             if (state == ServiceState::UNINITIALIZED) {
-                break;
+                return;
             }
         }
         if(stopRequested){

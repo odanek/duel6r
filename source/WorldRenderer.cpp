@@ -229,13 +229,11 @@ namespace Duel6 {
         Vector size1, size2;
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
         font.printWrapped(X, Y, 0.5f, Color::WHITE, ns1, fontSize, 3050, size1, true);
-        Float32 height1 = size1.y;
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
 
         renderer.quadXY(Vector(X, Y), Vector(size1.x, size1.y), Color::WHITE.withAlpha(40));
         renderer.setBlendFunc(BlendFunc::SrcColor);
 
-        Float32 ns1Width = size1.x;
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
 
     }
@@ -288,9 +286,6 @@ namespace Duel6 {
 
     void WorldRenderer::playerName(const Player &player, const Indicator &indicator, Float32 xOfs, Float32 yOfs) const {
         const std::string &name = Format("{0}") << player.getPerson().getName();
-       // const std::string &netstat = Format("net:{0}/{1}/{2}/{3}") << player.rtt << player.tick << player.lastConfirmedTick << (game.tick - player.tick);
-
-   //     Float32 netstatWidth = 0.15f * netstat.size();
         Float32 width = font.getTextWidth(name, 0.3f);
         Float32 X = xOfs - width / 2;
         Float32 Y = yOfs;
@@ -335,7 +330,6 @@ namespace Duel6 {
         Uint8 alpha = Uint8(255 * indicator.getAlpha());
         auto bonusType = player.getBonus();
         if(bonusType == nullptr){
-            int x;//debug;
             return;
         }
         Material material = Material::makeColoredTexture(game.getResources().getBonusTextures(),
@@ -355,6 +349,14 @@ namespace Duel6 {
 
     void WorldRenderer::playerStatus(const Player &player) const {
         const auto &indicators = player.getIndicators();
+
+//        for debugging lag compensation
+//        Vector d = {0.012f,-0.12f,0.0f};
+//        Rectangle rect = player.confirmedCollider.getCollisionRect();
+//        renderer.point(rect.getCentre() - d, 10, Color::RED);
+//
+//        Rectangle rect4 = player.compensationResults[(player.tick-1) & 127].getCollisionRect();
+//        renderer.point(rect4.getCentre() - d, 15, Color::YELLOW);
 
         if (player.isAlive() && player.isInGame()) {
             Rectangle rect = player.getCollisionRect();

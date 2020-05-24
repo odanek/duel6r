@@ -79,16 +79,18 @@ namespace Duel6 {
         this->world = &world;
         unconfirmedInputs.fill(0);
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-
+        confirmedCollider = collider;
         sprite = world.getSpriteList().add(animations->getStand().get(), skin.getTexture());
         sprite->setPosition(getSpritePosition(), 0.5f);
         this->weapon = weapon;
         gunSprite = weapon.makeSprite(world.getSpriteList());
 
         flags = FlagHasGun;
+        confirmedFlags = flags;
         orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
         timeToReload = weapon.isChargeable() ? getReloadInterval() : 0;
         life = D6_MAX_LIFE;
+        confirmedLife = life;
         air = D6_MAX_AIR;
         this->ammo = ammo;
         timeSinceHit = 1.0f ;
@@ -195,6 +197,7 @@ namespace Duel6 {
           pos(r.pos),
           tick(r.tick),
           lastConfirmedTick(r.lastConfirmedTick),
+          compensatedUntilTick(r.compensatedUntilTick),
           lateTicks(r.lateTicks),
           unconfirmedInputs(r.unconfirmedInputs),
           isCompensating(r.isCompensating) {
@@ -245,6 +248,7 @@ namespace Duel6 {
         pos = r.pos;
         tick = r.tick;
         lastConfirmedTick = r.lastConfirmedTick;
+        compensatedUntilTick = r.compensatedUntilTick;
         lateTicks = r.lateTicks;
         unconfirmedInputs = r.unconfirmedInputs;
         isCompensating = r.isCompensating;
@@ -535,28 +539,78 @@ namespace Duel6 {
         setAnm();
     }
 
-    void Player::compensateLag(World &world,  uint16_t gameTick, uint16_t confirmedTick, Float32 elapsedTime) {
-//        if(!local) {
-//            return;
-//        }
-        uint16_t ticks = gameTick - confirmedTick;
-        //collider.setPosition(lastConfirmedPos);
-        auto tmp = controllerState;
-        isCompensating = true;
-        for (auto i = 1; i < ticks; i++) {
-            controllerState = unconfirmedInputs[(confirmedTick + i) % 128];
-//            updateLoop(world, world.getUnconfirmedElevatorList(), elapsedTime, true);
-            updateLoop(world, world.getElevatorList(), elapsedTime);
+    void Player::compensateLag(World &world, Float32 elapsedTime) {
+        if(confirmedFlags & FlagDead){ // cancel  out any potential client-only deaths
+            setFlag(FlagDead);
+        } else {
+            unsetFlag(FlagDead);
         }
+        if(confirmedFlags & FlagLying){
+            setFlag(FlagLying);
+        } else {
+            unsetFlag(FlagLying);
+        }
+        if(confirmedFlags & FlagDying){
+            setFlag(FlagDying);
+        } else {
+            unsetFlag(FlagDying);
+        }
+        // optimisation only, no need to re-run whole thing if we don't have updated position from the server
+        if(compensatedUntilTick == lastConfirmedTick){
+            compensationResults[tick & 127] = collider;
+            return;
+        }
+        realPos[tick & 127] = collider; //for debug (we could draw something in worldrenderer)
+        Uint32 backupFlags = flags;
+        Float32 backupLife = life;
+        uint16_t ticks = tick - lastConfirmedTick;
+        if(ticks > 126){ // this happens after joining the game
+            collider = confirmedCollider;
+            orientation = confirmedOrientation;
+            flags = confirmedFlags;
+        }
+        //ticks == 1 happens in low latency game, no need to run lag compensation
+        //lastConfirmedTick == 0 is initial game state (and at game ticks wrap-around, but who cares)
+        //ticks > 126 is unwanted run-away state
+        if(ticks == 1 || lastConfirmedTick == 0 || ticks > 126) {
+            flags = confirmedFlags;
+            life = confirmedLife;
+            if(isAlive()) { // if we are not dead yet, restore flags
+                flags = backupFlags;
+                life = backupLife;
+            }
+            compensationResults[(tick)& 127] = collider;
+            return;
+        }
+        isCompensating = true;
+        collider = confirmedCollider;
+        flags = confirmedFlags;
+        life = confirmedLife;
+        // In the future we might interpolate the positions based on previous position
+        // CollidingEntity previousResult = compensationResults[(lastConfirmedTick)& 127];
+        //
+        for (uint16_t i = 1; i <= ticks; i++) {
+            controllerState = unconfirmedInputs[(tick - ticks + i)& 127];
+            updateLoop(world, world.getElevatorList(), elapsedTime);
+            // we should store the collider in this loop, if we want to be dead-serious precise and
+            // use it as `previousResult` above
+            // compensationResults[tick & 127] = collider;
+        }
+        compensatedUntilTick = lastConfirmedTick;
+        compensationResults[tick & 127] = collider;
         isCompensating = false;
-        controllerState = tmp;
     }
 
     void Player::update(World &world, ScreenMode screenMode, Float32 elapsedTime) {
         tick++;
+        if(!local && !game->isServer){
+            collider = confirmedCollider;
+            orientation = confirmedOrientation;
+            flags = confirmedFlags;
+            life = confirmedLife;
+        }
         checkWater(world, elapsedTime);
         if (isAlive()) {
-            /* TODO: NETCODE */
             world.getBonusList().checkBonus(*this);
         }
 
@@ -956,7 +1010,6 @@ namespace Duel6 {
     }
     void Player::setPosition(float x, float y, float z){
         collider.setPosition(x,y,z);
-      //  lastConfirmedPos = collider.getPosition(); //todo add acceleration, velocity etc.
     }
     void Player::die() {
         setFlag(FlagDying | FlagLying);
@@ -1032,4 +1085,15 @@ namespace Duel6 {
         return bodyAlpha;
     }
 
+    bool Player::hasFlag(Uint32 flag) const {
+        return (flags & flag) == flag;
+    }
+
+    void Player::setFlag(Uint32 flag) {
+        flags |= flag;
+    }
+
+    void Player::unsetFlag(Uint32 flag) {
+        flags &= ~flag;
+    }
 }

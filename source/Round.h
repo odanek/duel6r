@@ -57,8 +57,6 @@ namespace Duel6 {
 
         void start();
 
-        void compensateLag(uint16_t gameTick, uint16_t confirmedTick);
-
         void update(Float32 elapsedTime);
 
         void end();

@@ -113,8 +113,6 @@ namespace Duel6 {
 
     public:
         Int32 maxPlayerId = 0;
-        bool isCompensatingLag = false ;
-        void compensateLag(uint16_t confirmInputTick);
 
         Game(AppService &appService, GameResources &resources, GameSettings &settings);
         void setGameProxyReference(net::ServerGameProxy & serverGameProxy) {

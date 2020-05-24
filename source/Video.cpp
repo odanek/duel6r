@@ -45,7 +45,7 @@ namespace Duel6 {
         // Get current video mode
 
         // Set graphics mode
-        view = ViewParameters(1.0f, 40.0f, 45.0f);
+        view = ViewParameters(1.0f, 40.0f, 65.0f);
 #if !defined(D6_RENDERER_HEADLESS)
         SDL_DisplayMode currentVideoMode;
         if (SDL_GetCurrentDisplayMode(0, &currentVideoMode)) {

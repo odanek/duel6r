@@ -247,12 +247,7 @@ namespace Duel6 {
             gameProxy->playersDisconnected(ids);
         }
     }
-    void Game::compensateLag(uint16_t confirmInputTick) {
-        isCompensatingLag = true;
 
-        round->compensateLag(tick, confirmInputTick);
-        isCompensatingLag = false;
-    }
     //client
     void Game::onStartRound(std::unique_ptr<Level> && levelData) {
         levelData->setBlockMeta(resources.getBlockMeta());
