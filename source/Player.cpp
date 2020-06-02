@@ -585,7 +585,7 @@ namespace Duel6 {
         isCompensating = true;
         collider = confirmedCollider;
         flags = confirmedFlags;
-        life = confirmedLife;
+        setLife(confirmedLife);
         // In the future we might interpolate the positions based on previous position
         // CollidingEntity previousResult = compensationResults[(lastConfirmedTick)& 127];
         //
@@ -885,11 +885,12 @@ namespace Duel6 {
             }
         }
 
-        if (outOfAir && hit(amount)) {
-            playSound(PlayerSounds::Type::Drowned);
-            return true;
+        if (game->isServer || !game->networkGame) {
+            if (outOfAir && hit(amount)) {
+                playSound(PlayerSounds::Type::Drowned);
+                return true;
+            }
         }
-
         return false;
     }
 

@@ -216,18 +216,17 @@ namespace Duel6 {
               //  auto tmp = player.getControllerState();
                 bool runElevators = player.lastConfirmedTick == player.tick;
                 //Converted to Uint16 to deal with the counter wrap-around at 65535
-                while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
-                    scriptUpdate(player);
-                    player.setControllerState(player.unconfirmedInputs[player.tick & 127]);
-                    player.unconfirmedInputs[player.tick & 127] = 0;
-                    if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)){
-                        player.update(world, game.getSettings().getScreenMode(), elapsedTime);
-                    } else {
-                        player.tick++;
+                if(game.isServer){
+                    // attempt to smooth out lag spikes on the server side - server buffers 4 inputs
+                    if((Uint16)(player.lastConfirmedTick - player.tick) > 0){
+                        updateRemotePlayer(player, elapsedTime);
                     }
-
-                    if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
-                        player.makeGhost();
+                    while((Uint16)(player.lastConfirmedTick - player.tick) > 4){
+                        updateRemotePlayer(player, elapsedTime);
+                    }
+                } else {
+                    while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
+                        updateRemotePlayer(player, elapsedTime);
                     }
                 }
                 if(runElevators){
@@ -250,6 +249,21 @@ namespace Duel6 {
         }
 
         showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
+    }
+
+    void Round::updateRemotePlayer(Player &player, Float32 elapsedTime) {
+        scriptUpdate(player);
+        player.setControllerState(player.unconfirmedInputs[player.tick & 127]);
+        player.unconfirmedInputs[player.tick & 127] = 0;
+        if (!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
+            player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+        } else {
+            player.tick++;
+        }
+
+        if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
+            player.makeGhost();
+        }
     }
 
     void Round::keyEvent(const KeyPressEvent &event) {

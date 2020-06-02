@@ -117,6 +117,8 @@ namespace Duel6 {
         void switchScreenMode();
 
         void roundOver();
+
+        void updateRemotePlayer(Player &player, Float32 elapsedTime);
     };
 }
 
