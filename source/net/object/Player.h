@@ -18,6 +18,7 @@ namespace Duel6::net {
     public:
         static constexpr const size_t INPUTS = 16;
         tick_t debug = 12345;
+        tick_t lastConfirmedTick = 0;
         uint32_t rtt = 0;
         object_id_t id = 0;
         Int32 clientLocalId = 0;
@@ -134,6 +135,7 @@ namespace Duel6::net {
         }
         Player() {
             debug = 12345;
+            lastConfirmedTick = 0;
             changed.set();
             changed.set(NO_CHANGE, false);
         }
@@ -145,6 +147,7 @@ namespace Duel6::net {
         bool serialize(Stream &s) {
             bool result = s & id;
             result &= s & debug;
+            result &= s & lastConfirmedTick;
             result &= s & rtt;
             result &= s & changed;
             if (changed[NO_CHANGE]) return result;

@@ -177,7 +177,7 @@ namespace Duel6 {
                     p.id = player.getId();
                     p.clientLocalId = player.getClientLocalId();
                     p.debug = game.tick;
-
+                    p.lastConfirmedTick = player.tick;
                     player.unconfirmedInputs[player.tick & xor_128] = player.getControllerState();
                     const size_t maxInputs = Player::INPUTS;
                     for (size_t i = 0; i < maxInputs; i++) { //TODO: figure out if it should be game.tick - (maxInputs) or game.tick - (maxInputs - 1)

@@ -196,7 +196,7 @@ namespace Duel6 {
                         player.lastConfirmedTick = gsu.confirmInputTick;
                     }
                 } else {
-                    player.lastConfirmedTick = gsu.confirmInputTick;
+                    player.lastConfirmedTick = p.lastConfirmedTick;// gsu.confirmInputTick;
                     player.rtt = peer->getRTT();
                 }
                 if (!player.local) {
