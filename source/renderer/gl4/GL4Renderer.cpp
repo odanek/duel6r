@@ -39,7 +39,7 @@ namespace Duel6 {
     struct MaterialVertex {
         Vector xyz; // Position
         Vector str; // Texture coordinates
-        Uint32 flags;
+        Uint32 flags = 0;
     };
     static MaterialVertex materialPoints[4];
 
@@ -51,8 +51,6 @@ namespace Duel6 {
               materialFragmentShader(GL_FRAGMENT_SHADER, "shaders/gl4/materialFragment.glsl"),
               colorProgram(colorVertexShader, colorFragmentShader),
               materialProgram(materialVertexShader, materialFragmentShader) {
-        memset(materialPoints, 0, sizeof(MaterialVertex) * 4);
-
         enableOption(GL_CULL_FACE, true);
         glFrontFace(GL_CW);
         glCullFace(GL_BACK);
