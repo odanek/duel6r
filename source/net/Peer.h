@@ -8,6 +8,7 @@
 #ifndef SOURCE_NET_PEER_H_
 #define SOURCE_NET_PEER_H_
 #include <memory>
+#include <cstring>
 #include <enet/enet.h>
 #include "../Exception.h"
 #include "binarystream/BinaryStream.h"
@@ -86,7 +87,6 @@ namespace Duel6 {
             template<typename MessageObject>
             void sendUnreliable(MessageObject &msg) {
                 send(msg, UNRELIABLE_CHANNEL, false);
-                enet_host_flush(host);
             }
 
             template<typename MessageObject>
@@ -94,15 +94,13 @@ namespace Duel6 {
                 binarystream bs;
                 msg.send(bs);
                 std::string dataStr = bs.str();
-                const char *data = dataStr.c_str();
                 size_t dataLen = dataStr.length();
-                ENetPacket *packet = enet_packet_create(data, dataLen, reliable ? ENET_PACKET_FLAG_RELIABLE : ENET_PACKET_FLAG_UNSEQUENCED | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
-                if(packet == nullptr){
-                    D6_THROW(Exception, "Cannot allocate packet");
-                    return;
-                }
-                enet_peer_send(peer.get(), channel, packet);
+                char data[dataLen];
+                std::memset(data, 0, dataLen);
+                std::memcpy(data, dataStr.c_str(), dataLen);
+                send(data, dataLen, channel, reliable);
             }
+
 
             template<typename MessageObject>
             void send(MessageObject &&msg) {
@@ -128,6 +126,8 @@ namespace Duel6 {
             peer_id_t getClientID();
 
         protected:
+            void send(char * data, size_t dataLen, uint8_t channel, bool reliable);
+
             void disconnect(bool now);
 
             void destroy();

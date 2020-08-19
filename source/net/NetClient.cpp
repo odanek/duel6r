@@ -53,6 +53,7 @@ namespace Duel6 {
                 return;
             }
             peer->disconnect();
+            stopped();
         }
 
         void NetClient::onStopped() {

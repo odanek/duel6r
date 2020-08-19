@@ -91,8 +91,7 @@ namespace Duel6 {
                 }
                 PlayerInputsUpdate piu;
                 auto &players = game.getPlayers();
-
-                piu.confirmInputTick = peer->confirmedInputsTick;
+                piu.confirmInputTick = peer->receivedInputsTick; // TODO: add explanation why this must not be peer->confirmedIntputsTick (which was wrong)
                 piu.inputTick = game.tick;
 
                 piu.playersInputs.reserve(players.size());
@@ -176,12 +175,12 @@ namespace Duel6 {
                     p.rtt = player.rtt;
                     p.id = player.getId();
                     p.clientLocalId = player.getClientLocalId();
-                    p.debug = game.tick;
+                    p.debug = player.tick;
                     p.lastConfirmedTick = player.tick;
                     player.unconfirmedInputs[player.tick & xor_128] = player.getControllerState();
                     const size_t maxInputs = Player::INPUTS;
                     for (size_t i = 0; i < maxInputs; i++) { //TODO: figure out if it should be game.tick - (maxInputs) or game.tick - (maxInputs - 1)
-                        p.unconfirmedInputs[i] = player.unconfirmedInputs[(game.tick - (maxInputs - 1) + i) & xor_128];
+                        p.unconfirmedInputs[i] = player.unconfirmedInputs[(player.tick - (maxInputs - 1) + i) & xor_128];
                     }
 
                     p.controls = player.getControllerState();
@@ -238,6 +237,9 @@ namespace Duel6 {
         }
 
         void ServerGameProxy::playersJoined(std::vector<PlayerDefinition> &playerDefinitions) {
+            if(playerDefinitions.size() == 0){
+                return; // avoid troubles !
+            }
             PlayersJoined pj;
             pj.playerProfiles.reserve(playerDefinitions.size());
             Int32 clientId = 0;

@@ -282,6 +282,7 @@ namespace Duel6 {
         if (isOnGround() || isOnElevator()) {
             setFlag(FlagKnee);
         } else {
+            unsetFlag(FlagKnee);
             if (isRising()) {
                 collider.velocity.y = 0.0f;
             }
@@ -496,9 +497,10 @@ namespace Duel6 {
             }
         }
 
-        unsetFlag(FlagKnee);
         if (controllerState & ButtonDown) {
             fall();
+        } else {
+            unsetFlag(FlagKnee);
         }
     }
 

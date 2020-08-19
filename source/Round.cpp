@@ -197,6 +197,7 @@ namespace Duel6 {
                 continue;
             }
             if(player.local){
+                player.lateTicks = player.tick - player.lastConfirmedTick;
                 if(!game.isServer && game.networkGame){
                     player.compensateLag(world, elapsedTime);
                 }
@@ -213,18 +214,22 @@ namespace Duel6 {
                     player.makeGhost();
                 }
             } else {
-              //  auto tmp = player.getControllerState();
                 bool runElevators = player.lastConfirmedTick == player.tick;
-                //Converted to Uint16 to deal with the counter wrap-around at 65535
+
                 if(game.isServer){
-                    // attempt to smooth out lag spikes on the server side - server buffers 4 inputs
-                    if((Uint16)(player.lastConfirmedTick - player.tick) > 0){
+                    // TODO: attempt to smooth out lag spikes on the server side - server buffers 4 inputs
+//                    static Float32 rundown = 0;
+//                    rundown += elapsedTime;
+//                    if(rundown > 5 * elapsedTime){
+//                        rundown = 5 * elapsedTime;
+//                    }
+                    //Converted to Uint16 to deal with the counter wrap-around at 65535
+                    while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
                         updateRemotePlayer(player, elapsedTime);
                     }
-                    while((Uint16)(player.lastConfirmedTick - player.tick) > 4){
-                        updateRemotePlayer(player, elapsedTime);
-                    }
+
                 } else {
+                    player.lateTicks = player.tick - player.lastConfirmedTick;
                     while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
                         updateRemotePlayer(player, elapsedTime);
                     }
@@ -232,7 +237,6 @@ namespace Duel6 {
                 if(runElevators){
                     player.getCollider().collideWithElevator(0.0, 1.0);
                 }
-            //    player.setControllerState(tmp); // put it back to not replay inputs // commented out - this stops propagating controls between clients from server
             }
         }
         if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT) ){

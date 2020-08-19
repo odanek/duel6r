@@ -154,7 +154,13 @@ namespace Duel6 {
                         peer->confirmedInputsTick = player.lastConfirmedTick;
                         continue; // skip this player to not screw things
                     } else {
-                        player.lastConfirmedTick = gsu.confirmInputTick;
+                        uint16_t lctdelta = p.lastConfirmedTick - player.lastConfirmedTick;
+                        if(lctdelta < 65000){
+                            player.lastConfirmedTick = p.lastConfirmedTick;//gsu.confirmInputTick;
+                        } else {
+                            peer->confirmedInputsTick = player.lastConfirmedTick;
+                            continue;
+                        }
                     }
 
                     auto &position = p.position;
@@ -165,11 +171,6 @@ namespace Duel6 {
 
                     auto &collidingEntity =  player.confirmedCollider;
 
-                    auto oldposition = collidingEntity.position;
-                    auto oldexternalForces = collidingEntity.externalForces;
-                    auto oldvelocity = collidingEntity.velocity;
-                    auto oldacceleration = collidingEntity.acceleration;
-                    auto oldexternalforcesspeed = collidingEntity.externalForcesSpeed;
                     collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
                     collidingEntity.externalForcesSpeed = { externalForcesSpeed.x, externalForcesSpeed.y, collidingEntity.externalForcesSpeed.z};
                     collidingEntity.externalForces = { externalForces.x, externalForces.y, collidingEntity.externalForces.z };
@@ -193,12 +194,10 @@ namespace Duel6 {
 
                     peer->snapshot[gsu.inputTick & xor_64][p.id] = p;
                     if((gsu.confirmInputTick - player.lastConfirmedTick) > 0){
-                        player.lastConfirmedTick = gsu.confirmInputTick;
+                        player.lastConfirmedTick = p.lastConfirmedTick; //
                     }
-                } else {
-                    player.lastConfirmedTick = p.lastConfirmedTick;// gsu.confirmInputTick;
-                    player.rtt = peer->getRTT();
                 }
+
                 if (!player.local) {
                     const size_t maxMissed = Player::INPUTS;
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);

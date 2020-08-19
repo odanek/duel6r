@@ -5,6 +5,7 @@
  *      Author: fanick
  */
 #include <iostream>
+#include <enet/enet.h>
 #include "Peer.h"
 #include "event/events.h"
 #include "object/objects.h"
@@ -240,6 +241,16 @@ namespace Duel6 {
         }
         void Peer::disconnect() {
             disconnect(false);
+        }
+        void Peer::send(char * data, size_t dataLen, uint8_t channel, bool reliable){
+            ENetPacket *packet = enet_packet_create(data, dataLen,
+                // ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT crashes the game when network jitter occurs (bug in enet)
+                reliable ? ENET_PACKET_FLAG_RELIABLE : ENET_PACKET_FLAG_UNSEQUENCED  | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
+            if (packet == nullptr) {
+                D6_THROW(Exception, "Cannot allocate packet");
+                return;
+            }
+            enet_peer_send(peer.get(), channel, packet);
         }
         void Peer::disconnect(bool now) {
             if (state == PeerState::DISCONNECTED || state == PeerState::DESTROYED) {

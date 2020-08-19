@@ -20,10 +20,6 @@ namespace Duel6::net {
 
         std::vector<PlayerProfile> connectingPlayers;
 
-        RequestGameState() {
-
-        }
-
         template<typename Stream>
         bool serialize(Stream &bs) {
             return bs & connectingPlayers;
