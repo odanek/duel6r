@@ -68,7 +68,7 @@ namespace Duel6 {
                     continue;
                 }
                 Player p;
-                p.debug = game.tick;
+                p.lastConfirmedTick = game.tick;
                 p.id = player.getId();
                 p.clientLocalId = player.getClientLocalId();
 

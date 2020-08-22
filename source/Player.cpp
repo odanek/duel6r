@@ -563,7 +563,6 @@ namespace Duel6 {
         }
         realPos[tick & 127] = collider; //for debug (we could draw something in worldrenderer)
         Uint32 backupFlags = flags;
-        Float32 backupLife = life;
         uint16_t ticks = tick - lastConfirmedTick;
         if(ticks > 126){ // this happens after joining the game
             collider = confirmedCollider;
@@ -575,10 +574,10 @@ namespace Duel6 {
         //ticks > 126 is unwanted run-away state
         if(ticks == 1 || lastConfirmedTick == 0 || ticks > 126) {
             flags = confirmedFlags;
-            life = confirmedLife;
+            setLife(confirmedLife);
+            orientation = confirmedOrientation;
             if(isAlive()) { // if we are not dead yet, restore flags
                 flags = backupFlags;
-                life = backupLife;
             }
             compensationResults[(tick)& 127] = collider;
             return;

@@ -25,6 +25,8 @@ namespace Duel6::net {
         elo = player.getPerson().getElo();
         eloTrend = player.getPerson().getEloTrend();
         eloGames = player.getPerson().getEloGames();
+        changed.set();
+        changed.set(NO_CHANGE, false);
     }
 
     void PlayerScore::unloadToPlayer(Player &player) {

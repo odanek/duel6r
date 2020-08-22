@@ -8,6 +8,7 @@
 #ifndef SOURCE_NET_OBJECT_PLAYER_H_
 #define SOURCE_NET_OBJECT_PLAYER_H_
 #include <bitset>
+#include <cstdlib>
 #include "../Object.h"
 #include "Vector2d.h"
 #include "Bonus.h"
@@ -17,7 +18,6 @@ namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
     public:
         static constexpr const size_t INPUTS = 16;
-        tick_t debug = 12345;
         tick_t lastConfirmedTick = 0;
         uint32_t rtt = 0;
         object_id_t id = 0;
@@ -49,6 +49,7 @@ namespace Duel6::net {
 
         enum FIELDS {
             NO_CHANGE, // 1 means no other values should be de-/serialized
+            RTT,
             ID, //mostly ignored
             CLIENTLOCALID, // mostly unused
             POSITION,
@@ -77,8 +78,10 @@ namespace Duel6::net {
         std::bitset<FIELDS::_SIZE> changed;
 
 #define D(POS, FIELD) if(!(confirmed.FIELD == snapshot.FIELD)) snapshot.changed.set(POS)
+#define Dfloat(POS, FIELD, d) if(std::abs(confirmed.FIELD - snapshot.FIELD) > d) snapshot.changed.set(POS)
         static void diff(Player &snapshot, const Player &confirmed) {
             snapshot.changed.reset();
+            D(RTT, rtt);
             D(CLIENTLOCALID, clientLocalId);
             D(POSITION, position);
             D(ACCELERATION, acceleration);
@@ -95,12 +98,15 @@ namespace Duel6::net {
             D(UNCONFIRMEDINPUTS, unconfirmedInputs);
             D(ORIENTATIONLEFT, orientationLeft);
             D(BONUS_TYPE, bonusType);
-            D(BONUS_REMAINING_TIME, bonusRemainingTime);
+            Dfloat(BONUS_REMAINING_TIME, bonusRemainingTime, 0.2);
             D(BONUS_DURATION, bonusDuration);
-            D(TIME_SINCE_HIT, timeSinceHit);
+            Dfloat(TIME_SINCE_HIT, timeSinceHit, 0.4);
             D(ALPHA, alpha);
             D(BODY_ALPHA, bodyAlpha);
-            D(SCORE, score);
+            PlayerScore::diff(snapshot.score, confirmed.score);
+            if(!snapshot.score.changed[0]){
+                snapshot.changed.set(SCORE);
+            }
             if (snapshot.changed.none()) {
                 snapshot.changed.set(NO_CHANGE);
             }
@@ -108,8 +114,8 @@ namespace Duel6::net {
 
 #define R(POS, FIELD) if(unchanged || !received.changed[POS]) received.FIELD = confirmed.FIELD;
         static void fillinFromPreviousConfirmed(const Player &confirmed, Player &received) {
-            //result.changed.reset();
             bool unchanged = received.changed[NO_CHANGE];
+            R(RTT, rtt);
             R(CLIENTLOCALID, clientLocalId);
             R(POSITION, position);
             R(ACCELERATION, acceleration);
@@ -131,10 +137,9 @@ namespace Duel6::net {
             R(TIME_SINCE_HIT, timeSinceHit);
             R(ALPHA, alpha);
             R(BODY_ALPHA, bodyAlpha);
-            R(SCORE, score);
+            PlayerScore::fillinFromPreviousConfirmed(confirmed.score, received.score);
         }
         Player() {
-            debug = 12345;
             lastConfirmedTick = 0;
             changed.set();
             changed.set(NO_CHANGE, false);
@@ -146,11 +151,10 @@ namespace Duel6::net {
         template<class Stream>
         bool serialize(Stream &s) {
             bool result = s & id;
-            result &= s & debug;
             result &= s & lastConfirmedTick;
-            result &= s & rtt;
             result &= s & changed;
             if (changed[NO_CHANGE]) return result;
+            S(RTT, rtt);
             S(CLIENTLOCALID, clientLocalId);
             S(POSITION, position);
             S(ACCELERATION, acceleration);

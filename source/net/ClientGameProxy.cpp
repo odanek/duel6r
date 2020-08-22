@@ -141,7 +141,7 @@ namespace Duel6 {
                         loadSnapshot = true;
                     }
                     if (loadSnapshot && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0) {
-                        if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].debug == gsu.snapshotTick) {
+                        if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].lastConfirmedTick == gsu.snapshotTick) {
                             Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_64][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
                         } else {
