@@ -7,6 +7,7 @@
 #include "Peer.h"
 #include "NetClient.h"
 #include "../Game.h"
+#define CHANNELS 254 //todo extract for usage in NetHost
 namespace Duel6 {
     namespace net {
 
@@ -28,7 +29,7 @@ namespace Duel6 {
             this->port = port;
             ENetHost *nethost = enet_host_create(nullptr,
                 1 /* only allow 1 outgoing connection */,
-                2 /* allow up 2 channels to be used, 0 and 1 */,
+                CHANNELS /* allow up 254 channels to be used */,
                 0 /* assume any amount of incoming bandwidth */,
                 0 /* assume any amount of outgoing bandwidth */);
             if (nethost == nullptr) {
@@ -44,7 +45,7 @@ namespace Duel6 {
             address.port = port;
             peer = std::make_unique<Peer>(*clientGameProxy,
                 *serverGameProxy,
-                enet_host_connect(serviceHost.get(), &address, 2, 42),
+                enet_host_connect(serviceHost.get(), &address, CHANNELS, 42),
                 serviceHost.get());
         }
 

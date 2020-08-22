@@ -16,7 +16,7 @@
 #include "Event.h"
 #include "object/Player.h"
 #define CHANNEL 0
-#define UNRELIABLE_CHANNEL 1
+
 #define SNAPSHOTS 64
 namespace Duel6 {
     namespace net {
@@ -42,7 +42,7 @@ namespace Duel6 {
         };
         class Peer {
         private:
-
+            uint8_t UNRELIABLE_CHANNEL  = 1;
             PeerState state = PeerState::DISCONNECTED;
             ClientGameProxy *gameProxy = nullptr;
             ServerGameProxy *serverGameProxy = nullptr; //parent
@@ -86,7 +86,10 @@ namespace Duel6 {
 
             template<typename MessageObject>
             void sendUnreliable(MessageObject &msg) {
-                send(msg, UNRELIABLE_CHANNEL, false);
+                send(msg, UNRELIABLE_CHANNEL++, false);
+                if(UNRELIABLE_CHANNEL >= 254){
+                    UNRELIABLE_CHANNEL = 1;
+                }
             }
 
             template<typename MessageObject>

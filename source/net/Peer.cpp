@@ -243,14 +243,21 @@ namespace Duel6 {
             disconnect(false);
         }
         void Peer::send(char * data, size_t dataLen, uint8_t channel, bool reliable){
+            if(state != PeerState::CONNECTED && state != PeerState::CONNECTING){
+                return;
+            }
             ENetPacket *packet = enet_packet_create(data, dataLen,
                 // ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT crashes the game when network jitter occurs (bug in enet)
-                reliable ? ENET_PACKET_FLAG_RELIABLE : ENET_PACKET_FLAG_UNSEQUENCED  | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
+                // workaround is to have 254 channels for the communication and switch between them on each message
+                reliable ? ENET_PACKET_FLAG_RELIABLE : ENET_PACKET_FLAG_UNSEQUENCED |  ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT );
             if (packet == nullptr) {
                 D6_THROW(Exception, "Cannot allocate packet");
                 return;
             }
-            enet_peer_send(peer.get(), channel, packet);
+            if(enet_peer_send(peer.get(), channel, packet) != 0) {
+                std::cerr << __FILE__ << ":" << __LINE__ << ":Failed to send packet over channel " << (int) channel << " to peer. The peer has probably been disconnected and this should not be happening! FIX IT! \n";
+            }
+
         }
         void Peer::disconnect(bool now) {
             if (state == PeerState::DISCONNECTED || state == PeerState::DESTROYED) {
@@ -266,6 +273,7 @@ namespace Duel6 {
                 }
                 state = PeerState::DISCONNECTED;
             }
+            enet_host_flush(host); //TODO instead of host, pass the *Service into the Peer, then call service.flush();
         }
         bool Peer::onConnected(ENetPeer *me) {
             if (me != peer.get()) {
@@ -293,8 +301,9 @@ namespace Duel6 {
                 // WTF just happened? probably dropped
 
                 //callbacks.onDropped
-
+                state = PeerState::DISCONNECTING;
             } else {
+
                 //callbacks.onDisconnected
             }
             gameProxy->peerDisconnected(*this);
