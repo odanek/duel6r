@@ -24,8 +24,11 @@ namespace Duel6::net {
         }
         ENetEvent event;
         ENetHost *netHost = serviceHost.get();
-        while (enet_host_service(netHost, &event, timeout) > 0) {
-            timeout = 0;
+        bool serviced = false;
+        do {
+            // enet_host_service interacts with the socket (receive commands, send waiting commands)
+            if (!serviced && enet_host_service(netHost, &event, timeout) <= 0) break;
+            serviced = true;
             switch (event.type) {
             case ENetEventType::ENET_EVENT_TYPE_NONE:
                 break;
@@ -43,7 +46,9 @@ namespace Duel6::net {
             if (state == ServiceState::UNINITIALIZED) {
                 return;
             }
-        }
+            // enet_host_check_events does the same as enet_host_service, but does not interact with the socket
+        } while (enet_host_check_events(netHost, &event) > 0);
+
         if(stopRequested){
             stop();
         }

@@ -126,6 +126,7 @@ namespace Duel6 {
             }
             bool missingSnapshot = false;
             for (auto &p : gsu.players) {
+                p.snapshotTick = gsu.inputTick;
                 if (idmap.count(p.id) == 0) {
                     std::cerr << "Player id " << p.id << " not found, skipping\n";
                     continue;
@@ -141,7 +142,7 @@ namespace Duel6 {
                         loadSnapshot = true;
                     }
                     if (loadSnapshot && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0) {
-                        if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].lastConfirmedTick == gsu.snapshotTick) {
+                        if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].snapshotTick == gsu.snapshotTick) {
                             Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_64][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
                         } else {
@@ -151,14 +152,14 @@ namespace Duel6 {
                     if(missingSnapshot){
                         // correct snapshot not found,
                         // wait out the server to send full copy
-                        peer->confirmedInputsTick = player.lastConfirmedTick;
+                        peer->receivedInputsTick = peer->confirmedInputsTick;
                         continue; // skip this player to not screw things
                     } else {
                         uint16_t lctdelta = p.lastConfirmedTick - player.lastConfirmedTick;
-                        if(lctdelta < 65000){
-                            player.lastConfirmedTick = p.lastConfirmedTick;//gsu.confirmInputTick;
+                        if(lctdelta < 65000 || player.lastConfirmedTick == 0){ // player.lastConfirmedTick == 0 is at the start
+                            player.lastConfirmedTick = p.lastConfirmedTick;
                         } else {
-                            peer->confirmedInputsTick = player.lastConfirmedTick;
+                            peer->receivedInputsTick = peer->confirmedInputsTick;//gsu.inputTick; //player.lastConfirmedTick;
                             continue;
                         }
                     }
@@ -199,6 +200,7 @@ namespace Duel6 {
                 }
 
                 if (!player.local) {
+                    player.setLife(player.confirmedLife);
                     const size_t maxMissed = Player::INPUTS;
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
                     if (missed > maxMissed) {
@@ -359,6 +361,7 @@ namespace Duel6 {
                 player.setTimeSinceHit(p.timeSinceHit);
                 player.setAlpha(p.alpha);
                 p.score.unloadToPlayer(player);
+                p.snapshotTick = sr.tick;
                 peer->snapshot[sr.tick & xor_64][p.id] = p;
             }
             peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;

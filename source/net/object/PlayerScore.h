@@ -17,24 +17,25 @@ namespace Duel6{
 namespace Duel6::net {
     class PlayerScore {
     public:
+        PlayerScore();
         void loadFromPlayer(Player &player);
         void unloadToPlayer(Player &player);
         bool operator ==(const PlayerScore &r) const;
-        Int32 shots;
-        Int32 hits;
-        Int32 kills;
-        Int32 deaths;
-        Int32 assistances;
-        Int32 wins;
-        Int32 penalties;
-        Int32 games;
-        Int32 timeAlive;
-        Int32 totalGameTime;
-        Int32 totalDamage;
-        Int32 assistedDamage;
-        Int32 elo;
-        Int32 eloTrend;
-        Int32 eloGames;
+        Int32 shots = 0;
+        Int32 hits = 0;
+        Int32 kills = 0;
+        Int32 deaths = 0;
+        Int32 assistances = 0;
+        Int32 wins = 0;
+        Int32 penalties = 0;
+        Int32 games = 0;
+        Int32 timeAlive = 0;
+        Int32 totalGameTime = 0;
+        Int32 totalDamage = 0;
+        Int32 assistedDamage = 0;
+        Int32 elo = 0;
+        Int32 eloTrend = 0;
+        Int32 eloGames = 0;
 
         enum FIELDS {  // TODO implement diff/fillin same way as in net::Player
             NO_CHANGE,
@@ -57,52 +58,15 @@ namespace Duel6::net {
         };
         std::bitset<FIELDS::_SIZE> changed;
 
-#define D(POS, FIELD) if(!(confirmed.FIELD == snapshot.FIELD)) snapshot.changed.set(POS)
-        static void diff(PlayerScore &snapshot, const PlayerScore &confirmed) {
-            snapshot.changed.reset();
-            D(SHOTS, shots);
-            D(HITS, hits);
-            D(KILLS, kills);
-            D(DEATHS, deaths);
-            D(ASSISTANCES, assistances);
-            D(WINS, wins);
-            D(PENALTIES, penalties);
-            D(GAMES, games);
-            D(TIME_ALIVE, timeAlive);
-            D(TOTAL_GAMETIME, totalGameTime);
-            D(TOTAL_DAMAGE, totalDamage);
-            D(ASSISTED_DAMAGE, assistedDamage);
-            D(ELO, elo);
-            D(ELO_TREND, eloTrend);
-            D(ELO_GAMES, eloGames);
-            if (snapshot.changed.none()) {
-                snapshot.changed.set(NO_CHANGE);
-            }
-        }
+        static void diff(PlayerScore &snapshot, const PlayerScore &confirmed);
 
-#define R(POS, FIELD) if(unchanged || !received.changed[POS]) received.FIELD = confirmed.FIELD;
-        static void fillinFromPreviousConfirmed(const PlayerScore &confirmed, PlayerScore &received) {
-            bool unchanged = received.changed[NO_CHANGE];
-            R(SHOTS, shots);
-            R(HITS, hits);
-            R(KILLS, kills);
-            R(DEATHS, deaths);
-            R(ASSISTANCES, assistances);
-            R(WINS, wins);
-            R(PENALTIES, penalties);
-            R(GAMES, games);
-            R(TIME_ALIVE, timeAlive);
-            R(TOTAL_GAMETIME, totalGameTime);
-            R(TOTAL_DAMAGE, totalDamage);
-            R(ASSISTED_DAMAGE, assistedDamage);
-            R(ELO, elo);
-            R(ELO_TREND, eloTrend);
-            R(ELO_GAMES, eloGames);
-        }
+        static void fillinFromPreviousConfirmed(const PlayerScore &confirmed, PlayerScore &received);
+
 #define S(POS, FIELD) if(changed[POS]) result &= s & FIELD
         template<typename Stream>
         bool serialize(Stream &s) {
             bool result = s & changed;
+               if (changed[NO_CHANGE]) return result;
                S(SHOTS, shots);
                S(HITS, hits);
                S(KILLS, kills);

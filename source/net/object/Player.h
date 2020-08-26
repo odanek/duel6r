@@ -19,33 +19,34 @@ namespace Duel6::net {
     public:
         static constexpr const size_t INPUTS = 16;
         tick_t lastConfirmedTick = 0;
+        tick_t snapshotTick = 0;
         uint32_t rtt = 0;
         object_id_t id = 0;
         Int32 clientLocalId = 0;
-        Vector2D position;
-        Vector2D acceleration;
-        Vector2D externalForces;
-        Vector2D externalForcesSpeed;
-        Vector2D velocity;
-        Uint8 lastCollisionCheck;
+        Vector2D position = {0,0};
+        Vector2D acceleration = {0,0};
+        Vector2D externalForces = {0,0};
+        Vector2D externalForcesSpeed = {0,0};
+        Vector2D velocity = {0,0};
+        Uint8 lastCollisionCheck = 0;
 
-        Uint8 controls;
-        Uint16 flags;
-        Uint8 life;
-        Uint8 air;
-        Int16 ammo;
-        Uint8 weaponId;
+        Uint8 controls = 0;
+        Uint16 flags = 0;
+        Uint8 life = 42;
+        Uint8 air = 42;
+        Int16 ammo = 0;
+        Uint8 weaponId = 0;
 
-        BonusType bonusType;
-        Float32 bonusRemainingTime;
-        Float32 bonusDuration;
-        Float32 timeSinceHit;
+        BonusType bonusType = BonusType::NONE;
+        Float32 bonusRemainingTime = 0;
+        Float32 bonusDuration = 0;
+        Float32 timeSinceHit = 0;
 
-        Float32 alpha;
-        Float32 bodyAlpha;
+        Float32 alpha = 0;
+        Float32 bodyAlpha = 0;
         PlayerScore score;
         std::array<Uint8, INPUTS> unconfirmedInputs;
-        bool orientationLeft;
+        bool orientationLeft = false;
 
         enum FIELDS {
             NO_CHANGE, // 1 means no other values should be de-/serialized
@@ -77,73 +78,11 @@ namespace Duel6::net {
         };
         std::bitset<FIELDS::_SIZE> changed;
 
-#define D(POS, FIELD) if(!(confirmed.FIELD == snapshot.FIELD)) snapshot.changed.set(POS)
-#define Dfloat(POS, FIELD, d) if(std::abs(confirmed.FIELD - snapshot.FIELD) > d) snapshot.changed.set(POS)
-        static void diff(Player &snapshot, const Player &confirmed) {
-            snapshot.changed.reset();
-            D(RTT, rtt);
-            D(CLIENTLOCALID, clientLocalId);
-            D(POSITION, position);
-            D(ACCELERATION, acceleration);
-            D(EXTERNALFORCES, externalForces);
-            D(EXTERNALFORCESSPEED, externalForcesSpeed);
-            D(VELOCITY, velocity);
-            D(LAST_COLLISION_CHECK, lastCollisionCheck);
-            D(CONTROLS, controls);
-            D(FLAGS, flags);
-            D(LIFE, life);
-            D(AIR, air);
-            D(AMMO, ammo);
-            D(WEAPONID, weaponId);
-            D(UNCONFIRMEDINPUTS, unconfirmedInputs);
-            D(ORIENTATIONLEFT, orientationLeft);
-            D(BONUS_TYPE, bonusType);
-            Dfloat(BONUS_REMAINING_TIME, bonusRemainingTime, 0.2);
-            D(BONUS_DURATION, bonusDuration);
-            Dfloat(TIME_SINCE_HIT, timeSinceHit, 0.4);
-            D(ALPHA, alpha);
-            D(BODY_ALPHA, bodyAlpha);
-            PlayerScore::diff(snapshot.score, confirmed.score);
-            if(!snapshot.score.changed[0]){
-                snapshot.changed.set(SCORE);
-            }
-            if (snapshot.changed.none()) {
-                snapshot.changed.set(NO_CHANGE);
-            }
-        }
+        static void diff(Player &snapshot, const Player &confirmed);
 
-#define R(POS, FIELD) if(unchanged || !received.changed[POS]) received.FIELD = confirmed.FIELD;
-        static void fillinFromPreviousConfirmed(const Player &confirmed, Player &received) {
-            bool unchanged = received.changed[NO_CHANGE];
-            R(RTT, rtt);
-            R(CLIENTLOCALID, clientLocalId);
-            R(POSITION, position);
-            R(ACCELERATION, acceleration);
-            R(EXTERNALFORCES, externalForces);
-            R(EXTERNALFORCESSPEED, externalForcesSpeed);
-            R(VELOCITY, velocity);
-            R(LAST_COLLISION_CHECK, lastCollisionCheck);
-            R(CONTROLS, controls);
-            R(FLAGS, flags);
-            R(LIFE, life);
-            R(AIR, air);
-            R(AMMO, ammo);
-            R(WEAPONID, weaponId);
-            R(UNCONFIRMEDINPUTS, unconfirmedInputs);
-            R(ORIENTATIONLEFT, orientationLeft);
-            R(BONUS_TYPE, bonusType);
-            R(BONUS_REMAINING_TIME, bonusRemainingTime);
-            R(BONUS_DURATION, bonusDuration);
-            R(TIME_SINCE_HIT, timeSinceHit);
-            R(ALPHA, alpha);
-            R(BODY_ALPHA, bodyAlpha);
-            PlayerScore::fillinFromPreviousConfirmed(confirmed.score, received.score);
-        }
-        Player() {
-            lastConfirmedTick = 0;
-            changed.set();
-            changed.set(NO_CHANGE, false);
-        }
+        static void fillinFromPreviousConfirmed(const Player &confirmed, Player &received);
+
+        Player();
 
 
 
@@ -153,7 +92,9 @@ namespace Duel6::net {
             bool result = s & id;
             result &= s & lastConfirmedTick;
             result &= s & changed;
+            result &= s & score.changed;
             if (changed[NO_CHANGE]) return result;
+            S(SCORE, score);
             S(RTT, rtt);
             S(CLIENTLOCALID, clientLocalId);
             S(POSITION, position);
@@ -176,7 +117,7 @@ namespace Duel6::net {
             S(TIME_SINCE_HIT, timeSinceHit);
             S(ALPHA, alpha);
             S(BODY_ALPHA, bodyAlpha);
-            S(SCORE, score);
+
             return result;
         }
 

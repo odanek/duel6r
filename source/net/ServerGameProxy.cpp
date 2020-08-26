@@ -176,6 +176,7 @@ namespace Duel6 {
                     p.id = player.getId();
                     p.clientLocalId = player.getClientLocalId();
                     p.lastConfirmedTick = player.tick;
+                    p.snapshotTick = gsu.inputTick;
                     player.unconfirmedInputs[player.tick & xor_128] = player.getControllerState();
                     const size_t maxInputs = Player::INPUTS;
                     for (size_t i = 0; i < maxInputs; i++) { //TODO: figure out if it should be game.tick - (maxInputs) or game.tick - (maxInputs - 1)
@@ -222,7 +223,7 @@ namespace Duel6 {
                     if (game.isServer &&
                         (((gsu.inputTick - gsu.snapshotTick) & xor_32768) < 64
                             && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0
-                            && peer->snapshot[gsu.snapshotTick & xor_64][p.id].lastConfirmedTick == gsu.snapshotTick)) {
+                            && peer->snapshot[gsu.snapshotTick & xor_64][p.id].snapshotTick == gsu.snapshotTick)) {
                         Player::diff(p, peer->snapshot[gsu.snapshotTick & xor_64][p.id]);
                     }
                     gsu.players.push_back(p);
