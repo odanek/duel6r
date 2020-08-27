@@ -307,7 +307,7 @@ namespace Duel6 {
 
 
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
-
+        if(!game->isServer && !local){ return; }
         if (isReloading())
             return;
 
@@ -437,6 +437,7 @@ namespace Duel6 {
     }
 
     void Player::checkKeys() {
+
         if (isDeleted()){
             return;
         }

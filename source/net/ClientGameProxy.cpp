@@ -44,6 +44,11 @@ namespace Duel6 {
                 }
             }
         }
+        void ClientGameProxy::handle(MessageBroadcast &m) {
+            auto pos = idmap[m.playerId];
+            auto &player = game->players[pos];
+            game->broadcastMessage(player, m.text, true);
+        }
         void ClientGameProxy::lateReceive(tick_t lateTick) {
             for (auto &player : game->players) {
                 player.lateTicks++;
@@ -182,6 +187,7 @@ namespace Duel6 {
                     player.confirmedLife = p.life;
                     player.setAir(p.air);
                     player.setAmmo(p.ammo);
+                    player.setReloadTime(p.timeToReload);
                     player.rtt = p.rtt;
                     if (player.getWeapon().getId() != p.weaponId) {
                         player.setWeapon(p.weaponId); //resets animation
@@ -201,6 +207,7 @@ namespace Duel6 {
 
                 if (!player.local) {
                     player.setLife(player.confirmedLife);
+                    player.setFlags(player.confirmedFlags);
                     const size_t maxMissed = Player::INPUTS;
                     uint16_t missed = (uint16_t) (player.lastConfirmedTick - player.tick);
                     if (missed > maxMissed) {
@@ -360,6 +367,7 @@ namespace Duel6 {
                 player.setBodyAlpha(p.bodyAlpha);
                 player.setTimeSinceHit(p.timeSinceHit);
                 player.setAlpha(p.alpha);
+                player.setReloadTime(p.timeToReload);
                 p.score.unloadToPlayer(player);
                 p.snapshotTick = sr.tick;
                 peer->snapshot[sr.tick & xor_64][p.id] = p;
@@ -548,6 +556,7 @@ namespace Duel6 {
                 position,
                 velocity
            );
+            player.getIndicators().getReload().show(player.getReloadInterval() + Indicator::FADE_DURATION);
             game->spawnShot(std::move(x));
 
          }

@@ -309,6 +309,8 @@ namespace Duel6 {
     void Game::nextRound() {
         if (isServer) {
             gameProxy->nextRound();
+        } else {
+           // gameProxy->requestNextRound();
         }
         onNextRound();
     }
@@ -376,5 +378,19 @@ namespace Duel6 {
             gameProxy->playSample(player.getId(), type);
         }
         player.playSample(type);
+    }
+
+    void Game::broadcastMessage(const Player &player, const std::string & msg, bool display) {
+        if (isServer) {
+            gameProxy->broadcastMessage(player.getId(), msg);
+            this->infoMessageQueue->onBroadcast(player, msg);
+        }
+        if(!networkGame || display){
+            this->infoMessageQueue->onBroadcast(player, msg);
+        }
+    }
+
+    void Game::setMessageQueue(InfoMessageQueue & queue) {
+        this->infoMessageQueue = &queue;
     }
 }

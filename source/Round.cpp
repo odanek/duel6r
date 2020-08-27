@@ -258,6 +258,9 @@ namespace Duel6 {
     void Round::updateRemotePlayer(Player &player, Float32 elapsedTime) {
         scriptUpdate(player);
         player.setControllerState(player.unconfirmedInputs[player.tick & 127]);
+        if (player.getControllerState() & Player::ButtonShoot) {
+            player.getIndicators().getReload().show(player.getReloadInterval() + Indicator::FADE_DURATION);
+        }
         player.unconfirmedInputs[player.tick & 127] = 0;
         if (!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
             player.update(world, game.getSettings().getScreenMode(), elapsedTime);

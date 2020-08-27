@@ -44,6 +44,7 @@ namespace Duel6::net {
 
         Float32 alpha = 0;
         Float32 bodyAlpha = 0;
+        Float32 timeToReload = 0;
         PlayerScore score;
         std::array<Uint8, INPUTS> unconfirmedInputs;
         bool orientationLeft = false;
@@ -73,6 +74,7 @@ namespace Duel6::net {
             TIME_SINCE_HIT,
             ALPHA,
             BODY_ALPHA,
+            TIME_TO_RELOAD,
             SCORE,
             _SIZE
         };
@@ -117,7 +119,7 @@ namespace Duel6::net {
             S(TIME_SINCE_HIT, timeSinceHit);
             S(ALPHA, alpha);
             S(BODY_ALPHA, bodyAlpha);
-
+            S(TIME_TO_RELOAD, timeToReload);
             return result;
         }
 

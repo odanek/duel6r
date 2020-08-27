@@ -19,6 +19,7 @@ namespace Duel6::net {
         WORLD,
         BONUS,
         WEAPON,
+        MESSAGE,
         MAX_COUNT
     };
 

@@ -510,6 +510,9 @@ namespace Duel6 {
             replaceWeapon(Weapon::getById(weaponId));
         }
 
+        void setReloadTime(Float32 val){
+            timeToReload = val;
+        }
         void checkKeys();
 
         Float32 getAlpha() const;

@@ -473,7 +473,7 @@ namespace Duel6 {
         const InfoMessageQueue &messageQueue = game.getRound().getWorld().getMessageQueue();
 
         if (game.getSettings().getScreenMode() == ScreenMode::FullScreen) {
-            messageQueue.renderAllMessages(renderer, game.getPlayers().front().getView(), 20, font);
+            messageQueue.renderAllMessages(renderer,  video.getScreen().getClientHeight(), 20, font);
         } else {
             for (const Player &player : game.getPlayers()) {
                 messageQueue.renderPlayerMessages(renderer, player, font);

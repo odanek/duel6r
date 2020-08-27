@@ -34,7 +34,7 @@ namespace Duel6 {
             : gameSettings(game.getSettings()), players(game.getPlayers()),
               level(std::move(levelData)),
               levelRenderData(*level, game.getAppService().getVideo().getRenderer(), gameSettings.getScreenMode(),
-                              D6_ANM_SPEED), messageQueue(D6_INFO_DURATION),
+                              D6_ANM_SPEED), messageQueue(game, D6_INFO_DURATION),
                               shotList(game),
               explosionList(game.getResources(), game, D6_EXPL_SPEED), fireList(game.getResources(), spriteList),
               bonusList(game.getSettings(), game, game.getResources(), *this),

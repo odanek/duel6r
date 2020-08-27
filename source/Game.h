@@ -110,7 +110,7 @@ namespace Duel6 {
         std::vector<PlayerSkin> skins;
         std::unique_ptr<PlayerAnimations> playerAnimations;
         bool displayScoreTab = false;
-
+        InfoMessageQueue * infoMessageQueue = nullptr;
     public:
         Int32 maxPlayerId = 0;
 
@@ -243,6 +243,11 @@ namespace Duel6 {
         void spawnExplosion(Explosion &&explosion);
 
         void playSample(const Player &player, PlayerSounds::Type type);
+
+        void broadcastMessage(const Player &player, const std::string & msg, bool display);
+
+        void setMessageQueue(InfoMessageQueue & queue);
+
     private:
         void beforeStart(Context *prevContext) override;
 

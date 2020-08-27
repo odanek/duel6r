@@ -33,6 +33,7 @@ namespace Duel6 {
             void pickWeapon(Duel6::Player &player, unsigned int weaponId);
             void pickBonus(Duel6::Player &player, unsigned int bonusId);
 
+
             void playersJoined(std::vector<PlayerDefinition> & playerDefinitions);
             void playersDisconnected(const std::vector<Int32> & ids);
             void playersConnected(const std::vector<Int32> & ids);
@@ -43,6 +44,7 @@ namespace Duel6 {
             void raiseWater();
             void eraseShot(Uint16 id);
             void spawnExplosion(Explosion &explosion);
+            void broadcastMessage(Int32 playerId, const std::string & msg);
             void playSample(Int32 playerId, PlayerSounds::Type type);
             void startRound(Int32 playedRounds, Duel6::Level & level) override;
             void sendGameStateUpdate(Game & game) override;

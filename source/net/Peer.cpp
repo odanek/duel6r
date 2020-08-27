@@ -44,6 +44,13 @@ namespace Duel6 {
                 }
                 break;
             }
+            case ObjectType::MESSAGE: {
+                MessageBroadcast m;
+                if(s >> m){
+                    gameProxy->handle(m);
+                }
+                break;
+            }
             case ObjectType::MAX_COUNT:
                 break;
             }

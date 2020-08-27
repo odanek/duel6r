@@ -11,6 +11,7 @@
 #include "Bonus.h"
 #include "Client.h"
 #include "Level.h"
+#include "MessageBroadcast.h"
 #include "Player.h"
 #include "Shot.h"
 #include "Vector.h"

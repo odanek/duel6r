@@ -38,6 +38,7 @@ namespace Duel6::net {
             D(TIME_SINCE_HIT, timeSinceHit);
             D(ALPHA, alpha);
             D(BODY_ALPHA, bodyAlpha);
+            D(TIME_TO_RELOAD, timeToReload);
 
             if (snapshot.changed.none()) {
                 snapshot.changed.set(NO_CHANGE);
@@ -69,6 +70,7 @@ namespace Duel6::net {
             R(TIME_SINCE_HIT, timeSinceHit);
             R(ALPHA, alpha);
             R(BODY_ALPHA, bodyAlpha);
+            R(TIME_TO_RELOAD, timeToReload);
             R(SCORE, score);
             if(received.changed[SCORE]){
                 PlayerScore::fillinFromPreviousConfirmed(confirmed.score, received.score);

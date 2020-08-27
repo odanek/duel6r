@@ -24,18 +24,21 @@
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include "Game.h"
 #include "Font.h"
 #include "InfoMessageQueue.h"
 #if defined(D6_RENDERER_HEADLESS)
 #include <iostream>
 #endif
 namespace Duel6 {
+    InfoMessageQueue::InfoMessageQueue(Game &game, Float32 duration)
+        : game(game),
+          duration(duration) {
+        game.setMessageQueue(*this);
+    }
+
     InfoMessageQueue &InfoMessageQueue::add(const Player &player, const std::string &msg) {
-#if defined(D6_RENDERER_HEADLESS)
-        std::cout << player.getPerson().getName() << ":" << msg << std::endl;
-#endif
-        messages.push_back(InfoMessage(player, msg, duration));
+        game.broadcastMessage(player, msg, false);
         return *this;
     }
 
@@ -64,9 +67,9 @@ namespace Duel6 {
         }
     }
 
-    void InfoMessageQueue::renderAllMessages(Renderer &renderer, const PlayerView &view, Int32 offsetY, const Font &font) const {
-        Int32 posX = view.getX() + 4;
-        Int32 posY = view.getY() + view.getHeight() - offsetY;
+    void InfoMessageQueue::renderAllMessages(Renderer &renderer, const Int32 height, Int32 offsetY, const Font &font) const {
+        Int32 posX =  4;
+        Int32 posY =  height - offsetY;
 
         for (const InfoMessage &msg : messages) {
             renderMessage(renderer, posX, posY, msg.getPlayer().getPerson().getName() + ": " + msg.getText(), font);
@@ -83,5 +86,12 @@ namespace Duel6 {
 
     void InfoMessageQueue::clear() {
         messages.clear();
+    }
+
+    void InfoMessageQueue::onBroadcast(const Player &player, const std::string &msg) {
+#if defined(D6_RENDERER_HEADLESS)
+        std::cout << player.getPerson().getName() << ":" << msg << std::endl;
+#endif
+        messages.push_back(InfoMessage(player, msg, duration));
     }
 }

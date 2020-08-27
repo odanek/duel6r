@@ -7,6 +7,8 @@
 
 #include "ServerGameProxy.h"
 #include "event/events.h"
+#include "object/objects.h"
+
 #include "../Game.h"
 namespace Duel6 {
     namespace net {
@@ -211,6 +213,7 @@ namespace Duel6 {
                         p.timeSinceHit = player.getTimeSinceHit();
                         p.alpha = player.getAlpha();
                         p.bodyAlpha = player.getBodyAlpha();
+                        p.timeToReload = player.getReloadTime();
                         p.score.loadFromPlayer(player);
                         peer->snapshot[game.tick & xor_64][p.id] = p;
                     }
@@ -368,6 +371,17 @@ namespace Duel6 {
                 peer->sendReliable(se);
             }
         }
+
+        void ServerGameProxy::broadcastMessage(Int32 playerId, const std::string & msg){
+            MessageBroadcast message;
+            message.playerId = playerId;
+            message.text = msg;
+
+            for (auto &peer : peers) {
+                peer->sendReliable(message);
+            }
+        }
+
         void ServerGameProxy::playSample(Int32 playerId, PlayerSounds::Type type){
             PlaySample ps;
             ps.playerId = playerId;
@@ -376,6 +390,7 @@ namespace Duel6 {
                 peer->sendReliable(ps);
             }
         }
+
         void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
             Collider &c = w.collider;
             const auto & collider = weapon.getCollider();

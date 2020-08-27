@@ -39,6 +39,7 @@ namespace Duel6 {
 
             void handle(Player &p);
             void handle(Weapon &w);
+            void handle(MessageBroadcast &m);
 
             void handle(GameState &s);
             void handle(GameStateUpdate &s);
