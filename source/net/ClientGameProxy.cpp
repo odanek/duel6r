@@ -187,7 +187,9 @@ namespace Duel6 {
                     player.confirmedLife = p.life;
                     player.setAir(p.air);
                     player.setAmmo(p.ammo);
-                    player.setReloadTime(p.timeToReload);
+                    if(!player.local && p.timeToReload > 0.1f){ // prevent multiple-shot-like effect
+                        player.setReloadTime(p.timeToReload);
+                    }
                     player.rtt = p.rtt;
                     if (player.getWeapon().getId() != p.weaponId) {
                         player.setWeapon(p.weaponId); //resets animation
