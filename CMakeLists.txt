@@ -108,6 +108,7 @@ set(D6R_SOURCES
         source/net/object/Client.h
         source/net/object/Collider.h
         source/net/object/Level.h
+        source/net/object/MessageBroadcast.h
         source/net/object/objects.h
         source/net/object/Player.cpp
         source/net/object/Player.h
