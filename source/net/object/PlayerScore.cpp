@@ -10,6 +10,10 @@
 
 namespace Duel6::net {
     PlayerScore::PlayerScore(){
+        changed.set();
+        if(changed.count() != ELO_GAMES + 1){
+            D6_THROW(Exception, "Player changed bitset is totally wrong!");
+        }
         changed.reset();
         changed.set(NO_CHANGE, true);
     }

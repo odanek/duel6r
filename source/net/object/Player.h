@@ -78,7 +78,7 @@ namespace Duel6::net {
             SCORE,
             _SIZE
         };
-        std::bitset<FIELDS::_SIZE> changed;
+        std::bitset<Player::FIELDS::_SIZE> changed;
 
         static void diff(Player &snapshot, const Player &confirmed);
 
@@ -93,6 +93,7 @@ namespace Duel6::net {
         bool serialize(Stream &s) {
             bool result = s & id;
             result &= s & lastConfirmedTick;
+
             result &= s & changed;
             result &= s & score.changed;
             if (changed[NO_CHANGE]) return result;

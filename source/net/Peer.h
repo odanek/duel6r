@@ -95,7 +95,10 @@ namespace Duel6 {
             template<typename MessageObject>
             void send(MessageObject &msg, uint8_t channel = CHANNEL, bool reliable = true) {
                 binarystream bs;
-                msg.send(bs);
+                if (!msg.send(bs)){
+                    std::cerr << " FAILED TO SEND \n";
+                    return;
+                }
                 std::string dataStr = bs.str();
                 size_t dataLen = dataStr.length();
                 char data[dataLen];
