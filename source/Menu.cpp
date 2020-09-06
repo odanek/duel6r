@@ -60,14 +60,28 @@ namespace Duel6 {
         Json::Value json = parser.parse(filePath);
         Json::Value host = json.getOrDefault("host", Json::Value::makeString("localhost"));
         Json::Value port = json.getOrDefault("port", Json::Value::makeString("5900"));
+        Json::Value master = json.getOrDefault("master", Json::Value::makeString("master.mrakonos.cz:5902"));
+        Json::Value enableMaster = json.getOrDefault("enableMaster", Json::Value::makeBoolean(false));
+        Json::Value enableMasterDiscovery = json.getOrDefault("enableMasterDiscovery", Json::Value::makeBoolean(false));
+        Json::Value enableNAT = json.getOrDefault("enableNAT", Json::Value::makeBoolean(false));
+
         this->host->setText(host.asString());
         this->port->setText(port.asString());
+        this->netConfig.masterServer = master.asString();
+        this->netConfig.enableMasterServer = enableMaster.asBoolean();
+        this->netConfig.enableMasterDiscovery = enableMasterDiscovery.asBoolean();
+        this->netConfig.enableNATPunch = enableNAT.asBoolean();
     }
 
     void Menu::saveNetworkSettings() {
         Json::Value json = Json::Value::makeObject();
         json.set("host", Json::Value::makeString(this->host->getText()));
         json.set("port", Json::Value::makeString(this->port->getText()));
+        json.set("master", Json::Value::makeString(this->netConfig.masterServer));
+        json.set("enableMaster", Json::Value::makeBoolean(this->netConfig.enableMasterServer));
+        json.set("enableMasterDiscovery", Json::Value::makeBoolean(this->netConfig.enableMasterDiscovery));
+        json.set("enableNAT", Json::Value::makeBoolean(this->netConfig.enableNATPunch));
+
         Json::Writer writer(true);
         writer.writeToFile(D6_FILE_NETWORK_SETTINGS, json);
     }
@@ -877,6 +891,15 @@ namespace Duel6 {
             levels.push_back(levelList.getPath(i));
         }
         return levels;
+    }
+
+    void Menu::serverlist() {
+        appService.getNetClient().connectToMasterServer("127.0.0.1", 5902);
+        appService.getNetClient().requestServerList([this](masterserver::serverlist_t & serverList) {
+            for(const auto & server: serverList){
+                appService.getConsole().printLine(Format("Server: {0}") << hostToIPaddress(server.address, server.port));
+            }
+        });
     }
 
     void Menu::eloShufflePlayers() {

@@ -39,6 +39,7 @@ namespace Duel6 {
         struct PeerRef { // gets recorded in ENets' peer->data
             size_t pos;
             Peer *peer;
+            bool isMasterServer = false; // this peer represents connection to the master server (so it needs to be handled differently)
         };
         class Peer {
         private:
@@ -62,8 +63,8 @@ namespace Duel6 {
             std::array<std::map<Uint32, Player>, SNAPSHOTS> snapshot;
             uint16_t confirmedInputsTick = 0; //TODO private
             uint16_t receivedInputsTick = 0;
-            Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, size_t pos);
-            Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host);
+            Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, size_t pos, ENetHost *host, bool isMasterserver = false);
+            Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, bool isMasterserver = false);
             Peer() = default;
             Peer(const Peer &peer) = delete;
             Peer(Peer &&peer) = delete;

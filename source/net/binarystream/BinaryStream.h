@@ -7,6 +7,8 @@ class binarystream: public binarystream_base<std::stringstream> {
 public:
     using binarystream_base::binarystream_base;
     binarystream(const unsigned char * buffer, size_t len);
+
+    binarystream(binarystream && bs);
 };
 
 #endif

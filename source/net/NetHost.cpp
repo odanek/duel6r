@@ -10,6 +10,9 @@
 #include "ClientGameProxy.h"
 #include "../Game.h"
 #include "../console/Console.h"
+#include "master/MasterServer.h"
+#include "master/protocol.h"
+
 namespace Duel6 {
     namespace net {
 #define MAX_PEERS 15
@@ -17,7 +20,6 @@ namespace Duel6 {
 
         NetHost::NetHost(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
             : Service(clientGameProxy, serverGameProxy), console(console) {
-
         }
 
         NetHost::~NetHost() {
@@ -40,14 +42,50 @@ namespace Duel6 {
             if (nethost == nullptr) {
                 D6_THROW(Exception, "cannot start server (port taken?)");
             }
+
             console.printLine("NetHost::listen start");
             start(nethost);
             console.printLine("NetHost::listen started ");
             started();
         }
 
+        void NetHost::registerOnMasterServer(){
+            masterserver::MasterServer & proxy=  masterServerProxy;
+
+            std::string adresa = "127.0.0.1";
+            int port = 5902;
+            std::string message = "NetHost::registerOnMasterServer Registering on master server ";
+            message += adresa;
+            message += ":";
+            message += port;
+            console.printLine(message);
+            proxy.setAddressAndPort(adresa, port);
+            proxy.registerOnMasterServer(serviceHost.get());
+        }
+
+        void NetHost::natPunch(enet_uint32 address, enet_uint16 port){
+            console.printLine(Format("NAT punch! {0}") << hostToIPaddress(address, port));
+            // DA DA DA
+            ENetAddress peerAddress;
+            peerAddress.host = address;
+            peerAddress.port = port;
+            ENetPeer * peer = enet_host_connect(serviceHost.get(), &peerAddress, CHANNELS, 42);
+
+        }
+
+        void NetHost::onNATPeersListReceived(masterserver::peerlist_t & peerList){
+            for(auto & peer: peerList){
+                natPunch(peer.address, peer.port);
+            }
+        }
+
         void NetHost::onStarting() {
+
+            // if publishToMasterServer == true {
+            //   masterServer.announce(...)
+            //}
             console.printLine("NetHost::onStarting ");
+            registerOnMasterServer();
         }
 
         void NetHost::onStopping() {
@@ -62,6 +100,7 @@ namespace Duel6 {
         }
 
         void NetHost::onStopped() {
+            state = ServiceState::STOPPED;
             console.printLine("NetHost::onStopped()");
             peers.clear();
         }
@@ -75,13 +114,13 @@ namespace Duel6 {
             size_t i = 0;
             for (std::unique_ptr<Peer> &p : peers) {
                 if (p.get() == nullptr) {
-                    p = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, serviceHost.get(), i);
+                    p = std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, i, serviceHost.get());
                     p->onConnected(peer);
                     return;
                 }
                 i++;
             }
-            auto &p = peers.emplace_back(std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, serviceHost.get(), i));
+            auto &p = peers.emplace_back(std::make_unique<Peer>(*clientGameProxy, *serverGameProxy, peer, i, serviceHost.get()));
             p->onConnected(peer);
         }
 
@@ -89,7 +128,7 @@ namespace Duel6 {
             console.printLine("NetHost::onPeerDisconnected");
             PeerRef *peerRef = (PeerRef*) (peer->data);
 
-            if (peerRef->pos > peers.size() - 1) {
+            if (peerRef->pos + 1 > peers.size()) {
                 delete peerRef;
                 D6_THROW(Exception, "Server Disconnected peer id out of bounds");
             }

@@ -57,6 +57,14 @@ namespace Duel6 {
 
     class Menu
             : public Context {
+
+        class NetConfig {
+        public:
+            std::string masterServer = "master.mrakonos.cz:5902";   // address:port
+            bool enableMasterServer = false;    // single switch to disable any communication with the master
+            bool enableMasterDiscovery = false; // publish the game to master server for others to discover
+            bool enableNATPunch = false;        // enable NAT traversal (server/client)
+        };
     private:
         AppService &appService;
         Font &font;
@@ -90,6 +98,7 @@ namespace Duel6 {
         Texture menuBannerTexture;
         Sound::Track menuTrack;
         bool playMusic;
+        NetConfig netConfig;
 
     public:
         explicit Menu(AppService &appService);
@@ -139,6 +148,8 @@ namespace Duel6 {
         bool play(std::vector<std::string> levels, bool networkGame);
 
         void startDedicatedServer(const std::string &host, const std::string &port);
+
+        void serverlist();
     private:
 
         void quit();

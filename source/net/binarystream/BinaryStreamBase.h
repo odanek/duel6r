@@ -26,7 +26,9 @@ public:
     using basestream::badbit;
 
     binarystream_base() = default;
+    binarystream_base(binarystream_base && bs):basestream(std::move(bs)){
 
+    }
     bool load(const std::string & s) {
         uint32_t size = s.length();
         write(s.data(), size);
@@ -551,6 +553,11 @@ public:
         return serialize(b, c);
     }
 
+    template<typename C, typename std::enable_if<(std::is_class<C> {} || std::is_enum<C> {}) && !is_serializable_container<C>::value && !is_associative_container<C> {}, int>::type = 0>
+    bool operator <<(C && c) {
+        BinarySerializer<streamtype> b(*this);
+        return serialize(b, c);
+    }
 
 public:
     uint32_t test_readSize() {
@@ -604,11 +611,6 @@ private:
         c.insert(v);
     }
 };
-
-template<typename C, typename X, typename std::enable_if<std::is_class<C> { } && !is_serializable_container<C> { }, int>::type = 0>
-bool operator <<(binarystream_base<X> & bs, C && c) {
-    return bs << c;
-}
 
 //Magic!
 template<typename Serializer, typename C, typename std::enable_if<std::is_class<C> {} && !is_serializable_container<C> {} && !is_associative_container<C> {}, int>::type = 0>

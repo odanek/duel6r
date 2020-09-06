@@ -7,45 +7,72 @@
 #include "Peer.h"
 #include "NetClient.h"
 #include "../Game.h"
+#include "master/protocol.h"
 #define CHANNELS 254 //todo extract for usage in NetHost
 namespace Duel6 {
     namespace net {
 
         NetClient::NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
             : Service(clientGameProxy, serverGameProxy), console(console) {
+            initNetHost();
         }
 
         NetClient::~NetClient() {
             stop();
         }
 
+        void NetClient::initNetHost() {
+            nethost = enet_host_create(nullptr,
+                          4 /* only allow 4 outgoing connections */,
+                          CHANNELS /* allow up 254 channels to be used */,
+                          0 /* assume any amount of incoming bandwidth */,
+                          0 /* assume any amount of outgoing bandwidth */);
+                      if (nethost == nullptr) {
+                          D6_THROW(Exception, "Failed to start net client  \(^^)/");
+                      }
+
+
+                      // To make connection to master server work
+                      serviceHost.reset(nethost);
+                      state = ServiceState::STARTING;
+        }
+        void NetClient::requestServerList(masterserver::serverListReceivedCallback_t callback){
+            masterServerProxy.requestServerList(serviceHost.get(), callback);
+        }
+
+        void NetClient::requestNATPunch(const enet_uint32 host, const enet_uint16 port) {
+            masterServerProxy.connectNatToServer(serviceHost.get(), host, port);
+        }
+
+        void NetClient::connectToMasterServer(const std::string &host, port_t port){
+            masterServerProxy.setAddressAndPort(host, port);
+        }
+
         void NetClient::connect(Game &game, const std::string &host,
                                 const Duel6::net::port_t port) {
-            if (state != ServiceState::UNINITIALIZED) {
-                D6_THROW(Exception, "connecting client that is not uninitialized");
-            }
+//            if (state != ServiceState::UNINITIALIZED) {
+//                D6_THROW(Exception, "connecting client that is not uninitialized");
+//            }
             setGameReference(game);
             this->host = host;
             this->port = port;
-            ENetHost *nethost = enet_host_create(nullptr,
-                1 /* only allow 1 outgoing connection */,
-                CHANNELS /* allow up 254 channels to be used */,
-                0 /* assume any amount of incoming bandwidth */,
-                0 /* assume any amount of outgoing bandwidth */);
-            if (nethost == nullptr) {
-                D6_THROW(Exception, "Failed to start net client  \(^^)/");
-            }
-
             start(nethost);
         }
 
         void NetClient::onStarting() {
             ENetAddress address;
-            enet_address_set_host(&address, host.c_str());
+            int res =  enet_address_set_host(&address, host.c_str());
+            if(res<0){
+                return ;
+            }
             address.port = port;
+            ENetPeer * enetpeer = enet_host_connect(serviceHost.get(), &address, CHANNELS, static_cast<unsigned int>(REQUEST_TYPE::GAME_CONNECTION));
+            if(enetpeer == nullptr){
+                return;
+            }
             peer = std::make_unique<Peer>(*clientGameProxy,
                 *serverGameProxy,
-                enet_host_connect(serviceHost.get(), &address, CHANNELS, 42),
+                enetpeer,
                 serviceHost.get());
         }
 
@@ -58,6 +85,7 @@ namespace Duel6 {
         }
 
         void NetClient::onStopped() {
+            //state = ServiceState::STOPPED;
             clientGameProxy->netStopped();
             peer.reset();
         }
@@ -74,7 +102,12 @@ namespace Duel6 {
                 return;
             }
 
-            stopped();
+            requestStop();
+        }
+
+        void NetClient::onTearDown() {
+            tearDown();
+            initNetHost();
         }
 
         void NetClient::onConnectionLost() {

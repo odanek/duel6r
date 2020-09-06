@@ -167,6 +167,11 @@ namespace Duel6 {
             menu.play(paths, false);
         }
     }
+
+    void ConsoleCommands::serverlist(Console &console, const Console::Arguments &args, Menu &menu) {
+        menu.serverlist();
+    }
+
     void ConsoleCommands::loadSkin(Console &console, const Console::Arguments &args, Menu &menu) {
         auto &profileMap = menu.getPersonProfiles();
         std::string bodyParts[] = {"Hair top", "Hair bottom", "Body outer", "Body inner", "Arm outer", "Arm inner",
@@ -347,6 +352,9 @@ namespace Duel6 {
         });
         console.registerCommand("dedicated", [&menu](Console &con, const Console::Arguments &args) {
             dedicatedServer(con, args, menu);
+        });
+        console.registerCommand("serverlist", [&menu](Console &con, const Console::Arguments &args) {
+            serverlist(con, args, menu);
         });
     }
 }

@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <enet/enet.h>
+#include "master/ServerList.h"
 #include "Service.h"
 #include "Peer.h"
 //#include "GameProxy.h"
@@ -33,7 +34,7 @@ namespace Duel6 {
             virtual ~NetHost();
 
             void listen(Game &game, const std::string &host, const Duel6::net::port_t port);
-
+            void natPunch(enet_uint32 address, enet_uint16 port);
         private:
             void onStarting() override;
             void onStopping() override;
@@ -41,8 +42,14 @@ namespace Duel6 {
 
             void onPeerConnected(ENetPeer*) override;
             void onPeerDisconnected(ENetPeer*, enet_uint32 reason) override;
-        };
 
+            void registerOnMasterServer(); // connect, expect to be disconnected
+            void heartbeatMasterServer(); // just connect to master server to indicate liveliness
+            void sendUpdateToMasterServer(std::string description); // connect, send update of game name etc.
+
+            void requestNATPeers(); // connect, expect response from master server, then try to connect all returned peers
+            void onNATPeersListReceived(masterserver::peerlist_t &); // call natPunch
+        };
     } /* namespace net */
 } /* namespace Duel6 */
 

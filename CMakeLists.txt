@@ -76,6 +76,11 @@ set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
 # set the list of source files
 set(D6R_SOURCES
+        source/net/master/MasterServer.cpp
+        source/net/master/MasterServer.h
+        source/net/master/PeerList.h
+        source/net/master/protocol.cpp
+        source/net/master/protocol.h
 
         source/net/binarystream/BinaryDeserializer.h
         source/net/binarystream/BinarySerializer.h

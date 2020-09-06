@@ -343,30 +343,42 @@ namespace Duel6 {
             peer.release();
         }
 
-        Peer::Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, size_t pos)
+        Peer::Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, size_t pos, ENetHost *host,  bool isMasterserver)
             : gameProxy(&gameProxy),
               serverGameProxy(&serverGameProxy),
               host(host),
               peer(peer),
               pos(pos) {
-            peer->data = new PeerRef { pos, this };
+            peer->data = new PeerRef { pos, this, isMasterserver };
             incomingPeerID = peer->incomingPeerID;
-            serverGameProxy.add(this);
-            gameProxy.setPeerReference(*this);
+
+            if(isMasterserver){
+                enet_peer_timeout(peer, 500, 200, 1000);
+            } else {
+                serverGameProxy.add(this);
+                gameProxy.setPeerReference(*this);
+                enet_peer_timeout(peer, 50, 1000, 5000);
+                enet_peer_throttle_configure(peer, 5000, 2, 2 );
+            }
+
             state = PeerState::CONNECTED;
-            enet_peer_timeout(peer, 50, 1000, 5000);
-            enet_peer_throttle_configure(peer, 5000, 2, 2 ); // default: 5000 2 2
         }
 
-        Peer::Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host)
+        Peer::Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, bool isMasterserver)
             : Peer(gameProxy,
                 serverGameProxy,
                 peer,
+                0,
                 host,
-                0) {
-            enet_peer_timeout(peer, 500, 1000, 5000);
-            enet_peer_throttle_configure(peer, 5000, 2, 2 );
-            gameProxy.setPeerReference(*this);
+                isMasterserver
+                ) {
+            if(isMasterserver){
+                enet_peer_timeout(peer, 500, 200, 1000);
+            } else {
+                enet_peer_timeout(peer, 500, 1000, 5000);
+                enet_peer_throttle_configure(peer, 5000, 2, 2 );
+                gameProxy.setPeerReference(*this);
+            }
         }
     } /* namespace net */
 } /* namespace Duel6 */

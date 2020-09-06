@@ -33,13 +33,13 @@ namespace Duel6::net {
             case ENetEventType::ENET_EVENT_TYPE_NONE:
                 break;
             case ENetEventType::ENET_EVENT_TYPE_CONNECT:
-                onPeerConnected(event.peer);
+                onConnected(event.peer, event.data);
                 break;
             case ENetEventType::ENET_EVENT_TYPE_DISCONNECT:
-                onPeerDisconnected(event.peer, event.data);
+                onDisconnected(event.peer, event.data);
                 break;
             case ENetEventType::ENET_EVENT_TYPE_RECEIVE:
-                onPeerReceived(event.peer, event.packet, event.channelID);
+                onReceived(event.peer, event.packet);
                 enet_packet_destroy(event.packet);
                 break;
             }
@@ -53,7 +53,22 @@ namespace Duel6::net {
             stop();
         }
     }
-    void Service::onPeerReceived(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {
+
+    void Service::onMasterServerConnected(ENetPeer *peer) {
+        masterServerProxy.setPeer(peer);
+    }
+
+    void Service::onMasterServerDisconnected(ENetPeer* peer, enet_uint32 reason) {
+        masterServerProxy.setPeer(nullptr);
+        delete (PeerRef*) peer->data;
+    }
+
+    void Service::onMasterServerReceived(ENetPeer *peer, ENetPacket *packet) {
+        masterServerProxy.onReceived(peer, packet);
+    }
+
+    void Service::onPeerReceived(ENetPeer *peer, ENetPacket *packet) {
+        PeerRef *ref = (PeerRef*) peer->data;
         recordPeerNetStats(peer);
         binarystream bs(packet->data, packet->dataLength);
         MessageType type = MessageType::MAX_COUNT;
@@ -66,7 +81,6 @@ namespace Duel6::net {
             if (!((bs >> objectType) == true)) {
                 D6_THROW(Exception, "Cannot deserialize MessageType::OBJECT");
             }
-            PeerRef *ref = (PeerRef*) peer->data;
             ref->peer->handle(objectType, bs);
             break;
         }
@@ -75,7 +89,6 @@ namespace Duel6::net {
             if (!(bs >> eventType) == true) {
                 D6_THROW(Exception, "Cannot deserialize MessageType::EVENT");
             }
-            PeerRef *ref = (PeerRef*) peer->data;
             ref->peer->handle(eventType, bs);
             break;
         }
@@ -84,6 +97,32 @@ namespace Duel6::net {
             D6_THROW(Exception, "Unexpected deserialization")
             ;
             break;
+        }
+    }
+
+    void Service::onConnected(ENetPeer *peer, enet_uint32 data) {
+        if (peer->data == nullptr) {
+            return;
+        }
+        REQUEST_TYPE requestType;
+        if (data >= static_cast<unsigned int>(REQUEST_TYPE::COUNT)) {
+            return;
+        }
+        requestType = static_cast<REQUEST_TYPE>(data);
+
+        if(requestType == REQUEST_TYPE::NONE){ // TODO outgoing request
+            PeerRef * ref = (PeerRef *) peer->data;
+            if(ref->isMasterServer){
+                return onMasterServerConnected(peer);
+            } else {
+                return onPeerConnected(peer);
+            }
+        }
+
+        if (requestType == REQUEST_TYPE::GAME_CONNECTION) { // incoming request
+            return onPeerConnected(peer);
+        } else {
+            D6_THROW(Exception, "Unexpected request type in onConnected ");
         }
     }
 }
