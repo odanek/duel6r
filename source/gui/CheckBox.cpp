@@ -26,12 +26,11 @@
 */
 
 #include "CheckBox.h"
-#include "Desktop.h"
 
 namespace Duel6 {
     namespace Gui {
-    CheckBox::CheckBox(Desktop &desk, bool value)
-                : Control(desk) {
+        CheckBox::CheckBox(View &parentView, bool value)
+            : Control(parentView) {
             checked = value;
             focusable = true;
         }
@@ -51,7 +50,7 @@ namespace Duel6 {
             if (Control::mouseIn(event, x, y, width, height)) {
                 if (event.getButton() == SysEvent::MouseButton::LEFT) {
                     if (event.isPressed()) {
-                        this->parent->focus(this);
+                        focus();
                         toggle();
                     }
                 }
@@ -79,13 +78,13 @@ namespace Duel6 {
             }
             case (SDLK_LEFT):
             case (SDLK_UP): {
-                parent->focusPrevious();
+                focusPrevious();
                 return true;
                 break;
             }
             case (SDLK_RIGHT):
             case (SDLK_DOWN): {
-                parent->focusNext();
+                focusNext();
                 return true;
                 break;
             }

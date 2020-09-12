@@ -26,18 +26,16 @@
 */
 #include <algorithm>
 #include <utility>
-#include "../Video.h"
 #include "Spinner.h"
-#include "Desktop.h"
+
 namespace Duel6 {
     namespace Gui {
-        Spinner::Spinner(Desktop &desk)
-                : Control(desk) {
+        Spinner::Spinner(View &parentView): Control(parentView) {
             selectedIndex = -1;
             focusable = true;
-            left = new Button(desk);
+            left = new Button(parentView);
             left->setCaption(" ");
-            right = new Button(desk);
+            right = new Button(parentView);
             right->setCaption(" ");
             left->setFocusable(false);
             right->setFocusable(false);
@@ -138,7 +136,7 @@ namespace Duel6 {
         }
         void Spinner::mouseButtonEvent(const MouseButtonEvent &event){
             if (Control::mouseIn(event, x, y, width, 20)) {
-                this->parent->focus(this);
+                focus();
             }
         }
         bool Spinner::keyEvent(const KeyPressEvent &event) {
@@ -154,12 +152,12 @@ namespace Duel6 {
                     break;
                 }
                 case (SDLK_UP): {
-                    parent->focusPrevious();
+                    focusPrevious();
                     return true;
                     break;
                 }
                 case (SDLK_DOWN): {
-                    parent->focusNext();
+                    focusNext();
                     return true;
                     break;
                 }

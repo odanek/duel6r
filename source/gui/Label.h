@@ -32,14 +32,13 @@
 
 namespace Duel6 {
     namespace Gui {
-        class Label
-                : public Control {
+        class Label : public Control {
         private:
-            Int32 width, height;
+            Int32 width = 0, height = 0;
             std::string text;
 
         public:
-            Label(Desktop &desk);
+            Label(View &parentView);
 
             ~Label();
 

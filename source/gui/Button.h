@@ -40,12 +40,12 @@ namespace Duel6 {
         private:
             std::vector<PressCallback> pressListeners;
             std::vector<ClickCallback> clickListeners;
-            Int32 width, height;
+            Int32 width = 0, height = 0;
             bool pressed;
             std::string caption;
 
         public:
-            explicit Button(Desktop &desk);
+            explicit Button(View &parentView);
 
             ~Button();
 

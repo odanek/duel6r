@@ -35,13 +35,12 @@ namespace Duel6 {
         class CheckBox : public Control {
 
         private:
-
-            Int32 width, height;
+            Int32 width = 0, height = 0;
             bool checked;
             std::string label;
 
         public:
-            CheckBox(Desktop &desk, bool value = false);
+            CheckBox(View &parentView, bool value = false);
 
             ~CheckBox() = default;
 
@@ -64,7 +63,6 @@ namespace Duel6 {
             Control::Type getType() const override {
                 return Control::Type::Checkbox;
             }
-
 
         protected:
             void draw(Renderer &renderer, const Font &font) const override;

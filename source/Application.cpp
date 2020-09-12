@@ -70,7 +70,7 @@ namespace Duel6 {
         }
 
         MouseMotionEvent createMouseMotionEvent(const SDL_MouseMotionEvent &mme, Int32 screenHeight) {
-            return MouseMotionEvent(mme.x, screenHeight - mme.y, mme.xrel, mme.yrel, mme.state);
+            return MouseMotionEvent(mme.x, screenHeight - mme.y, mme.xrel, -mme.yrel, mme.state);
         }
     }
 

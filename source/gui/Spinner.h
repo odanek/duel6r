@@ -33,8 +33,7 @@
 
 namespace Duel6 {
     namespace Gui {
-        class Spinner
-                : public Control {
+        class Spinner: public Control {
         public:
             struct ItemColor {
                 Color font;
@@ -48,13 +47,13 @@ namespace Duel6 {
             std::vector<ToggleCallback> toggleListeners;
             Button *left, *right;
             Int32 selectedIndex;
-            Int32 width;
+            Int32 width = 1;
             std::vector<std::pair<Int32, std::string> > items;
-            Float32 repeatWait;
+            Float32 repeatWait = 0;
             ColorizeCallback colorizeCallback = defaultColorize;
 
         public:
-            explicit Spinner(Desktop &desk);
+            explicit Spinner(View &parentView);
 
             void setPosition(Int32 X, Int32 Y, Int32 W, Int32 H);
 

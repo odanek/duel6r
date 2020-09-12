@@ -41,6 +41,7 @@
 #include "AppService.h"
 #include "Defines.h"
 #include "gui/Desktop.h"
+#include "gui/View.h"
 #include "gui/Button.h"
 #include "gui/CheckBox.h"
 #include "gui/ListBox.h"
@@ -75,6 +76,7 @@ namespace Duel6 {
         ClientGameProxy *clientGameProxy;
         std::vector<std::unique_ptr<GameMode>> gameModes;
         Gui::Desktop gui;
+        Gui::View * mainView;
         PlayerControlsManager& controlsManager;
         PersonProfileList personProfiles;
         PlayerSounds defaultPlayerSounds;

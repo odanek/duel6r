@@ -41,7 +41,7 @@ endif (MSVC)
 
 # gnu compiler or clang
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -ggdb3 -D_FORTIFY_SOURCE=2 -std=c++17")
     if (D6R_PLATFORM STREQUAL "x86")
 
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
@@ -344,6 +344,10 @@ set(D6R_SOURCES
         source/gui/Control.h
         source/gui/Desktop.cpp
         source/gui/Desktop.h
+        source/gui/Dialog.cpp
+        source/gui/Dialog.h
+        source/gui/Image.cpp
+        source/gui/Image.h
         source/gui/Label.cpp
         source/gui/Label.h
         source/gui/ListBox.cpp
@@ -354,6 +358,8 @@ set(D6R_SOURCES
         source/gui/Spinner.h
         source/gui/TextBox.cpp
         source/gui/TextBox.h
+        source/gui/View.cpp
+        source/gui/View.h
 
         source/input/GameController.cpp
         source/input/GameController.h

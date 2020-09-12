@@ -40,7 +40,7 @@ namespace Duel6 {
 
         private:
             std::vector<OnEnterCallback> onEnterListeners;
-            Int32 max, width;
+            Int32 max = 0, width = 0;
             const Int32 height = 18;
             std::string text;
             std::string confirmedText;
@@ -49,7 +49,7 @@ namespace Duel6 {
             Float32 blinkCountDown = 0.5f;
             std::string placeholder = "";
         public:
-            Textbox(Desktop &desk);
+            Textbox(View &parentView);
 
             ~Textbox();
 

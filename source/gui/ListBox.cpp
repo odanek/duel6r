@@ -28,7 +28,6 @@
 #include <algorithm>
 #include "ListBox.h"
 #include "../Video.h"
-#include "Desktop.h"
 
 namespace Duel6 {
     namespace {
@@ -36,8 +35,8 @@ namespace Duel6 {
     }
 
     namespace Gui {
-        ListBox::ListBox(Desktop &desk, bool sb)
-                : Control(desk) {
+        ListBox::ListBox(View &parentView, bool sb)
+            : Control(parentView) {
             focusable = true;
             listPos.items = 0;
             listPos.start = 0;
@@ -45,7 +44,7 @@ namespace Duel6 {
             scrollBar = sb;
             colorizeCallback = defaultColorize;
             if (sb) {
-                slider = new Slider(desk);
+                slider = new Slider(parentView);
                 slider->connect(&listPos);
             } else {
                 slider = nullptr;
@@ -145,7 +144,7 @@ namespace Duel6 {
         void ListBox::mouseButtonEvent(const MouseButtonEvent &event) {
             if (items.size() > 0 && Control::mouseIn(event, x, y, width, height) &&
                 event.getButton() == SysEvent::MouseButton::LEFT && event.isPressed()) {
-                this->parent->focus(this);
+                focus();
                 Int32 itemIndex = std::max(listPos.start + ((y - event.getY()) / itemHeight), 0);
 
                 if (itemIndex >= listPos.items) {

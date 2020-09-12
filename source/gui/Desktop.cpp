@@ -28,6 +28,7 @@
 #include <SDL2/SDL.h>
 #include "Desktop.h"
 #include "../Video.h"
+#include "View.h"
 
 namespace Duel6 {
     namespace Gui {
@@ -36,8 +37,8 @@ namespace Duel6 {
         }
 
         Desktop::Desktop(Renderer &renderer, Font &font)
-                : renderer(renderer),
-                  font(font) {
+            : renderer(renderer),
+              font(font) {
             cursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
             cursorIBeam = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
             SDL_SetCursor(cursorArrow);
@@ -49,11 +50,6 @@ namespace Duel6 {
 
         }
 
-        void Desktop::addControl(Control *control) {
-            control->setParent(this);
-            controls.push_back(std::unique_ptr<Control>(control));
-        }
-
         void Desktop::screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY) {
             screenWidth = scrWidth;
             screenHeight = scrHeight;
@@ -62,8 +58,9 @@ namespace Duel6 {
         }
 
         void Desktop::update(Float32 elapsedTime) {
-            for (auto &control : controls) {
-                control->update(elapsedTime);
+            removeClosedViews();
+            for (auto &view : viewStack) {
+                view->update(elapsedTime);
             }
         }
 
@@ -71,103 +68,64 @@ namespace Duel6 {
             renderer.quadXY(Vector(0, 0), Vector(screenWidth, screenHeight), bcgColor);
             renderer.setViewMatrix(Matrix::translate(Float32(trX), Float32(trY), 0));
 
-            for (auto &control : controls) {
-                control->draw(renderer, font);
+            for (auto &view : viewStack) {
+                view->draw(renderer, font);
             }
 
             renderer.setViewMatrix(Matrix::IDENTITY);
         }
-        void Desktop::advanceFocus(bool backwards){
-            Control *first = nullptr;
-            Control *previous = (*controls.rbegin()).get();
-            for (auto &control : controls) {
-                if (!control->focusable) {
-                    continue;
-                }
-                if(first == nullptr && focused != control.get()){
-                    first = control.get();
-                }
-                if (backwards) {
-                    if (focused == nullptr || focused == control.get()) {
-                        focus(previous);
-                        return;
-                    }
-                } else {
-                    if (focused == nullptr || focused == previous) {
-                        focus(control.get());
-
-                        return;
-                    }
-                }
-                previous = control.get();
-            }
-            if(backwards){
-                focus(previous);
-            } else {
-                focus(first);
-            }
-        }
-        void Desktop::focusPrevious() {
-            advanceFocus(true);
-        }
-
-        void Desktop::focusNext() {
-            advanceFocus(false);
-        }
 
         bool Desktop::keyEvent(const KeyPressEvent &event) {
-            if(event.getCode() == SDLK_TAB){
-                if(event.withShift()){
-                    focusPrevious();
-                } else {
-                    focusNext();
-                }
-                return true;
-            }
-            if(focused != nullptr){
-                if(focused->keyEvent(event)){
-                    return true;
-                }
-                if(event.getCode() == SDLK_ESCAPE){
-                    blur(focused);
-                    return true;
-                }
+            for (auto view = viewStack.rbegin(); view != viewStack.rend(); view++) {
+                if ((*view)->keyEvent(event)) return true;
             }
             return false;
         }
 
         void Desktop::textInputEvent(const TextInputEvent &event) {
-            if(focused != nullptr){
-                focused->textInputEvent(event);
-            }
+            viewStack.back()->textInputEvent(event);
         }
 
         void Desktop::mouseButtonEvent(const MouseButtonEvent &event) {
             MouseButtonEvent translatedEvent = event.translate(-trX, -trY);
-            for (auto &control : controls) {
-                control->mouseButtonEvent(translatedEvent);
-            }
+            viewStack.back()->mouseButtonEvent(translatedEvent);
         }
 
         void Desktop::mouseMotionEvent(const MouseMotionEvent &event) {
             SDL_SetCursor(cursorArrow);
             MouseMotionEvent translatedEvent = event.translate(-trX, -trY);
-            for (auto &control : controls) {
-                control->mouseMotionEvent(translatedEvent);
-            }
+            viewStack.back()->mouseMotionEvent(translatedEvent);
         }
 
         void Desktop::mouseWheelEvent(const MouseWheelEvent &event) {
             MouseWheelEvent translatedEvent = event.translate(-trX, -trY);
-            for (auto &control : controls) {
-                control->mouseWheelEvent(translatedEvent);
-            }
+            viewStack.back()->mouseWheelEvent(translatedEvent);
         }
+
         Font& Desktop::getFont() {
             return font;
         }
+
+        void Desktop::addView(View *view) {
+            viewStack.push_back(std::unique_ptr<View>(view));
+        }
+
+        void Desktop::closeView(View *closedView) {
+            closingViews.push_back(closedView);
+        }
+
         void Desktop::setIBeamCursor() {
             SDL_SetCursor(cursorIBeam);
         }
+
+        void Desktop::removeClosedViews() {
+            for (auto closedView = closingViews.begin(); closedView != closingViews.end(); closedView++) {
+                viewStack.remove_if([&closedView](std::unique_ptr<View> &val) {
+                    return val.get() == *closedView;
+                });
+            }
+            closingViews.clear();
+        }
+
     }
 }

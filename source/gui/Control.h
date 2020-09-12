@@ -35,10 +35,10 @@
 
 namespace Duel6 {
     namespace Gui {
-        class Desktop;
+        class View;
 
         class Control {
-            friend class Desktop;
+            friend class View;
 
         public:
             enum class Type {
@@ -48,22 +48,26 @@ namespace Duel6 {
                 Textbox,
                 Listbox,
                 Switchbox,
-                Slider
+                Slider,
+                DialogTitlebar,
+                Image
             };
 
         protected:
-            Int32 x, y;
-            Desktop * parent;
+            Int32 x = 0, y = 0;
+            View *parent = nullptr;
             bool focusable = false;
             bool focused = false;
+
         public:
             void setFocusable(bool value);
 
-            void setParent(Desktop * desktop);
+            void setParent(View *desktop);
 
-            Control(Desktop &desk);
+            Control(View &parentView);
 
-            virtual ~Control() {}
+            virtual ~Control() {
+            }
 
             virtual Type getType() const = 0;
 
@@ -84,21 +88,39 @@ namespace Duel6 {
             }
 
         protected:
-            virtual void update(Float32 elapsedTime) {}
+            virtual void update(Float32 elapsedTime) {
+            }
 
             virtual void draw(Renderer &renderer, const Font &font) const = 0;
 
-            virtual bool keyEvent(const KeyPressEvent &event) {return false;}
+            virtual bool keyEvent(const KeyPressEvent &event) {
+                return false;
+            }
 
-            virtual void textInputEvent(const TextInputEvent &event) {}
+            virtual void textInputEvent(const TextInputEvent &event) {
+            }
 
-            virtual void mouseMotionEvent(const MouseMotionEvent &event) {}
+            virtual void mouseMotionEvent(const MouseMotionEvent &event) {
+            }
 
-            virtual void mouseButtonEvent(const MouseButtonEvent &event) {}
+            virtual void mouseButtonEvent(const MouseButtonEvent &event) {
+            }
 
-            virtual void mouseWheelEvent(const MouseWheelEvent &event) {}
+            virtual void mouseWheelEvent(const MouseWheelEvent &event) {
+            }
 
-            virtual void onBlur() {}
+            virtual void onBlur() {
+            }
+
+            void focus();
+
+            void focusNext();
+
+            void focusPrevious();
+
+            void setIBeamCursor();
+
+            Font& getFont();
 
         protected:
             static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);

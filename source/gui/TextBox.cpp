@@ -29,11 +29,11 @@
 #include "TextBox.h"
 #include "../Video.h"
 #include "Desktop.h"
-        using std::literals::string_literals::operator ""s;
+using std::literals::string_literals::operator ""s;
 namespace Duel6 {
     namespace Gui {
-        Textbox::Textbox(Desktop &desk)
-                : Control(desk) {
+        Textbox::Textbox(View &parentView)
+            : Control(parentView) {
             focusable = true;
         }
 
@@ -128,10 +128,10 @@ namespace Duel6 {
                 Int32 mx = event.getX();
 
                 cursorPos = 0;
-                for(Int32 sx = x + 4; sx < mx  && cursorPos < text.length(); sx += parent->getFont().getTextWidth(text.substr(cursorPos++, 1), 16)){
+                for(Int32 sx = x + 4; sx < mx  && cursorPos < text.length(); sx += getFont().getTextWidth(text.substr(cursorPos++, 1), 16)){
 
                 }
-                parent->focus(this);
+                focus();
             }
         }
 
@@ -198,7 +198,7 @@ namespace Duel6 {
         }
         void Textbox::mouseMotionEvent(const MouseMotionEvent &event) {
             if (Control::mouseIn(event, x, y, (width << 3) + 8, height)) {
-                parent->setIBeamCursor();
+                setIBeamCursor();
             }
         }
         void Textbox::update(Float32 elapsedTime) {

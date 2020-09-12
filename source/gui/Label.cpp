@@ -30,8 +30,8 @@
 
 namespace Duel6 {
     namespace Gui {
-        Label::Label(Desktop &desk)
-                : Control(desk) {
+        Label::Label(View &parentView)
+            : Control(parentView) {
         }
 
         Label::~Label() = default;
@@ -50,7 +50,7 @@ namespace Duel6 {
         void Label::draw(Renderer &renderer, const Font &font) const {
             Float32 w = font.getTextWidth(text, 16);
 
-            if(width > w) {
+            if (width > w) {
                 w = width;
             }
             renderer.quadXY(Vector(x, y - height + 1), Vector(w - 1.0f, height - 1.0f), Color(170, 170, 170));

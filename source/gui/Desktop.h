@@ -29,6 +29,7 @@
 #define DUEL6_GUI_DESKTOP_H
 
 #include <memory>
+#include <list>
 #include "../SysEvent.h"
 #include "Control.h"
 
@@ -38,43 +39,26 @@ namespace Duel6 {
         private:
             Renderer &renderer;
             Font &font;
-            Int32 screenWidth;
-            Int32 screenHeight;
-            Int32 trX; // x translation
-            Int32 trY; // y translation
+            Int32 screenWidth = 0;
+            Int32 screenHeight = 0;
+            Int32 trX = 0; // x translation
+            Int32 trY = 0; // y translation
             std::vector<std::unique_ptr<Control>> controls;
             Control * focused = nullptr;
             SDL_Cursor* cursorArrow;
             SDL_Cursor* cursorIBeam;
+            std::list<View*> closingViews;
+            std::list<std::unique_ptr<View>> viewStack;
         public:
             Desktop(Renderer &renderer, Font &font);
 
             ~Desktop();
 
-            void focus(Control * control){
-                if(control != focused) {
-                    blur(focused);
-                }
-                focused = control;
-                focused->setFocused(true);
-            }
-
-            void blur(Control * control) {
-                if(focused != nullptr){
-                    focused->onBlur();
-                    focused->setFocused(false);
-                    focused = nullptr;
-                }
-            }
             void screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY);
 
             void update(Float32 elpasedTime);
 
             void draw(const Font &font) const;
-
-            void focusNext();
-
-            void focusPrevious();
 
             bool keyEvent(const KeyPressEvent &event);
 
@@ -86,14 +70,16 @@ namespace Duel6 {
 
             void mouseWheelEvent(const MouseWheelEvent &event);
 
-            void addControl(Control *control);
+            void addView(View *view);
+
+            void closeView(View *view);
 
             Font& getFont();
 
             void setIBeamCursor();
         private:
+              void removeClosedViews();
 
-            void advanceFocus(bool backwards = false);
         };
     }
 }
