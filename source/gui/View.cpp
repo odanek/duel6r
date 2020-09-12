@@ -14,10 +14,10 @@ namespace Duel6::Gui {
         Color frameDarkColor(0, 0, 0);
         Color frameFocusColor(0, 50, 255, 50);
         Color bgColor(205, 205, 205);
-        Color shadowColor(0,0,0, 158);
+        Color shadowColor(0, 0, 0, 158);
     }
     View::View(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h)
-        : parent(parent), x(x), y(y), w(w), h(h)  {
+        : parent(parent), x(x), y(y), w(w), h(h) {
         parent.addView(this);
     }
 
@@ -86,18 +86,15 @@ namespace Duel6::Gui {
             previous = control.get();
         }
         if (backwards) {
-            if(previous != nullptr){
+            if (previous != nullptr) {
                 focus(previous);
             }
         } else {
-            if(first != nullptr) {
+            if (first != nullptr) {
                 focus(first);
             }
         }
     }
-
-
-
 
     void View::draw(Renderer &renderer, const Font &font) const {
         Matrix m = renderer.getViewMatrix();
@@ -109,19 +106,19 @@ namespace Duel6::Gui {
     }
 
     bool View::keyEvent(const KeyPressEvent &event) {
-        if(event.getCode() == SDLK_TAB){
-            if(event.withShift()){
+        if (event.getCode() == SDLK_TAB) {
+            if (event.withShift()) {
                 focusPrevious();
             } else {
                 focusNext();
             }
             return true;
         }
-        if(focused != nullptr){
-            if(focused->keyEvent(event)){
+        if (focused != nullptr) {
+            if (focused->keyEvent(event)) {
                 return true;
             }
-            if(event.getCode() == SDLK_ESCAPE){
+            if (event.getCode() == SDLK_ESCAPE) {
                 blur(focused);
                 return true;
             }
@@ -130,7 +127,7 @@ namespace Duel6::Gui {
     }
 
     void View::textInputEvent(const TextInputEvent &event) {
-        if(focused != nullptr){
+        if (focused != nullptr) {
             focused->textInputEvent(event);
         }
     }
@@ -143,20 +140,20 @@ namespace Duel6::Gui {
     }
 
     void View::mouseMotionEvent(const MouseMotionEvent &event) {
-        MouseMotionEvent translatedEvent = event.translate(-x, -y );
+        MouseMotionEvent translatedEvent = event.translate(-x, -y);
         for (auto &control : controls) {
             control->mouseMotionEvent(translatedEvent);
         }
     }
 
     void View::mouseWheelEvent(const MouseWheelEvent &event) {
-        MouseWheelEvent translatedEvent = event.translate(-x, -y );
+        MouseWheelEvent translatedEvent = event.translate(-x, -y);
         for (auto &control : controls) {
             control->mouseWheelEvent(translatedEvent);
         }
     }
 
-    void View::close(){
+    void View::close() {
         parent.closeView(this);
     }
 
@@ -168,7 +165,7 @@ namespace Duel6::Gui {
         // bottom shadow
         renderer.line(Vector(x + 4, y - 6), Vector(x + w - 1, y - 6), shadowWidth, shadowColor);
         // right shadow
-        renderer.line(Vector(x + w + 4, y + h - 8), Vector(x + w + 4 , y - 11), shadowWidth, shadowColor);
+        renderer.line(Vector(x + w + 4, y + h - 8), Vector(x + w + 4, y - 11), shadowWidth, shadowColor);
         renderer.setBlendFunc(BlendFunc::None);
     }
     void View::drawBackground(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus) {
@@ -187,11 +184,10 @@ namespace Duel6::Gui {
         renderer.line(Vector(x, y), Vector(x + w, y), 1.0f, topColor);
         renderer.line(Vector(x, y - 1), Vector(x + w - 1, y - 1), 1.0f, topColor);
 
-
         renderer.line(Vector(x + w, y + h), Vector(x + w, y), 1.0f, bottomColor);
         renderer.line(Vector(x + w + 1, y + h), Vector(x + w + 1, y - 1), 1.0f, bottomColor);
 
-        renderer.line(Vector(x + w, y), Vector(x, y ), 1.0f, bottomColor);
+        renderer.line(Vector(x + w, y), Vector(x, y), 1.0f, bottomColor);
         renderer.line(Vector(x + w, y + 1), Vector(x + 1, y + 1), 1.0f, bottomColor);
 
     }

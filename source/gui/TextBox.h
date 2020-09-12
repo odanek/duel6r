@@ -48,6 +48,7 @@ namespace Duel6 {
             Int32 cursorPos = 0;
             Float32 blinkCountDown = 0.5f;
             std::string placeholder = "";
+
         public:
             Textbox(View &parentView);
 
@@ -55,11 +56,11 @@ namespace Duel6 {
 
             void setPosition(int X, int Y, int W, int M, const std::string &allowed);
 
-            void setText(const std::string & value);
+            void setText(const std::string &value);
 
             void setPlaceholder(const std::string &placeholder);
 
-            const std::string &getText() const;
+            const std::string& getText() const;
 
             void flush();
 
@@ -72,7 +73,8 @@ namespace Duel6 {
             Control::Type getType() const override {
                 return Control::Type::Textbox;
             }
-            Textbox &onEnter(OnEnterCallback listener) {
+
+            Textbox& onEnter(OnEnterCallback listener) {
                 onEnterListeners.push_back(listener);
                 return *this;
             }
@@ -85,6 +87,7 @@ namespace Duel6 {
             void onBlur() override;
 
             void mouseMotionEvent(const MouseMotionEvent &event) override;
+
         private:
             void confirmValue();
 

@@ -10,13 +10,13 @@
 namespace Duel6 {
     namespace Gui {
 
-        Image::Image(View & parentView, Material material, Int32 x, Int32 y, Int32 w, Int32 h)
+        Image::Image(View &parentView, Material material, Int32 x, Int32 y, Int32 w, Int32 h)
             : Control(parentView), material(material), w(w), h(h) {
             this->x = x;
             this->y = y;
         }
 
-        Image::~Image(){
+        Image::~Image() {
         }
 
         void Image::draw(Duel6::Renderer &renderer, const Duel6::Font &font) const {

@@ -33,7 +33,7 @@
 
 namespace Duel6 {
     namespace Gui {
-        class Spinner: public Control {
+        class Spinner : public Control {
         public:
             struct ItemColor {
                 Color font;
@@ -41,7 +41,7 @@ namespace Duel6 {
             };
 
             typedef std::function<void(Int32 selectedIndex)> ToggleCallback;
-            typedef std::function<ItemColor(Int32 index, const std::string& label)> ColorizeCallback;
+            typedef std::function<ItemColor(Int32 index, const std::string &label)> ColorizeCallback;
 
         private:
             std::vector<ToggleCallback> toggleListeners;
@@ -65,7 +65,7 @@ namespace Duel6 {
 
             Int32 currentItem();
 
-            std::pair<Int32, std::string> & currentValue();
+            std::pair<Int32, std::string>& currentValue();
 
             void clear();
 
@@ -73,16 +73,16 @@ namespace Duel6 {
                 return Control::Type::Switchbox;
             }
 
-            Spinner &onToggled(ToggleCallback listener) {
+            Spinner& onToggled(ToggleCallback listener) {
                 toggleListeners.push_back(listener);
                 return *this;
             }
 
-            Spinner &onColorize(ColorizeCallback callback) {
+            Spinner& onColorize(ColorizeCallback callback) {
                 colorizeCallback = callback;
                 return *this;
             }
-            static ItemColor defaultColorize(Int32 index, const std::string& item);
+            static ItemColor defaultColorize(Int32 index, const std::string &item);
 
         protected:
             void mouseButtonEvent(const MouseButtonEvent &event) override;

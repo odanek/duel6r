@@ -51,7 +51,7 @@ namespace Duel6 {
             }
         }
 
-        ListBox &ListBox::clear() {
+        ListBox& ListBox::clear() {
             items.clear();
             listPos.items = 0;
             listPos.start = 0;
@@ -63,12 +63,12 @@ namespace Duel6 {
             return selected;
         }
 
-        const std::string &ListBox::selectedItem() const {
+        const std::string& ListBox::selectedItem() const {
             return items[selected];
         }
 
-        ListBox &ListBox::selectItem(Int32 index) {
-            if(index < 0 || (size_t) index >= items.size()) return *this;
+        ListBox& ListBox::selectItem(Int32 index) {
+            if (index < 0 || (size_t) index >= items.size()) return *this;
             if (index != selected) {
                 selected = index;
                 for (auto &listener : selectListeners) {
@@ -78,24 +78,24 @@ namespace Duel6 {
             return *this;
         }
 
-        ListBox &ListBox::scrollToView(Int32 index) {
+        ListBox& ListBox::scrollToView(Int32 index) {
 //            if(index > listPos.start && index < listPos.start + listPos.showCount){
 //                return *this;
 //            }
 
-            if(index > listPos.start + listPos.showCount){
+            if (index > listPos.start + listPos.showCount) {
                 listPos.start += index - selected;
             } else
-                if (index < listPos.start) {
-                    listPos.start -= selected - index;
-                }
-            if(listPos.start < 0) {
+            if (index < listPos.start) {
+                listPos.start -= selected - index;
+            }
+            if (listPos.start < 0) {
                 listPos.start = 0;
             }
             return *this;
         }
 
-        ListBox &ListBox::removeItem(Int32 index) {
+        ListBox& ListBox::removeItem(Int32 index) {
             if (index >= 0 && index < listPos.items) {
                 items.erase(items.begin() + index);
                 listPos.items--;
@@ -106,7 +106,7 @@ namespace Duel6 {
             return *this;
         }
 
-        ListBox &ListBox::removeItem(const std::string &item) {
+        ListBox& ListBox::removeItem(const std::string &item) {
             auto iter = std::find(items.begin(), items.end(), item);
             if (iter != items.end()) {
                 removeItem((Int32) (iter - items.begin()));
@@ -114,13 +114,13 @@ namespace Duel6 {
             return *this;
         }
 
-        ListBox &ListBox::addItem(const std::string &item) {
+        ListBox& ListBox::addItem(const std::string &item) {
             listPos.items++;
             items.push_back(item);
             return *this;
         }
 
-        const std::string &ListBox::getItem(Size index) const {
+        const std::string& ListBox::getItem(Size index) const {
             return items.at(index);
         }
 
@@ -128,7 +128,7 @@ namespace Duel6 {
             return items.size();
         }
 
-        ListBox &ListBox::setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight) {
+        ListBox& ListBox::setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight) {
             this->x = x + 2;
             this->y = y - 2;
             this->width = width << 3;
@@ -201,7 +201,7 @@ namespace Duel6 {
             drawFrame(renderer, x - 2, y + 2, width + 4, height + 4, true, false);
             renderer.quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
 
-            if(focused)drawFrame(renderer, x - 2, y + 2, width + (slider != nullptr ? 16 : 0) + 4, height + 4, true, focused);
+            if (focused) drawFrame(renderer, x - 2, y + 2, width + (slider != nullptr ? 16 : 0) + 4, height + 4, true, focused);
             if (items.empty())
                 return;
 
@@ -215,7 +215,7 @@ namespace Duel6 {
                 if (index >= listPos.items)
                     break;
 
-                const std::string& label = items[index];
+                const std::string &label = items[index];
                 ItemColor colors = colorizeCallback(index, label);
 
                 Color fontColor = (index == selected) ? Color::WHITE : colors.font;
@@ -226,7 +226,7 @@ namespace Duel6 {
             }
         }
 
-        ListBox::ItemColor ListBox::defaultColorize(Int32 index, const std::string& label) {
+        ListBox::ItemColor ListBox::defaultColorize(Int32 index, const std::string &label) {
             return {Color::BLACK, Color::WHITE};
         }
     }

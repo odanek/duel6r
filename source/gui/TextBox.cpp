@@ -50,16 +50,16 @@ namespace Duel6 {
             text.clear();
         }
 
-        void Textbox::moveCursorRight(){
-            cursorPos ++;
-            if(cursorPos > text.length()){
+        void Textbox::moveCursorRight() {
+            cursorPos++;
+            if (cursorPos > text.length()) {
                 cursorPos = text.length();
             }
         }
 
-        void Textbox::moveCursorLeft(){
-            cursorPos --;
-            if(cursorPos < 0){
+        void Textbox::moveCursorLeft() {
+            cursorPos--;
+            if (cursorPos < 0) {
                 cursorPos = 0;
             }
         }
@@ -70,27 +70,27 @@ namespace Duel6 {
                 return false; // don't block the blur event
             }
 
-            if(event.getCode() == SDLK_HOME){
+            if (event.getCode() == SDLK_HOME) {
                 cursorPos = 0;
                 return true;
             }
 
-            if(event.getCode() == SDLK_END){
+            if (event.getCode() == SDLK_END) {
                 cursorPos = text.length();
                 return true;
             }
 
-            if(event.getCode() == SDLK_LEFT){
+            if (event.getCode() == SDLK_LEFT) {
                 moveCursorLeft();
                 return true;
             }
 
-            if(event.getCode() == SDLK_RIGHT){
+            if (event.getCode() == SDLK_RIGHT) {
                 moveCursorRight();
                 return true;
             }
 
-            if(event.withCtrl() && event.getCode() == SDLK_v) {
+            if (event.withCtrl() && event.getCode() == SDLK_v) {
                 std::string inserted(SDL_GetClipboardText());
                 size_t maxInserted = max - text.length();
                 maxInserted = std::min(maxInserted, inserted.length());
@@ -100,14 +100,14 @@ namespace Duel6 {
             }
 
             if (!text.empty() && event.getCode() == SDLK_BACKSPACE) {
-                if(cursorPos > 0) {
+                if (cursorPos > 0) {
                     text.erase(cursorPos - 1, 1);
                     moveCursorLeft();
                 }
                 return true;
             }
             if (!text.empty() && event.getCode() == SDLK_DELETE) {
-                if(cursorPos < text.length()) {
+                if (cursorPos < text.length()) {
                     text.erase(cursorPos, 1);
                 }
                 return true;
@@ -128,7 +128,7 @@ namespace Duel6 {
                 Int32 mx = event.getX();
 
                 cursorPos = 0;
-                for(Int32 sx = x + 4; sx < mx  && cursorPos < text.length(); sx += getFont().getTextWidth(text.substr(cursorPos++, 1), 16)){
+                for (Int32 sx = x + 4; sx < mx && cursorPos < text.length(); sx += getFont().getTextWidth(text.substr(cursorPos++, 1), 16)) {
 
                 }
                 focus();
@@ -137,10 +137,10 @@ namespace Duel6 {
 
         void Textbox::textInputEvent(const TextInputEvent &event) {
             const std::string &newText = event.getText();
-            for (auto iter = newText.cbegin(); iter != newText.cend(); ++iter) {
+            for (auto iter = newText.cbegin(); iter != newText.cend(); ++ iter) {
                 char letter = *iter;
                 if ((int) text.length() < max && allowedCharacters.find(letter) != std::string::npos) {
-                    if(cursorPos >= text.length()){
+                    if (cursorPos >= text.length()) {
                         text.push_back(letter);
                     } else {
                         text.insert(cursorPos, 1, letter);
@@ -150,12 +150,12 @@ namespace Duel6 {
             }
         }
 
-        void Textbox::setText(const std::string & value) {
+        void Textbox::setText(const std::string &value) {
             text = value;
             confirmedText = text;
         }
 
-        const std::string &Textbox::getText() const {
+        const std::string& Textbox::getText() const {
             return text;
         }
 
@@ -170,14 +170,14 @@ namespace Duel6 {
             renderer.quadXY(Vector(x, y - (height - 1)), Vector(w, height - 1), Color::WHITE);
             Vector resultSize;
             font.print(x, (y - height), Color::BLACK, text);
-            if(text.empty()){
-                font.print(x, (y - height) + 4, 0, Color(123,123,123), placeholder, 12);
+            if (text.empty()) {
+                font.print(x, (y - height) + 4, 0, Color(123, 123, 123), placeholder, 12);
             }
-            if(blinkCountDown > 0.25f){
+            if (blinkCountDown > 0.25f) {
                 std::string prefix = text.substr(0, cursorPos);
                 Int32 cursorW = font.getTextWidth(prefix, 32);
                 Int32 carretW = font.getTextWidth("|"s, 32);
-                if(focused){
+                if (focused) {
                     font.print(x + cursorW / 2 - carretW / 4, y - (height) + 1, 0, Color::BLACK, "|", 18);
                 }
             }
@@ -203,12 +203,12 @@ namespace Duel6 {
         }
         void Textbox::update(Float32 elapsedTime) {
             blinkCountDown -= elapsedTime;
-            if(blinkCountDown <= 0){
+            if (blinkCountDown <= 0) {
                 blinkCountDown = 0.5f;
             }
         }
 
-        void Textbox::setPlaceholder(const std::string &placeholder){
+        void Textbox::setPlaceholder(const std::string &placeholder) {
             this->placeholder = placeholder;
         }
     }

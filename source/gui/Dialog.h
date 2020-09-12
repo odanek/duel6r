@@ -12,13 +12,15 @@
 #include "Button.h"
 namespace Duel6::Gui {
 
-    class Dialog : public View{
+    class Dialog : public View {
 
         class DialogTitleBar : public Control {
             bool pressed = false;
-            Int32 w,h;
+            Int32 w, h;
+
         public:
-            DialogTitleBar(Dialog &parentView): Control(parentView) {
+            DialogTitleBar(Dialog &parentView)
+                : Control(parentView) {
             }
 
             void setPos(Int32 x, Int32 y, Int32 w, Int32 h);
@@ -35,9 +37,11 @@ namespace Duel6::Gui {
         };
 
         friend class DialogTitleBar;
+
     private:
-        Gui::Button * closeBt;
-        DialogTitleBar * titleBar;
+        Gui::Button *closeBt;
+        DialogTitleBar *titleBar;
+
     public:
         Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h);
         virtual ~Dialog();

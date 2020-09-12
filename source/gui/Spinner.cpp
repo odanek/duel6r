@@ -30,7 +30,8 @@
 
 namespace Duel6 {
     namespace Gui {
-        Spinner::Spinner(View &parentView): Control(parentView) {
+        Spinner::Spinner(View &parentView)
+            : Control(parentView) {
             selectedIndex = -1;
             focusable = true;
             left = new Button(parentView);
@@ -49,7 +50,7 @@ namespace Duel6 {
         Int32 Spinner::currentItem() {
             return selectedIndex;
         }
-        std::pair<Int32, std::string> & Spinner::currentValue() {
+        std::pair<Int32, std::string>& Spinner::currentValue() {
             return items[selectedIndex];
         }
         void Spinner::setCurrent(Int32 index) {
@@ -75,7 +76,9 @@ namespace Duel6 {
         }
 
         void Spinner::addItem(const std::string &item, int value, bool skipIfPresent) {
-            if(!skipIfPresent || (std::find_if(items.begin(), items.end(), [item](std::pair<int, std::string> & p){return p.second == item;}) == std::end(items))){
+            if (!skipIfPresent || (std::find_if(items.begin(), items.end(), [item](std::pair<int, std::string> &p) {
+                return p.second == item;
+            }) == std::end(items))) {
                 items.push_back(std::make_pair(value, item));
             }
             if (items.size() == 1) {
@@ -126,46 +129,46 @@ namespace Duel6 {
             ItemColor colors = colorizeCallback(selectedIndex, items[selectedIndex].second);
 
             Color fontColor = colors.font;
-            Color bcgColor =  colors.background;
+            Color bcgColor = colors.background;
 
-            renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15),bcgColor);
+            renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), bcgColor);
             font.print(x + 25, y - 15, fontColor, items[selectedIndex].second);
-            if(focused){
-                drawFocusFrame(renderer, x-1,y-1, width, 18);
+            if (focused) {
+                drawFocusFrame(renderer, x - 1, y - 1, width, 18);
             }
         }
-        void Spinner::mouseButtonEvent(const MouseButtonEvent &event){
+        void Spinner::mouseButtonEvent(const MouseButtonEvent &event) {
             if (Control::mouseIn(event, x, y, width, 20)) {
                 focus();
             }
         }
         bool Spinner::keyEvent(const KeyPressEvent &event) {
             switch (event.getCode()) {
-                case (SDLK_LEFT): {
-                    setCurrent(selectedIndex - 1);
-                    return true;
-                    break;
-                }
-                case (SDLK_RIGHT): {
-                    setCurrent(selectedIndex + 1);
-                    return true;
-                    break;
-                }
-                case (SDLK_UP): {
-                    focusPrevious();
-                    return true;
-                    break;
-                }
-                case (SDLK_DOWN): {
-                    focusNext();
-                    return true;
-                    break;
-                }
+            case (SDLK_LEFT): {
+                setCurrent(selectedIndex - 1);
+                return true;
+                break;
+            }
+            case (SDLK_RIGHT): {
+                setCurrent(selectedIndex + 1);
+                return true;
+                break;
+            }
+            case (SDLK_UP): {
+                focusPrevious();
+                return true;
+                break;
+            }
+            case (SDLK_DOWN): {
+                focusNext();
+                return true;
+                break;
+            }
             }
             return false;
         }
 
-        Spinner::ItemColor Spinner::defaultColorize(Int32 index, const std::string& item) {
+        Spinner::ItemColor Spinner::defaultColorize(Int32 index, const std::string &item) {
             return {Color::BLACK, Color::WHITE};
         }
     }

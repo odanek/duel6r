@@ -34,7 +34,7 @@
 
 namespace Duel6 {
     namespace Gui {
-        class ListBox: public Control {
+        class ListBox : public Control {
         public:
             struct ItemColor {
                 Color font;
@@ -42,7 +42,7 @@ namespace Duel6 {
             };
 
             typedef std::function<void(Int32 index, const std::string &item)> ClickCallback;
-            typedef std::function<ItemColor(Int32 index, const std::string& label)> ColorizeCallback;
+            typedef std::function<ItemColor(Int32 index, const std::string &label)> ColorizeCallback;
 
         private:
             std::vector<ClickCallback> selectListeners;
@@ -60,48 +60,48 @@ namespace Duel6 {
         public:
             ListBox(View &parentView, bool sb);
 
-            ListBox &setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
+            ListBox& setPosition(Int32 x, Int32 y, Int32 width, Int32 height, Int32 itemHeight);
 
-            ListBox &addItem(const std::string &item);
+            ListBox& addItem(const std::string &item);
 
-            ListBox &removeItem(Int32 index);
+            ListBox& removeItem(Int32 index);
 
-            ListBox &removeItem(const std::string &item);
+            ListBox& removeItem(const std::string &item);
 
-            ListBox &selectItem(Int32 index);
+            ListBox& selectItem(Int32 index);
 
-            ListBox &scrollToView(Int32 index);
+            ListBox& scrollToView(Int32 index);
 
-            const std::string &getItem(Size index) const;
+            const std::string& getItem(Size index) const;
 
             Int32 selectedIndex() const;
 
-            const std::string &selectedItem() const;
+            const std::string& selectedItem() const;
 
             Size size() const;
 
-            ListBox &clear();
+            ListBox& clear();
 
             Control::Type getType() const override {
                 return Control::Type::Listbox;
             }
 
-            ListBox &onItemSelected(ClickCallback listener) {
+            ListBox& onItemSelected(ClickCallback listener) {
                 selectListeners.push_back(listener);
                 return *this;
             }
 
-            ListBox &onDoubleClick(ClickCallback listener) {
+            ListBox& onDoubleClick(ClickCallback listener) {
                 doubleClickListeners.push_back(listener);
                 return *this;
             }
 
-            ListBox &onColorize(ColorizeCallback callback) {
+            ListBox& onColorize(ColorizeCallback callback) {
                 colorizeCallback = callback;
                 return *this;
             }
 
-            static ItemColor defaultColorize(Int32 index, const std::string& label);
+            static ItemColor defaultColorize(Int32 index, const std::string &label);
 
         protected:
             void mouseWheelEvent(const MouseWheelEvent &event) override;

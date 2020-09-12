@@ -44,11 +44,12 @@ namespace Duel6 {
             Int32 trX = 0; // x translation
             Int32 trY = 0; // y translation
             std::vector<std::unique_ptr<Control>> controls;
-            Control * focused = nullptr;
-            SDL_Cursor* cursorArrow;
-            SDL_Cursor* cursorIBeam;
+            Control *focused = nullptr;
+            SDL_Cursor *cursorArrow;
+            SDL_Cursor *cursorIBeam;
             std::list<View*> closingViews;
             std::list<std::unique_ptr<View>> viewStack;
+
         public:
             Desktop(Renderer &renderer, Font &font);
 
@@ -77,9 +78,9 @@ namespace Duel6 {
             Font& getFont();
 
             void setIBeamCursor();
-        private:
-              void removeClosedViews();
 
+        private:
+            void removeClosedViews();
         };
     }
 }

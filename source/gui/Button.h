@@ -61,12 +61,12 @@ namespace Duel6 {
                 return Control::Type::Button;
             }
 
-            Button &onPress(PressCallback listener) {
+            Button& onPress(PressCallback listener) {
                 pressListeners.push_back(listener);
                 return *this;
             }
 
-            Button &onClick(ClickCallback listener) {
+            Button& onClick(ClickCallback listener) {
                 clickListeners.push_back(listener);
                 return *this;
             }

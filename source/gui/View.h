@@ -18,10 +18,13 @@ namespace Duel6::Gui {
         Desktop &parent;
         std::vector<std::unique_ptr<Control>> controls;
         Control *focused = nullptr;
+
     protected:
-        Int32 x = 0,y = 0, w = 100,h = 100;
+        Int32 x = 0, y = 0, w = 100, h = 100;
+
     public:
-        View(Desktop &parent, Int32 x = 0,Int32 y = 0, Int32 w = 100, Int32 h = 100);
+        View(Desktop &parent, Int32 x = 0, Int32 y = 0, Int32 w = 100, Int32 h = 100);
+
         virtual ~View();
 
         void focus(Control *control);
@@ -32,16 +35,16 @@ namespace Duel6::Gui {
 
         void focusPrevious();
 
-        void setPos(Int32 x, Int32 y){
+        void setPos(Int32 x, Int32 y) {
             this->x = x;
             this->y = y;
         }
 
-        void getPos(Int32 & x, Int32 & y){
+        void getPos(Int32 &x, Int32 &y) {
             x = this->x;
             y = this->y;
         }
-        void setPos(Int32 x, Int32 y, Int32 w, Int32 h){
+        void setPos(Int32 x, Int32 y, Int32 w, Int32 h) {
             this->x = x;
             this->y = y;
             this->w = w;
@@ -65,7 +68,8 @@ namespace Duel6::Gui {
 
         virtual void mouseWheelEvent(const MouseWheelEvent &event);
 
-        virtual void onBlur() {}
+        virtual void onBlur() {
+        }
 
         void addControl(Control *control);
 
@@ -74,16 +78,16 @@ namespace Duel6::Gui {
         void setIBeamCursor();
 
         void close();
+
     protected:
-           static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
-           static void drawDropShadow(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
-           static void drawBackground(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
+        static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
+        static void drawDropShadow(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
+        static void drawBackground(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
 
     private:
 
         void advanceFocus(bool backwards = false);
-    }
-    ;
+    };
 
 } /* namespace Duel6 */
 

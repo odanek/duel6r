@@ -8,20 +8,21 @@
 #include "Dialog.h"
 namespace Duel6::Gui {
 
-    Dialog::Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h): View(parent, x, y, w, h)
+    Dialog::Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h)
+        : View(parent, x, y, w, h)
     {
         titleBar = new Dialog::DialogTitleBar(*this);
         titleBar->setPos(0, this->h, this->w, 32);
         closeBt = new Gui::Button(*this);
-        closeBt->setPosition(this->w - 24,  this->h - 8, 16, 16);
+        closeBt->setPosition(this->w - 24, this->h - 8, 16, 16);
         closeBt->setCaption("x");
         closeBt->setFocusable(true);
-        closeBt->onClick([this](Button &button){
+        closeBt->onClick([this](Button &button) {
             this->close();
         });
     }
 
-    Dialog::~Dialog(){
+    Dialog::~Dialog() {
     }
 
     void Dialog::draw(Renderer &renderer, const Font &font) const {
@@ -61,9 +62,9 @@ namespace Duel6::Gui {
                 if (!pressed && event.isPressed()) {
                     pressed = true;
                 } else
-                    if (pressed && !event.isPressed()) {
-                        pressed = false;
-                    }
+                if (pressed && !event.isPressed()) {
+                    pressed = false;
+                }
             }
         }
     }
