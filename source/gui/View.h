@@ -14,10 +14,15 @@
 namespace Duel6::Gui {
     class Desktop;
     class View {
+
+    public:
+        typedef std::function<void(View&, Int32, Int32, Int32, Int32)> ResizeCallback;
+
     private:
         Desktop &parent;
         std::vector<std::unique_ptr<Control>> controls;
         Control *focused = nullptr;
+        std::vector<ResizeCallback> resizeCallbacks;
 
     protected:
         Int32 x = 0, y = 0, w = 100, h = 100;
@@ -35,21 +40,14 @@ namespace Duel6::Gui {
 
         void focusPrevious();
 
-        void setPos(Int32 x, Int32 y) {
-            this->x = x;
-            this->y = y;
-        }
+        void setPos(Int32 x, Int32 y);
 
-        void getPos(Int32 &x, Int32 &y) {
-            x = this->x;
-            y = this->y;
-        }
-        void setPos(Int32 x, Int32 y, Int32 w, Int32 h) {
-            this->x = x;
-            this->y = y;
-            this->w = w;
-            this->h = h;
-        }
+        void getPos(Int32 &x, Int32 &y);
+
+        void getPos(Int32 &x, Int32 &y, Int32 &w, Int32 &h);
+
+        void setPos(Int32 x, Int32 y, Int32 w, Int32 h);
+
         virtual void update(Float32 elapsedTime) {
             for (auto &control : controls) {
                 control->update(elapsedTime);
@@ -77,12 +75,30 @@ namespace Duel6::Gui {
 
         void setIBeamCursor();
 
+        void setNWSECursor();
+
+        void setNESWCursor();
+
+        void setWECursor();
+
+        void setNSCursor();
+
         void close();
+
+        void onResize(ResizeCallback callback);
 
     protected:
         static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
+
         static void drawDropShadow(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
+
         static void drawBackground(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
+
+        static bool mouseIn(const MouseEvent &event, Int32 x, Int32 y, Int32 w, Int32 h) {
+            return event.getX() >= x && event.getX() < x + w && event.getY() >= y && event.getY() < y + h;
+        }
+
+        void onResize();
 
     private:
 

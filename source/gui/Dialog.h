@@ -15,13 +15,13 @@ namespace Duel6::Gui {
     class Dialog : public View {
 
         class DialogTitleBar : public Control {
+        protected:
+            Gui::Button *closeBt;
             bool pressed = false;
             Int32 w, h;
 
         public:
-            DialogTitleBar(Dialog &parentView)
-                : Control(parentView) {
-            }
+            DialogTitleBar(Dialog &parentView);
 
             void setPos(Int32 x, Int32 y, Int32 w, Int32 h);
 
@@ -38,15 +38,32 @@ namespace Duel6::Gui {
 
         friend class DialogTitleBar;
 
+    public:
+        enum RESIZE {
+            NONE, N, E, S, W, NE, SE, SW, NW
+        };
+
     private:
-        Gui::Button *closeBt;
+
         DialogTitleBar *titleBar;
+
+        RESIZE resizingDirection = NONE;
 
     public:
         Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h);
+
         virtual ~Dialog();
 
         virtual void draw(Renderer &renderer, const Font &font) const override;
+
+        virtual void mouseButtonEvent(const MouseButtonEvent &event) override;
+
+        virtual void mouseMotionEvent(const MouseMotionEvent &event) override;
+
+    private:
+        void startResizing(RESIZE direction);
+
+        void stopResizing();
     };
 
 } /* namespace Duel6 */

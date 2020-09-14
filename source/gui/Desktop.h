@@ -47,6 +47,10 @@ namespace Duel6 {
             Control *focused = nullptr;
             SDL_Cursor *cursorArrow;
             SDL_Cursor *cursorIBeam;
+            SDL_Cursor *cursorNWSE;
+            SDL_Cursor *cursorNESW;
+            SDL_Cursor *cursorWE;
+            SDL_Cursor *cursorNS;
             std::list<View*> closingViews;
             std::list<std::unique_ptr<View>> viewStack;
 
@@ -78,6 +82,14 @@ namespace Duel6 {
             Font& getFont();
 
             void setIBeamCursor();
+
+            void setNWSECursor();
+
+            void setNESWCursor();
+
+            void setWECursor();
+
+            void setNSCursor();
 
         private:
             void removeClosedViews();

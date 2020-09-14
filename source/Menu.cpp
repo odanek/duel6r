@@ -226,8 +226,8 @@ namespace Duel6 {
             bt->setCaption("OK");
 
 
-            bt->onClick([this](Gui::Button &){
-                Gui::Dialog * dialog = new Gui::Dialog(this->gui, 10, 500, 200, 200);
+            bt->onClick([this, dialog](Gui::Button &){
+                dialog->setPos(100,300,500,500);
             });
            // dialog->setPos(10, 700, 600, 600);
         });

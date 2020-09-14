@@ -60,6 +60,59 @@ namespace Duel6::Gui {
     void View::setIBeamCursor() {
         return parent.setIBeamCursor();
     }
+    void View::setNWSECursor() {
+        return parent.setNWSECursor();
+    }
+    void View::setNESWCursor() {
+        return parent.setNESWCursor();
+    }
+    void View::setWECursor() {
+        return parent.setWECursor();
+    }
+    void View::setNSCursor() {
+        return parent.setNSCursor();
+    }
+
+    void View::setPos(Int32 x, Int32 y) {
+        setPos(x, y, w, h);
+    }
+
+    void View::getPos(Int32 &x, Int32 &y) {
+        x = this->x;
+        y = this->y;
+    }
+
+    void View::getPos(Int32 &x, Int32 &y, Int32 &w, Int32 &h) {
+        x = this->x;
+        y = this->y;
+        w = this->w;
+        h = this->h;
+    }
+
+    void View::setPos(Int32 x, Int32 y, Int32 w, Int32 h) {
+        if (w < 100) {
+            w = 100;
+        }
+        if (h < 100) {
+            h = 100;
+        }
+        this->x = x;
+        this->y = y;
+        this->w = w;
+        this->h = h;
+
+        onResize();
+    }
+
+    void View::onResize(ResizeCallback callback) {
+        resizeCallbacks.push_back(callback);
+    }
+
+    void View::onResize() {
+        for (auto &callback : resizeCallbacks) {
+            callback(*this, x, y, w, h);
+        }
+    }
 
     void View::advanceFocus(bool backwards) {
         Control *first = nullptr;

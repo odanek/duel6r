@@ -41,6 +41,11 @@ namespace Duel6 {
               font(font) {
             cursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
             cursorIBeam = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+            cursorNWSE = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+            cursorNESW = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+            cursorWE = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+            cursorNS = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
+
             SDL_SetCursor(cursorArrow);
         }
 
@@ -116,6 +121,21 @@ namespace Duel6 {
 
         void Desktop::setIBeamCursor() {
             SDL_SetCursor(cursorIBeam);
+        }
+        void Desktop::setNWSECursor() {
+            SDL_SetCursor(cursorNWSE);
+        }
+
+        void Desktop::setNESWCursor() {
+            SDL_SetCursor(cursorNESW);
+        }
+
+        void Desktop::setWECursor() {
+            SDL_SetCursor(cursorWE);
+        }
+
+        void Desktop::setNSCursor() {
+            SDL_SetCursor(cursorNS);
         }
 
         void Desktop::removeClosedViews() {
