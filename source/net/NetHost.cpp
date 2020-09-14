@@ -49,17 +49,10 @@ namespace Duel6 {
             started();
         }
 
-        void NetHost::registerOnMasterServer(){
-            masterserver::MasterServer & proxy=  masterServerProxy;
-
-            std::string adresa = "127.0.0.1";
-            int port = 5902;
+        void NetHost::registerOnMasterServer() {
+            masterserver::MasterServer &proxy = masterServerProxy;
             std::string message = "NetHost::registerOnMasterServer Registering on master server ";
-            message += adresa;
-            message += ":";
-            message += port;
             console.printLine(message);
-            proxy.setAddressAndPort(adresa, port);
             proxy.registerOnMasterServer(serviceHost.get());
         }
 

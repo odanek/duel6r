@@ -1,0 +1,11 @@
+{
+  "enableMasterDiscovery": false,
+  "enableNAT": false,
+  "enableMaster": false,
+  "master": {
+    "port": 5902,
+    "URL": "duel6-master.mrakonos.cz"
+  },
+  "host": "0.0.0.0",
+  "port": "5900"
+}

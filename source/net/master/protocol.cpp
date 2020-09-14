@@ -1,6 +1,6 @@
 #include <sstream>
 #include "protocol.h"
-std::string hostToIPaddress(address_t a, port_t p){
+std::string addressToStr(address_t a){
     std::ostringstream is;
     hostAddress hostAddress;
     hostAddress.address = a;
@@ -12,6 +12,12 @@ std::string hostToIPaddress(address_t a, port_t p){
     is << (uint16_t) hostAddress.a[2];
     is << ".";
     is << (uint16_t) hostAddress.a[3];
+    return is.str();
+}
+
+std::string hostToIPaddress(address_t a, port_t p){
+    std::ostringstream is;
+    is << addressToStr(a);
     is << ":";
     is << p;
     return is.str();

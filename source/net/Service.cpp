@@ -12,6 +12,9 @@
 #include "Peer.h"
 namespace Duel6::net {
 
+    void Service::setMasterAddressAndPort(const std::string &address, int port){
+        masterServerProxy.setAddressAndPort(address, port);
+    }
     void Service::requestStop() {
         stopRequested = true;
     }

@@ -52,7 +52,10 @@ namespace Duel6 {
         Desktop::~Desktop() {
             SDL_FreeCursor(cursorArrow);
             SDL_FreeCursor(cursorIBeam);
-
+            SDL_FreeCursor(cursorNWSE);
+            SDL_FreeCursor(cursorNESW);
+            SDL_FreeCursor(cursorWE);
+            SDL_FreeCursor(cursorNS);
         }
 
         void Desktop::screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY) {

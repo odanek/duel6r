@@ -17,12 +17,14 @@ namespace Duel6::Gui {
 
     public:
         typedef std::function<void(View&, Int32, Int32, Int32, Int32)> ResizeCallback;
+        typedef std::function<void(View&)> CloseCallback;
 
     private:
         Desktop &parent;
         std::vector<std::unique_ptr<Control>> controls;
         Control *focused = nullptr;
         std::vector<ResizeCallback> resizeCallbacks;
+        std::vector<CloseCallback> closeCallbacks;
 
     protected:
         Int32 x = 0, y = 0, w = 100, h = 100;
@@ -87,6 +89,8 @@ namespace Duel6::Gui {
 
         void onResize(ResizeCallback callback);
 
+        void onClose(CloseCallback callback);
+
     protected:
         static void drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus = false);
 
@@ -99,6 +103,8 @@ namespace Duel6::Gui {
         }
 
         void onResize();
+
+        void onClose();
 
     private:
 

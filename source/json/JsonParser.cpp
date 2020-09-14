@@ -26,21 +26,26 @@
 */
 
 #include "JsonParser.h"
-
+#include "../Format.h"
 namespace Duel6 {
     namespace Json {
         namespace {
-            std::unordered_set<Uint8> stringSentinel = {'"'};
-            std::unordered_set<Uint8> numberChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '-',
-                                                     'e'};
+            std::unordered_set<Uint8> stringSentinel = { '"' };
+            std::unordered_set<Uint8> numberChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '-', 'e' };
         }
 
-        Value Parser::parse(const std::string &fileName) const {
+        Value Parser::parse(const std::string &fileName) {
             File file(fileName, File::Mode::Binary, File::Access::Read);
-            return parseValue(file);
+            try {
+                line = 1;
+                return parseValue(file);
+            } catch (JsonException &e) {
+                D6_THROW(JsonException,
+                    Format("Failed to parse {0}: {1}:{2}\n  {3}:{4}: {5}") << fileName << line << col << e.getFile() << e.getLine() << e.getMessage());
+            }
         }
 
-        Value Parser::parseValue(File &file) const {
+        Value Parser::parseValue(File &file) {
             Uint8 byte = peekNextCharacter(file);
             Value::Type type = determineValueType(byte);
 
@@ -59,15 +64,15 @@ namespace Duel6 {
                     return parseBoolean(file);
             }
 
-            D6_THROW(JsonException, "Unhandled type: " + std::to_string((Int32) type));
+            D6_THROW(JsonException, "Unhandled type: " + std::to_string((Int32 ) type));
         }
 
-        Value Parser::parseNull(File &file) const {
+        Value Parser::parseNull(File &file) {
             readExpected(file, "null");
             return Value::makeNull();
         }
 
-        Value Parser::parseObject(File &file) const {
+        Value Parser::parseObject(File &file) {
             Value value = Value::makeObject();
 
             readExpected(file, '{');
@@ -77,7 +82,7 @@ namespace Duel6 {
             } else {
                 do {
                     readWhitespaceAndExpected(file, '"');
-                    std::string propName = readUntil(file, stringSentinel);
+                    std::string propName = readUntil(file, stringSentinel, false);
                     readExpected(file, '"');
                     readWhitespaceAndExpected(file, ':');
                     value.set(propName, parseValue(file));
@@ -85,8 +90,7 @@ namespace Duel6 {
                     next = peekNextCharacter(file);
 
                     if (next != ',' && next != '}') {
-                        D6_THROW(JsonException,
-                                 std::string("Expected next property or end of object, got: ") + (char) next);
+                        D6_THROW(JsonException, std::string("Expected next property or end of object, got: ") + (char ) next);
                     }
 
                     readExpected(file, (char) next);
@@ -96,7 +100,7 @@ namespace Duel6 {
             return value;
         }
 
-        Value Parser::parseArray(File &file) const {
+        Value Parser::parseArray(File &file) {
             Value value = Value::makeArray();
 
             readExpected(file, '[');
@@ -109,7 +113,7 @@ namespace Duel6 {
                     next = peekNextCharacter(file);
 
                     if (next != ',' && next != ']') {
-                        D6_THROW(JsonException, std::string("Expect next item or end of array, got: ") + (char) next);
+                        D6_THROW(JsonException, std::string("Expect next item or end of array, got: ") + (char ) next);
                     }
 
                     readExpected(file, (char) next);
@@ -119,26 +123,26 @@ namespace Duel6 {
             return value;
         }
 
-        Value Parser::parseString(File &file) const {
+        Value Parser::parseString(File &file) {
             readExpected(file, '"');
             std::string val = readUntil(file, stringSentinel);
             readExpected(file, '"');
             return Value::makeString(val);
         }
 
-        Value Parser::parseNumber(File &file) const {
+        Value Parser::parseNumber(File &file) {
             std::string val = readWhile(file, numberChars);
             return Value::makeNumber(std::stod(val));
         }
 
-        Value Parser::parseBoolean(File &file) const {
+        Value Parser::parseBoolean(File &file) {
             Uint8 byte = peekNextCharacter(file);
             bool val = (byte == 't');
             readExpected(file, val ? "true" : "false");
             return Value::makeBoolean(val);
         }
 
-        Uint8 Parser::peekNextCharacter(File &file) const {
+        Uint8 Parser::peekNextCharacter(File &file) {
             while (!file.isEof()) {
                 Uint8 byte;
                 file.read(&byte, 1, 1);
@@ -146,13 +150,19 @@ namespace Duel6 {
                 if (byte != ' ' && byte != '\t' && byte != '\n' && byte != '\r') {
                     file.seek(-1, File::Seek::Cur);
                     return byte;
+                } else {
+                    if (byte == '\n' || byte == '\r') {
+                        lineInc();
+                    } else {
+                        colInc();
+                    }
                 }
             }
 
             D6_THROW(JsonException, "Unexpected end of input stream while skipping whitespace");
         }
 
-        Value::Type Parser::determineValueType(Uint8 firstByte) const {
+        Value::Type Parser::determineValueType(Uint8 firstByte) {
             if (firstByte == '{') {
                 return Value::Type::Object;
             } else if (firstByte == '[') {
@@ -167,38 +177,46 @@ namespace Duel6 {
                 return Value::Type::Null;
             }
 
-            D6_THROW(JsonException, std::string("Invalid value type found, starting with: ") + (char) firstByte);
+            D6_THROW(JsonException, std::string("Invalid value type found, starting with: ") + (char ) firstByte);
         }
 
-        void Parser::readExpected(File &file, const std::string &expected) const {
+        void Parser::readExpected(File &file, const std::string &expected) {
             for (char chr : expected) {
                 readExpected(file, chr);
             }
         }
 
-        void Parser::readExpected(File &file, char expected) const {
+        void Parser::readExpected(File &file, char expected) {
             Uint8 byte;
             file.read(&byte, 1, 1);
             if (expected != byte) {
-                D6_THROW(JsonException, std::string("Parsing error - expected: ") + expected + ", got: " + (char) byte);
+                D6_THROW(JsonException, std::string("Parsing error - expected: ") + expected + ", got: " + (char ) byte);
             }
+            colInc();
         }
 
-        void Parser::readWhitespaceAndExpected(File &file, char expected) const {
+        void Parser::readWhitespaceAndExpected(File &file, char expected) {
             peekNextCharacter(file);
             readExpected(file, expected);
         }
 
-        std::string Parser::readUntil(File &file, const std::unordered_set<Uint8> &sentinels) const {
+        std::string Parser::readUntil(File &file, const std::unordered_set<Uint8> &sentinels, bool allowEOL) {
             std::string result;
 
             while (!file.isEof()) {
                 Uint8 byte;
                 file.read(&byte, 1, 1);
+                colInc();
                 if (sentinels.find(byte) != sentinels.end()) {
                     file.seek(-1, File::Seek::Cur);
                     return result;
                 } else {
+                    if(byte == '\n' || byte == '\r'){
+                        if(!allowEOL){
+                            D6_THROW(JsonException, "Reached EOL (maybe you forgot to write `\"` somewhere?).\nHere is what I have read so far:`" + result + "`.");
+                        }
+                        lineInc();
+                    }
                     result += (char) byte;
                 }
             }
@@ -206,12 +224,13 @@ namespace Duel6 {
             D6_THROW(JsonException, "Unexpected end of input stream while looking for sentinel");
         }
 
-        std::string Parser::readWhile(File &file, const std::unordered_set<Uint8> &allowed) const {
+        std::string Parser::readWhile(File &file, const std::unordered_set<Uint8> &allowed) {
             std::string result;
 
             while (!file.isEof()) {
                 Uint8 byte;
                 file.read(&byte, 1, 1);
+                colInc();
                 if (allowed.find(byte) == allowed.end()) {
                     file.seek(-1, File::Seek::Cur);
                     break;
@@ -222,5 +241,15 @@ namespace Duel6 {
 
             return result;
         }
+
+        void Parser::lineInc() {
+            col = 0;
+            line++;
+        }
+
+        void Parser::colInc() {
+            col++;
+        }
+
     }
 }

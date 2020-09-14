@@ -159,6 +159,8 @@ namespace Duel6 {
                 tearDown();
             }
 
+        public:
+            void setMasterAddressAndPort(const std::string &address, int port);
         };
     }
 }

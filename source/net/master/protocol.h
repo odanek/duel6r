@@ -116,7 +116,7 @@ union hostAddress {
     address_t address;
     uint8_t a[4];
 };
-
+std::string addressToStr(address_t a);
 std::string hostToIPaddress(address_t a, port_t p);
 
 #endif /* INCLUDE_PROTOCOL_H_ */

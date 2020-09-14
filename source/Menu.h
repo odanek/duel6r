@@ -30,6 +30,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <functional>
 #include "Type.h"
 #include "Context.h"
 #include "LevelList.h"
@@ -56,12 +57,50 @@ using Duel6::net::ClientGameProxy;
 namespace Duel6 {
     class Game; // Forward, TODO: Remove
 
-    class Menu
-            : public Context {
+    class Menu : public Context {
+    public:
+        class Server {
 
+        public:
+            std::string address;
+            std::string port;
+            std::string descr;
+            std::string text;
+            Server(const std::string &address, const std::string &port, const std::string &descr, const std::string &text)
+                : address(address),
+                  port(port),
+                  descr(descr), text(text) {
+            }
+        };
+
+        class ServerList {
+
+        public:
+            typedef std::vector<Server> list_t;
+            typedef std::function<void(list_t&)> callback_t;
+            typedef std::function<void()> callbackReset_t;
+
+        private:
+            list_t list;
+            callback_t defaultCallback = [](list_t&) {
+            };
+            callback_t callback = defaultCallback;
+
+        public:
+            callbackReset_t setCallback(callback_t);
+            void clearCallback() {
+                callback = defaultCallback;
+            }
+            void add(const std::string &address, const std::string &port, const std::string &descr, const std::string &text);
+            void clear();
+            void notify();
+            const std::vector<Server>& get() const;
+
+        };
         class NetConfig {
         public:
-            std::string masterServer = "master.mrakonos.cz:5902";   // address:port
+            std::string masterServer = "duel6-master.mrakonos.cz";
+            Int32 masterServerPort = 5902;
             bool enableMasterServer = false;    // single switch to disable any communication with the master
             bool enableMasterDiscovery = false; // publish the game to master server for others to discover
             bool enableNATPunch = false;        // enable NAT traversal (server/client)
@@ -101,7 +140,7 @@ namespace Duel6 {
         Sound::Track menuTrack;
         bool playMusic;
         NetConfig netConfig;
-
+        ServerList serverList;
     public:
         explicit Menu(AppService &appService);
 
@@ -210,7 +249,7 @@ namespace Duel6 {
 
         void eloShufflePlayers();
 
-        void startServer( );
+        void startServer();
 
         void joinServer();
     };

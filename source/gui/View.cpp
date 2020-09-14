@@ -22,6 +22,7 @@ namespace Duel6::Gui {
     }
 
     View::~View() {
+        close();
     }
 
     void View::focus(Control *control) {
@@ -111,6 +112,16 @@ namespace Duel6::Gui {
     void View::onResize() {
         for (auto &callback : resizeCallbacks) {
             callback(*this, x, y, w, h);
+        }
+    }
+
+    void View::onClose(CloseCallback callback) {
+        closeCallbacks.push_back(callback);
+    }
+
+    void View::onClose() {
+        for (auto &callback : closeCallbacks) {
+            callback(*this);
         }
     }
 

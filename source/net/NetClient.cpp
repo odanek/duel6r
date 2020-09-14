@@ -44,10 +44,6 @@ namespace Duel6 {
             masterServerProxy.connectNatToServer(serviceHost.get(), host, port);
         }
 
-        void NetClient::connectToMasterServer(const std::string &host, port_t port){
-            masterServerProxy.setAddressAndPort(host, port);
-        }
-
         void NetClient::connect(Game &game, const std::string &host,
                                 const Duel6::net::port_t port) {
 //            if (state != ServiceState::UNINITIALIZED) {

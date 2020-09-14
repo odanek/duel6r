@@ -58,18 +58,26 @@ namespace Duel6 {
             port->setText("5900");
             return;
         }
+        Json::Value defaultMasterURL = Json::Value::makeString("duel6-master.mrakonos.cz");
+        Json::Value defaultMasterPort = Json::Value::makeNumber(5902);
+        Json::Value defaultMaster = Json::Value::makeObject();
+        defaultMaster.set("URL", defaultMasterURL);
+        defaultMaster.set("port", defaultMasterPort);
+
         Json::Parser parser;
         Json::Value json = parser.parse(filePath);
         Json::Value host = json.getOrDefault("host", Json::Value::makeString("localhost"));
         Json::Value port = json.getOrDefault("port", Json::Value::makeString("5900"));
-        Json::Value master = json.getOrDefault("master", Json::Value::makeString("master.mrakonos.cz:5902"));
+        Json::Value master = json.getOrDefault("master", defaultMaster);
         Json::Value enableMaster = json.getOrDefault("enableMaster", Json::Value::makeBoolean(false));
         Json::Value enableMasterDiscovery = json.getOrDefault("enableMasterDiscovery", Json::Value::makeBoolean(false));
         Json::Value enableNAT = json.getOrDefault("enableNAT", Json::Value::makeBoolean(false));
 
+
         this->host->setText(host.asString());
         this->port->setText(port.asString());
-        this->netConfig.masterServer = master.asString();
+        this->netConfig.masterServer = master.getOrDefault("URL", Json::Value::makeString("duel6-master.mrakonos.cz")).asString();
+        this->netConfig.masterServerPort = master.getOrDefault("port", Json::Value::makeNumber(5902)).asInt();
         this->netConfig.enableMasterServer = enableMaster.asBoolean();
         this->netConfig.enableMasterDiscovery = enableMasterDiscovery.asBoolean();
         this->netConfig.enableNATPunch = enableNAT.asBoolean();
@@ -77,9 +85,15 @@ namespace Duel6 {
 
     void Menu::saveNetworkSettings() {
         Json::Value json = Json::Value::makeObject();
+        Json::Value masterURL = Json::Value::makeString(this->netConfig.masterServer);
+        Json::Value masterPort = Json::Value::makeNumber(this->netConfig.masterServerPort);
+        Json::Value master = Json::Value::makeObject();
+        master.set("URL", masterURL);
+        master.set("port", masterPort);
+
         json.set("host", Json::Value::makeString(this->host->getText()));
         json.set("port", Json::Value::makeString(this->port->getText()));
-        json.set("master", Json::Value::makeString(this->netConfig.masterServer));
+        json.set("master", master);
         json.set("enableMaster", Json::Value::makeBoolean(this->netConfig.enableMasterServer));
         json.set("enableMasterDiscovery", Json::Value::makeBoolean(this->netConfig.enableMasterDiscovery));
         json.set("enableNAT", Json::Value::makeBoolean(this->netConfig.enableNATPunch));
@@ -220,16 +234,38 @@ namespace Duel6 {
         serverList->setPosition(10, 700, 110, 30);
         serverList->setCaption("List");
         serverList->onClick([this](Gui::Button &) {
-            Gui::Dialog * dialog = new Gui::Dialog(this->gui, 10, 500, 200, 200);
+            Int32 w = 200;
+            Int32 h = 200;
+            Gui::Dialog * dialog = new Gui::Dialog(this->gui, 10, 500, w, h);
+            Gui::ListBox * servers = new Gui::ListBox(*dialog, true);
             Gui::Button * bt = new Gui::Button(*dialog);
-            bt->setPosition(30, 30, 30, 20);
-            bt->setCaption("OK");
-
-
-            bt->onClick([this, dialog](Gui::Button &){
-                dialog->setPos(100,300,500,500);
+            bt->setPosition(5, 30, 110, 20);
+            bt->setCaption("Refresh");
+            Gui::Button * connectBt = new Gui::Button(*dialog);
+            connectBt->setPosition(160, 30, 110, 20);
+            connectBt->setCaption("Connect");
+            servers->setPosition(5, h - 40, w / 8 - 4, (h - 40) / 16 - 2, 16);
+            dialog->onResize([servers](Gui::View& dialog, Int32 x , Int32 y, Int32 w, Int32 h){
+                servers->setPosition(5, h - 40, w / 8 - 4, (h - 40) / 16 - 2, 16);
             });
-           // dialog->setPos(10, 700, 600, 600);
+            bt->onClick([this](Gui::Button &){
+                serverlist();
+            });
+            servers->onDoubleClick([this, dialog](Int32 index, const std::string &item){
+                const auto & server = this->serverList.get()[index];
+                this->host->setText(server.address);
+                this->port->setText(server.port);
+                dialog->close();
+                this->joinServer();
+            });
+           Menu::ServerList::callbackReset_t resetCallback = this->serverList.setCallback([servers](Menu::ServerList::list_t & list){
+               servers->clear();
+               for(const auto & server : list)
+               servers->addItem(server.text);
+           });
+           dialog->onClose([resetCallback](Gui::View & dialog){
+               resetCallback();
+           });
         });
 
         auto startServerB = new Gui::Button(mainView);
@@ -679,6 +715,8 @@ namespace Duel6 {
 
     void Menu::beforeStart(Context *prevContext) {
         loadNetworkSettings(D6_FILE_NETWORK_SETTINGS);
+        appService.getNetClient().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
+        appService.getNetHost().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
         loadPersonData(D6_FILE_PHIST);
         joyRescan();
         SDL_ShowCursor(SDL_ENABLE);
@@ -906,11 +944,18 @@ namespace Duel6 {
     }
 
     void Menu::serverlist() {
-        appService.getNetClient().connectToMasterServer("127.0.0.1", 5902);
+//        appService.getNetClient().connectToMasterServer(netConfig.masterServer, netConfig.masterServerPort);
         appService.getNetClient().requestServerList([this](masterserver::serverlist_t & serverList) {
+            this->serverList.clear();
             for(const auto & server: serverList){
                 appService.getConsole().printLine(Format("Server: {0}") << hostToIPaddress(server.address, server.port));
+                this->serverList.add(
+                    addressToStr(server.address),
+                    Format("{0}") << server.port,
+                    server.description,
+                    (Format("{0} {1}") << hostToIPaddress(server.address, server.port) << server.description));
             }
+            this->serverList.notify();
         });
     }
 
@@ -955,4 +1000,29 @@ namespace Duel6 {
             teamControlSwitch[i]->setCurrent(team[name]);
         }
     }
+    void Menu::ServerList::add(const std::string &address, const std::string &port, const std::string &descr, const std::string &text) {
+        list.emplace_back(address, port, descr, text);
+    }
+
+    void Menu::ServerList::clear(){
+        list.clear();
+    }
+
+    void Menu::ServerList::notify(){
+        callback(list);
+    }
+
+    Menu::ServerList::callbackReset_t Menu::ServerList::setCallback(callback_t cb){
+        callback = cb;
+        return [this](){
+            clearCallback();
+        };
+    }
+
+    const std::vector<Menu::Server>& Menu::ServerList::get() const {
+        return list;
+    }
+
 }
+
+
