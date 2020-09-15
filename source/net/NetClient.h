@@ -32,13 +32,17 @@ namespace Duel6 {
             Console &console;
         public:
             NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console);
+
             virtual ~NetClient();
 
             void connect(Game &game, const std::string &host, const Duel6::net::port_t port);
 
             void requestServerList(masterserver::serverListReceivedCallback_t callback); // connect to master server, expect list of servers to be received
 
-            void requestNATPunch(const enet_uint32 host, const enet_uint16 port); // needs master server, send NAT hole punch requests, expect the host to be calling back
+            void requestNATPunch(const enet_uint32 address, const enet_uint16 port); // needs master server, send NAT hole punch requests, expect the host to be calling back
+
+            void initNetHost();
+
         private:
             void recordPeerNetStats(ENetPeer *peer) override;
 
@@ -56,7 +60,6 @@ namespace Duel6 {
 
             void onTearDown() override;
 
-            void initNetHost();
         };
 
     } /* namespace net */

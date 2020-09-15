@@ -4,6 +4,12 @@
  *  Created on: Mar 19, 2020
  *      Author: fanick
  */
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 
 #include "Service.h"
 #include "binarystream/BinaryStream.h"
@@ -21,10 +27,13 @@ namespace Duel6::net {
     void Service::flush() {
         enet_host_flush(serviceHost.get());
     }
-    void Service::poll(Uint32 timeout) {
+    void Service::poll(Float64 elapsedTime, Uint32 timeout) {
         if (!(state == ServiceState::STARTED || state == ServiceState::STARTING || state == ServiceState::STOPPING)) {
             return;
         }
+
+        runPeriodicalTasks(elapsedTime);
+
         ENetEvent event;
         ENetHost *netHost = serviceHost.get();
         bool serviced = false;
@@ -58,7 +67,7 @@ namespace Duel6::net {
     }
 
     void Service::onMasterServerConnected(ENetPeer *peer) {
-        masterServerProxy.setPeer(peer);
+        masterServerProxy.onConnected(peer);
     }
 
     void Service::onMasterServerDisconnected(ENetPeer* peer, enet_uint32 reason) {
@@ -128,5 +137,10 @@ namespace Duel6::net {
             D6_THROW(Exception, "Unexpected request type in onConnected ");
         }
     }
+
+    void Service::setLocalIPAddress(const std::string &localIPAddress) {
+        this->localIPAddress = localIPAddress;
+    }
+
 }
 

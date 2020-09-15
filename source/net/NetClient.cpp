@@ -14,7 +14,6 @@ namespace Duel6 {
 
         NetClient::NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
             : Service(clientGameProxy, serverGameProxy), console(console) {
-            initNetHost();
         }
 
         NetClient::~NetClient() {
@@ -22,7 +21,10 @@ namespace Duel6 {
         }
 
         void NetClient::initNetHost() {
-            nethost = enet_host_create(nullptr,
+            ENetAddress localAddress;
+            localAddress.port = ENET_PORT_ANY;
+            enet_address_set_host(&localAddress, this->localIPAddress.c_str());
+            nethost = enet_host_create(&localAddress,
                           4 /* only allow 4 outgoing connections */,
                           CHANNELS /* allow up 254 channels to be used */,
                           0 /* assume any amount of incoming bandwidth */,
@@ -40,15 +42,26 @@ namespace Duel6 {
             masterServerProxy.requestServerList(serviceHost.get(), callback);
         }
 
-        void NetClient::requestNATPunch(const enet_uint32 host, const enet_uint16 port) {
-            masterServerProxy.connectNatToServer(serviceHost.get(), host, port);
+        void NetClient::requestNATPunch(const enet_uint32 address, const enet_uint16 port) {
+            auto localAddress = peer->getEnetPeer().host->address;
+            masterServerProxy.connectNatToServer(serviceHost.get(), address, port, localAddress.host, localAddress.port);
+            ENetAddress addressForNATPunch;
+            addressForNATPunch.host = address;
+            addressForNATPunch.port = port;
+            ENetHost * host = serviceHost.get();
+            ENetBuffer buffer;
+            buffer.data = nullptr;
+            buffer.dataLength = 0;
+            // fingers crossed
+            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
+            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
+            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
+            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
+            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
         }
 
         void NetClient::connect(Game &game, const std::string &host,
                                 const Duel6::net::port_t port) {
-//            if (state != ServiceState::UNINITIALIZED) {
-//                D6_THROW(Exception, "connecting client that is not uninitialized");
-//            }
             setGameReference(game);
             this->host = host;
             this->port = port;

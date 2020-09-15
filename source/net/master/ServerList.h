@@ -15,6 +15,8 @@ namespace masterserver {
     struct ServerEntry {
         enet_uint32 address;
         enet_uint16 port;
+        enet_uint32 localNetworkAddress;
+        enet_uint16 localNetworkPort;
         std::string description;
     };
 

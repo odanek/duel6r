@@ -62,15 +62,14 @@ namespace Duel6 {
         class Server {
 
         public:
+            enet_uint32 netAddress;
+            enet_uint16 netPort;
             std::string address;
             std::string port;
+            std::string localAddress;
+            std::string localPort;
             std::string descr;
             std::string text;
-            Server(const std::string &address, const std::string &port, const std::string &descr, const std::string &text)
-                : address(address),
-                  port(port),
-                  descr(descr), text(text) {
-            }
         };
 
         class ServerList {
@@ -91,7 +90,7 @@ namespace Duel6 {
             void clearCallback() {
                 callback = defaultCallback;
             }
-            void add(const std::string &address, const std::string &port, const std::string &descr, const std::string &text);
+            void add(enet_uint32 netAddress, enet_uint16 netPort, const std::string &address, const std::string &port, const std::string &localAddress, const std::string &localPort, const std::string &descr, const std::string &text);
             void clear();
             void notify();
             const std::vector<Server>& get() const;
@@ -100,6 +99,8 @@ namespace Duel6 {
         class NetConfig {
         public:
             std::string masterServer = "duel6-master.mrakonos.cz";
+            std::string localIPAddress = "0.0.0.0";
+            std::string serverDescription = "unnamed server";
             Int32 masterServerPort = 5902;
             bool enableMasterServer = false;    // single switch to disable any communication with the master
             bool enableMasterDiscovery = false; // publish the game to master server for others to discover
@@ -141,6 +142,7 @@ namespace Duel6 {
         bool playMusic;
         NetConfig netConfig;
         ServerList serverList;
+
     public:
         explicit Menu(AppService &appService);
 
@@ -191,6 +193,7 @@ namespace Duel6 {
         void startDedicatedServer(const std::string &host, const std::string &port);
 
         void serverlist();
+
     private:
 
         void quit();

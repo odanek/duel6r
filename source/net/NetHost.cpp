@@ -50,20 +50,37 @@ namespace Duel6 {
         }
 
         void NetHost::registerOnMasterServer() {
+
+            if(!enableMasterDiscovery){
+                console.printLine(std::string("NetHost::registerOnMasterServer [DISABLED]"));
+                return;
+            }
             masterserver::MasterServer &proxy = masterServerProxy;
+
             std::string message = "NetHost::registerOnMasterServer Registering on master server ";
             console.printLine(message);
-            proxy.registerOnMasterServer(serviceHost.get());
+            auto localAddress = serviceHost.get()->address;
+            proxy.update(serviceHost.get(), description, localAddress.host, localAddress.port);
         }
 
         void NetHost::natPunch(enet_uint32 address, enet_uint16 port){
             console.printLine(Format("NAT punch! {0}") << hostToIPaddress(address, port));
-            // DA DA DA
+
             ENetAddress peerAddress;
             peerAddress.host = address;
             peerAddress.port = port;
-            ENetPeer * peer = enet_host_connect(serviceHost.get(), &peerAddress, CHANNELS, 42);
+            ENetHost * host = serviceHost.get();
+            ENetBuffer buffer;
+            buffer.data = nullptr;
+            buffer.dataLength = 0;
+            // fingers crossed
+            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
+            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
+            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
+            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
+            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
 
+            enet_host_connect(serviceHost.get(), &peerAddress, CHANNELS, static_cast<unsigned int>(REQUEST_TYPE::GAME_CONNECTION));
         }
 
         void NetHost::onNATPeersListReceived(masterserver::peerlist_t & peerList){
@@ -73,10 +90,6 @@ namespace Duel6 {
         }
 
         void NetHost::onStarting() {
-
-            // if publishToMasterServer == true {
-            //   masterServer.announce(...)
-            //}
             console.printLine("NetHost::onStarting ");
             registerOnMasterServer();
         }
@@ -137,6 +150,33 @@ namespace Duel6 {
                 // this server is stopping
                 stopped();
             }
+        }
+
+        void NetHost::runPeriodicalTasks(Float64 elapsedTime){
+            heartbeatCountDown -= elapsedTime;
+            if(heartbeatCountDown <= 0){
+                 if(enableMasterDiscovery){
+                     if(enableNAT){
+                         masterServerProxy.requestNatPeers([=](masterserver::peerlist_t  & list){
+                             for(const auto & peer : list){
+                                 natPunch(peer.address, peer.port);
+                                 natPunch(peer.localNetworkAddress, peer.localNetworkPort);
+                             }
+                         });
+                         heartbeatCountDown = 5;
+                     } else {
+                         masterServerProxy.sendHeartBeat();
+                         heartbeatCountDown = 20;
+                     }
+                 }
+            }
+
+        }
+
+        void NetHost::setServerConfig(const std::string & serverDescription, bool enableMasterDiscovery, bool enableNAT ) {
+            this->enableMasterDiscovery = enableMasterDiscovery;
+            this->enableNAT = enableNAT;
+            description = serverDescription;
         }
     } /* namespace net */
 } /* namespace Duel6 */

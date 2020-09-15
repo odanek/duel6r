@@ -28,9 +28,13 @@ namespace Duel6 {
         private:
             Console &console;
             std::vector<std::unique_ptr<Peer>> peers;
+            Float64 heartbeatCountDown;
+            std::string description = "foobar server";
+            bool enableMasterDiscovery = false;
+            bool enableNAT = false;
         public:
             NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy, Console &console);
-
+            void setServerConfig(const std::string & serverDescription, bool enableMasterDiscovery, bool enableNAT);
             virtual ~NetHost();
 
             void listen(Game &game, const std::string &host, const Duel6::net::port_t port);
@@ -49,6 +53,8 @@ namespace Duel6 {
 
             void requestNATPeers(); // connect, expect response from master server, then try to connect all returned peers
             void onNATPeersListReceived(masterserver::peerlist_t &); // call natPunch
+
+            void runPeriodicalTasks(Float64 elapsedTime) override;
         };
     } /* namespace net */
 } /* namespace Duel6 */

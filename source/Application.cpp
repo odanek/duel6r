@@ -299,8 +299,8 @@ namespace Duel6 {
         if(residual > 10){
             residual = 10;
         }
-        netHost->poll(residual);
-        netClient->poll(residual);
+        netHost->poll(elapsedTime, residual);
+        netClient->poll(elapsedTime, residual);
     }
 
     void Application::run() {

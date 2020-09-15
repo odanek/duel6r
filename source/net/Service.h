@@ -36,9 +36,12 @@ namespace Duel6 {
             std::unique_ptr<ENetHost> serviceHost;
             Game *game = nullptr;
             masterserver::MasterServer masterServerProxy;
-            private:
+            std::string localIPAddress = "";
+
+        private:
             bool stopRequested = false;
-            public:
+
+        public:
             ClientGameProxy *clientGameProxy;
             ServerGameProxy *serverGameProxy;
 
@@ -54,12 +57,14 @@ namespace Duel6 {
             //stop on next poll
             void requestStop();
 
-            void poll(Uint32 timeout);
+            void poll(Float64 elapsedTime, Uint32 timeout);
 
             bool isConnected() {
                 return state == ServiceState::STARTED
                     || state == ServiceState::STOPPING;
             }
+
+            virtual void runPeriodicalTasks(Float64 elapsedTime){};
 
         protected:
             void flush();
@@ -88,7 +93,7 @@ namespace Duel6 {
             }
 
             void stop() {
-                if (state != ServiceState::STARTED || state == ServiceState::STOPPED) {
+                if (state != ServiceState::STARTING && (state != ServiceState::STARTED || state == ServiceState::STOPPED)) {
                     return;
                 }
                 state = ServiceState::STOPPING;
@@ -161,6 +166,9 @@ namespace Duel6 {
 
         public:
             void setMasterAddressAndPort(const std::string &address, int port);
+
+            // for the NetClient to be able to bind to arbitrary local IP address, not just 127.0.0.1
+            void setLocalIPAddress(const std::string &localIPAddress);
         };
     }
 }

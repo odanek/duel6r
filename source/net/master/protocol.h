@@ -10,6 +10,7 @@
 
 
 #include <vector>
+#include <sstream>
 #include <enet/enet.h>
 
 typedef enet_uint32 address_t;
@@ -51,9 +52,13 @@ struct packetHeader {
 
 struct packet_update {
     std::string descr;
+    address_t localNetworkAddress = 0;
+    port_t localNetworkPort = 0;
     template<typename Stream>
     bool serialize(Stream &s) {
-        return s & descr;
+        return s & descr
+            && s & localNetworkAddress
+            && s & localNetworkPort;
     }
 };
 
@@ -61,12 +66,16 @@ struct packet_serverlist {
     struct _serverlist_server {
         address_t address = 0;
         port_t port = 0;
+        address_t localNetworkAddress = 0;
+        port_t localNetworkPort = 0;
         std::string descr;
 
         template<typename Stream>
         bool serialize(Stream &s) {
             return s & address // @suppress("Suggested parenthesis around expression")
                 && s & port
+                && s & localNetworkAddress
+                && s & localNetworkPort
                 && s & descr;
         }
     };
@@ -82,13 +91,17 @@ struct packet_serverlist {
 };
 
 struct packet_nat_punch {
-    // address of the server - must match some server stored in the list, otherwise this packet will not have any effect.
+    // address of the server - must match some server stored in the list, otherwise this packet will have no effect.
     address_t address = 0;
     port_t port = 0;
+    address_t clientLocalNetworkAddress = 0;
+    port_t clientLocalNetworkPort = 0;
     template<typename Stream>
     bool serialize(Stream &s) {
         return s & address
-            && s & port;
+            && s & port
+            && s & clientLocalNetworkAddress
+            && s & clientLocalNetworkPort;
     }
 };
 
@@ -96,10 +109,14 @@ struct packet_nat_peers {
     struct _peer {
         address_t address = 0;
         port_t port = 0;
+        address_t localNetworkAddress = 0;
+        port_t localNetworkPort = 0;
         template<typename Stream>
         bool serialize(Stream &s) {
             return s & address
-                && s & port;
+                && s & port
+                && s & localNetworkAddress
+                && s & localNetworkPort;
         }
     };
 
