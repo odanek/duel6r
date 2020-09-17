@@ -289,8 +289,8 @@ namespace Duel6 {
     }
 
     void ConsoleCommands::dedicatedServer(Console &console, const Console::Arguments &args, Menu &menu) {
-        console.printLine(Format("Starting server, listening on 0.0.0.0, port 5900"));
-        menu.startDedicatedServer("any", "5900");
+        console.printLine(Format("Starting server"));
+        menu.startDedicatedServer();
         console.printLine(Format("Started"));
     }
 

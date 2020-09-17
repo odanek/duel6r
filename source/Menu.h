@@ -112,6 +112,11 @@ namespace Duel6 {
 
         };
         class NetConfig {
+        private:
+            union hostAddress {
+                address_t address;
+                uint8_t a[4];
+            };
         public:
             // address of the master server
             std::string masterServer = "duel6-master.mrakonos.cz";
@@ -141,6 +146,26 @@ namespace Duel6 {
             // this is mainly for development purposes
             std::string publicIPAddress = "0.0.0.0";
             Int32 publicPort = 5900;
+            enet_uint32 getPublicIPAddress(){
+                hostAddress addr;
+                addr.address = 0;
+                if(publicIPAddress == "0.0.0.0" || publicIPAddress == "any" || publicIPAddress.length() > 15 || publicIPAddress.length() < 7){
+                    return 0;
+                }
+                auto a = 0;
+                std::string buffer;
+                buffer.reserve(16);
+                for(size_t i = 0 ; i < publicIPAddress.length(); i++){
+                    if(publicIPAddress.compare(i,1,".") == 0 && a < 4){
+                        addr.a[a++] = std::stoi(buffer);
+                        buffer.clear();
+                    } else {
+                        buffer += publicIPAddress[i];
+                    }
+                }
+                addr.a[a] = std::stoi(buffer);
+                return addr.address;
+            }
         };
     private:
         AppService &appService;
@@ -226,7 +251,7 @@ namespace Duel6 {
 
         bool play(std::vector<std::string> levels, bool networkGame);
 
-        void startDedicatedServer(const std::string &host, const std::string &port);
+        void startDedicatedServer();
 
         void serverlist();
 

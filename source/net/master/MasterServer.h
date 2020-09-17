@@ -47,7 +47,7 @@ namespace masterserver {
 
         binarystream createHeader(PACKET_TYPE packetType);
 
-        packet_update createUpdateRequest(const std::string &description, address_t localAddress, port_t localPort, bool needsNAT);
+        packet_update createUpdateRequest(const std::string &description, address_t localAddress, port_t localPort,  address_t publicIPAddress, port_t publicPort, bool needsNAT);
 
         packet_nat_punch createNatPunchRequest(address_t address, port_t port, address_t localAddress, port_t localPort);
 
@@ -67,7 +67,7 @@ namespace masterserver {
 
         void sendHeartBeat();
 
-        void update(ENetHost *host, const std::string &description, address_t localAddress, port_t localPort, bool needsNAT);
+        void update(ENetHost *host, const std::string &description, address_t localAddress, port_t localPort, address_t publicIPAddress, port_t publicPort, bool needsNAT);
 
         void requestNatPeers();
 

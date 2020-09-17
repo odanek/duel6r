@@ -451,7 +451,7 @@ namespace Duel6 {
         appService.getNetClient().setLocalIPAddress(netConfig.localIPAddress);
         appService.getNetClient().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
         appService.getNetHost().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
-        appService.getNetHost().setServerConfig(netConfig.serverDescription, netConfig.enableMasterDiscovery, netConfig.enableNATPunch);
+        appService.getNetHost().setServerConfig(netConfig.getPublicIPAddress(), netConfig.publicPort, netConfig.serverDescription, netConfig.enableMasterDiscovery, netConfig.enableNATPunch);
         appService.getNetClient().initNetHost();
     }
 
@@ -826,14 +826,14 @@ namespace Duel6 {
         savePersonData();
         saveNetworkSettings();
     }
-    void Menu::startDedicatedServer(const std::string &host, const std::string &port){
+    void Menu::startDedicatedServer(){
         game->isServer = true && !reverseConnection->isChecked();
         playerListBox->clear(); // remove any players that might be accidentaly set
         if(!play(true)){
             appService.getConsole().printLine("Cannot play");
             return;
         }
-        appService.getNetHost().listen(*game, host, std::stoi(port));
+        appService.getNetHost().listen(*game, host->getText(), std::stoi(port->getText()));
     }
     void Menu::startServer(){
         game->isServer = true && !reverseConnection->isChecked();

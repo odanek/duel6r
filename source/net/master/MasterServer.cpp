@@ -19,11 +19,15 @@ namespace masterserver {
         writeHeader(bs, packetType);
         return bs;
     }
-    packet_update MasterServer::createUpdateRequest(const std::string &description, address_t localAddress, port_t localPort, bool needsNAT) {
+    packet_update MasterServer::createUpdateRequest(const std::string &description, address_t localAddress,
+                                                    port_t localPort, enet_uint32 publicIPAddress,
+                                                    enet_uint16 publicPort, bool needsNAT) {
         packet_update p;
         p.descr = description;
         p.localNetworkAddress = localAddress;
         p.localNetworkPort = localPort;
+        p.publicIPAddress = publicIPAddress;
+        p.publicPort = publicPort;
         p.needsNAT = needsNAT;
         return p;
     }
@@ -59,11 +63,14 @@ namespace masterserver {
         reconnect(REQUEST_TYPE::SERVER_REGISTER);
     }
 
-    void MasterServer::update(ENetHost *host, const std::string &description, address_t localAddress, port_t localPort, bool needsNAT) {
+    void MasterServer::update(ENetHost *host, const std::string &description,
+                              address_t localAddress, port_t localPort,
+                              address_t publicIPAddress, port_t publicPort,
+                              bool needsNAT) {
         connect(host, REQUEST_TYPE::SERVER_UPDATE);
         onConnected([=]() {
             binarystream bs = createHeader(PACKET_TYPE::SERVER_UPDATE);
-            bs << createUpdateRequest(description, localAddress, localPort, needsNAT);
+            bs << createUpdateRequest(description, localAddress, localPort, publicIPAddress, publicPort, needsNAT);
             send(bs);
         });
     }

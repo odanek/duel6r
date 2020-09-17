@@ -30,11 +30,13 @@ namespace Duel6 {
             std::vector<std::unique_ptr<Peer>> peers;
             Float64 heartbeatCountDown;
             std::string description = "foobar server";
+            enet_uint32 publicIPAddress;
+            enet_uint16 publicPort;
             bool enableMasterDiscovery = false;
             bool enableNAT = false;
         public:
             NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy, Console &console);
-            void setServerConfig(const std::string & serverDescription, bool enableMasterDiscovery, bool enableNAT);
+            void setServerConfig(enet_uint32 publicIPAddress, enet_uint16 publicPort, const std::string & serverDescription, bool enableMasterDiscovery, bool enableNAT);
             virtual ~NetHost();
 
             void listen(Game &game, const std::string &host, const Duel6::net::port_t port);

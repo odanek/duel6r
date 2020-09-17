@@ -60,7 +60,7 @@ namespace Duel6 {
             std::string message = "NetHost::registerOnMasterServer Registering on master server ";
             console.printLine(message);
             auto localAddress = serviceHost.get()->address;
-            proxy.update(serviceHost.get(), description, localAddress.host, localAddress.port, enableNAT);
+            proxy.update(serviceHost.get(), description, localAddress.host, localAddress.port, publicIPAddress, publicPort, enableNAT);
         }
 
         void NetHost::natPunch(enet_uint32 address, enet_uint16 port){
@@ -173,11 +173,12 @@ namespace Duel6 {
                      }
                  }
             }
-
-
         }
 
-        void NetHost::setServerConfig(const std::string & serverDescription, bool enableMasterDiscovery, bool enableNAT ) {
+        void NetHost::setServerConfig(enet_uint32 publicIPAddress, enet_uint16 publicPort,
+        const std::string & serverDescription, bool enableMasterDiscovery, bool enableNAT ) {
+            this->publicIPAddress = publicIPAddress;
+            this->publicPort = publicPort;
             this->enableMasterDiscovery = enableMasterDiscovery;
             this->enableNAT = enableNAT;
             description = serverDescription;
