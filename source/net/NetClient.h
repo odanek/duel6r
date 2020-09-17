@@ -30,6 +30,7 @@ namespace Duel6 {
             std::unique_ptr<Peer> peer;
             ENetHost *nethost;
             Console &console;
+            int pendingConnectionRequests = 0;
         public:
             NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console);
 
@@ -39,7 +40,9 @@ namespace Duel6 {
 
             void requestServerList(masterserver::serverListReceivedCallback_t callback); // connect to master server, expect list of servers to be received
 
-            void requestNATPunch(const enet_uint32 address, const enet_uint16 port); // needs master server, send NAT hole punch requests, expect the host to be calling back
+            void requestNATPunch(const enet_uint32 address, const enet_uint16 port,
+                                 const enet_uint32 publicIPAddress, const enet_uint16 publicPort,
+                                 const enet_uint32 localAddress, const enet_uint16 localPort); // needs master server, send NAT hole punch requests, expect the host to be calling back
 
             void initNetHost();
 
@@ -60,6 +63,7 @@ namespace Duel6 {
 
             void onTearDown() override;
 
+            static void NATtrailBlaze(ENetSocket s, const enet_uint32 address, const enet_uint16 port);
         };
 
     } /* namespace net */

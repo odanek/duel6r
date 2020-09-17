@@ -60,7 +60,7 @@ namespace Duel6 {
             std::string message = "NetHost::registerOnMasterServer Registering on master server ";
             console.printLine(message);
             auto localAddress = serviceHost.get()->address;
-            proxy.update(serviceHost.get(), description, localAddress.host, localAddress.port);
+            proxy.update(serviceHost.get(), description, localAddress.host, localAddress.port, enableNAT);
         }
 
         void NetHost::natPunch(enet_uint32 address, enet_uint16 port){
@@ -80,18 +80,26 @@ namespace Duel6 {
             enet_socket_send(host->socket, &peerAddress, &buffer, 0);
             enet_socket_send(host->socket, &peerAddress, &buffer, 0);
 
-            enet_host_connect(serviceHost.get(), &peerAddress, CHANNELS, static_cast<unsigned int>(REQUEST_TYPE::GAME_CONNECTION));
+            ENetPeer * newPeer = enet_host_connect(serviceHost.get(), &peerAddress, CHANNELS, static_cast<unsigned int>(REQUEST_TYPE::GAME_CONNECTION));
+            if(newPeer == nullptr){
+                return;
+            }
+            newPeer->data = nullptr;
         }
 
         void NetHost::onNATPeersListReceived(masterserver::peerlist_t & peerList){
-            for(auto & peer: peerList){
+            for (const auto &peer : peerList) {
                 natPunch(peer.address, peer.port);
+                natPunch(peer.localNetworkAddress, peer.localNetworkPort);
             }
         }
 
         void NetHost::onStarting() {
             console.printLine("NetHost::onStarting ");
             registerOnMasterServer();
+            masterServerProxy.onPeerListReceived([this](masterserver::peerlist_t  & list){
+                this->onNATPeersListReceived(list);
+            });
         }
 
         void NetHost::onStopping() {
@@ -112,7 +120,7 @@ namespace Duel6 {
         }
 
         void NetHost::onPeerConnected(ENetPeer *peer) {
-            console.printLine("NetHost::onPeerConnected");
+            console.printLine(Format("NetHost::onPeerConnected address: {0}") << hostToIPaddress(peer->address.host, peer->address.port));
             if (state != ServiceState::STARTED) {
                 enet_peer_disconnect_now(peer, 42);
             }
@@ -155,21 +163,17 @@ namespace Duel6 {
         void NetHost::runPeriodicalTasks(Float64 elapsedTime){
             heartbeatCountDown -= elapsedTime;
             if(heartbeatCountDown <= 0){
-                 if(enableMasterDiscovery){
+                heartbeatCountDown = 20;
+                if(enableMasterDiscovery){
                      if(enableNAT){
-                         masterServerProxy.requestNatPeers([=](masterserver::peerlist_t  & list){
-                             for(const auto & peer : list){
-                                 natPunch(peer.address, peer.port);
-                                 natPunch(peer.localNetworkAddress, peer.localNetworkPort);
-                             }
-                         });
-                         heartbeatCountDown = 5;
+                         masterServerProxy.requestNatPeers();
                      } else {
                          masterServerProxy.sendHeartBeat();
-                         heartbeatCountDown = 20;
+
                      }
                  }
             }
+
 
         }
 

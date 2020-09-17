@@ -19,11 +19,12 @@ namespace masterserver {
         writeHeader(bs, packetType);
         return bs;
     }
-    packet_update MasterServer::createUpdateRequest(const std::string &description, address_t localAddress, port_t localPort) {
+    packet_update MasterServer::createUpdateRequest(const std::string &description, address_t localAddress, port_t localPort, bool needsNAT) {
         packet_update p;
         p.descr = description;
         p.localNetworkAddress = localAddress;
         p.localNetworkPort = localPort;
+        p.needsNAT = needsNAT;
         return p;
     }
 
@@ -58,21 +59,17 @@ namespace masterserver {
         reconnect(REQUEST_TYPE::SERVER_REGISTER);
     }
 
-    void MasterServer::update(ENetHost *host, const std::string &description, address_t localAddress, port_t localPort) {
+    void MasterServer::update(ENetHost *host, const std::string &description, address_t localAddress, port_t localPort, bool needsNAT) {
         connect(host, REQUEST_TYPE::SERVER_UPDATE);
         onConnected([=]() {
             binarystream bs = createHeader(PACKET_TYPE::SERVER_UPDATE);
-            bs << createUpdateRequest(description, localAddress, localPort);
+            bs << createUpdateRequest(description, localAddress, localPort, needsNAT);
             send(bs);
         });
     }
 
-    void MasterServer::MasterServer::requestNatPeers(peerListReceivedCallback_t callback) {
+    void MasterServer::MasterServer::requestNatPeers() {
         reconnect(REQUEST_TYPE::SERVER_NAT_GET_PEERS);
-        onPeerListReceivedCallback = [this, callback](peerlist_t &peerlist) {
-            callback(peerlist);
-            this->disconnect();
-        };
     }
 
     void MasterServer::connectNatToServer(ENetHost *host, address_t address, port_t port, address_t localAddress, port_t localPort) {
@@ -111,7 +108,11 @@ namespace masterserver {
             for (auto &server : s.servers) {
                 printf(" descr: %s , addr: %s, port: %u \n", server.descr.c_str(), hostToIPaddress(server.address, server.port).c_str(), server.port);
                 serverList.emplace_back(
-                    ServerEntry { server.address, server.port, server.localNetworkAddress, server.localNetworkPort, server.descr });
+                    ServerEntry { server.address, server.port,
+                    server.publicIPAddress, server.publicPort,
+                    server.localNetworkAddress, server.localNetworkPort,
+                    server.descr, server.needsNAT
+                });
             }
             onServerListReceivedCallback(serverList);
             break;
@@ -130,6 +131,7 @@ namespace masterserver {
             }
 
             onPeerListReceivedCallback(peerList);
+            this->disconnect();
             break;
         }
         case PACKET_TYPE::CLIENT_NAT_PUNCH:
@@ -137,7 +139,10 @@ namespace masterserver {
             break;
         }
         }
+    }
 
+    void MasterServer::onPeerListReceived(std::function<void(peerlist_t &peerlist)> callback) {
+        onPeerListReceivedCallback = callback;
     }
 
     void MasterServer::disconnect() {
@@ -150,7 +155,7 @@ namespace masterserver {
         ENetAddress masterAddress;
         enet_address_set_host(&masterAddress, address.c_str());
         masterAddress.port = port;
-        if(this->peer !=  nullptr && this->peer->state == ENET_PEER_STATE_CONNECTING) {
+        if(this->peer != nullptr && this->peer->state == ENET_PEER_STATE_CONNECTING) {
          //   std::cerr << "Whoa, we still haven't connected to the master server from previous attempt\n";
             return;
         };

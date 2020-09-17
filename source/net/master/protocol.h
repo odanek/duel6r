@@ -29,6 +29,8 @@ enum class REQUEST_TYPE {
     CLIENT_NAT_CONNECT_TO_SERVER, // peer requests NAT punch through to given server, this peer is registered as waiting to be scrapped by the server, CLIENT_NAT_PUNCH packet is expected
 
     GAME_CONNECTION, // temporary workaround
+
+    MASTER_PUSH_NAT_PEERS_TO_SERVER, // experimental - master server will call back to the server and push any peers requesting connection through the NAT
     COUNT
 };
 
@@ -54,11 +56,17 @@ struct packet_update {
     std::string descr;
     address_t localNetworkAddress = 0;
     port_t localNetworkPort = 0;
+    address_t publicIPAddress = 0;
+    port_t publicPort = 0;
+    bool needsNAT = false;
     template<typename Stream>
     bool serialize(Stream &s) {
         return s & descr
             && s & localNetworkAddress
-            && s & localNetworkPort;
+            && s & localNetworkPort
+            && s & publicIPAddress
+            && s & publicPort
+            && s & needsNAT;
     }
 };
 
@@ -68,7 +76,10 @@ struct packet_serverlist {
         port_t port = 0;
         address_t localNetworkAddress = 0;
         port_t localNetworkPort = 0;
+        address_t publicIPAddress = 0;
+        port_t publicPort = 0;
         std::string descr;
+        bool needsNAT = false;
 
         template<typename Stream>
         bool serialize(Stream &s) {
@@ -76,7 +87,10 @@ struct packet_serverlist {
                 && s & port
                 && s & localNetworkAddress
                 && s & localNetworkPort
-                && s & descr;
+                && s & publicIPAddress
+                && s & publicPort
+                && s & descr
+                && s & needsNAT;
         }
     };
 

@@ -74,7 +74,8 @@ namespace Duel6 {
         Json::Value enableNAT = json.getOrDefault("enableNAT", Json::Value::makeBoolean(false));
         Json::Value localIPAddress = json.getOrDefault("localIPAddress", Json::Value::makeString("0.0.0.0"));
         Json::Value serverDescription = json.getOrDefault("serverDescription", Json::Value::makeString("unnamed server"));
-
+        Json::Value publicIPAddress = json.getOrDefault("publicIPAddress", Json::Value::makeString("0.0.0.0"));
+        Json::Value publiPort = json.getOrDefault("publicPort", Json::Value::makeNumber(5900));
 
         this->host->setText(host.asString());
         this->port->setText(port.asString());
@@ -85,6 +86,8 @@ namespace Duel6 {
         this->netConfig.enableMasterDiscovery = enableMasterDiscovery.asBoolean();
         this->netConfig.enableNATPunch = enableNAT.asBoolean();
         this->netConfig.serverDescription = serverDescription.asString();
+        this->netConfig.publicIPAddress = publicIPAddress.asString();
+        this->netConfig.publicPort = publiPort.asInt();
     }
 
     void Menu::saveNetworkSettings() {
@@ -103,6 +106,9 @@ namespace Duel6 {
         json.set("enableNAT", Json::Value::makeBoolean(this->netConfig.enableNATPunch));
         json.set("localIPAddress", Json::Value::makeString(this->netConfig.localIPAddress));
         json.set("serverDescription", Json::Value::makeString(this->netConfig.serverDescription));
+        json.set("publicIPAddress", Json::Value::makeString(this->netConfig.publicIPAddress));
+        json.set("publicPort", Json::Value::makeNumber(this->netConfig.publicPort));
+
         Json::Writer writer(true);
         writer.writeToFile(D6_FILE_NETWORK_SETTINGS, json);
     }
@@ -259,13 +265,26 @@ namespace Duel6 {
             servers->onDoubleClick([this, dialog](Int32 index, const std::string &item){
                 const auto & server = this->serverList.get()[index];
 
-                // NAT PUNCH here, the condition is nonsense right now
-//                if(server.address != server.localAddress && server.port != server.localPort){
-//                    appService.getNetClient().requestNATPunch(server.netAddress, server.netPort);
-//                }
-
-                this->host->setText(server.address);
-                this->port->setText(server.port);
+                std::string addressText = server.address;
+                std::string portText = server.port;
+                if(server.enableNAT){
+                    enet_uint32 addr = server.netAddress;
+                    enet_uint16 port = server.netPort;
+                    if(server.publicIPAddress != 0 && server.publicPort != 0){
+                        addressText = server.publicIPAddressStr;
+                        portText = server.publicPortStr;
+                    }
+                    appService.getNetClient().requestNATPunch(server.netAddress, server.netPort,
+                        server.publicIPAddress, server.publicPort,
+                        server.localAddress, server.localPort);
+                } else {
+                    if(server.publicIPAddress != 0 && server.publicPort != 0){
+                        addressText = server.publicIPAddressStr;
+                        portText = server.publicPortStr;
+                    }
+                }
+                this->host->setText(addressText);
+                this->port->setText(portText);
                 dialog->close();
                 this->joinServer();
             });
@@ -426,6 +445,14 @@ namespace Duel6 {
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
         menuTrack = sound.loadModule("sound/undead.xm");
+
+        appService.getConsole().printLine("\n===Loading network.json===");
+        loadNetworkSettings(D6_FILE_NETWORK_SETTINGS);
+        appService.getNetClient().setLocalIPAddress(netConfig.localIPAddress);
+        appService.getNetClient().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
+        appService.getNetHost().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
+        appService.getNetHost().setServerConfig(netConfig.serverDescription, netConfig.enableMasterDiscovery, netConfig.enableNATPunch);
+        appService.getNetClient().initNetHost();
     }
 
     void Menu::initializeGameModes() {
@@ -725,12 +752,6 @@ namespace Duel6 {
     }
 
     void Menu::beforeStart(Context *prevContext) {
-        loadNetworkSettings(D6_FILE_NETWORK_SETTINGS);
-        appService.getNetClient().setLocalIPAddress(netConfig.localIPAddress);
-        appService.getNetClient().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
-        appService.getNetHost().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
-        appService.getNetHost().setServerConfig(netConfig.serverDescription, netConfig.enableMasterDiscovery, netConfig.enableNATPunch);
-        appService.getNetClient().initNetHost();
         loadPersonData(D6_FILE_PHIST);
         joyRescan();
         SDL_ShowCursor(SDL_ENABLE);
@@ -827,6 +848,9 @@ namespace Duel6 {
         if(!play(true)){
             return;
         }
+
+        /// TODO To make connection via server's public address and its local address in case it sits on the
+        // same network as this client
         appService.getNetClient().connect(*game, host->getText(), std::stoi(port->getText()));
     }
 
@@ -965,12 +989,22 @@ namespace Duel6 {
                 appService.getConsole().printLine(Format("Server: {0}") << hostToIPaddress(server.address, server.port));
                 this->serverList.add(
                     server.address, server.port,
+                    server.publicIPAddress, server.publicPort,
+                    server.localNetworkAddress, server.localNetworkPort,
                     addressToStr(server.address),
                     Format("{0}") << server.port,
+                    addressToStr(server.publicIPAddress),
+                    Format("{0}") << server.publicPort,
                     addressToStr(server.localNetworkAddress),
                     Format("{0}") << server.localNetworkPort,
                     server.description,
-                    Format("{0}/{1} {2}") << hostToIPaddress(server.address, server.port) << hostToIPaddress(server.localNetworkAddress, server.localNetworkPort) << server.description);
+                    Format("{0} {1}/{2}/{3} {4}")
+                    << (server.enableNAT ? "NAT" : "pub")
+                    << hostToIPaddress(server.address, server.port)
+                    << hostToIPaddress(server.publicIPAddress, server.publicPort)
+                    << hostToIPaddress(server.localNetworkAddress, server.localNetworkPort)
+                    << server.description,
+                    server.enableNAT);
             }
             this->serverList.notify();
         });
@@ -1017,8 +1051,22 @@ namespace Duel6 {
             teamControlSwitch[i]->setCurrent(team[name]);
         }
     }
-    void Menu::ServerList::add(enet_uint32 netAddress, enet_uint16 netPort, const std::string &address, const std::string &port, const std::string &localAddress, const std::string &localPort, const std::string &descr, const std::string &text) {
-        list.emplace_back(Server{netAddress, netPort, address, port, localAddress, localPort, descr, text});
+    void Menu::ServerList::add(enet_uint32 netAddress, enet_uint16 netPort,
+                               enet_uint32 publicAddress, enet_uint16 publicPort,
+                               enet_uint32 localAddress, enet_uint16 localPort,
+                               const std::string &address, const std::string &port,
+                               const std::string &publicAddressStr, const std::string &publicPortStr,
+                               const std::string &localAddressStr, const std::string &localPortStr,
+                               const std::string &descr, const std::string &text,
+                               bool enableNAT) {
+        list.emplace_back(Server{netAddress, netPort,
+            publicAddress, publicPort,
+            localAddress, localPort,
+            address, port,
+            publicAddressStr, publicPortStr,
+            localAddressStr, localPortStr,
+            descr, text,
+            enableNAT});
     }
 
     void Menu::ServerList::clear(){

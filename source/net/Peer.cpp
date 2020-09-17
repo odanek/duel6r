@@ -338,6 +338,7 @@ namespace Duel6 {
             state = PeerState::DESTROYED;
             if (peer.get() != nullptr) {
                 delete (PeerRef*) (peer.get()->data);
+                peer.get()->data = nullptr;
                 enet_peer_reset(peer.get());
             }
             peer.release();
@@ -372,6 +373,8 @@ namespace Duel6 {
                 host,
                 isMasterserver
                 ) {
+            PeerRef * ref = (PeerRef *)peer->data;
+            ref->peer = this;
             if(isMasterserver){
                 enet_peer_timeout(peer, 500, 200, 1000);
             } else {

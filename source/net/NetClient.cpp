@@ -7,6 +7,7 @@
 #include "Peer.h"
 #include "NetClient.h"
 #include "../Game.h"
+#include "../Format.h"
 #include "master/protocol.h"
 #define CHANNELS 254 //todo extract for usage in NetHost
 namespace Duel6 {
@@ -42,29 +43,26 @@ namespace Duel6 {
             masterServerProxy.requestServerList(serviceHost.get(), callback);
         }
 
-        void NetClient::requestNATPunch(const enet_uint32 address, const enet_uint16 port) {
-            auto localAddress = peer->getEnetPeer().host->address;
+        void NetClient::requestNATPunch(const enet_uint32 address, const enet_uint16 port,
+                                        const enet_uint32 publicIPAddress, const enet_uint16 publicPort,
+                                        const enet_uint32 networkLocalAddress, const enet_uint16 networklocalPort
+                                        ) {
+            auto localAddress = nethost->address;
             masterServerProxy.connectNatToServer(serviceHost.get(), address, port, localAddress.host, localAddress.port);
-            ENetAddress addressForNATPunch;
-            addressForNATPunch.host = address;
-            addressForNATPunch.port = port;
-            ENetHost * host = serviceHost.get();
-            ENetBuffer buffer;
-            buffer.data = nullptr;
-            buffer.dataLength = 0;
-            // fingers crossed
-            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
-            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
-            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
-            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
-            enet_socket_send(host->socket, &addressForNATPunch, &buffer, 0);
+            NATtrailBlaze(serviceHost.get()->socket, address, port);
+            NATtrailBlaze(serviceHost.get()->socket, networkLocalAddress, networklocalPort);
+            if(publicIPAddress != 0 && publicPort != 0){
+                NATtrailBlaze(serviceHost.get()->socket, publicIPAddress, publicPort);
+            }
         }
 
         void NetClient::connect(Game &game, const std::string &host,
                                 const Duel6::net::port_t port) {
             setGameReference(game);
+            //this state sucks
             this->host = host;
             this->port = port;
+            pendingConnectionRequests++;
             start(nethost);
         }
 
@@ -79,39 +77,54 @@ namespace Duel6 {
             if(enetpeer == nullptr){
                 return;
             }
-            peer = std::make_unique<Peer>(*clientGameProxy,
-                *serverGameProxy,
-                enetpeer,
-                serviceHost.get());
+            enet_peer_timeout(enetpeer, 500, 1000, 5000);
+            enetpeer->data = new net::PeerRef { 0, nullptr, false }; // this is probably superfluous (we check for nullptr in onPeerConnected
         }
 
         void NetClient::onStopping() {
-            if (peer.get() == nullptr) {
-                return;
+            if (peer.get() != nullptr) {
+                peer->disconnect();
             }
-            peer->disconnect();
             stopped();
         }
 
         void NetClient::onStopped() {
             //state = ServiceState::STOPPED;
             clientGameProxy->netStopped();
+            pendingConnectionRequests = 0;
             peer.reset();
         }
 
         void NetClient::onPeerConnected(ENetPeer *me) {
+            console.printLine(Format("NetHost::onPeerConnected address: {0}") << hostToIPaddress(me->address.host, me->address.port));
+            if(peer){
+                return;
+            }
+            peer = std::make_unique<Peer>(*clientGameProxy,
+                *serverGameProxy,
+                me,
+                serviceHost.get());
+
             if (!peer->onConnected(me)) {
                 return;
             }
+
             started();
         }
 
         void NetClient::onPeerDisconnected(ENetPeer *me, enet_uint32 reason) {
-            if (!peer->onDisconnected(me, reason)) {
-                return;
+            console.printLine(Format("NetHost::onPeerDisconnected address: {0}") << hostToIPaddress(me->address.host, me->address.port));
+            if (peer) {
+                if (peer->onDisconnected(me, reason)) {
+                    requestStop();
+                    return;
+                }
+            } else {
+                pendingConnectionRequests--;
+                if (pendingConnectionRequests <= 0) {
+                    requestStop();
+                }
             }
-
-            requestStop();
         }
 
         void NetClient::onTearDown() {
@@ -150,6 +163,17 @@ namespace Duel6 {
             netstat.windowSize = enetPeer.windowSize;
             netstat.totalWaitingData = enetPeer.totalWaitingData;
 
+        }
+
+        void NetClient::NATtrailBlaze(ENetSocket s, const enet_uint32 address, const enet_uint16 port) {
+            ENetAddress addressForNATPunch;
+            addressForNATPunch.host = address;
+            addressForNATPunch.port = port;
+            ENetBuffer buffer;
+            buffer.data = nullptr;
+            buffer.dataLength = 0;
+            // fingers crossed
+            enet_socket_send(s, &addressForNATPunch, &buffer, 0);
         }
     } /* namespace net */
 } /* namespace Duel6 */

@@ -63,6 +63,7 @@ namespace Duel6::net {
 
         if(stopRequested){
             stop();
+            stopRequested = false;
         }
     }
 
@@ -113,19 +114,29 @@ namespace Duel6::net {
     }
 
     void Service::onConnected(ENetPeer *peer, enet_uint32 data) {
-        if (peer->data == nullptr) {
-            return;
-        }
         REQUEST_TYPE requestType;
         if (data >= static_cast<unsigned int>(REQUEST_TYPE::COUNT)) {
             return;
         }
         requestType = static_cast<REQUEST_TYPE>(data);
 
+        if(requestType == REQUEST_TYPE::MASTER_PUSH_NAT_PEERS_TO_SERVER){ // incoming request
+            std::cout << "MASTER_PUSH_NAT_PEERS_TO_SERVER\n";
+            Duel6::net::PeerRef *ref = new Duel6::net::PeerRef();
+            peer->data = ref;
+            ref->isMasterServer = true;
+            ref->peer = nullptr;
+            ref->pos = 0;
+            return onMasterServerConnected(peer);
+        }
         if(requestType == REQUEST_TYPE::NONE){ // TODO outgoing request
-            PeerRef * ref = (PeerRef *) peer->data;
-            if(ref->isMasterServer){
-                return onMasterServerConnected(peer);
+            if(peer->data != nullptr){
+                PeerRef * ref = (PeerRef *) peer->data;
+                if(ref->isMasterServer){
+                    return onMasterServerConnected(peer);
+                } else {
+                    return onPeerConnected(peer);
+                }
             } else {
                 return onPeerConnected(peer);
             }

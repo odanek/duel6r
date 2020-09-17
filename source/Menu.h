@@ -64,12 +64,20 @@ namespace Duel6 {
         public:
             enet_uint32 netAddress;
             enet_uint16 netPort;
+            enet_uint32 publicIPAddress;
+            enet_uint16 publicPort;
+            enet_uint32 localAddress;
+            enet_uint16 localPort;
             std::string address;
             std::string port;
-            std::string localAddress;
-            std::string localPort;
+            std::string publicIPAddressStr;
+            std::string publicPortStr;
+
+            std::string localAddressStr;
+            std::string localPortStr;
             std::string descr;
             std::string text;
+            bool enableNAT;
         };
 
         class ServerList {
@@ -90,7 +98,14 @@ namespace Duel6 {
             void clearCallback() {
                 callback = defaultCallback;
             }
-            void add(enet_uint32 netAddress, enet_uint16 netPort, const std::string &address, const std::string &port, const std::string &localAddress, const std::string &localPort, const std::string &descr, const std::string &text);
+            void add(enet_uint32 netAddress, enet_uint16 netPort,
+                     enet_uint32 publicAddress, enet_uint16 publicPort,
+                     enet_uint32 localAddress, enet_uint16 localPort,
+                     const std::string &address, const std::string &port,
+                     const std::string &publicAddressStr, const std::string &publicPortStr,
+                     const std::string &localAddressStr, const std::string &localPortStr,
+                     const std::string &descr, const std::string &text,
+                     bool enableNAT);
             void clear();
             void notify();
             const std::vector<Server>& get() const;
@@ -98,13 +113,34 @@ namespace Duel6 {
         };
         class NetConfig {
         public:
+            // address of the master server
             std::string masterServer = "duel6-master.mrakonos.cz";
-            std::string localIPAddress = "0.0.0.0";
-            std::string serverDescription = "unnamed server";
             Int32 masterServerPort = 5902;
-            bool enableMasterServer = false;    // single switch to disable any communication with the master
-            bool enableMasterDiscovery = false; // publish the game to master server for others to discover
-            bool enableNATPunch = false;        // enable NAT traversal (server/client)
+
+            // single switch to disable any communication with the master
+            // TODO (not implemented yet)
+            bool enableMasterServer = false;
+
+            // publish the game to master server for others to discover
+            bool enableMasterDiscovery = false;
+
+            // enable NAT traversal (server/client)
+            //  - client: false means we won't be able to connect to NATed servers
+            //  - server: false means we need public IP address for others to be able to contact us
+            bool enableNATPunch = false;
+
+
+            // local IP address for contacting the master server (in case we have more network interfaces in the computer)
+            std::string localIPAddress = "0.0.0.0";
+
+            std::string serverDescription = "unnamed server";
+
+            // experimental feature
+            // - for public server on a public IP address
+            // - but requiring a NAT handshake
+            // this is mainly for development purposes
+            std::string publicIPAddress = "0.0.0.0";
+            Int32 publicPort = 5900;
         };
     private:
         AppService &appService;

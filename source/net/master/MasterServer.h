@@ -47,7 +47,7 @@ namespace masterserver {
 
         binarystream createHeader(PACKET_TYPE packetType);
 
-        packet_update createUpdateRequest(const std::string &description, address_t localAddress, port_t localPort);
+        packet_update createUpdateRequest(const std::string &description, address_t localAddress, port_t localPort, bool needsNAT);
 
         packet_nat_punch createNatPunchRequest(address_t address, port_t port, address_t localAddress, port_t localPort);
 
@@ -56,6 +56,7 @@ namespace masterserver {
             bs << p;
             return bs;
         }
+
 
     public:
         MasterServer() = default;
@@ -66,9 +67,9 @@ namespace masterserver {
 
         void sendHeartBeat();
 
-        void update(ENetHost *host, const std::string &description, address_t localAddress, port_t localPort);
+        void update(ENetHost *host, const std::string &description, address_t localAddress, port_t localPort, bool needsNAT);
 
-        void requestNatPeers(peerListReceivedCallback_t callback);
+        void requestNatPeers();
 
         void connectNatToServer(ENetHost *host, address_t address, port_t port, address_t localAddress, port_t localPort);
 
@@ -77,6 +78,8 @@ namespace masterserver {
         void onConnected(ENetPeer * peer);
 
         void onReceived(ENetPeer * peer, ENetPacket * packet);
+
+        void onPeerListReceived(std::function<void(peerlist_t & peerlist)> callback);
 
     private:
         void onConnected(connectedCallback_t callback);
