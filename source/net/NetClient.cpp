@@ -24,6 +24,9 @@ namespace Duel6 {
         void NetClient::initNetHost() {
             ENetAddress localAddress;
             localAddress.port = ENET_PORT_ANY;
+
+           // localAddress.port = 65535; //TODO REMOVE
+
             enet_address_set_host(&localAddress, this->localIPAddress.c_str());
             nethost = enet_host_create(&localAddress,
                           4 /* only allow 4 outgoing connections */,
@@ -170,10 +173,13 @@ namespace Duel6 {
             addressForNATPunch.host = address;
             addressForNATPunch.port = port;
             ENetBuffer buffer;
-            buffer.data = nullptr;
-            buffer.dataLength = 0;
+            char data[10]= {1,2,3,4,5,6,7,8,9,10};
+            buffer.data = &data;
+            buffer.dataLength = 10;
             // fingers crossed
-            enet_socket_send(s, &addressForNATPunch, &buffer, 0);
+            enet_socket_send(s, &addressForNATPunch, &buffer, 1);
+            enet_socket_send(s, &addressForNATPunch, &buffer, 1);
+
         }
     } /* namespace net */
 } /* namespace Duel6 */

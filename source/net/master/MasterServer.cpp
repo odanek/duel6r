@@ -1,4 +1,5 @@
 #include "MasterServer.h"
+#include "stun.h"
 
 namespace masterserver {
 
@@ -80,13 +81,29 @@ namespace masterserver {
     }
 
     void MasterServer::connectNatToServer(ENetHost *host, address_t address, port_t port, address_t localAddress, port_t localPort) {
+        ENetAddress masterAddress;
+        enet_address_set_host(&masterAddress, this->address.c_str());
+        masterAddress.port = port;
+        sendStunBindingRequest(host->socket, masterAddress.host, masterAddress.port);
+        sendStunBindingRequest(host->socket, address, port);
+        sendStunBindingRequest(host->socket, localAddress, localPort);
         connect(host, REQUEST_TYPE::CLIENT_NAT_CONNECT_TO_SERVER);
+
         onConnected([this, address, port, localAddress, localPort]() {
             binarystream bs = createHeader(PACKET_TYPE::CLIENT_NAT_PUNCH);
             bs << createNatPunchRequest(address, port, localAddress, localPort);
             send(bs);
             this->disconnect();
         });
+        ENetSocket s = host->socket;
+
+        ENetBuffer buffer;
+        char data[10]= {1,2,3,4,5,6,7,8,9,10};
+        buffer.data = &data;
+        buffer.dataLength = 10;
+        // fingers crossed
+        enet_socket_send(s, &peer->address, &buffer, 1);
+        enet_socket_send(s, &peer->address, &buffer, 1);
     }
 
     void MasterServer::onConnected(ENetPeer *peer) {
@@ -137,7 +154,7 @@ namespace masterserver {
                 peerList.emplace_back(PeerEntry { peer.address, peer.port, peer.localNetworkAddress, peer.localNetworkPort });
             }
 
-            onPeerListReceivedCallback(peerList);
+            onPeerListReceivedCallback(peerList, p.yourPublicAddress, p.yourPublicPort);
             this->disconnect();
             break;
         }
@@ -148,8 +165,17 @@ namespace masterserver {
         }
     }
 
-    void MasterServer::onPeerListReceived(std::function<void(peerlist_t &peerlist)> callback) {
+    void MasterServer::onPeerListReceived(peerListReceivedCallback_t callback) {
         onPeerListReceivedCallback = callback;
+        ENetSocket s = host->socket;
+
+        ENetBuffer buffer;
+        char data[10]= {1,2,3,4,5,6,7,8,9,10};
+        buffer.data = &data;
+        buffer.dataLength = 10;
+        // fingers crossed
+        enet_socket_send(s, &peer->address, &buffer, 1);
+        enet_socket_send(s, &peer->address, &buffer, 1);
     }
 
     void MasterServer::disconnect() {
@@ -191,4 +217,23 @@ namespace masterserver {
         reconnect(requestType);
         return this->peer;
     }
+
+    void MasterServer::sendStunBindingRequest(ENetSocket s, enet_uint32 address, enet_uint16 port) {
+        stun::message message;
+        message.type = stun::type_t::BINDING_REQUEST;
+
+        char *mem;
+        size_t len = message.send(&mem);
+        ENetAddress peerAddress;
+        peerAddress.host = address;
+        peerAddress.port = port;
+
+        ENetBuffer buffer;
+        buffer.data = mem;
+        buffer.dataLength = len;
+        // fingers crossed
+        enet_socket_send(s, &peerAddress, &buffer, 1);
+        free(mem);
+    }
+
 }

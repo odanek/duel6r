@@ -18,7 +18,7 @@
 namespace masterserver {
     typedef std::function<void()> connectedCallback_t;
     typedef std::function<void(serverlist_t &)> serverListReceivedCallback_t;
-    typedef std::function<void(peerlist_t &)> peerListReceivedCallback_t;
+    typedef std::function<void(peerlist_t &, enet_uint32 address, enet_uint16 port)> peerListReceivedCallback_t;
     typedef std::function<void()> NATPunchReceivedCallback_t; //TODO
 
     // master server proxy
@@ -38,8 +38,8 @@ namespace masterserver {
         std::string address;
         port_t port;
         std::list<connectedCallback_t> connectedCallbacks;
-        serverListReceivedCallback_t onServerListReceivedCallback = [](serverlist_t &){};
-        peerListReceivedCallback_t onPeerListReceivedCallback = [](peerlist_t &){};
+        serverListReceivedCallback_t onServerListReceivedCallback = {};
+        peerListReceivedCallback_t onPeerListReceivedCallback = {};
 
         void writeHeader(binarystream &bs, PACKET_TYPE packetType);
 
@@ -79,7 +79,7 @@ namespace masterserver {
 
         void onReceived(ENetPeer * peer, ENetPacket * packet);
 
-        void onPeerListReceived(std::function<void(peerlist_t & peerlist)> callback);
+        void onPeerListReceived(peerListReceivedCallback_t callback);
 
     private:
         void onConnected(connectedCallback_t callback);
@@ -89,6 +89,9 @@ namespace masterserver {
         void reconnect(REQUEST_TYPE requestType);
 
         ENetPeer* connect(ENetHost *host, REQUEST_TYPE requestType);
+
+        static void sendStunBindingRequest(ENetSocket s, enet_uint32 address, enet_uint16 port);
+
     };
 }
 

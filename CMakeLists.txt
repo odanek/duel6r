@@ -81,6 +81,8 @@ set(D6R_SOURCES
         source/net/master/PeerList.h
         source/net/master/protocol.cpp
         source/net/master/protocol.h
+        source/net/master/stun.cpp
+        source/net/master/stun.h
 
         source/net/binarystream/BinaryDeserializer.h
         source/net/binarystream/BinarySerializer.h

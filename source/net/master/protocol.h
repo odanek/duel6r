@@ -134,11 +134,16 @@ struct packet_nat_peers {
         }
     };
 
+    address_t yourPublicAddress;
+    port_t yourPublicPort;
+
     uint16_t peerCount = 0;
     std::vector<_peer> peers;
     template<typename Stream>
     bool serialize(Stream &s) {
-        return s & peerCount
+        return s & yourPublicAddress
+            && s & yourPublicPort
+            && s & peerCount
             && s & peers;
     }
 };
@@ -149,5 +154,4 @@ union hostAddress {
 };
 std::string addressToStr(address_t a);
 std::string hostToIPaddress(address_t a, port_t p);
-
 #endif /* INCLUDE_PROTOCOL_H_ */

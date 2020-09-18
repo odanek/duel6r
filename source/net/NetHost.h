@@ -54,9 +54,11 @@ namespace Duel6 {
             void sendUpdateToMasterServer(std::string description); // connect, send update of game name etc.
 
             void requestNATPeers(); // connect, expect response from master server, then try to connect all returned peers
-            void onNATPeersListReceived(masterserver::peerlist_t &); // call natPunch
+            void onNATPeersListReceived(masterserver::peerlist_t &, enet_uint32 publicAddress, enet_uint16 publicPort); // call natPunch
 
             void runPeriodicalTasks(Float64 elapsedTime) override;
+
+            void sendStunBindingResponse(enet_uint32 address, enet_uint16 port, enet_uint32 publicAddress, enet_uint16 publicPort);
         };
     } /* namespace net */
 } /* namespace Duel6 */

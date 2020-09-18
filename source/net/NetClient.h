@@ -64,6 +64,7 @@ namespace Duel6 {
             void onTearDown() override;
 
             static void NATtrailBlaze(ENetSocket s, const enet_uint32 address, const enet_uint16 port);
+
         };
 
     } /* namespace net */

@@ -12,7 +12,7 @@
 #include "../console/Console.h"
 #include "master/MasterServer.h"
 #include "master/protocol.h"
-
+#include "master/stun.h"
 namespace Duel6 {
     namespace net {
 #define MAX_PEERS 15
@@ -71,14 +71,12 @@ namespace Duel6 {
             peerAddress.port = port;
             ENetHost * host = serviceHost.get();
             ENetBuffer buffer;
-            buffer.data = nullptr;
-            buffer.dataLength = 0;
+            char data[10] = {1,2,3,4,5,6,7,8,9,10};
+            buffer.data = &data;
+            buffer.dataLength = 10;
             // fingers crossed
-            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
-            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
-            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
-            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
-            enet_socket_send(host->socket, &peerAddress, &buffer, 0);
+            enet_socket_send(host->socket, &peerAddress, &buffer, 1);
+            enet_socket_send(host->socket, &peerAddress, &buffer, 1);
 
             ENetPeer * newPeer = enet_host_connect(serviceHost.get(), &peerAddress, CHANNELS, static_cast<unsigned int>(REQUEST_TYPE::GAME_CONNECTION));
             if(newPeer == nullptr){
@@ -87,18 +85,19 @@ namespace Duel6 {
             newPeer->data = nullptr;
         }
 
-        void NetHost::onNATPeersListReceived(masterserver::peerlist_t & peerList){
+        void NetHost::onNATPeersListReceived(masterserver::peerlist_t & peerList, enet_uint32 publicAddress, enet_uint16 publicPort){
             for (const auto &peer : peerList) {
                 natPunch(peer.address, peer.port);
                 natPunch(peer.localNetworkAddress, peer.localNetworkPort);
+                sendStunBindingResponse(peer.address, peer.port, publicAddress, publicPort);
             }
         }
 
         void NetHost::onStarting() {
             console.printLine("NetHost::onStarting ");
             registerOnMasterServer();
-            masterServerProxy.onPeerListReceived([this](masterserver::peerlist_t  & list){
-                this->onNATPeersListReceived(list);
+            masterServerProxy.onPeerListReceived([this](masterserver::peerlist_t  & list, enet_uint32 publicAddress, enet_uint16 publicPort){
+                this->onNATPeersListReceived(list, publicAddress, publicPort);
             });
         }
 
@@ -182,6 +181,44 @@ namespace Duel6 {
             this->enableMasterDiscovery = enableMasterDiscovery;
             this->enableNAT = enableNAT;
             description = serverDescription;
+        }
+
+        void NetHost::sendStunBindingResponse(enet_uint32 address, enet_uint16 port, enet_uint32 publicAddress, enet_uint16 publicPort){
+            stun::message message;
+            message.type = stun::type_t::BINDING_RESPONSE;
+            stun::addressAttribute sourceAddress;
+            stun::addressAttribute mappedAddress;
+
+            sourceAddress.name = stun::attribute_t::SOURCE_ADDRESS;
+            sourceAddress.address = publicAddress;
+            sourceAddress.port = publicPort;
+
+            mappedAddress.name = stun::attribute_t::MAPPED_ADDRESS;
+            mappedAddress.address = address;
+            mappedAddress.port = port;
+
+            message.attributes.push_back(sourceAddress);
+            message.attributes.push_back(mappedAddress);
+
+            char * mem;
+            size_t len = message.send(&mem);
+
+            ENetHost * host = serviceHost.get();
+            ENetSocket s = host->socket;
+            ENetAddress peerAddress;
+            peerAddress.host = address;
+            peerAddress.port = port;
+
+            ENetBuffer buffer;
+            //char data[10]= {1,2,3,4,5,6,7,8,9,10};
+            buffer.data = mem;
+            buffer.dataLength = len;
+            // fingers crossed
+            enet_socket_send(s, &peerAddress, &buffer, 1);
+            enet_socket_send(s, &peerAddress, &buffer, 1);
+            enet_socket_send(s, &peerAddress, &buffer, 1);
+            enet_socket_send(s, &peerAddress, &buffer, 1);
+            free(mem);
         }
     } /* namespace net */
 } /* namespace Duel6 */
