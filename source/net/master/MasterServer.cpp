@@ -83,7 +83,7 @@ namespace masterserver {
     void MasterServer::connectNatToServer(ENetHost *host, address_t address, port_t port, address_t localAddress, port_t localPort) {
         ENetAddress masterAddress;
         enet_address_set_host(&masterAddress, this->address.c_str());
-        masterAddress.port = port;
+        masterAddress.port = this->port;
         sendStunBindingRequest(host->socket, masterAddress.host, masterAddress.port);
         sendStunBindingRequest(host->socket, address, port);
         sendStunBindingRequest(host->socket, localAddress, localPort);

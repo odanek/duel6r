@@ -4,13 +4,6 @@
  *  Created on: Mar 19, 2020
  *      Author: fanick
  */
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-
 #include "Service.h"
 #include "binarystream/BinaryStream.h"
 #include "Message.h"
