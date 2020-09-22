@@ -2,6 +2,23 @@
 #include "stun.h"
 
 namespace stun {
+
+    template<typename T>
+    char* write(char *dst, T *src) {
+        size_t size = sizeof(T);
+        memcpy(dst, src, sizeof(T));
+        return dst + size;
+    }
+    template<typename T>
+    char* write(char *dst, T src, bool convertToBigEndian = true) {
+        size_t size = sizeof(T);
+        if(convertToBigEndian){
+            src = toBigEndian(src);
+        }
+        memcpy(dst, &src, sizeof(T));
+        return dst + size;
+    }
+
 bool message::read(char * src, size_t len) {
         if(len < headersSize || len > headersSize + 2 * sizeof (addressAttribute)){
             return false;
@@ -65,33 +82,32 @@ bool message::read(char * src, size_t len) {
 
     size_t message::send(char **memblockPtr) {
         size_t attributesSize = sizeof(addressAttribute) * attributes.size();
-        size_t result = headersSize + attributesSize;
+        size_t changeAttributesSize = sizeof(changeAttribute) * changeAttributes.size();
+        size_t result = headersSize + attributesSize + changeAttributesSize;
         char *dst = (char*) malloc(result);
         (*memblockPtr) = dst;
         memset(dst, 0, result);
-        length = attributesSize;
-        enet_uint16 typeN = toBigEndian((enet_uint16)type);
-        enet_uint16 lengthN = toBigEndian(length);
-        memcpy(dst, &typeN, 2);
-        memcpy(dst + 2, &lengthN, 2);
-        memcpy(dst + 4, &tranId, 16);
 
-        addressAttribute *attributesPtr = (addressAttribute *) (dst + ((char*) &attributes - (char*) this));
-        for (size_t i = 0; i < attributes.size(); i++) {
-            addressAttribute & a = attributes[i];
-            addressAttribute * adst = &(attributesPtr[i]);
-            enet_uint16 nameN = toBigEndian((enet_uint16)a.name);
-            enet_uint16 lengthN = toBigEndian(a.length);
-            enet_uint16 protocolFamilyN = toBigEndian(a.protocolFamily);
-            enet_uint16 portN = toBigEndian(a.port);
-            enet_uint32 addressN = a.address;
+        length = attributesSize + changeAttributesSize;
 
-            memcpy((char*)adst + 0, &nameN, 2);
-            memcpy((char*)adst + 2, &lengthN, 2);
-            memcpy((char*)adst + 4, &protocolFamilyN, 2);
-            memcpy((char*)adst + 6, &portN, 2);
-            memcpy((char*)adst + 8, &addressN, 4);
+        dst = write(dst, (enet_uint16)type);
+        dst = write(dst, length);
+        dst = write(dst, &tranId);
+
+        for (const auto & a : attributes){
+            dst = write(dst, (enet_uint16)a.name);
+            dst = write(dst, a.length);
+            dst = write(dst, a.protocolFamily);
+            dst = write(dst, a.port);
+            dst = write(dst, a.address, false);
         }
+        for(const auto & a: changeAttributes){
+            dst = write(dst, (enet_uint16)a.name);
+            dst = write(dst, a.length);
+            dst = write(dst, a.flags);
+        }
+
         return result;
     }
+
 }

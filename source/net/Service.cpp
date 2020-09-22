@@ -109,6 +109,8 @@ namespace Duel6::net {
     void Service::onConnected(ENetPeer *peer, enet_uint32 data) {
         REQUEST_TYPE requestType;
         if (data >= static_cast<unsigned int>(REQUEST_TYPE::COUNT)) {
+            peer->data = nullptr;
+            enet_peer_disconnect_now(peer, 0x66666666);
             return;
         }
         requestType = static_cast<REQUEST_TYPE>(data);

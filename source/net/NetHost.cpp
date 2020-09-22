@@ -70,26 +70,14 @@ namespace Duel6 {
             peerAddress.host = address;
             peerAddress.port = port;
             ENetHost * host = serviceHost.get();
-            ENetBuffer buffer;
-            char data[10] = {1,2,3,4,5,6,7,8,9,10};
-            buffer.data = &data;
-            buffer.dataLength = 10;
             // fingers crossed
-            enet_socket_send(host->socket, &peerAddress, &buffer, 1);
-            enet_socket_send(host->socket, &peerAddress, &buffer, 1);
-
-            ENetPeer * newPeer = enet_host_connect(serviceHost.get(), &peerAddress, CHANNELS, static_cast<unsigned int>(REQUEST_TYPE::GAME_CONNECTION));
-            if(newPeer == nullptr){
-                return;
-            }
-            newPeer->data = nullptr;
+            enet_socket_send(host->socket, &peerAddress, nullptr, 0);
         }
 
         void NetHost::onNATPeersListReceived(masterserver::peerlist_t & peerList, enet_uint32 publicAddress, enet_uint16 publicPort){
             for (const auto &peer : peerList) {
                 natPunch(peer.address, peer.port);
                 natPunch(peer.localNetworkAddress, peer.localNetworkPort);
-                sendStunBindingResponse(peer.address, peer.port, publicAddress, publicPort);
             }
         }
 
@@ -168,7 +156,6 @@ namespace Duel6 {
                          masterServerProxy.requestNatPeers();
                      } else {
                          masterServerProxy.sendHeartBeat();
-
                      }
                  }
             }
@@ -189,15 +176,9 @@ namespace Duel6 {
             stun::addressAttribute sourceAddress;
             stun::addressAttribute mappedAddress;
 
-            sourceAddress.name = stun::attribute_t::SOURCE_ADDRESS;
-            sourceAddress.address = publicAddress;
-            sourceAddress.port = publicPort;
-
             mappedAddress.name = stun::attribute_t::MAPPED_ADDRESS;
             mappedAddress.address = address;
             mappedAddress.port = port;
-
-            message.attributes.push_back(sourceAddress);
             message.attributes.push_back(mappedAddress);
 
             char * mem;
@@ -210,13 +191,9 @@ namespace Duel6 {
             peerAddress.port = port;
 
             ENetBuffer buffer;
-            //char data[10]= {1,2,3,4,5,6,7,8,9,10};
             buffer.data = mem;
             buffer.dataLength = len;
             // fingers crossed
-            enet_socket_send(s, &peerAddress, &buffer, 1);
-            enet_socket_send(s, &peerAddress, &buffer, 1);
-            enet_socket_send(s, &peerAddress, &buffer, 1);
             enet_socket_send(s, &peerAddress, &buffer, 1);
             free(mem);
         }

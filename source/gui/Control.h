@@ -58,7 +58,7 @@ namespace Duel6 {
             View *parent = nullptr;
             bool focusable = false;
             bool focused = false;
-
+            bool enabled = true;
         public:
             void setFocusable(bool value);
 
@@ -87,6 +87,9 @@ namespace Duel6 {
                 focused = val;
             }
 
+            void setEnabled(bool val){
+                enabled = val;
+            }
         protected:
             virtual void update(Float32 elapsedTime) {
             }

@@ -57,9 +57,20 @@ namespace stun {
 
     enum attribute_t: enet_uint16{
         MAPPED_ADDRESS = 0x0001,
+        CHANGE_REQUEST = 0x0003,
         SOURCE_ADDRESS = 0x0004
     };
 
+    enum flags_t: enet_uint32 {
+        CHANGE_PORT = 0x02,
+        CHANGE_ADDRESS = 0x04
+    };
+
+    struct changeAttribute {
+        attribute_t name = CHANGE_REQUEST;
+        enet_uint16 length = 0x04;
+        enet_uint32 flags = 0;
+    };
     struct addressAttribute {
         attribute_t name;
         enet_uint16 length = 0x08;
@@ -73,7 +84,7 @@ namespace stun {
         enet_uint16 length;
         enet_uint8 tranId[16] = {1,2,3,4,5,6,7,8, 9,10,11,12,13,14,15,16};
         std::vector<addressAttribute> attributes;
-
+        std::vector<changeAttribute> changeAttributes;
         addressAttribute mappedAddress;
         addressAttribute sourceAdrress;
 

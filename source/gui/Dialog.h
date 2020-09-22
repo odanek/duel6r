@@ -10,6 +10,7 @@
 
 #include "View.h"
 #include "Button.h"
+#include "Label.h"
 namespace Duel6::Gui {
 
     class Dialog : public View {
@@ -17,11 +18,12 @@ namespace Duel6::Gui {
         class DialogTitleBar : public Control {
         protected:
             Gui::Button *closeBt;
+            Gui::Label *label;
             bool pressed = false;
             Int32 w, h;
 
         public:
-            DialogTitleBar(Dialog &parentView);
+            DialogTitleBar(Dialog &parentView, const std::string & title);
 
             void setPos(Int32 x, Int32 y, Int32 w, Int32 h);
 
@@ -50,7 +52,7 @@ namespace Duel6::Gui {
         RESIZE resizingDirection = NONE;
 
     public:
-        Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h);
+        Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h, const std::string & title);
 
         virtual ~Dialog();
 

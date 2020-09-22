@@ -245,48 +245,37 @@ namespace Duel6 {
         serverList->setPosition(10, 700, 110, 30);
         serverList->setCaption("List");
         serverList->onClick([this](Gui::Button &) {
-            Int32 w = 500;
-            Int32 h = 300;
-            Gui::Dialog * dialog = new Gui::Dialog(this->gui, 10, 500, w, h);
+            serverlist();
+            Int32 w = 800;
+            Int32 h = 400;
+            Gui::Dialog * dialog = new Gui::Dialog(this->gui, 10, 300, w, h, std::string("Servers"));
             Gui::ListBox * servers = new Gui::ListBox(*dialog, true);
             Gui::Button * bt = new Gui::Button(*dialog);
-            bt->setPosition(5, 30, 110, 20);
+            bt->setPosition(5, 40, 110, 30);
             bt->setCaption("Refresh");
             Gui::Button * connectBt = new Gui::Button(*dialog);
-            connectBt->setPosition(160, 30, 110, 20);
+            connectBt->setPosition(160, 40, 110, 30);
             connectBt->setCaption("Connect");
-            servers->setPosition(5, h - 40, w / 8 - 4, (h - 40) / 16 - 2, 16);
+            connectBt->setEnabled(false);
+            servers->setPosition(5, h - 40, w / 8 - 4, (h - 60) / 16 - 2, 16);
             dialog->onResize([servers](Gui::View& dialog, Int32 x , Int32 y, Int32 w, Int32 h){
-                servers->setPosition(5, h - 40, w / 8 - 4, (h - 40) / 16 - 2, 16);
+                servers->setPosition(5, h - 40, w / 8 - 4, (h - 60) / 16 - 2, 16);
             });
             bt->onClick([this](Gui::Button &){
                 serverlist();
             });
-            servers->onDoubleClick([this, dialog](Int32 index, const std::string &item){
-                const auto & server = this->serverList.get()[index];
-
-                std::string addressText = server.address;
-                std::string portText = server.port;
-                if(server.enableNAT){
-                    enet_uint32 addr = server.netAddress;
-                    enet_uint16 port = server.netPort;
-                    if(server.publicIPAddress != 0 && server.publicPort != 0){
-                        addressText = server.publicIPAddressStr;
-                        portText = server.publicPortStr;
-                    }
-                    appService.getNetClient().requestNATPunch(server.netAddress, server.netPort,
-                        server.publicIPAddress, server.publicPort,
-                        server.localAddress, server.localPort);
-                } else {
-                    if(server.publicIPAddress != 0 && server.publicPort != 0){
-                        addressText = server.publicIPAddressStr;
-                        portText = server.publicPortStr;
-                    }
-                }
-                this->host->setText(addressText);
-                this->port->setText(portText);
+            Int32 pickedItem = 0;
+            servers->onItemSelected([this, &pickedItem, connectBt](Int32 index, const std::string &item){
+                pickedItem = index;
+                connectBt->setEnabled(true);
+            });
+            connectBt->onClick([this, &pickedItem, dialog](Gui::Button &){
+                this->joinServerFromServerList(pickedItem);
                 dialog->close();
-                this->joinServer();
+            });
+            servers->onDoubleClick([this, dialog](Int32 index, const std::string &item){
+                this->joinServerFromServerList(index);
+                dialog->close();
             });
            Menu::ServerList::callbackReset_t resetCallback = this->serverList.setCallback([servers](Menu::ServerList::list_t & list){
                servers->clear();
@@ -982,7 +971,6 @@ namespace Duel6 {
     }
 
     void Menu::serverlist() {
-//        appService.getNetClient().connectToMasterServer(netConfig.masterServer, netConfig.masterServerPort);
         appService.getNetClient().requestServerList([this](masterserver::serverlist_t & serverList) {
             this->serverList.clear();
             for(const auto & server: serverList){
@@ -998,11 +986,9 @@ namespace Duel6 {
                     addressToStr(server.localNetworkAddress),
                     Format("{0}") << server.localNetworkPort,
                     server.description,
-                    Format("{0} {1}/{2}/{3} {4}")
-                    << (server.enableNAT ? "NAT" : "pub")
+                    Format("{0,8} {1} {2}")
+                    << (server.enableNAT ? "P2P" : "direct")
                     << hostToIPaddress(server.address, server.port)
-                    << hostToIPaddress(server.publicIPAddress, server.publicPort)
-                    << hostToIPaddress(server.localNetworkAddress, server.localNetworkPort)
                     << server.description,
                     server.enableNAT);
             }
@@ -1086,6 +1072,30 @@ namespace Duel6 {
 
     const std::vector<Menu::Server>& Menu::ServerList::get() const {
         return list;
+    }
+
+    void Menu::joinServerFromServerList(Int32 index){
+        const auto &server = this->serverList.get()[index];
+
+        std::string addressText = server.address;
+        std::string portText = server.port;
+        if (server.enableNAT) {
+            if (server.publicIPAddress != 0 && server.publicPort != 0) {
+                addressText = server.publicIPAddressStr;
+                portText = server.publicPortStr;
+            }
+            appService.getNetClient().requestNATPunch(server.netAddress, server.netPort,
+                server.publicIPAddress, server.publicPort,
+                server.localAddress, server.localPort);
+        } else {
+            if (server.publicIPAddress != 0 && server.publicPort != 0) {
+                addressText = server.publicIPAddressStr;
+                portText = server.publicPortStr;
+            }
+        }
+        this->host->setText(addressText);
+        this->port->setText(portText);
+        this->joinServer();
     }
 
 }

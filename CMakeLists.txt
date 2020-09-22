@@ -589,17 +589,28 @@ if (MINGW)
     target_link_libraries(${D6R_APP_NAME} mingw32)
 endif (MINGW)
 
+set (RENDERER_LIBS
+)
+
 # OpenGL
+if (NOT D6R_RENDERER STREQUAL "headless")
 if (WIN32)
     target_link_libraries(${D6R_APP_NAME} opengl32.lib)
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+            opengl32.lib
+        )
 elseif (APPLE)
     find_library(LIB_OPEN_GL OpenGL DOC "Path to OpenGL framework")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL})
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+            ${LIB_OPEN_GL}
+        )
 else (WIN32) # Linux GCC
     find_library(LIB_OPEN_GL GL DOC "Path to OpenGL import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL})
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+            ${LIB_OPEN_GL}
+        )
 endif (WIN32)
-
+endif (NOT D6R_RENDERER STREQUAL "headless")
 # SDL
 find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
 include_directories(${HEADERS_SDL2})
@@ -618,12 +629,18 @@ find_library(LIB_ENET NAMES enet enet_static libenet libenet_static DOC "Path to
 target_link_libraries(${D6R_APP_NAME} ${LIB_ENET})
 
 # GLEW
+if (NOT D6R_RENDERER STREQUAL "headless")
 if (WIN32)
     find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
 else (WIN32)
     find_library(LIB_GLEW GLEW DOC "Path to GLEW library")
 endif (WIN32)
-target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+             ${LIB_GLEW}
+        )
+endif (NOT D6R_RENDERER STREQUAL "headless")
+
+target_link_libraries(${D6R_APP_NAME} ${RENDERER_LIBS})
 find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
 include_directories(${HEADERS_GLEW})
 

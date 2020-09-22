@@ -8,10 +8,13 @@
 #include "Dialog.h"
 namespace Duel6::Gui {
     const auto EDGEWIDTH = 4;
-    Dialog::DialogTitleBar::DialogTitleBar(Dialog &parentView)
+    Dialog::DialogTitleBar::DialogTitleBar(Dialog &parentView, const std::string & title)
         : Control(parentView) {
         Int32 x, y, w, h;
         parent->getPos(x, y, w, h);
+        label = new Gui::Label(parentView);
+        label->setPosition(5, h - 8, w - 34, 16);
+        label->setCaption(title);
         closeBt = new Gui::Button(parentView);
         closeBt->setPosition(w - 24, h - 8, 16, 16);
         closeBt->setCaption("x");
@@ -23,16 +26,16 @@ namespace Duel6::Gui {
         parentView.onResize([this](View &dialog, Int32 x, Int32 y, Int32 w, Int32 h) {
             this->w = w;
             setPos(0, h, this->w, this->h);
+            label->setPosition(5, h - 8, w - 34, 16);
             closeBt->setPosition(this->w - 24, h - 8, 16, 16);
         });
 
     }
-    Dialog::Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h)
-        : View(parent, x, y, w, h)
-    {
-        titleBar = new Dialog::DialogTitleBar(*this);
-        titleBar->setPos(0, this->h, this->w, 32);
 
+    Dialog::Dialog(Desktop &parent, Int32 x, Int32 y, Int32 w, Int32 h, const std::string & title)
+        : View(parent, x, y, w, h) {
+        titleBar = new Dialog::DialogTitleBar(*this, title);
+        titleBar->setPos(0, this->h, this->w, 32);
     }
 
     Dialog::~Dialog() {
@@ -55,6 +58,7 @@ namespace Duel6::Gui {
 
     void Dialog::DialogTitleBar::draw(Renderer &renderer, const Font &font) const {
         drawFrame(renderer, x, y, w, h, false, false);
+
     }
 
     void Dialog::DialogTitleBar::mouseMotionEvent(const MouseMotionEvent &event) {

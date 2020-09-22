@@ -105,16 +105,23 @@ namespace Duel6 {
             drawFrame(renderer, x, y, width, height, pressed, focused);
             px = x + (width / 2) - (captionWidth / 2) + -1 + pressed;
             py = y - (height / 2) - 8 - pressed;
-            font.print(px, py, Color::BLACK, caption);
+            Color color = enabled ? Color::BLACK : Color::GRAY;
+            font.print(px, py, color, caption);
         }
 
         void Button::firePressListeners(bool pressed) {
+            if(!enabled){
+                return;
+            }
             for (auto &listener : pressListeners) {
                 listener(*this, pressed);
             }
         }
 
         void Button::fireClickListeners() {
+            if(!enabled){
+                return;
+            }
             for (auto &listener : clickListeners) {
                 listener(*this);
             }

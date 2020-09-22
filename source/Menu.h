@@ -316,6 +316,8 @@ namespace Duel6 {
         void startServer();
 
         void joinServer();
+
+        void joinServerFromServerList(Int32 index);
     };
 }
 

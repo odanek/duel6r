@@ -50,6 +50,7 @@ namespace Duel6 {
         static const Color CYAN;
         static const Color MAGENTA;
         static const Color YELLOW;
+        static const Color GRAY;
 
     public:
         Color()
