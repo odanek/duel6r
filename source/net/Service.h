@@ -138,6 +138,7 @@ namespace Duel6 {
             void onPeerReceived(ENetPeer *peer, ENetPacket *packet);
             void tearDown() {
                 if (serviceHost.get() != nullptr) {
+                    enet_host_flush(serviceHost.get());
                     enet_host_destroy(serviceHost.get());
                 }
                 serviceHost.release();

@@ -264,13 +264,12 @@ namespace Duel6 {
             bt->onClick([this](Gui::Button &){
                 serverlist();
             });
-            Int32 pickedItem = 0;
-            servers->onItemSelected([this, &pickedItem, connectBt](Int32 index, const std::string &item){
-                pickedItem = index;
+            servers->onItemSelected([this, connectBt](Int32 index, const std::string &item){
+                pickedServerIndex = index;
                 connectBt->setEnabled(true);
             });
-            connectBt->onClick([this, &pickedItem, dialog](Gui::Button &){
-                this->joinServerFromServerList(pickedItem);
+            connectBt->onClick([this, dialog](Gui::Button &){
+                this->joinServerFromServerList(pickedServerIndex);
                 dialog->close();
             });
             servers->onDoubleClick([this, dialog](Int32 index, const std::string &item){

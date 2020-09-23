@@ -203,7 +203,7 @@ namespace Duel6 {
         bool playMusic;
         NetConfig netConfig;
         ServerList serverList;
-
+        Int32 pickedServerIndex;
     public:
         explicit Menu(AppService &appService);
 
