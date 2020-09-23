@@ -1,16 +1,15 @@
 {
-  "enableMasterDiscovery": false,
-  "enableNAT": false,
+  "serverDescription": " default name ",
+  "enableMasterDiscovery": true,
+  "enableNAT": true,
   "localIPAddress": "0.0.0.0",
-  "enableMaster": false,
+  "enableMaster": true,
   "master": {
-    "port": 5902,
-    "URL": "duel6-master.mrakonos.cz"
+    "port": 25900,
+    "URL": "oraculum1-eu.duel6.mrakonos.cz"
   },
-
   "host": "0.0.0.0",
   "port": "5900",
-  
   "publicIPAddress": "0.0.0.0",
   "publicPort": "5900"
 }
