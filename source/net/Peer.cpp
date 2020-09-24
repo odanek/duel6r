@@ -78,6 +78,7 @@ namespace Duel6 {
                 receivedInputsTick = gs.tick;
                 confirmedInputsTick = gs.tick;
                 gameProxy->handle(gs);
+
                 break;
             }
             case EventType::GAME_STATE_UPDATE: {
@@ -288,6 +289,7 @@ namespace Duel6 {
             }
             incomingPeerID = me->incomingPeerID;
             state = PeerState::CONNECTED;
+
             if(!gameProxy->gameIsServer()){
                 requestGameState();
             }

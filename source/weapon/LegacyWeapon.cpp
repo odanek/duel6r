@@ -109,4 +109,7 @@ namespace Duel6 {
     bool LegacyWeapon::isChargeable() const {
         return false;
     }
+    void LegacyWeapon::playShotSample() const {
+        samples.shot.play();
+    }
 }

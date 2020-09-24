@@ -148,6 +148,11 @@ namespace Duel6 {
     bool Weapon::isChargeable() const {
         return impl->isChargeable();
     }
+
+    void Weapon::playShotSample() const {
+        impl->playShotSample();
+    }
+
     void Weapon::initialize(Sound &sound, TextureManager &textureManager) {
         add(std::make_unique<Pistol>(sound, textureManager));
         add(std::make_unique<Bazooka>(sound, textureManager));

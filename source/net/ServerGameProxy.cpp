@@ -295,7 +295,7 @@ namespace Duel6 {
             b.bonusId = bonus.getId();
 
             for (auto &peer : peers) {
-                peer->sendReliable(sb);
+                peer->sendReliable(sb, Channel::BONUSES);
             }
         }
         void ServerGameProxy::spawnWeapon(LyingWeapon &weapon){
@@ -303,7 +303,7 @@ namespace Duel6 {
             Weapon &w = sw.weapon;
             loadNetWeapon(w, weapon);
             for (auto &peer : peers) {
-                peer->sendReliable(sw);
+                peer->sendReliable(sw, Channel::WEAPONS);
             }
         }
         void ServerGameProxy::pickWeapon(Duel6::Player &player, unsigned int weaponId){
@@ -311,7 +311,7 @@ namespace Duel6 {
             pw.playerId = player.getId();
             pw.weaponId = weaponId;
             for (auto &peer : peers) {
-                peer->sendReliable(pw);
+                peer->sendReliable(pw, Channel::WEAPONS);
             }
         }
         void ServerGameProxy::pickBonus(Duel6::Player &player, unsigned int bonusId){
@@ -319,7 +319,7 @@ namespace Duel6 {
             pb.playerId = player.getId();
             pb.bonusId = bonusId;
             for (auto &peer : peers) {
-                peer->sendReliable(pb);
+                peer->sendReliable(pb, Channel::BONUSES);
             }
         }
 
@@ -341,7 +341,7 @@ namespace Duel6 {
             ss.velocity.x = velocity.x;
             ss.velocity.y = velocity.y;
             for (auto &peer : peers) {
-                peer->sendReliable(ss);
+                peer->sendReliable(ss, Channel::SHOTS);
             }
         }
 
@@ -355,7 +355,7 @@ namespace Duel6 {
             EraseShot es;
             es.id = id;
             for (auto &peer : peers) {
-                peer->sendReliable(es);
+                peer->sendReliable(es, Channel::SHOTS);
             }
         }
         void ServerGameProxy::spawnExplosion(Explosion &explosion){
@@ -368,7 +368,7 @@ namespace Duel6 {
             se.color.blue = explosion.color.getBlue();
             se.color.alpha = explosion.color.getAlpha();
             for (auto &peer : peers) {
-                peer->sendReliable(se);
+                peer->sendReliable(se, Channel::SHOTS);
             }
         }
 
@@ -378,7 +378,7 @@ namespace Duel6 {
             message.text = msg;
 
             for (auto &peer : peers) {
-                peer->sendReliable(message);
+                peer->sendReliable(message, Channel::BROADCAST_MESSAGES);
             }
         }
 
@@ -387,7 +387,7 @@ namespace Duel6 {
             ps.playerId = playerId;
             ps.sample = static_cast<SampleType>(static_cast<type_t>(type));
             for (auto &peer : peers) {
-                peer->sendReliable(ps);
+                peer->sendReliable(ps, Channel::SAMPLES);
             }
         }
 

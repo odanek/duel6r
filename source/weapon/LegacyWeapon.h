@@ -96,6 +96,7 @@ namespace Duel6 {
 
         virtual Float32 getBulletSpeed() const = 0;
 
+        virtual void playShotSample() const override;
     protected:
         virtual std::unique_ptr<Shot> makeShot(Player &player, World &world, Orientation orientation,
                                                const Weapon &weapon,

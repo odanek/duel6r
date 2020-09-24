@@ -152,15 +152,6 @@ namespace masterserver {
 
     void MasterServer::onPeerListReceived(peerListReceivedCallback_t callback) {
         onPeerListReceivedCallback = callback;
-        ENetSocket s = host->socket;
-
-        ENetBuffer buffer;
-        enet_uint32 data = 0xdeadbabe;
-        buffer.data = &data;
-        buffer.dataLength = sizeof(data);
-        // fingers crossed
-        enet_socket_send(s, &peer->address, &buffer, 1);
-        enet_socket_send(s, &peer->address, &buffer, 1);
     }
 
     void MasterServer::disconnect() {

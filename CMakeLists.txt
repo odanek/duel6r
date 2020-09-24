@@ -41,7 +41,7 @@ endif (MSVC)
 
 # gnu compiler or clang
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -ggdb3 -D_FORTIFY_SOURCE=2 -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++17")
     if (D6R_PLATFORM STREQUAL "x86")
 
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
@@ -586,7 +586,7 @@ set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 6.0.0 DEBUG_OUTPUT_NAME
 
 # Platform
 if (MINGW)
-    target_link_libraries(${D6R_APP_NAME} mingw32)
+    target_link_libraries(${D6R_APP_NAME} mingw32 ws2_32)
 endif (MINGW)
 
 set (RENDERER_LIBS

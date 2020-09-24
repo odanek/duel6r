@@ -234,6 +234,8 @@ namespace Duel6 {
 
         void pickBonus(Player &player, unsigned int bonusId);
 
+        void spawnRemoteShot(std::unique_ptr<Shot> && shot); // hack (refactor: add `isRemote` flag to shot?)
+
         void spawnShot(std::unique_ptr<Shot> && shot);
 
         void raiseWater();

@@ -559,7 +559,11 @@ namespace Duel6 {
                 velocity
            );
             player.getIndicators().getReload().show(player.getReloadInterval() + Indicator::FADE_DURATION);
-            game->spawnShot(std::move(x));
+            if(player.local){
+                game->spawnShot(std::move(x));
+            } else {
+                game->spawnRemoteShot(std::move(x));
+            }
 
          }
         void ClientGameProxy::handle(PlaySample &ps) {

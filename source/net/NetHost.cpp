@@ -38,7 +38,8 @@ namespace Duel6 {
                 enet_address_set_host(&address, host.c_str());
             }
             address.port = port;
-            ENetHost *nethost = enet_host_create(&address, MAX_PEERS, CHANNELS, 0, 0);
+            ENetHost *nethost = enet_host_create(&address, MAX_PEERS, CHANNELS, 0, 1000000);
+
             if (nethost == nullptr) {
                 D6_THROW(Exception, "cannot start server (port taken?)");
             }
@@ -72,21 +73,30 @@ namespace Duel6 {
             ENetHost * host = serviceHost.get();
             // fingers crossed
             enet_socket_send(host->socket, &peerAddress, nullptr, 0);
+            enet_socket_send(host->socket, &peerAddress, nullptr, 0);
+            enet_socket_send(host->socket, &peerAddress, nullptr, 0);
+            enet_socket_send(host->socket, &peerAddress, nullptr, 0);
+            enet_socket_send(host->socket, &peerAddress, nullptr, 0);
+            enet_socket_send(host->socket, &peerAddress, nullptr, 0);
         }
 
         void NetHost::onNATPeersListReceived(masterserver::peerlist_t & peerList, enet_uint32 publicAddress, enet_uint16 publicPort){
             for (const auto &peer : peerList) {
                 natPunch(peer.address, peer.port);
-                natPunch(peer.localNetworkAddress, peer.localNetworkPort);
+                if (peer.localNetworkAddress != 0 && peer.localNetworkPort != 0) {
+                    natPunch(peer.localNetworkAddress, peer.localNetworkPort);
+                }
             }
         }
 
         void NetHost::onStarting() {
             console.printLine("NetHost::onStarting ");
             registerOnMasterServer();
-            masterServerProxy.onPeerListReceived([this](masterserver::peerlist_t  & list, enet_uint32 publicAddress, enet_uint16 publicPort){
-                this->onNATPeersListReceived(list, publicAddress, publicPort);
-            });
+            if(enableMasterDiscovery){
+                masterServerProxy.onPeerListReceived([this](masterserver::peerlist_t  & list, enet_uint32 publicAddress, enet_uint16 publicPort){
+                    this->onNATPeersListReceived(list, publicAddress, publicPort);
+                });
+            }
         }
 
         void NetHost::onStopping() {

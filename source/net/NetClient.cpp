@@ -80,7 +80,7 @@ namespace Duel6 {
                 return;
             }
             pendingConnectionRequests++;
-            enet_peer_timeout(enetpeer, 500, 1000, 5000);
+            enet_peer_timeout(enetpeer, 100, 1000, 10000);
             enetpeer->data = new net::PeerRef { 1234, nullptr, false }; // this is probably superfluous (we check for nullptr in onPeerConnected
         }
 
@@ -178,7 +178,10 @@ namespace Duel6 {
             buffer.data = &stuff;
             buffer.dataLength = 4;
             // fingers crossed
-            int ttl = 0;
+#ifndef IP_TTL
+    #define IP_TTL 7
+#endif
+            char ttl = 0;
             for (; ttl < 10; ttl++) { //TODO This is probably unnecessary
                 setsockopt(s, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl));
                 enet_socket_send(s, &addressForNATPunch, &buffer, 0);

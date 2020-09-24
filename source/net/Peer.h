@@ -15,7 +15,6 @@
 #include "Object.h"
 #include "Event.h"
 #include "object/Player.h"
-#define CHANNEL 0
 
 #define SNAPSHOTS 64
 namespace Duel6 {
@@ -23,6 +22,20 @@ namespace Duel6 {
         class ClientGameProxy;
         class ServerGameProxy;
         class Peer;
+
+        // reliable channels
+        // - messages sent in different channels don't block other
+        // messages in other channels from being delivered
+        enum Channel {
+            SHOTS = 0,
+            SAMPLES,
+            BONUSES,
+            WEAPONS,
+            PLAYERS,
+            BROADCAST_MESSAGES,
+            DEFAULT,
+            UNRELIABLE_CHANNEL_BASELINE
+        };
         enum class PeerUpdateState {
             WAITING_FOR_REQUEST,
             REQUESTED_GAMESTATE,
@@ -43,7 +56,8 @@ namespace Duel6 {
         };
         class Peer {
         private:
-            uint8_t UNRELIABLE_CHANNEL  = 1;
+            uint8_t UNRELIABLE_CHANNEL  = Channel::UNRELIABLE_CHANNEL_BASELINE;
+
             PeerState state = PeerState::DISCONNECTED;
             ClientGameProxy *gameProxy = nullptr;
             ServerGameProxy *serverGameProxy = nullptr; //parent
@@ -81,20 +95,26 @@ namespace Duel6 {
             }
 
             template<typename MessageObject>
-            void sendReliable(MessageObject &msg, uint8_t channel = CHANNEL) {
-                send(msg, CHANNEL, true);
+            void sendReliable(MessageObject &msg, uint8_t channel = Channel::DEFAULT) {
+                if(peerUpdateState != PeerUpdateState::RUNNING){
+                    // we need to linearize reliable messages for the peers not to receive out of order message e.g. spawn shot before
+                    // they have the game state
+                    channel = Channel::DEFAULT;
+                }
+                send(msg, channel, true);
             }
 
             template<typename MessageObject>
             void sendUnreliable(MessageObject &msg) {
                 send(msg, UNRELIABLE_CHANNEL++, false);
+                // we are cycling the unreliable channels because of bug in ENet < 1.3.15-1 (fixed in 1.3.16)
                 if(UNRELIABLE_CHANNEL >= 254){
-                    UNRELIABLE_CHANNEL = 1;
+                    UNRELIABLE_CHANNEL = UNRELIABLE_CHANNEL_BASELINE;
                 }
             }
 
             template<typename MessageObject>
-            void send(MessageObject &msg, uint8_t channel = CHANNEL, bool reliable = true) {
+            void send(MessageObject &msg, uint8_t channel = Channel::DEFAULT, bool reliable = true) {
                 binarystream bs;
                 if (!msg.send(bs)){
                     std::cerr << " FAILED TO SEND \n";
@@ -111,7 +131,7 @@ namespace Duel6 {
 
             template<typename MessageObject>
             void send(MessageObject &&msg) {
-                send(msg);
+                sendReliable(msg);
             }
 
             bool onConnected(ENetPeer *me);

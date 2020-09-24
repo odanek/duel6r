@@ -69,6 +69,11 @@ namespace Duel6 {
         virtual Int32 getBonusTextureIndex() const = 0;
 
         virtual bool isChargeable() const = 0;
+
+        virtual void playShotSample() const {
+
+        }
+
         Uint8 getId() const {
             return id;
         }
@@ -126,6 +131,8 @@ namespace Duel6 {
         bool operator!=(const Weapon &weapon) const;
 
         bool isChargeable() const;
+
+        void playShotSample() const;
 
     public:
         static const std::vector<Weapon> &values();
