@@ -40,8 +40,18 @@
 #include "net/NetClient.h"
 #include "net/ClientGameProxy.h"
 #include "net/ServerGameProxy.h"
+
 namespace Duel6 {
     class Application {
+    private:
+        struct CommandLineOptions {
+            bool dedicated;
+            bool windowed;
+            Int32 windowWidth;
+            Int32 windowHeight;
+        };
+        CommandLineOptions commandLineOptions;
+
     private:
         Console console;
         std::unique_ptr<Video> video;
@@ -87,6 +97,7 @@ namespace Duel6 {
         void joyDeviceAddedEvent(Context & context, const JoyDeviceAddedEvent & event);
         void joyDeviceRemovedEvent(Context & context, const JoyDeviceRemovedEvent & event);
         void syncUpdateAndRender(Context &context);
+        void parseCommandLineOptions(int argc, char **argv);
     };
 }
 

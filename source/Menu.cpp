@@ -822,14 +822,17 @@ namespace Duel6 {
         savePersonData();
         saveNetworkSettings();
     }
-    void Menu::startDedicatedServer(){
-        game->isServer = true && !reverseConnection->isChecked();
+
+    void Menu::startDedicatedServer() {
+        appService.getConsole().printLine(Format("Starting server"));
+        game->isServer = !reverseConnection->isChecked();
         playerListBox->clear(); // remove any players that might be accidentaly set
         if(!play(true)){
             appService.getConsole().printLine("Cannot play");
-            return;
+        } else {
+            appService.getNetHost().listen(*game, host->getText(), std::stoi(port->getText()));
+            appService.getConsole().printLine(Format("Started"));
         }
-        appService.getNetHost().listen(*game, host->getText(), std::stoi(port->getText()));
     }
     void Menu::startServer(){
         game->isServer = true && !reverseConnection->isChecked();
