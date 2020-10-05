@@ -48,7 +48,7 @@ namespace Duel6 {
     Menu::Menu(AppService &appService)
             : appService(appService), font(appService.getFont()), video(appService.getVideo()),
               renderer(video.getRenderer()), sound(appService.getSound()), gui(video.getRenderer(), font),
-              mainView(new Gui::View(gui, 0,0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight())),
+              mainView(new Gui::View(gui, 0,0, 960, 900)),
               controlsManager(appService.getControlsManager()),
               defaultPlayerSounds(PlayerSounds::makeDefault(sound)), playMusic(false) {}
 
@@ -58,8 +58,8 @@ namespace Duel6 {
             port->setText("5900");
             return;
         }
-        Json::Value defaultMasterURL = Json::Value::makeString("duel6-master.mrakonos.cz");
-        Json::Value defaultMasterPort = Json::Value::makeNumber(5902);
+        Json::Value defaultMasterURL = Json::Value::makeString("oraculum-eu1.duel6.mrakonos.cz");
+        Json::Value defaultMasterPort = Json::Value::makeNumber(25901);
         Json::Value defaultMaster = Json::Value::makeObject();
         defaultMaster.set("URL", defaultMasterURL);
         defaultMaster.set("port", defaultMasterPort);
@@ -67,7 +67,7 @@ namespace Duel6 {
         Json::Parser parser;
         Json::Value json = parser.parse(filePath);
         Json::Value host = json.getOrDefault("host", Json::Value::makeString("localhost"));
-        Json::Value port = json.getOrDefault("port", Json::Value::makeString("5900"));
+        Json::Value port = json.getOrDefault("port", Json::Value::makeString("25800"));
         Json::Value master = json.getOrDefault("master", defaultMaster);
         Json::Value enableMaster = json.getOrDefault("enableMaster", Json::Value::makeBoolean(false));
         Json::Value enableMasterDiscovery = json.getOrDefault("enableMasterDiscovery", Json::Value::makeBoolean(false));
@@ -75,12 +75,12 @@ namespace Duel6 {
         Json::Value localIPAddress = json.getOrDefault("localIPAddress", Json::Value::makeString("0.0.0.0"));
         Json::Value serverDescription = json.getOrDefault("serverDescription", Json::Value::makeString("unnamed server"));
         Json::Value publicIPAddress = json.getOrDefault("publicIPAddress", Json::Value::makeString("0.0.0.0"));
-        Json::Value publiPort = json.getOrDefault("publicPort", Json::Value::makeNumber(5900));
+        Json::Value publiPort = json.getOrDefault("publicPort", Json::Value::makeNumber(25800));
 
         this->host->setText(host.asString());
         this->port->setText(port.asString());
-        this->netConfig.masterServer = master.getOrDefault("URL", Json::Value::makeString("duel6-master.mrakonos.cz")).asString();
-        this->netConfig.masterServerPort = master.getOrDefault("port", Json::Value::makeNumber(5902)).asInt();
+        this->netConfig.masterServer = master.getOrDefault("URL", Json::Value::makeString("oraculum-eu1.duel6.mrakonos.cz")).asString();
+        this->netConfig.masterServerPort = master.getOrDefault("port", Json::Value::makeNumber(25901)).asInt();
         this->netConfig.enableMasterServer = enableMaster.asBoolean();
         this->netConfig.localIPAddress = localIPAddress.asString();
         this->netConfig.enableMasterDiscovery = enableMasterDiscovery.asBoolean();
@@ -160,7 +160,8 @@ namespace Duel6 {
 
         appService.getConsole().printLine("...Starting GUI library");
         gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
-                       (video.getScreen().getClientWidth() - 900) / 2, (video.getScreen().getClientHeight() - 700) / 2);
+                                    (video.getScreen().getClientWidth() - 960) / 2, (video.getScreen().getClientHeight() - 700) / 2);
+
         Gui::View & mainView = *(this->mainView);
         Material material = Material::makeTexture(menuBannerTexture);
         new Gui::Image(mainView, material, 350, 670, 200, 95);
