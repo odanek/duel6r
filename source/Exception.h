@@ -32,7 +32,7 @@
 #include <string>
 #include "Type.h"
 
-#define D6_THROW(exceptionClass, message) std::cerr << __FILE__ << " " << __LINE__ << " " << std::string(message) << std::endl; throw exceptionClass(__FILE__, __LINE__, message)
+#define D6_THROW(exceptionClass, message) { std::cerr << __FILE__ << " " << __LINE__ << " " << std::string(message) << std::endl; throw exceptionClass(__FILE__, __LINE__, message); }
 
 namespace Duel6 {
     class Exception {

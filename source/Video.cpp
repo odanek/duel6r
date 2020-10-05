@@ -41,29 +41,16 @@
 #endif
 
 namespace Duel6 {
-    Video::Video(const std::string &name, const std::string &icon, Console &console) {
+    Video::Video(const std::string &name, const std::string &icon, Console &console, const ScreenParameters &requestedScreen) {
         // Get current video mode
 
         // Set graphics mode
         view = ViewParameters(1.0f, 40.0f, 65.0f);
 #if !defined(D6_RENDERER_HEADLESS)
-        SDL_DisplayMode currentVideoMode;
-        if (SDL_GetCurrentDisplayMode(0, &currentVideoMode)) {
-            D6_THROW(VideoException, std::string("Unable to determine current video mode: ") + SDL_GetError());
-        }
-
-
-#ifdef D6_DEBUG
-        // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
-       auto requestedScreenParameters = ScreenParameters(960, 900, 32, 24, 4, false);
-#else
-      auto requestedScreenParameters = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 24, 0, true);
-#endif
-
-
-        window = createWindow(name, icon, requestedScreenParameters, console);
-        glContext = createContext(requestedScreenParameters, console);
-        screen = readScreenParameters(requestedScreenParameters, console);
+        ScreenParameters completeScreen = completeScreenParameters(requestedScreen);
+        window = createWindow(name, icon, completeScreen, console);
+        glContext = createContext(completeScreen, console);
+        screen = readScreenParameters(completeScreen, console);
 
         GLenum err = glewInit();
         if (GLEW_OK != err) {
@@ -199,7 +186,23 @@ namespace Duel6 {
         D6_THROW(VideoException, "Invalid renderer");
     }
 
-    ScreenParameters Video::readScreenParameters(ScreenParameters &params, Console &console) {
+    ScreenParameters Video::completeScreenParameters(const ScreenParameters &params) {
+        if (params.getClientWidth() != -1 && params.getClientHeight() != -1) {
+            return params;
+        }
+
+        SDL_DisplayMode currentVideoMode;
+        if (SDL_GetCurrentDisplayMode(0, &currentVideoMode)) {
+            D6_THROW(VideoException, std::string("Unable to determine current video mode: ") + SDL_GetError());
+        }
+
+        return ScreenParameters(params.isFullScreen(),
+                                params.getClientWidth() == -1 ? currentVideoMode.w : params.getClientWidth(),
+                                params.getClientHeight() == -1 ? currentVideoMode.h : params.getClientHeight(),
+                                params.getBitsPerPixel(), params.getDepthBits(), params.getAntiAlias());
+    }
+
+    ScreenParameters Video::readScreenParameters(const ScreenParameters &params, Console &console) {
         // Retrieve final video parameters
         int redBits, greenBits, blueBits, bitsPerPixel, depthBits, alphaBits, stencilBits;
         SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
@@ -217,8 +220,8 @@ namespace Duel6 {
                                                                                              << alphaBits
                                                                                              << stencilBits);
 
-        return ScreenParameters(params.getClientWidth(), params.getClientHeight(), bitsPerPixel, depthBits,
-                                params.getAntiAlias(), params.isFullScreen());
+        return ScreenParameters(params.isFullScreen(), params.getClientWidth(), params.getClientHeight(), bitsPerPixel, depthBits,
+                                params.getAntiAlias());
     }
 
     void Video::setMode(Mode mode) const {

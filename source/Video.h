@@ -52,7 +52,7 @@ namespace Duel6 {
         std::unique_ptr<Renderer> renderer;
 
     public:
-        Video(const std::string &name, const std::string &icon, Console &console);
+        Video(const std::string &name, const std::string &icon, Console &console, const ScreenParameters &requestedScreen);
 
         ~Video();
 
@@ -86,7 +86,8 @@ namespace Duel6 {
 
         SDL_GLContext createContext(const ScreenParameters &params, Console &console);
 
-        ScreenParameters readScreenParameters(ScreenParameters &params, Console &console);
+        ScreenParameters completeScreenParameters(const ScreenParameters &params);
+        ScreenParameters readScreenParameters(const ScreenParameters &params, Console &console);
 
         std::unique_ptr<Renderer> createRenderer();
     };
