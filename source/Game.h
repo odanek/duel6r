@@ -44,53 +44,59 @@
 #include "GameSettings.h"
 #include "GameResources.h"
 #include "Round.h"
-
+#include "net/ServerGameProxy.h"
+#include "PlayerDefinition.h"
 namespace Duel6 {
+    namespace net {
+        class ClientGameProxy;
+    }
     class GameMode;
 
     class Menu;
 
-    class Game : public Context {
-    public:
-        class PlayerDefinition {
-        private:
-            Person &person;
-            PlayerSkinColors colors;
-            const PlayerSounds &sounds;
-            const PlayerControls &controls;
+    class Game: public Context {
+        friend class Duel6::net::ClientGameProxy;
 
+        class NetStat {
         public:
-            PlayerDefinition(Person &person, const PlayerSkinColors &colors, const PlayerSounds &sounds,
-                             const PlayerControls &controls)
-                    : person(person), colors(colors), sounds(sounds), controls(controls) {}
-
-            Person &getPerson() const {
-                return person;
-            }
-
-            PlayerSkinColors &getColors() {
-                return colors;
-            }
-
-            const PlayerSkinColors &getColors() const {
-                return colors;
-            }
-
-            const PlayerSounds &getSounds() const {
-                return sounds;
-            }
-
-            const PlayerControls &getControls() const {
-                return controls;
-            }
+            uint32_t inBandwidth = 0;
+            uint32_t outBandwidth = 0;
+            uint32_t inThrottleEpoch = 0;
+            uint32_t outThrottleEpoch = 0;
+            uint32_t inDataTotal = 0;
+            uint32_t outDataTotal = 0;
+            uint32_t packetLoss = 0;
+            uint32_t packetLossVariance = 0;
+            uint32_t packetThrottle = 0;
+            uint32_t packetThrottleLimit = 0;
+            uint32_t packetThrottleCounter = 0;
+            uint32_t packetThrottleInterval = 0;
+            uint32_t lastRTT = 0;
+            uint32_t lowestRTT = 0;
+            uint32_t lastRTTVariance = 0;
+            uint32_t highestRTTVariance = 0;
+            uint32_t rtt = 0;
+            uint32_t rttVariance = 0;
+            uint32_t mtu = 0;
+            uint32_t windowSize = 0;
+            size_t totalWaitingData = 0;
+            size_t choke = 0;
         };
-
+    public:
+        NetStat netstat;
+        uint16_t tick = 65000;
+        bool isServer = false;
+        bool isRunning = false;
+        bool networkGame = false;
     private:
+        friend class net::GameProxy;
+        friend class net::ClientGameProxy;
         AppService &appService;
         GameResources &resources;
         GameSettings &settings;
         GameMode *gameMode;
         std::unique_ptr<Round> round;
+        net::ServerGameProxy * gameProxy;
         WorldRenderer worldRenderer;
         const Menu *menu;
 
@@ -104,12 +110,23 @@ namespace Duel6 {
         std::vector<PlayerSkin> skins;
         std::unique_ptr<PlayerAnimations> playerAnimations;
         bool displayScoreTab = false;
-
+        InfoMessageQueue * infoMessageQueue = nullptr;
     public:
-        Game(AppService &appService, GameResources &resources, GameSettings &settings);
+        Int32 maxPlayerId = 0;
 
-        void start(const std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
-                   const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode);
+        Game(AppService &appService, GameResources &resources, GameSettings &settings);
+        void setGameProxyReference(net::ServerGameProxy & serverGameProxy) {
+            this->gameProxy = &serverGameProxy;
+        }
+        void start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
+                   const std::vector<Size> &backgrounds, ScreenMode screenMode, Int32 screenZoom, GameMode &gameMode,
+                   bool networkGame);
+
+        size_t joinPlayer(PlayerDefinition &playerDefinitions);
+
+        void joinPlayers(std::vector<PlayerDefinition> &playerDefinitions);
+
+        void disconnectPlayers(const std::vector<Int32> & ids);
 
         void keyEvent(const KeyPressEvent &event) override;
 
@@ -207,18 +224,50 @@ namespace Duel6 {
             this->menu = &menu;
         }
 
+        void onNextRound();
+
+        void spawnWeapon(LyingWeapon &&weapon);
+
+        void spawnBonus(Bonus &&bonus);
+
+        void pickWeapon(Player &player, unsigned int weaponId);
+
+        void pickBonus(Player &player, unsigned int bonusId);
+
+        void spawnRemoteShot(std::unique_ptr<Shot> && shot); // hack (refactor: add `isRemote` flag to shot?)
+
+        void spawnShot(std::unique_ptr<Shot> && shot);
+
+        void raiseWater();
+
+        void eraseShot(Uint16 id);
+
+        void spawnExplosion(Explosion &&explosion);
+
+        void playSample(const Player &player, PlayerSounds::Type type);
+
+        void broadcastMessage(const Player &player, const std::string & msg, bool display);
+
+        void setMessageQueue(InfoMessageQueue & queue);
+
     private:
         void beforeStart(Context *prevContext) override;
 
         void beforeClose(Context *nextContext) override;
 
+        void onStartRound(std::unique_ptr<Level> && levelData);
+
         void startRound();
+
+        void startRound(std::unique_ptr<Level> && levelData, std::function<void()> callback);
 
         void nextRound();
 
         void endRound();
 
         void onRoundEnd();
+
+
     };
 }
 

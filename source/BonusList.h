@@ -39,11 +39,14 @@
 #include "GameResources.h"
 
 namespace Duel6 {
+    class Game;
+
     class BonusList {
     private:
         const GameSettings &settings;
         Texture texture;
         World &world;
+        Game &game;
         std::list<Bonus> bonuses;
         std::list<LyingWeapon> weapons;
 
@@ -54,7 +57,7 @@ namespace Duel6 {
         bool isValidPosition(const Int32 x, const Int32 y, bool weapon);
 
     public:
-        BonusList(const GameSettings &settings, const GameResources &resources, World &world);
+        BonusList(const GameSettings &settings, Game &game, const GameResources &resources, World &world);
 
         void update(Float32 elapsedTime);
 
@@ -67,6 +70,27 @@ namespace Duel6 {
         void checkBonus(Player &player);
 
         void checkWeapon(Player &player);
+
+        void addWeapon(LyingWeapon &&lyingWeapon);
+
+        void addBonus(Bonus &&bonus);
+
+
+        void spawnBonus(Bonus &&bonus);
+
+        void spawnWeapon(LyingWeapon &&lyingWeapon);
+
+        void despawnBonus(unsigned int id);
+
+        void despawnWeapon(unsigned int id);
+
+        void pickWeapon(Player &player, unsigned int weaponId);
+
+        void pickBonus(Player &player, unsigned int bonusId);
+
+        const std::list<Bonus>& getBonuses() const;
+
+        const std::list<LyingWeapon>& getLyingWeapons() const;
     };
 
 }

@@ -41,25 +41,22 @@ namespace Duel6 {
             {"Delta",   Color(255, 0, 255)}
     };
 
+
     const Team &TeamDeathMatch::getPlayerTeam(Int32 playerIndex) const {
         Int32 playerTeam = playerIndex % teamsCount;
         return TEAMS[playerTeam];
     }
 
-    void TeamDeathMatch::initializePlayers(std::vector<Game::PlayerDefinition> &definitions) {
-        Int32 index = 0;
-        for (auto &definition : definitions) {
-            const Team &team = getPlayerTeam(index);
-            PlayerSkinColors &colors = definition.getColors();
-            auto hair = colors.getHair();
-            if(hair == PlayerSkinColors::Hair::None || hair == PlayerSkinColors::Hair::Short){
-                colors.setHeadBand(true);
-            }
-            colors.set(PlayerSkinColors::HeadBand, team.color);
-            colors.set(PlayerSkinColors::Trousers, team.color);
-            colors.set(PlayerSkinColors::HairTop, team.color);
-            index++;
+    void TeamDeathMatch::initializePlayer(PlayerDefinition &definition) {
+        const Team &team = getPlayerTeam(definition.getTeam() - 1);
+        PlayerSkinColors &colors = definition.getColors();
+        auto hair = colors.getHair();
+        if(hair == PlayerSkinColors::Hair::None || hair == PlayerSkinColors::Hair::Short){
+            colors.setHeadBand(true);
         }
+        colors.set(PlayerSkinColors::HeadBand, team.color);
+        colors.set(PlayerSkinColors::Trousers, team.color);
+        colors.set(PlayerSkinColors::HairTop, team.color);
     }
 
     void TeamDeathMatch::initializePlayerPositions(Game &game, std::vector<Player> &players, World &world) const {
@@ -71,6 +68,7 @@ namespace Duel6 {
         Int32 randomizer = Math::random(teamsCount);
         Int32 playerIndex = 0;
         for (Player &player : players) {
+            if(player.isDeleted()) continue;
             auto &ammoRange = game.getSettings().getAmmoRange();
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
 
@@ -84,32 +82,89 @@ namespace Duel6 {
         }
     }
 
+    void TeamDeathMatch::joinPlayers(Game &game, std::vector<Player> &players, std::vector<size_t> joined, World &world) {
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
+
+        Int32 layerSpan = Int32(startingPositions.size()) / teamsCount;
+        Int32 randomizer = Math::random(teamsCount);
+
+        for (size_t i : joined) {
+            Player &player = players[i];
+            player.setEventListener(*eventListener);
+
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
+            if (player.getTeam() == 0) {
+                Level::StartingPosition position = startingPositions[i % startingPositions.size()];
+                player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
+                continue;
+            }
+            const Team &team = getPlayerTeam(player.getTeam() - 1);
+            teamMap.insert(std::make_pair(&player, &team));
+
+            Int32 playerTeam = (player.getTeam() - 1 + randomizer) % teamsCount;
+            Int32 playerTeamIndex = Math::random(layerSpan);
+            Int32 index = (layerSpan * playerTeam) + playerTeamIndex % layerSpan;
+
+            Level::StartingPosition position = startingPositions[index];
+            player.startRound(world, position.first, position.second, ammo, Weapon::getRandomEnabled(game.getSettings()));
+        }
+    }
+
     void TeamDeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
         teamMap.clear();
-        Int32 index = 0;
-        for (auto &player : players) {
-            const Team &team = getPlayerTeam(index);
-            teamMap.insert(std::make_pair(&player, &team));
-            index++;
-        }
-
         eventListener = std::make_unique<TeamDeathMatchPlayerEventListener>(world.getMessageQueue(), game.getSettings(),
-                                                                            friendlyFire, teamMap, globalAssistances);
+            friendlyFire, teamMap, globalAssistances);
         for (auto &player : players) {
+            if(player.isDeleted()) continue;
             player.setEventListener(*eventListener);
+            if (player.getTeam() == 0) {
+                continue;
+            }
+            const Team &team = getPlayerTeam(player.getTeam() - 1);
+            teamMap.insert(std::make_pair(&player, &team));
         }
     }
 
     bool TeamDeathMatch::checkRoundOver(World &world, const std::vector<Player *> &alivePlayers) {
+        if(world.getPlayers().size() < 2){
+            return false;
+        }
         if (alivePlayers.empty()) {
             for (const Player &player : world.getPlayers()) {
                 world.getMessageQueue().add(player, "End of round - no winner");
             }
             return true;
         }
+        if(alivePlayers[0]->getTeam() == 0 && alivePlayers.size() > 1){
+            return false;
+        }
+        const Team *lastAliveTeam = nullptr;
+        bool hasPlayersWithTeam = false;
 
-        const Team *lastAliveTeam = teamMap.at(alivePlayers[0]);
         for (Player *player : alivePlayers) {
+            if (player->getTeam() != 0) {
+                hasPlayersWithTeam = true;
+                lastAliveTeam = teamMap.at(player);
+                break;
+            }
+        }
+
+        if (!hasPlayersWithTeam) {
+            if(alivePlayers.size() < 2){
+                for (Player *player : alivePlayers) {
+                    player->getPerson().addWins(1);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        for (Player *player : alivePlayers) {
+            if(player->getTeam() == 0){
+                return false;
+            }
             const Team *playerTeam = teamMap.at(player);
             if (playerTeam != lastAliveTeam) {
                 return false;
@@ -117,10 +172,13 @@ namespace Duel6 {
         }
 
         for (Player &player : world.getPlayers()) {
+            if(player.getTeam() == 0 || !player.isInGame()){
+                continue;
+            }
             const Team *playerTeam = teamMap.at(&player);
             if (playerTeam == lastAliveTeam) {
                 world.getMessageQueue().add(player, Format("Team {0} won!") << lastAliveTeam->name);
-                if (player.isAlive()) {
+                if (player.isAlive() ) {
                     player.getPerson().addWins(1);
                 }
             }
@@ -135,13 +193,28 @@ namespace Duel6 {
         for (Int32 teamIndex = 0; teamIndex < teamsCount; teamIndex++) {
             const Team &team = TEAMS[teamIndex];
             Color bcgColor = team.color.withAlpha(178);
-            auto entry = Ranking::Entry{team.name, 0, Color::BLACK, bcgColor};
+            Color color = team.color;
+            color.add(255,255,255,150);
+            auto entry = Ranking::Entry{team.name, 0, color, bcgColor, true};
             ranking.entries.push_back(entry);
         }
-
-        Int32 index = 0;
         for (const auto &player : players) {
-            Int32 teamIndex = index % teamsCount;
+            if(player.getTeam() == 0) {
+                auto entry = Ranking::Entry{"no team", 0, Color::WHITE, Color::BLUE.withAlpha(178)};
+                ranking.entries.push_back(entry);
+                break;
+            }
+        }
+        Int32 index = 0;
+
+        for (const auto &player : players) {
+            if(player.isDeleted()){
+                continue;
+            }
+            Int32 teamIndex = (player.getTeam() - 1) % teamsCount;
+            if(player.getTeam() == 0) {
+                teamIndex = teamsCount;
+            }
             Ranking::Entry &teamEntry = ranking.entries[teamIndex];
 
             teamEntry.points += player.getPerson().getTotalPoints();
@@ -158,6 +231,7 @@ namespace Duel6 {
             entry.deaths = player.getPerson().getDeaths();
             entry.penalties = player.getPerson().getPenalties();
             entry.assistances = player.getPerson().getAssistances();
+            entry.rtt = player.rtt;
             teamEntry.addSubEntry(entry);
             index++;
         }
@@ -174,14 +248,21 @@ namespace Duel6 {
         if (quickLiquid) {
             return true;
         }
-        std::vector<Uint32> teamCounts(teamsCount, 0);
-        Size index = 0;
+        std::vector<Uint32> teamCounts(teamsCount + 1, 0);
+        Uint32 inGame = 0;
+
         for (auto const &player: world.getPlayers()) {
-            Size teamIndex = index % teamsCount;
+            if(! player.isInGame()) {
+                continue;
+            }
+            inGame++;
+            Size teamIndex = (player.getTeam()) % teamsCount;
             if (player.isAlive()) {
                 teamCounts[teamIndex]++;
             }
-            index++;
+        }
+        if(inGame == alivePlayers.size()){
+            return false; //don't raise water when everybody is still alive;
         }
         for (auto count: teamCounts) {
             if (count < 2) {

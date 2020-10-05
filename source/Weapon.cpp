@@ -57,6 +57,14 @@ namespace Duel6 {
 
             Float32 getReloadInterval() const override { return 0.0f; }
 
+            std::unique_ptr<Shot> shoot(Player &player, Orientation orientation, World &world,
+                                       const Weapon &weapon,
+                                       Uint32 shotId,
+                                       bool powerful,
+                                       Int32 power, Float32 bulletSpeed,
+                                       Vector &position,
+                                       Vector &velocity) const override {return std::unique_ptr<Shot>();};
+
             void shoot(Player &player, Orientation orientation, World &world) const override {}
 
             SpriteList::Iterator makeSprite(SpriteList &spriteList) const override { return SpriteList::Iterator(); }
@@ -84,8 +92,13 @@ namespace Duel6 {
     Weapon::Weapon(WeaponImpl *impl)
             : impl(impl) {}
 
+    Uint8 Weapon::getId() const {
+        return impl->getId();
+    }
+
     Weapon Weapon::add(WeaponImplPtr &&impl) {
         Weapon weapon(impl.get());
+        weapon.impl->setId(implementations.size());
         implementations.push_back(std::forward<WeaponImplPtr>(impl));
         weapons.push_back(weapon);
         return weapon;
@@ -97,6 +110,15 @@ namespace Duel6 {
 
     Float32 Weapon::getReloadInterval() const {
         return impl->getReloadInterval();
+    }
+    std::unique_ptr<Shot> Weapon::shoot(Player &player, Orientation orientation, World &world,
+                       Uint32 shotId,
+                       bool powerful,
+                       Int32 power, Float32 bulletSpeed,
+                       Vector &position,
+                       Vector &velocity) const {
+        return impl->shoot(player, orientation, world,
+            *this, shotId, powerful, power, bulletSpeed, position, velocity);
     }
 
     void Weapon::shoot(Player &player, Orientation orientation, World &world) const {
@@ -126,6 +148,11 @@ namespace Duel6 {
     bool Weapon::isChargeable() const {
         return impl->isChargeable();
     }
+
+    void Weapon::playShotSample() const {
+        impl->playShotSample();
+    }
+
     void Weapon::initialize(Sound &sound, TextureManager &textureManager) {
         add(std::make_unique<Pistol>(sound, textureManager));
         add(std::make_unique<Bazooka>(sound, textureManager));
@@ -153,8 +180,15 @@ namespace Duel6 {
     const Weapon &Weapon::getRandomEnabled(const GameSettings &settings) {
         auto &enabledWeapons = settings.getEnabledWeapons();
         Size randomIndex = Math::random(enabledWeapons.size());
-        auto randomWeapon = enabledWeapons.cbegin();
-        std::advance(randomWeapon, randomIndex);
-        return *randomWeapon;
+        auto randomWeaponId = enabledWeapons.cbegin();
+        std::advance(randomWeaponId, randomIndex);
+        return Weapon::getById(*randomWeaponId);
+    }
+
+    const Weapon &Weapon::getById(Uint8 id) {
+        if(id < weapons.size()) {
+            return weapons[id];
+        }
+        return weapons[0];
     }
 }

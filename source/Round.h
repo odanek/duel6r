@@ -51,9 +51,9 @@ namespace Duel6 {
         std::vector<Player *> alivePlayers;
         Script::RoundScriptContext scriptContext;
         std::function<void()> onRoundEnd;
-
+        bool isCompensatingLag = false;
     public:
-        Round(Game &game, Int32 roundNumber, const std::string &levelPath, bool mirror);
+        Round(Game &game, Int32 roundNumber, std::unique_ptr<Level> && level);
 
         void start();
 
@@ -62,13 +62,23 @@ namespace Duel6 {
         void end();
 
         void keyEvent(const KeyPressEvent &event);
-
+        World &getWorld() {
+            return world;
+        }
         const World &getWorld() const {
             return world;
         }
 
         bool hasWinner() const {
             return winner;
+        }
+
+        void setWinner(bool value) {
+            if(!winner && value){
+                roundOver();
+            } else {
+                winner = value;
+            }
         }
 
         Float32 getRemainingYouAreHere() const {
@@ -105,6 +115,10 @@ namespace Duel6 {
         void splitScreenView(Player &player, Int32 x, Int32 y);
 
         void switchScreenMode();
+
+        void roundOver();
+
+        void updateRemotePlayer(Player &player, Float32 elapsedTime);
     };
 }
 

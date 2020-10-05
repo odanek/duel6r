@@ -30,7 +30,12 @@
 namespace Duel6 {
     bool TeamDeathMatchPlayerEventListener::onDamageByShot(Player &player, Player &shootingPlayer, Float32 amount,
                                                            Shot &shot, bool directHit) {
+
+        if(player.getTeam() == 0 || shootingPlayer.getTeam() == 0) {
+            return PlayerEventListener::onDamageByShot(player, shootingPlayer, amount, shot, directHit);
+        }
         if (!friendlyFire && &player != &shootingPlayer) {
+
             const Team *playerTeam = teamMap.at(&player);
             const Team *shooterTeam = teamMap.at(&shootingPlayer);
             if (playerTeam == shooterTeam) {
@@ -42,6 +47,9 @@ namespace Duel6 {
     }
 
     void TeamDeathMatchPlayerEventListener::onKill(Player &player, Player &killer, Shot &shot, bool suicide) {
+        if(player.getTeam() == 0 || killer.getTeam() == 0) {
+            return PlayerEventListener::onKill(player, killer, shot, suicide);
+        }
         const Team *playerTeam = teamMap.at(&player);
         const Team *killerTeam = teamMap.at(&killer);
 
@@ -53,8 +61,14 @@ namespace Duel6 {
     }
 
     void TeamDeathMatchPlayerEventListener::onAssistedSuicide(Player &player, const AssistanceList &assistances) {
+        if(player.getTeam() == 0){
+            return;
+        }
         const Team *playerTeam = teamMap.at(&player);
         for (auto assistance : assistances) {
+            if(assistance.player->getTeam() == 0){
+                continue;
+            }
             if(teamMap.at(assistance.player) != playerTeam){
                 assistance.confirm();
             }
@@ -62,6 +76,10 @@ namespace Duel6 {
     }
 
     void TeamDeathMatchPlayerEventListener::onAssistedKill(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
+        if(killed.getTeam() == 0 || killer.getTeam() == 0){
+            return PlayerEventListener::onAssistedKill(killed, killer, assistances, suicide);
+        }
+
         const Team *playerTeam = teamMap.at(&killed);
         const Team *killerTeam = teamMap.at(&killer);
 
@@ -71,6 +89,9 @@ namespace Duel6 {
                 return;
             }
             for (auto assistance : assistances) {
+                if(assistance.player->getTeam() == 0){
+                    continue;
+                }
                 const Team *assistantTeam = teamMap.at(assistance.player);
                 if (killerTeam == assistantTeam || globalAssistances) {
                     assistance.confirm();
@@ -78,6 +99,9 @@ namespace Duel6 {
             }
         } else {
             for (auto assistance : assistances) {
+                if(assistance.player->getTeam() == 0){
+                    continue;
+                }
                 const Team *assistantTeam = teamMap.at(assistance.player);
                 if (killerTeam != assistantTeam) {
                     assistance.confirm();
@@ -87,7 +111,7 @@ namespace Duel6 {
     }
 
     void TeamDeathMatchPlayerEventListener::addKillMessage(Player &killed, Player &killer, const AssistanceList &assistances, bool suicide) {
-        if (suicide) {
+        if (suicide || killed.getTeam() == 0 || killer.getTeam() == 0) {
             return PlayerEventListener::addKillMessage(killed, killer, assistances, suicide);
         }
         const Team *playerTeam = teamMap.at(&killed);

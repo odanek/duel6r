@@ -44,7 +44,7 @@ namespace Duel6 {
     private:
         const GameSettings &gameSettings;
         std::vector<Player> &players;
-        Level level;
+        std::unique_ptr<Level> level;
         std::string background;
         LevelRenderData levelRenderData;
         InfoMessageQueue messageQueue;
@@ -54,10 +54,13 @@ namespace Duel6 {
         FireList fireList;
         BonusList bonusList;
         ElevatorList elevatorList;
+        ElevatorList unconfirmedElevatorList; //for client side prediction
         Float32 time;
 
     public:
-        World(Game &game, const std::string &levelPath, bool mirror);
+        World(Game &game, std::unique_ptr<Level> && levelData);
+
+        void confirmElevators(Uint16 ticks, Float32 elapsedTime);
 
         void update(Float32 elapsedTime);
 
@@ -76,11 +79,11 @@ namespace Duel6 {
         }
 
         Level &getLevel() {
-            return level;
+            return *level;
         }
 
         const Level &getLevel() const {
-            return level;
+            return *level;
         }
 
         LevelRenderData &getLevelRenderData() {
@@ -147,6 +150,12 @@ namespace Duel6 {
             return elevatorList;
         }
 
+        ElevatorList &getUnconfirmedElevatorList() {
+            return unconfirmedElevatorList;
+        }
+        const ElevatorList &getUnconfirmedElevatorList() const{
+            return unconfirmedElevatorList;
+        }
         const ElevatorList &getElevatorList() const {
             return elevatorList;
         }

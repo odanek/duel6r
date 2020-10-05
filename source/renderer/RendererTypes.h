@@ -36,6 +36,8 @@
 #include "es3/GLES3Types.h"
 #elif defined(D6_RENDERER_GL4)
 #include "gl4/GL4Types.h"
+#elif defined(D6_RENDERER_HEADLESS)
+#include "headless/HeadlessTypes.h"
 #endif
 
 #endif

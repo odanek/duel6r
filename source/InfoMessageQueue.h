@@ -35,13 +35,13 @@
 namespace Duel6 {
     class InfoMessageQueue {
     private:
+        Game & game;
         /** How long each message stays on the screen (in seconds). */
         Float32 duration;
         std::list<InfoMessage> messages;
-
+    friend class Game;
     public:
-        InfoMessageQueue(Float32 duration)
-                : duration(duration) {}
+        InfoMessageQueue(Game & game, Float32 duration);
 
         InfoMessageQueue &add(const Player &player, const std::string &msg);
 
@@ -49,11 +49,14 @@ namespace Duel6 {
 
         void renderPlayerMessages(Renderer &renderer, const Player &player, const Font &font) const;
 
-        void renderAllMessages(Renderer &renderer, const PlayerView &view, Int32 offsetY, const Font &font) const;
+        void renderAllMessages(Renderer &renderer,  const Int32 height, Int32 offsetY, const Font &font) const;
 
         void clear();
 
     private:
+
+        void onBroadcast(const Player &player, const std::string &msg);
+
         static void renderMessage(Renderer &renderer, Int32 x, Int32 y, const std::string &msg, const Font &font);
     };
 }

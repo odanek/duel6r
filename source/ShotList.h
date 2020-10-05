@@ -36,7 +36,7 @@
 
 namespace Duel6 {
     class World;
-
+    class Game;
     class ShotList {
     private:
         typedef std::unique_ptr<Shot> ShotPointer;
@@ -44,8 +44,9 @@ namespace Duel6 {
     private:
         std::list<ShotPointer> shots;
 
+        Game &game;
     public:
-        ShotList();
+        ShotList(Game &game);
 
         void addShot(ShotPointer &&shot);
 
@@ -54,6 +55,10 @@ namespace Duel6 {
         void forEach(std::function<bool(const Shot &)> handler) const;
 
         void forEach(std::function<bool(Shot &)> handler);
+
+        void spawnShot(ShotPointer &&shot);
+
+        void eraseShot(Uint16 id, World &world);
     };
 }
 

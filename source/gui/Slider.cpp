@@ -34,12 +34,14 @@ namespace Duel6 {
             Color bcgColor(192, 192, 192);
         }
 
-        Slider::Slider(Desktop &desk)
-                : Control(desk) {
-            up = new Button(desk);
+        Slider::Slider(View &parentView)
+            : Control(parentView) {
+            up = new Button(parentView);
             up->setCaption(" ");
-            down = new Button(desk);
+            up->setFocusable(false);
+            down = new Button(parentView);
             down->setCaption(" ");
+            down->setFocusable(false);
             pos = nullptr;
         }
 
@@ -77,12 +79,16 @@ namespace Duel6 {
         void Slider::mouseButtonEvent(const MouseButtonEvent &event) {
             if (Control::mouseIn(event, x, y, 16, height) && event.getButton() == SysEvent::MouseButton::LEFT &&
                 event.isPressed()) {
+                focus();
+                dragging = true;
                 scroll(event.getY());
+            } else {
+                dragging = false;
             }
         }
 
         void Slider::mouseMotionEvent(const MouseMotionEvent &event) {
-            if (Control::mouseIn(event, x, y, 16, height) && event.isPressed(SysEvent::MouseButton::LEFT)) {
+            if (dragging && event.isPressed(SysEvent::MouseButton::LEFT)) {
                 scroll(event.getY());
             }
         }
@@ -111,7 +117,6 @@ namespace Duel6 {
             px = up->getX() + 7 + (up->isPressed() ? 1 : 0);
             py = up->getY() - 4 - (up->isPressed() ? 1 : 0);
             renderer.triangle(Vector(px, py), Vector(px + 2, py - 6), Vector(px - 3, py - 6), Color::BLACK);
-
 
             px = down->getX() + 7 + (down->isPressed() ? 1 : 0);
             py = down->getY() - 4 + (down->isPressed() ? 1 : 0);

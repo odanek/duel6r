@@ -36,6 +36,8 @@
 #include "GameResources.h"
 
 namespace Duel6 {
+    class Game;
+
     struct Explosion {
         Vector centre;
         Float32 now;
@@ -47,16 +49,19 @@ namespace Duel6 {
     private:
         Texture textures;
         std::list<Explosion> explosions;
+        Game &game;
         Float32 speed;
 
     public:
-        ExplosionList(const GameResources &resources, Float32 speed);
+        ExplosionList(const GameResources &resources, Game &game, Float32 speed);
 
         void update(Float32 elapsedTime);
 
         void render(Renderer &renderer) const;
 
         void add(const Vector &centre, Float32 startSize, Float32 maxSize, const Color &color);
+
+        void spawn(Explosion &&explosion);
     };
 }
 

@@ -51,6 +51,7 @@
 #include "PlayerView.h"
 
 namespace Duel6 {
+
     // Forward declarations
     class Elevator;
 
@@ -63,6 +64,8 @@ namespace Duel6 {
     class InfoMessageQueue;
 
     class PlayerEventListener;
+
+    class Game;
 
     class Player {
     private:
@@ -101,14 +104,16 @@ namespace Duel6 {
         };
 
     private:
-        Person &person;
+        Game *game;
+        bool deleted = false;
+        Person *person;
         PlayerSkin skin;
         Camera camera;
         Vector cameraFov;
         Vector cameraTolerance;
-        const PlayerAnimations &animations;
-        const PlayerSounds &sounds;
-        const PlayerControls &controls;
+        const PlayerAnimations *animations;
+        const PlayerSounds *sounds;
+        const PlayerControls *controls;
         PlayerView view;
         WaterState water;
         SpriteList::Iterator sprite;
@@ -118,7 +123,7 @@ namespace Duel6 {
         Float32 life;
         Float32 air;
         Int32 ammo;
-        const BonusType *bonus;
+        const BonusType *bonus = BonusType::NONE;
         Int32 roundKills;
         Float32 timeToReload;
         Float32 bonusRemainingTime;
@@ -136,9 +141,42 @@ namespace Duel6 {
         Uint32 controllerState;
         CollidingEntity collider;
 
-    public:
-        Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls);
+        Int32 id;
+        Int32 team;
+        Int32 clientId;
+        Int32 clientLocalId;
 
+    public:
+        CollidingEntity confirmedCollider; //for lag compensation
+        Orientation confirmedOrientation;
+        Uint32 confirmedFlags = 0;
+        Float32 confirmedLife = 100;
+        bool local = false;
+        size_t pos;
+        uint32_t rtt = 0;
+        uint16_t tick = 0;
+        uint16_t lastConfirmedTick = 0;
+        uint16_t compensatedUntilTick = 0;
+        uint16_t lateTicks = 0; //debug
+        std::array<Uint32, 128> unconfirmedInputs;
+        std::array<CollidingEntity, 128> compensationResults;
+        std::array<CollidingEntity, 128> realPos;
+        bool isCompensating = false;
+
+        Uint32 getControllerState() const {
+            return controllerState;
+        }
+
+        void setControllerState(Uint32 controllerState){
+            this->controllerState = controllerState;
+        }
+
+        Player(Game *game, Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls, Int32 id, Int32 team,
+               Int32 clientId,
+               Int32 clientLocalId,
+               size_t pos);
+        Player(Player &&); //fingers crossed
+        Player & operator=(Player &&);
         ~Player();
 
         bool is(const Player &player) const {
@@ -155,11 +193,14 @@ namespace Duel6 {
 
         void updateControllerStatus();
 
+        void compensateLag(World &world, Float32 elapsedTime);
+
         void update(World &world, ScreenMode screenMode, Float32 elapsedTime);
 
         void prepareCam(const Video &video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY);
 
         bool hit(Float32 pw); // Returns true if the shot caused the player to die
+
         bool hitByShot(Float32 pw, Shot &s, bool directHit, const Vector &hitPoint, const Vector &shotVector);
 
         bool airHit(Float32 amount);
@@ -213,11 +254,11 @@ namespace Duel6 {
         }
 
         Person &getPerson() {
-            return person;
+            return *person;
         }
 
         const Person &getPerson() const {
-            return person;
+            return *person;
         }
 
         const Camera &getCamera() const {
@@ -244,10 +285,16 @@ namespace Duel6 {
             return orientation;
         }
 
+        void setOrientation(Orientation orientation) {
+            this->orientation = orientation;
+        }
+
         Player &setAlpha(Float32 alpha) {
             this->alpha = alpha;
             return *this;
         }
+
+        void updateBonus(const BonusType *type, Float32 duration, Float32 remainingTime);
 
         Player &setBonus(const BonusType *type, Int32 duration);
 
@@ -280,6 +327,14 @@ namespace Duel6 {
 
         Float32 getBonusDuration() const {
             return bonusDuration;
+        }
+
+        void setTimeSinceHit(Float32 timeSinceHit) {
+            this->timeSinceHit = timeSinceHit;
+        }
+
+        Float32 getTimeSinceHit() const {
+            return timeSinceHit;
         }
 
         Player &addLife(Float32 life, bool showHpBar = true);
@@ -339,7 +394,7 @@ namespace Duel6 {
         }
 
         bool isInGame() const {
-            return isAlive() || isLying();
+            return !deleted && (isAlive() || isLying());
         }
 
         bool isInvulnerable() const {
@@ -384,10 +439,11 @@ namespace Duel6 {
             return water;
         }
 
-        void playSound(PlayerSounds::Type type) const {
-            sounds.getRandomSample(type).play();
-        }
+        void playSound(PlayerSounds::Type type) const;
 
+        void playSample(PlayerSounds::Type type) const {
+            sounds->getRandomSample(type).play();
+        }
         void setBodyAlpha(Float32 alpha) {
             bodyAlpha = alpha;
             setAlpha(1.0f);
@@ -405,14 +461,73 @@ namespace Duel6 {
 
         const CollidingEntity &getCollider() const;
 
+        CollidingEntity &getCollider();
+
+        void setPosition(float x, float y, float z);
+
+        bool isDeleted() const;
+
+        void setDeleted(bool value);
+
+        Int32 getId() const;
+
+        void setId(Int32 id);
+
+        Int32 getTeam() const;
+
+        void setTeam(Int32 id);
+
+        Int32 getClientId() const;
+
+        void setClientId(Int32 id);
+
+        Int32 getClientLocalId() const;
+
+        void setClientLocalId(Int32 id);
+
+
+        void setFlags(Uint32 flags) {
+            this->flags = flags;
+        }
+
+        Uint32 getFlags() {
+            return flags;
+        }
+        void setLife(Float32 life) {
+            Float32 oldLife = this->life;
+            this->life = life;
+            if(std::abs(oldLife - this->life) > 1.0f){
+                indicators.getHealth().show();
+            }
+        }
+        void setAir(Float32 air) {
+            this->air = air;
+        }
+        void setAmmo(Int32 ammo) {
+            this->ammo = ammo;
+        }
+        void setWeapon(Uint8 weaponId) {
+            replaceWeapon(Weapon::getById(weaponId));
+        }
+
+        void setReloadTime(Float32 val){
+            timeToReload = val;
+        }
+        void checkKeys();
+
+        Float32 getAlpha() const;
+
+        Float32 getBodyAlpha() const;
+
     private:
-        void makeMove(const Level &level, Float32 elapsedTime);
+
+        void replaceWeapon(Weapon weapon);
+
+        void makeMove(const Level &level, ElevatorList &elevators, Float32 elapsedTime);
 
         void moveHorizontal(const Level &level, Float32 elapsedTime, Float32 speed);
 
         void moveVertical(const Level &level, Float32 elapsedTime, Float32 speed);
-
-        void checkKeys();
 
         void checkWater(World &world, Float32 elapsedTime);
 
@@ -436,17 +551,14 @@ namespace Duel6 {
 
         void checkStuck(const Level &level, Float32 elapsedTime);
 
-        bool hasFlag(Uint32 flag) const {
-            return (flags & flag) == flag;
-        }
+        bool hasFlag(Uint32 flag) const;
 
-        void setFlag(Uint32 flag) {
-            flags |= flag;
-        }
+        void setFlag(Uint32 flag);
 
-        void unsetFlag(Uint32 flag) {
-            flags &= ~flag;
-        }
+        void unsetFlag(Uint32 flag);
+
+    private:
+        void updateLoop(World &world, ElevatorList &elevators, Float32 elapsedTime);
     };
 }
 

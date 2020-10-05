@@ -33,6 +33,13 @@
 namespace Duel6 {
     class SlimeShot : public LegacyShot {
     public:
+        SlimeShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Orientation shotOrientation,
+                    const Weapon &weapon,
+                    Uint32 shotId,
+                    bool powerful,
+                    Int32 power, Float32 bulletSpeed,
+                    Vector &position,
+                    Vector &velocity);
         SlimeShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation shotOrientation);
     };
 }

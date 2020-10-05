@@ -30,6 +30,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <functional>
 #include "Type.h"
 #include "Context.h"
 #include "LevelList.h"
@@ -41,6 +42,7 @@
 #include "AppService.h"
 #include "Defines.h"
 #include "gui/Desktop.h"
+#include "gui/View.h"
 #include "gui/Button.h"
 #include "gui/CheckBox.h"
 #include "gui/ListBox.h"
@@ -48,12 +50,123 @@
 #include "gui/TextBox.h"
 #include "gui/Spinner.h"
 #include "GameMode.h"
+#include "net/ClientGameProxy.h"
+
+using Duel6::net::ClientGameProxy;
 
 namespace Duel6 {
     class Game; // Forward, TODO: Remove
 
-    class Menu
-            : public Context {
+    class Menu : public Context {
+    public:
+        class Server {
+
+        public:
+            enet_uint32 netAddress;
+            enet_uint16 netPort;
+            enet_uint32 publicIPAddress;
+            enet_uint16 publicPort;
+            enet_uint32 localAddress;
+            enet_uint16 localPort;
+            std::string address;
+            std::string port;
+            std::string publicIPAddressStr;
+            std::string publicPortStr;
+
+            std::string localAddressStr;
+            std::string localPortStr;
+            std::string descr;
+            std::string text;
+            bool enableNAT;
+        };
+
+        class ServerList {
+
+        public:
+            typedef std::vector<Server> list_t;
+            typedef std::function<void(list_t&)> callback_t;
+            typedef std::function<void()> callbackReset_t;
+
+        private:
+            list_t list;
+            callback_t defaultCallback = [](list_t&) {
+            };
+            callback_t callback = defaultCallback;
+
+        public:
+            callbackReset_t setCallback(callback_t);
+            void clearCallback() {
+                callback = defaultCallback;
+            }
+            void add(enet_uint32 netAddress, enet_uint16 netPort,
+                     enet_uint32 publicAddress, enet_uint16 publicPort,
+                     enet_uint32 localAddress, enet_uint16 localPort,
+                     const std::string &address, const std::string &port,
+                     const std::string &publicAddressStr, const std::string &publicPortStr,
+                     const std::string &localAddressStr, const std::string &localPortStr,
+                     const std::string &descr, const std::string &text,
+                     bool enableNAT);
+            void clear();
+            void notify();
+            const std::vector<Server>& get() const;
+
+        };
+        class NetConfig {
+        private:
+            union hostAddress {
+                address_t address;
+                uint8_t a[4];
+            };
+        public:
+            // address of the master server
+            std::string masterServer = "duel6-master.mrakonos.cz";
+            Int32 masterServerPort = 5902;
+
+            // single switch to disable any communication with the master
+            // TODO (not implemented yet)
+            bool enableMasterServer = false;
+
+            // publish the game to master server for others to discover
+            bool enableMasterDiscovery = false;
+
+            // enable NAT traversal (server/client)
+            //  - client: false means we won't be able to connect to NATed servers
+            //  - server: false means we need public IP address for others to be able to contact us
+            bool enableNATPunch = false;
+
+
+            // local IP address for contacting the master server (in case we have more network interfaces in the computer)
+            std::string localIPAddress = "0.0.0.0";
+
+            std::string serverDescription = "unnamed server";
+
+            // experimental feature
+            // - for public server on a public IP address
+            // - but requiring a NAT handshake
+            // this is mainly for development purposes
+            std::string publicIPAddress = "0.0.0.0";
+            Int32 publicPort = 5900;
+            enet_uint32 getPublicIPAddress(){
+                hostAddress addr;
+                addr.address = 0;
+                if(publicIPAddress == "0.0.0.0" || publicIPAddress == "any" || publicIPAddress.length() > 15 || publicIPAddress.length() < 7){
+                    return 0;
+                }
+                auto a = 0;
+                std::string buffer;
+                buffer.reserve(16);
+                for(size_t i = 0 ; i < publicIPAddress.length(); i++){
+                    if(publicIPAddress.compare(i,1,".") == 0 && a < 4){
+                        addr.a[a++] = std::stoi(buffer);
+                        buffer.clear();
+                    } else {
+                        buffer += publicIPAddress[i];
+                    }
+                }
+                addr.a[a] = std::stoi(buffer);
+                return addr.address;
+            }
+        };
     private:
         AppService &appService;
         Font &font;
@@ -61,9 +174,11 @@ namespace Duel6 {
         Renderer &renderer;
         Sound &sound;
         Game *game;
+        ClientGameProxy *clientGameProxy;
         std::vector<std::unique_ptr<GameMode>> gameModes;
         Gui::Desktop gui;
-        PlayerControlsManager controlsManager;
+        Gui::View * mainView;
+        PlayerControlsManager& controlsManager;
         PersonProfileList personProfiles;
         PlayerSounds defaultPlayerSounds;
         LevelList levelList;
@@ -73,16 +188,22 @@ namespace Duel6 {
         Gui::ListBox *scoreListBox;
         Gui::ListBox *eloListBox;
         Gui::Spinner *controlSwitch[D6_MAX_PLAYERS];
+        Gui::Spinner *teamControlSwitch[D6_MAX_PLAYERS];
         Gui::Textbox *textbox;
+        Gui::Textbox *host;
+        Gui::Textbox *port;
         Gui::Spinner *gameModeSwitch;
         Gui::CheckBox *globalAssistanceCheckBox;
         Gui::CheckBox *quickLiquidCheckBox;
+        Gui::CheckBox *reverseConnection; //experimental stuff
         Gui::Label *playersLabel;
         Size backgroundCount;
         Texture menuBannerTexture;
         Sound::Track menuTrack;
         bool playMusic;
-
+        NetConfig netConfig;
+        ServerList serverList;
+        Int32 pickedServerIndex;
     public:
         explicit Menu(AppService &appService);
 
@@ -90,6 +211,10 @@ namespace Duel6 {
 
         void setGameReference(Game &game) {
             this->game = &game;
+        }
+
+        void setClientGameProxyReference(ClientGameProxy &clientGameProxy){
+            this->clientGameProxy = &clientGameProxy;
         }
 
         void initialize();
@@ -124,9 +249,16 @@ namespace Duel6 {
 
         std::vector<std::string> listMaps();
 
-        void play(std::vector<std::string> levels);
+        bool play(std::vector<std::string> levels, bool networkGame);
+
+        void startDedicatedServer();
+
+        void serverlist();
 
     private:
+
+        void quit();
+
         void beforeStart(Context *prevContext) override;
 
         void beforeClose(Context *nextContext) override;
@@ -135,15 +267,19 @@ namespace Duel6 {
 
         void showMessage(const std::string &message);
 
-        void detectControls(Size playerIndex);
+        bool detectControls(Size playerIndex);
 
-        void play();
+        bool play(bool networkGame);
 
         void playPlayersSound(const std::string &name);
 
         void loadPersonProfiles(const std::string &path);
 
         void loadPersonData(const std::string &filePath);
+
+        void loadNetworkSettings(const std::string &filePath);
+
+        void saveNetworkSettings();
 
         PersonProfile *getPersonProfile(const std::string &name);
 
@@ -163,15 +299,25 @@ namespace Duel6 {
 
         bool question(const std::string &question);
 
+        bool question(const std::string &question, bool &cancel);
+
         bool deleteQuestion();
 
         int processEvents(bool single = true);
+
+        int processEvents(bool single, bool & cancelled);
 
         void consumeInputEvents();
 
         void shufflePlayers();
 
         void eloShufflePlayers();
+
+        void startServer();
+
+        void joinServer();
+
+        void joinServerFromServerList(Int32 index);
     };
 }
 

@@ -36,6 +36,7 @@ namespace Duel6 {
                                                                       *predator);
 
         for (auto &player : players) {
+            if(player.isDeleted()) continue;
             player.setEventListener(*eventListener);
             if (&player == predator) {
                 player.setBodyAlpha(0.1f);

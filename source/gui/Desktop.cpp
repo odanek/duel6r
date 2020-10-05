@@ -28,6 +28,7 @@
 #include <SDL2/SDL.h>
 #include "Desktop.h"
 #include "../Video.h"
+#include "View.h"
 
 namespace Duel6 {
     namespace Gui {
@@ -35,14 +36,26 @@ namespace Duel6 {
             Color bcgColor(192, 192, 192);
         }
 
-        Desktop::Desktop(Renderer &renderer)
-                : renderer(renderer) {}
+        Desktop::Desktop(Renderer &renderer, Font &font)
+            : renderer(renderer),
+              font(font) {
+            cursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+            cursorIBeam = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+            cursorNWSE = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+            cursorNESW = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+            cursorWE = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+            cursorNS = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
 
-        Desktop::~Desktop() {
+            SDL_SetCursor(cursorArrow);
         }
 
-        void Desktop::addControl(Control *control) {
-            controls.push_back(std::unique_ptr<Control>(control));
+        Desktop::~Desktop() {
+            SDL_FreeCursor(cursorArrow);
+            SDL_FreeCursor(cursorIBeam);
+            SDL_FreeCursor(cursorNWSE);
+            SDL_FreeCursor(cursorNESW);
+            SDL_FreeCursor(cursorWE);
+            SDL_FreeCursor(cursorNS);
         }
 
         void Desktop::screenSize(Int32 scrWidth, Int32 scrHeight, Int32 trX, Int32 trY) {
@@ -53,8 +66,9 @@ namespace Duel6 {
         }
 
         void Desktop::update(Float32 elapsedTime) {
-            for (auto &control : controls) {
-                control->update(elapsedTime);
+            removeClosedViews();
+            for (auto &view : viewStack) {
+                view->update(elapsedTime);
             }
         }
 
@@ -62,44 +76,79 @@ namespace Duel6 {
             renderer.quadXY(Vector(0, 0), Vector(screenWidth, screenHeight), bcgColor);
             renderer.setViewMatrix(Matrix::translate(Float32(trX), Float32(trY), 0));
 
-            for (auto &control : controls) {
-                control->draw(renderer, font);
+            for (auto &view : viewStack) {
+                view->draw(renderer, font);
             }
 
             renderer.setViewMatrix(Matrix::IDENTITY);
         }
 
-        void Desktop::keyEvent(const KeyPressEvent &event) {
-            for (auto &control : controls) {
-                control->keyEvent(event);
+        bool Desktop::keyEvent(const KeyPressEvent &event) {
+            for (auto view = viewStack.rbegin(); view != viewStack.rend(); view++) {
+                if ((*view)->keyEvent(event)) return true;
             }
+            return false;
         }
 
         void Desktop::textInputEvent(const TextInputEvent &event) {
-            for (auto &control : controls) {
-                control->textInputEvent(event);
-            }
+            viewStack.back()->textInputEvent(event);
         }
 
         void Desktop::mouseButtonEvent(const MouseButtonEvent &event) {
             MouseButtonEvent translatedEvent = event.translate(-trX, -trY);
-            for (auto &control : controls) {
-                control->mouseButtonEvent(translatedEvent);
-            }
+            viewStack.back()->mouseButtonEvent(translatedEvent);
         }
 
         void Desktop::mouseMotionEvent(const MouseMotionEvent &event) {
+            SDL_SetCursor(cursorArrow);
             MouseMotionEvent translatedEvent = event.translate(-trX, -trY);
-            for (auto &control : controls) {
-                control->mouseMotionEvent(translatedEvent);
-            }
+            viewStack.back()->mouseMotionEvent(translatedEvent);
         }
 
         void Desktop::mouseWheelEvent(const MouseWheelEvent &event) {
             MouseWheelEvent translatedEvent = event.translate(-trX, -trY);
-            for (auto &control : controls) {
-                control->mouseWheelEvent(translatedEvent);
-            }
+            viewStack.back()->mouseWheelEvent(translatedEvent);
         }
+
+        Font& Desktop::getFont() {
+            return font;
+        }
+
+        void Desktop::addView(View *view) {
+            viewStack.push_back(std::unique_ptr<View>(view));
+        }
+
+        void Desktop::closeView(View *closedView) {
+            closingViews.push_back(closedView);
+        }
+
+        void Desktop::setIBeamCursor() {
+            SDL_SetCursor(cursorIBeam);
+        }
+        void Desktop::setNWSECursor() {
+            SDL_SetCursor(cursorNWSE);
+        }
+
+        void Desktop::setNESWCursor() {
+            SDL_SetCursor(cursorNESW);
+        }
+
+        void Desktop::setWECursor() {
+            SDL_SetCursor(cursorWE);
+        }
+
+        void Desktop::setNSCursor() {
+            SDL_SetCursor(cursorNS);
+        }
+
+        void Desktop::removeClosedViews() {
+            for (auto closedView = closingViews.begin(); closedView != closingViews.end(); closedView++) {
+                viewStack.remove_if([&closedView](std::unique_ptr<View> &val) {
+                    return val.get() == *closedView;
+                });
+            }
+            closingViews.clear();
+        }
+
     }
 }

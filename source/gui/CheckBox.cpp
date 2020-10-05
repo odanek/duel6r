@@ -29,9 +29,10 @@
 
 namespace Duel6 {
     namespace Gui {
-    CheckBox::CheckBox(Desktop &desk, bool value)
-                : Control(desk) {
+        CheckBox::CheckBox(View &parentView, bool value)
+            : Control(parentView) {
             checked = value;
+            focusable = true;
         }
 
         void CheckBox::setLabel(const std::string &label) {
@@ -49,6 +50,7 @@ namespace Duel6 {
             if (Control::mouseIn(event, x, y, width, height)) {
                 if (event.getButton() == SysEvent::MouseButton::LEFT) {
                     if (event.isPressed()) {
+                        focus();
                         toggle();
                     }
                 }
@@ -58,11 +60,36 @@ namespace Duel6 {
         void CheckBox::draw(Renderer &renderer, const Font &font) const {
             Int32 px, py;
 
-            drawFrame(renderer, x, y, 16, 16, checked);
+            drawFrame(renderer, x, y, 16, 16, checked, focused);
             px = x + 32;
             py = y - (height >> 1) - 7;
-            font.print(px, py, Color(0), label);
+            font.print(px, py, Color::BLACK, label);
         }
 
+        bool CheckBox::keyEvent(const KeyPressEvent &event) {
+            switch (event.getCode()) {
+            case (SDLK_RETURN):
+            case (SDLK_KP_ENTER):
+            case (SDLK_SPACE):
+            case (SDLK_KP_SPACE): {
+                toggle();
+                return true;
+                break;
+            }
+            case (SDLK_LEFT):
+            case (SDLK_UP): {
+                focusPrevious();
+                return true;
+                break;
+            }
+            case (SDLK_RIGHT):
+            case (SDLK_DOWN): {
+                focusNext();
+                return true;
+                break;
+            }
+            }
+            return false;
+        }
     }
 }

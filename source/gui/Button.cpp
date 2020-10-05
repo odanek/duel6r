@@ -26,11 +26,13 @@
 */
 
 #include "Button.h"
+#include "View.h"
 
 namespace Duel6 {
     namespace Gui {
-        Button::Button(Desktop &desk)
-                : Control(desk) {
+        Button::Button(View &parentView)
+            : Control(parentView) {
+            focusable = true;
             pressed = false;
         }
 
@@ -48,9 +50,36 @@ namespace Duel6 {
             height = H;
         }
 
+        bool Button::keyEvent(const KeyPressEvent &event) {
+            switch (event.getCode()) {
+            case (SDLK_RETURN):
+            case (SDLK_KP_ENTER):
+            case (SDLK_SPACE):
+            case (SDLK_KP_SPACE): {
+                fireClickListeners();
+                firePressListeners(true);
+                return true;
+                break;
+            }
+            case (SDLK_LEFT):
+            case (SDLK_UP): {
+                parent->focusPrevious();
+                return true;
+                break;
+            }
+            case (SDLK_RIGHT):
+            case (SDLK_DOWN): {
+                parent->focusNext();
+                return true;
+                break;
+            }
+            }
+            return false;
+        }
         void Button::mouseButtonEvent(const MouseButtonEvent &event) {
             if (Control::mouseIn(event, x, y, width, height)) {
                 if (event.getButton() == SysEvent::MouseButton::LEFT) {
+                    focus();
                     if (!pressed && event.isPressed()) {
                         pressed = true;
                         firePressListeners(true);
@@ -72,20 +101,27 @@ namespace Duel6 {
 
         void Button::draw(Renderer &renderer, const Font &font) const {
             Int32 px, py;
-
-            drawFrame(renderer, x, y, width, height, pressed);
-            px = x + (width >> 1) - (Int32(caption.length()) << 2) + pressed;
-            py = y - (height >> 1) - 7 - pressed;
-            font.print(px, py, Color(0), caption);
+            Int32 captionWidth = font.getTextWidth(caption, 16);
+            drawFrame(renderer, x, y, width, height, pressed, focused);
+            px = x + (width / 2) - (captionWidth / 2) + -1 + pressed;
+            py = y - (height / 2) - 8 - pressed;
+            Color color = enabled ? Color::BLACK : Color::GRAY;
+            font.print(px, py, color, caption);
         }
 
         void Button::firePressListeners(bool pressed) {
+            if(!enabled){
+                return;
+            }
             for (auto &listener : pressListeners) {
                 listener(*this, pressed);
             }
         }
 
         void Button::fireClickListeners() {
+            if(!enabled){
+                return;
+            }
             for (auto &listener : clickListeners) {
                 listener(*this);
             }

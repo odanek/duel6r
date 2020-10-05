@@ -28,7 +28,7 @@
 #ifndef DUEL6_GAMESETTINGS_H
 #define DUEL6_GAMESETTINGS_H
 
-#include <unordered_set>
+#include <set>
 #include <utility>
 #include "Type.h"
 #include "ScreenMode.h"
@@ -48,7 +48,7 @@ namespace Duel6 {
 
     class GameSettings {
     public:
-        typedef std::unordered_set<Weapon, Weapon::Hash> EnabledWeapons;
+        typedef std::set<Uint8> EnabledWeapons;
 
     private:
         std::pair<Int32, Int32> ammoRange;
@@ -61,6 +61,7 @@ namespace Duel6 {
         bool ghostMode;
         bool quickLiquid;
         bool globalAssistances;
+        bool showNetStat = false;
         ShotCollisionSetting shotCollision;
         EnabledWeapons enabledWeapons;
         LevelSelectionMode levelSelectionMode;
@@ -144,6 +145,15 @@ namespace Duel6 {
             return *this;
         }
 
+        bool isShowNetStat() const {
+            return showNetStat;
+        }
+
+        GameSettings &setShowNetStat(bool showNetStat) {
+            this->showNetStat = showNetStat;
+            return *this;
+        }
+
         bool isShowRanking() const {
             return showRanking;
         }
@@ -163,6 +173,8 @@ namespace Duel6 {
         }
 
         GameSettings &enableWeapon(const Weapon &weapon, bool enable);
+
+        void setEnabledWeapons(const EnabledWeapons &enabledWeapons);
 
         bool isWeaponEnabled(const Weapon &weapon) const;
 

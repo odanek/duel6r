@@ -33,7 +33,17 @@ namespace Duel6 {
         const AnimationEntry shotAnimation[] = {0, 820, -1, 0};
         const AnimationEntry boomAnimation[] = {0, 164, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
-
+    SlingShot::SlingShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Orientation shotOrientation,
+                const Weapon &weapon,
+                Uint32 shotId,
+                bool powerful,
+                Int32 power, Float32 bulletSpeed,
+                Vector &position,
+                Vector &velocity)
+        : LegacyShot(owner, world, legacyWeapon, shotAnimation, boomAnimation, shotOrientation, collistionRectangle,
+            weapon, shotId, powerful, power,
+            bulletSpeed, position, velocity) {
+    }
     SlingShot::SlingShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation)
             : LegacyShot(player, world, weapon, shotAnimation, boomAnimation, orientation, collistionRectangle) {
     }

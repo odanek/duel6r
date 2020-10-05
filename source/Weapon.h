@@ -40,14 +40,25 @@ namespace Duel6 {
     class World;
     class GameSettings;
     class Player;
-
+    class Weapon;
+    class Shot;
     class WeaponImpl {
+    private:
+        Uint8 id;
     public:
         virtual ~WeaponImpl() {}
 
         virtual std::string getName() const = 0;
 
         virtual Float32 getReloadInterval() const = 0;
+
+        virtual std::unique_ptr<Shot> shoot(Player &player, Orientation orientation, World &world,
+                           const Weapon &weapon,
+                           Uint32 shotId,
+                           bool powerful,
+                           Int32 power, Float32 bulletSpeed,
+                           Vector &position,
+                           Vector &velocity) const = 0;
 
         virtual void shoot(Player &player, Orientation orientation, World &world) const = 0;
 
@@ -58,17 +69,21 @@ namespace Duel6 {
         virtual Int32 getBonusTextureIndex() const = 0;
 
         virtual bool isChargeable() const = 0;
+
+        virtual void playShotSample() const {
+
+        }
+
+        Uint8 getId() const {
+            return id;
+        }
+
+        void setId(Uint8 id) {
+            this->id = id;
+        }
     };
 
     class Weapon final {
-    public:
-        struct Hash {
-            std::size_t operator()(const Weapon &val) const {
-                std::hash<WeaponImpl *> referenceHash;
-                return referenceHash(val.impl);
-            }
-        };
-
     private:
         typedef std::unique_ptr<WeaponImpl> WeaponImplPtr;
 
@@ -86,9 +101,22 @@ namespace Duel6 {
     public:
         Weapon();
 
+        bool operator==(const Weapon &rhs) {
+            return impl->getId() == rhs.impl->getId();
+        }
+
         std::string getName() const;
 
+        Uint8 getId() const;
+
         Float32 getReloadInterval() const;
+
+        std::unique_ptr<Shot> shoot(Player &player, Orientation orientation, World &world,
+                           Uint32 shotId,
+                           bool powerful,
+                           Int32 power, Float32 bulletSpeed,
+                           Vector &position,
+                           Vector &velocity) const;
 
         void shoot(Player &player, Orientation orientation, World &world) const;
 
@@ -104,10 +132,14 @@ namespace Duel6 {
 
         bool isChargeable() const;
 
+        void playShotSample() const;
+
     public:
         static const std::vector<Weapon> &values();
 
         static void initialize(Sound &sound, TextureManager &textureManager);
+
+        static const Weapon &getById(Uint8 id);
 
         static const Weapon &getRandomEnabled(const GameSettings &settings);
     };

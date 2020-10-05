@@ -34,7 +34,12 @@
 #include "Water.h"
 
 namespace Duel6 {
+    namespace net{
+        class Block;
+    };
+
     class Block {
+        friend class Duel6::net::Block;
     public:
         typedef std::vector<Block> Meta;
 

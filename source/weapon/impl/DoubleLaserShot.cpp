@@ -36,7 +36,17 @@ namespace Duel6 {
                                                   16, 22, 16, 23, 16, 24, 16, 25, 16, 26, 16, 27, 16, 28, 16, 29, 16, 30, 16, 31,
                                                   16, 32, 16, 33, 16, 34, 16, 35, 16, -1, 0};
     }
-
+    DoubleLaserShot::DoubleLaserShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Orientation shotOrientation,
+                const Weapon &weapon,
+                Uint32 shotId,
+                bool powerful,
+                Int32 power, Float32 bulletSpeed,
+                Vector &position,
+                Vector &velocity)
+        : LegacyShot(owner, world, legacyWeapon, shotAnimation, boomAnimation, shotOrientation, collistionRectangle,
+            weapon, shotId, powerful, power,
+            bulletSpeed, position, velocity) {
+    }
     DoubleLaserShot::DoubleLaserShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation)
             : LegacyShot(player, world, weapon, shotAnimation, boomAnimation, orientation, collistionRectangle) {
     }

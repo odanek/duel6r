@@ -39,7 +39,7 @@
 #include "math/Math.h"
 #include "Video.h"
 #include "PlayerEventListener.h"
-
+#include "Game.h"
 namespace Duel6 {
     //TODO: This still needs further fine-tuning for good jumping experience
     static const float GRAVITATIONAL_ACCELERATION = -11.0f;
@@ -49,14 +49,27 @@ namespace Duel6 {
     // Very important fun aspect!
     static const float SHOT_FORCE_FACTOR = 0.05f;
 
-    Player::Player(Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls)
-            : person(person),
+    Player::Player(Game *game, Person &person, const PlayerSkin &skin, const PlayerSounds &sounds, const PlayerControls &controls,
+                   Int32 id, Int32 team,
+                   Int32 clientId,
+                   Int32 clientLocalId,
+                   size_t pos)
+            : game(game),
+              person(&person),
               skin(skin),
-              animations(skin.getAnimations()),
-              sounds(sounds),
-              controls(controls),
-              orientation(Orientation::Left) {
+              animations(&skin.getAnimations()),
+              sounds(&sounds),
+              controls(&controls),
+              orientation(Orientation::Left),
+              id(id),
+              team(team),
+              clientId(clientId),
+              clientLocalId(clientLocalId),
+              pos(pos){
+        flags = 0;
         camera.rotate(180.0, 0.0, 0.0);
+        controllerState = 0;
+        unconfirmedInputs.fill(0);
     }
 
     Player::~Player() {
@@ -64,18 +77,20 @@ namespace Duel6 {
 
     void Player::startRound(World &world, Int32 startBlockX, Int32 startBlockY, Int32 ammo, const Weapon &weapon) {
         this->world = &world;
+        unconfirmedInputs.fill(0);
         collider.initPosition(Float32(startBlockX), Float32(startBlockY) + 0.0001f);
-
-        sprite = world.getSpriteList().add(animations.getStand().get(), skin.getTexture());
+        confirmedCollider = collider;
+        sprite = world.getSpriteList().add(animations->getStand().get(), skin.getTexture());
         sprite->setPosition(getSpritePosition(), 0.5f);
-
         this->weapon = weapon;
         gunSprite = weapon.makeSprite(world.getSpriteList());
 
         flags = FlagHasGun;
+        confirmedFlags = flags;
         orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
         timeToReload = weapon.isChargeable() ? getReloadInterval() : 0;
         life = D6_MAX_LIFE;
+        confirmedLife = life;
         air = D6_MAX_AIR;
         this->ammo = ammo;
         timeSinceHit = 1.0f ;
@@ -90,7 +105,7 @@ namespace Duel6 {
         water.feetInWater = Water::NONE;
 
         indicators.hideAll(false);
-        indicators.getName().show(4.0f);
+        indicators.getName().show(400.0f);
         indicators.getBonus().show(bonusDuration);
         indicators.getBullets().show(4.0f);
 
@@ -99,6 +114,9 @@ namespace Duel6 {
     }
 
     void Player::endRound() {
+        if(isDeleted()){
+            return;
+        }
         Int32 gameTime = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
         getPerson().addTotalGameTime(gameTime);
         if (isAlive()) {
@@ -134,7 +152,108 @@ namespace Duel6 {
             }
         }
     }
+     Player::Player(Player &&r):
+          game(r.game),
+          deleted(r.deleted),
+          person(r.person),
+          skin(r.skin),
+          camera(r.camera),
+          cameraFov(r.cameraFov),
+          cameraTolerance(r.cameraTolerance),
+          animations(r.animations),
+          sounds(r.sounds),
+          controls(r.controls),
+          view(r.view),
+          water(r.water),
+          sprite(r.sprite),
+          gunSprite(r.gunSprite),
+          flags(r.flags),
+          orientation(r.orientation),
+          life(r.life),
+          air(r.air),
+          ammo(r.ammo),
+          bonus(r.bonus),
+          roundKills(r.roundKills),
+          timeToReload(r.timeToReload),
+          bonusRemainingTime(r.bonusRemainingTime),
+          bonusDuration(r.bonusDuration),
+          timeSinceHit(r.timeSinceHit),
+          timeStuckInWall(r.timeStuckInWall),
+          tempSkinDuration(r.tempSkinDuration),
+          alpha(r.alpha),
+          weapon(r.weapon),
+          eventListener(r.eventListener),
+          world(r.world),
+          bodyAlpha(r.bodyAlpha),
+          roundStartTime(r.roundStartTime),
+          indicators(r.indicators),
+          controllerState(r.controllerState),
+          collider(r.collider),
+          id(r.id),
+          team(r.team),
+          clientId(r.clientId),
+          clientLocalId(r.clientLocalId),
+          local(r.local),
+          pos(r.pos),
+          tick(r.tick),
+          lastConfirmedTick(r.lastConfirmedTick),
+          compensatedUntilTick(r.compensatedUntilTick),
+          lateTicks(r.lateTicks),
+          unconfirmedInputs(r.unconfirmedInputs),
+          isCompensating(r.isCompensating) {
+        }
 
+    Player & Player::operator=(Player &&r){
+        game = r.game;
+        deleted = r.deleted;
+        person = r.person;
+        skin = r.skin;
+        camera = r.camera;
+        cameraFov = r.cameraFov;
+        cameraTolerance = r.cameraTolerance;
+        animations = r.animations;
+        sounds = r.sounds;
+        controls = r.controls;
+        view = r.view;
+        water = r.water;
+        sprite = r.sprite;
+        gunSprite = r.gunSprite;
+        flags = r.flags;
+        orientation = r.orientation;
+        life = r.life;
+        air = r.air;
+        ammo = r.ammo;
+        bonus = r.bonus;
+        roundKills = r.roundKills;
+        timeToReload = r.timeToReload;
+        bonusRemainingTime = r.bonusRemainingTime;
+        bonusDuration = r.bonusDuration;
+        timeSinceHit = r.timeSinceHit;
+        timeStuckInWall = r.timeStuckInWall;
+        tempSkinDuration = r.tempSkinDuration;
+        alpha = r.alpha;
+        weapon = r.weapon;
+        eventListener = r.eventListener;
+        world = r.world;
+        bodyAlpha = r.bodyAlpha;
+        roundStartTime = r.roundStartTime;
+        indicators = r.indicators;
+        controllerState = r.controllerState;
+        collider = r.collider;
+        id = r.id;
+        team = r.team;
+        clientId = r.clientId;
+        clientLocalId = r.clientLocalId;
+        local = r.local;
+        pos = r.pos;
+        tick = r.tick;
+        lastConfirmedTick = r.lastConfirmedTick;
+        compensatedUntilTick = r.compensatedUntilTick;
+        lateTicks = r.lateTicks;
+        unconfirmedInputs = r.unconfirmedInputs;
+        isCompensating = r.isCompensating;
+        return *this;
+    }
     void Player::moveVertical(const Level &level, Float32 elapsedTime, Float32 speed) {
         if (hasFlag(FlagMoveUp) && this->collider.velocity.y <= 0 && (collider.isOnHardSurface())) {
             if (!collider.isUnderHardSurface()) {
@@ -188,7 +307,7 @@ namespace Duel6 {
 
 
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
-
+        if(!game->isServer && !local){ return; }
         if (isReloading())
             return;
 
@@ -229,7 +348,7 @@ namespace Duel6 {
         setFlag(FlagPick);
         unsetFlag(FlagMoveLeft | FlagMoveRight);
 
-        this->weapon = weapon;
+        replaceWeapon(weapon);
         ammo = bullets;
         if (weapon.isChargeable()) {
             timeToReload = getReloadInterval();
@@ -239,18 +358,21 @@ namespace Duel6 {
         indicators.getReload().show(timeToReload + Indicator::FADE_DURATION);
         indicators.getBullets().show();
 
-        world->getSpriteList().remove(gunSprite);
-        gunSprite = weapon.makeSprite(world->getSpriteList());
-
         return *this;
     }
 
-    void Player::makeMove(const Level &level, Float32 elapsedTime) {
+    void Player::replaceWeapon(Weapon weapon){
+        this->weapon = weapon;
+        world->getSpriteList().remove(gunSprite);
+        gunSprite = weapon.makeSprite(world->getSpriteList());
+    }
+
+    void Player::makeMove(const Level &level, ElevatorList &elevators, Float32 elapsedTime) {
         Float32 speed = getSpeed() * elapsedTime;
 
         moveVertical(level, elapsedTime, speed);
         moveHorizontal(level, elapsedTime, speed);
-        collider.collideWithElevators(world->getElevatorList(), elapsedTime, speed);
+        collider.collideWithElevators(elevators, elapsedTime, speed);
         collider.collideWithLevel(level, elapsedTime, speed);
 
         if (isPickingGun() && sprite->isFinished()) {
@@ -315,6 +437,11 @@ namespace Duel6 {
     }
 
     void Player::checkKeys() {
+
+        if (isDeleted()){
+            return;
+        }
+
         if (!isAlive() && !isGhost()) {
             return;
         }
@@ -370,14 +497,20 @@ namespace Duel6 {
             }
         }
 
-        unsetFlag(FlagKnee);
         if (controllerState & ButtonDown) {
             fall();
+        } else {
+            unsetFlag(FlagKnee);
         }
     }
 
     void Player::updateControllerStatus() {
-        controllerState = 0;
+        if(local){
+            controllerState = 0;
+        } else {
+            return;
+        }
+        const PlayerControls & controls = *this->controls;
         if (controls.getLeft().isPressed()) {
             controllerState |= ButtonLeft;
         }
@@ -401,16 +534,88 @@ namespace Duel6 {
         }
     }
 
+    void Player::updateLoop(World &world, ElevatorList &elevators, Float32 elapsedTime) {
+        checkKeys();
+        updateDimensions();
+        makeMove(world.getLevel(), elevators, elapsedTime);
+        setAnm();
+    }
+
+    void Player::compensateLag(World &world, Float32 elapsedTime) {
+        if(confirmedFlags & FlagDead){ // cancel  out any potential client-only deaths
+            setFlag(FlagDead);
+        } else {
+            unsetFlag(FlagDead);
+        }
+        if(confirmedFlags & FlagLying){
+            setFlag(FlagLying);
+        } else {
+            unsetFlag(FlagLying);
+        }
+        if(confirmedFlags & FlagDying){
+            setFlag(FlagDying);
+        } else {
+            unsetFlag(FlagDying);
+        }
+        // optimisation only, no need to re-run whole thing if we don't have updated position from the server
+        if(compensatedUntilTick == lastConfirmedTick){
+            compensationResults[tick & 127] = collider;
+            return;
+        }
+        realPos[tick & 127] = collider; //for debug (we could draw something in worldrenderer)
+        Uint32 backupFlags = flags;
+        uint16_t ticks = tick - lastConfirmedTick;
+        if(ticks > 126){ // this happens after joining the game
+            collider = confirmedCollider;
+            orientation = confirmedOrientation;
+            flags = confirmedFlags;
+        }
+        //ticks == 1 happens in low latency game, no need to run lag compensation
+        //lastConfirmedTick == 0 is initial game state (and at game ticks wrap-around, but who cares)
+        //ticks > 126 is unwanted run-away state
+        if(ticks == 1 || lastConfirmedTick == 0 || ticks > 126) {
+            flags = confirmedFlags;
+            setLife(confirmedLife);
+            orientation = confirmedOrientation;
+            if(isAlive()) { // if we are not dead yet, restore flags
+                flags = backupFlags;
+            }
+            compensationResults[(tick)& 127] = collider;
+            return;
+        }
+        isCompensating = true;
+        collider = confirmedCollider;
+        flags = confirmedFlags;
+        setLife(confirmedLife);
+        // In the future we might interpolate the positions based on previous position
+        // CollidingEntity previousResult = compensationResults[(lastConfirmedTick)& 127];
+        //
+        for (uint16_t i = 1; i <= ticks; i++) {
+            controllerState = unconfirmedInputs[(tick - ticks + i)& 127];
+            updateLoop(world, world.getElevatorList(), elapsedTime);
+            // we should store the collider in this loop, if we want to be dead-serious precise and
+            // use it as `previousResult` above
+            // compensationResults[tick & 127] = collider;
+        }
+        compensatedUntilTick = lastConfirmedTick;
+        compensationResults[tick & 127] = collider;
+        isCompensating = false;
+    }
+
     void Player::update(World &world, ScreenMode screenMode, Float32 elapsedTime) {
+        tick++;
+        if(!local && !game->isServer){
+            collider = confirmedCollider;
+            orientation = confirmedOrientation;
+            flags = confirmedFlags;
+            life = confirmedLife;
+        }
         checkWater(world, elapsedTime);
         if (isAlive()) {
             world.getBonusList().checkBonus(*this);
         }
 
-        checkKeys();
-        updateDimensions();
-        makeMove(world.getLevel(), elapsedTime);
-        setAnm();
+        updateLoop(world, world.getElevatorList(), elapsedTime);
 
         // Drop gun if still has it and died
         if (isLying() && hasGun()) {
@@ -453,6 +658,7 @@ namespace Duel6 {
 
     void Player::setAnm() {
         Animation animation;
+        const PlayerAnimations & animations = *this->animations;
         sprite->setSpeed(1.0f);
         if (!isAlive() && !isGhost()) {
             if (isLying()) {
@@ -463,6 +669,7 @@ namespace Duel6 {
                     }
                     animation = animations.getDying().get();
                 } else { //dead
+                    animation = animations.getDying().get();
                     if (!collider.isOnHardSurface()) {
                         animation = animations.getDeadFall().get();
                     } else {
@@ -470,11 +677,7 @@ namespace Duel6 {
                             animation = animations.getDeadHit().get();
                             sprite->setLooping(AnimationLooping::OnceAndStop);
                         } else {
-                            if (sprite->isFinished()) {
-                                animation = animations.getDeadLying().get();
-                            } else {
-                                animation = sprite->getAnimation();
-                            }
+                            animation = animations.getDeadLying().get();
                         }
                     }
                 }
@@ -606,7 +809,7 @@ namespace Duel6 {
             estimatedShotVector.x = shotVector.x;    //makes sure that close-up shots have the right effect
         }
         collider.externalForces += estimatedShotVector.unit() * amount * SHOT_FORCE_FACTOR;
-        if (isInvulnerable() || !isInGame()) {
+        if (isInvulnerable() || isDeleted()) {
             return false;
         } else if (!isAlive()) {
             shot.onHitPlayer(*this, directHit, hitPoint, *world);
@@ -643,7 +846,7 @@ namespace Duel6 {
     }
 
     bool Player::hit(Float32 amount) {
-        if (isInvulnerable() || !isAlive()) {
+        if (isInvulnerable() || !isAlive() || isDeleted()) {
             return false;
         }
 
@@ -683,15 +886,20 @@ namespace Duel6 {
             }
         }
 
-        if (outOfAir && hit(amount)) {
-            playSound(PlayerSounds::Type::Drowned);
-            return true;
+        if (game->isServer || !game->networkGame) {
+            if (outOfAir && hit(amount)) {
+                playSound(PlayerSounds::Type::Drowned);
+                return true;
+            }
         }
-
         return false;
     }
 
     void Player::dropWeapon(const Level &level) {
+        if(isCompensating) {
+            return;
+        }
+
         if (!hasGun()) {
             return;
         }
@@ -777,12 +985,19 @@ namespace Duel6 {
         }
     }
 
+    void Player::updateBonus(const BonusType *type, Float32 duration, Float32 remainingTime) {
+        bonus = type;
+        bonusRemainingTime = remainingTime;
+        bonusDuration = duration;
+        indicators.getBonus().show(bonusDuration);
+    }
+
     Player &Player::setBonus(const BonusType *type, Int32 duration) {
         if (type == bonus) {
             bonusRemainingTime += Float32(duration) / 2;
             bonusDuration += Float32(duration) / 2;
         } else {
-            if (bonus != BonusType::NONE) {
+            if (bonus != BonusType::NONE && bonus != nullptr) { //TODO figure out why this is sometimes nullptr
                 bonus->onExpire(*this, *world);
             }
             bonus = type;
@@ -795,7 +1010,9 @@ namespace Duel6 {
         indicators.getBonus().show(bonusDuration);
         return *this;
     }
-
+    void Player::setPosition(float x, float y, float z){
+        collider.setPosition(x,y,z);
+    }
     void Player::die() {
         setFlag(FlagDying | FlagLying);
         unsetFlag(FlagMoveUp | FlagMoveDown | FlagMoveLeft | FlagMoveRight | FlagKnee | FlagPick);
@@ -808,5 +1025,77 @@ namespace Duel6 {
 
     const CollidingEntity &Player::getCollider() const {
         return collider;
+    }
+
+    CollidingEntity &Player::getCollider() {
+        return collider;
+    }
+
+    Int32 Player::getTeam() const{
+        return team;
+    }
+
+    void Player::setTeam(Int32 team) {
+        this->team = team;
+    }
+
+    Int32 Player::getClientId() const{
+        return clientId;
+    }
+
+    void Player::setClientId(Int32 clientId) {
+        this->clientId = clientId;
+    }
+
+    Int32 Player::getClientLocalId() const{
+        return clientLocalId;
+    }
+
+    void Player::setClientLocalId(Int32 clientLocalId) {
+        this->clientLocalId = clientLocalId;
+    }
+
+    void Player::playSound(PlayerSounds::Type type) const {
+        game->playSample(*this, type);
+    }
+
+    Int32 Player::getId() const
+    {
+        return id;
+    }
+
+    void Player::setId(Int32 id) {
+        this->id = id;
+    }
+
+    bool Player::isDeleted() const {
+        return deleted;
+    }
+
+    void Player::setDeleted(bool value) {
+        die();
+        sprite->setDraw(false);
+        this->deleted = value;
+    }
+
+
+    Float32 Player::getAlpha() const {
+        return alpha;
+    }
+
+    Float32 Player::getBodyAlpha() const {
+        return bodyAlpha;
+    }
+
+    bool Player::hasFlag(Uint32 flag) const {
+        return (flags & flag) == flag;
+    }
+
+    void Player::setFlag(Uint32 flag) {
+        flags |= flag;
+    }
+
+    void Player::unsetFlag(Uint32 flag) {
+        flags &= ~flag;
     }
 }

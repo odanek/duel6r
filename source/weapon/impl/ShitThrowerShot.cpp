@@ -33,7 +33,20 @@ namespace Duel6 {
         const AnimationEntry shotAnimation[] = {0, 164, 1, 164, 2, 164, 1, 164, -1, 0};
         const AnimationEntry boomAnimation[] = {0, 164, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
-
+    ShitThrowerShot::ShitThrowerShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Orientation shotOrientation,
+                                     PlayerSkin &brownSkin,
+                                     const Weapon &weapon,
+                                     Uint32 shotId,
+                                     bool powerful,
+                                     Int32 power,
+                                     Float32 bulletSpeed,
+                                     Vector &position,
+                                     Vector &velocity)
+        : LegacyShot(owner, world, legacyWeapon, shotAnimation, boomAnimation, shotOrientation, collistionRectangle,
+              weapon, shotId, powerful, power,
+              bulletSpeed, position, velocity),
+          brownSkin(brownSkin) {
+    }
     ShitThrowerShot::ShitThrowerShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation orientation,
                                      PlayerSkin &brownSkin)
             : LegacyShot(player, world, weapon, shotAnimation, boomAnimation, orientation, collistionRectangle), brownSkin(brownSkin) {

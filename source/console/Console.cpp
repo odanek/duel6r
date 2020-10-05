@@ -34,7 +34,9 @@ Popis: Hlavni funkce
 #include <string.h>
 #include "ConsoleException.h"
 #include "Console.h"
-
+#if defined(D6_RENDERER_HEADLESS)
+#include <iostream>
+#endif
 namespace Duel6 {
     Console::Console(Uint32 flags) {
         visible = false;
@@ -72,6 +74,11 @@ namespace Duel6 {
     }
 
     Console &Console::print(const std::string &str) {
+#if defined(D6_RENDERER_HEADLESS)
+        std::cout << str;
+        return *this;
+#else
+
         for (size_t pos = 0; pos < str.length(); ++pos) {
             char tx = str[pos];
 
@@ -99,6 +106,7 @@ namespace Duel6 {
 
         scroll = 0;
         return *this;
+#endif
     }
 
     Console &Console::printLine(const std::string &str) {

@@ -53,6 +53,9 @@ namespace Duel6 {
         Vector(const Vector &v) = default;
 
         Vector &operator=(const Vector &v) = default;
+        Vector(Vector &&v) = default;
+
+        Vector &operator=(Vector &&v) = default;
 
         Vector(Float32 x, Float32 y, Float32 z = 0)
                 : x(x), y(y), z(z) {}

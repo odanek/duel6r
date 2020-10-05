@@ -40,12 +40,12 @@ namespace Duel6 {
         private:
             std::vector<PressCallback> pressListeners;
             std::vector<ClickCallback> clickListeners;
-            Int32 width, height;
+            Int32 width = 0, height = 0;
             bool pressed;
             std::string caption;
 
         public:
-            explicit Button(Desktop &desk);
+            explicit Button(View &parentView);
 
             ~Button();
 
@@ -61,12 +61,12 @@ namespace Duel6 {
                 return Control::Type::Button;
             }
 
-            Button &onPress(PressCallback listener) {
+            Button& onPress(PressCallback listener) {
                 pressListeners.push_back(listener);
                 return *this;
             }
 
-            Button &onClick(ClickCallback listener) {
+            Button& onClick(ClickCallback listener) {
                 clickListeners.push_back(listener);
                 return *this;
             }
@@ -77,6 +77,8 @@ namespace Duel6 {
             void mouseButtonEvent(const MouseButtonEvent &event) override;
 
             void mouseMotionEvent(const MouseMotionEvent &event) override;
+
+            bool keyEvent(const KeyPressEvent &event) override;
 
         private:
             void firePressListeners(bool pressed);

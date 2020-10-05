@@ -80,7 +80,7 @@ namespace Duel6 {
         bool playing;
         std::vector<Mix_Music *> modules;
         std::vector<Mix_Chunk *> samples;
-
+        bool headless = false;
     public:
         Sound(Int32 channels, Console &console);
 

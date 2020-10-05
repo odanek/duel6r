@@ -35,28 +35,31 @@
 #elif defined(D6_RENDERER_GLES3)
 #include "renderer/es3/GLES3Renderer.h"
 #elif defined(D6_RENDERER_GL4)
-
 #include "renderer/gl4/GL4Renderer.h"
-
+#elif defined(D6_RENDERER_HEADLESS)
+#include "renderer/headless/HeadlessRenderer.h"
 #endif
 
 namespace Duel6 {
     Video::Video(const std::string &name, const std::string &icon, Console &console) {
         // Get current video mode
+
+        // Set graphics mode
+        view = ViewParameters(1.0f, 40.0f, 65.0f);
+#if !defined(D6_RENDERER_HEADLESS)
         SDL_DisplayMode currentVideoMode;
         if (SDL_GetCurrentDisplayMode(0, &currentVideoMode)) {
             D6_THROW(VideoException, std::string("Unable to determine current video mode: ") + SDL_GetError());
         }
 
-        // Set graphics mode
-        view = ViewParameters(1.0f, 40.0f, 45.0f);
 
 #ifdef D6_DEBUG
         // Running fullscren makes switching to debugger problematic with SDL (focus is captured)
-        auto requestedScreenParameters = ScreenParameters(1280, 900, 32, 24, 0, false);
+       auto requestedScreenParameters = ScreenParameters(960, 900, 32, 24, 4, false);
 #else
-        auto requestedScreenParameters = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 24, 0, true);
+      auto requestedScreenParameters = ScreenParameters(currentVideoMode.w, currentVideoMode.h, 32, 24, 0, true);
 #endif
+
 
         window = createWindow(name, icon, requestedScreenParameters, console);
         glContext = createContext(requestedScreenParameters, console);
@@ -66,7 +69,7 @@ namespace Duel6 {
         if (GLEW_OK != err) {
             D6_THROW(VideoException, (const char *) glewGetErrorString(err));
         }
-
+#endif
         renderer = createRenderer();
 
         setMode(Mode::Orthogonal);
@@ -75,8 +78,10 @@ namespace Duel6 {
     }
 
     Video::~Video() {
+#ifndef D6_RENDERER_HEADLESS
         SDL_GL_DeleteContext(glContext);
         SDL_DestroyWindow(window);
+#endif
     }
 
     void Video::screenUpdate(Console &console, const Font &font) {
@@ -91,7 +96,9 @@ namespace Duel6 {
     }
 
     void Video::swapBuffers() {
+#ifndef D6_RENDERER_HEADLESS
         SDL_GL_SwapWindow(window);
+#endif
         calculateFps();
     }
 
@@ -111,7 +118,7 @@ namespace Duel6 {
                                     Console &console) {
         Uint32 flags = 0;
 
-        flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_GRABBED;
+        flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN  /*| SDL_WINDOW_INPUT_GRABBED*/;
         if (params.isFullScreen()) {
             flags |= SDL_WINDOW_FULLSCREEN;
         }
@@ -185,6 +192,8 @@ namespace Duel6 {
         return std::make_unique<GLES3Renderer>();
 #elif defined(D6_RENDERER_GL4)
         return std::make_unique<GL4Renderer>();
+#elif defined(D6_RENDERER_HEADLESS)
+        return std::make_unique<HeadlessRenderer>();
 #endif
 
         D6_THROW(VideoException, "Invalid renderer");

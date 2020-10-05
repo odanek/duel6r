@@ -63,7 +63,18 @@ namespace Duel6 {
             return definition.power;
         }
     }
+    std::unique_ptr<Shot> LegacyWeapon::shoot(Player &player, Orientation orientation, World &world,
+                             const Weapon &weapon,
+                             Uint32 shotId,
+                             bool powerful,
+                             Int32 power, Float32 bulletSpeed,
+                             Vector &position,
+                             Vector &velocity) const {
+       // samples.shot.play();
+        return makeShot(player, world, orientation, weapon, shotId,
+            powerful, power, bulletSpeed, position, velocity);
 
+    }
     void LegacyWeapon::shoot(Player &player, Orientation orientation, World &world) const {
         world.getShotList().addShot(makeShot(player, world, orientation));
         samples.shot.play();
@@ -71,7 +82,7 @@ namespace Duel6 {
 
     SpriteList::Iterator LegacyWeapon::makeSprite(SpriteList &spriteList) const {
         auto sprite = spriteList.add(definition.animation, textures.gun);
-        sprite->setFrame(6).setLooping(AnimationLooping::OnceAndStop);
+        sprite->setFrame(0).setLooping(AnimationLooping::OnceAndStop);
         return sprite;
     }
 
@@ -97,5 +108,8 @@ namespace Duel6 {
 
     bool LegacyWeapon::isChargeable() const {
         return false;
+    }
+    void LegacyWeapon::playShotSample() const {
+        samples.shot.play();
     }
 }

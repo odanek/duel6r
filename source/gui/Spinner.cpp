@@ -26,19 +26,20 @@
 */
 #include <algorithm>
 #include <utility>
-#include "../Video.h"
 #include "Spinner.h"
 
 namespace Duel6 {
     namespace Gui {
-        Spinner::Spinner(Desktop &desk)
-                : Control(desk) {
+        Spinner::Spinner(View &parentView)
+            : Control(parentView) {
             selectedIndex = -1;
-
-            left = new Button(desk);
+            focusable = true;
+            left = new Button(parentView);
             left->setCaption(" ");
-            right = new Button(desk);
+            right = new Button(parentView);
             right->setCaption(" ");
+            left->setFocusable(false);
+            right->setFocusable(false);
         }
 
         void Spinner::clear() {
@@ -49,7 +50,7 @@ namespace Duel6 {
         Int32 Spinner::currentItem() {
             return selectedIndex;
         }
-        std::pair<Int32, std::string> & Spinner::currentValue() {
+        std::pair<Int32, std::string>& Spinner::currentValue() {
             return items[selectedIndex];
         }
         void Spinner::setCurrent(Int32 index) {
@@ -75,7 +76,9 @@ namespace Duel6 {
         }
 
         void Spinner::addItem(const std::string &item, int value, bool skipIfPresent) {
-            if(!skipIfPresent || (std::find_if(items.begin(), items.end(), [item](std::pair<int, std::string> & p){return p.second == item;}) == std::end(items))){
+            if (!skipIfPresent || (std::find_if(items.begin(), items.end(), [item](std::pair<int, std::string> &p) {
+                return p.second == item;
+            }) == std::end(items))) {
                 items.push_back(std::make_pair(value, item));
             }
             if (items.size() == 1) {
@@ -113,7 +116,6 @@ namespace Duel6 {
         void Spinner::draw(Renderer &renderer, const Font &font) const {
             drawFrame(renderer, x + 20, y, width - 40, 18, true);
             renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
-
             Int32 px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
             Int32 py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
             renderer.triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);
@@ -124,8 +126,50 @@ namespace Duel6 {
 
             if (items.empty())
                 return;
+            ItemColor colors = colorizeCallback(selectedIndex, items[selectedIndex].second);
 
-            font.print(x + 25, y - 15, Color::BLACK, items[selectedIndex].second);
+            Color fontColor = colors.font;
+            Color bcgColor = colors.background;
+
+            renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), bcgColor);
+            font.print(x + 25, y - 15, fontColor, items[selectedIndex].second);
+            if (focused) {
+                drawFocusFrame(renderer, x - 1, y - 1, width, 18);
+            }
+        }
+        void Spinner::mouseButtonEvent(const MouseButtonEvent &event) {
+            if (Control::mouseIn(event, x, y, width, 20)) {
+                focus();
+            }
+        }
+        bool Spinner::keyEvent(const KeyPressEvent &event) {
+            switch (event.getCode()) {
+            case (SDLK_LEFT): {
+                setCurrent(selectedIndex - 1);
+                return true;
+                break;
+            }
+            case (SDLK_RIGHT): {
+                setCurrent(selectedIndex + 1);
+                return true;
+                break;
+            }
+            case (SDLK_UP): {
+                focusPrevious();
+                return true;
+                break;
+            }
+            case (SDLK_DOWN): {
+                focusNext();
+                return true;
+                break;
+            }
+            }
+            return false;
+        }
+
+        Spinner::ItemColor Spinner::defaultColorize(Int32 index, const std::string &item) {
+            return {Color::BLACK, Color::WHITE};
         }
     }
 }

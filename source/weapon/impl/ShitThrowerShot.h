@@ -36,6 +36,13 @@ namespace Duel6 {
         PlayerSkin &brownSkin;
 
     public:
+        ShitThrowerShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Orientation shotOrientation, PlayerSkin &brownSkin,
+                    const Weapon &weapon,
+                    Uint32 shotId,
+                    bool powerful,
+                    Int32 power, Float32 bulletSpeed,
+                    Vector &position,
+                    Vector &velocity);
         ShitThrowerShot(Player &player, World &world, const LegacyWeapon &weapon, Orientation shotOrientation, PlayerSkin &brownSkin);
 
         bool hasBlood() const override;

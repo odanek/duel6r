@@ -35,8 +35,10 @@
 #include "File.h"
 
 namespace Duel6 {
-    Image::Image(Size width, Size height, Size depth) {
-        resize(width, height, depth);
+
+    Image::Image(Size width, Size height, Size depth)
+        :dimensions { width, height, depth },
+          data(width * height * depth) {
     }
 
     Image &Image::resize(Size width, Size height, Size depth) {
@@ -147,12 +149,15 @@ namespace Duel6 {
         Image image(width, height);
         auto input = (Uint8 *) surface->pixels;
         Color *output = &image.at(0);
-        Uint8 red, green, blue, alpha;
 
         for (Int32 y = 0; y < height; y++) {
             for (Int32 x = 0; x < width; x++, output++, input += bpp) {
+                Uint8 &red = output->red, &green = output->green, &blue = output->blue, &alpha = output->alpha;
                 Uint32 pixel;
                 switch (bpp) {
+                    case 4:
+                        pixel = *(Uint32*) input;
+                        break;
                     case 1:
                         pixel = *input;
                         break;
@@ -168,7 +173,9 @@ namespace Duel6 {
                 }
 
                 SDL_GetRGBA(pixel, surface->format, &red, &green, &blue, &alpha);
-                *output = Color(red, green, blue, red == 0 && green == 0 && blue == 0 ? Uint8(0) : alpha);
+                if(red == 0 && green == 0 && blue == 0){
+                    alpha = 0;
+                }
             }
 
             input += surface->pitch - (width * bpp);

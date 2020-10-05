@@ -28,10 +28,11 @@
 #ifndef DUEL6_EXCEPTION_EXCEPTION_H
 #define DUEL6_EXCEPTION_EXCEPTION_H
 
+#include <iostream>
 #include <string>
 #include "Type.h"
 
-#define D6_THROW(exceptionClass, message) throw exceptionClass(__FILE__, __LINE__, message)
+#define D6_THROW(exceptionClass, message) std::cerr << __FILE__ << " " << __LINE__ << " " << std::string(message) << std::endl; throw exceptionClass(__FILE__, __LINE__, message)
 
 namespace Duel6 {
     class Exception {

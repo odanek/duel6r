@@ -63,6 +63,11 @@ namespace Duel6 {
         console.printLine("\n===Initialization of sound sub-system===");
         console.printLine("...Starting SDL_mixer library");
 
+#ifdef D6_RENDERER_HEADLESS
+        headless = true;
+        console.printLine("Running in headless mode, suprressing sound system.");
+        return;
+#endif
         // Init SDL audio sub sytem
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
             D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << SDL_GetError());
@@ -100,6 +105,7 @@ namespace Duel6 {
     }
 
     Sound::Track Sound::loadModule(const std::string &fileName) {
+        if(headless) return  Track(this, nullptr);
         Mix_Music *module = Mix_LoadMUS(fileName.c_str());
         if (module == nullptr) {
             D6_THROW(SoundException,
@@ -111,6 +117,7 @@ namespace Duel6 {
     }
 
     Sound::Sample Sound::loadSample(const std::string &fileName) {
+        if(headless) return  Sample(this, nullptr);
         Mix_Chunk *sample = Mix_LoadWAV(fileName.c_str());
         if (sample == nullptr) {
             D6_THROW(SoundException,
@@ -122,6 +129,7 @@ namespace Duel6 {
     }
 
     void Sound::stopMusic() {
+        if(headless) return;
         if (playing) {
             Mix_HaltMusic();
             playing = false;
@@ -129,6 +137,7 @@ namespace Duel6 {
     }
 
     void Sound::startMusic(Mix_Music *music, bool loop) {
+        if(headless) return;
         stopMusic();
         if (Mix_PlayMusic(music, loop ? -1 : 0) == -1) {
             D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << Mix_GetError());
@@ -137,6 +146,7 @@ namespace Duel6 {
     }
 
     void Sound::playSample(Mix_Chunk *chunk) {
+        if(headless) return;
         for (Int32 j = 0; j < channels; j++) {
             if (!Mix_Playing(j) && !Mix_Paused(j)) {
                 if (Mix_PlayChannel(j, chunk, 0) == -1) {
@@ -148,6 +158,7 @@ namespace Duel6 {
     }
 
     void Sound::volume(Int32 volume) {
+        if(headless) return;
         console.printLine(Format("...Volume set to {0}") << volume);
         Mix_VolumeMusic(volume);
         Mix_Volume(-1, volume);

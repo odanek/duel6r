@@ -54,7 +54,7 @@ namespace Duel6 {
     public:
         void load(Console &console, Sound &sound, TextureManager &textureManager);
 
-        const Block::Meta &getBlockMeta() const {
+        Block::Meta &getBlockMeta() {
             return blockMeta;
         }
 

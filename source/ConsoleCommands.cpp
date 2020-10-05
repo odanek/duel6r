@@ -115,7 +115,15 @@ namespace Duel6 {
             console.printLine("Fps counter hidden");
         }
     }
+    void ConsoleCommands::toggleNetStat(Console &console, const Console::Arguments &args, GameSettings &gameSettings) {
+        gameSettings.setShowNetStat(!gameSettings.isShowNetStat());
 
+        if (gameSettings.isShowNetStat()) {
+            console.printLine("net stat shown");
+        } else {
+            console.printLine("net stat hidden");
+        }
+    }
     void ConsoleCommands::musicOnOff(Console &console, const Console::Arguments &args, Menu &menu) {
         if (args.length() == 2) {
             if (args.get(1) == "on" || args.get(1) == "off") {
@@ -156,9 +164,14 @@ namespace Duel6 {
             if(console.isActive()) {
                 console.toggle();
             }
-            menu.play(paths);
+            menu.play(paths, false);
         }
     }
+
+    void ConsoleCommands::serverlist(Console &console, const Console::Arguments &args, Menu &menu) {
+        menu.serverlist();
+    }
+
     void ConsoleCommands::loadSkin(Console &console, const Console::Arguments &args, Menu &menu) {
         auto &profileMap = menu.getPersonProfiles();
         std::string bodyParts[] = {"Hair top", "Hair bottom", "Body outer", "Body inner", "Arm outer", "Arm inner",
@@ -275,6 +288,12 @@ namespace Duel6 {
         }
     }
 
+    void ConsoleCommands::dedicatedServer(Console &console, const Console::Arguments &args, Menu &menu) {
+        console.printLine(Format("Starting server"));
+        menu.startDedicatedServer();
+        console.printLine(Format("Started"));
+    }
+
     void ConsoleCommands::registerCommands(Console &console, AppService &appService, Menu &menu,
                                            GameSettings &gameSettings) {
         // Set some console functions
@@ -284,6 +303,9 @@ namespace Duel6 {
         });
         console.registerCommand("show_fps", [&gameSettings](Console &con, const Console::Arguments &args) {
             toggleShowFps(con, args, gameSettings);
+        });
+        console.registerCommand("net_stat", [&gameSettings](Console &con, const Console::Arguments &args) {
+            toggleNetStat(con, args, gameSettings);
         });
         console.registerCommand("gl_info", [&appService](Console &con, const Console::Arguments &args) {
             openGLInfo(con, args, appService.getVideo().getRenderer());
@@ -327,6 +349,12 @@ namespace Duel6 {
         });
         console.registerCommand("start_ammo_range", [&gameSettings](Console &con, const Console::Arguments &args) {
             ammoRange(con, args, gameSettings);
+        });
+        console.registerCommand("dedicated", [&menu](Console &con, const Console::Arguments &args) {
+            dedicatedServer(con, args, menu);
+        });
+        console.registerCommand("serverlist", [&menu](Console &con, const Console::Arguments &args) {
+            serverlist(con, args, menu);
         });
     }
 }

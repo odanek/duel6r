@@ -62,11 +62,93 @@ namespace Duel6 {
             position(c.position),
             acceleration(c.acceleration),
             externalForces(c.externalForces),
+            externalForcesSpeed(c.externalForcesSpeed),
             velocity(c.velocity),
             elevator(c.elevator),
             lastCollisionCheck(c.lastCollisionCheck) {
         }
 
+        CollidingEntity& operator =(const CollidingEntity &c){
+            position = c.position;
+            acceleration = c.acceleration;
+            externalForces =c.externalForces;
+            externalForcesSpeed = c.externalForcesSpeed;
+            velocity = c.velocity;
+            elevator = c.elevator;
+            lastCollisionCheck = c.lastCollisionCheck;
+            return *this;
+        }
+
+        CollidingEntity& operator +=(const CollidingEntity &c){
+            position += c.position;
+            acceleration += c.acceleration;
+            externalForces += c.externalForces;
+            externalForcesSpeed += c.externalForcesSpeed;
+            velocity += c.velocity;
+            return *this;
+        }
+
+        CollidingEntity& operator *=(Float32 f){
+            position *= f;
+            acceleration *= f;
+            externalForces *= f;
+            externalForcesSpeed *= f;
+            velocity *= f;
+            return *this;
+        }
+
+        CollidingEntity& operator -=(const CollidingEntity &c){
+            position -= c.position;
+            acceleration -= c.acceleration;
+            externalForces -= c.externalForces;
+            externalForcesSpeed -= c.externalForcesSpeed;
+            velocity -= c.velocity;
+            return *this;
+        }
+        CollidingEntity& operator /=(Float64 f){
+            position /= f;
+            acceleration /= f;
+            externalForces /= f;
+            externalForcesSpeed /= f;
+            velocity /= f;
+            return *this;
+        }
+        CollidingEntity operator -(const CollidingEntity &c) const {
+            CollidingEntity result;
+            result.position = position - c.position;
+            result.acceleration = acceleration- c.acceleration;
+            result.externalForces = externalForces - c.externalForces;
+            result.externalForcesSpeed = externalForcesSpeed - c.externalForcesSpeed;
+            result.velocity = velocity - c.velocity;
+            return result;
+        }
+        CollidingEntity operator +(const CollidingEntity &c) const {
+            CollidingEntity result;
+            result.position = position + c.position;
+            result.acceleration = acceleration + c.acceleration;
+            result.externalForces = externalForces + c.externalForces;
+            result.externalForcesSpeed = externalForcesSpeed + c.externalForcesSpeed;
+            result.velocity = velocity + c.velocity;
+            return result;
+        }
+        CollidingEntity operator *(Float64 f) const {
+            CollidingEntity result;
+            result.position = position * f;
+            result.acceleration = acceleration * f;
+            result.externalForces = externalForces * f;
+            result.externalForcesSpeed = externalForcesSpeed * f;
+            result.velocity = velocity * f;
+            return result;
+        }
+        CollidingEntity operator /(Float64 f) const {
+            CollidingEntity result;
+            result.position = position / f;
+            result.acceleration = acceleration / f;
+            result.externalForces = externalForces / f;
+            result.externalForcesSpeed = externalForcesSpeed / f;
+            result.velocity = velocity / f;
+            return result;
+        }
         Vector position;
         Vector acceleration;
         Vector externalForces;
@@ -76,10 +158,15 @@ namespace Duel6 {
         const Elevator *elevator = nullptr;
         CollisionCheckResult lastCollisionCheck;
         Rectangle getCollisionRect() const;
+        Vector getPosition() const;
+
         // aka update
         void collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed = 1.0f);
+        void collideWithElevator(Float32 elapsedTime, Float32 speed = 1.0f);
         void collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed = 1.0f);
         void initPosition(Float32 x, Float32 y, Float32 z = 0.0f);
+        void setPosition(Float32 x, Float32 y, Float32 z = 0.0f);
+        void setPosition(const Vector & position);
 
         bool isInWall() const;
         bool isOnHardSurface() const;

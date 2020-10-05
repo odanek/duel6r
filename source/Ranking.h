@@ -45,13 +45,14 @@ namespace Duel6 {
             Int32 deaths = 0;
             Int32 assistances = 0;
             Int32 penalties = 0;
+            Int32 rtt = 0;
             Color fontColor;
             Color bcgColor;
             std::vector<Entry> entries;
-
+            bool isGroup = false;
         public:
-            Entry(const std::string &name, Int32 points, const Color &fontColor, const Color &bcgColor)
-                    : name(name), points(points), fontColor(fontColor), bcgColor(bcgColor), entries() {}
+            Entry(const std::string &name, Int32 points, const Color &fontColor, const Color &bcgColor, bool isGroup = false)
+                    : name(name), points(points), fontColor(fontColor), bcgColor(bcgColor), entries(), isGroup(isGroup) {}
 
             void addSubEntry(const Entry &subEntry) {
                 entries.push_back(subEntry);

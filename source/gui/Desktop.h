@@ -29,6 +29,7 @@
 #define DUEL6_GUI_DESKTOP_H
 
 #include <memory>
+#include <list>
 #include "../SysEvent.h"
 #include "Control.h"
 
@@ -37,14 +38,24 @@ namespace Duel6 {
         class Desktop {
         private:
             Renderer &renderer;
-            Int32 screenWidth;
-            Int32 screenHeight;
-            Int32 trX; // x translation
-            Int32 trY; // y translation
+            Font &font;
+            Int32 screenWidth = 0;
+            Int32 screenHeight = 0;
+            Int32 trX = 0; // x translation
+            Int32 trY = 0; // y translation
             std::vector<std::unique_ptr<Control>> controls;
+            Control *focused = nullptr;
+            SDL_Cursor *cursorArrow;
+            SDL_Cursor *cursorIBeam;
+            SDL_Cursor *cursorNWSE;
+            SDL_Cursor *cursorNESW;
+            SDL_Cursor *cursorWE;
+            SDL_Cursor *cursorNS;
+            std::list<View*> closingViews;
+            std::list<std::unique_ptr<View>> viewStack;
 
         public:
-            Desktop(Renderer &renderer);
+            Desktop(Renderer &renderer, Font &font);
 
             ~Desktop();
 
@@ -54,7 +65,7 @@ namespace Duel6 {
 
             void draw(const Font &font) const;
 
-            void keyEvent(const KeyPressEvent &event);
+            bool keyEvent(const KeyPressEvent &event);
 
             void textInputEvent(const TextInputEvent &event);
 
@@ -64,7 +75,24 @@ namespace Duel6 {
 
             void mouseWheelEvent(const MouseWheelEvent &event);
 
-            void addControl(Control *control);
+            void addView(View *view);
+
+            void closeView(View *view);
+
+            Font& getFont();
+
+            void setIBeamCursor();
+
+            void setNWSECursor();
+
+            void setNESWCursor();
+
+            void setWECursor();
+
+            void setNSCursor();
+
+        private:
+            void removeClosedViews();
         };
     }
 }

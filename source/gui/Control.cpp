@@ -26,20 +26,37 @@
 */
 
 #include "Control.h"
-#include "Desktop.h"
+#include "View.h"
 #include "../Video.h"
 
 namespace Duel6 {
     namespace Gui {
         namespace {
-            Color frameLightColor(235, 235, 235), frameDarkColor(0, 0, 0);
+            Color frameLightColor(235, 235, 235), frameDarkColor(0, 0, 0), frameFocusColor(0, 50, 255, 50);
         }
 
-        Control::Control(Desktop &desk) {
-            desk.addControl(this);
+        Control::Control(View &parentView) {
+            parentView.addControl(this);
         }
 
-        void Control::drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p) {
+        void Control::drawFocusFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, Float32 lineWidth) {
+            Float32 d = lineWidth / 2;
+            Float32 l = x;
+            Float32 r = x + w + d;
+            Float32 b = y - h - d;
+            Float32 t = y;
+            Float32 z = 0.5f;
+            renderer.line(Vector(l, t, z), Vector(r, t, z), lineWidth, frameFocusColor);
+            renderer.line(Vector(l, b, z), Vector(r, b, z), lineWidth, frameFocusColor);
+            renderer.line(Vector(l, t, z), Vector(l, b, z), lineWidth, frameFocusColor);
+            renderer.line(Vector(r, t, z), Vector(r, b, z), lineWidth, frameFocusColor);
+
+            renderer.point(Vector(l, t, z), lineWidth, frameFocusColor);
+            renderer.point(Vector(l, b, z), lineWidth, frameFocusColor);
+            renderer.point(Vector(r, t, z), lineWidth, frameFocusColor);
+            renderer.point(Vector(r, b, z), lineWidth, frameFocusColor);
+        }
+        void Control::drawFrame(Renderer &renderer, Int32 x, Int32 y, Int32 w, Int32 h, bool p, bool focus) {
             w--;
             h--;
 
@@ -55,6 +72,37 @@ namespace Duel6 {
             renderer.line(Vector(x + w - 1, y - h), Vector(x + w - 1, y - 1), 1.0f, bottomColor);
             renderer.line(Vector(x + w, y - h), Vector(x, y - h), 1.0f, bottomColor);
             renderer.line(Vector(x + w, y - h + 1), Vector(x + 1, y - h + 1), 1.0f, bottomColor);
+
+            if (focus) {
+                drawFocusFrame(renderer, x, y, w, h, 2.0f + p * 2.0f);
+            }
+        }
+
+        void Control::setParent(View *parentView) {
+            this->parent = parentView;
+        }
+        void Control::setFocusable(bool value) {
+            this->focusable = value;
+        }
+
+        void Control::focus() {
+            parent->focus(this);
+        }
+
+        void Control::focusNext() {
+            parent->focusNext();
+        }
+
+        void Control::focusPrevious() {
+            parent->focusPrevious();
+        }
+
+        void Control::setIBeamCursor() {
+            parent->setIBeamCursor();
+        }
+
+        Font& Control::getFont() {
+            return parent->getFont();
         }
     }
 }

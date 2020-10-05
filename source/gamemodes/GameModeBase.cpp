@@ -36,6 +36,7 @@ namespace Duel6 {
 
         Size playerIndex = 0;
         for (Player &player : players) {
+            if(player.isDeleted()) continue;
             auto &ammoRange = game.getSettings().getAmmoRange();
             Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
             Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];
@@ -45,10 +46,29 @@ namespace Duel6 {
         }
     }
 
+    void GameModeBase::joinPlayers(Game &game, std::vector<Player> &players, std::vector<size_t> joined, World &world) {
+        game.getAppService().getConsole().printLine("...Preparing base players");
+        Level::StartingPositionList startingPositions;
+        world.getLevel().findStartingPositions(startingPositions);
+        std::shuffle(startingPositions.begin(), startingPositions.end(), Math::randomEngine);
+
+        Size playerIndex = 0;
+        for (Player &player : players) {
+            auto &ammoRange = game.getSettings().getAmmoRange();
+            Int32 ammo = Math::random(ammoRange.first, ammoRange.second);
+            Level::StartingPosition position = startingPositions[playerIndex % startingPositions.size()];
+            player.startRound(world, position.first, position.second, ammo,
+                Weapon::getRandomEnabled(game.getSettings()));
+            playerIndex++;
+        }
+    }
+
     Ranking GameModeBase::getRanking(const std::vector<Player> &players) const {
         std::vector<const Player *> ranking;
         for (const Player &player : players) {
-            ranking.push_back(&player);
+            if (!player.isDeleted()) {
+                ranking.push_back(&player);
+            }
         }
 
         std::sort(ranking.begin(), ranking.end(), [](const Player *pl1, const Player *pl2) {
@@ -64,6 +84,7 @@ namespace Duel6 {
             entry.deaths = player->getPerson().getDeaths();
             entry.penalties = player->getPerson().getPenalties();
             entry.assistances = player->getPerson().getAssistances();
+            entry.rtt = player->rtt;
             result.entries.push_back(entry);
         }
 
@@ -71,7 +92,13 @@ namespace Duel6 {
     }
 
     bool GameModeBase::checkForSuddenDeathMode(World &world, const std::vector<Player *> &alivePlayers) const {
-        return quickLiquid || (alivePlayers.size() == 2 && world.getPlayers().size() > 2);
+        Uint32 playingPlayers = 0;
+        for (const Player &player : world.getPlayers()) {
+            if (!player.isDeleted()) {
+                playingPlayers++;
+            }
+        }
+        return quickLiquid || (alivePlayers.size() == 2 && playingPlayers > 2);
     }
 
     void GameModeBase::updateElo(std::vector<Player> &players) const {

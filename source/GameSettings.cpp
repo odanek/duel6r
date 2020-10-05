@@ -37,18 +37,22 @@ namespace Duel6 {
 
     GameSettings &GameSettings::enableWeapon(const Weapon &weapon, bool enable) {
         if (enable) {
-            enabledWeapons.insert(weapon);
+            enabledWeapons.insert(weapon.getId());
         } else {
-            enabledWeapons.erase(weapon);
+            enabledWeapons.erase(weapon.getId());
         }
         return *this;
     }
 
     bool GameSettings::isWeaponEnabled(const Weapon &weapon) const {
-        return enabledWeapons.find(weapon) != enabledWeapons.end();
+        return enabledWeapons.find(weapon.getId()) != enabledWeapons.end();
     }
 
     const GameSettings::EnabledWeapons &GameSettings::getEnabledWeapons() const {
         return enabledWeapons;
+    }
+
+    void GameSettings::setEnabledWeapons(const GameSettings::EnabledWeapons &enabledWeapons) {
+        this->enabledWeapons = enabledWeapons;
     }
 }

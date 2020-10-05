@@ -46,7 +46,16 @@ namespace Duel6 {
     bool Bow::isChargeable() const {
         return true;
     }
-
+    std::unique_ptr<Shot> Bow::makeShot(Player &player, World &world, Orientation orientation,
+                                   const Weapon &weapon,
+                                   Uint32 shotId,
+                                   bool powerful,
+                                   Int32 power, Float32 bulletSpeed,
+                                   Vector &position,
+                                   Vector &velocity) const {
+        return std::make_unique<BowShot>(player, world, *this, orientation,
+            weapon, shotId, powerful, power, bulletSpeed, position, velocity);
+    }
     std::unique_ptr<Shot> Bow::makeShot(Player &player, World &world, Orientation orientation) const {
         return std::make_unique<BowShot>(player, world, *this, orientation);
     }

@@ -42,7 +42,16 @@ namespace Duel6 {
     Float32 Shotgun::getBulletSpeed() const {
         return 9.15f;
     }
-
+    std::unique_ptr<Shot> Shotgun::makeShot(Player &player, World &world, Orientation orientation,
+                                   const Weapon &weapon,
+                                   Uint32 shotId,
+                                   bool powerful,
+                                   Int32 power, Float32 bulletSpeed,
+                                   Vector &position,
+                                   Vector &velocity) const {
+        return std::make_unique<ShotgunShot>(player, world, *this, orientation,
+            weapon, shotId, powerful, power, bulletSpeed, position, velocity);
+    }
     std::unique_ptr<Shot> Shotgun::makeShot(Player &player, World &world, Orientation orientation) const {
         return std::make_unique<ShotgunShot>(player, world, *this, orientation);
     }

@@ -36,6 +36,7 @@
 #define D6_FILE_BLOCK_META       "data/blocks.json"
 #define D6_FILE_TTF_FONT         "data/font.ttf"
 #define D6_FILE_LEVEL            "levels/"
+#define D6_FILE_NETWORK_SETTINGS "data/network.json"
 #define D6_FILE_PHIST            "data/persons.json"
 #define D6_FILE_PROFILES         "profiles"
 #define D6_FILE_WEAPON_SOUNDS    "sound/weapon/"

@@ -34,37 +34,44 @@
 namespace Duel6 {
     namespace Json {
         class Parser {
+            size_t line = 0;
+            size_t col = 0;
+
         public:
-            Value parse(const std::string &fileName) const;
+            Value parse(const std::string &fileName);
 
         private:
-            Uint8 peekNextCharacter(File &file) const;
+            Uint8 peekNextCharacter(File &file);
 
-            void readExpected(File &file, const std::string &expected) const;
+            void readExpected(File &file, const std::string &expected);
 
-            void readExpected(File &file, char expected) const;
+            void readExpected(File &file, char expected);
 
-            void readWhitespaceAndExpected(File &file, char expected) const;
+            void readWhitespaceAndExpected(File &file, char expected);
 
-            std::string readUntil(File &file, const std::unordered_set<Uint8> &sentinels) const;
+            std::string readUntil(File &file, const std::unordered_set<Uint8> &sentinels, bool allowEOL = true);
 
-            std::string readWhile(File &file, const std::unordered_set<Uint8> &allowed) const;
+            std::string readWhile(File &file, const std::unordered_set<Uint8> &allowed);
 
-            Value::Type determineValueType(Uint8 firstByte) const;
+            Value::Type determineValueType(Uint8 firstByte);
 
-            Value parseValue(File &file) const;
+            Value parseValue(File &file);
 
-            Value parseNull(File &file) const;
+            Value parseNull(File &file);
 
-            Value parseObject(File &file) const;
+            Value parseObject(File &file);
 
-            Value parseArray(File &file) const;
+            Value parseArray(File &file);
 
-            Value parseNumber(File &file) const;
+            Value parseNumber(File &file);
 
-            Value parseString(File &file) const;
+            Value parseString(File &file);
 
-            Value parseBoolean(File &file) const;
+            Value parseBoolean(File &file);
+
+            void lineInc();
+
+            void colInc();
         };
     }
 }

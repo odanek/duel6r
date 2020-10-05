@@ -41,7 +41,7 @@ endif (MSVC)
 
 # gnu compiler or clang
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++17")
     if (D6R_PLATFORM STREQUAL "x86")
 
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
@@ -59,7 +59,7 @@ endif (MINGW)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
 
 # Switches
-set(D6R_RENDERERS gl1 gl4 es2 es3)
+set(D6R_RENDERERS gl1 gl4 es2 es3 headless)
 set(D6R_RENDERER "gl4" CACHE STRING "Renderer")  # Renderer: gl1/gl4/es2
 set_property (CACHE D6R_RENDERER PROPERTY STRINGS ${D6R_RENDERERS})
 set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
@@ -76,6 +76,81 @@ set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
 # set the list of source files
 set(D6R_SOURCES
+        source/net/master/MasterServer.cpp
+        source/net/master/MasterServer.h
+        source/net/master/PeerList.h
+        source/net/master/protocol.cpp
+        source/net/master/protocol.h
+        source/net/master/stun.cpp
+        source/net/master/stun.h
+
+        source/net/binarystream/BinaryDeserializer.h
+        source/net/binarystream/BinarySerializer.h
+        source/net/binarystream/BinaryStream.cpp
+        source/net/binarystream/BinaryStream.h
+        source/net/binarystream/BinaryStreamBase.h
+        source/net/binarystream/FileBinaryStream.h
+        source/net/binarystream/traits.h
+
+        source/net/event/Color.h
+        source/net/event/EraseShot.h
+        source/net/event/events.h
+        source/net/event/GameState.h
+        source/net/event/GameStateUpdate.h
+        source/net/event/NextRound.h
+        source/net/event/PickBonus.h
+        source/net/event/PickWeapon.h
+        source/net/event/PlayerInputsUpdate.h
+        source/net/event/PlayerProfile.h
+        source/net/event/PlayersDisconnected.h
+        source/net/event/PlayersJoined.h
+        source/net/event/PlaySample.h
+        source/net/event/RaiseWaterLevel.h
+        source/net/event/RequestGameState.h
+        source/net/event/SpawnBonus.h
+        source/net/event/SpawnWeapon.h
+        source/net/event/StartRound.h
+
+        source/net/object/Bonus.h
+        source/net/object/Client.h
+        source/net/object/Collider.h
+        source/net/object/Level.h
+        source/net/object/MessageBroadcast.h
+        source/net/object/objects.h
+        source/net/object/Player.cpp
+        source/net/object/Player.h
+        source/net/object/PlayerInputs.h
+        source/net/object/PlayerScore.cpp
+        source/net/object/PlayerScore.h
+        source/net/object/Shot.h
+        source/net/object/Vector.h
+        source/net/object/Vector2d.h
+        source/net/object/Weapon.h
+        source/net/object/World.h
+
+        source/net/ClientGameProxy.cpp
+        source/net/ClientGameProxy.h
+        source/net/Event.h
+        source/net/GameProxy.cpp
+        source/net/GameProxy.h
+
+        source/net/Message.h
+        source/net/Net.cpp
+        source/net/Net.h
+        source/net/NetClient.cpp
+        source/net/NetClient.h
+        source/net/NetHost.cpp
+        source/net/NetHost.h
+        source/net/Object.h
+        source/net/Peer.cpp
+        source/net/Peer.h
+        
+        source/net/ServerGameProxy.cpp
+        source/net/ServerGameProxy.h
+        source/net/Service.h
+        source/net/Service.cpp
+        source/net/Type.h
+
         source/AnimationLooping.h
         source/Application.cpp
         source/Application.h
@@ -271,6 +346,10 @@ set(D6R_SOURCES
         source/gui/Control.h
         source/gui/Desktop.cpp
         source/gui/Desktop.h
+        source/gui/Dialog.cpp
+        source/gui/Dialog.h
+        source/gui/Image.cpp
+        source/gui/Image.h
         source/gui/Label.cpp
         source/gui/Label.h
         source/gui/ListBox.cpp
@@ -281,6 +360,8 @@ set(D6R_SOURCES
         source/gui/Spinner.h
         source/gui/TextBox.cpp
         source/gui/TextBox.h
+        source/gui/View.cpp
+        source/gui/View.h
 
         source/input/GameController.cpp
         source/input/GameController.h
@@ -460,7 +541,18 @@ if (D6R_RENDERER STREQUAL "gl4")
             source/renderer/gl4/GL4Types.h
         )
 endif (D6R_RENDERER STREQUAL "gl4")
-
+if (D6R_RENDERER STREQUAL "headless")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_HEADLESS")
+    set(D6R_SOURCES ${D6R_SOURCES}
+            source/renderer/headless/HeadlessBuffer.h
+            source/renderer/headless/HeadlessBuffer.cpp
+            source/renderer/headless/HeadlessRenderer.h
+            source/renderer/headless/HeadlessRenderer.cpp
+            source/renderer/headless/HeadlessRendererTarget.h
+            source/renderer/headless/HeadlessRendererTarget.cpp
+            source/renderer/headless/HeadlessTypes.h
+            )
+endif (D6R_RENDERER STREQUAL "headless")
 if (D6R_WITH_LUA)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_SCRIPTING_LUA")
     set(D6R_SOURCES ${D6R_SOURCES}
@@ -494,20 +586,31 @@ set_target_properties(${D6R_APP_NAME} PROPERTIES VERSION 6.0.0 DEBUG_OUTPUT_NAME
 
 # Platform
 if (MINGW)
-    target_link_libraries(${D6R_APP_NAME} mingw32)
+    target_link_libraries(${D6R_APP_NAME} mingw32 ws2_32)
 endif (MINGW)
 
+set (RENDERER_LIBS
+)
+
 # OpenGL
+if (NOT D6R_RENDERER STREQUAL "headless")
 if (WIN32)
     target_link_libraries(${D6R_APP_NAME} opengl32.lib)
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+            opengl32.lib
+        )
 elseif (APPLE)
     find_library(LIB_OPEN_GL OpenGL DOC "Path to OpenGL framework")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL})
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+            ${LIB_OPEN_GL}
+        )
 else (WIN32) # Linux GCC
     find_library(LIB_OPEN_GL GL DOC "Path to OpenGL import library")
-    target_link_libraries(${D6R_APP_NAME} ${LIB_OPEN_GL})
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+            ${LIB_OPEN_GL}
+        )
 endif (WIN32)
-
+endif (NOT D6R_RENDERER STREQUAL "headless")
 # SDL
 find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
 include_directories(${HEADERS_SDL2})
@@ -519,13 +622,25 @@ find_library(LIB_SDL2_TTF SDL2_ttf DOC "Path to SDL2_ttf import library")
 find_library(LIB_SDL2_IMAGE SDL2_image DOC "Path to SDL2_image import library")
 target_link_libraries(${D6R_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER} ${LIB_SDL2_TTF} ${LIB_SDL2_IMAGE})
 
+
+find_path(HEADERS_ENET enet/enet.h DOC "Path to ENet headers")
+include_directories(${HEADERS_ENET})
+find_library(LIB_ENET NAMES enet enet_static libenet libenet_static DOC "Path to ENet library")
+target_link_libraries(${D6R_APP_NAME} ${LIB_ENET})
+
 # GLEW
+if (NOT D6R_RENDERER STREQUAL "headless")
 if (WIN32)
     find_library(LIB_GLEW glew32 DOC "Path to GLEW library")
 else (WIN32)
     find_library(LIB_GLEW GLEW DOC "Path to GLEW library")
 endif (WIN32)
-target_link_libraries(${D6R_APP_NAME} ${LIB_GLEW})
+    set (RENDERER_LIBS ${RENDERER_LIBS}
+             ${LIB_GLEW}
+        )
+endif (NOT D6R_RENDERER STREQUAL "headless")
+
+target_link_libraries(${D6R_APP_NAME} ${RENDERER_LIBS})
 find_path(HEADERS_GLEW GL/glew.h DOC "Path to GLEW headers")
 include_directories(${HEADERS_GLEW})
 

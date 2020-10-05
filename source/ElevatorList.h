@@ -45,7 +45,11 @@ namespace Duel6 {
     public:
         ElevatorList(Texture texture);
 
+        ElevatorList(Texture texture, const std::vector<Elevator> & elevators);
+
         void load(const std::string &path, bool mirror);
+
+        void load(const std::vector<Elevator> & elevators);
 
         void add(Elevator &elevator);
 
@@ -54,6 +58,8 @@ namespace Duel6 {
         void render(Renderer &renderer) const;
 
         const Elevator *checkCollider(CollidingEntity & collider, Float32 speedFactor);
+
+        std::vector<Elevator>& getElevators();
     };
 }
 

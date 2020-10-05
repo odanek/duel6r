@@ -33,8 +33,8 @@
 #include "PersonProfile.h"
 
 namespace Duel6 {
-    Round::Round(Game &game, Int32 roundNumber, const std::string &levelPath, bool mirror)
-            : game(game), roundNumber(roundNumber), world(game, levelPath, mirror),
+    Round::Round(Game &game, Int32 roundNumber, std::unique_ptr<Level> && level)
+            : game(game), roundNumber(roundNumber), world(game, std::move(level)),
               suddenDeathMode(false), waterFillWait(0), showYouAreHere(D6_YOU_ARE_HERE_DURATION), gameOverWait(0),
               winner(false), scriptContext(world) {}
 
@@ -148,56 +148,129 @@ namespace Duel6 {
 
         // todo: rewrite to copy_if if it is possible to do it that way without billion lines of compile errors:-)
         for (Player &player : allPlayers) {
-            if (player.isAlive()) {
+            if (player.isAlive() && !player.isDeleted()) {
                 alivePlayers.push_back(&player);
             }
         }
 
-        if (!suddenDeathMode && game.getMode().checkForSuddenDeathMode(world, alivePlayers)) {
-            suddenDeathMode = true;
-        }
+        if (!game.networkGame || game.isServer){
+            if (!suddenDeathMode && game.getMode().checkForSuddenDeathMode(world, alivePlayers)) {
+                suddenDeathMode = true;
+            }
 
-        if (game.getMode().checkRoundOver(world, alivePlayers)) {
-            winner = true;
-            gameOverWait = D6_GAME_OVER_WAIT;
-
-            game.getResources().getGameOverSound().play();
-            onRoundEnd();
+            if (game.getMode().checkRoundOver(world, alivePlayers)) {
+                roundOver();
+            }
         }
+    }
+    void Round::roundOver() {
+        winner = true;
+        gameOverWait = D6_GAME_OVER_WAIT;
+
+        game.getResources().getGameOverSound().play();
+        onRoundEnd();
     }
 
     void Round::update(Float32 elapsedTime) {
         // Check if there's a winner
-        if (!hasWinner()) {
-            checkWinner();
+        if (game.isServer || !game.networkGame) {
+            if (!hasWinner()) {
+                checkWinner();
+            } else {
+                gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
+                if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
+                    for (Player &player : world.getPlayers()) {
+                        if (player.isDeleted()) {
+                            continue;
+                        }
+                        player.tick++;
+                    }
+                    return;
+                }
+            }
         } else {
             gameOverWait = std::max(gameOverWait - elapsedTime, 0.0f);
-            if (gameOverWait < (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
-                return;
-            }
         }
 
         for (Player &player : world.getPlayers()) {
-            player.updateControllerStatus();
-            scriptUpdate(player);
-            player.update(world, game.getSettings().getScreenMode(), elapsedTime);
-            if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
-                player.makeGhost();
+            if(player.isDeleted()){
+                continue;
+            }
+            if(player.local){
+                player.lateTicks = player.tick - player.lastConfirmedTick;
+                if(!game.isServer && game.networkGame){
+                    player.compensateLag(world, elapsedTime);
+                }
+                player.updateControllerStatus();
+                scriptUpdate(player);
+
+                if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT) ){
+                    player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+                } else {
+                    player.tick++;
+                }
+
+                if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
+                    player.makeGhost();
+                }
+            } else {
+                bool runElevators = player.lastConfirmedTick == player.tick;
+
+                if(game.isServer){
+                    // TODO: attempt to smooth out lag spikes on the server side - server buffers 4 inputs
+//                    static Float32 rundown = 0;
+//                    rundown += elapsedTime;
+//                    if(rundown > 5 * elapsedTime){
+//                        rundown = 5 * elapsedTime;
+//                    }
+                    //Converted to Uint16 to deal with the counter wrap-around at 65535
+                    while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
+                        updateRemotePlayer(player, elapsedTime);
+                    }
+
+                } else {
+                    player.lateTicks = player.tick - player.lastConfirmedTick;
+                    while((Uint16)(player.lastConfirmedTick - player.tick) > 0){
+                        updateRemotePlayer(player, elapsedTime);
+                    }
+                }
+                if(runElevators){
+                    player.getCollider().collideWithElevator(0.0, 1.0);
+                }
             }
         }
-
-        world.update(elapsedTime);
+        if(!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT) ){
+            world.update(elapsedTime);
+        }
         game.getAppService().getVideo().getRenderer().setGlobalTime(world.getTime());
 
         if (suddenDeathMode) {
             waterFillWait += elapsedTime;
             if (waterFillWait > D6_RAISE_WATER_WAIT) {
                 waterFillWait = 0;
-                world.raiseWater();
+                game.raiseWater();
             }
         }
 
         showYouAreHere = std::max(showYouAreHere - 3 * elapsedTime, 0.0f);
+    }
+
+    void Round::updateRemotePlayer(Player &player, Float32 elapsedTime) {
+        scriptUpdate(player);
+        player.setControllerState(player.unconfirmedInputs[player.tick & 127]);
+        if (player.getControllerState() & Player::ButtonShoot) {
+            player.getIndicators().getReload().show(player.getReloadInterval() + Indicator::FADE_DURATION);
+        }
+        player.unconfirmedInputs[player.tick & 127] = 0;
+        if (!hasWinner() || gameOverWait > (D6_GAME_OVER_WAIT - D6_ROUND_OVER_WAIT)) {
+            player.update(world, game.getSettings().getScreenMode(), elapsedTime);
+        } else {
+            player.tick++;
+        }
+
+        if (game.getSettings().isGhostEnabled() && !player.isInGame() && !player.isGhost()) {
+            player.makeGhost();
+        }
     }
 
     void Round::keyEvent(const KeyPressEvent &event) {

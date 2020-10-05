@@ -33,13 +33,14 @@
 #include "Type.h"
 
 namespace Duel6 {
+    class Image;
     class Color {
+        friend class Image;
     private:
         Uint8 red;
         Uint8 green;
         Uint8 blue;
         Uint8 alpha;
-
     public:
         static const Color BLACK;
         static const Color WHITE;
@@ -49,6 +50,7 @@ namespace Duel6 {
         static const Color CYAN;
         static const Color MAGENTA;
         static const Color YELLOW;
+        static const Color GRAY;
 
     public:
         Color()
@@ -59,6 +61,8 @@ namespace Duel6 {
 
         Color(const Color &c) = default;
 
+        Color(Color &&c) = default;
+
         Color(Uint8 red, Uint8 green, Uint8 blue)
                 : Color(red, green, blue, 255) {}
 
@@ -66,6 +70,8 @@ namespace Duel6 {
                 : red(red), green(green), blue(blue), alpha(alpha) {}
 
         Color &operator=(const Color &c) = default;
+
+        Color &operator=(Color &&c) = default;
 
         bool operator==(const Color &color) const {
             return (red == color.red &&

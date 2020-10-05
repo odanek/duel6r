@@ -35,7 +35,8 @@
 #include "TextureManager.h"
 #include "Video.h"
 #include "script/ScriptManager.h"
-
+#include "net/NetHost.h"
+#include "net/NetClient.h"
 namespace Duel6 {
     class AppService {
     private:
@@ -47,12 +48,16 @@ namespace Duel6 {
         PlayerControlsManager &controlsManager;
         Sound &sound;
         Script::ScriptManager &scriptManager;
+        net::NetHost & netHost;
+        net::NetClient & netClient;
 
     public:
         AppService(Font &font, Console &console, TextureManager &textureManager, Video &video, Input &input,
-                PlayerControlsManager &controlsManager, Sound &sound, Script::ScriptManager &scriptManager)
+                PlayerControlsManager &controlsManager, Sound &sound, Script::ScriptManager &scriptManager,
+                net::NetHost & netHost, net::NetClient & netClient)
                 : font(font), console(console), textureManager(textureManager), video(video), input(input),
-                  controlsManager(controlsManager), sound(sound), scriptManager(scriptManager) {}
+                  controlsManager(controlsManager), sound(sound), scriptManager(scriptManager),
+                  netHost(netHost), netClient(netClient){}
 
         Font &getFont() {
             return font;
@@ -84,6 +89,14 @@ namespace Duel6 {
         Script::ScriptManager &getScriptManager() {
             return scriptManager;
         }
+
+        net::NetHost & getNetHost() {
+            return netHost;
+        }
+        net::NetClient & getNetClient() {
+            return netClient;
+        }
+
     };
 }
 

@@ -34,7 +34,7 @@ namespace Duel6 {
                            const TextureManager &textureManager,
                            const PlayerAnimations & animations)
         : colors(colors),
-          animations(animations),
+          animations(&animations),
           textures(animations.generateAnimationTexture(textureManager, colors)) {
     }
 
@@ -47,6 +47,6 @@ namespace Duel6 {
     }
 
     const PlayerAnimations & PlayerSkin::getAnimations() const {
-        return animations;
+        return *animations;
     }
 }

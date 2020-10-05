@@ -40,15 +40,78 @@
 #include "gamemodes/DeathMatch.h"
 #include "gamemodes/TeamDeathMatch.h"
 #include "gamemodes/Predator.h"
-
+#include "gui/Dialog.h"
+#include "gui/Image.h"
 #define D6_ALL_CHR  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -=\\~!@#$%^&*()_+|[];',./<>?:{}"
-
+#define D6_DIGITS_CHR "1234567890"
 namespace Duel6 {
     Menu::Menu(AppService &appService)
             : appService(appService), font(appService.getFont()), video(appService.getVideo()),
-              renderer(video.getRenderer()), sound(appService.getSound()), gui(video.getRenderer()),
+              renderer(video.getRenderer()), sound(appService.getSound()), gui(video.getRenderer(), font),
+              mainView(new Gui::View(gui, 0,0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight())),
               controlsManager(appService.getControlsManager()),
               defaultPlayerSounds(PlayerSounds::makeDefault(sound)), playMusic(false) {}
+
+    void Menu::loadNetworkSettings(const std::string &filePath) {
+        if (!File::exists(filePath)) {
+            host->setText("localhost");
+            port->setText("5900");
+            return;
+        }
+        Json::Value defaultMasterURL = Json::Value::makeString("duel6-master.mrakonos.cz");
+        Json::Value defaultMasterPort = Json::Value::makeNumber(5902);
+        Json::Value defaultMaster = Json::Value::makeObject();
+        defaultMaster.set("URL", defaultMasterURL);
+        defaultMaster.set("port", defaultMasterPort);
+
+        Json::Parser parser;
+        Json::Value json = parser.parse(filePath);
+        Json::Value host = json.getOrDefault("host", Json::Value::makeString("localhost"));
+        Json::Value port = json.getOrDefault("port", Json::Value::makeString("5900"));
+        Json::Value master = json.getOrDefault("master", defaultMaster);
+        Json::Value enableMaster = json.getOrDefault("enableMaster", Json::Value::makeBoolean(false));
+        Json::Value enableMasterDiscovery = json.getOrDefault("enableMasterDiscovery", Json::Value::makeBoolean(false));
+        Json::Value enableNAT = json.getOrDefault("enableNAT", Json::Value::makeBoolean(false));
+        Json::Value localIPAddress = json.getOrDefault("localIPAddress", Json::Value::makeString("0.0.0.0"));
+        Json::Value serverDescription = json.getOrDefault("serverDescription", Json::Value::makeString("unnamed server"));
+        Json::Value publicIPAddress = json.getOrDefault("publicIPAddress", Json::Value::makeString("0.0.0.0"));
+        Json::Value publiPort = json.getOrDefault("publicPort", Json::Value::makeNumber(5900));
+
+        this->host->setText(host.asString());
+        this->port->setText(port.asString());
+        this->netConfig.masterServer = master.getOrDefault("URL", Json::Value::makeString("duel6-master.mrakonos.cz")).asString();
+        this->netConfig.masterServerPort = master.getOrDefault("port", Json::Value::makeNumber(5902)).asInt();
+        this->netConfig.enableMasterServer = enableMaster.asBoolean();
+        this->netConfig.localIPAddress = localIPAddress.asString();
+        this->netConfig.enableMasterDiscovery = enableMasterDiscovery.asBoolean();
+        this->netConfig.enableNATPunch = enableNAT.asBoolean();
+        this->netConfig.serverDescription = serverDescription.asString();
+        this->netConfig.publicIPAddress = publicIPAddress.asString();
+        this->netConfig.publicPort = publiPort.asInt();
+    }
+
+    void Menu::saveNetworkSettings() {
+        Json::Value json = Json::Value::makeObject();
+        Json::Value masterURL = Json::Value::makeString(this->netConfig.masterServer);
+        Json::Value masterPort = Json::Value::makeNumber(this->netConfig.masterServerPort);
+        Json::Value master = Json::Value::makeObject();
+        master.set("URL", masterURL);
+        master.set("port", masterPort);
+
+        json.set("host", Json::Value::makeString(this->host->getText()));
+        json.set("port", Json::Value::makeString(this->port->getText()));
+        json.set("master", master);
+        json.set("enableMaster", Json::Value::makeBoolean(this->netConfig.enableMasterServer));
+        json.set("enableMasterDiscovery", Json::Value::makeBoolean(this->netConfig.enableMasterDiscovery));
+        json.set("enableNAT", Json::Value::makeBoolean(this->netConfig.enableNATPunch));
+        json.set("localIPAddress", Json::Value::makeString(this->netConfig.localIPAddress));
+        json.set("serverDescription", Json::Value::makeString(this->netConfig.serverDescription));
+        json.set("publicIPAddress", Json::Value::makeString(this->netConfig.publicIPAddress));
+        json.set("publicPort", Json::Value::makeNumber(this->netConfig.publicPort));
+
+        Json::Writer writer(true);
+        writer.writeToFile(D6_FILE_NETWORK_SETTINGS, json);
+    }
 
     void Menu::loadPersonData(const std::string &filePath) {
         if (!File::exists(filePath)) {
@@ -94,68 +157,72 @@ namespace Duel6 {
     void Menu::initialize() {
         appService.getConsole().printLine("\n===Menu initialization===");
         menuBannerTexture = appService.getTextureManager().loadStack(D6_TEXTURE_MENU_PATH, TextureFilter::Linear, true);
+
         appService.getConsole().printLine("...Starting GUI library");
         gui.screenSize(video.getScreen().getClientWidth(), video.getScreen().getClientHeight(),
-                       (video.getScreen().getClientWidth() - 800) / 2, (video.getScreen().getClientHeight() - 700) / 2);
+                       (video.getScreen().getClientWidth() - 900) / 2, (video.getScreen().getClientHeight() - 700) / 2);
+        Gui::View & mainView = *(this->mainView);
+        Material material = Material::makeTexture(menuBannerTexture);
+        new Gui::Image(mainView, material, 350, 670, 200, 95);
 
-        scoreListBox = new Gui::ListBox(gui, true);
-        scoreListBox->setPosition(10, 199, 97, 12, 16);
+        scoreListBox = new Gui::ListBox(mainView, true);
+        scoreListBox->setPosition(10, 189, 110, 12, 16);
 
-        personListBox = new Gui::ListBox(gui, true);
-        personListBox->setPosition(10, 539, 20, 15, 18);
+        personListBox = new Gui::ListBox(mainView, true);
+        personListBox->setPosition(10, 541, 20, 15, 19);
         personListBox->onDoubleClick([this](Int32 index, const std::string &item) {
             addPlayer(index);
         });
 
-        playerListBox = new Gui::ListBox(gui, false);
-        playerListBox->setPosition(200, 541, 15, D6_MAX_PLAYERS, 18);
+        playerListBox = new Gui::ListBox(mainView, false);
+        playerListBox->setPosition(200, 541, 20, D6_MAX_PLAYERS, 19);
         playerListBox->onDoubleClick([this](Int32 index, const std::string &item) {
             removePlayer(index);
         });
 
-        eloListBox = new Gui::ListBox(gui, true);
-        eloListBox->setPosition(594, 539, 24, 19, 16);
+        eloListBox = new Gui::ListBox(mainView, true);
+        eloListBox->setPosition(695, 539, 24, 19, 16);
 
         loadPersonProfiles(D6_FILE_PROFILES);
 
-        auto addPlayerButton = new Gui::Button(gui);
-        addPlayerButton->setPosition(200, 253, 80, 25);
+        auto addPlayerButton = new Gui::Button(mainView);
+        addPlayerButton->setPosition(200, 243, 80, 25);
         addPlayerButton->setCaption(">>");
         addPlayerButton->onClick([this](Gui::Button &) {
             addPlayer(personListBox->selectedIndex());
         });
 
-        auto removePlayerButton = new Gui::Button(gui);
-        removePlayerButton->setPosition(105, 253, 85, 25);
+        auto removePlayerButton = new Gui::Button(mainView);
+        removePlayerButton->setPosition(105, 243, 85, 25);
         removePlayerButton->setCaption("<<");
         removePlayerButton->onClick([this](Gui::Button &) {
             removePlayer(playerListBox->selectedIndex());
         });
 
-        auto removePersonButton = new Gui::Button(gui);
-        removePersonButton->setPosition(10, 253, 90, 25);
+        auto removePersonButton = new Gui::Button(mainView);
+        removePersonButton->setPosition(10, 243, 90, 25);
         removePersonButton->setCaption("Remove");
         removePersonButton->onClick([this](Gui::Button &) {
             deletePerson();
             rebuildTable();
         });
 
-        auto addPersonButton = new Gui::Button(gui);
-        addPersonButton->setPosition(284, 253, 80, 25);
+        auto addPersonButton = new Gui::Button(mainView);
+        addPersonButton->setPosition(284, 243, 80, 25);
         addPersonButton->setCaption("Add");
         addPersonButton->onClick([this](Gui::Button &) {
             addPerson();
         });
 
-        auto playButton = new Gui::Button(gui);
-        playButton->setPosition(350, 0, 150, 50);
+        auto playButton = new Gui::Button(mainView);
+        playButton->setPosition(445, -10, 150, 50);
         playButton->setCaption("Play (F1)");
         playButton->onClick([this](Gui::Button &) {
-            play();
+            play(false);
         });
 
-        auto clearButton = new Gui::Button(gui);
-        clearButton->setPosition(505, 0, 150, 50);
+        auto clearButton = new Gui::Button(mainView);
+        clearButton->setPosition(600, -10, 150, 50);
         clearButton->setCaption("Clear (F3)");
         clearButton->onClick([this](Gui::Button &) {
             if (deleteQuestion()) {
@@ -163,106 +230,217 @@ namespace Duel6 {
             }
         });
 
-        auto quitButton = new Gui::Button(gui);
-        quitButton->setPosition(660, 0, 150, 50);
-        quitButton->setCaption("Quit (ESC)");
-        quitButton->onClick([this](Gui::Button &) {
-            close();
+        host = new Gui::Textbox(mainView);
+        host->setPosition(10, 630, 30, 20, D6_ALL_CHR);
+        host->setText("localhost");
+        host->setPlaceholder("(address e.g. google.com or 1.2.3.4)");
+        port = new Gui::Textbox(mainView);
+        port->setPosition(280, 630, 20, 5, D6_DIGITS_CHR);
+        port->setText("5900");
+        port->setPlaceholder("(port e.g. 5900)");
+
+
+        auto serverList = new Gui::Button(mainView);
+
+        serverList->setPosition(10, 700, 110, 30);
+        serverList->setCaption("List");
+        serverList->onClick([this](Gui::Button &) {
+            serverlist();
+            Int32 w = 800;
+            Int32 h = 400;
+            Gui::Dialog * dialog = new Gui::Dialog(this->gui, 10, 300, w, h, std::string("Servers"));
+            Gui::ListBox * servers = new Gui::ListBox(*dialog, true);
+            Gui::Button * bt = new Gui::Button(*dialog);
+            bt->setPosition(5, 40, 110, 30);
+            bt->setCaption("Refresh");
+            Gui::Button * connectBt = new Gui::Button(*dialog);
+            connectBt->setPosition(160, 40, 110, 30);
+            connectBt->setCaption("Connect");
+            connectBt->setEnabled(false);
+            servers->setPosition(5, h - 40, w / 8 - 4, (h - 60) / 16 - 2, 16);
+            dialog->onResize([servers](Gui::View& dialog, Int32 x , Int32 y, Int32 w, Int32 h){
+                servers->setPosition(5, h - 40, w / 8 - 4, (h - 60) / 16 - 2, 16);
+            });
+            bt->onClick([this](Gui::Button &){
+                serverlist();
+            });
+            servers->onItemSelected([this, connectBt](Int32 index, const std::string &item){
+                pickedServerIndex = index;
+                connectBt->setEnabled(true);
+            });
+            connectBt->onClick([this, dialog](Gui::Button &){
+                this->joinServerFromServerList(pickedServerIndex);
+                dialog->close();
+            });
+            servers->onDoubleClick([this, dialog](Int32 index, const std::string &item){
+                this->joinServerFromServerList(index);
+                dialog->close();
+            });
+           Menu::ServerList::callbackReset_t resetCallback = this->serverList.setCallback([servers](Menu::ServerList::list_t & list){
+               servers->clear();
+               for(const auto & server : list)
+               servers->addItem(server.text);
+           });
+           dialog->onClose([resetCallback](Gui::View & dialog){
+               resetCallback();
+           });
         });
 
-        auto scoreLabel = new Gui::Label(gui);
-        scoreLabel->setPosition(10, 219, 800, 18);
+        auto startServerB = new Gui::Button(mainView);
+
+        startServerB->setPosition(10, 600, 110, 30);
+        startServerB->setCaption("Server");
+        startServerB->onClick([this](Gui::Button &) {
+            startServer();
+        });
+        auto connect = new Gui::Button(mainView);
+
+        connect->setPosition(140, 600, 110, 30);
+        connect->setCaption("Connect");
+        connect->onClick([this](Gui::Button &) {
+            joinServer();
+        });
+        reverseConnection = new Gui::CheckBox(mainView);
+        reverseConnection->setPosition(260, 600, 60, 20);
+        reverseConnection->setLabel("Reverse connection");
+
+        auto quitButton = new Gui::Button(mainView);
+        quitButton->setPosition(755, -10, 150, 50);
+        quitButton->setCaption("Quit (ESC)");
+        quitButton->onClick([this](Gui::Button &) {
+            quit();
+        });
+        auto versionLabel = new Gui::Label(mainView);
+        versionLabel->setCaption(Format("{0} {1}") << "version" << APP_VERSION);
+        versionLabel->setPosition(10, -60, 0, 18);
+        auto scoreLabel = new Gui::Label(mainView);
+        scoreLabel->setPosition(10, 209, 800, 18);
         scoreLabel->setCaption(
                 "    Name   |   Elo | Pts | Win | Kill | Assist | Pen | Death |  K/D | Shot | Acc. | GmTm |  Dmg ");
 
-        auto eloLabel = new Gui::Label(gui);
-        eloLabel->setPosition(594, 560, 210, 18);
+        auto eloLabel = new Gui::Label(mainView);
+        eloLabel->setPosition(695, 560, 210, 18);
         eloLabel->setCaption("Elo scoreboard");
 
-        auto personsLabel = new Gui::Label(gui);
+        auto personsLabel = new Gui::Label(mainView);
         personsLabel->setPosition(10, 560, 181, 18);
         personsLabel->setCaption("Persons");
 
-        playersLabel = new Gui::Label(gui);
-        playersLabel->setPosition(200, 560, 88, 18);
+        playersLabel = new Gui::Label(mainView);
+        playersLabel->setPosition(200, 560, 118, 18);
 
         updatePlayerCount();
 
-        Gui::Button *shuffleButton = new Gui::Button(gui);
+        Gui::Button *shuffleButton = new Gui::Button(mainView);
         shuffleButton->setCaption("S");
-        shuffleButton->setPosition(307, 560, 17, 17);
+        shuffleButton->setPosition(347, 560, 17, 17);
         shuffleButton->onClick([this](Gui::Button &) {
             shufflePlayers();
         });
 
-        Gui::Button *eloShuffleButton = new Gui::Button(gui);
+        Gui::Button *eloShuffleButton = new Gui::Button(mainView);
         eloShuffleButton->setCaption("E");
-        eloShuffleButton->setPosition(290, 560, 17, 17);
+        eloShuffleButton->setPosition(330, 560, 17, 17);
         eloShuffleButton->onClick([this](Gui::Button &) {
             eloShufflePlayers();
         });
 
-        auto controllerLabel = new Gui::Label(gui);
-        controllerLabel->setPosition(330, 560, 192, 18);
+        auto controllerLabel = new Gui::Label(mainView);
+        controllerLabel->setPosition(370, 560, 192, 18);
         controllerLabel->setCaption("Controller");
 
-        textbox = new Gui::Textbox(gui);
-        textbox->setPosition(370, 252, 14, 10, D6_ALL_CHR);
-
+        textbox = new Gui::Textbox(mainView);
+        textbox->setPosition(370, 242, 14, 10, D6_ALL_CHR);
+        textbox->onEnter([this](Gui::Textbox &) {
+            addPerson();
+        });
         // Player controls
         for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
-            controlSwitch[i] = new Gui::Spinner(gui);
-            controlSwitch[i]->setPosition(330, 539 - Int32(i) * 18, 192, 0);
+            controlSwitch[i] = new Gui::Spinner(mainView);
+            controlSwitch[i]->setPosition(370, 539 - Int32(i) * 19, 192, 0);
+        }
 
-            Gui::Button *button = new Gui::Button(gui);
+        for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
+            Gui::Button *button = new Gui::Button(mainView);
             button->setCaption("D");
-            button->setPosition(526, 537 - Int32(i) * 18, 17, 17);
+            button->setPosition(566, 537 - Int32(i) * 19, 18, 18);
             button->onClick([this, i](Gui::Button &) {
                 detectControls(i);
             });
         }
 
         // Button to detect all user's controllers in a batch
-        Gui::Button *button = new Gui::Button(gui);
+        Gui::Button *button = new Gui::Button(mainView);
         button->setCaption("D");
-        button->setPosition(526, 558, 17, 17);
+        button->setPosition(566, 558, 18, 18);
         button->onClick([this](Gui::Button &) {
             joyRescan();
             Size curPlayersCount = playerListBox->size();
             for (Size j = 0; j < curPlayersCount; j++) {
-                detectControls(j);
+                if(!detectControls(j)){
+                    break;
+                }
             }
         });
 
+        auto teamSelectorLabel = new Gui::Label(mainView);
+        teamSelectorLabel->setPosition(590, 560, 60, 18);
+        teamSelectorLabel->setCaption("Team");
+
+        // Player teams
+        for (Size i = 0; i < D6_MAX_PLAYERS; i++) {
+            teamControlSwitch[i] = new Gui::Spinner(mainView);
+            teamControlSwitch[i]->setPosition(590, 539 - Int32(i) * 19, 60, 0);
+            teamControlSwitch[i]->addItem("", 0, false);
+            teamControlSwitch[i]->addItem("", 1, false);
+            teamControlSwitch[i]->addItem("", 2, false);
+            teamControlSwitch[i]->addItem("", 3, false);
+            teamControlSwitch[i]->addItem("", 4, false);
+            teamControlSwitch[i]->onColorize([i](Int32 index, const std::string &item) {
+                if(index == 0) {
+                    return Gui::Spinner::defaultColorize(index, item);
+                }
+                return Gui::Spinner::ItemColor{Color::BLACK, TEAMS[(index - 1) % 4].color};
+            });
+        }
+
         initializeGameModes();
-        gameModeSwitch = new Gui::Spinner(gui);
+        gameModeSwitch = new Gui::Spinner(mainView);
         for (auto &gameMode : gameModes) {
             gameModeSwitch->addItem(gameMode->getName());
         }
-        gameModeSwitch->setPosition(10, 0, 330, 20);
+        gameModeSwitch->setPosition(10, -10, 330, 20);
         gameModeSwitch->onToggled([this](Int32 selectedIndex) {
-            if (selectedIndex < 2) {
-                playerListBox->onColorize(Gui::ListBox::defaultColorize);
-            } else {
-                Int32 teamCount = 1 + selectedIndex / 2;
-                playerListBox->onColorize([teamCount](Int32 index, const std::string &label) {
-                    return Gui::ListBox::ItemColor{Color::BLACK, TEAMS[index % teamCount].color};
-                });
+            Int32 teamCount = 1 + selectedIndex / 2;
+            for(size_t i = 0; i < playerListBox->size(); i++){
+                if(selectedIndex < 2){
+                    teamControlSwitch[i]->setCurrent(0);
+                } else {
+                    teamControlSwitch[i]->setCurrent(i % teamCount + 1);
+                }
             }
         });
 
-        globalAssistanceCheckBox = new Gui::CheckBox(gui, true);
+        globalAssistanceCheckBox = new Gui::CheckBox(mainView, true);
         globalAssistanceCheckBox->setLabel("Assistance");
-        globalAssistanceCheckBox->setPosition(11, -21, 130, 20);
+        globalAssistanceCheckBox->setPosition(11, -31, 130, 20);
 
-        quickLiquidCheckBox = new Gui::CheckBox(gui, true);
+        quickLiquidCheckBox = new Gui::CheckBox(mainView, false);
         quickLiquidCheckBox->setLabel("Quick Liquid");
-        quickLiquidCheckBox->setPosition(151, -21, 150, 20);
+        quickLiquidCheckBox->setPosition(151, -31, 150, 20);
 
         backgroundCount = File::countFiles(D6_TEXTURE_BCG_PATH);
         levelList.initialize(D6_FILE_LEVEL, D6_LEVEL_EXTENSION);
 
         menuTrack = sound.loadModule("sound/undead.xm");
+
+        appService.getConsole().printLine("\n===Loading network.json===");
+        loadNetworkSettings(D6_FILE_NETWORK_SETTINGS);
+        appService.getNetClient().setLocalIPAddress(netConfig.localIPAddress);
+        appService.getNetClient().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
+        appService.getNetHost().setMasterAddressAndPort(netConfig.masterServer, netConfig.masterServerPort);
+        appService.getNetHost().setServerConfig(netConfig.getPublicIPAddress(), netConfig.publicPort, netConfig.serverDescription, netConfig.enableMasterDiscovery, netConfig.enableNATPunch);
+        appService.getNetClient().initNetHost();
     }
 
     void Menu::initializeGameModes() {
@@ -351,19 +529,31 @@ namespace Duel6 {
     }
 
     void Menu::showMessage(const std::string &message) {
-        Int32 width = Int32(message.size()) * 8 + 60;
+        const Float32 fontHeight = 32;
+        const std::string cancel = "[ESC] to cancel";
+        Int32 width = font.getTextWidth(message, fontHeight) + 60;
+        Int32 cancelWidth = font.getTextWidth(cancel, fontHeight);
+        Int32 height = fontHeight * 2; //2 lines
         Int32 x = video.getScreen().getClientWidth() / 2 - width / 2,
-                y = video.getScreen().getClientHeight() / 2 - 10;
+            y = video.getScreen().getClientHeight() / 2 - height / 2;
 
-        renderer.quadXY(Vector(x, y), Vector(width, 20), Color(255, 204, 204));
-        renderer.frame(Vector(x, y), Vector(width, 20), 2, Color::BLACK);
+        renderer.quadXY(Vector(x, y), Vector(width, height + 4), Color(255, 204, 204));
+        renderer.frame(Vector(x, y), Vector(width, height + 4), 2, Color::BLACK);
 
-        font.print(x + 30, y + 2, Color::RED, message);
+        font.print(x + 30, y + 32, 0.5f, Color::RED, message, fontHeight);
+        font.print(x + (width - cancelWidth) / 2.0f, y + 2, 0.5f, Color::RED, cancel, fontHeight);
         video.screenUpdate(appService.getConsole(), font);
     }
-
-    bool Menu::question(const std::string &question) {
+    bool Menu::question(const std::string &q) {
+        bool cancel;
+        return question(q, cancel);
+    }
+    bool Menu::question(const std::string &question, bool & cancel) {
         showMessage(question);
+        appService.getConsole().printLine(question);
+#ifdef D6_RENDERER_HEADLESS
+        return true;
+#endif
         SDL_Event event;
         bool answer;
 
@@ -375,6 +565,10 @@ namespace Duel6 {
                         break;
                     } else if (event.key.keysym.sym == SDLK_n) {
                         answer = false;
+                        break;
+                    } else if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        answer = false;
+                        cancel = true;
                         break;
                     }
                 }
@@ -397,19 +591,19 @@ namespace Duel6 {
         savePersonData();
     }
 
-    void Menu::detectControls(Size playerIndex) {
+    bool Menu::detectControls(Size playerIndex) {
         render();
         if (playerIndex >= playerListBox->size()) {
-            return;
+            return false;
         }
         const std::string &name = playerListBox->getItem(playerIndex);
         showMessage("Player " + name + ": Press any control");
         playPlayersSound(name);
 
         bool detected = false;
-
-        while (!detected) {
-            if (processEvents(true)) {
+        bool cancelled = false;
+        while (!detected && !cancelled) {
+            if (processEvents(true, cancelled)) {
                 for (Size i = 0; i < controlsManager.getNumAvailable(); i++) {
                     const PlayerControls &pc = controlsManager.get(i);
 
@@ -427,6 +621,7 @@ namespace Duel6 {
         }
 
         consumeInputEvents();
+        return !cancelled;
     }
 
     void Menu::playPlayersSound(const std::string &name) {
@@ -437,23 +632,11 @@ namespace Duel6 {
         }
     }
 
-    void Menu::play() {
-        play(listMaps());
+    bool Menu::play(bool networkGame) {
+       return play(listMaps(), networkGame);
     }
 
-    void Menu::play(std::vector<std::string> levels) {
-        if (playerListBox->size() < 2) {
-            showMessage("Can't play alone ...");
-            SDL_Event event;
-            while (true) {
-                if (SDL_PollEvent(&event)) {
-                    break;
-                }
-            }
-
-            consumeInputEvents();
-            return;
-        }
+    bool Menu::play(std::vector<std::string> levels, bool networkGame) {
         game->getSettings().setQuickLiquid(quickLiquidCheckBox->isChecked());
         game->getSettings().setGlobalAssistances(globalAssistanceCheckBox->isChecked());
         if (game->getSettings().isRoundLimit()) {
@@ -462,24 +645,28 @@ namespace Duel6 {
                 game->setPlayedRounds(0);
             }
         } else {
-            if (question("Clear statistics? (Y/N)")) {
+            bool cancelled = false;
+            if (question("Clear statistics? (Y/N)", cancelled)) {
                 cleanPersonData();
                 game->setPlayedRounds(0);
+            }
+            if(cancelled){
+                return false;
             }
         }
 
         GameMode &selectedMode = *gameModes[gameModeSwitch->currentItem()];
 
-        std::vector<Game::PlayerDefinition> playerDefinitions;
+        std::vector<PlayerDefinition> playerDefinitions;
         for (Size i = 0; i < playerListBox->size(); i++) {
             Person &person = persons.getByName(playerListBox->getItem(i));
             auto profile = getPersonProfile(person.getName());
             const PlayerControls &controls = controlsManager.get(controlSwitch[i]->currentValue().first);
             PlayerSkinColors colors = profile ? profile->getSkinColors() : PlayerSkinColors::makeRandom();
             const PlayerSounds &sounds = profile ? profile->getSounds() : defaultPlayerSounds;
-            playerDefinitions.push_back(Game::PlayerDefinition(person, colors, sounds, controls));
+            playerDefinitions.push_back(PlayerDefinition(person, colors, sounds, controls, teamControlSwitch[i]->currentValue().first, i, 0, i));
         }
-        selectedMode.initializePlayers(playerDefinitions);
+        //selectedMode.initializePlayers(playerDefinitions);
 
 
         // Game backgrounds
@@ -499,7 +686,8 @@ namespace Duel6 {
 
         // Start
         Context::push(*game);
-        game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode);
+        game->start(playerDefinitions, levels, backgrounds, screenMode, screenZoom, selectedMode, networkGame);
+        return true;
     }
 
     void Menu::addPlayer(Int32 index) {
@@ -567,32 +755,16 @@ namespace Duel6 {
     }
 
     void Menu::render() const {
-        Int32 trX = (video.getScreen().getClientWidth() - 800) / 2;
-        Int32 trY = (video.getScreen().getClientHeight() - 700) / 2;
-
         gui.draw(font);
-
-        renderer.setViewMatrix(Matrix::translate(Float32(trX), -Float32(trY), 0));
-
-        font.print(687, video.getScreen().getClientHeight() - 20, Color::WHITE,
-                   Format("{0} {1}") << "version" << APP_VERSION);
-
-        Int32 clientHeight = video.getScreen().getClientHeight();
-        Material material = Material::makeTexture(menuBannerTexture);
-        renderer.quadXY(Vector(300, clientHeight - 100), Vector(200, 95), Vector(0, 1), Vector(1, -1), material);
-
-        renderer.setViewMatrix(Matrix::IDENTITY);
     }
 
     void Menu::keyEvent(const KeyPressEvent &event) {
-        gui.keyEvent(event);
-
-        if (event.getCode() == SDLK_RETURN) {
-            addPerson();
+        if(gui.keyEvent(event)){
+            return;
         }
 
         if (event.getCode() == SDLK_F1) {
-            play();
+            play(false);
         }
 
         if (event.getCode() == SDLK_F3) {
@@ -602,6 +774,12 @@ namespace Duel6 {
         }
 
         if (event.getCode() == SDLK_ESCAPE) {
+            quit();
+        }
+    }
+
+    void Menu::quit() {
+        if (Menu::question("Quit now ? Y/N")) {
             close();
         }
     }
@@ -634,6 +812,34 @@ namespace Duel6 {
         SDL_StopTextInput();
         sound.stopMusic();
         savePersonData();
+        saveNetworkSettings();
+    }
+    void Menu::startDedicatedServer(){
+        game->isServer = true && !reverseConnection->isChecked();
+        playerListBox->clear(); // remove any players that might be accidentaly set
+        if(!play(true)){
+            appService.getConsole().printLine("Cannot play");
+            return;
+        }
+        appService.getNetHost().listen(*game, host->getText(), std::stoi(port->getText()));
+    }
+    void Menu::startServer(){
+        game->isServer = true && !reverseConnection->isChecked();
+        if(!play(true)){
+            return;
+        }
+        appService.getNetHost().listen(*game, host->getText(), std::stoi(port->getText()));
+    }
+
+    void Menu::joinServer(){
+        game->isServer = false || reverseConnection->isChecked();
+        if(!play(true)){
+            return;
+        }
+
+        /// TODO To make connection via server's public address and its local address in case it sits on the
+        // same network as this client
+        appService.getNetClient().connect(*game, host->getText(), std::stoi(port->getText()));
     }
 
     void Menu::enableMusic(bool enable) {
@@ -674,6 +880,11 @@ namespace Duel6 {
     }
 
     int Menu::processEvents(bool single) {
+        bool cancelled = false;
+        return processEvents(single, cancelled);
+    }
+
+    int Menu::processEvents(bool single, bool & cancelled) {
         SDL_Event event;
         int result = 0;
         //TODO This logic duplicates event processing logic in Application. Should be refactored.
@@ -682,6 +893,9 @@ namespace Duel6 {
                 case SDL_KEYDOWN: {
                     auto key = event.key.keysym;
                     appService.getInput().setPressed(key.sym, true);
+                    if(key.sym == SDLK_ESCAPE){
+                        cancelled = true;
+                    }
                     break;
                 }
                 case SDL_KEYUP: {
@@ -755,17 +969,45 @@ namespace Duel6 {
         return levels;
     }
 
+    void Menu::serverlist() {
+        appService.getNetClient().requestServerList([this](masterserver::serverlist_t & serverList) {
+            this->serverList.clear();
+            for(const auto & server: serverList){
+                appService.getConsole().printLine(Format("Server: {0}") << hostToIPaddress(server.address, server.port));
+                this->serverList.add(
+                    server.address, server.port,
+                    server.publicIPAddress, server.publicPort,
+                    server.localNetworkAddress, server.localNetworkPort,
+                    addressToStr(server.address),
+                    Format("{0}") << server.port,
+                    addressToStr(server.publicIPAddress),
+                    Format("{0}") << server.publicPort,
+                    addressToStr(server.localNetworkAddress),
+                    Format("{0}") << server.localNetworkPort,
+                    server.description,
+                    Format("{0,8} {1} {2}")
+                    << (server.enableNAT ? "P2P" : "direct")
+                    << hostToIPaddress(server.address, server.port)
+                    << server.description,
+                    server.enableNAT);
+            }
+            this->serverList.notify();
+        });
+    }
+
     void Menu::eloShufflePlayers() {
         auto playerCount = playerListBox->size();
 
         std::vector<const Person *> players;
         std::unordered_map<std::string, Int32> controls;
+        std::unordered_map<std::string, Int32> team;
 
         for (Size i = 0; i < playerCount; i++) {
             std::string name = playerListBox->getItem(i);
             Person &person = persons.getByName(name);
             players.push_back(&person);
             controls[name] = controlSwitch[i]->currentItem();
+            team[name] = teamControlSwitch[i]->currentItem();
         }
 
         std::sort(players.begin(), players.end(), [](const Person *left, const Person *right) {
@@ -791,6 +1033,70 @@ namespace Duel6 {
             std::string name = players[pos]->getName();
             playerListBox->addItem(name);
             controlSwitch[i]->setCurrent(controls[name]);
+            teamControlSwitch[i]->setCurrent(team[name]);
         }
     }
+    void Menu::ServerList::add(enet_uint32 netAddress, enet_uint16 netPort,
+                               enet_uint32 publicAddress, enet_uint16 publicPort,
+                               enet_uint32 localAddress, enet_uint16 localPort,
+                               const std::string &address, const std::string &port,
+                               const std::string &publicAddressStr, const std::string &publicPortStr,
+                               const std::string &localAddressStr, const std::string &localPortStr,
+                               const std::string &descr, const std::string &text,
+                               bool enableNAT) {
+        list.emplace_back(Server{netAddress, netPort,
+            publicAddress, publicPort,
+            localAddress, localPort,
+            address, port,
+            publicAddressStr, publicPortStr,
+            localAddressStr, localPortStr,
+            descr, text,
+            enableNAT});
+    }
+
+    void Menu::ServerList::clear(){
+        list.clear();
+    }
+
+    void Menu::ServerList::notify(){
+        callback(list);
+    }
+
+    Menu::ServerList::callbackReset_t Menu::ServerList::setCallback(callback_t cb){
+        callback = cb;
+        return [this](){
+            clearCallback();
+        };
+    }
+
+    const std::vector<Menu::Server>& Menu::ServerList::get() const {
+        return list;
+    }
+
+    void Menu::joinServerFromServerList(Int32 index){
+        const auto &server = this->serverList.get()[index];
+
+        std::string addressText = server.address;
+        std::string portText = server.port;
+        if (server.enableNAT) {
+            if (server.publicIPAddress != 0 && server.publicPort != 0) {
+                addressText = server.publicIPAddressStr;
+                portText = server.publicPortStr;
+            }
+            appService.getNetClient().requestNATPunch(server.netAddress, server.netPort,
+                server.publicIPAddress, server.publicPort,
+                server.localAddress, server.localPort);
+        } else {
+            if (server.publicIPAddress != 0 && server.publicPort != 0) {
+                addressText = server.publicIPAddressStr;
+                portText = server.publicPortStr;
+            }
+        }
+        this->host->setText(addressText);
+        this->port->setText(portText);
+        this->joinServer();
+    }
+
 }
+
+

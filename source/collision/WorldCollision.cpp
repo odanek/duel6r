@@ -31,9 +31,7 @@ namespace Duel6 {
 //TODO Duplicity
 static const float GRAVITATIONAL_ACCELERATION = -11.0f;
 
-void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed) {
-    elevator = elevators.checkCollider(*this, elapsedTime * speed);
-
+void CollidingEntity::collideWithElevator(Float32 elapsedTime, Float32 speed) {
     if(elevator != nullptr) {
         position.y = elevator->getPosition().y;
         position += elevator->getVelocity() * elapsedTime;
@@ -43,6 +41,10 @@ void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 ela
             velocity.x = 0.0f;
         }
     }
+}
+void CollidingEntity::collideWithElevators(ElevatorList & elevators, Float32 elapsedTime, Float32 speed) {
+    elevator = elevators.checkCollider(*this, elapsedTime * speed);
+    collideWithElevator(elapsedTime, speed);
 }
 
 void CollidingEntity::collideWithLevel(const Level & level, Float32 elapsedTime, Float32 speed) {
@@ -221,6 +223,24 @@ void CollidingEntity::initPosition(Float32 x, Float32 y, Float32 z) {
     lastCollisionCheck = {true, true, true, true, true, true, false};
 }
 
+void CollidingEntity::setPosition(const Vector & position) {
+    this->position = position;
+}
+
+void CollidingEntity::setPosition(Float32 x, Float32 y, Float32 z) {
+//    Float32 deltaX = position.x - x;
+//    Float32 deltaY = position.y - y;
+//    if((deltaX * deltaX + deltaY * deltaY) < 0.1){
+//
+//        return;
+//    } else {
+//        externalForces.x -= 0.5 * deltaX; //rubberbanding
+//        externalForces.y -= 0.5 * deltaY;
+//    }
+//    if((deltaX * deltaX + deltaY * deltaY) > 0.9){
+        position = {x, y, z};
+//    }
+}
 Rectangle CollidingEntity::getCollisionRect() const {
     return Rectangle::fromCornerAndSize(position, dimensions);
 }
@@ -244,4 +264,9 @@ bool CollidingEntity::isOnElevator() const {
 bool CollidingEntity::isOnGround() const {
     return lastCollisionCheck.onGround;
 }
+
+Vector CollidingEntity::getPosition() const {
+    return position;
+}
+
 }

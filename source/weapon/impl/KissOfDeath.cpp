@@ -41,7 +41,16 @@ namespace Duel6 {
     Float32 KissOfDeath::getBulletSpeed() const {
         return 4.27f;
     }
-
+    std::unique_ptr<Shot> KissOfDeath::makeShot(Player &player, World &world, Orientation orientation,
+                                   const Weapon &weapon,
+                                   Uint32 shotId,
+                                   bool powerful,
+                                   Int32 power, Float32 bulletSpeed,
+                                   Vector &position,
+                                   Vector &velocity) const {
+        return std::make_unique<KissOfDeathShot>(player, world, *this, orientation,
+            weapon, shotId, powerful, power, bulletSpeed, position, velocity);
+    }
     std::unique_ptr<Shot> KissOfDeath::makeShot(Player &player, World &world, Orientation orientation) const {
         return std::make_unique<KissOfDeathShot>(player, world, *this, orientation);
     }

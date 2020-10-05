@@ -28,8 +28,41 @@
 #include "../World.h"
 #include "../collision/Collision.h"
 #include "LegacyShot.h"
-
+#include "../Game.h"
 namespace Duel6 {
+
+    LegacyShot::LegacyShot(Player &owner, World &world, const LegacyWeapon &legacyWeapon, Animation shotAnimation,
+                           Animation boomAnimation,
+                           Orientation orientation, const Rectangle &collisionRect,
+                           const Weapon &weapon,
+                           Uint32 shotId,
+                           bool powerful,
+                           Int32 power, Float32 bulletSpeed,
+                           Vector &position,
+                           Vector &velocity)
+        : ShotBase(weapon, owner, shotId),
+          textures(legacyWeapon.getTextures()),
+          samples(legacyWeapon.getSamples()),
+          animationShot(shotAnimation),
+          animationBoom(boomAnimation),
+          collisionRect(collisionRect),
+          orientation(orientation),
+          position(position),
+          velocity(velocity),
+          powerful(powerful),
+          shotHit( { false, nullptr, nullptr }),
+          bulletSpeed(bulletSpeed),
+          power(power)
+
+    {
+        if (orientation == Orientation::Left) {
+            velocity = Vector(-1.0f, 0.0f);
+        } else {
+            velocity = Vector(1.0f, 0.0f);
+        }
+        sprite = makeSprite(world.getSpriteList());
+    }
+
     LegacyShot::LegacyShot(Player &player, World &world, const LegacyWeapon &weapon, Animation shotAnimation,
                            Animation boomAnimation, Orientation orientation, const Rectangle &collisionRect)
             : ShotBase(player.getWeapon(), player), textures(weapon.getTextures()),
@@ -64,6 +97,22 @@ namespace Duel6 {
         return powerful;
     }
 
+    Float32 LegacyShot::getBulletSpeed() const {
+        return bulletSpeed;
+    }
+
+    Orientation LegacyShot::getOrientation() const {
+        return orientation;
+    }
+
+    Float32 LegacyShot::getPower() const {
+        return power;
+    }
+
+    Vector LegacyShot::getPositionVector() const {
+        return  position;
+    }
+
     Float32 LegacyShot::getPowerFactor() const {
         return (powerful ? 2.0f : 1.0f);
     }
@@ -96,25 +145,33 @@ namespace Duel6 {
         return animationBoom;
     }
 
-    bool LegacyShot::update(Float32 elapsedTime, World &world) {
-        move(elapsedTime);
-
-        if (!shotHit.hit) {
-            shotHit = evaluateShotHit(world);
-        }
-
-        if (shotHit.hit) {
-            explode(world);
-
-            makeBoomSprite(world.getSpriteList());
-            samples.boom.play();
-
+    bool LegacyShot::update(Float32 elapsedTime, World &world, Game &game) {
+        if (discarded) { //dirty hack to remove shot twin on the client side
             world.getSpriteList().remove(sprite);
             return false;
+        }
+        move(elapsedTime);
+
+        if(!game.networkGame || game.isServer){
+            if (!shotHit.hit) {
+                shotHit = evaluateShotHit(world);
+            }
+
+            if (shotHit.hit) {
+                explode(world);
+                game.eraseShot(getId());
+                return true;
+            }
         }
         return true;
     }
 
+    void LegacyShot::discard() {
+        discarded = true;
+    }
+    bool LegacyShot::isDiscarded() const {
+        return discarded;
+    }
     bool LegacyShot::requestCollision(Shot &otherShot) {
         if (Collision::rectangles(this->getCollisionRect(), otherShot.getCollisionRect())) {
             shotHit = {true, nullptr, &otherShot.getPlayer()};
@@ -134,7 +191,6 @@ namespace Duel6 {
         Float32 power = getExplosionPower() * powerFactor;
 
         const Vector shotCentre = getCentre();
-        onExplode(shotCentre, range, world);
 
         for (Player &player : world.getPlayers()) {
             bool directHit = (shotHit.collidingPlayer != nullptr && player.is(*shotHit.collidingPlayer));
@@ -224,7 +280,7 @@ namespace Duel6 {
         if (collisionSetting == ShotCollisionSetting::All ||
             (collisionSetting == ShotCollisionSetting::Large && isColliding())) {
             shotList.forEach([this, &hit](Shot &otherShot) -> bool {
-                if (this != &otherShot && otherShot.requestCollision(*this)) {
+                if (this != &otherShot && !otherShot.isDiscarded() && otherShot.requestCollision(*this)) {
                     hit.hit = true;
                     hit.collidingShotPlayer = &otherShot.getPlayer();
                     return false;
@@ -251,6 +307,14 @@ namespace Duel6 {
         return shotHit;
     }
 
+    void LegacyShot::hit(World &world) {
+        Float32 powerFactor = getPowerFactor();
+        Float32 range = getExplosionRange() * powerFactor;
+        const Vector shotCentre = getCentre();
+        onExplode(shotCentre, range, world);
+        makeBoomSprite(world.getSpriteList());
+        samples.boom.play();
+    }
     SpriteList::Iterator LegacyShot::makeSprite(SpriteList &spriteList) {
         sprite = spriteList.add(getShotAnimation(), textures.shot);
         sprite->setPosition(getSpritePosition(), 0.6f).setOrientation(this->orientation);

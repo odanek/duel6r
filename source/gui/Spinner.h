@@ -33,21 +33,27 @@
 
 namespace Duel6 {
     namespace Gui {
-        class Spinner
-                : public Control {
+        class Spinner : public Control {
         public:
+            struct ItemColor {
+                Color font;
+                Color background;
+            };
+
             typedef std::function<void(Int32 selectedIndex)> ToggleCallback;
+            typedef std::function<ItemColor(Int32 index, const std::string &label)> ColorizeCallback;
 
         private:
             std::vector<ToggleCallback> toggleListeners;
             Button *left, *right;
             Int32 selectedIndex;
-            Int32 width;
+            Int32 width = 1;
             std::vector<std::pair<Int32, std::string> > items;
-            Float32 repeatWait;
+            Float32 repeatWait = 0;
+            ColorizeCallback colorizeCallback = defaultColorize;
 
         public:
-            explicit Spinner(Desktop &desk);
+            explicit Spinner(View &parentView);
 
             void setPosition(Int32 X, Int32 Y, Int32 W, Int32 H);
 
@@ -59,7 +65,7 @@ namespace Duel6 {
 
             Int32 currentItem();
 
-            std::pair<Int32, std::string> & currentValue();
+            std::pair<Int32, std::string>& currentValue();
 
             void clear();
 
@@ -67,12 +73,22 @@ namespace Duel6 {
                 return Control::Type::Switchbox;
             }
 
-            Spinner &onToggled(ToggleCallback listener) {
+            Spinner& onToggled(ToggleCallback listener) {
                 toggleListeners.push_back(listener);
                 return *this;
             }
 
+            Spinner& onColorize(ColorizeCallback callback) {
+                colorizeCallback = callback;
+                return *this;
+            }
+            static ItemColor defaultColorize(Int32 index, const std::string &item);
+
         protected:
+            void mouseButtonEvent(const MouseButtonEvent &event) override;
+
+            bool keyEvent(const KeyPressEvent &event) override;
+
             void update(Float32 elapsedTime) override;
 
             void draw(Renderer &renderer, const Font &font) const override;

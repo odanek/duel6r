@@ -79,34 +79,85 @@ namespace Duel6 {
             return shots;
         }
 
+        void setShots(Int32 shots) {
+            this->shots = shots;
+        }
+
         Int32 getHits() const {
             return hits;
+        }
+
+        void setHits(Int32 hits) {
+            this->hits = hits;
         }
 
         Int32 getKills() const {
             return kills;
         }
 
+        void setKills(Int32 kills) {
+            this->kills = kills;
+        }
+
         Int32 getDeaths() const {
             return deaths;
+        }
+
+        void setDeaths(Int32 deaths) {
+            this->deaths = deaths;
         }
 
         Int32 getAssistances() const {
             return assistances;
         }
 
+        void setAssistances(Int32 assistances) {
+            this->assistances = assistances;
+        }
+
         Int32 getWins() const {
             return wins;
+        }
+
+        void setWins(Int32 wins) {
+            this->wins = wins;
         }
 
         Int32 getPenalties() const {
             return penalties;
         }
 
+        void setPenalties(Int32 penalties) {
+            this->penalties = penalties;
+        }
+
         Int32 getGames() const {
             return games;
         }
 
+        void setAssistedDamage(Int32 assistedDamage) {
+            this->assistedDamage = assistedDamage;
+        }
+
+        void setEloGames(Int32 eloGames) {
+            this->eloGames = eloGames;
+        }
+
+        void setGames(Int32 games) {
+            this->games = games;
+        }
+
+        void setTimeAlive(Int32 timeAlive) {
+            this->timeAlive = timeAlive;
+        }
+
+        void setTotalDamage(Int32 totalDamage) {
+            this->totalDamage = totalDamage;
+        }
+
+        void setTotalGameTime(Int32 totalGameTime) {
+            this->totalGameTime = totalGameTime;
+        }
         Int32 getAccuracy() const {
             return getShots() > 0 ? (getHits() * 100 / getShots()) : 0;
         }

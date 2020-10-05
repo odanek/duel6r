@@ -29,12 +29,33 @@
 #include "World.h"
 #include "Weapon.h"
 #include "Player.h"
+#include "Game.h"
 
 namespace Duel6 {
-    ShotList::ShotList() {}
+    ShotList::ShotList(Game &game)
+        : game(game) {
+    }
 
     void ShotList::addShot(ShotPointer &&shot) {
+        if (game.isServer || !game.networkGame) {
+            game.spawnShot(std::move(shot));
+        } else {
+            shot->discard();
+            spawnShot(std::move(shot));
+        }
+    }
+
+    void ShotList::spawnShot(ShotPointer &&shot) {
         shots.push_back(std::forward<ShotPointer>(shot));
+    }
+
+    void ShotList::eraseShot(Uint16 id, World &world) {
+        for(auto & shot: shots){
+            if(shot->getId() == id){
+                shot->hit(world);
+                shot->discard(); // will get erased in next update loop
+            }
+        }
     }
 
     void ShotList::update(World &world, Float32 elapsedTime) {
@@ -42,7 +63,7 @@ namespace Duel6 {
 
         while (iter != shots.end()) {
             Shot &shot = *iter->get();
-            if (!shot.update(elapsedTime, world)) {
+            if (!shot.update(elapsedTime, world, game)) {
                 iter = shots.erase(iter);
             } else {
                 ++iter;

@@ -1,0 +1,5 @@
+testing networking
+packets reordering:
+sudo  tc qdisc add dev lo root netem gap 10 delay 100ms reorder 100
+sudo  tc qdisc change dev lo root netem gap 50 delay 100ms reorder 100
+sudo  tc qdisc del dev lo root
