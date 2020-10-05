@@ -54,6 +54,8 @@ namespace Duel6 {
 
         void apply(const Color &modulateColor) override;
 
+        void resize(Int32 width, Int32 height) override;
+
     private:
         void blit();
 

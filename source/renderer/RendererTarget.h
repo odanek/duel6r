@@ -13,6 +13,7 @@ namespace Duel6 {
         virtual ~RendererTarget() = default;
         virtual void record(RenderCallback renderCallback) = 0;
         virtual void apply(const Color& modulateColor) = 0;
+        virtual void resize(Int32 width, Int32 height) {};
     };
 }
 #endif

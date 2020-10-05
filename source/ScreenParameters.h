@@ -55,6 +55,11 @@ namespace Duel6 {
             return clientHeight;
         }
 
+        void setSize(Int32 width, Int32 height) {
+            clientWidth = width;
+            clientHeight = height;
+        }
+
         bool isFullScreen() const {
             return fullScreen;
         }

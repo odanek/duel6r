@@ -118,7 +118,7 @@ namespace Duel6 {
                                     Console &console) {
         Uint32 flags = 0;
 
-        flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN  /*| SDL_WINDOW_INPUT_GRABBED*/;
+        flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_INPUT_GRABBED*/;
         if (params.isFullScreen()) {
             flags |= SDL_WINDOW_FULLSCREEN;
         }
@@ -130,11 +130,44 @@ namespace Duel6 {
         if (sdlWin == nullptr) {
             D6_THROW(VideoException, std::string("Unable to create application window: ") + SDL_GetError());
         }
+        SDL_SetWindowMinimumSize(sdlWin, 640, 480);
 
         SDL_SetWindowTitle(sdlWin, name.c_str());
         SDL_SetWindowIcon(sdlWin, SDL_LoadBMP(icon.c_str()));
 
         return sdlWin;
+    }
+
+    void Video::toggleFullscreen() {
+        bool isFullscreen = SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN;
+        if (isMaximizing) {
+            isMaximizing = false;
+        }
+        if (isFullscreen) {
+            SDL_SetWindowFullscreen(window, 0);
+            SDL_RestoreWindow(window);
+        } else {
+            SDL_MaximizeWindow(window);
+            isMaximizing = true;
+            maximizingCooldown = 1.0f;
+        }
+    }
+
+    void Video::think(float elapsedTime) {
+        if (isMaximizing) {
+            maximizingCooldown -= elapsedTime;
+            if (maximizingCooldown < 0) {
+                isMaximizing = false;
+                SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+            }
+        }
+    }
+
+    void Video::resize(int width, int height) {
+        screen.setSize(width, height);
+        for (const auto &callback : resizeCallbacks) {
+            callback(width, height);
+        }
     }
 
     SDL_GLContext Video::createContext(const ScreenParameters &params, Console &console) {

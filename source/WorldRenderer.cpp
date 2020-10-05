@@ -34,7 +34,11 @@
 namespace Duel6 {
     WorldRenderer::WorldRenderer(Duel6::AppService &appService, const Duel6::Game &game)
             : font(appService.getFont()), video(appService.getVideo()), game(game), renderer(video.getRenderer()),
-              target(renderer.makeTarget(video.getScreen())) {}
+              target(renderer.makeTarget(video.getScreen())) {
+        video.onResize([this](Int32 width, Int32 height){
+           target->resize(width, height);
+        });
+    }
 
     void WorldRenderer::setView(const PlayerView &view) const {
         setView(view.getX(), view.getY(), view.getWidth(), view.getHeight());

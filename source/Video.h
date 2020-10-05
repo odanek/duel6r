@@ -43,6 +43,8 @@ namespace Duel6 {
             Perspective
         };
 
+        typedef std::function<void(Int32, Int32)> resizeCallback_t;
+
     private:
         SDL_Window *window;
         SDL_GLContext glContext;
@@ -50,7 +52,10 @@ namespace Duel6 {
         ScreenParameters screen;
         ViewParameters view;
         std::unique_ptr<Renderer> renderer;
+        std::vector<resizeCallback_t> resizeCallbacks;
 
+        bool isMaximizing = false;
+        float maximizingCooldown;
     public:
         Video(const std::string &name, const std::string &icon, Console &console);
 
@@ -73,6 +78,16 @@ namespace Duel6 {
         void setMode(Mode mode) const;
 
         Renderer &getRenderer() const;
+
+        void toggleFullscreen();
+
+        void resize(int width, int height);
+
+        void onResize(resizeCallback_t callback) {
+            resizeCallbacks.push_back(callback);
+        }
+
+        void think(float elapsedTime);
 
     private:
         void renderConsole(Console &console, const Font &font);

@@ -195,7 +195,12 @@ namespace Duel6 {
             if (console.isActive()) {
                 console.keyEvent(event.getCode(), event.getModifiers());
             } else {
-                context.keyEvent(event);
+                if (event.getCode() == SDLK_RETURN &&
+                    ((event.getModifiers() & KMOD_LALT) == KMOD_LALT || (event.getModifiers() & KMOD_RALT) == KMOD_RALT)) {
+                    video->toggleFullscreen();
+                } else {
+                    context.keyEvent(event);
+                }
             }
         }
     }
@@ -270,6 +275,17 @@ namespace Duel6 {
                     console.printLine("Received SDL_QUIT");
                     requestClose = true;
                     break;
+                case SDL_WINDOWEVENT: {
+                    switch (event.window.event)  {
+                      case SDL_WINDOWEVENT_RESIZED:  {
+                        int width = event.window.data1;
+                        int height = event.window.data2;
+                        video->resize(width, height);
+                        break;
+                      }
+                    }
+                    break;
+                }
                 default:
                     break;
             }
@@ -293,6 +309,7 @@ namespace Duel6 {
         while (accumulatedTime > updateTime) {
             context.update(Float32(updateTime));
             accumulatedTime -= updateTime;
+            video->think(updateTime);
         }
 
         Uint32 residual = (updateTime - accumulatedTime) * 1000;

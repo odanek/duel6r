@@ -111,4 +111,9 @@ namespace Duel6 {
         renderer.quadXY(Vector::ZERO, Vector((float) width, (float) height), Vector(1, 1), Vector(1, 1),
                               Material::makeColoredTexture(texture, color));
     }
+
+    void GL4RendererTarget::resize(Int32 width, Int32 height) {
+        this->width = width;
+        this->height = height;
+    }
 }
