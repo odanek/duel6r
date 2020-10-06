@@ -135,12 +135,12 @@ namespace Duel6 {
                 lastSyncedWeapon = -1;
             }
             for (auto &peer : peers) {
-                if(weaponChosen){
-                    peer->sendUnreliable(w);
-                }
                 game.netstat.choke = peer->choke;
                 if (!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)) {
                     continue;
+                }
+                if(weaponChosen){
+                    peer->sendUnreliable(w);
                 }
                 GameStateUpdate gsu;
                 gsu.confirmInputTick = peer->receivedInputsTick;

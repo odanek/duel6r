@@ -16,6 +16,9 @@ namespace Duel6 {
 
         template<>
         void Peer::handle(ObjectType objectType, binarystream &s) {
+            if(peerUpdateState != PeerUpdateState::RUNNING){
+                return;
+            }
             switch (objectType) {
             case ObjectType::PLAYER: {
                 Player p;

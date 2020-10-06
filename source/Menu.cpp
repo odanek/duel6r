@@ -165,7 +165,6 @@ namespace Duel6 {
         video.onResize([this](Int32 width, Int32 height){
             gui.screenSize(width, height, (width - 960) / 2, (height - 900) / 2);
             renderer.setViewport(0,0, width, height);
-            glScissor(0, 0, width, height);
             video.setMode(Video::Mode::Orthogonal);
         });
 
