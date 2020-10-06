@@ -124,7 +124,7 @@ namespace Duel6 {
             Weapon w;
             bool weaponChosen = false;
             for(const auto & weapon : game.getRound().getWorld().getBonusList().getLyingWeapons()){
-                if(weapon.id > lastSyncedWeapon){
+                if((int) weapon.id > lastSyncedWeapon){
                     lastSyncedWeapon = weapon.id;
                     weaponChosen = true;
                     loadNetWeapon(w, weapon);

@@ -250,7 +250,7 @@ namespace Duel6 {
         void Peer::disconnect() {
             disconnect(false);
         }
-        void Peer::send(char * data, size_t dataLen, uint8_t channel, bool reliable){
+        void Peer::send(const char * data, size_t dataLen, uint8_t channel, bool reliable){
             if(state != PeerState::CONNECTED && state != PeerState::CONNECTING){
                 return;
             }

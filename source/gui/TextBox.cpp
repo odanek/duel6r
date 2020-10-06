@@ -52,7 +52,7 @@ namespace Duel6 {
 
         void Textbox::moveCursorRight() {
             cursorPos++;
-            if (cursorPos > text.length()) {
+            if (cursorPos > (int) text.length()) {
                 cursorPos = text.length();
             }
         }
@@ -107,7 +107,7 @@ namespace Duel6 {
                 return true;
             }
             if (!text.empty() && event.getCode() == SDLK_DELETE) {
-                if (cursorPos < text.length()) {
+                if (cursorPos < (int) text.length()) {
                     text.erase(cursorPos, 1);
                 }
                 return true;
@@ -128,7 +128,7 @@ namespace Duel6 {
                 Int32 mx = event.getX();
 
                 cursorPos = 0;
-                for (Int32 sx = x + 4; sx < mx && cursorPos < text.length(); sx += getFont().getTextWidth(text.substr(cursorPos++, 1), 16)) {
+                for (Int32 sx = x + 4; sx < mx && cursorPos < (int) text.length(); sx += getFont().getTextWidth(text.substr(cursorPos++, 1), 16)) {
 
                 }
                 focus();
@@ -140,7 +140,7 @@ namespace Duel6 {
             for (auto iter = newText.cbegin(); iter != newText.cend(); ++ iter) {
                 char letter = *iter;
                 if ((int) text.length() < max && allowedCharacters.find(letter) != std::string::npos) {
-                    if (cursorPos >= text.length()) {
+                    if (cursorPos >= (int) text.length()) {
                         text.push_back(letter);
                     } else {
                         text.insert(cursorPos, 1, letter);

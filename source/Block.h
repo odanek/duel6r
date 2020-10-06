@@ -36,7 +36,7 @@
 namespace Duel6 {
     namespace net{
         class Block;
-    };
+    }
 
     class Block {
         friend class Duel6::net::Block;

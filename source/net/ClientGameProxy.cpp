@@ -38,7 +38,7 @@ namespace Duel6 {
         //periodical update of lying weapons
         void ClientGameProxy::handle(Weapon &w) {
             for(auto & weapon: game->getRound().getWorld().getBonusList().getLyingWeapons()){
-                if(weapon.getId() == w.weaponId){
+                if((int) weapon.getId() == w.weaponId){
                     weapon.getCollider().getPosition().set(w.collider.position.x, w.collider.position.y);
                     break;
                 }
@@ -345,10 +345,6 @@ namespace Duel6 {
                 Duel6::Player &player = game->players[idmap[p.id]];
                 player.tick = game->tick;
                 auto &position = p.position;
-                auto &externalForces = p.externalForces;
-                auto &externalForcesSpeed = p.externalForcesSpeed;
-                auto &velocity = p.velocity;
-                auto &acceleration = p.acceleration;
 
                 CollidingEntity collidingEntity;
                 collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
