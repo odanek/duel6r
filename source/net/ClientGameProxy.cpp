@@ -143,13 +143,15 @@ namespace Duel6 {
                     game->getRound().setWinner(gsu.hasWinner);
                     missingSnapshot = false;
                     bool loadSnapshot = false;
-                    if(p.changed[0] || p.changed.count() != Player::FIELDS::_SIZE - 1){ // -1 for _SIZE and NO_CHANGE
+                    if(p.changed[Player::FIELDS::NO_CHANGE] || p.changed.count() != Player::FIELDS::_SIZE - 1){ // -1 for _SIZE and NO_CHANGE
                         loadSnapshot = true;
+                        missingSnapshot = true;
                     }
                     if (loadSnapshot && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0) {
                         if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].snapshotTick == gsu.snapshotTick) {
                             Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_64][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
+                            missingSnapshot = false;
                         } else {
                             missingSnapshot = true;
                         }
@@ -397,7 +399,7 @@ namespace Duel6 {
         }
         void ClientGameProxy::handle(NextRound &nr) {
             for (auto &s : peer->snapshot) {
-                s.clear();
+                s.clear(); // clear all the snapshots when going to next round
             }
             game->onNextRound();
         }
