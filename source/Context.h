@@ -104,6 +104,8 @@ namespace Duel6 {
             }
         }
 
+        virtual std::string getGameState() = 0;
+
     protected:
         virtual void close() final {
             closed = true;
@@ -116,6 +118,7 @@ namespace Duel6 {
         static Context *getTopContext() {
             return (contextStack.size() > 0) ? contextStack.top() : nullptr;
         }
+
     };
 }
 

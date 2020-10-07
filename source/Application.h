@@ -47,6 +47,9 @@ namespace Duel6 {
         struct CommandLineOptions {
             bool dedicated;
             bool windowed;
+            bool gameStateIntegration = false;
+            std::string gsiURL = "http://127.0.0.1:3000/api/duel6r-gsi";
+            Uint16 gsiPort = 0;
             Int32 windowWidth;
             Int32 windowHeight;
         };

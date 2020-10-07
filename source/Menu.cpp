@@ -1083,6 +1083,10 @@ namespace Duel6 {
         return list;
     }
 
+    std::string Menu::getGameState(){
+        return "{\"state\": \"MENU\"}";
+    }
+
     void Menu::joinServerFromServerList(Int32 index){
         const auto &server = this->serverList.get()[index];
 

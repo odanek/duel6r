@@ -43,6 +43,75 @@ Levels are saved in JSON format and there is an [HTML5 level editor](https://git
 
 The game has built-in [Lua](https://www.lua.org/home.html) scripting. More information about the API can be found in **lua-scripting.txt**.
 
+## Command line arguments
+
+`-window  WxH`
+
+sets windowed mode with defined width (W) and height (H) (e.g -window 1920x1080)
+
+`-dedicated`
+
+starts the server in dedicated mode (useful in combination with headless renderer)
+
+`-publish -url http://localhost/api/duel6r-gsi -port 3000`
+
+turns on game state integration - game will periodically POST data to the given URL in JSON format
+
+format of the data:
+
+when the client is still in menu:
+```
+{
+	"state": "MENU"
+}
+```
+
+when the game is running:
+
+```
+{
+"state":"GAME",
+"rounds":0,
+"maxRounds":0,
+"roundLimit":false,
+"waterRising":false,
+"players":[{
+	"name":"Player1",
+	"team":0,
+	"ping":0,
+	"reloadTime":0,
+	"reloadInterval":0.66,
+	"alive":true,
+	"timeSinceHit":81.4201,
+	"health":100,
+	"air":200,
+	"points":0,
+	"kills":0,
+	"deaths":0,
+	"bonus":"invisibility",
+	"bonusRemainingTime":9.45583,
+	"ammo":14,
+	"weapon":"machine gun"
+	},{
+	"name":"Player2",
+	"team":0,
+	"ping":0,
+	"reloadTime":0,
+	"reloadInterval":1.31,
+	"alive":true,
+	"timeSinceHit":2.42222,
+	"health":75,
+	"air":200,
+	"points":0,
+	"kills":0,
+	"deaths":0,
+	"bonus":"none",
+	"bonusRemainingTime":0,
+	"ammo":12,
+	"weapon":"slime"},{ .... etc ...}]
+}
+```
+
 ## Future plans and milestones
 
 - Computer opponents/bots - AI

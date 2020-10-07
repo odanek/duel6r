@@ -146,6 +146,8 @@ namespace Duel6 {
 
         void render() const override;
 
+        std::string getGameState() override;
+
         AppService &getAppService() const {
             return appService;
         }

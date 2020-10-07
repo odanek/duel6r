@@ -38,6 +38,7 @@
 #include "FontException.h"
 #include "net/NetHost.h"
 #include "net/NetClient.h"
+#include "gamestateintegration/Publisher.h"
 
 namespace Duel6 {
     namespace {
@@ -199,6 +200,24 @@ namespace Duel6 {
             commandLineOptions.windowWidth = -1;
             commandLineOptions.windowHeight = -1;
         }
+
+        if(hasCmdLineOption(argv, argv + argc, "-publish")){
+            commandLineOptions.gameStateIntegration = true;
+
+            char *url = getCmdLineOption(argv, argv + argc, "-url");
+            if (url != nullptr) {
+                char urlCstr[256];
+                sscanf(url, "%s", urlCstr);
+                commandLineOptions.gsiURL = std::string(urlCstr);
+            }
+
+            char *port = getCmdLineOption(argv, argv + argc, "-port");
+            if (port != nullptr) {
+                Uint16 portNo;
+                sscanf(port, "%hu", &portNo);
+                commandLineOptions.gsiPort = portNo;
+            }
+        }
     }
 
     void Application::textInputEvent(Context &context, const TextInputEvent &event) {
@@ -351,6 +370,11 @@ namespace Duel6 {
     }
 
     void Application::run() {
+        Publisher publisher(commandLineOptions.gsiURL, commandLineOptions.gsiPort);
+
+        if(commandLineOptions.gameStateIntegration){
+            publisher.start();
+        }
         Context::push(*menu);
         if (commandLineOptions.dedicated) {
             menu->startDedicatedServer();
@@ -358,6 +382,9 @@ namespace Duel6 {
 
         while (Context::exists() && !requestClose) {
             Context &context = Context::getCurrent();
+            if(publisher.wantsNewData()){
+                publisher.publish(context.getGameState());
+            }
 
             processEvents(context);
             syncUpdateAndRender(context);
