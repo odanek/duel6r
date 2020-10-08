@@ -402,14 +402,14 @@ namespace Duel6 {
 
 
     std::string Game::getGameState(){
-        std::string TRUE("true");
-        std::string FALSE("false");
+        std::string T("true");
+        std::string F("false");
         std::stringstream ss;
         ss << "{\"state\": \"GAME\",\n";
         ss << " \"rounds\": " << currentRound << ",\n";
         ss << " \"maxRounds\": " << settings.getMaxRounds() << ",\n";
-        ss << " \"roundLimit\": " << (settings.isRoundLimit() ? TRUE : FALSE) << ",\n";
-        ss << " \"waterRising\": " << (round  && round->getWorld().getLevel().isRaisingWater() ? TRUE : FALSE) << ",\n";
+        ss << " \"roundLimit\": " << (settings.isRoundLimit() ? T : F) << ",\n";
+        ss << " \"waterRising\": " << (round  && round->getWorld().getLevel().isRaisingWater() ? T : F) << ",\n";
         ss << " \"players\": [\n";
         bool first = true;
         for(const auto & player: players){
@@ -427,7 +427,7 @@ namespace Duel6 {
             ss << "   \"ping\": " << player.rtt << ",";
             ss << "   \"reloadTime\": " << player.getReloadTime() << ",";
             ss << "   \"reloadInterval\": " << player.getReloadInterval() << ",";
-            ss << "   \"alive\": " << (player.isAlive() ? TRUE : FALSE) << ",";
+            ss << "   \"alive\": " << (player.isAlive() ? T : F) << ",";
 
             ss << "   \"timeSinceHit\": " << player.getTimeSinceHit() << ",";
             ss << "   \"health\": " << player.getLife() << ",";
