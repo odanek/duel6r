@@ -16,6 +16,9 @@ namespace Duel6 {
 
         template<>
         void Peer::handle(ObjectType objectType, binarystream &s) {
+            if(peerUpdateState != PeerUpdateState::RUNNING){
+                return;
+            }
             switch (objectType) {
             case ObjectType::PLAYER: {
                 Player p;
@@ -250,7 +253,7 @@ namespace Duel6 {
         void Peer::disconnect() {
             disconnect(false);
         }
-        void Peer::send(char * data, size_t dataLen, uint8_t channel, bool reliable){
+        void Peer::send(const char * data, size_t dataLen, uint8_t channel, bool reliable){
             if(state != PeerState::CONNECTED && state != PeerState::CONNECTING){
                 return;
             }

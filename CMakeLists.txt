@@ -76,6 +76,9 @@ set(D6R_WITH_LUA ON)     # Enable/disable lua scripting
 
 # set the list of source files
 set(D6R_SOURCES
+        source/gamestateintegration/Publisher.cpp
+        source/gamestateintegration/Publisher.h
+
         source/net/master/MasterServer.cpp
         source/net/master/MasterServer.h
         source/net/master/PeerList.h
@@ -611,6 +614,13 @@ else (WIN32) # Linux GCC
         )
 endif (WIN32)
 endif (NOT D6R_RENDERER STREQUAL "headless")
+
+# libcurl
+find_library(LIB_CURL curl DOC "Path to curl library")
+find_path(HEADERS_CURL curl/curl.h DOC "Path to libcurl headers")
+include_directories(${HEADERS_CURL})
+target_link_libraries(${D6R_APP_NAME} ${LIB_CURL})
+
 # SDL
 find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
 include_directories(${HEADERS_SDL2})

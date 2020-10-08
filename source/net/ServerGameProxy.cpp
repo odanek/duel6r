@@ -124,7 +124,7 @@ namespace Duel6 {
             Weapon w;
             bool weaponChosen = false;
             for(const auto & weapon : game.getRound().getWorld().getBonusList().getLyingWeapons()){
-                if(weapon.id > lastSyncedWeapon){
+                if((int) weapon.id > lastSyncedWeapon){
                     lastSyncedWeapon = weapon.id;
                     weaponChosen = true;
                     loadNetWeapon(w, weapon);
@@ -135,12 +135,12 @@ namespace Duel6 {
                 lastSyncedWeapon = -1;
             }
             for (auto &peer : peers) {
-                if(weaponChosen){
-                    peer->sendUnreliable(w);
-                }
                 game.netstat.choke = peer->choke;
                 if (!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)) {
                     continue;
+                }
+                if(weaponChosen){
+                    peer->sendUnreliable(w);
                 }
                 GameStateUpdate gsu;
                 gsu.confirmInputTick = peer->receivedInputsTick;

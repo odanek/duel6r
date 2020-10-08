@@ -241,6 +241,8 @@ namespace Duel6 {
 
         void render() const override;
 
+        std::string getGameState() override;
+
         void enableMusic(bool enable);
 
         std::unordered_map<std::string, std::unique_ptr<PersonProfile>> &getPersonProfiles() {

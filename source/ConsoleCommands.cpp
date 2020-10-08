@@ -289,9 +289,7 @@ namespace Duel6 {
     }
 
     void ConsoleCommands::dedicatedServer(Console &console, const Console::Arguments &args, Menu &menu) {
-        console.printLine(Format("Starting server"));
         menu.startDedicatedServer();
-        console.printLine(Format("Started"));
     }
 
     void ConsoleCommands::registerCommands(Console &console, AppService &appService, Menu &menu,

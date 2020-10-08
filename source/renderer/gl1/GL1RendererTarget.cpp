@@ -47,4 +47,9 @@ namespace Duel6 {
         renderer.quadXY(Vector::ZERO, Vector(Float32(width), Float32(height), 5.0f), modulateColor);
         glDisable(GL_BLEND);
     }
+
+    void GL1RendererTarget::resize(Int32 width, Int32 height) {
+        this->width = width;
+        this->height = height;
+    }
 }

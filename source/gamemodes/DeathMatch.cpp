@@ -46,7 +46,7 @@ namespace Duel6 {
                               Weapon::getRandomEnabled(game.getSettings()));
             playerIndex++;
         }
-    };
+    }
     void DeathMatch::initializeRound(Game &game, std::vector<Player> &players, World &world) {
         eventListener = std::make_unique<PlayerEventListener>(world.getMessageQueue(), game.getSettings());
         for (auto &player : players) {

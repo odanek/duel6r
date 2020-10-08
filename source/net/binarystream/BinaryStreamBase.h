@@ -24,6 +24,7 @@ public:
     using basestream::write;
     using basestream::setstate;
     using basestream::badbit;
+    using basestream::gcount;
 
     binarystream_base() = default;
     binarystream_base(binarystream_base && bs):basestream(std::move(bs)){
@@ -98,38 +99,62 @@ public:
     }
 
     bool operator >>(std::string & s) {
+        constexpr size_t BUFFER_SIZE = 128;
         uint32_t size = readSize();
         s.reserve(size);
 
-        char readBuf[size + 1] = { 0 };
-        read((char *) readBuf, size);
-        s.assign(readBuf, size);
+        s.clear();
+        char buffer[BUFFER_SIZE];
+
+        while(size > BUFFER_SIZE){
+            read(buffer, BUFFER_SIZE);
+            s.append(buffer, BUFFER_SIZE);
+            size -= BUFFER_SIZE;
+        }
+        read(buffer, size);
+        s.append(buffer, size);
         return good();
     }
 
     bool operator >>(std::u16string & s) {
-        uint32_t length = readSize();
+        constexpr size_t BUFFER_SIZE = 128;
+        uint32_t size = readSize();
         if (!good()) {
             return false;
         }
+        s.reserve(size);
         s.clear();
 
-        char16_t readBuf[length + 1] = { 0 };
-        read((char*) readBuf, length * sizeof(char16_t));
-        s.assign(readBuf, length);
+        char16_t buffer[BUFFER_SIZE];
+
+        while(size > BUFFER_SIZE){
+            read(buffer, BUFFER_SIZE * sizeof(char16_t));
+            s.append(buffer, BUFFER_SIZE);
+            size -= BUFFER_SIZE;
+        }
+        read(buffer, size * sizeof(char16_t));
+        s.append(buffer, size);
         return good();
     }
 
     bool operator >>(std::u32string & s) {
-        uint32_t length = readSize();
+        constexpr size_t BUFFER_SIZE = 128;
+        uint32_t size = readSize();
         if (!good()) {
             return false;
         }
+        s.reserve(size);
         s.clear();
 
-        char32_t readBuf[length + 1] = { 0 };
-        read((char*) readBuf, length * sizeof(char32_t));
-        s.assign(readBuf, length);
+        char32_t buffer[BUFFER_SIZE];
+
+        while(size > BUFFER_SIZE){
+            read(buffer, BUFFER_SIZE * sizeof(char32_t));
+            s.append(buffer, BUFFER_SIZE);
+            size -= BUFFER_SIZE;
+        }
+        read(buffer, size * sizeof(char32_t));
+        s.append(buffer, size);
         return good();
     }
 

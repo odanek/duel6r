@@ -43,7 +43,7 @@ namespace Duel6 {
     public:
         ScreenParameters() {}
 
-        ScreenParameters(Int32 width, Int32 height, Int32 bpp, Int32 depthBits, Int32 aa, bool fullScreen)
+        ScreenParameters(bool fullScreen, Int32 width, Int32 height, Int32 bpp = 32, Int32 depthBits = 24, Int32 aa = 0)
                 : clientWidth(width), clientHeight(height), bitsPerPixel(bpp), depthBits(depthBits), aaSamples(aa),
                   fullScreen(fullScreen) {}
 
@@ -53,6 +53,11 @@ namespace Duel6 {
 
         Int32 getClientHeight() const {
             return clientHeight;
+        }
+
+        void setSize(Int32 width, Int32 height) {
+            clientWidth = width;
+            clientHeight = height;
         }
 
         bool isFullScreen() const {

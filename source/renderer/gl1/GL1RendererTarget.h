@@ -49,6 +49,8 @@ namespace Duel6 {
         void record(RenderCallback renderCallback) override;
 
         void apply(const Color &modulateColor) override;
+
+        void resize(Int32 width, Int32 height) override;
     };
 }
 #endif

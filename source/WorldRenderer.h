@@ -47,7 +47,7 @@ namespace Duel6 {
     private:
         Camera camera;
         const Font &font;
-        const Video &video;
+        Video &video;
         const Game &game;
         Renderer &renderer;
         std::unique_ptr<RendererTarget> target;

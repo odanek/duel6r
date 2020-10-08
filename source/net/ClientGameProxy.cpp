@@ -38,7 +38,7 @@ namespace Duel6 {
         //periodical update of lying weapons
         void ClientGameProxy::handle(Weapon &w) {
             for(auto & weapon: game->getRound().getWorld().getBonusList().getLyingWeapons()){
-                if(weapon.getId() == w.weaponId){
+                if((int) weapon.getId() == w.weaponId){
                     weapon.getCollider().getPosition().set(w.collider.position.x, w.collider.position.y);
                     break;
                 }
@@ -143,13 +143,15 @@ namespace Duel6 {
                     game->getRound().setWinner(gsu.hasWinner);
                     missingSnapshot = false;
                     bool loadSnapshot = false;
-                    if(p.changed[0] || p.changed.count() != Player::FIELDS::_SIZE - 1){ // -1 for _SIZE and NO_CHANGE
+                    if(p.changed[Player::FIELDS::NO_CHANGE] || p.changed.count() != Player::FIELDS::_SIZE - 1){ // -1 for _SIZE and NO_CHANGE
                         loadSnapshot = true;
+                        missingSnapshot = true;
                     }
                     if (loadSnapshot && peer->snapshot[gsu.snapshotTick & xor_64].count(p.id) > 0) {
                         if (peer->snapshot[gsu.snapshotTick & xor_64][p.id].snapshotTick == gsu.snapshotTick) {
                             Player &confirmed = peer->snapshot[gsu.snapshotTick & xor_64][p.id];
                             Player::fillinFromPreviousConfirmed(confirmed, p);
+                            missingSnapshot = false;
                         } else {
                             missingSnapshot = true;
                         }
@@ -343,10 +345,6 @@ namespace Duel6 {
                 Duel6::Player &player = game->players[idmap[p.id]];
                 player.tick = game->tick;
                 auto &position = p.position;
-                auto &externalForces = p.externalForces;
-                auto &externalForcesSpeed = p.externalForcesSpeed;
-                auto &velocity = p.velocity;
-                auto &acceleration = p.acceleration;
 
                 CollidingEntity collidingEntity;
                 collidingEntity.position = { position.x, position.y, collidingEntity.position.z };
@@ -397,7 +395,7 @@ namespace Duel6 {
         }
         void ClientGameProxy::handle(NextRound &nr) {
             for (auto &s : peer->snapshot) {
-                s.clear();
+                s.clear(); // clear all the snapshots when going to next round
             }
             game->onNextRound();
         }

@@ -25,6 +25,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <sstream>
 #include "Sound.h"
 #include "WorldRenderer.h"
 #include "Game.h"
@@ -398,4 +399,53 @@ namespace Duel6 {
     void Game::setMessageQueue(InfoMessageQueue & queue) {
         this->infoMessageQueue = &queue;
     }
+
+
+    std::string Game::getGameState(){
+        std::string T("true");
+        std::string F("false");
+        std::stringstream ss;
+        ss << "{\"state\": \"GAME\",\n";
+        ss << " \"rounds\": " << currentRound << ",\n";
+        ss << " \"maxRounds\": " << settings.getMaxRounds() << ",\n";
+        ss << " \"roundLimit\": " << (settings.isRoundLimit() ? T : F) << ",\n";
+        ss << " \"waterRising\": " << (round  && round->getWorld().getLevel().isRaisingWater() ? T : F) << ",\n";
+        ss << " \"players\": [\n";
+        bool first = true;
+        for(const auto & player: players){
+            if(player.isDeleted()){
+                continue;
+            }
+            if(first){
+                first = false;
+            } else {
+                ss << "   ,\n";
+            }
+            ss << "   {\n";
+            ss << "   \"name\": \"" << player.getPerson().getName() << "\",";
+            ss << "   \"team\": " << player.getTeam() << ",";
+            ss << "   \"ping\": " << player.rtt << ",";
+            ss << "   \"reloadTime\": " << player.getReloadTime() << ",";
+            ss << "   \"reloadInterval\": " << player.getReloadInterval() << ",";
+            ss << "   \"alive\": " << (player.isAlive() ? T : F) << ",";
+
+            ss << "   \"timeSinceHit\": " << player.getTimeSinceHit() << ",";
+            ss << "   \"health\": " << player.getLife() << ",";
+            ss << "   \"air\": " << player.getAir() << ",";
+            ss << "   \"points\": " << player.getPerson().getTotalPoints() << ",";
+            ss << "   \"kills\": " << player.getPerson().getKills() << ",";
+            ss << "   \"deaths\": " << player.getPerson().getDeaths() << ",";
+
+            ss << "   \"bonus\": \"" << player.getBonus()->getName() << "\",";
+            ss << "   \"bonusRemainingTime\": " << player.getBonusRemainingTime() << ",";
+
+            ss << "   \"ammo\": " << player.getAmmo() << ",";
+            ss << "   \"weapon\": \"" << (player.hasGun() ? player.getWeapon().getName() : "unarmed") << "\" ";
+            ss << "   }\n";
+        }
+        ss << " ]\n";
+        ss << "}";
+        return ss.str();
+    }
+
 }

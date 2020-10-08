@@ -38,9 +38,23 @@
 #include "FontException.h"
 #include "net/NetHost.h"
 #include "net/NetClient.h"
+#include "gamestateintegration/Publisher.h"
+
 namespace Duel6 {
     namespace {
         const Float64 updateTime = 1.0 / D6_UPDATE_FREQUENCY;
+
+        char *getCmdLineOption(char **begin, char **end, const std::string &option) {
+            char **itr = std::find(begin, end, option);
+            if (itr != end && ++itr != end) {
+                return *itr;
+            }
+            return nullptr;
+        }
+
+        bool hasCmdLineOption(char **begin, char **end, const std::string &option) {
+            return std::find(begin, end, option) != end;
+        }
     }
 
     namespace {
@@ -78,6 +92,8 @@ namespace Duel6 {
             : console(Console::ExpandFlag), input(console), controlsManager(input), sound(20, console),
               scriptContext(console, sound, gameSettings), scriptManager(scriptContext),
               requestClose(false) {
+        parseCommandLineOptions(argc, argv);
+
 #ifndef D6_RENDERER_HEADLESS
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
             D6_THROW(VideoException, Format("Unable to set graphics mode: {0}") << SDL_GetError());
@@ -114,7 +130,9 @@ namespace Duel6 {
 
         console.printLine("\n===Video initialization==");
         std::string windowTitle = argv[0];
-        video = std::make_unique<Video>(windowTitle, APP_FILE_ICON, console);
+
+        ScreenParameters screen(!commandLineOptions.windowed, commandLineOptions.windowWidth, commandLineOptions.windowHeight);
+        video = std::make_unique<Video>(windowTitle, APP_FILE_ICON, console, screen);
         textureManager = std::make_unique<TextureManager>(video->getRenderer());
 
         console.printLine("\n===Font initialization===");
@@ -150,15 +168,11 @@ namespace Duel6 {
 
         scriptManager.registerLoaders();
         menu->initialize();
-        Context::push(*menu); //have menu pushed here for the headless server to able to start the game straight from the command line
+
         // Execute config script and command line arguments
         console.printLine("\n===Config===");
         ConsoleCommands::registerCommands(console, *service, *menu, gameSettings);
         console.exec(std::string("exec ") + D6_FILE_CONFIG);
-
-        for (int i = 1; i < argc; i++) {
-            console.exec(argv[i]); // 'duel6r-headless dedicated' starts the server
-        }
     }
 
     Application::~Application() {
@@ -169,6 +183,41 @@ namespace Duel6 {
 
         TTF_Quit();
         SDL_Quit();
+    }
+
+    void Application::parseCommandLineOptions(int argc, char **argv) {
+        commandLineOptions.dedicated = hasCmdLineOption(argv, argv+argc, "-dedicated");
+
+        char *window = getCmdLineOption(argv, argv+argc, "-window");
+        if (window != nullptr) {
+            Int32 width, height;
+            sscanf(window, "%dx%d", &width, &height);
+            commandLineOptions.windowed = true;
+            commandLineOptions.windowWidth = width;
+            commandLineOptions.windowHeight = height;
+        } else {
+            commandLineOptions.windowed = false;
+            commandLineOptions.windowWidth = -1;
+            commandLineOptions.windowHeight = -1;
+        }
+
+        if(hasCmdLineOption(argv, argv + argc, "-publish")){
+            commandLineOptions.gameStateIntegration = true;
+
+            char *url = getCmdLineOption(argv, argv + argc, "-url");
+            if (url != nullptr) {
+                char urlCstr[256];
+                sscanf(url, "%s", urlCstr);
+                commandLineOptions.gsiURL = std::string(urlCstr);
+            }
+
+            char *port = getCmdLineOption(argv, argv + argc, "-port");
+            if (port != nullptr) {
+                Uint16 portNo;
+                sscanf(port, "%hu", &portNo);
+                commandLineOptions.gsiPort = portNo;
+            }
+        }
     }
 
     void Application::textInputEvent(Context &context, const TextInputEvent &event) {
@@ -195,7 +244,12 @@ namespace Duel6 {
             if (console.isActive()) {
                 console.keyEvent(event.getCode(), event.getModifiers());
             } else {
-                context.keyEvent(event);
+                if (event.getCode() == SDLK_RETURN &&
+                    ((event.getModifiers() & KMOD_LALT) == KMOD_LALT || (event.getModifiers() & KMOD_RALT) == KMOD_RALT)) {
+                    video->toggleFullscreen();
+                } else {
+                    context.keyEvent(event);
+                }
             }
         }
     }
@@ -270,6 +324,17 @@ namespace Duel6 {
                     console.printLine("Received SDL_QUIT");
                     requestClose = true;
                     break;
+                case SDL_WINDOWEVENT: {
+                    switch (event.window.event)  {
+                      case SDL_WINDOWEVENT_RESIZED:  {
+                        int width = event.window.data1;
+                        int height = event.window.data2;
+                        video->resize(width, height);
+                        break;
+                      }
+                    }
+                    break;
+                }
                 default:
                     break;
             }
@@ -293,6 +358,7 @@ namespace Duel6 {
         while (accumulatedTime > updateTime) {
             context.update(Float32(updateTime));
             accumulatedTime -= updateTime;
+            video->think(updateTime);
         }
 
         Uint32 residual = (updateTime - accumulatedTime) * 1000;
@@ -304,8 +370,21 @@ namespace Duel6 {
     }
 
     void Application::run() {
+        Publisher publisher(commandLineOptions.gsiURL, commandLineOptions.gsiPort);
+
+        if(commandLineOptions.gameStateIntegration){
+            publisher.start();
+        }
+        Context::push(*menu);
+        if (commandLineOptions.dedicated) {
+            menu->startDedicatedServer();
+        }
+
         while (Context::exists() && !requestClose) {
             Context &context = Context::getCurrent();
+            if(publisher.wantsNewData()){
+                publisher.publish(context.getGameState());
+            }
 
             processEvents(context);
             syncUpdateAndRender(context);

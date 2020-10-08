@@ -1,4 +1,4 @@
-volume      128   // Volume - maximum = 128
+volume      30   // Volume - maximum = 128
 music       on    // Menu music - on/off
 
 gun 13 false

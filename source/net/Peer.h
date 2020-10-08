@@ -120,12 +120,9 @@ namespace Duel6 {
                     std::cerr << " FAILED TO SEND \n";
                     return;
                 }
-                std::string dataStr = bs.str();
-                size_t dataLen = dataStr.length();
-                char data[dataLen];
-                std::memset(data, 0, dataLen);
-                std::memcpy(data, dataStr.c_str(), dataLen);
-                send(data, dataLen, channel, reliable);
+                bs.seekp(0, std::ios::end);
+                size_t len = bs.tellp();
+                send(bs.str().c_str(), len, channel, reliable);
             }
 
 
@@ -153,7 +150,7 @@ namespace Duel6 {
             peer_id_t getClientID();
 
         protected:
-            void send(char * data, size_t dataLen, uint8_t channel, bool reliable);
+            void send(const char * data, size_t dataLen, uint8_t channel, bool reliable);
 
             void disconnect(bool now);
 
