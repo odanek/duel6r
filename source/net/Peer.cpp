@@ -363,7 +363,9 @@ namespace Duel6 {
             } else {
                 serverGameProxy.add(this);
                 gameProxy.setPeerReference(*this);
-                enet_peer_timeout(peer, 50, 1000, 5000);
+                // 15 sec timeout during game
+                // the 500 is not 500 ms, it is 500 x current RTT (just in case)
+                enet_peer_timeout(peer, 500, 5000, 15000);
                 enet_peer_throttle_configure(peer, 5000, 2, 2 );
             }
 
@@ -383,7 +385,11 @@ namespace Duel6 {
             if(isMasterserver){
                 enet_peer_timeout(peer, 500, 200, 1000);
             } else {
-                enet_peer_timeout(peer, 500, 1000, 5000);
+                // 15 sec timeout during game
+                //
+                // the 500 is not 500 ms, it is 500 x current RTT (just in case)
+                // this is probably all messed up config and only the 15sec rule applies
+                enet_peer_timeout(peer, 500, 5000, 15000);
                 enet_peer_throttle_configure(peer, 5000, 2, 2 );
                 gameProxy.setPeerReference(*this);
             }

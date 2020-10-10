@@ -273,10 +273,13 @@ namespace Duel6 {
             return ammo;
         }
 
+        void setRoundKills(Int32 value) {
+            roundKills = value;
+        }
+
         Int32 getRoundKills() const {
             return roundKills;
         }
-
         void addRoundKills(Int32 kills) {
             roundKills += kills;
         }

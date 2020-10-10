@@ -159,14 +159,14 @@ namespace Duel6 {
                     if(missingSnapshot){
                         // correct snapshot not found,
                         // wait out the server to send full copy
-                        peer->receivedInputsTick = peer->confirmedInputsTick;
+                        peer->receivedInputsTick = peer->receivedInputsTick - 64; // cache is trash
                         continue; // skip this player to not screw things
                     } else {
                         uint16_t lctdelta = p.lastConfirmedTick - player.lastConfirmedTick;
                         if(lctdelta < 65000 || player.lastConfirmedTick == 0){ // player.lastConfirmedTick == 0 is at the start
                             player.lastConfirmedTick = p.lastConfirmedTick;
                         } else {
-                            peer->receivedInputsTick = peer->confirmedInputsTick;//gsu.inputTick; //player.lastConfirmedTick;
+                            peer->receivedInputsTick = peer->receivedInputsTick - 64; // cache is trash
                             continue;
                         }
                     }
@@ -557,6 +557,7 @@ namespace Duel6 {
                 velocity
            );
             player.getIndicators().getReload().show(player.getReloadInterval() + Indicator::FADE_DURATION);
+            player.getIndicators().getBullets().show();
             if(player.local){
                 game->spawnShot(std::move(x));
             } else {

@@ -154,6 +154,8 @@ namespace Duel6 {
                     // waits for us to serve him fresh copy of the state), we use that one as the last known snapshot
 
                     // it actually screws things when order delivered out-of - client then lacks the snapshot
+                    // edit: mixing snapshotTick and confirmInputTick is mixing server-side counter with client-side counter
+                    // and could never have worked correctly
                     //   gsu.snapshotTick = gsu.confirmInputTick;
                 } else {
                     if(peer->choke < 32){

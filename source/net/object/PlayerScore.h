@@ -24,6 +24,7 @@ namespace Duel6::net {
         Int32 shots = 0;
         Int32 hits = 0;
         Int32 kills = 0;
+        Int32 roundKills = 0;
         Int32 deaths = 0;
         Int32 assistances = 0;
         Int32 wins = 0;
@@ -42,6 +43,7 @@ namespace Duel6::net {
             SHOTS,
             HITS,
             KILLS,
+            ROUND_KILLS,
             DEATHS,
             ASSISTANCES,
             WINS,
@@ -70,6 +72,7 @@ namespace Duel6::net {
                S(SHOTS, shots);
                S(HITS, hits);
                S(KILLS, kills);
+               S(ROUND_KILLS, roundKills);
                S(DEATHS, deaths);
                S(ASSISTANCES, assistances);
                S(WINS, wins);
