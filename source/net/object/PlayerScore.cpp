@@ -105,6 +105,7 @@ namespace Duel6::net {
             R(SHOTS, shots);
             R(HITS, hits);
             R(KILLS, kills);
+            R(ROUND_KILLS, roundKills);
             R(DEATHS, deaths);
             R(ASSISTANCES, assistances);
             R(WINS, wins);
