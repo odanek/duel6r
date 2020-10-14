@@ -236,7 +236,14 @@ namespace Duel6 {
             case EventType::PLAYER_HIT:break;
             case EventType::PLAYER_SPAWN:break;
             case EventType::PLAYER_DIED:break;
-            case EventType::PLAYER_KILLED:break;
+            case EventType::CLIENT_REQUESTS_NEXT_ROUND: {
+                RequestNextRound rnr;
+                if (!(s >> rnr)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::CLIENT_REQUESTS_NEXT_ROUND");
+                }
+                gameProxy->handle(rnr);
+                break;
+            }
             case EventType::MAX_COUNT:
                 break;
             default: {

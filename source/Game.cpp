@@ -31,6 +31,8 @@
 #include "Game.h"
 #include "Menu.h"
 #include "GameMode.h"
+#include "json/JsonParser.h"
+#include "json/JsonWriter.h"
 
 namespace Duel6 {
 #define MAX_PLAYERS 32 // because resizing vectors screwes up pointers to players gamemodes
@@ -311,7 +313,7 @@ namespace Duel6 {
         if (isServer) {
             gameProxy->nextRound();
         } else {
-           // gameProxy->requestNextRound();
+            gameProxy->requestNextRound(currentRound);
         }
         onNextRound();
     }
@@ -402,50 +404,45 @@ namespace Duel6 {
 
 
     std::string Game::getGameState(){
-        std::string T("true");
-        std::string F("false");
-        std::stringstream ss;
-        ss << "{\"state\": \"GAME\",\n";
-        ss << " \"rounds\": " << currentRound << ",\n";
-        ss << " \"maxRounds\": " << settings.getMaxRounds() << ",\n";
-        ss << " \"roundLimit\": " << (settings.isRoundLimit() ? T : F) << ",\n";
-        ss << " \"waterRising\": " << (round  && round->getWorld().getLevel().isRaisingWater() ? T : F) << ",\n";
-        ss << " \"players\": [\n";
-        bool first = true;
+        Json::Value json = Json::Value::makeObject();
+        json.set("state", Json::Value::makeString("GAME"));
+        json.set("round", Json::Value::makeNumber(currentRound));
+        json.set("maxRounds", Json::Value::makeNumber(settings.getMaxRounds()));
+        json.set("roundLimit", Json::Value::makeBoolean(settings.isRoundLimit()));
+        json.set("waterRising", Json::Value::makeBoolean(round  && round->getWorld().getLevel().isRaisingWater()));
+
+        Json::Value playersJson = Json::Value::makeArray();
         for(const auto & player: players){
             if(player.isDeleted()){
                 continue;
             }
-            if(first){
-                first = false;
-            } else {
-                ss << "   ,\n";
-            }
-            ss << "   {\n";
-            ss << "   \"name\": \"" << player.getPerson().getName() << "\",";
-            ss << "   \"team\": " << player.getTeam() << ",";
-            ss << "   \"ping\": " << player.rtt << ",";
-            ss << "   \"reloadTime\": " << player.getReloadTime() << ",";
-            ss << "   \"reloadInterval\": " << player.getReloadInterval() << ",";
-            ss << "   \"alive\": " << (player.isAlive() ? T : F) << ",";
 
-            ss << "   \"timeSinceHit\": " << player.getTimeSinceHit() << ",";
-            ss << "   \"health\": " << player.getLife() << ",";
-            ss << "   \"air\": " << player.getAir() << ",";
-            ss << "   \"points\": " << player.getPerson().getTotalPoints() << ",";
-            ss << "   \"kills\": " << player.getPerson().getKills() << ",";
-            ss << "   \"deaths\": " << player.getPerson().getDeaths() << ",";
+            Json::Value playerJson = Json::Value::makeObject();
 
-            ss << "   \"bonus\": \"" << player.getBonus()->getName() << "\",";
-            ss << "   \"bonusRemainingTime\": " << player.getBonusRemainingTime() << ",";
+            playerJson.set("name", Json::Value::makeString(player.getPerson().getName()));
+            playerJson.set("team", Json::Value::makeNumber(player.getTeam()));
+            playerJson.set("ping", Json::Value::makeNumber((Int32) player.rtt));
+            playerJson.set("reloadTime", Json::Value::makeNumber(player.getReloadTime()));
+            playerJson.set("reloadInterval", Json::Value::makeNumber(player.getReloadInterval()));
+            playerJson.set("alive", Json::Value::makeBoolean(player.isAlive()));
+            playerJson.set("timeSinceHit", Json::Value::makeNumber(player.getTimeSinceHit()));
+            playerJson.set("health", Json::Value::makeNumber(player.getLife()));
+            playerJson.set("air", Json::Value::makeNumber(player.getAir()));
+            playerJson.set("points", Json::Value::makeNumber(player.getPerson().getTotalPoints()));
+            playerJson.set("kills", Json::Value::makeNumber(player.getPerson().getKills()));
+            playerJson.set("deaths", Json::Value::makeNumber(player.getPerson().getDeaths()));
+            playerJson.set("roundKills", Json::Value::makeNumber(player.getRoundKills()));
+            playerJson.set("bonus", Json::Value::makeString(player.getBonus()->getName()));
+            playerJson.set("bonusRemainingTime", Json::Value::makeNumber(player.getBonusRemainingTime()));
+            playerJson.set("ammo", Json::Value::makeNumber(player.getAmmo()));
+            playerJson.set("weapon", Json::Value::makeString((player.hasGun() ? player.getWeapon().getName() : "unarmed")));
 
-            ss << "   \"ammo\": " << player.getAmmo() << ",";
-            ss << "   \"weapon\": \"" << (player.hasGun() ? player.getWeapon().getName() : "unarmed") << "\" ";
-            ss << "   }\n";
+            playersJson.add(playerJson);
         }
-        ss << " ]\n";
-        ss << "}";
-        return ss.str();
+
+        json.set("players", playersJson);
+        Json::Writer writer(true);
+        return writer.writeToString(json);
     }
 
 }

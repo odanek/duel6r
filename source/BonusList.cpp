@@ -95,7 +95,7 @@ namespace Duel6 {
 
         Rectangle candidate = Rectangle::fromCorners(Vector(x - 2, y - 2), Vector(x + 2, y + 2));
         for (Player &player : world.getPlayers()) {
-            if (Collision::rectangles(candidate, player.getCollisionRect())) {
+            if (!player.isDeleted() && Collision::rectangles(candidate, player.getCollisionRect())) {
                 return false;
             }
         }

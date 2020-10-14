@@ -81,8 +81,19 @@ namespace Duel6 {
                 for (auto &s : peer->snapshot) {
                     s.clear();
                 }
-                peer->choke = 64;
+
                 peer->send(NextRound());
+            }
+        }
+
+        void  ServerGameProxy::requestNextRound(Int32 currentRound) {
+            for (auto &peer : peers) {
+                if (!(peer->peerUpdateState == PeerUpdateState::GAMESTATE_RECEIVED || peer->peerUpdateState == PeerUpdateState::RUNNING)) {
+                    continue;
+                }
+                RequestNextRound rnr;
+                rnr.currentRound = currentRound;
+                peer->send(rnr);
             }
         }
 
@@ -157,6 +168,11 @@ namespace Duel6 {
                     // edit: mixing snapshotTick and confirmInputTick is mixing server-side counter with client-side counter
                     // and could never have worked correctly
                     //   gsu.snapshotTick = gsu.confirmInputTick;
+                    peer->choke = 0;
+                    if(gsu.inputTick - gsu.snapshotTick > 2){
+                        gsu.snapshotTick -= gsu.inputTick - gsu.snapshotTick  / 2;
+                    }
+
                 } else {
                     if(peer->choke < 32){
                         peer->choke = 32;

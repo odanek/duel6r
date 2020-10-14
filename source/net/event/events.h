@@ -20,6 +20,7 @@
 #include "PlaySample.h"
 #include "RaiseWaterLevel.h"
 #include "RequestGameState.h"
+#include "RequestNextRound.h"
 #include "SpawnBonus.h"
 #include "SpawnExplosion.h"
 #include "SpawnShot.h"
