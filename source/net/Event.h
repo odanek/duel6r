@@ -47,7 +47,7 @@ namespace Duel6 {
             PLAYER_HIT,
             PLAYER_SPAWN,
             PLAYER_DIED,
-            PLAYER_KILLED,
+            CLIENT_REQUESTS_NEXT_ROUND,
 
             MAX_COUNT
         };

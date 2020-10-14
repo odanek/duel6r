@@ -22,6 +22,7 @@ namespace Duel6::net {
         shots = player.getPerson().getShots();
         hits = player.getPerson().getHits();
         kills = player.getPerson().getKills();
+        roundKills = player.getRoundKills();
         deaths = player.getPerson().getDeaths();
         assistances = player.getPerson().getAssistances();
         wins = player.getPerson().getWins();
@@ -42,6 +43,7 @@ namespace Duel6::net {
         player.getPerson().setShots(shots);
         player.getPerson().setHits(hits);
         player.getPerson().setKills(kills);
+        player.setRoundKills(roundKills);
         player.getPerson().setDeaths(deaths);
         player.getPerson().setAssistances(assistances);
         player.getPerson().setWins(wins);
@@ -59,6 +61,7 @@ namespace Duel6::net {
          return shots == r.shots
          && hits == r.hits
          && kills == r.kills
+         && roundKills == r.roundKills
          && deaths == r.deaths
          && assistances == r.assistances
          && wins == r.wins
@@ -78,6 +81,7 @@ namespace Duel6::net {
             D(SHOTS, shots);
             D(HITS, hits);
             D(KILLS, kills);
+            D(ROUND_KILLS, roundKills);
             D(DEATHS, deaths);
             D(ASSISTANCES, assistances);
             D(WINS, wins);
@@ -101,6 +105,7 @@ namespace Duel6::net {
             R(SHOTS, shots);
             R(HITS, hits);
             R(KILLS, kills);
+            R(ROUND_KILLS, roundKills);
             R(DEATHS, deaths);
             R(ASSISTANCES, assistances);
             R(WINS, wins);

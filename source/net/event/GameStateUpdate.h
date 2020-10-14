@@ -14,9 +14,9 @@
 namespace Duel6::net {
     class GameStateUpdate : public Event<GameStateUpdate, EventType::GAME_STATE_UPDATE>{
     public:
-        tick_t inputTick;
-        tick_t confirmInputTick;
-        tick_t snapshotTick;
+        server_tick_t inputTick;
+        client_tick_t confirmInputTick;
+        server_tick_t snapshotTick;
         bool hasWinner = false;
         std::vector<Player> players;
         template<typename Stream>

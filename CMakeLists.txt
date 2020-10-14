@@ -110,6 +110,7 @@ set(D6R_SOURCES
         source/net/event/PlaySample.h
         source/net/event/RaiseWaterLevel.h
         source/net/event/RequestGameState.h
+        source/net/event/RequestNextRound.h
         source/net/event/SpawnBonus.h
         source/net/event/SpawnWeapon.h
         source/net/event/StartRound.h

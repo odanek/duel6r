@@ -105,7 +105,7 @@ namespace Duel6 {
                                     Console &console) {
         Uint32 flags = 0;
 
-        flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_INPUT_GRABBED*/;
+        flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI /*| SDL_WINDOW_INPUT_GRABBED*/;
         if (params.isFullScreen()) {
             flags |= SDL_WINDOW_FULLSCREEN;
         }

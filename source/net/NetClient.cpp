@@ -80,7 +80,8 @@ namespace Duel6 {
                 return;
             }
             pendingConnectionRequests++;
-            enet_peer_timeout(enetpeer, 100, 1000, 10000);
+            // 5 sec initial timeout when connecting from menu
+            enet_peer_timeout(enetpeer, 100, 1000, 5000);
             enetpeer->data = new net::PeerRef { 1234, nullptr, false }; // this is probably superfluous (we check for nullptr in onPeerConnected
         }
 

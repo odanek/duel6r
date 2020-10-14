@@ -57,6 +57,7 @@ namespace Duel6 {
             void handle(SpawnShot &ss);
             void handle(SpawnExplosion &ss);
             void handle(EraseShot &es);
+            void handle(RequestNextRound &rnr);
 
             template<typename ObjectTypeName>
             void handleObject(ObjectTypeName &o) { //todo I think these are superfluous and can be removed
@@ -72,8 +73,10 @@ namespace Duel6 {
             void handle(EventBase &e) override;
 
             RequestGameState getRequestGameState();
+
         protected:
             void nextRound() override;
+
         private:
             void joinPlayers(std::vector<PlayerProfile> &playerProfiles);
         };

@@ -75,8 +75,8 @@ namespace Duel6 {
             Uint32 getRTT() const;
             size_t choke = 64; // 0..64
             std::array<std::map<Uint32, Player>, SNAPSHOTS> snapshot;
-            uint16_t confirmedInputsTick = 0; //TODO private
-            uint16_t receivedInputsTick = 0;
+            tick_t confirmedInputsTick = 0; //TODO private
+            tick_t receivedInputsTick = 0;
             Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, size_t pos, ENetHost *host, bool isMasterserver = false);
             Peer(ClientGameProxy &gameProxy, ServerGameProxy &serverGameProxy, ENetPeer *peer, ENetHost *host, bool isMasterserver = false);
             Peer() = default;

@@ -14,6 +14,7 @@ namespace Duel6 {
         const uint16_t xor_32768 = 32767;
         const uint16_t xor_32 = 31;
         const uint16_t xor_64 = 63;
+
         void ClientGameProxy::setPeerReference(Peer &peer) {
             this->peer = &peer;
         }
@@ -22,6 +23,7 @@ namespace Duel6 {
             game = &g;
             defaultSounds = PlayerSounds::makeDefault(game->getAppService().getSound());
         }
+
         void ClientGameProxy::handle(Player &p) {
             auto &position = p.position;
             auto pos = idmap[p.id];
@@ -35,6 +37,7 @@ namespace Duel6 {
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
             }
         }
+
         //periodical update of lying weapons
         void ClientGameProxy::handle(Weapon &w) {
             for(auto & weapon: game->getRound().getWorld().getBonusList().getLyingWeapons()){
@@ -44,11 +47,13 @@ namespace Duel6 {
                 }
             }
         }
+
         void ClientGameProxy::handle(MessageBroadcast &m) {
             auto pos = idmap[m.playerId];
             auto &player = game->players[pos];
             game->broadcastMessage(player, m.text, true);
         }
+
         void ClientGameProxy::lateReceive(tick_t lateTick) {
             for (auto &player : game->players) {
                 player.lateTicks++;
@@ -129,6 +134,7 @@ namespace Duel6 {
                 break;
             }
             }
+
             bool missingSnapshot = false;
             for (auto &p : gsu.players) {
                 p.snapshotTick = gsu.inputTick;
@@ -159,14 +165,14 @@ namespace Duel6 {
                     if(missingSnapshot){
                         // correct snapshot not found,
                         // wait out the server to send full copy
-                        peer->receivedInputsTick = peer->confirmedInputsTick;
+                        peer->receivedInputsTick = peer->receivedInputsTick - 64; // cache is trash
                         continue; // skip this player to not screw things
                     } else {
                         uint16_t lctdelta = p.lastConfirmedTick - player.lastConfirmedTick;
                         if(lctdelta < 65000 || player.lastConfirmedTick == 0){ // player.lastConfirmedTick == 0 is at the start
                             player.lastConfirmedTick = p.lastConfirmedTick;
                         } else {
-                            peer->receivedInputsTick = peer->confirmedInputsTick;//gsu.inputTick; //player.lastConfirmedTick;
+                            peer->receivedInputsTick = peer->receivedInputsTick - 64; // cache is trash
                             continue;
                         }
                     }
@@ -224,6 +230,7 @@ namespace Duel6 {
             }
 
         }
+
         void ClientGameProxy::peerDisconnected(Peer &peer){
             std::vector<Int32> removedIds;
             removedIds.reserve(game->players.size());
@@ -235,6 +242,7 @@ namespace Duel6 {
             game->disconnectPlayers(removedIds);
 
         }
+
         void ClientGameProxy::handle(GameState &sr) {
             clientId = sr.clientId;
             game->tick = sr.tick;
@@ -375,6 +383,7 @@ namespace Duel6 {
             peer->peerUpdateState = PeerUpdateState::GAMESTATE_RECEIVED;
 
         }
+
         void ClientGameProxy::netStopped() {
             if(game == &Context::getCurrent()){
                 //go back to menu
@@ -383,6 +392,7 @@ namespace Duel6 {
             }
 
         }
+
         void ClientGameProxy::handle(PlayersDisconnected &pd) {
             for(auto id: pd.disconnectedId){
                 idmap.erase(id);
@@ -390,15 +400,18 @@ namespace Duel6 {
 
             game->disconnectPlayers(pd.disconnectedId);
         }
+
         void ClientGameProxy::handle(PlayersJoined &pj) {
             joinPlayers(pj.playerProfiles);
         }
+
         void ClientGameProxy::handle(NextRound &nr) {
             for (auto &s : peer->snapshot) {
                 s.clear(); // clear all the snapshots when going to next round
             }
             game->onNextRound();
         }
+
         tick_t ClientGameProxy::getTick() const {
             return game->tick;
         }
@@ -451,6 +464,7 @@ namespace Duel6 {
         void ClientGameProxy::handle(ObjectBase &o) {
             handleObject(o);
         }
+
         void ClientGameProxy::handle(EventBase &e) {
             handleEvent(e);
         }
@@ -489,9 +503,11 @@ namespace Duel6 {
             }
             return r;
         }
+
         void ClientGameProxy::handle(RaiseWaterLevel &rwl){
             game->raiseWater();
         }
+
         void ClientGameProxy::handle(StartRound &sr) {
             std::vector<Duel6::Elevator> elevators;
             elevators.reserve(sr.world.elevators.size());
@@ -525,6 +541,7 @@ namespace Duel6 {
                 elevators
                 ));
         }
+
         void ClientGameProxy::handle(SpawnBonus &sb) {
             Bonus &b = sb.bonus;
             Vector position = {b.position.x, b.position.y, 0.5f};
@@ -534,6 +551,7 @@ namespace Duel6 {
                 position,
                 b.textureIndex));
         }
+
         void ClientGameProxy::handle(SpawnShot &ss) {
              const Duel6::Weapon & weapon = Duel6::Weapon::getById(ss.weaponId);
              if (idmap.count(ss.playerId) == 0) {
@@ -557,6 +575,7 @@ namespace Duel6 {
                 velocity
            );
             player.getIndicators().getReload().show(player.getReloadInterval() + Indicator::FADE_DURATION);
+            player.getIndicators().getBullets().show();
             if(player.local){
                 game->spawnShot(std::move(x));
             } else {
@@ -564,6 +583,7 @@ namespace Duel6 {
             }
 
          }
+
         void ClientGameProxy::handle(PlaySample &ps) {
             if (idmap.count(ps.playerId) == 0) {
                 std::cerr << "Player id " << ps.playerId << " not found, skipping\n";
@@ -573,6 +593,7 @@ namespace Duel6 {
             auto &player = game->players[pos];
             game->playSample(player, static_cast<PlayerSounds::Type>(ps.sample));
         }
+
         void ClientGameProxy::handle(SpawnExplosion &ss) {
             Duel6::Explosion explosion;
             explosion.centre = { ss.centre.x, ss.centre.y, 0.0f };
@@ -599,6 +620,7 @@ namespace Duel6 {
                 w.remainingReloadTime,
                 collider));
         }
+
         void ClientGameProxy::handle(PickBonus &pb){
             for(auto & player : game->players){
                 if(player.getId() == pb.playerId){
@@ -606,12 +628,20 @@ namespace Duel6 {
                 }
             }
         }
+
         void ClientGameProxy::handle(PickWeapon &pw){
             for(auto & player : game->players){
                 if(player.getId() == pw.playerId){
                     game->pickWeapon(player, pw.weaponId);
                 }
             }
+        }
+
+        void ClientGameProxy::handle(RequestNextRound &rnr){
+            if(game->getCurrentRound() != rnr.currentRound){
+                return;
+            }
+            game->onNextRound();
         }
 
         void ClientGameProxy::handle(EraseShot &es){
@@ -621,5 +651,6 @@ namespace Duel6 {
         void ClientGameProxy::nextRound() {
             game->onNextRound();
         }
+
     } /* namespace net */
 } /* namespace Duel6 */

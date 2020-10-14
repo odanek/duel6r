@@ -9,8 +9,8 @@
 namespace Duel6::net {
     class PlayerInputsUpdate : public Event<PlayerInputsUpdate, EventType::PLAYER_INPUTS_UPDATE>{
     public:
-        tick_t inputTick;
-        tick_t confirmInputTick;
+        client_tick_t inputTick;
+        server_tick_t confirmInputTick;
         std::vector<PlayerInputs> playersInputs;
         template<typename Stream>
         bool serialize(Stream &s) {
