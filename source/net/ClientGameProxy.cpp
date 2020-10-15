@@ -237,8 +237,16 @@ namespace Duel6 {
             for(const auto & p : game->players){
                 if(p.getClientId() == peer.getClientID()){
                     removedIds.push_back(p.getId());
+                    // TODO DO Something with the list<Person> - rewrite to use vector ?
+//                    auto personToDelete = std::find_if(persons.begin(), persons.end(), [&p](const Person & person){
+//                        return &(p.getPerson()) == &person;
+//                    });
+//                    if(personToDelete != persons.end()){
+//                        persons.erase(personToDelete);
+//                    }
                 }
             }
+
             game->disconnectPlayers(removedIds);
 
         }
@@ -317,7 +325,6 @@ namespace Duel6 {
                     idmap[p.playerId] = p.clientLocalId;
                     game->players[p.clientLocalId].setId(p.playerId);
                     game->players[p.clientLocalId].setClientId(p.clientId);
-                    idmapBack[p.clientLocalId] = p.playerId;
                     continue; // local player
                 }
                 Person &person = persons.emplace_back(p.name, nullptr);
@@ -346,7 +353,6 @@ namespace Duel6 {
             for (auto &d : playerDefinitions) {
                 auto playerId = d.getPlayerId();
                 idmap[playerId] = d.playerPos;
-                idmapBack[d.playerPos] = playerId;
             }
 
             for (auto &p : sr.players) {
@@ -395,6 +401,16 @@ namespace Duel6 {
 
         void ClientGameProxy::handle(PlayersDisconnected &pd) {
             for(auto id: pd.disconnectedId){
+                // TODO DO Something with the list<Person> - rewrite to use vector ?
+//                if(idmap.count(id) > 0){
+//                    auto & p = game->players[idmap[id]];
+//                    auto personToDelete = std::find_if(persons.begin(), persons.end(), [&p](const Person & person){
+//                        return &(p.getPerson()) == &person;
+//                    });
+//                    if(personToDelete != persons.end()){
+//                        persons.erase(personToDelete);
+//                    }
+//                }
                 idmap.erase(id);
             }
 
@@ -446,7 +462,6 @@ namespace Duel6 {
             game->joinPlayers(playerDefinitions);
             for (auto &d : playerDefinitions) {
                 idmap[d.getPlayerId()] = d.playerPos;
-                idmapBack[d.playerPos] = d.getPlayerId();
             }
         }
 

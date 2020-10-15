@@ -22,7 +22,6 @@ namespace Duel6 {
             Game *game;
             std::list<Person> persons;
             std::map<Int32, Int32> idmap; //player mapping
-            std::map<Int32, Int32> idmapBack; //player mapping //todo not used, remove
             PlayerSounds defaultSounds;
             Int32 clientId = 0; // will be set upon receiving gamestate from server
         public:
