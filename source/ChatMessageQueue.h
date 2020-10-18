@@ -25,39 +25,37 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "PlayerSkin.h"
-#include "TextureManager.h"
+#ifndef DUEL6_CHATMESSAGEQUEUE_H
+#define DUEL6_CHATMESSAGEQUEUE_H
+
+#include <string>
+#include <list>
+#include "ChatMessage.h"
 
 namespace Duel6 {
+    class Renderer;
+    class Font;
+    class ChatMessageQueue {
+    private:
+        /** How long each message stays on the screen (in seconds). */
+        Float32 duration;
+        std::list<ChatMessage> messages;
+        friend class Game;
+        public:
+        ChatMessageQueue(Float32 duration);
 
-    PlayerSkin::PlayerSkin(const PlayerSkinColors &colors,
-                           const TextureManager &textureManager,
-                           const PlayerAnimations &animations,
-                           const AuxAnimations &auxAnimations)
-        : colors(colors),
-          animations(&animations),
-          textures(animations.generateAnimationTexture(textureManager, colors)),
-          auxAnimations(&auxAnimations),
-          auxTextures(auxAnimations.generateAnimationTexture(textureManager)){
-    }
+        ChatMessageQueue& add(bool system, const std::string & origin, const std::string &msg);
 
-    Texture PlayerSkin::getTexture() const {
-        return textures;
-    }
+        ChatMessageQueue& update(float elapsedTime);
 
-    Texture PlayerSkin::getAuxTexture() const {
-        return auxTextures;
-    }
+        void renderAllMessages(Renderer &renderer, const Int32 height, Int32 offsetY, const Font &font) const;
 
-    const PlayerSkinColors & PlayerSkin::getColors() const {
-        return colors;
-    }
+        void clear();
 
-    const PlayerAnimations & PlayerSkin::getAnimations() const {
-        return *animations;
-    }
+    private:
 
-    const AuxAnimations& PlayerSkin::getAuxAnimations() const {
-        return *auxAnimations;
-    }
+        static void renderMessage(Renderer &renderer, Int32 x, Int32 y, const std::string &msg, const Font &font);
+    };
 }
+
+#endif

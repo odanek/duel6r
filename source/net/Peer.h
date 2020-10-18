@@ -65,7 +65,7 @@ namespace Duel6 {
             std::unique_ptr<ENetPeer> peer;
             size_t pos = 0;
             peer_id_t incomingPeerID = 0;
-
+            std::string description;
             // SomeAppObject callbacks
         public:
             const ENetPeer& getEnetPeer() const {
@@ -148,6 +148,10 @@ namespace Duel6 {
             peer_id_t getIncomingPeerID();
 
             peer_id_t getClientID();
+
+            void setDescription(const std::string & s);
+
+            const std::string & getDescription();
 
         protected:
             void send(const char * data, size_t dataLen, uint8_t channel, bool reliable);

@@ -29,10 +29,10 @@ namespace Duel6 {
             port_t port;
             std::unique_ptr<Peer> peer;
             ENetHost *nethost;
-            Console &console;
+            Duel6::Console &console;
             int pendingConnectionRequests = 0;
         public:
-            NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console);
+            NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Duel6::Console &console);
 
             virtual ~NetClient();
 

@@ -41,7 +41,7 @@ endif (MSVC)
 
 # gnu compiler or clang
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -std=c++17 -pthread")
     if (D6R_PLATFORM STREQUAL "x86")
 
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse2")
@@ -95,9 +95,13 @@ set(D6R_SOURCES
         source/net/binarystream/FileBinaryStream.h
         source/net/binarystream/traits.h
 
+        source/net/event/Chat.h
+        source/net/event/ChatMessage.h
         source/net/event/Color.h
+        source/net/event/Console.h
         source/net/event/EraseShot.h
         source/net/event/events.h
+        source/net/event/Focus.h
         source/net/event/GameState.h
         source/net/event/GameStateUpdate.h
         source/net/event/NextRound.h
@@ -165,6 +169,11 @@ set(D6R_SOURCES
         source/Bonus.h
         source/BonusList.cpp
         source/BonusList.h
+        source/ChatInput.cpp
+        source/ChatInput.h
+        source/ChatMessage.h
+        source/ChatMessageQueue.cpp
+        source/ChatMessageQueue.h
         source/Color.cpp
         source/Color.h
         source/ConsoleCommands.cpp
@@ -487,7 +496,7 @@ set(D6R_SOURCES
         source/weapon/impl/Uzi.h
         source/weapon/impl/UziShot.cpp
         source/weapon/impl/UziShot.h
-        )
+        source/ChatMessage.h)
 
 if (D6R_RENDERER STREQUAL "gl1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DD6_RENDERER_GL1")

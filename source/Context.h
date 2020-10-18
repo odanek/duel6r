@@ -72,6 +72,8 @@ namespace Duel6 {
 
         virtual void joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) = 0;
 
+        virtual void windowFocusEvent(const WindowFocusEvent & event) = 0;
+
         virtual void update(Float32 elapsedTime) = 0;
 
         virtual void render() const = 0;

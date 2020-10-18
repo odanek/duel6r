@@ -43,14 +43,14 @@ namespace Duel6 {
         std::unordered_set<SDL_Keycode> pressedKeys;
         std::list<GameController> gameControllers;
         Console &console;
-
+        bool locked = false;
     public:
         Input(Console &console);
 
         void setPressed(SDL_Keycode keyCode, bool pressed);
 
         bool isPressed(SDL_Keycode keyCode) const {
-            if(console.isActive()) {
+            if(console.isActive() || locked) {
                 return false;
             }
             return pressedKeys.find(keyCode) != pressedKeys.end();
@@ -58,6 +58,10 @@ namespace Duel6 {
 
         const std::list<GameController> &getJoys() const {
             return gameControllers;
+        }
+
+        void setLocked(bool value) {
+            locked = value;
         }
 
         // handles reattaching

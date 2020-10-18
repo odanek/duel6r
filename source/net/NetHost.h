@@ -35,7 +35,7 @@ namespace Duel6 {
             bool enableMasterDiscovery = false;
             bool enableNAT = false;
         public:
-            NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy, Console &console);
+            NetHost(ClientGameProxy & clientGameProxy, ServerGameProxy & serverGameProxy, Duel6::Console &console);
             void setServerConfig(enet_uint32 publicIPAddress, enet_uint16 publicPort, const std::string & serverDescription, bool enableMasterDiscovery, bool enableNAT);
             virtual ~NetHost();
 

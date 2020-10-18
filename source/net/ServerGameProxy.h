@@ -45,6 +45,10 @@ namespace Duel6 {
             void eraseShot(Uint16 id);
             void spawnExplosion(Explosion &explosion);
             void broadcastMessage(Int32 playerId, const std::string & msg);
+            void broadcastChatMessage(const std::string &msg, bool system, const std::string & origin);
+            void chat(bool value);
+            void console(bool value);
+            void focus(bool value);
             void playSample(Int32 playerId, PlayerSounds::Type type);
             void startRound(Int32 playedRounds, Duel6::Level & level) override;
             void sendGameStateUpdate(Game & game) override;

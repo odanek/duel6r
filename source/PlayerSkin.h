@@ -42,19 +42,25 @@ namespace Duel6 {
         PlayerSkinColors colors;
         const PlayerAnimations *animations;
         Texture textures;
+        const AuxAnimations *auxAnimations;
+        Texture auxTextures;
 
     public:
         PlayerSkin(const PlayerSkinColors &colors, const TextureManager &textureManager,
-                   const PlayerAnimations &animations);
+                   const PlayerAnimations &animations, const AuxAnimations &auxAnimations);
         PlayerSkin(const PlayerSkin&) = default; // fingers crossed
         PlayerSkin(PlayerSkin&&) = default; // fingers crossed
         PlayerSkin& operator=(Duel6::PlayerSkin&&) = default; //fingers crossed
         PlayerSkin& operator=(const Duel6::PlayerSkin&) = default; //fingers crossed
         Texture getTexture() const;
 
+        Texture getAuxTexture() const;
+
         const PlayerSkinColors &getColors() const;
 
         const PlayerAnimations &getAnimations() const;
+
+        const AuxAnimations &getAuxAnimations() const;
     };
 }
 

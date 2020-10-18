@@ -815,6 +815,10 @@ namespace Duel6 {
         joyRescan();
     }
 
+    void Menu::windowFocusEvent(const WindowFocusEvent & event){
+
+    }
+
     void Menu::beforeClose(Context *newContext) {
         SDL_StopTextInput();
         sound.stopMusic();

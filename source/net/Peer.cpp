@@ -235,7 +235,40 @@ namespace Duel6 {
             case EventType::SHOT_HIT:break;
             case EventType::PLAYER_HIT:break;
             case EventType::PLAYER_SPAWN:break;
-            case EventType::PLAYER_DIED:break;
+            case EventType::CONSOLE:{
+                net::Console c;
+                if(!(s >> c)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::CONSOLE");
+                }
+                gameProxy->handle(c);
+                break;
+            }
+
+            case EventType::CHAT:{
+                Chat c;
+                if(!(s >> c)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::CHAT");
+                }
+                gameProxy->handle(c);
+                break;
+            }
+            case EventType::FOCUS:{
+                Focus f;
+                if(!(s >> f)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::FOCUS");
+                }
+                gameProxy->handle(f);
+                break;
+            }
+
+            case EventType::CHAT_MESSAGE:{
+                ChatMessage cm;
+                if (!(s >> cm)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::CHAT_MESSAGE");
+                }
+                gameProxy->handle(cm);
+                break;
+            }
             case EventType::CLIENT_REQUESTS_NEXT_ROUND: {
                 RequestNextRound rnr;
                 if (!(s >> rnr)) {
@@ -401,5 +434,14 @@ namespace Duel6 {
                 gameProxy.setPeerReference(*this);
             }
         }
+
+        void Peer::setDescription(const std::string &s) {
+            description = s;
+        }
+
+        const std::string& Peer::getDescription() {
+            return description;
+        }
+
     } /* namespace net */
 } /* namespace Duel6 */

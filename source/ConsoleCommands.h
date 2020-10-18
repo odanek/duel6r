@@ -76,6 +76,8 @@ namespace Duel6 {
 
         static void serverlist(Console &console, const Console::Arguments &args, Menu &menu);
 
+        static void say(Console &console, const Console::Arguments &args, Game &game);
+
     public:
         static void registerCommands(Console &console, AppService &appService, Menu &menu, GameSettings &gameSettings);
     };

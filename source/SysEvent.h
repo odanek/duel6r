@@ -57,6 +57,15 @@ namespace Duel6 {
     public:
         virtual ~SysEvent() {}
     };
+    class WindowFocusEvent : public SysEvent {
+        bool focused;
+    public:
+        WindowFocusEvent(bool focused) :
+            focused(focused) {}
+        bool hasFocus() const {
+            return focused;
+        }
+    };
 
     class JoyDeviceAddedEvent : public SysEvent {
     public:

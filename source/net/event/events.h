@@ -8,7 +8,11 @@
 #ifndef SOURCE_NET_EVENT_EVENTS_H_
 #define SOURCE_NET_EVENT_EVENTS_H_
 
+#include "Chat.h"
+#include "ChatMessage.h"
+#include "Console.h"
 #include "EraseShot.h"
+#include "Focus.h"
 #include "GameState.h"
 #include "GameStateUpdate.h"
 #include "NextRound.h"

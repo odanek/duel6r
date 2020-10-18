@@ -42,8 +42,12 @@ namespace Duel6 {
           resources(resources),
           settings(settings),
           worldRenderer(appService, *this),
-          playedRounds(0) {
+          playedRounds(0),
+          chatMessageQueue(10),
+          chatInput(appService.getInput()){
         players.reserve(MAX_PLAYERS);
+        playerAuxAnimations = std::make_unique<AuxAnimations>(resources.getPlayerAuxAnimation());
+        playerAuxAnimations->generateAnimationTexture(appService.getTextureManager());
     }
 
     void Game::beforeStart(Context *prevContext) {
@@ -79,17 +83,82 @@ namespace Duel6 {
             getRound().update(elapsedTime);
         }
         gameProxy->sendGameStateUpdate(*this);
+        chatMessageQueue.update(elapsedTime);
+    }
 
+    void Game::announcePeerIsChatting(bool chatOpened) {
+        if(!networkGame) {
+            return;
+        }
+        gameProxy->chat(chatOpened);
+        if(isServer){
+            for(auto & player: players){
+                if(player.local){
+                    player.setChatting(chatOpened);
+                }
+            }
+        }
+    }
+
+    void Game::announcePeerIsInConsole(bool consoleOpened) {
+        if(!networkGame) {
+            return;
+        }
+        gameProxy->console(consoleOpened);
+        if(isServer){
+            for(auto & player: players){
+                if(player.local){
+                    player.setInConsole(consoleOpened);
+                }
+            }
+        }
+    }
+
+    void Game::announcePeerFocusChanged(bool focusGained) {
+        if (!networkGame) {
+            return;
+        }
+        gameProxy->focus(focusGained);
+
+        if (isServer) {
+            for (auto &player : players) {
+                if (player.local) {
+                    player.setFocused(focusGained);
+                }
+            }
+        }
     }
 
     void Game::keyEvent(const KeyPressEvent &event) {
         if(!isRunning) return;
+        if(chatInput.active() && event.getCode() == SDLK_ESCAPE){
+            chatInput.toggle();
+            announcePeerIsChatting(false);
+            return;
+        }
         if (event.getCode() == SDLK_ESCAPE && (isOver() || event.withShift())) {
             close();
             return;
         }
         if (event.getCode() == SDLK_TAB && (!getRound().hasWinner())) {
             displayScoreTab = !displayScoreTab;
+        }
+
+        if (event.getCode() == SDLK_F5){
+            if(chatInput.toggle()){
+                SDL_StartTextInput();
+                chatInput.clear();
+                announcePeerIsChatting(true);
+            } else {
+                SDL_StopTextInput();
+                announcePeerIsChatting(false);
+            }
+        }
+
+        if (chatInput.active() && event.getCode() == SDLK_RETURN) {
+            broadcastChatMessage(chatInput.getText());
+            chatInput.toggle();
+            announcePeerIsChatting(false);
         }
 
         if (!getRound().isLast()) {
@@ -103,10 +172,17 @@ namespace Duel6 {
             }
         }
 
+        if(chatInput.active()){
+            chatInput.keyEvent(event);
+        }
+
         getRound().keyEvent(event);
     }
 
     void Game::textInputEvent(const TextInputEvent &event) {
+        if(chatInput.active()){
+            chatInput.textInputEvent(event.getText());
+        }
     }
 
     void Game::mouseButtonEvent(const MouseButtonEvent &event) {
@@ -124,11 +200,27 @@ namespace Duel6 {
     void Game::joyDeviceRemovedEvent(const JoyDeviceRemovedEvent &event) {
     }
 
+    void Game::windowFocusEvent(const WindowFocusEvent & event){
+        if(isRunning && networkGame){
+            announcePeerFocusChanged(event.hasFocus());
+        }
+    }
+
     void Game::start(std::vector<PlayerDefinition> &playerDefinitions, const std::vector<std::string> &levels,
                      const std::vector<Size> &backgrounds,
                      ScreenMode screenMode, Int32 screenZoom,
                      GameMode &gameMode,
                      bool networkGame) {
+        localChatName = "";
+        if(playerDefinitions.size() > 0){
+            localChatName = playerDefinitions[0].getPerson().getName();
+            if(playerDefinitions.size() > 1){
+                std::stringstream ss;
+                ss << " (+" << (playerDefinitions.size() - 1) << ")";
+                localChatName += ss.str();
+            }
+        }
+        chatMessageQueue.clear();
         tick = 65000; // debug
         this->networkGame = networkGame;
         Console &console = appService.getConsole();
@@ -147,7 +239,7 @@ namespace Duel6 {
         playerAnimations = std::make_unique<PlayerAnimations>(resources.getPlayerAnimation());
         for (const PlayerDefinition &playerDef : playerDefinitions) {
             console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-            skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, *playerAnimations));
+            skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, *playerAnimations, *playerAuxAnimations));
             Player & p = players.emplace_back(this,
                 playerDef.getPerson(),
                 skins.back(),
@@ -198,7 +290,7 @@ namespace Duel6 {
         Int32 playerId = authoritative ? maxPlayerId++ : playerDefinition.getPlayerId();
         for (const auto &player : players) {
             if (player.isDeleted()) {
-                skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations);
+                skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations, *playerAuxAnimations);
                 players[pos] = {this, playerDefinition.getPerson(),
                     skins[pos],
                     playerDefinition.getSounds(),
@@ -217,7 +309,7 @@ namespace Duel6 {
             }
             pos++;
         }
-        skins.push_back(PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations));
+        skins.push_back(PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations, *playerAuxAnimations));
         players.emplace_back(this,
             playerDefinition.getPerson(),
             skins.back(),
@@ -391,10 +483,22 @@ namespace Duel6 {
     void Game::broadcastMessage(const Player &player, const std::string & msg, bool display) {
         if (isServer) {
             gameProxy->broadcastMessage(player.getId(), msg);
+        }
+        if(isServer || !networkGame || display){
             this->infoMessageQueue->onBroadcast(player, msg);
         }
-        if(!networkGame || display){
-            this->infoMessageQueue->onBroadcast(player, msg);
+    }
+
+    void Game::broadcastChatMessage(const std::string &msg, bool display, bool system, const std::string & origin) {
+        if (!display || isServer) {
+            gameProxy->broadcastChatMessage(msg, system, (display || system) ? origin : localChatName);
+        }
+        if(isServer || !networkGame || display){
+            if(!system){
+                resources.getChatMsgSound().play();
+            }
+            appService.getConsole().printLine((display || system) ? origin : localChatName + ":" + msg);
+            this->chatMessageQueue.add(system, (display || system) ? origin : localChatName, msg);
         }
     }
 

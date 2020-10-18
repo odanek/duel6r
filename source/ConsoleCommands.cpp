@@ -292,6 +292,14 @@ namespace Duel6 {
         menu.startDedicatedServer();
     }
 
+    void ConsoleCommands::say(Console &console, const Console::Arguments &args, Game &game) {
+        if(args.length() != 2){
+            console.printLine("Usage: say \"message\"");
+            return;
+        }
+        game.broadcastChatMessage(args.get(1));
+    }
+
     void ConsoleCommands::registerCommands(Console &console, AppService &appService, Menu &menu,
                                            GameSettings &gameSettings) {
         // Set some console functions
@@ -354,5 +362,10 @@ namespace Duel6 {
         console.registerCommand("serverlist", [&menu](Console &con, const Console::Arguments &args) {
             serverlist(con, args, menu);
         });
+
+        console.registerCommand("say", [&menu](Console &con, const Console::Arguments &args) {
+            say(con, args, menu.getGame());
+        });
     }
+
 }

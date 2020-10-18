@@ -485,6 +485,15 @@ namespace Duel6 {
         }
     }
 
+    void WorldRenderer::chatMessages() const {
+        const ChatInput & chatInput = game.getChatInput();
+        if(chatInput.active()){
+            chatInput.render(renderer, font);
+        }
+        const ChatMessageQueue &messageQueue = game.getChatMessageQueue();
+        messageQueue.renderAllMessages(renderer,  video.getScreen().getClientHeight(), 50, font);
+    }
+
     void WorldRenderer::shotCollisionBox(const ShotList &shotList) const {
         shotList.forEach([this](const Shot &shot) -> bool {
             const auto &rect = shot.getCollisionRect();
@@ -659,6 +668,8 @@ namespace Duel6 {
         setView(0, 0, video.getScreen().getClientWidth(), video.getScreen().getClientHeight());
 
         infoMessages();
+
+        chatMessages();
 
         if (settings.isShowFps()) {
             fpsCounter();

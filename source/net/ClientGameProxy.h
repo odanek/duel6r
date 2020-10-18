@@ -57,7 +57,10 @@ namespace Duel6 {
             void handle(SpawnExplosion &ss);
             void handle(EraseShot &es);
             void handle(RequestNextRound &rnr);
-
+            void handle(ChatMessage &cm);
+            void handle(Chat &c);
+            void handle(net::Console &c);
+            void handle(Focus &f);
             template<typename ObjectTypeName>
             void handleObject(ObjectTypeName &o) { //todo I think these are superfluous and can be removed
 

@@ -32,9 +32,16 @@
 #include "../LegacyWeapon.h"
 
 namespace Duel6 {
+    class PlayerAnimations;
+    class AuxAnimation;
     class ShitThrower : public LegacyWeapon {
     private:
+
         std::unique_ptr<PlayerSkin> brownSkin;
+        std::unique_ptr<PlayerAnimations> playerAnimations;
+        std::unique_ptr<AuxAnimations> playerAuxAnimations;
+        std::unique_ptr<animation::Animation> playerAnimation;
+        std::unique_ptr<animation::Animation> playerAuxAnimation;
 
     public:
         ShitThrower(Sound &sound, TextureManager &textureManager);
