@@ -385,6 +385,7 @@ namespace Duel6 {
                 player.setAmmo(p.ammo);
                 player.setWeapon(p.weaponId);
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
+                player.confirmedOrientation = player.getOrientation();
                 player.setControllerState(p.controls);
                 player.updateBonus(Duel6::BonusType::getById(static_cast<unsigned int>(p.bonusType)), p.bonusDuration, p.bonusRemainingTime);
                 player.setBodyAlpha(p.bodyAlpha);
