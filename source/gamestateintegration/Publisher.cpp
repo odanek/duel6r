@@ -48,7 +48,7 @@ namespace Duel6 {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_PORT, port);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, hs);
-        CURLcode lastResult;
+        CURLcode lastResult = CURLE_OK;
         while (true) {
             {
                 std::lock_guard<std::mutex> guard(dataMutex);

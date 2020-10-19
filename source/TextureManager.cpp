@@ -52,7 +52,7 @@ namespace Duel6 {
                                            TextureFilter filtering,
                                            bool clamp) const {
 #if defined(D6_RENDERER_HEADLESS)
-        Texture result;
+        Texture result = 0;
         return result;
 #else
         Image list;
