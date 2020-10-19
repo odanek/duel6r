@@ -201,7 +201,10 @@ namespace Duel6 {
           compensatedUntilTick(r.compensatedUntilTick),
           lateTicks(r.lateTicks),
           unconfirmedInputs(r.unconfirmedInputs),
-          isCompensating(r.isCompensating) {
+          isCompensating(r.isCompensating),
+          chatting(r.chatting),
+          inConsole(r.inConsole),
+          focused(r.focused){
         }
 
     Player & Player::operator=(Player &&r){
@@ -253,6 +256,11 @@ namespace Duel6 {
         lateTicks = r.lateTicks;
         unconfirmedInputs = r.unconfirmedInputs;
         isCompensating = r.isCompensating;
+        chatting = r.chatting;
+        inConsole = r.inConsole;
+        focused = r.focused;
+
+
         return *this;
     }
     void Player::moveVertical(const Level &level, Float32 elapsedTime, Float32 speed) {

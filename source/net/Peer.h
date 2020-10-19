@@ -151,7 +151,7 @@ namespace Duel6 {
 
             void setDescription(const std::string & s);
 
-            const std::string & getDescription();
+            const std::string & getDescription() ;
 
         protected:
             void send(const char * data, size_t dataLen, uint8_t channel, bool reliable);

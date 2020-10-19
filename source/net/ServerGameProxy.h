@@ -55,6 +55,8 @@ namespace Duel6 {
             void nextRound() override;
             void handle(ObjectBase &o) override;
             void handle(EventBase &e) override;
+            void handle(Peer &peer, ObjectBase &o) override;
+            void handle(Peer &peer, EventBase &e) override;
             void requestNextRound(Int32 currentRound);
 
             ServerGameProxy();

@@ -76,6 +76,12 @@ namespace Duel6 {
         void ServerGameProxy::handle(EventBase &e) {
             ;
         }
+        void ServerGameProxy::handle(Peer &peer, ObjectBase &o) {
+
+        }
+        void ServerGameProxy::handle(Peer &peer, EventBase &e) {
+
+        }
         void ServerGameProxy::nextRound() {
             for (auto &peer : peers) {
                 for (auto &s : peer->snapshot) {

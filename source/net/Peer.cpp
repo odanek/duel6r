@@ -240,7 +240,7 @@ namespace Duel6 {
                 if(!(s >> c)){
                     D6_THROW(Exception, "Cannot deserialize EventType::CONSOLE");
                 }
-                gameProxy->handle(c);
+                gameProxy->handle(*this, c);
                 break;
             }
 
@@ -249,7 +249,7 @@ namespace Duel6 {
                 if(!(s >> c)){
                     D6_THROW(Exception, "Cannot deserialize EventType::CHAT");
                 }
-                gameProxy->handle(c);
+                gameProxy->handle(*this, c);
                 break;
             }
             case EventType::FOCUS:{
@@ -257,7 +257,7 @@ namespace Duel6 {
                 if(!(s >> f)){
                     D6_THROW(Exception, "Cannot deserialize EventType::FOCUS");
                 }
-                gameProxy->handle(f);
+                gameProxy->handle(*this, f);
                 break;
             }
 
@@ -266,7 +266,7 @@ namespace Duel6 {
                 if (!(s >> cm)) {
                     D6_THROW(Exception, "Cannot deserialize EventType::CHAT_MESSAGE");
                 }
-                gameProxy->handle(cm);
+                gameProxy->handle(*this, cm);
                 break;
             }
             case EventType::CLIENT_REQUESTS_NEXT_ROUND: {
@@ -359,7 +359,6 @@ namespace Duel6 {
                 //callbacks.onDisconnected
             }
             gameProxy->peerDisconnected(*this);
-            serverGameProxy->remove(this);
             destroy();
             return true;
         }
@@ -386,6 +385,7 @@ namespace Duel6 {
                 peer.get()->data = nullptr;
                 enet_peer_reset(peer.get());
             }
+            serverGameProxy->remove(this);
             peer.release();
         }
 
@@ -402,6 +402,9 @@ namespace Duel6 {
                 enet_peer_timeout(peer, 500, 200, 1000);
             } else {
                 serverGameProxy.add(this);
+
+                //TODO Get rid of this bullshit - on server: every time  a peer connects, we overwrite the peer reference
+                // it is useful only on client where there is only single peer
                 gameProxy.setPeerReference(*this);
                 // 15 sec timeout during game
                 // the 500 is not 500 ms, it is 500 x current RTT (just in case)

@@ -57,10 +57,10 @@ namespace Duel6 {
             void handle(SpawnExplosion &ss);
             void handle(EraseShot &es);
             void handle(RequestNextRound &rnr);
-            void handle(ChatMessage &cm);
-            void handle(Chat &c);
-            void handle(net::Console &c);
-            void handle(Focus &f);
+            void handle(Peer &peer, ChatMessage &cm);
+            void handle(Peer &peer, Chat &c);
+            void handle(Peer &peer, net::Console &c);
+            void handle(Peer &peer, Focus &f);
             template<typename ObjectTypeName>
             void handleObject(ObjectTypeName &o) { //todo I think these are superfluous and can be removed
 
@@ -69,11 +69,19 @@ namespace Duel6 {
             void handleEvent(EventTypeName &e) {
 
             }
+            template<typename ObjectTypeName>
+            void handleObject(Peer &peer, ObjectTypeName &o) { //todo I think these are superfluous and can be removed
 
+            }
+            template<typename EventTypeName>
+            void handleEvent(Peer &peer, EventTypeName &e) {
+
+            }
             void handle(Peer &peer, RequestGameState &r) override;
             void handle(ObjectBase &o) override;
             void handle(EventBase &e) override;
-
+            void handle(Peer &peer, ObjectBase &o) override;
+            void handle(Peer &peer, EventBase &e) override;
             RequestGameState getRequestGameState();
 
         protected:

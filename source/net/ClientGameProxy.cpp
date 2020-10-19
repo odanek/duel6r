@@ -54,9 +54,9 @@ namespace Duel6 {
             game->broadcastMessage(player, m.text, true);
         }
 
-        void ClientGameProxy::handle(ChatMessage &m) {
+        void ClientGameProxy::handle(Peer &peer, ChatMessage &m) {
             if(game->isServer){
-                m.origin = peer->getDescription();
+                m.origin = peer.getDescription();
             }
             game->broadcastChatMessage(m.text, true, m.system, m.origin);
         }
@@ -507,6 +507,14 @@ namespace Duel6 {
             handleEvent(e);
         }
 
+        void ClientGameProxy::handle(Peer & peer, ObjectBase &o) {
+            handleObject(peer, o);
+        }
+
+        void ClientGameProxy::handle(Peer & peer, EventBase &e) {
+            handleEvent(peer, e);
+        }
+
         bool ClientGameProxy::gameIsServer(){
             return game->isServer;
         }
@@ -690,30 +698,30 @@ namespace Duel6 {
             game->onNextRound();
         }
 
-        void ClientGameProxy::handle(Chat &c) {
+        void ClientGameProxy::handle(Peer &peer, Chat &c) {
             if (game->isServer) {
                 for (auto &player : game->players) {
-                    if (player.getClientId() == peer->getClientID()) {
+                    if (player.getClientId() == peer.getClientID()) {
                         player.setChatting(c.value);
                     }
                 }
             }
         }
 
-        void ClientGameProxy::handle(Console &c){
+        void ClientGameProxy::handle(Peer &peer, Console &c){
             if (game->isServer) {
                 for (auto &player : game->players) {
-                    if (player.getClientId() == peer->getClientID()) {
+                    if (player.getClientId() == peer.getClientID()) {
                         player.setInConsole(c.value);
                     }
                 }
             }
         }
 
-        void ClientGameProxy::handle(Focus &f) {
+        void ClientGameProxy::handle(Peer &peer, Focus &f) {
             if (game->isServer) {
                 for (auto &player : game->players) {
-                    if (player.getClientId() == peer->getClientID()) {
+                    if (player.getClientId() == peer.getClientID()) {
                         player.setFocused(f.value);
                     }
                 }
