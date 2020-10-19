@@ -111,6 +111,8 @@ when the game is running:
 	"weapon":"slime"},{ .... etc ...}]
 }
 ```
+## Chat
+When playing online, players can exchange short messages by pressing F5 typing their message end send it by pressing Enter.
 
 ## Future plans and milestones
 

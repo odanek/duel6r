@@ -13,7 +13,7 @@
 namespace Duel6 {
     namespace net {
 
-        NetClient::NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
+        NetClient::NetClient(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Duel6::Console &console)
             : Service(clientGameProxy, serverGameProxy), console(console) {
         }
 

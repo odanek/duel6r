@@ -54,6 +54,13 @@ namespace Duel6 {
             game->broadcastMessage(player, m.text, true);
         }
 
+        void ClientGameProxy::handle(Peer &peer, ChatMessage &m) {
+            if(game->isServer){
+                m.origin = peer.getDescription();
+            }
+            game->broadcastChatMessage(m.text, true, m.system, m.origin);
+        }
+
         void ClientGameProxy::lateReceive(tick_t lateTick) {
             for (auto &player : game->players) {
                 player.lateTicks++;
@@ -207,6 +214,8 @@ namespace Duel6 {
                     player.setTimeSinceHit(p.timeSinceHit);
                     player.setBodyAlpha(p.bodyAlpha);
                     player.setAlpha(p.alpha);
+
+                    p.unloadToPlayer(player);
                     p.score.unloadToPlayer(player);
 
                     peer->snapshot[gsu.inputTick & xor_64][p.id] = p;
@@ -237,8 +246,16 @@ namespace Duel6 {
             for(const auto & p : game->players){
                 if(p.getClientId() == peer.getClientID()){
                     removedIds.push_back(p.getId());
+                    // TODO DO Something with the list<Person> - rewrite to use vector ?
+//                    auto personToDelete = std::find_if(persons.begin(), persons.end(), [&p](const Person & person){
+//                        return &(p.getPerson()) == &person;
+//                    });
+//                    if(personToDelete != persons.end()){
+//                        persons.erase(personToDelete);
+//                    }
                 }
             }
+            game->broadcastChatMessage("Disconnected", false, true, peer.getDescription());
             game->disconnectPlayers(removedIds);
 
         }
@@ -317,7 +334,6 @@ namespace Duel6 {
                     idmap[p.playerId] = p.clientLocalId;
                     game->players[p.clientLocalId].setId(p.playerId);
                     game->players[p.clientLocalId].setClientId(p.clientId);
-                    idmapBack[p.clientLocalId] = p.playerId;
                     continue; // local player
                 }
                 Person &person = persons.emplace_back(p.name, nullptr);
@@ -346,7 +362,6 @@ namespace Duel6 {
             for (auto &d : playerDefinitions) {
                 auto playerId = d.getPlayerId();
                 idmap[playerId] = d.playerPos;
-                idmapBack[d.playerPos] = playerId;
             }
 
             for (auto &p : sr.players) {
@@ -376,6 +391,7 @@ namespace Duel6 {
                 player.setTimeSinceHit(p.timeSinceHit);
                 player.setAlpha(p.alpha);
                 player.setReloadTime(p.timeToReload);
+                p.unloadToPlayer(player);
                 p.score.unloadToPlayer(player);
                 p.snapshotTick = sr.tick;
                 peer->snapshot[sr.tick & xor_64][p.id] = p;
@@ -395,6 +411,16 @@ namespace Duel6 {
 
         void ClientGameProxy::handle(PlayersDisconnected &pd) {
             for(auto id: pd.disconnectedId){
+                // TODO DO Something with the list<Person> - rewrite to use vector ?
+//                if(idmap.count(id) > 0){
+//                    auto & p = game->players[idmap[id]];
+//                    auto personToDelete = std::find_if(persons.begin(), persons.end(), [&p](const Person & person){
+//                        return &(p.getPerson()) == &person;
+//                    });
+//                    if(personToDelete != persons.end()){
+//                        persons.erase(personToDelete);
+//                    }
+//                }
                 idmap.erase(id);
             }
 
@@ -446,7 +472,6 @@ namespace Duel6 {
             game->joinPlayers(playerDefinitions);
             for (auto &d : playerDefinitions) {
                 idmap[d.getPlayerId()] = d.playerPos;
-                idmapBack[d.playerPos] = d.getPlayerId();
             }
         }
 
@@ -456,7 +481,20 @@ namespace Duel6 {
             for (auto &p : r.connectingPlayers) {
                 p.clientId = peer.getClientID();
             }
-
+            if (r.connectingPlayers.size() > 0) {
+                std::string description = r.connectingPlayers[0].name;
+                if (r.connectingPlayers.size() > 1) {
+                    std::stringstream ss;
+                    ss << " (+" << r.connectingPlayers.size() - 1 << ")";
+                    description += ss.str();
+                }
+                peer.setDescription(description);
+            } else {
+                peer.setDescription(hostToIPaddress(peer.getEnetPeer().address.host, peer.getEnetPeer().address.port));
+            }
+            std::stringstream ss;
+            ss << peer.getDescription() << " is connecting from " << hostToIPaddress(peer.getEnetPeer().address.host, peer.getEnetPeer().address.port);
+            game->broadcastChatMessage(ss.str(), false, true, "SERVER");
             joinPlayers(r.connectingPlayers);
             sendGameState(peer, *game);
         }
@@ -467,6 +505,14 @@ namespace Duel6 {
 
         void ClientGameProxy::handle(EventBase &e) {
             handleEvent(e);
+        }
+
+        void ClientGameProxy::handle(Peer & peer, ObjectBase &o) {
+            handleObject(peer, o);
+        }
+
+        void ClientGameProxy::handle(Peer & peer, EventBase &e) {
+            handleEvent(peer, e);
         }
 
         bool ClientGameProxy::gameIsServer(){
@@ -652,5 +698,34 @@ namespace Duel6 {
             game->onNextRound();
         }
 
+        void ClientGameProxy::handle(Peer &peer, Chat &c) {
+            if (game->isServer) {
+                for (auto &player : game->players) {
+                    if (player.getClientId() == peer.getClientID()) {
+                        player.setChatting(c.value);
+                    }
+                }
+            }
+        }
+
+        void ClientGameProxy::handle(Peer &peer, Console &c){
+            if (game->isServer) {
+                for (auto &player : game->players) {
+                    if (player.getClientId() == peer.getClientID()) {
+                        player.setInConsole(c.value);
+                    }
+                }
+            }
+        }
+
+        void ClientGameProxy::handle(Peer &peer, Focus &f) {
+            if (game->isServer) {
+                for (auto &player : game->players) {
+                    if (player.getClientId() == peer.getClientID()) {
+                        player.setFocused(f.value);
+                    }
+                }
+            }
+        }
     } /* namespace net */
 } /* namespace Duel6 */

@@ -46,6 +46,9 @@
 #include "Round.h"
 #include "net/ServerGameProxy.h"
 #include "PlayerDefinition.h"
+#include "ChatMessageQueue.h"
+#include "ChatInput.h"
+
 namespace Duel6 {
     namespace net {
         class ClientGameProxy;
@@ -109,8 +112,12 @@ namespace Duel6 {
         std::vector<Player> players;
         std::vector<PlayerSkin> skins;
         std::unique_ptr<PlayerAnimations> playerAnimations;
+        std::unique_ptr<AuxAnimations> playerAuxAnimations;
         bool displayScoreTab = false;
         InfoMessageQueue * infoMessageQueue = nullptr;
+        ChatMessageQueue chatMessageQueue;
+        ChatInput chatInput;
+        std::string localChatName;
     public:
         Int32 maxPlayerId = 0;
 
@@ -141,6 +148,8 @@ namespace Duel6 {
         void joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) override;
 
         void joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) override;
+
+        void windowFocusEvent(const WindowFocusEvent & event) override;
 
         void update(Float32 elapsedTime) override;
 
@@ -252,6 +261,18 @@ namespace Duel6 {
 
         void setMessageQueue(InfoMessageQueue & queue);
 
+        void broadcastChatMessage(const std::string &msg, bool display = false, bool system = false, const std::string & origin = "");
+
+        const ChatMessageQueue& getChatMessageQueue() const {
+            return chatMessageQueue;
+        }
+
+        const ChatInput& getChatInput() const {
+            return chatInput;
+        }
+
+        void announcePeerIsInConsole(bool consoleActive);
+
     private:
         void beforeStart(Context *prevContext) override;
 
@@ -269,7 +290,9 @@ namespace Duel6 {
 
         void onRoundEnd();
 
+        void announcePeerIsChatting(bool chatActive);
 
+        void announcePeerFocusChanged(bool focusGained);
     };
 }
 

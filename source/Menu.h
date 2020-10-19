@@ -213,6 +213,10 @@ namespace Duel6 {
             this->game = &game;
         }
 
+        Game &getGame() {
+            return *game;
+        }
+
         void setClientGameProxyReference(ClientGameProxy &clientGameProxy){
             this->clientGameProxy = &clientGameProxy;
         }
@@ -236,6 +240,8 @@ namespace Duel6 {
         void joyDeviceAddedEvent(const JoyDeviceAddedEvent & event) override;
 
         void joyDeviceRemovedEvent(const JoyDeviceRemovedEvent & event) override;
+
+        void windowFocusEvent(const WindowFocusEvent & event) override;
 
         void update(Float32 elapsedTime) override;
 

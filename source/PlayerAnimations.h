@@ -45,6 +45,31 @@ namespace Duel6 {
         Animation get() const;
     };
 
+
+    class AuxAnimation {
+    private:
+        const animation::Animation &animation;
+        const std::vector<AnimationEntry> animationEntry;
+
+    public:
+        AuxAnimation(const animation::Animation &animation, const std::string &name);
+        Animation get() const;
+    };
+
+    class AuxAnimations {
+    private:
+        const animation::Animation &animation;
+        const AuxAnimation chat;
+        const AuxAnimation console;
+        const AuxAnimation unfocused;
+    public:
+        AuxAnimations(const animation::Animation &animation);
+        Texture generateAnimationTexture(const TextureManager &textureManager) const;
+        const AuxAnimation & getChat() const;
+        const AuxAnimation & getConsole() const;
+        const AuxAnimation & getUnfocused() const;
+    };
+
     class PlayerAnimations {
     private:
         const animation::Animation &animation;

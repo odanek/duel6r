@@ -76,6 +76,12 @@ namespace Duel6 {
         void ServerGameProxy::handle(EventBase &e) {
             ;
         }
+        void ServerGameProxy::handle(Peer &peer, ObjectBase &o) {
+
+        }
+        void ServerGameProxy::handle(Peer &peer, EventBase &e) {
+
+        }
         void ServerGameProxy::nextRound() {
             for (auto &peer : peers) {
                 for (auto &s : peer->snapshot) {
@@ -232,6 +238,8 @@ namespace Duel6 {
                         p.alpha = player.getAlpha();
                         p.bodyAlpha = player.getBodyAlpha();
                         p.timeToReload = player.getReloadTime();
+
+                        p.loadFromPlayer(player);
                         p.score.loadFromPlayer(player);
                         peer->snapshot[game.tick & xor_64][p.id] = p;
                     }
@@ -400,6 +408,37 @@ namespace Duel6 {
             }
         }
 
+        void ServerGameProxy::broadcastChatMessage(const std::string &msg, bool system, const std::string & origin){
+            ChatMessage message;
+            message.text = msg;
+            message.system = system;
+            message.origin = origin;
+            for (auto &peer : peers) {
+                peer->sendReliable(message, Channel::BROADCAST_MESSAGES);
+            }
+        }
+
+        void ServerGameProxy::chat(bool value) {
+            Chat c;
+            c.value = value;
+            for (auto &peer : peers) {
+                peer->sendReliable(c, Channel::BROADCAST_MESSAGES);
+            }
+        }
+        void ServerGameProxy::console(bool value) {
+            net::Console c;
+            c.value = value;
+            for (auto &peer : peers) {
+                peer->sendReliable(c, Channel::BROADCAST_MESSAGES);
+            }
+        }
+        void ServerGameProxy::focus(bool value) {
+            Focus f;
+            f.value = value;
+            for (auto &peer : peers) {
+                peer->sendReliable(f, Channel::BROADCAST_MESSAGES);
+            }
+        }
         void ServerGameProxy::playSample(Int32 playerId, PlayerSounds::Type type){
             PlaySample ps;
             ps.playerId = playerId;

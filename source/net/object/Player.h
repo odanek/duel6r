@@ -16,7 +16,21 @@
 
 namespace Duel6::net {
     class Player: public Object<Player, ObjectType::PLAYER> {
+        enum AUX_FLAGS {
+            CHAT,
+            CONSOLE,
+            FOCUS,
+            AUX3,
+            AUX4,
+            AUX5,
+            AUX6,
+            AUX7,
+            AUX_SIZE
+        };
     public:
+        void loadFromPlayer(Duel6::Player &player);
+        void unloadToPlayer(Duel6::Player &player);
+
         static constexpr const size_t INPUTS = 16;
         tick_t lastConfirmedTick = 0;
         tick_t snapshotTick = 0;
@@ -36,7 +50,7 @@ namespace Duel6::net {
         Uint8 air = 42;
         Int16 ammo = 0;
         Uint8 weaponId = 0;
-
+        Uint8 auxFlags = 0;
         BonusType bonusType = BonusType::NONE;
         Float32 bonusRemainingTime = 0;
         Float32 bonusDuration = 0;
@@ -66,6 +80,7 @@ namespace Duel6::net {
             AIR,
             AMMO,
             WEAPONID,
+            AUX_FLAGS,
             UNCONFIRMEDINPUTS,
             ORIENTATIONLEFT,
             BONUS_TYPE,
@@ -112,6 +127,7 @@ namespace Duel6::net {
             S(AIR, air);
             S(AMMO, ammo);
             S(WEAPONID, weaponId);
+            S(AUX_FLAGS, auxFlags);
             S(UNCONFIRMEDINPUTS, unconfirmedInputs);
             S(ORIENTATIONLEFT, orientationLeft);
             S(BONUS_TYPE, bonusType);

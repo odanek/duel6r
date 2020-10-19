@@ -22,7 +22,6 @@ namespace Duel6 {
             Game *game;
             std::list<Person> persons;
             std::map<Int32, Int32> idmap; //player mapping
-            std::map<Int32, Int32> idmapBack; //player mapping //todo not used, remove
             PlayerSounds defaultSounds;
             Int32 clientId = 0; // will be set upon receiving gamestate from server
         public:
@@ -58,7 +57,10 @@ namespace Duel6 {
             void handle(SpawnExplosion &ss);
             void handle(EraseShot &es);
             void handle(RequestNextRound &rnr);
-
+            void handle(Peer &peer, ChatMessage &cm);
+            void handle(Peer &peer, Chat &c);
+            void handle(Peer &peer, net::Console &c);
+            void handle(Peer &peer, Focus &f);
             template<typename ObjectTypeName>
             void handleObject(ObjectTypeName &o) { //todo I think these are superfluous and can be removed
 
@@ -67,11 +69,19 @@ namespace Duel6 {
             void handleEvent(EventTypeName &e) {
 
             }
+            template<typename ObjectTypeName>
+            void handleObject(Peer &peer, ObjectTypeName &o) { //todo I think these are superfluous and can be removed
 
+            }
+            template<typename EventTypeName>
+            void handleEvent(Peer &peer, EventTypeName &e) {
+
+            }
             void handle(Peer &peer, RequestGameState &r) override;
             void handle(ObjectBase &o) override;
             void handle(EventBase &e) override;
-
+            void handle(Peer &peer, ObjectBase &o) override;
+            void handle(Peer &peer, EventBase &e) override;
             RequestGameState getRequestGameState();
 
         protected:

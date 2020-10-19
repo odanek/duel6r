@@ -41,6 +41,7 @@ namespace Duel6 {
         console.printLine("...Loading game sounds");
         roundStartSound = sound.loadSample("sound/game/round-start.wav");
         gameOverSound = sound.loadSample("sound/game/game-over.wav");
+        chatMessageSound = sound.loadSample("sound/game/chatmsg.ogg");
         console.printLine(Format("...Loading block meta data: {0}") << D6_FILE_BLOCK_META);
         blockMeta = Block::loadMeta(D6_FILE_BLOCK_META);
         console.printLine(Format("...Loading block textures: {0}") << D6_TEXTURE_BLOCK_PATH);
@@ -54,9 +55,9 @@ namespace Duel6 {
 
         console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
         bcgTextures = textureManager.loadDict(D6_TEXTURE_BCG_PATH, TextureFilter::Linear, true);
-        std::string animationPath(D6_TEXTURE_MAN_PATH);
-        animationPath += "man.ase";
-        playerAnimation = textureManager.loadAnimation(animationPath);
+        std::string animationBasePath(D6_TEXTURE_MAN_PATH);
+        playerAnimation = textureManager.loadAnimation(animationBasePath + "man.ase");
+        playerAuxAnimation = textureManager.loadAnimation(animationBasePath + "chat.ase");
         console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
         for (const FireType &fireType : FireType::values()) {
             Texture texture = textureManager.loadStack(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(),

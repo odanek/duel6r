@@ -235,8 +235,12 @@ namespace Duel6 {
             if (event.getCode() == SDLK_BACKQUOTE) {
                 console.toggle();
                 if (console.isActive()) {
+                    if(context.is(*game)){
+                        game->announcePeerIsInConsole(true);
+                    }
                     SDL_StartTextInput();
                 } else if (context.is(*game)) {
+                    game->announcePeerIsInConsole(false);
                     SDL_StopTextInput();
                 }
             }
@@ -275,7 +279,9 @@ namespace Duel6 {
         controlsManager.detectJoypads();
         context.joyDeviceRemovedEvent(event);
     }
-
+    void Application::windowFocusEvent(Context & context, const WindowFocusEvent & event){
+        context.windowFocusEvent(event);
+    }
     void Application::processEvents(Context &context) {
         SDL_Event event;
 
@@ -331,6 +337,15 @@ namespace Duel6 {
                         int height = event.window.data2;
                         video->resize(width, height);
                         break;
+                      }
+
+                      case SDL_WINDOWEVENT_FOCUS_GAINED: {
+                          windowFocusEvent(context, WindowFocusEvent(true));
+                          break;
+                      }
+                      case SDL_WINDOWEVENT_FOCUS_LOST: {
+                          windowFocusEvent(context, WindowFocusEvent(false));
+                          break;
                       }
                     }
                     break;

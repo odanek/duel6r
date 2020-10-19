@@ -58,6 +58,7 @@ namespace Duel6 {
               person(&person),
               skin(skin),
               animations(&skin.getAnimations()),
+              auxAnimations(&skin.getAuxAnimations()),
               sounds(&sounds),
               controls(&controls),
               orientation(Orientation::Left),
@@ -84,7 +85,7 @@ namespace Duel6 {
         sprite->setPosition(getSpritePosition(), 0.5f);
         this->weapon = weapon;
         gunSprite = weapon.makeSprite(world.getSpriteList());
-
+        auxSprite = world.getSpriteList().add(auxAnimations->getChat().get(), skin.getAuxTexture());
         flags = FlagHasGun;
         confirmedFlags = flags;
         orientation = Math::random(2) == 0 ? Orientation::Left : Orientation::Right;
@@ -200,7 +201,10 @@ namespace Duel6 {
           compensatedUntilTick(r.compensatedUntilTick),
           lateTicks(r.lateTicks),
           unconfirmedInputs(r.unconfirmedInputs),
-          isCompensating(r.isCompensating) {
+          isCompensating(r.isCompensating),
+          chatting(r.chatting),
+          inConsole(r.inConsole),
+          focused(r.focused){
         }
 
     Player & Player::operator=(Player &&r){
@@ -252,6 +256,11 @@ namespace Duel6 {
         lateTicks = r.lateTicks;
         unconfirmedInputs = r.unconfirmedInputs;
         isCompensating = r.isCompensating;
+        chatting = r.chatting;
+        inConsole = r.inConsole;
+        focused = r.focused;
+
+
         return *this;
     }
     void Player::moveVertical(const Level &level, Float32 elapsedTime, Float32 speed) {
@@ -724,6 +733,23 @@ namespace Duel6 {
                 .setOrientation(getOrientation())
                 .setDraw(hasGun() && isAlive() && !isPickingGun())
                 .setAlpha(alpha);
+        Vector thinkPosition = getSpritePosition();
+        thinkPosition.y += 1.5f;
+        thinkPosition.x += 0.04f;
+
+        Animation auxAnimation;
+        if(!focused){
+            auxAnimation = auxAnimations->getUnfocused().get();
+        } else if(inConsole){
+            auxAnimation = auxAnimations->getConsole().get();
+        } else {
+            auxAnimation = auxAnimations->getChat().get();
+        }
+        bool auxVisible = chatting || inConsole || !focused;
+        auxSprite->setPosition(thinkPosition, 1.0f)
+            .setNoDepth(true)
+            .setAnimation(auxAnimation)
+            .setDraw(isAlive() && auxVisible);
     }
 
     void Player::prepareCam(const Video &video, ScreenMode screenMode, Int32 zoom, Int32 levelSizeX, Int32 levelSizeY) {
@@ -1018,6 +1044,7 @@ namespace Duel6 {
         unsetFlag(FlagMoveUp | FlagMoveDown | FlagMoveLeft | FlagMoveRight | FlagKnee | FlagPick);
         sprite->setPosition(getSpritePosition()).setLooping(AnimationLooping::OnceAndStop);
         gunSprite->setDraw(false);
+        auxSprite->setDraw(false);
 
         Int32 timeAlive = Int32((clock() - roundStartTime) / CLOCKS_PER_SEC);
         getPerson().addTimeAlive(timeAlive);
@@ -1097,5 +1124,29 @@ namespace Duel6 {
 
     void Player::unsetFlag(Uint32 flag) {
         flags &= ~flag;
+    }
+
+    bool Player::isChatting() const {
+        return chatting;
+    }
+
+    void Player::setChatting(bool value) {
+        chatting = value;
+    }
+
+    bool Player::isInConsole() const {
+        return inConsole;
+    }
+
+    void Player::setInConsole(bool value) {
+        inConsole = value;
+    }
+
+    bool Player::isFocused() const {
+        return focused;
+    }
+
+    void Player::setFocused(bool value) {
+        focused = value;
     }
 }

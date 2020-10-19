@@ -26,26 +26,25 @@
 */
 #include "Game.h"
 #include "Font.h"
-#include "InfoMessageQueue.h"
+#include "ChatMessageQueue.h"
 #if defined(D6_RENDERER_HEADLESS)
 #include <iostream>
 #endif
 namespace Duel6 {
-    InfoMessageQueue::InfoMessageQueue(Game &game, Float32 duration)
-        : game(game),
-          duration(duration) {
-        game.setMessageQueue(*this);
+    ChatMessageQueue::ChatMessageQueue(Float32 duration)
+        : duration(duration) {
     }
 
-    InfoMessageQueue &InfoMessageQueue::add(const Player &player, const std::string &msg) {
-        if(!player.isDeleted()) {
-            game.broadcastMessage(player, msg, false);
-        }
+    ChatMessageQueue& ChatMessageQueue::add(bool system, const std::string &origin, const std::string &msg) {
+#if defined(D6_RENDERER_HEADLESS)
+        std::cout << std::string( system ? "[SYSTEM] " : "") << origin << ":" << msg << std::endl;
+#endif
+        messages.push_back(ChatMessage(msg, duration, origin, system));
         return *this;
     }
 
-    InfoMessageQueue &InfoMessageQueue::update(float elapsedTime) {
-        for (InfoMessage &msg : messages) {
+    ChatMessageQueue& ChatMessageQueue::update(float elapsedTime) {
+        for (ChatMessage &msg : messages) {
             msg.updateRemainingTime(elapsedTime);
         }
 
@@ -56,44 +55,25 @@ namespace Duel6 {
         return *this;
     }
 
-    void InfoMessageQueue::renderPlayerMessages(Renderer &renderer, const Player &player, const Font &font) const {
-        const PlayerView &view = player.getView();
-        Int32 posX = view.getX() + 4;
-        Int32 posY = view.getY() + view.getHeight() - 24;
+    void ChatMessageQueue::renderAllMessages(Renderer &renderer, const Int32 height, Int32 offsetY, const Font &font) const {
+        Int32 posX = 4;
+        Int32 posY = offsetY;
+        const std::string system("[SYSTEM] ");
+        for (auto it = messages.rbegin(); it != messages.rend(); it++){
+            renderMessage(renderer, posX, posY, (it->isSystem() ? system : "") + it->getOrigin() + ": " + it->getText(), font);
+            posY += 16;
 
-        for (const InfoMessage &msg : messages) {
-            if (player.is(msg.getPlayer())) {
-                renderMessage(renderer, posX, posY, msg.getText(), font);
-                posY -= 16;
-            }
         }
     }
 
-    void InfoMessageQueue::renderAllMessages(Renderer &renderer, const Int32 height, Int32 offsetY, const Font &font) const {
-        Int32 posX =  4;
-        Int32 posY =  height - offsetY;
-
-        for (const InfoMessage &msg : messages) {
-            renderMessage(renderer, posX, posY, msg.getPlayer().getPerson().getName() + ": " + msg.getText(), font);
-            posY -= 16;
-        }
-    }
-
-    void InfoMessageQueue::renderMessage(Renderer &renderer, Int32 x, Int32 y, const std::string &msg, const Font &font) {
+    void ChatMessageQueue::renderMessage(Renderer &renderer, Int32 x, Int32 y, const std::string &msg, const Font &font) {
         renderer.setBlendFunc(BlendFunc::SrcAlpha);
-        renderer.quadXY(Vector(x, y + 1), Vector(font.getTextWidth(msg, 16), 14), Color(0, 0, 255, 178));
+        renderer.quadXY(Vector(x, y + 1), Vector(font.getTextWidth(msg, 16), 14), Color(0, 0, 255, 100));
         renderer.setBlendFunc(BlendFunc::None);
-        font.print(x, y, Color::YELLOW, msg, true);
+        font.print(x, y, Color::CYAN, msg, true);
     }
 
-    void InfoMessageQueue::clear() {
+    void ChatMessageQueue::clear() {
         messages.clear();
-    }
-
-    void InfoMessageQueue::onBroadcast(const Player &player, const std::string &msg) {
-#if defined(D6_RENDERER_HEADLESS)
-        std::cout << player.getPerson().getName() << ":" << msg << std::endl;
-#endif
-        messages.push_back(InfoMessage(player, msg, duration));
     }
 }

@@ -42,6 +42,8 @@ namespace Duel6 {
             virtual void handle(Peer & peer, RequestGameState & r);
             virtual void handle(ObjectBase &o) = 0;
             virtual void handle(EventBase &e) = 0;
+            virtual void handle(Peer & peer, ObjectBase &o) = 0;
+            virtual void handle(Peer & peer, EventBase &e) = 0;
             GameProxy();
             virtual ~GameProxy();
 

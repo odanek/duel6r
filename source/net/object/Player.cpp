@@ -6,8 +6,30 @@
  */
 
 #include "Player.h"
-
+#include "../../Player.h"
 namespace Duel6::net {
+
+    void Player::loadFromPlayer(Duel6::Player &player) {
+
+        // TODO include rest of the attributes, clean up code that should call this code instead
+        auxFlags = 0;
+        if (player.isChatting()) {
+            auxFlags |= (1 << AUX_FLAGS::CHAT);
+        }
+        if(player.isInConsole()){
+            auxFlags |= (1 << AUX_FLAGS::CONSOLE);
+        }
+        if(player.isFocused()){
+            auxFlags |= (1 << AUX_FLAGS::FOCUS);
+        }
+    }
+
+    void Player::unloadToPlayer(Duel6::Player &player) {
+        player.setChatting((auxFlags & (1 << AUX_FLAGS::CHAT)) == (1 << AUX_FLAGS::CHAT));
+        player.setInConsole((auxFlags & (1 << AUX_FLAGS::CONSOLE)) == (1 << AUX_FLAGS::CONSOLE));
+        player.setFocused((auxFlags & (1 << AUX_FLAGS::FOCUS)) == (1 << AUX_FLAGS::FOCUS));
+    }
+
 #define D(POS, FIELD) if(!(confirmed.FIELD == snapshot.FIELD)) snapshot.changed.set(POS)
         void Player::diff(Player &snapshot, const Player &confirmed) {
             PlayerScore::diff(snapshot.score, confirmed.score);
@@ -30,6 +52,7 @@ namespace Duel6::net {
             D(AIR, air);
             D(AMMO, ammo);
             D(WEAPONID, weaponId);
+            D(AUX_FLAGS, auxFlags);
             D(UNCONFIRMEDINPUTS, unconfirmedInputs);
             D(ORIENTATIONLEFT, orientationLeft);
             D(BONUS_TYPE, bonusType);
@@ -62,6 +85,7 @@ namespace Duel6::net {
             R(AIR, air);
             R(AMMO, ammo);
             R(WEAPONID, weaponId);
+            R(AUX_FLAGS, auxFlags);
             R(UNCONFIRMEDINPUTS, unconfirmedInputs);
             R(ORIENTATIONLEFT, orientationLeft);
             R(BONUS_TYPE, bonusType);

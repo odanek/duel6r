@@ -235,7 +235,40 @@ namespace Duel6 {
             case EventType::SHOT_HIT:break;
             case EventType::PLAYER_HIT:break;
             case EventType::PLAYER_SPAWN:break;
-            case EventType::PLAYER_DIED:break;
+            case EventType::CONSOLE:{
+                net::Console c;
+                if(!(s >> c)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::CONSOLE");
+                }
+                gameProxy->handle(*this, c);
+                break;
+            }
+
+            case EventType::CHAT:{
+                Chat c;
+                if(!(s >> c)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::CHAT");
+                }
+                gameProxy->handle(*this, c);
+                break;
+            }
+            case EventType::FOCUS:{
+                Focus f;
+                if(!(s >> f)){
+                    D6_THROW(Exception, "Cannot deserialize EventType::FOCUS");
+                }
+                gameProxy->handle(*this, f);
+                break;
+            }
+
+            case EventType::CHAT_MESSAGE:{
+                ChatMessage cm;
+                if (!(s >> cm)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::CHAT_MESSAGE");
+                }
+                gameProxy->handle(*this, cm);
+                break;
+            }
             case EventType::CLIENT_REQUESTS_NEXT_ROUND: {
                 RequestNextRound rnr;
                 if (!(s >> rnr)) {
@@ -326,7 +359,6 @@ namespace Duel6 {
                 //callbacks.onDisconnected
             }
             gameProxy->peerDisconnected(*this);
-            serverGameProxy->remove(this);
             destroy();
             return true;
         }
@@ -353,6 +385,7 @@ namespace Duel6 {
                 peer.get()->data = nullptr;
                 enet_peer_reset(peer.get());
             }
+            serverGameProxy->remove(this);
             peer.release();
         }
 
@@ -369,6 +402,9 @@ namespace Duel6 {
                 enet_peer_timeout(peer, 500, 200, 1000);
             } else {
                 serverGameProxy.add(this);
+
+                //TODO Get rid of this bullshit - on server: every time  a peer connects, we overwrite the peer reference
+                // it is useful only on client where there is only single peer
                 gameProxy.setPeerReference(*this);
                 // 15 sec timeout during game
                 // the 500 is not 500 ms, it is 500 x current RTT (just in case)
@@ -401,5 +437,14 @@ namespace Duel6 {
                 gameProxy.setPeerReference(*this);
             }
         }
+
+        void Peer::setDescription(const std::string &s) {
+            description = s;
+        }
+
+        const std::string& Peer::getDescription() {
+            return description;
+        }
+
     } /* namespace net */
 } /* namespace Duel6 */

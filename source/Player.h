@@ -112,10 +112,12 @@ namespace Duel6 {
         Vector cameraFov;
         Vector cameraTolerance;
         const PlayerAnimations *animations;
+        const AuxAnimations *auxAnimations;
         const PlayerSounds *sounds;
         const PlayerControls *controls;
         PlayerView view;
         WaterState water;
+        SpriteList::Iterator auxSprite;
         SpriteList::Iterator sprite;
         SpriteList::Iterator gunSprite;
         Uint32 flags;
@@ -140,6 +142,9 @@ namespace Duel6 {
         PlayerIndicators indicators;
         Uint32 controllerState;
         CollidingEntity collider;
+        bool chatting = false;
+        bool inConsole = false;
+        bool focused = true;
 
         Int32 id;
         Int32 team;
@@ -521,6 +526,18 @@ namespace Duel6 {
         Float32 getAlpha() const;
 
         Float32 getBodyAlpha() const;
+
+        bool isChatting() const;
+
+        void setChatting(bool value);
+
+        bool isInConsole() const;
+
+        void setInConsole(bool value);
+
+        bool isFocused() const;
+
+        void setFocused(bool value);
 
     private:
 

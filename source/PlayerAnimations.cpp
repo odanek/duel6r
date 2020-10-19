@@ -126,4 +126,35 @@ namespace Duel6 {
     const PlayerAnimation &PlayerAnimations::getPick() const {
         return pick;
     }
+
+
+    AuxAnimation::AuxAnimation(const animation::Animation &animation, const std::string &name):
+        animation(animation), animationEntry(animation.getAnimation(name)){}
+
+    Animation AuxAnimation::get() const {
+        return animationEntry.data();
+    }
+
+    AuxAnimations::AuxAnimations(const animation::Animation &animation)
+        :animation(animation),
+         chat(animation, "Think"),
+          console(animation, "Tilda"),
+          unfocused(animation, "Sleep"){
+    }
+
+    Texture AuxAnimations::generateAnimationTexture(const TextureManager &textureManager) const {
+        auto view = animation.toView();
+        animation::Palette substitution_table(animation.palette);
+        return textureManager.generateSprite(animation, view, substitution_table, TextureFilter::Nearest, true);
+    }
+    const AuxAnimation& AuxAnimations::getChat() const {
+        return chat;
+    }
+    const AuxAnimation& AuxAnimations::getConsole() const {
+        return console;
+    }
+    const AuxAnimation& AuxAnimations::getUnfocused() const {
+        return unfocused;
+    }
 }
+

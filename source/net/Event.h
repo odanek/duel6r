@@ -46,8 +46,11 @@ namespace Duel6 {
 
             PLAYER_HIT,
             PLAYER_SPAWN,
-            PLAYER_DIED,
-            CLIENT_REQUESTS_NEXT_ROUND,
+            CONSOLE,
+            CHAT,
+            FOCUS,
+            CHAT_MESSAGE, // TODO refactor to Object
+            CLIENT_REQUESTS_NEXT_ROUND, // TODO refactor
 
             MAX_COUNT
         };

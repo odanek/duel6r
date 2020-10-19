@@ -123,6 +123,8 @@ namespace Duel6 {
 
         void infoMessages() const;
 
+        void chatMessages() const;
+
         Color getGameOverOverlay() const;
 
         Color getRoundStartFadeColor(Float32) const;

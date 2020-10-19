@@ -77,7 +77,9 @@ namespace Duel6 {
         if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
             D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << Mix_GetError());
         }
-
+        if(Mix_Init(MIX_INIT_OGG) != MIX_INIT_OGG){
+            D6_THROW(SoundException, Format("SDL_Mixer error whilie initializing OGG support: {0}") << Mix_GetError());
+        }
         // Allocate channels
         channels = Mix_AllocateChannels(channels);
         console.print(Format("...Frequency: {0}\n...Channels: {1}\n") << MIX_DEFAULT_FREQUENCY << channels);
@@ -100,7 +102,7 @@ namespace Duel6 {
 
         modules.clear();
         samples.clear();
-
+        Mix_Quit();
         Mix_CloseAudio();
     }
 

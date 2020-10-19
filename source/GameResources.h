@@ -42,6 +42,7 @@ namespace Duel6 {
         Block::Meta blockMeta;
         Sound::Sample gameOverSound;
         Sound::Sample roundStartSound;
+        Sound::Sample chatMessageSound;
         Texture blockTextures;
         BackgroundList bcgTextures;
         Texture explosionTextures;
@@ -50,6 +51,7 @@ namespace Duel6 {
         std::unordered_map<Size, Texture> fireTextures;
         Texture burningTexture;
         animation::Animation playerAnimation;
+        animation::Animation playerAuxAnimation;
 
     public:
         void load(Console &console, Sound &sound, TextureManager &textureManager);
@@ -64,6 +66,10 @@ namespace Duel6 {
 
         const Sound::Sample &getRoundStartSound() const {
             return roundStartSound;
+        }
+
+        const Sound::Sample &getChatMsgSound() const {
+            return chatMessageSound;
         }
 
         Texture getBlockTextures() const {
@@ -95,7 +101,10 @@ namespace Duel6 {
         }
 
         animation::Animation & getPlayerAnimation() {
-        	return playerAnimation;
+            return playerAnimation;
+        }
+        animation::Animation & getPlayerAuxAnimation() {
+            return playerAuxAnimation;
         }
     };
 }

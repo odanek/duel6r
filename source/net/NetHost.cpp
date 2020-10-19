@@ -18,7 +18,7 @@ namespace Duel6 {
 #define MAX_PEERS 15
 #define CHANNELS 254
 
-        NetHost::NetHost(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Console &console)
+        NetHost::NetHost(ClientGameProxy &clientGameProxy, ServerGameProxy &serverGameProxy, Duel6::Console &console)
             : Service(clientGameProxy, serverGameProxy), console(console) {
         }
 
