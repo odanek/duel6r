@@ -42,6 +42,8 @@ namespace Duel6 {
     class Player;
     class Weapon;
     class Shot;
+    class PlayerAnimations;
+    class AuxAnimations;
     class WeaponImpl {
     private:
         Uint8 id;
@@ -137,7 +139,7 @@ namespace Duel6 {
     public:
         static const std::vector<Weapon> &values();
 
-        static void initialize(Sound &sound, TextureManager &textureManager);
+        static void initialize(Sound &sound, TextureManager &textureManager, const PlayerAnimations & playerAnimations, const AuxAnimations & auxAnimations);
 
         static const Weapon &getById(Uint8 id);
 

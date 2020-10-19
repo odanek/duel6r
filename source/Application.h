@@ -70,9 +70,9 @@ namespace Duel6 {
         std::unique_ptr<Menu> menu;
         std::unique_ptr<Game> game;
         std::unique_ptr<AppService> service;
+        std::unique_ptr<net::Net> net;
         std::unique_ptr<net::NetHost> netHost;
         std::unique_ptr<net::NetClient> netClient;
-        std::unique_ptr<net::Net> net;
         std::unique_ptr<net::ClientGameProxy> clientGameProxy;
         std::unique_ptr<net::ServerGameProxy> serverGameProxy;
         bool requestClose;

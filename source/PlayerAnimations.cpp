@@ -41,8 +41,8 @@ namespace Duel6 {
         return animation.data();
     }
 
-    PlayerAnimations::PlayerAnimations(const animation::Animation &animation)
-            : animation(animation),
+    PlayerAnimations::PlayerAnimations(animation::Animation &&anim)
+            : animation(std::move(anim)),
               stand(animation, "Stand"),
               hitStand(animation, "HIT_Stand"),
               walk(animation, "Walk"),
@@ -128,18 +128,19 @@ namespace Duel6 {
     }
 
 
-    AuxAnimation::AuxAnimation(const animation::Animation &animation, const std::string &name):
-        animation(animation), animationEntry(animation.getAnimation(name)){}
+    AuxAnimation::AuxAnimation(const animation::Animation &animation, const std::string &name)
+        : animationEntry(animation.getAnimation(name)) {
+    }
 
     Animation AuxAnimation::get() const {
         return animationEntry.data();
     }
 
-    AuxAnimations::AuxAnimations(const animation::Animation &animation)
-        :animation(animation),
-         chat(animation, "Think"),
+    AuxAnimations::AuxAnimations(animation::Animation &&anim)
+        : animation(std::move(anim)),
+          chat(animation, "Think"),
           console(animation, "Tilda"),
-          unfocused(animation, "Sleep"){
+          unfocused(animation, "Sleep") {
     }
 
     Texture AuxAnimations::generateAnimationTexture(const TextureManager &textureManager) const {

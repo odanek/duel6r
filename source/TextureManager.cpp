@@ -35,7 +35,7 @@ namespace Duel6 {
     TextureManager::TextureManager(Renderer &renderer)
             : renderer(renderer) {}
 
-    const animation::Animation TextureManager::loadAnimation(const std::string &path) {
+    animation::Animation TextureManager::loadAnimation(const std::string &path) {
         return animation::Animation::loadAseImage(path);
     }
 
@@ -51,6 +51,10 @@ namespace Duel6 {
                                            const animation::Palette &substitutionTable,
                                            TextureFilter filtering,
                                            bool clamp) const {
+#if defined(D6_RENDERER_HEADLESS)
+        Texture result;
+        return result;
+#else
         Image list;
         for (uint16_t f = 0; f < animation.framesCount; f++) {
             Image frameImage(animation.width, animation.height);
@@ -120,6 +124,7 @@ namespace Duel6 {
             list.addSlice(frameImage);
         }
         return renderer.createTexture(list, filtering, clamp);
+#endif
     }
 
     Texture TextureManager::loadStack(const std::string &path, TextureFilter filtering, bool clamp) {

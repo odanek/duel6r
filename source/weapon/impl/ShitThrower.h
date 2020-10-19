@@ -38,13 +38,11 @@ namespace Duel6 {
     private:
 
         std::unique_ptr<PlayerSkin> brownSkin;
-        std::unique_ptr<PlayerAnimations> playerAnimations;
-        std::unique_ptr<AuxAnimations> playerAuxAnimations;
-        std::unique_ptr<animation::Animation> playerAnimation;
-        std::unique_ptr<animation::Animation> playerAuxAnimation;
+        const PlayerAnimations &playerAnimations;
+        const AuxAnimations &auxAnimations;
 
     public:
-        ShitThrower(Sound &sound, TextureManager &textureManager);
+        ShitThrower(Sound &sound, TextureManager &textureManager, const PlayerAnimations & playerAnimations, const AuxAnimations & auxAnimations);
 
         Float32 getBulletSpeed() const override;
 

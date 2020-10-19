@@ -180,8 +180,10 @@ namespace Duel6 {
                Int32 clientId,
                Int32 clientLocalId,
                size_t pos);
-        Player(Player &&); //fingers crossed
-        Player & operator=(Player &&);
+        Player(const Player &) = delete;
+        Player& operator=(const Player&) = delete;
+        Player(Player&&) = default;
+        Player& operator=(Player&&) = default;
         ~Player();
 
         bool is(const Player &player) const {

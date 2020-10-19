@@ -111,8 +111,8 @@ namespace Duel6 {
 
         std::vector<Player> players;
         std::vector<PlayerSkin> skins;
-        std::unique_ptr<PlayerAnimations> playerAnimations;
-        std::unique_ptr<AuxAnimations> playerAuxAnimations;
+        const PlayerAnimations & playerAnimations;
+        const AuxAnimations & playerAuxAnimations;
         bool displayScoreTab = false;
         InfoMessageQueue * infoMessageQueue = nullptr;
         ChatMessageQueue chatMessageQueue;

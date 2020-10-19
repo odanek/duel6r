@@ -35,7 +35,7 @@
 #include "json/JsonWriter.h"
 
 namespace Duel6 {
-#define MAX_PLAYERS 32 // because resizing vectors screwes up pointers to players gamemodes
+#define INITIAL_PLAYERS_POSITIONS 32 // initial size (we can actually serve much more players (>90))
 
     Game::Game(AppService &appService, GameResources &resources, GameSettings &settings)
         : appService(appService),
@@ -43,11 +43,12 @@ namespace Duel6 {
           settings(settings),
           worldRenderer(appService, *this),
           playedRounds(0),
+          playerAnimations(resources.getPlayerAnimations()),
+          playerAuxAnimations(resources.getAuxAnimations()),
           chatMessageQueue(10),
           chatInput(appService.getInput()){
-        players.reserve(MAX_PLAYERS);
-        playerAuxAnimations = std::make_unique<AuxAnimations>(resources.getPlayerAuxAnimation());
-        playerAuxAnimations->generateAnimationTexture(appService.getTextureManager());
+        players.reserve(INITIAL_PLAYERS_POSITIONS);
+        skins.reserve(INITIAL_PLAYERS_POSITIONS);
     }
 
     void Game::beforeStart(Context *prevContext) {
@@ -231,15 +232,16 @@ namespace Duel6 {
 
         for (auto &skin : skins) {
             textureManager.dispose(skin.getTexture());
+            textureManager.dispose(skin.getAuxTexture());
         }
         skins.clear();
         gameMode.initializePlayers(playerDefinitions);
         maxPlayerId = 0;
         //players.reserve(playerDefinitions.size());
-        playerAnimations = std::make_unique<PlayerAnimations>(resources.getPlayerAnimation());
+
         for (const PlayerDefinition &playerDef : playerDefinitions) {
             console.printLine(Format("...Generating player for person: {0}") << playerDef.getPerson().getName());
-            skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, *playerAnimations, *playerAuxAnimations));
+            skins.push_back(PlayerSkin(playerDef.getColors(), textureManager, playerAnimations, playerAuxAnimations));
             Player & p = players.emplace_back(this,
                 playerDef.getPerson(),
                 skins.back(),
@@ -290,7 +292,9 @@ namespace Duel6 {
         Int32 playerId = authoritative ? maxPlayerId++ : playerDefinition.getPlayerId();
         for (const auto &player : players) {
             if (player.isDeleted()) {
-                skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations, *playerAuxAnimations);
+                textureManager.dispose(skins[pos].getTexture());
+                textureManager.dispose(skins[pos].getAuxTexture());
+                skins[pos] = PlayerSkin(playerDefinition.getColors(), textureManager, playerAnimations,  playerAuxAnimations);
                 players[pos] = {this, playerDefinition.getPerson(),
                     skins[pos],
                     playerDefinition.getSounds(),
@@ -309,7 +313,7 @@ namespace Duel6 {
             }
             pos++;
         }
-        skins.push_back(PlayerSkin(playerDefinition.getColors(), textureManager, *playerAnimations, *playerAuxAnimations));
+        skins.push_back(PlayerSkin(playerDefinition.getColors(), textureManager, playerAnimations, playerAuxAnimations));
         players.emplace_back(this,
             playerDefinition.getPerson(),
             skins.back(),

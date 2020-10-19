@@ -48,7 +48,6 @@ namespace Duel6 {
 
     class AuxAnimation {
     private:
-        const animation::Animation &animation;
         const std::vector<AnimationEntry> animationEntry;
 
     public:
@@ -58,12 +57,12 @@ namespace Duel6 {
 
     class AuxAnimations {
     private:
-        const animation::Animation &animation;
+        const animation::Animation animation;
         const AuxAnimation chat;
         const AuxAnimation console;
         const AuxAnimation unfocused;
     public:
-        AuxAnimations(const animation::Animation &animation);
+        AuxAnimations(animation::Animation &&animation);
         Texture generateAnimationTexture(const TextureManager &textureManager) const;
         const AuxAnimation & getChat() const;
         const AuxAnimation & getConsole() const;
@@ -72,7 +71,7 @@ namespace Duel6 {
 
     class PlayerAnimations {
     private:
-        const animation::Animation &animation;
+        const animation::Animation animation;
         const PlayerAnimation stand;
         const PlayerAnimation hitStand;
         const PlayerAnimation walk;
@@ -87,7 +86,7 @@ namespace Duel6 {
         const PlayerAnimation pick;
 
     public:
-        PlayerAnimations(const animation::Animation &animation);
+        PlayerAnimations(animation::Animation &&animation);
 
         Texture generateAnimationTexture(const TextureManager &textureManager, const PlayerSkinColors &colors) const;
 
