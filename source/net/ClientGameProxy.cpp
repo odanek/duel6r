@@ -587,6 +587,9 @@ namespace Duel6 {
                 w.raisingWater,
                 elevators
                 ));
+            for (auto &player : game->players) { // fix players orientation
+               player.setOrientation(player.confirmedOrientation);
+            }
         }
 
         void ClientGameProxy::handle(SpawnBonus &sb) {

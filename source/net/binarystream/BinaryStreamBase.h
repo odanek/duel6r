@@ -2,7 +2,6 @@
 #define BINARYSTREAMS_BINARYSTREAM_BASE_H
 #include "BinarySerializer.h"
 #include "BinaryDeserializer.h"
-#include <iostream>
 #include <string>
 #include <list>
 #include <vector>

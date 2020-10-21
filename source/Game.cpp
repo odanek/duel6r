@@ -501,7 +501,7 @@ namespace Duel6 {
             if(!system){
                 resources.getChatMsgSound().play();
             }
-            appService.getConsole().printLine((display || system) ? origin : localChatName + ":" + msg);
+            appService.getConsole().printLine(((display || system) ? origin : localChatName) + ":" + msg);
             this->chatMessageQueue.add(system, (display || system) ? origin : localChatName, msg);
         }
     }

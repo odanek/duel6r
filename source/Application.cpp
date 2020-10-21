@@ -176,6 +176,11 @@ namespace Duel6 {
     }
 
     Application::~Application() {
+        serverGameProxy.reset();
+        clientGameProxy.reset();
+        netClient.reset();
+        netHost.reset();
+        net.reset();
         game.reset();
         menu.reset();
         font.reset();
