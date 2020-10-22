@@ -110,7 +110,11 @@ namespace Duel6 {
 
             bool keyEvent(const KeyPressEvent &event) override;
 
+            void drawStencil(Renderer &renderer, const Font &font) const override;
+
             void draw(Renderer &renderer, const Font &font) const override;
+
+            void drawWithStencilTest(Renderer &renderer, const Font &font) override;
         };
     }
 }

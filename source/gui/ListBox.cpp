@@ -197,11 +197,16 @@ namespace Duel6 {
             return false;
         }
 
+        void ListBox::drawStencil(Renderer &renderer, const Font &font) const {
+            renderer.quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
+        }
+
         void ListBox::draw(Renderer &renderer, const Font &font) const {
             drawFrame(renderer, x - 2, y + 2, width + 4, height + 4, true, false);
-            renderer.quadXY(Vector(x, y - height + 1), Vector(width, height - 1), Color::WHITE);
-
             if (focused) drawFrame(renderer, x - 2, y + 2, width + (slider != nullptr ? 16 : 0) + 4, height + 4, true, focused);
+        }
+
+        void ListBox::drawWithStencilTest(Renderer &renderer, const Font &font) {
             if (items.empty())
                 return;
 

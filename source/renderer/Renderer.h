@@ -47,6 +47,12 @@ namespace Duel6 {
 
     class Renderer {
     public:
+        enum class StencilMode {
+            DISABLE,
+            CLEAR_AND_WRITE,
+            TEST
+        };
+
         struct Info {
             std::string vendor;
             std::string renderer;
@@ -136,6 +142,8 @@ namespace Duel6 {
         virtual std::unique_ptr<RendererBuffer> makeBuffer(const FaceList &faceList) = 0;
 
         virtual std::unique_ptr<RendererTarget> makeTarget(ScreenParameters screenParameters) = 0;
+
+        virtual void stencil(StencilMode mode) const = 0;
     };
 }
 

@@ -95,6 +95,8 @@ namespace Duel6 {
 
         std::unique_ptr<RendererTarget> makeTarget(ScreenParameters screenParameters) override;
 
+        void stencil(StencilMode mode) const override;
+
     private:
         void enableOption(GLenum option, bool enable);
     };
