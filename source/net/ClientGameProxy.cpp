@@ -433,9 +433,6 @@ namespace Duel6 {
         }
 
         void ClientGameProxy::handle(NextRound &nr) {
-            for (auto &s : peer->snapshot) {
-                s.clear(); // clear all the snapshots when going to next round
-            }
             game->onNextRound();
         }
 
