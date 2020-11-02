@@ -46,11 +46,13 @@ namespace Duel6 {
         World &world;
         std::list<Bonus> bonuses;
         std::list<LyingWeapon> weapons;
+        typedef std::pair<Int32, Int32> ValidPosition;
+        typedef std::vector<ValidPosition> ValidPositionList;
 
     private:
         static const Int32 RANDOM_BONUS_FREQUENCY = 6;
-        static const Int32 MAX_BONUS_ATTEMPTS = 50;
 
+        void findValidPositions(ValidPositionList &validPositions, bool weapon);
         bool isValidPosition(const Int32 x, const Int32 y, bool weapon);
 
     public:
