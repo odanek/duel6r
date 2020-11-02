@@ -47,15 +47,13 @@ namespace Duel6 {
 
     void BonusList::addRandomBonus() {
         bool weapon = (Math::random(2) == 1);
-        std::vector<ValidPosition> validPositionList;
-        findValidPositions(validPositionList, weapon);
+        const ValidPositionList& validPositionList = findValidPositions(weapon);
 
         if (validPositionList.empty()) {
             return;
         }
-        std::shuffle(validPositionList.begin(), validPositionList.end(), Math::randomEngine);
 
-        ValidPosition position = validPositionList[0];
+        ValidPosition position = validPositionList[Math::random(validPositionList.size())];
         Int32 x = position.first, y = position.second;
 
         bool isOverLimit = (weapons.size() + bonuses.size()) >= (validPositionList.size() / 4);
@@ -78,15 +76,19 @@ namespace Duel6 {
         }
     }
 
-    void BonusList::findValidPositions(ValidPositionList &validPositions, bool weapon) {
+    BonusList::ValidPositionList BonusList::findValidPositions(bool weapon) {
         const Level &level = world.getLevel();
+
+        std::vector<ValidPosition> positions;
+        positions.reserve(level.getHeight() * level.getWidth());
         for (Int32 y = 0; y < level.getHeight(); y++) {
             for (Int32 x = 0; x < level.getWidth(); x++) {
                 if (isValidPosition(x, y, weapon)) {
-                    validPositions.push_back(std::make_pair(x, y));
+                    positions.push_back(std::make_pair(x, y));
                 }
             }
         }
+        return positions;
     }
 
     bool BonusList::isValidPosition(const Int32 x, const Int32 y, bool weapon) {
