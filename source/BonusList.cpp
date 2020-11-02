@@ -51,15 +51,17 @@ namespace Duel6 {
         }
         const Level &level = world.getLevel();
         bool weapon = (Math::random(2) == 1);
-        Int32 x, y, attempts = 0;
+        const ValidPositionList& validPositionList = findValidPositions(weapon);
 
-        do {
-            attempts++;
-            x = Math::random(level.getWidth());
-            y = Math::random(level.getHeight());
-        } while (!isValidPosition(x, y, weapon) && attempts <= MAX_BONUS_ATTEMPTS);
+        if (validPositionList.empty()) {
+            return;
+        }
 
-        if (attempts > MAX_BONUS_ATTEMPTS) {
+        ValidPosition position = validPositionList[Math::random(validPositionList.size())];
+        Int32 x = position.first, y = position.second;
+
+        bool isOverLimit = (weapons.size() + bonuses.size()) >= (validPositionList.size() / 4);
+        if (isOverLimit) {
             return;
         }
 
@@ -86,10 +88,29 @@ namespace Duel6 {
         }
     }
 
+    BonusList::ValidPositionList BonusList::findValidPositions(bool weapon) {
+        const Level &level = world.getLevel();
+
+        std::vector<ValidPosition> positions;
+        positions.reserve(level.getHeight() * level.getWidth());
+        for (Int32 y = 0; y < level.getHeight(); y++) {
+            for (Int32 x = 0; x < level.getWidth(); x++) {
+                if (isValidPosition(x, y, weapon)) {
+                    positions.emplace_back(std::make_pair(x, y));
+                }
+            }
+        }
+        return positions;
+    }
+
     bool BonusList::isValidPosition(const Int32 x, const Int32 y, bool weapon) {
         const Level &level = world.getLevel();
 
-        if (level.isWall(x, y, true) || (weapon && !level.isWall(x, y - 1, true))) {
+        if(level.isRaisingWater() && level.getWaterLevel() >= y) {
+            return false;
+        }
+
+        if (!level.isEmpty(x, y) || (weapon && !level.isWall(x, y - 1, true))) {
             return false;
         }
 
