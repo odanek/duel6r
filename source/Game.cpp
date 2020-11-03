@@ -486,15 +486,15 @@ namespace Duel6 {
         player.playSample(type);
     }
 
-    void Game::doubleJumpEffect(const Player &player, Float32 x, Float32 y, Float32 angle) {
+    void Game::doubleJumpEffect(Player &player, Float32 x, Float32 y, Float32 angle) {
         if (isServer) {
             gameProxy->doubleJumpEffect(player.getId(), x, y, angle);
         }
         player.onDoubleJumpEffect(x, y, angle);
     }
 
-    void Game::onDoubleJumpEffect(const Player &player, Float32 x, Float32 y, Float32 angle) {
-        if(!player.local){
+    void Game::onDoubleJumpEffect(Player &player, Float32 x, Float32 y, Float32 angle) {
+        if(!player.local || (player.compensatedUntilTick - player.lastDJumpTick > 10)){
             player.onDoubleJumpEffect(x, y, angle);
         }
     }

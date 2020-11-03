@@ -998,12 +998,12 @@ namespace Duel6 {
         sounds->getRandomSample(type).play(panning);
     }
 
-    void Player::doubleJumpEffect() const {
+    void Player::doubleJumpEffect() {
         Vector pos = getCentre() - Vector(0.5f, 1.0f);
         game->doubleJumpEffect(*this, pos.x, pos.y, collider.velocity.unit().angleRad() - 1.57f);
     }
 
-    void Player::onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle) const {
+    void Player::onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle) {
         playSample(PlayerSounds::Type::DoubleJump);
         auto sprite = world->getSpriteList().add(skin.getAuxAnimations().getDoubleJump().get(), skin.getDoubleJumpTexture());
         sprite->setPosition(Vector(x, y), 0.4f)
@@ -1014,6 +1014,7 @@ namespace Duel6 {
             .setAlpha(1.0f)
             .setBlendFunc(BlendFunc::SrcAlpha)
             .setNoDepth(false);
+        lastDJumpTick = compensatedUntilTick;
     }
 
     Int32 Player::getId() const

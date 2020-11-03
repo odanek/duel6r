@@ -259,9 +259,9 @@ namespace Duel6 {
 
         void broadcastMessage(const Player &player, const std::string & msg, bool display);
 
-        void doubleJumpEffect(const Player &player, Float32 x, Float32 y, Float32 angle);
+        void doubleJumpEffect(Player &player, Float32 x, Float32 y, Float32 angle);
 
-        void onDoubleJumpEffect(const Player &player, Float32 x, Float32 y, Float32 angle);
+        void onDoubleJumpEffect(Player &player, Float32 x, Float32 y, Float32 angle);
 
         void setMessageQueue(InfoMessageQueue & queue);
 

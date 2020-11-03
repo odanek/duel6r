@@ -160,6 +160,7 @@ namespace Duel6 {
         size_t pos;
         uint32_t rtt = 0;
         uint16_t tick = 0;
+        uint16_t lastDJumpTick = 0;
         uint16_t lastConfirmedTick = 0;
         uint16_t compensatedUntilTick = 0;
         uint16_t lateTicks = 0; //debug
@@ -453,9 +454,9 @@ namespace Duel6 {
 
         void playSample(PlayerSounds::Type type) const;
 
-        void doubleJumpEffect() const;
+        void doubleJumpEffect();
 
-        void onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle) const;
+        void onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle);
 
         void setBodyAlpha(Float32 alpha) {
             bodyAlpha = alpha;

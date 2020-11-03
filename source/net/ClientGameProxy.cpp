@@ -553,7 +553,7 @@ namespace Duel6 {
                 return;
             }
             auto pos = idmap[dje.playerId];
-            const auto &player = game->players[pos];
+            auto &player = game->players[pos];
             game->onDoubleJumpEffect(player, dje.x, dje.y, dje.angle);
         }
 
