@@ -173,6 +173,10 @@ namespace Duel6 {
             } else {
                 collider.velocity.y = JUMP_ACCELERATION;
             }
+
+            if (!isCompensating) {
+                doubleJumpEffect();
+            }
             unsetFlag(FlagDoubleJump);
             unsetFlag(FlagDoubleJumpReset);
         }
@@ -457,6 +461,8 @@ namespace Duel6 {
         } else {
             unsetFlag(FlagDying);
         }
+        bool doubleJumpReset = hasFlag(FlagDoubleJumpReset);
+        bool doubleJump = hasFlag(FlagDoubleJumpReset);
         // optimisation only, no need to re-run whole thing if we don't have updated position from the server
         if(compensatedUntilTick == lastConfirmedTick){
             compensationResults[tick & 127] = collider;
@@ -480,6 +486,13 @@ namespace Duel6 {
             if(isAlive()) { // if we are not dead yet, restore flags
                 flags = backupFlags;
             }
+            if (!doubleJumpReset) {
+                // to avoid playing sound effect twice
+                unsetFlag(FlagDoubleJumpReset);
+            }
+            if (!doubleJump) {
+                unsetFlag(FlagDoubleJump);
+            }
             compensationResults[(tick)& 127] = collider;
             return;
         }
@@ -496,6 +509,9 @@ namespace Duel6 {
             // we should store the collider in this loop, if we want to be dead-serious precise and
             // use it as `previousResult` above
             // compensationResults[tick & 127] = collider;
+        }
+        if(!doubleJumpReset){
+            unsetFlag(FlagDoubleJumpReset);
         }
         compensatedUntilTick = lastConfirmedTick;
         compensationResults[tick & 127] = collider;
@@ -975,6 +991,29 @@ namespace Duel6 {
 
     void Player::playSound(PlayerSounds::Type type) const {
         game->playSample(*this, type);
+    }
+
+    void Player::playSample(PlayerSounds::Type type) const {
+        float panning = collider.position.x / world->getLevel().getWidth() * 2.0f - 1.0f;
+        sounds->getRandomSample(type).play(panning);
+    }
+
+    void Player::doubleJumpEffect() const {
+        Vector pos = getCentre() - Vector(0.5f, 1.0f);
+        game->doubleJumpEffect(*this, pos.x, pos.y, collider.velocity.unit().angleRad() - 1.57f);
+    }
+
+    void Player::onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle) const {
+        playSample(PlayerSounds::Type::DoubleJump);
+        auto sprite = world->getSpriteList().add(skin.getAuxAnimations().getDoubleJump().get(), skin.getDoubleJumpTexture());
+        sprite->setPosition(Vector(x, y), 0.4f)
+            .setSpeed(1.0f)
+            .setZRotation(angle, { 0.5f, 0.5f })
+            .setLooping(AnimationLooping::OnceAndRemove)
+            .setOrientation(orientation)
+            .setAlpha(1.0f)
+            .setBlendFunc(BlendFunc::SrcAlpha)
+            .setNoDepth(false);
     }
 
     Int32 Player::getId() const

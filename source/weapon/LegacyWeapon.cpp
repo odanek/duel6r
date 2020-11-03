@@ -77,7 +77,8 @@ namespace Duel6 {
     }
     void LegacyWeapon::shoot(Player &player, Orientation orientation, World &world) const {
         world.getShotList().addShot(makeShot(player, world, orientation));
-        samples.shot.play();
+        float panning = player.getPosition().x / world.getLevel().getWidth() * 2.0f - 1.0f;
+        samples.shot.play(panning);
     }
 
     SpriteList::Iterator LegacyWeapon::makeSprite(SpriteList &spriteList) const {
@@ -109,7 +110,7 @@ namespace Duel6 {
     bool LegacyWeapon::isChargeable() const {
         return false;
     }
-    void LegacyWeapon::playShotSample() const {
-        samples.shot.play();
+    void LegacyWeapon::playShotSample(float panning) const {
+        samples.shot.play(panning);
     }
 }

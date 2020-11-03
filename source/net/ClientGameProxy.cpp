@@ -548,7 +548,16 @@ namespace Duel6 {
             return r;
         }
 
-        void ClientGameProxy::handle(RaiseWaterLevel &rwl){
+        void ClientGameProxy::handle(DoubleJumpEffects &dje) {
+            if (idmap.count(dje.playerId) == 0) {
+                return;
+            }
+            auto pos = idmap[dje.playerId];
+            const auto &player = game->players[pos];
+            game->onDoubleJumpEffect(player, dje.x, dje.y, dje.angle);
+        }
+
+        void ClientGameProxy::handle(RaiseWaterLevel &rwl) {
             game->raiseWater();
         }
 

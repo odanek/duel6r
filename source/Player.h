@@ -451,9 +451,12 @@ namespace Duel6 {
 
         void playSound(PlayerSounds::Type type) const;
 
-        void playSample(PlayerSounds::Type type) const {
-            sounds->getRandomSample(type).play();
-        }
+        void playSample(PlayerSounds::Type type) const;
+
+        void doubleJumpEffect() const;
+
+        void onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle) const;
+
         void setBodyAlpha(Float32 alpha) {
             bodyAlpha = alpha;
             setAlpha(1.0f);

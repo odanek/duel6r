@@ -233,8 +233,15 @@ namespace Duel6 {
                 break;
             }
             case EventType::SHOT_HIT:break;
-            case EventType::PLAYER_HIT:break;
             case EventType::PLAYER_SPAWN:break;
+            case EventType::PLAYER_DOUBLE_JUMP_EFFECTS:{
+                DoubleJumpEffects dje;
+                if (!(s >> dje)) {
+                    D6_THROW(Exception, "Cannot deserialize EventType::PLAYER_DOUBLE_JUMP_EFFECTS");
+                }
+                gameProxy->handle(dje);
+                break;
+            }
             case EventType::CONSOLE:{
                 net::Console c;
                 if(!(s >> c)){

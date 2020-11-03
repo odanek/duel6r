@@ -72,7 +72,7 @@ namespace Duel6 {
 
         virtual bool isChargeable() const = 0;
 
-        virtual void playShotSample() const {
+        virtual void playShotSample(float panning = 0.0f) const {
 
         }
 
@@ -134,7 +134,7 @@ namespace Duel6 {
 
         bool isChargeable() const;
 
-        void playShotSample() const;
+        void playShotSample(float panning = 0.0f) const;
 
     public:
         static const std::vector<Weapon> &values();

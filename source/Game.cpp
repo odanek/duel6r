@@ -425,7 +425,9 @@ namespace Duel6 {
         round->getWorld().getBonusList().spawnBonus(std::move(bonus));
     }
     void Game::spawnRemoteShot(std::unique_ptr<Shot> && shot) {
-        shot->getWeapon().playShotSample();
+        auto shotCentre = shot->getCentre();
+        float panning = shotCentre.x / round->getWorld().getLevel().getWidth() * 2.0f - 1.0f;
+        shot->getWeapon().playShotSample(panning);
         round->getWorld().getShotList().spawnShot(std::move(shot));
 
     }
@@ -482,6 +484,19 @@ namespace Duel6 {
             gameProxy->playSample(player.getId(), type);
         }
         player.playSample(type);
+    }
+
+    void Game::doubleJumpEffect(const Player &player, Float32 x, Float32 y, Float32 angle) {
+        if (isServer) {
+            gameProxy->doubleJumpEffect(player.getId(), x, y, angle);
+        }
+        player.onDoubleJumpEffect(x, y, angle);
+    }
+
+    void Game::onDoubleJumpEffect(const Player &player, Float32 x, Float32 y, Float32 angle) {
+        if(!player.local){
+            player.onDoubleJumpEffect(x, y, angle);
+        }
     }
 
     void Game::broadcastMessage(const Player &player, const std::string & msg, bool display) {

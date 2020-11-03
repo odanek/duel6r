@@ -149,7 +149,7 @@ namespace Duel6 {
         return impl->isChargeable();
     }
 
-    void Weapon::playShotSample() const {
+    void Weapon::playShotSample(float panning) const {
         impl->playShotSample();
     }
 

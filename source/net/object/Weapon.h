@@ -40,7 +40,7 @@ namespace Duel6::net {
 
     template<typename Stream>
     bool serialize(Stream &s, WeaponType &o) {
-        if (s.isDeserializer()) {
+        if constexpr (s.isDeserializer()) {
             type_t r;
             if (!s.safe_max(r, (type_t) (static_cast<type_t>(WeaponType::MAX_COUNT) - 1))) {
                 return false;

@@ -266,6 +266,11 @@ public:
     std::vector<Loop> loops;
     std::map<std::string, uint32_t> animationLookup; //index to animations
 
+    Animation() = default;
+    Animation(const Animation &animation) = delete;
+    Animation(Animation &&animation) = default;
+    Animation& operator =(const Animation &animation) = delete;
+    Animation& operator =(Animation &&animation) = default;
 
     void log() {
         std::cout << "Animation: frames:" << framesCount << " width: " << width << " height: " << height << "\n";

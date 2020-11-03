@@ -20,12 +20,13 @@ namespace Duel6::net {
         SUICIDE,
         DROWNED,
         PICKED_BONUS,
+        DOUBLE_JUMP,
         MAX_COUNT
     };
 
     template<typename Stream>
     bool serialize(Stream &s, SampleType &o) {
-        if (s.isDeserializer()) {
+        if constexpr (s.isDeserializer()) {
             type_t r;
             if (!s.safe_max(r, (type_t) (static_cast<type_t>(SampleType::MAX_COUNT) - 1))) {
                 return false;

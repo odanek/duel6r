@@ -38,7 +38,8 @@ namespace Duel6 {
           animations(&animations),
           textures(animations.generateAnimationTexture(textureManager, colors)),
           auxAnimations(&auxAnimations),
-          auxTextures(auxAnimations.generateAnimationTexture(textureManager)){
+          auxTextures(auxAnimations.generateAnimationTexture(textureManager)),
+          doubleJumpTexture(auxAnimations.generateDoubleJumpAnimationTexture(textureManager)){
     }
 
     Texture PlayerSkin::getTexture() const {
@@ -47,6 +48,10 @@ namespace Duel6 {
 
     Texture PlayerSkin::getAuxTexture() const {
         return auxTextures;
+    }
+
+    Texture PlayerSkin::getDoubleJumpTexture() const {
+        return doubleJumpTexture;
     }
 
     const PlayerSkinColors & PlayerSkin::getColors() const {

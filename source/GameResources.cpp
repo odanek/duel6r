@@ -37,7 +37,7 @@ namespace Duel6 {
         console.printLine("...Animations initialization");
         std::string animationBasePath(D6_TEXTURE_MAN_PATH);
         playerAnimations = std::make_unique<PlayerAnimations>(std::move(textureManager.loadAnimation(animationBasePath + "man.ase")));
-        auxAnimations = std::make_unique<AuxAnimations>(std::move(textureManager.loadAnimation(animationBasePath + "chat.ase")));
+        auxAnimations = std::make_unique<AuxAnimations>(std::move(textureManager.loadAnimation(animationBasePath + "chat.ase")), std::move(textureManager.loadAnimation(animationBasePath + "djump.ase")));
         console.printLine("...Weapon initialization");
         Weapon::initialize(sound, textureManager, *playerAnimations, *auxAnimations);
         console.printLine("...Building water-list");

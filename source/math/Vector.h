@@ -175,6 +175,9 @@ namespace Duel6 {
             return Math::radToDeg(std::atan2(y, x));
         }
 
+        Float32 angleRad() const {
+            return std::atan2(y, x);
+        }
         static Vector direction(Float32 angle) {
             return Vector(cosf(Math::degToRad(angle)), sinf(Math::degToRad(angle)));
         }

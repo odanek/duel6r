@@ -11,6 +11,7 @@
 #include "Chat.h"
 #include "ChatMessage.h"
 #include "Console.h"
+#include "DoubleJumpEffects.h"
 #include "EraseShot.h"
 #include "Focus.h"
 #include "GameState.h"
