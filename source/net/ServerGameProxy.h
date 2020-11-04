@@ -49,6 +49,7 @@ namespace Duel6 {
             void chat(bool value);
             void console(bool value);
             void focus(bool value);
+            void doubleJumpEffect(Int32 playerId, Float32 x, Float32 y, Float32 angle);
             void playSample(Int32 playerId, PlayerSounds::Type type);
             void startRound(Int32 playedRounds, Duel6::Level & level) override;
             void sendGameStateUpdate(Game & game) override;

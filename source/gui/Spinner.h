@@ -51,6 +51,9 @@ namespace Duel6 {
             std::vector<std::pair<Int32, std::string> > items;
             Float32 repeatWait = 0;
             ColorizeCallback colorizeCallback = defaultColorize;
+            Float32 innerTextWidth;
+            Float32 scrollLeft;
+            bool scrolling = false;
 
         public:
             explicit Spinner(View &parentView);
@@ -91,7 +94,15 @@ namespace Duel6 {
 
             void update(Float32 elapsedTime) override;
 
+            void drawStencil(Renderer &renderer, const Font &font) const override;
+
             void draw(Renderer &renderer, const Font &font) const override;
+
+            void drawWithStencilTest(Renderer &renderer, const Font &font) override;
+
+            void setScrolling(bool value);
+
+            void scroll(Float32 distance);
         };
 
     }

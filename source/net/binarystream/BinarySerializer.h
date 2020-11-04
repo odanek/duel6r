@@ -9,52 +9,24 @@
 #include <stdint.h>
 
 template <typename binarystream>
-class BinarySerializer{
+class BinarySerializer {
+
 private:
-    binarystream & s;
+    binarystream &s;
+
 public:
-    BinarySerializer(binarystream & s): s(s){}
+    BinarySerializer(binarystream &s)
+        : s(s) {
+    }
     //TODO Constructors
     template<typename M>
-    bool operator & (const M & m){
-        s << m;
-        return s.good();
+    bool operator &(const M &m) {
+        return s << m;
     }
 
     template<typename M>
-    bool operator & (M & m){
-        s << m;
-        return s.good();
-    }
-
-    template<typename M>
-    bool safe_max(M & m, const M max) {
-        // SHOULD NOT BE CALLED
-        return false;
-    }
-
-    template<typename M>
-    bool safe_min(M & m, const M min) {
-        // SHOULD NOT BE CALLED
-        return false;
-    }
-
-    template<typename M>
-    bool safe_range(M & m, const M min, const M max) {
-        // SHOULD NOT BE CALLED
-        return false;
-    }
-
-    template<typename M>
-    bool safe_size(M & m, const uint32_t min, const uint32_t max) {
-        // SHOULD NOT BE CALLED
-        return false;
-    }
-
-    template<typename M, typename N>
-    bool safe_read(M & m, const N val_min, const N val_max, const uint32_t min, const uint32_t max) {
-        // SHOULD NOT BE CALLED
-        return false;
+    bool operator &(M &m) {
+        return s << m;
     }
 
     constexpr static bool isSerializer() {

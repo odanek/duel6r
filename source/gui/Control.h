@@ -94,7 +94,11 @@ namespace Duel6 {
             virtual void update(Float32 elapsedTime) {
             }
 
+            virtual void drawStencil(Renderer &renderer, const Font &font) const {}
+
             virtual void draw(Renderer &renderer, const Font &font) const = 0;
+
+            virtual void drawWithStencilTest(Renderer &renderer, const Font &font) {}
 
             virtual bool keyEvent(const KeyPressEvent &event) {
                 return false;

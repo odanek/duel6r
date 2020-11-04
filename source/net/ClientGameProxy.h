@@ -47,6 +47,7 @@ namespace Duel6 {
             void handle(PlayersDisconnected &pd);
             void handle(PlayersJoined &pj);
             void handle(PlaySample &ps);
+            void handle(DoubleJumpEffects &dje);
             void handle(RaiseWaterLevel &rwl);
             void handle(StartRound &sr);
             void handle(SpawnBonus &sb);

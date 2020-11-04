@@ -64,5 +64,4 @@ namespace Duel6::net{
 }
 
 
-
 #endif /* SOURCE_NET_OBJECT_WORLD_H_ */

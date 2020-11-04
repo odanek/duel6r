@@ -356,4 +356,25 @@ namespace Duel6 {
             glDisable(option);
         }
     }
+
+    void GL1Renderer::stencil(StencilMode mode) const {
+            switch (mode) {
+                case StencilMode::DISABLE: {
+                    glDisable(GL_STENCIL_TEST);
+                    break;
+                }
+                case StencilMode::CLEAR_AND_WRITE: {
+                    glStencilFunc( GL_ALWAYS, 1, 0xffffffff);
+                    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+                    glClear( GL_STENCIL_BUFFER_BIT);
+                    break;
+                }
+                case StencilMode::TEST: {
+                    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+                    glStencilFunc(GL_EQUAL, 1, 1);
+                    glEnable(GL_STENCIL_TEST);
+                    break;
+                }
+            }
+        }
 }

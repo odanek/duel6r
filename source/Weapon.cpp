@@ -149,11 +149,11 @@ namespace Duel6 {
         return impl->isChargeable();
     }
 
-    void Weapon::playShotSample() const {
+    void Weapon::playShotSample(float panning) const {
         impl->playShotSample();
     }
 
-    void Weapon::initialize(Sound &sound, TextureManager &textureManager) {
+    void Weapon::initialize(Sound &sound, TextureManager &textureManager, const PlayerAnimations & playerAnimations, const AuxAnimations & auxAnimations) {
         add(std::make_unique<Pistol>(sound, textureManager));
         add(std::make_unique<Bazooka>(sound, textureManager));
         add(std::make_unique<Lightning>(sound, textureManager));
@@ -170,7 +170,7 @@ namespace Duel6 {
         add(std::make_unique<Spray>(sound, textureManager));
         add(std::make_unique<Sling>(sound, textureManager));
         add(std::make_unique<StopperGun>(sound, textureManager));
-        add(std::make_unique<ShitThrower>(sound, textureManager));
+        add(std::make_unique<ShitThrower>(sound, textureManager, playerAnimations, auxAnimations));
     }
 
     const std::vector<Weapon> &Weapon::values() {

@@ -48,6 +48,8 @@ namespace Duel6 {
         view = ViewParameters(1.0f, 40.0f, 65.0f);
 #if !defined(D6_RENDERER_HEADLESS)
         ScreenParameters completeScreen = completeScreenParameters(requestedScreen);
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
+        SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
         window = createWindow(name, icon, completeScreen, console);
         glContext = createContext(completeScreen, console);
         screen = readScreenParameters(completeScreen, console);

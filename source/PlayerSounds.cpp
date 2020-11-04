@@ -35,39 +35,53 @@
 
 namespace Duel6 {
     namespace {
-        std::unordered_map<PlayerSounds::Type, std::string, EnumClassHash<PlayerSounds::Type>> defaultSounds = {
-                {PlayerSounds::Type::GotHit,      "hit.wav"},
-                {PlayerSounds::Type::WasKilled,   "death.wav"},
-                {PlayerSounds::Type::Suicide,     "death.wav"},
-                {PlayerSounds::Type::Drowned,     "death.wav"},
-                {PlayerSounds::Type::PickedBonus, "pick-bonus.wav"}
+        std::unordered_map<PlayerSounds::Type, std::vector<std::string>, EnumClassHash<PlayerSounds::Type>> defaultSounds = {
+                {PlayerSounds::Type::GotHit,      {"hit.wav"}},
+                {PlayerSounds::Type::WasKilled,   {"death.wav"}},
+                {PlayerSounds::Type::Suicide,     {"death.wav"}},
+                {PlayerSounds::Type::Drowned,     {"death.wav"}},
+                {PlayerSounds::Type::PickedBonus, {"pick-bonus.wav"}},
+                {PlayerSounds::Type::DoubleJump,  {"djump.ogg", "djump02.ogg",
+                    "djump03.ogg",
+                    "djump04.ogg",
+                    "djump05.ogg",
+                    "djump06.ogg",
+                    "djump07.ogg",
+                    "djump08.ogg",
+                    "djump09.ogg",
+                    "djump10.ogg",
+                    "djump11.ogg",
+                    "djump12.ogg",
+                    "djump13.ogg"
+                }}
         };
 
         Sound::Sample emptySample;
-        std::unordered_map<PlayerSounds::Type, Sound::Sample, EnumClassHash<PlayerSounds::Type>> defaultSamples;
+        std::unordered_map<PlayerSounds::Type, std::vector<Sound::Sample>, EnumClassHash<PlayerSounds::Type>> defaultSamples;
 
-        Sound::Sample loadDefaultSound(Sound &sound, PlayerSounds::Type type) {
-            auto soundFile = defaultSounds.find(type);
-            if (soundFile == defaultSounds.end()) {
-                return emptySample;
+        std::vector<Sound::Sample> loadDefaultSounds(Sound &sound, PlayerSounds::Type type) {
+            std::vector<Sound::Sample> result;
+            auto soundFiles = defaultSounds.find(type);
+            if (soundFiles == defaultSounds.end()) {
+                result.push_back(emptySample);
+                return result;
             }
 
-            auto sample = defaultSamples.find(type);
-            if (sample == defaultSamples.end()) {
-                Sound::Sample defaultSample = sound.loadSample(D6_FILE_PLAYER_SOUNDS + soundFile->second);
-                defaultSamples.insert(std::make_pair(type, defaultSample));
-                return defaultSample;
+            auto samples = defaultSamples.find(type);
+            if (samples == defaultSamples.end()) {
+                for(const auto & soundFile: soundFiles->second){
+                    Sound::Sample defaultSample = sound.loadSample(D6_FILE_PLAYER_SOUNDS + soundFile);
+                    result.push_back(defaultSample);
+                }
+                defaultSamples.insert(std::make_pair(type, result));
+                return result;
             }
 
-            return sample->second;
+            return samples->second;
         }
 
         Sound::Sample
         loadSound(Sound &sound, const std::string &profileRoot, PlayerSounds::Type type, Json::Value value) {
-            if (value.getType() == Json::Value::Type::Null) {
-                return loadDefaultSound(sound, type);
-            }
-
             return sound.loadSample(profileRoot + value.asString());
         }
 
@@ -80,7 +94,12 @@ namespace Duel6 {
                     samples.push_back(loadSound(sound, profileRoot, type, value.get(i)));
                 }
             } else {
-                samples.push_back(loadSound(sound, profileRoot, type, value));
+                if (value.getType() == Json::Value::Type::Null) {
+                    auto defaultSamples = loadDefaultSounds(sound, type);
+                    samples.insert(samples.end(), defaultSamples.begin(), defaultSamples.end());
+                } else {
+                    samples.push_back(loadSound(sound, profileRoot, type, value));
+                }
             }
 
             return samples;
@@ -88,9 +107,6 @@ namespace Duel6 {
     }
 
     PlayerSounds::PlayerSounds() {
-        for (Int32 i = 0; i < 7; i++) {
-            sounds[i].push_back(Sound::Sample());
-        }
     }
 
     const Sound::Sample &PlayerSounds::getRandomSample(Type type) const {
@@ -107,24 +123,24 @@ namespace Duel6 {
         sounds.sounds[(Int32) Type::GotHit] = loadSounds(sound, profilePath, Type::GotHit, root.get("gotHit"));
         sounds.sounds[(Int32) Type::WasKilled] = loadSounds(sound, profilePath, Type::WasKilled, root.get("wasKilled"));
         sounds.sounds[(Int32) Type::HitOther] = loadSounds(sound, profilePath, Type::HitOther, root.get("hitOther"));
-        sounds.sounds[(Int32) Type::KilledOther] = loadSounds(sound, profilePath, Type::KilledOther,
-                                                              root.get("killedOther"));
+        sounds.sounds[(Int32) Type::KilledOther] = loadSounds(sound, profilePath, Type::KilledOther, root.get("killedOther"));
         sounds.sounds[(Int32) Type::Suicide] = loadSounds(sound, profilePath, Type::Suicide, root.get("suicide"));
         sounds.sounds[(Int32) Type::Drowned] = loadSounds(sound, profilePath, Type::Drowned, root.get("drowned"));
-        sounds.sounds[(Int32) Type::PickedBonus] = loadSounds(sound, profilePath, Type::PickedBonus,
-                                                              root.get("pickedBonus"));
+        sounds.sounds[(Int32) Type::PickedBonus] = loadSounds(sound, profilePath, Type::PickedBonus, root.get("pickedBonus"));
+        sounds.sounds[(Int32) Type::DoubleJump] = loadSounds(sound, profilePath, Type::DoubleJump, root.getOrDefault("doubleJump", Json::Value::makeNull()));
         return sounds;
     }
 
     PlayerSounds PlayerSounds::makeDefault(Sound &sound) {
         PlayerSounds sounds;
-        sounds.sounds[(Int32) Type::GotHit].push_back(loadDefaultSound(sound, Type::GotHit));
-        sounds.sounds[(Int32) Type::WasKilled].push_back(loadDefaultSound(sound, Type::WasKilled));
-        sounds.sounds[(Int32) Type::HitOther].push_back(loadDefaultSound(sound, Type::HitOther));
-        sounds.sounds[(Int32) Type::KilledOther].push_back(loadDefaultSound(sound, Type::KilledOther));
-        sounds.sounds[(Int32) Type::Suicide].push_back(loadDefaultSound(sound, Type::Suicide));
-        sounds.sounds[(Int32) Type::Drowned].push_back(loadDefaultSound(sound, Type::Drowned));
-        sounds.sounds[(Int32) Type::PickedBonus].push_back(loadDefaultSound(sound, Type::PickedBonus));
+        sounds.sounds[(Int32) Type::GotHit] = loadDefaultSounds(sound, Type::GotHit);
+        sounds.sounds[(Int32) Type::WasKilled] = loadDefaultSounds(sound, Type::WasKilled);
+        sounds.sounds[(Int32) Type::HitOther]= loadDefaultSounds(sound, Type::HitOther);
+        sounds.sounds[(Int32) Type::KilledOther]= loadDefaultSounds(sound, Type::KilledOther);
+        sounds.sounds[(Int32) Type::Suicide]= loadDefaultSounds(sound, Type::Suicide);
+        sounds.sounds[(Int32) Type::Drowned]= loadDefaultSounds(sound, Type::Drowned);
+        sounds.sounds[(Int32) Type::PickedBonus]= loadDefaultSounds(sound, Type::PickedBonus);
+        sounds.sounds[(Int32) Type::DoubleJump]= loadDefaultSounds(sound, Type::DoubleJump);
         return sounds;
     }
 }

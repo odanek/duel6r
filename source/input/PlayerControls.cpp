@@ -129,9 +129,6 @@ namespace Duel6 {
         size_t joys = 0;
         for(auto const & c : input.getJoys()){
             std::string label = Format("J{0}: {1}") << joys++ << c.getName();
-            if (label.size() > 18) {
-                label.resize(18);
-            }
             if (std::find_if(controls.begin(), controls.end(), [label](std::unique_ptr<PlayerControls> & control) {
                     return control->getDescription() == label;
                 }) == std::end(controls)) {

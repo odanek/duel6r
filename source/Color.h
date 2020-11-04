@@ -171,7 +171,7 @@ namespace Duel6 {
         size_t operator()(const Color &color) const {
             std::hash<Uint32> hashFunction;
             return hashFunction(
-                    (color.getAlpha() << 24) + (color.getRed() << 16) + (color.getGreen() << 8) + color.getBlue());
+                    (Uint32)((color.getAlpha() << 24) + (color.getRed() << 16) + (color.getGreen() << 8) + color.getBlue()));
         }
     };
 }

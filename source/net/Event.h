@@ -44,8 +44,9 @@ namespace Duel6 {
             SHOT_ERASE,
             SHOT_HIT,
 
-            PLAYER_HIT,
             PLAYER_SPAWN,
+
+            PLAYER_DOUBLE_JUMP_EFFECTS,
             CONSOLE,
             CHAT,
             FOCUS,
@@ -57,7 +58,7 @@ namespace Duel6 {
 
         template<typename Stream>
         bool serialize(Stream & s, EventType & o){
-            if(s.isDeserializer()){
+            if constexpr (s.isDeserializer()){
                 type_t r;
                 if(!s.safe_max(r, (type_t) (static_cast<type_t>(EventType::MAX_COUNT) - 1))){
                     return false;

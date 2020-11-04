@@ -313,7 +313,8 @@ namespace Duel6 {
         const Vector shotCentre = getCentre();
         onExplode(shotCentre, range, world);
         makeBoomSprite(world.getSpriteList());
-        samples.boom.play();
+        float panning = shotCentre.x / world.getLevel().getWidth() * 2.0f - 1.0f;
+        samples.boom.play(panning);
     }
     SpriteList::Iterator LegacyShot::makeSprite(SpriteList &spriteList) {
         sprite = spriteList.add(getShotAnimation(), textures.shot);

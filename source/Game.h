@@ -111,8 +111,8 @@ namespace Duel6 {
 
         std::vector<Player> players;
         std::vector<PlayerSkin> skins;
-        std::unique_ptr<PlayerAnimations> playerAnimations;
-        std::unique_ptr<AuxAnimations> playerAuxAnimations;
+        const PlayerAnimations & playerAnimations;
+        const AuxAnimations & playerAuxAnimations;
         bool displayScoreTab = false;
         InfoMessageQueue * infoMessageQueue = nullptr;
         ChatMessageQueue chatMessageQueue;
@@ -258,6 +258,10 @@ namespace Duel6 {
         void playSample(const Player &player, PlayerSounds::Type type);
 
         void broadcastMessage(const Player &player, const std::string & msg, bool display);
+
+        void doubleJumpEffect(Player &player, Float32 x, Float32 y, Float32 angle);
+
+        void onDoubleJumpEffect(Player &player, Float32 x, Float32 y, Float32 angle);
 
         void setMessageQueue(InfoMessageQueue & queue);
 

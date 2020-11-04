@@ -52,7 +52,7 @@ namespace Duel6 {
     }
 
     Texture HeadlessRenderer::createTexture(const Image &image, TextureFilter filtering, bool clamp) {
-        Texture textureId;
+        Texture textureId = 0;
         return textureId;
     }
 

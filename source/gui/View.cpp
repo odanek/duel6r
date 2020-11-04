@@ -164,8 +164,14 @@ namespace Duel6::Gui {
         Matrix m = renderer.getViewMatrix();
         renderer.setViewMatrix(m * Matrix::translate(Float32(x), Float32(y), 0));
         for (auto &control : controls) {
+            renderer.stencil(Duel6::Renderer::StencilMode::CLEAR_AND_WRITE);
+            control->drawStencil(renderer, font);
+            renderer.stencil(Duel6::Renderer::StencilMode::DISABLE);
             control->draw(renderer, font);
+            renderer.stencil(Duel6::Renderer::StencilMode::TEST);
+            control->drawWithStencilTest(renderer, font);
         }
+        renderer.stencil(Duel6::Renderer::StencilMode::DISABLE);
         renderer.setViewMatrix(m);
     }
 

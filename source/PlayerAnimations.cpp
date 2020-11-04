@@ -41,8 +41,8 @@ namespace Duel6 {
         return animation.data();
     }
 
-    PlayerAnimations::PlayerAnimations(const animation::Animation &animation)
-            : animation(animation),
+    PlayerAnimations::PlayerAnimations(animation::Animation &&anim)
+            : animation(std::move(anim)),
               stand(animation, "Stand"),
               hitStand(animation, "HIT_Stand"),
               walk(animation, "Walk"),
@@ -128,18 +128,21 @@ namespace Duel6 {
     }
 
 
-    AuxAnimation::AuxAnimation(const animation::Animation &animation, const std::string &name):
-        animation(animation), animationEntry(animation.getAnimation(name)){}
+    AuxAnimation::AuxAnimation(const animation::Animation &animation, const std::string &name)
+        : animationEntry(animation.getAnimation(name)) {
+    }
 
     Animation AuxAnimation::get() const {
         return animationEntry.data();
     }
 
-    AuxAnimations::AuxAnimations(const animation::Animation &animation)
-        :animation(animation),
-         chat(animation, "Think"),
+    AuxAnimations::AuxAnimations(animation::Animation &&chat, animation::Animation &&djump)
+        : animation(std::move(chat)),
+          doubleJumpAnimation(std::move(djump)),
+          chat(animation, "Think"),
           console(animation, "Tilda"),
-          unfocused(animation, "Sleep"){
+          unfocused(animation, "Sleep"),
+          doubleJump(doubleJumpAnimation, "Jump"){
     }
 
     Texture AuxAnimations::generateAnimationTexture(const TextureManager &textureManager) const {
@@ -147,14 +150,29 @@ namespace Duel6 {
         animation::Palette substitution_table(animation.palette);
         return textureManager.generateSprite(animation, view, substitution_table, TextureFilter::Nearest, true);
     }
+
+    Texture AuxAnimations::generateDoubleJumpAnimationTexture(const TextureManager &textureManager) const {
+        auto view = doubleJumpAnimation.toView();
+        animation::Palette substitution_table(doubleJumpAnimation.palette);
+        return textureManager.generateSprite(doubleJumpAnimation, view, substitution_table, TextureFilter::Nearest, true);
+    }
+
     const AuxAnimation& AuxAnimations::getChat() const {
         return chat;
     }
+
     const AuxAnimation& AuxAnimations::getConsole() const {
         return console;
     }
+
     const AuxAnimation& AuxAnimations::getUnfocused() const {
         return unfocused;
     }
+
+    const AuxAnimation& AuxAnimations::getDoubleJump() const {
+        return doubleJump;
+    }
+
+
 }
 

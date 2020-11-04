@@ -54,6 +54,8 @@ namespace Duel6 {
             ~Sample();
 
             void play() const;
+
+            void play(float panning) const;
         };
 
         class Track {
@@ -97,7 +99,7 @@ namespace Duel6 {
     private:
         void startMusic(Mix_Music *music, bool loop);
 
-        void playSample(Mix_Chunk *chunk);
+        void playSample(Mix_Chunk *chunk, Uint8 left = 255, Uint8 right = 255);
     };
 }
 

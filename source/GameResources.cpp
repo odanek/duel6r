@@ -30,12 +30,16 @@
 #include "Fire.h"
 #include "Weapon.h"
 #include "Bonus.h"
-
+#include "PlayerAnimations.h"
 namespace Duel6 {
     void GameResources::load(Console &console, Sound &sound, TextureManager &textureManager) {
-        console.printLine("\n===Initializing game resources===");
-        console.printLine("\n...Weapon initialization");
-        Weapon::initialize(sound, textureManager);
+        console.printLine("\n===Initializing game resources===\n");
+        console.printLine("...Animations initialization");
+        std::string animationBasePath(D6_TEXTURE_MAN_PATH);
+        playerAnimations = std::make_unique<PlayerAnimations>(std::move(textureManager.loadAnimation(animationBasePath + "man.ase")));
+        auxAnimations = std::make_unique<AuxAnimations>(std::move(textureManager.loadAnimation(animationBasePath + "chat.ase")), std::move(textureManager.loadAnimation(animationBasePath + "djump.ase")));
+        console.printLine("...Weapon initialization");
+        Weapon::initialize(sound, textureManager, *playerAnimations, *auxAnimations);
         console.printLine("...Building water-list");
         Water::initialize(sound, textureManager);
         console.printLine("...Loading game sounds");
@@ -55,9 +59,7 @@ namespace Duel6 {
 
         console.printLine(Format("...Loading background textures: {0}") << D6_TEXTURE_BCG_PATH);
         bcgTextures = textureManager.loadDict(D6_TEXTURE_BCG_PATH, TextureFilter::Linear, true);
-        std::string animationBasePath(D6_TEXTURE_MAN_PATH);
-        playerAnimation = textureManager.loadAnimation(animationBasePath + "man.ase");
-        playerAuxAnimation = textureManager.loadAnimation(animationBasePath + "chat.ase");
+
         console.printLine(Format("...Loading fire textures: {0}") << D6_TEXTURE_FIRE_PATH);
         for (const FireType &fireType : FireType::values()) {
             Texture texture = textureManager.loadStack(Format("{0}{1,3|0}/") << D6_TEXTURE_FIRE_PATH << fireType.getId(),
@@ -67,5 +69,13 @@ namespace Duel6 {
 
         Texture burn = textureManager.loadStack("textures/fire/burn/", TextureFilter::Linear, true);
         burningTexture = burn;
+    }
+
+    const PlayerAnimations& GameResources::getPlayerAnimations() const {
+        return *playerAnimations;
+    }
+
+    const AuxAnimations& GameResources::getAuxAnimations() const {
+        return *auxAnimations;
     }
 }

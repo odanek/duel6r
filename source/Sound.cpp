@@ -39,10 +39,25 @@ namespace Duel6 {
     Sound::Sample::~Sample() {}
 
     void Sound::Sample::play() const {
+        play(0.0f);
+    }
+
+    void Sound::Sample::play(float panning) const {
+        if(panning < -1.0f){
+            panning = -1.0f;
+        }
+        if(panning > 1.0f){
+            panning = 1.0f;
+        }
+        panning += 1.0f;
+        panning *= 255;
+        Uint8 left = panning <= 255 ? 255 : 510 - panning;
+        Uint8 right = panning >= 255 ? 255 : panning;
         if (sound != nullptr && chunk != nullptr) {
-            sound->playSample(chunk);
+            sound->playSample(chunk, left, right);
         }
     }
+
 
     Sound::Track::Track(Sound *sound, Mix_Music *module)
             : sound(sound), module(module) {}
@@ -147,10 +162,11 @@ namespace Duel6 {
         playing = true;
     }
 
-    void Sound::playSample(Mix_Chunk *chunk) {
+    void Sound::playSample(Mix_Chunk *chunk, Uint8 left, Uint8 right) {
         if(headless) return;
         for (Int32 j = 0; j < channels; j++) {
             if (!Mix_Playing(j) && !Mix_Paused(j)) {
+                Mix_SetPanning(j, left, right);
                 if (Mix_PlayChannel(j, chunk, 0) == -1) {
                     D6_THROW(SoundException, Format("SDL_Mixer error: {0}") << Mix_GetError());
                 }

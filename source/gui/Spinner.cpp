@@ -61,6 +61,7 @@ namespace Duel6 {
                     listener(selectedIndex);
                 }
             }
+            scrollLeft = 0;
         }
 
         void Spinner::removeItem(Int32 n) {
@@ -95,6 +96,7 @@ namespace Duel6 {
         }
 
         void Spinner::update(Float32 elapsedTime) {
+            scroll(elapsedTime);
             if (!left->isPressed() && !right->isPressed()) {
                 repeatWait = 0.0f;
             } else {
@@ -113,9 +115,12 @@ namespace Duel6 {
             }
         }
 
+        void Spinner::drawStencil(Renderer &renderer, const Font &font) const {
+            renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
+        }
+
         void Spinner::draw(Renderer &renderer, const Font &font) const {
             drawFrame(renderer, x + 20, y, width - 40, 18, true);
-            renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), Color::WHITE);
             Int32 px = left->getX() + 7 + (left->isPressed() ? 1 : 0);
             Int32 py = left->getY() - 4 - (left->isPressed() ? 1 : 0);
             renderer.triangle(Vector(px + 2, py), Vector(px + 2, py - 7), Vector(px - 2, py - 4), Color::BLACK);
@@ -124,6 +129,12 @@ namespace Duel6 {
             py = right->getY() - 4 - (right->isPressed() ? 1 : 0);
             renderer.triangle(Vector(px - 1, py), Vector(px + 3, py - 4), Vector(px - 1, py - 7), Color::BLACK);
 
+            if (focused) {
+                drawFocusFrame(renderer, x - 1, y - 1, width, 18);
+            }
+        }
+
+        void Spinner::drawWithStencilTest(Renderer &renderer, const Font &font) {
             if (items.empty())
                 return;
             ItemColor colors = colorizeCallback(selectedIndex, items[selectedIndex].second);
@@ -131,10 +142,34 @@ namespace Duel6 {
             Color fontColor = colors.font;
             Color bcgColor = colors.background;
 
+            Float32 d = 0;
+            if (scrollLeft < -3 * innerTextWidth - 20) {
+                scrollLeft = 0;
+            } else if (scrollLeft < -3 * innerTextWidth) {
+                d = 0;
+            } else if (scrollLeft < -2 * innerTextWidth) {
+                d = -innerTextWidth - (scrollLeft + 2 * innerTextWidth);
+            } else if (scrollLeft < -innerTextWidth) {
+                d = scrollLeft + innerTextWidth;
+            } else if (scrollLeft < 0) {
+                d = 0;
+            }
+
             renderer.quadXY(Vector(x + 22, y - 16), Vector(width - 44, 15), bcgColor);
-            font.print(x + 25, y - 15, fontColor, items[selectedIndex].second);
-            if (focused) {
-                drawFocusFrame(renderer, x - 1, y - 1, width, 18);
+            font.print(x + 25 + d, y - 15, fontColor, items[selectedIndex].second);
+            innerTextWidth = font.getTextWidth(items[selectedIndex].second, 16);
+            setScrolling(innerTextWidth > width - 44);
+        }
+
+        void Spinner::setScrolling(bool value){
+            scrolling = value;
+        }
+
+        void Spinner::scroll(Float32 distance) {
+            if(!scrolling){
+                scrollLeft = 0;
+            } else {
+                scrollLeft -= distance * 100;
             }
         }
         void Spinner::mouseButtonEvent(const MouseButtonEvent &event) {

@@ -42,6 +42,8 @@ namespace Duel6 {
     class Player;
     class Weapon;
     class Shot;
+    class PlayerAnimations;
+    class AuxAnimations;
     class WeaponImpl {
     private:
         Uint8 id;
@@ -70,7 +72,7 @@ namespace Duel6 {
 
         virtual bool isChargeable() const = 0;
 
-        virtual void playShotSample() const {
+        virtual void playShotSample(float panning = 0.0f) const {
 
         }
 
@@ -132,12 +134,12 @@ namespace Duel6 {
 
         bool isChargeable() const;
 
-        void playShotSample() const;
+        void playShotSample(float panning = 0.0f) const;
 
     public:
         static const std::vector<Weapon> &values();
 
-        static void initialize(Sound &sound, TextureManager &textureManager);
+        static void initialize(Sound &sound, TextureManager &textureManager, const PlayerAnimations & playerAnimations, const AuxAnimations & auxAnimations);
 
         static const Weapon &getById(Uint8 id);
 

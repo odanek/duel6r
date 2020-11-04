@@ -160,6 +160,7 @@ namespace Duel6 {
         size_t pos;
         uint32_t rtt = 0;
         uint16_t tick = 0;
+        uint16_t lastDJumpTick = 0;
         uint16_t lastConfirmedTick = 0;
         uint16_t compensatedUntilTick = 0;
         uint16_t lateTicks = 0; //debug
@@ -180,8 +181,10 @@ namespace Duel6 {
                Int32 clientId,
                Int32 clientLocalId,
                size_t pos);
-        Player(Player &&); //fingers crossed
-        Player & operator=(Player &&);
+        Player(const Player &) = delete;
+        Player& operator=(const Player&) = delete;
+        Player(Player&&) = default;
+        Player& operator=(Player&&) = default;
         ~Player();
 
         bool is(const Player &player) const {
@@ -449,9 +452,12 @@ namespace Duel6 {
 
         void playSound(PlayerSounds::Type type) const;
 
-        void playSample(PlayerSounds::Type type) const {
-            sounds->getRandomSample(type).play();
-        }
+        void playSample(PlayerSounds::Type type) const;
+
+        void doubleJumpEffect();
+
+        void onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle);
+
         void setBodyAlpha(Float32 alpha) {
             bodyAlpha = alpha;
             setAlpha(1.0f);

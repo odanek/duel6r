@@ -28,12 +28,15 @@
 #ifndef DUEL6_GAMERESOURCES_H
 #define DUEL6_GAMERESOURCES_H
 
+#include <memory>
 #include <unordered_map>
 #include "Water.h"
 #include "Block.h"
 #include "AppService.h"
-#include "aseprite/animation.h"
+
 namespace Duel6 {
+    class PlayerAnimations;
+    class AuxAnimations;
     class GameResources {
     public:
         typedef TextureDictionary BackgroundList;
@@ -50,8 +53,8 @@ namespace Duel6 {
         Texture elevatorTextures;
         std::unordered_map<Size, Texture> fireTextures;
         Texture burningTexture;
-        animation::Animation playerAnimation;
-        animation::Animation playerAuxAnimation;
+        std::unique_ptr<PlayerAnimations> playerAnimations;
+        std::unique_ptr<AuxAnimations> auxAnimations;
 
     public:
         void load(Console &console, Sound &sound, TextureManager &textureManager);
@@ -100,12 +103,9 @@ namespace Duel6 {
             return burningTexture;
         }
 
-        animation::Animation & getPlayerAnimation() {
-            return playerAnimation;
-        }
-        animation::Animation & getPlayerAuxAnimation() {
-            return playerAuxAnimation;
-        }
+        const PlayerAnimations& getPlayerAnimations() const;
+
+        const AuxAnimations& getAuxAnimations() const;
     };
 }
 

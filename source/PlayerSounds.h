@@ -41,11 +41,12 @@ namespace Duel6 {
             KilledOther,
             Suicide,
             Drowned,
-            PickedBonus
+            PickedBonus,
+            DoubleJump
         };
 
     private:
-        std::vector<Sound::Sample> sounds[7];
+        std::array<std::vector<Sound::Sample>, 8> sounds;
 
     public:
         PlayerSounds();

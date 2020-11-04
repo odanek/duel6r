@@ -22,7 +22,7 @@ namespace Duel6 {
 
         template<typename Stream>
         bool serialize(Stream &s, MessageType &o) {
-            if (s.isDeserializer()) {
+            if constexpr (s.isDeserializer()) {
                 type_t r;
                 if (!s.safe_max(r, (type_t) (static_cast<type_t>(MessageType::MAX_COUNT) - 1))) {
                     return false;

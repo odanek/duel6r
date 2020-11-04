@@ -153,116 +153,7 @@ namespace Duel6 {
             }
         }
     }
-     Player::Player(Player &&r):
-          game(r.game),
-          deleted(r.deleted),
-          person(r.person),
-          skin(r.skin),
-          camera(r.camera),
-          cameraFov(r.cameraFov),
-          cameraTolerance(r.cameraTolerance),
-          animations(r.animations),
-          sounds(r.sounds),
-          controls(r.controls),
-          view(r.view),
-          water(r.water),
-          sprite(r.sprite),
-          gunSprite(r.gunSprite),
-          flags(r.flags),
-          orientation(r.orientation),
-          life(r.life),
-          air(r.air),
-          ammo(r.ammo),
-          bonus(r.bonus),
-          roundKills(r.roundKills),
-          timeToReload(r.timeToReload),
-          bonusRemainingTime(r.bonusRemainingTime),
-          bonusDuration(r.bonusDuration),
-          timeSinceHit(r.timeSinceHit),
-          timeStuckInWall(r.timeStuckInWall),
-          tempSkinDuration(r.tempSkinDuration),
-          alpha(r.alpha),
-          weapon(r.weapon),
-          eventListener(r.eventListener),
-          world(r.world),
-          bodyAlpha(r.bodyAlpha),
-          roundStartTime(r.roundStartTime),
-          indicators(r.indicators),
-          controllerState(r.controllerState),
-          collider(r.collider),
-          id(r.id),
-          team(r.team),
-          clientId(r.clientId),
-          clientLocalId(r.clientLocalId),
-          local(r.local),
-          pos(r.pos),
-          tick(r.tick),
-          lastConfirmedTick(r.lastConfirmedTick),
-          compensatedUntilTick(r.compensatedUntilTick),
-          lateTicks(r.lateTicks),
-          unconfirmedInputs(r.unconfirmedInputs),
-          isCompensating(r.isCompensating),
-          chatting(r.chatting),
-          inConsole(r.inConsole),
-          focused(r.focused){
-        }
 
-    Player & Player::operator=(Player &&r){
-        game = r.game;
-        deleted = r.deleted;
-        person = r.person;
-        skin = r.skin;
-        camera = r.camera;
-        cameraFov = r.cameraFov;
-        cameraTolerance = r.cameraTolerance;
-        animations = r.animations;
-        sounds = r.sounds;
-        controls = r.controls;
-        view = r.view;
-        water = r.water;
-        sprite = r.sprite;
-        gunSprite = r.gunSprite;
-        flags = r.flags;
-        orientation = r.orientation;
-        life = r.life;
-        air = r.air;
-        ammo = r.ammo;
-        bonus = r.bonus;
-        roundKills = r.roundKills;
-        timeToReload = r.timeToReload;
-        bonusRemainingTime = r.bonusRemainingTime;
-        bonusDuration = r.bonusDuration;
-        timeSinceHit = r.timeSinceHit;
-        timeStuckInWall = r.timeStuckInWall;
-        tempSkinDuration = r.tempSkinDuration;
-        alpha = r.alpha;
-        weapon = r.weapon;
-        eventListener = r.eventListener;
-        world = r.world;
-        bodyAlpha = r.bodyAlpha;
-        roundStartTime = r.roundStartTime;
-        indicators = r.indicators;
-        controllerState = r.controllerState;
-        collider = r.collider;
-        id = r.id;
-        team = r.team;
-        clientId = r.clientId;
-        clientLocalId = r.clientLocalId;
-        local = r.local;
-        pos = r.pos;
-        tick = r.tick;
-        lastConfirmedTick = r.lastConfirmedTick;
-        compensatedUntilTick = r.compensatedUntilTick;
-        lateTicks = r.lateTicks;
-        unconfirmedInputs = r.unconfirmedInputs;
-        isCompensating = r.isCompensating;
-        chatting = r.chatting;
-        inConsole = r.inConsole;
-        focused = r.focused;
-
-
-        return *this;
-    }
     void Player::moveVertical(const Level &level, Float32 elapsedTime, Float32 speed) {
         if (hasFlag(FlagMoveUp) && this->collider.velocity.y <= 0 && (collider.isOnHardSurface())) {
             if (!collider.isUnderHardSurface()) {
@@ -281,6 +172,10 @@ namespace Duel6 {
                 collider.acceleration.y += JUMP_ACCELERATION;
             } else {
                 collider.velocity.y = JUMP_ACCELERATION;
+            }
+
+            if (!isCompensating) {
+                doubleJumpEffect();
             }
             unsetFlag(FlagDoubleJump);
             unsetFlag(FlagDoubleJumpReset);
@@ -566,6 +461,8 @@ namespace Duel6 {
         } else {
             unsetFlag(FlagDying);
         }
+        bool doubleJumpReset = hasFlag(FlagDoubleJumpReset);
+        bool doubleJump = hasFlag(FlagDoubleJumpReset);
         // optimisation only, no need to re-run whole thing if we don't have updated position from the server
         if(compensatedUntilTick == lastConfirmedTick){
             compensationResults[tick & 127] = collider;
@@ -589,6 +486,13 @@ namespace Duel6 {
             if(isAlive()) { // if we are not dead yet, restore flags
                 flags = backupFlags;
             }
+            if (!doubleJumpReset) {
+                // to avoid playing sound effect twice
+                unsetFlag(FlagDoubleJumpReset);
+            }
+            if (!doubleJump) {
+                unsetFlag(FlagDoubleJump);
+            }
             compensationResults[(tick)& 127] = collider;
             return;
         }
@@ -605,6 +509,9 @@ namespace Duel6 {
             // we should store the collider in this loop, if we want to be dead-serious precise and
             // use it as `previousResult` above
             // compensationResults[tick & 127] = collider;
+        }
+        if(!doubleJumpReset){
+            unsetFlag(FlagDoubleJumpReset);
         }
         compensatedUntilTick = lastConfirmedTick;
         compensationResults[tick & 127] = collider;
@@ -1084,6 +991,30 @@ namespace Duel6 {
 
     void Player::playSound(PlayerSounds::Type type) const {
         game->playSample(*this, type);
+    }
+
+    void Player::playSample(PlayerSounds::Type type) const {
+        float panning = collider.position.x / world->getLevel().getWidth() * 2.0f - 1.0f;
+        sounds->getRandomSample(type).play(panning);
+    }
+
+    void Player::doubleJumpEffect() {
+        Vector pos = getCentre() - Vector(0.5f, 1.0f);
+        game->doubleJumpEffect(*this, pos.x, pos.y, collider.velocity.unit().angleRad() - 1.57f);
+    }
+
+    void Player::onDoubleJumpEffect(Float32 x, Float32 y, Float32 angle) {
+        playSample(PlayerSounds::Type::DoubleJump);
+        auto sprite = world->getSpriteList().add(skin.getAuxAnimations().getDoubleJump().get(), skin.getDoubleJumpTexture());
+        sprite->setPosition(Vector(x, y), 0.4f)
+            .setSpeed(1.0f)
+            .setZRotation(angle, { 0.5f, 0.5f })
+            .setLooping(AnimationLooping::OnceAndRemove)
+            .setOrientation(orientation)
+            .setAlpha(1.0f)
+            .setBlendFunc(BlendFunc::SrcAlpha)
+            .setNoDepth(false);
+        lastDJumpTick = compensatedUntilTick;
     }
 
     Int32 Player::getId() const

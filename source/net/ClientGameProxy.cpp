@@ -385,6 +385,7 @@ namespace Duel6 {
                 player.setAmmo(p.ammo);
                 player.setWeapon(p.weaponId);
                 player.setOrientation(p.orientationLeft ? Orientation::Left : Orientation::Right);
+                player.confirmedOrientation = player.getOrientation();
                 player.setControllerState(p.controls);
                 player.updateBonus(Duel6::BonusType::getById(static_cast<unsigned int>(p.bonusType)), p.bonusDuration, p.bonusRemainingTime);
                 player.setBodyAlpha(p.bodyAlpha);
@@ -432,9 +433,6 @@ namespace Duel6 {
         }
 
         void ClientGameProxy::handle(NextRound &nr) {
-            for (auto &s : peer->snapshot) {
-                s.clear(); // clear all the snapshots when going to next round
-            }
             game->onNextRound();
         }
 
@@ -550,7 +548,16 @@ namespace Duel6 {
             return r;
         }
 
-        void ClientGameProxy::handle(RaiseWaterLevel &rwl){
+        void ClientGameProxy::handle(DoubleJumpEffects &dje) {
+            if (idmap.count(dje.playerId) == 0) {
+                return;
+            }
+            auto pos = idmap[dje.playerId];
+            auto &player = game->players[pos];
+            game->onDoubleJumpEffect(player, dje.x, dje.y, dje.angle);
+        }
+
+        void ClientGameProxy::handle(RaiseWaterLevel &rwl) {
             game->raiseWater();
         }
 
@@ -586,6 +593,9 @@ namespace Duel6 {
                 w.raisingWater,
                 elevators
                 ));
+            for (auto &player : game->players) { // fix players orientation
+               player.setOrientation(player.confirmedOrientation);
+            }
         }
 
         void ClientGameProxy::handle(SpawnBonus &sb) {

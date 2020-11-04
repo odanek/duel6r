@@ -311,6 +311,7 @@ namespace Duel6 {
                 peer->sendReliable(pd);
             }
         }
+
         void ServerGameProxy::spawnBonus(Duel6::Bonus &bonus) {
             SpawnBonus sb;
             Bonus &b = sb.bonus;
@@ -324,7 +325,8 @@ namespace Duel6 {
                 peer->sendReliable(sb, Channel::BONUSES);
             }
         }
-        void ServerGameProxy::spawnWeapon(LyingWeapon &weapon){
+
+        void ServerGameProxy::spawnWeapon(LyingWeapon &weapon) {
             SpawnWeapon sw;
             Weapon &w = sw.weapon;
             loadNetWeapon(w, weapon);
@@ -332,7 +334,8 @@ namespace Duel6 {
                 peer->sendReliable(sw, Channel::WEAPONS);
             }
         }
-        void ServerGameProxy::pickWeapon(Duel6::Player &player, unsigned int weaponId){
+
+        void ServerGameProxy::pickWeapon(Duel6::Player &player, unsigned int weaponId) {
             PickWeapon pw;
             pw.playerId = player.getId();
             pw.weaponId = weaponId;
@@ -340,7 +343,8 @@ namespace Duel6 {
                 peer->sendReliable(pw, Channel::WEAPONS);
             }
         }
-        void ServerGameProxy::pickBonus(Duel6::Player &player, unsigned int bonusId){
+
+        void ServerGameProxy::pickBonus(Duel6::Player &player, unsigned int bonusId) {
             PickBonus pb;
             pb.playerId = player.getId();
             pb.bonusId = bonusId;
@@ -371,22 +375,24 @@ namespace Duel6 {
             }
         }
 
-        void ServerGameProxy::raiseWater(){
+        void ServerGameProxy::raiseWater() {
             RaiseWaterLevel rwl;
             for (auto &peer : peers) {
                 peer->sendReliable(rwl);
             }
         }
-        void ServerGameProxy::eraseShot(Uint16 id){
+
+        void ServerGameProxy::eraseShot(Uint16 id) {
             EraseShot es;
             es.id = id;
             for (auto &peer : peers) {
                 peer->sendReliable(es, Channel::SHOTS);
             }
         }
-        void ServerGameProxy::spawnExplosion(Explosion &explosion){
+
+        void ServerGameProxy::spawnExplosion(Explosion &explosion) {
             SpawnExplosion se;
-            se.centre = {explosion.centre.x, explosion.centre.y};
+            se.centre = { explosion.centre.x, explosion.centre.y };
             se.max = explosion.max;
             se.now = explosion.now;
             se.color.red = explosion.color.getRed();
@@ -398,7 +404,7 @@ namespace Duel6 {
             }
         }
 
-        void ServerGameProxy::broadcastMessage(Int32 playerId, const std::string & msg){
+        void ServerGameProxy::broadcastMessage(Int32 playerId, const std::string &msg) {
             MessageBroadcast message;
             message.playerId = playerId;
             message.text = msg;
@@ -425,6 +431,7 @@ namespace Duel6 {
                 peer->sendReliable(c, Channel::BROADCAST_MESSAGES);
             }
         }
+
         void ServerGameProxy::console(bool value) {
             net::Console c;
             c.value = value;
@@ -432,6 +439,7 @@ namespace Duel6 {
                 peer->sendReliable(c, Channel::BROADCAST_MESSAGES);
             }
         }
+
         void ServerGameProxy::focus(bool value) {
             Focus f;
             f.value = value;
@@ -439,7 +447,19 @@ namespace Duel6 {
                 peer->sendReliable(f, Channel::BROADCAST_MESSAGES);
             }
         }
-        void ServerGameProxy::playSample(Int32 playerId, PlayerSounds::Type type){
+
+        void ServerGameProxy::doubleJumpEffect(Int32 playerId, Float32 x, Float32 y, Float32 angle) {
+            DoubleJumpEffects dje;
+            dje.x = x;
+            dje.y = y;
+            dje.angle = angle;
+            dje.playerId = playerId;
+            for (auto &peer : peers) {
+                peer->sendReliable(dje, Channel::PLAYERS);
+            }
+        }
+
+        void ServerGameProxy::playSample(Int32 playerId, PlayerSounds::Type type) {
             PlaySample ps;
             ps.playerId = playerId;
             ps.sample = static_cast<SampleType>(static_cast<type_t>(type));
@@ -448,7 +468,7 @@ namespace Duel6 {
             }
         }
 
-        void loadNetWeapon(Weapon &w, const LyingWeapon &weapon){
+        void loadNetWeapon(Weapon &w, const LyingWeapon &weapon) {
             Collider &c = w.collider;
             const auto & collider = weapon.getCollider();
             w.type = static_cast<WeaponType>(weapon.getWeapon().getId());

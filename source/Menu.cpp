@@ -416,7 +416,7 @@ namespace Duel6 {
         for (auto &gameMode : gameModes) {
             gameModeSwitch->addItem(gameMode->getName());
         }
-        gameModeSwitch->setPosition(10, 90, 330, 20);
+        gameModeSwitch->setPosition(10, 90, 430, 20);
         gameModeSwitch->onToggled([this](Int32 selectedIndex) {
             Int32 teamCount = 1 + selectedIndex / 2;
             for(size_t i = 0; i < playerListBox->size(); i++){
